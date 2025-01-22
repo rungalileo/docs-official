@@ -1,0 +1,150 @@
+Galileo's Automatic Prompt Optimizer allows users to receive an optimized prompt over their specific data, allowing for the removal of the entire prompt engineering process.
+
+![](/images/prompt-optimization-overview.png)
+
+This page will serve as a tutorial for how to deploy and use our prompt optimizer class available in promptquality. We'll also walk you through what happens behind the scenes of the Prompt Optimizer.
+
+### Tutorial
+
+Before starting, you'll need 4 things:
+
+1. A starting prompt template. This is the prompt you're trying to improve.
+2. A definition of what a good response is.
+3. A definition of the task that your prompt template is trying to accomplish.
+4. A set of examples to run through your optimized prompts to validate and measure what the best variant is.
+
+Here's how you would run the prompt optimizer from a Python notebook:
+
+```py
+from promptquality.prompt_optimization import optimize_prompt
+from promptquality.types.prompt_optimization import PromptOptimizationConfiguration
+from promptquality.constants.models import Models
+from pathlib import Path
+
+# Your starting prompt. This is the prompt template you want to optimize.
+initial_prompt = (
+    "Given the context: {context}. \n\
+    Answer the question: {question}?"
+)
+
+# Your evaluation criteria. How do you measure whether a model response is good or bad?
+# The more verbose and precise your evaluation criteria the greater the improvements.
+evaluation_criteria = (
+    "Does the llm output match the expected answer? \
+    If the model says it does not have enough context to answer the question \
+    give it a 0. Otherwise judge whether a human would grade the output \
+    as matching the expected answer. Adding context around the answer is fine \
+    as long as the answer is correct according to the expected answer. \
+    If it does match give it a 1. If it does not give it a 0."
+)
+
+# A description of what the template is supposed to do. Again, more detail is better here.
+task_description = (
+    "The task is answering questions given context."
+)
+
+po_config = PromptOptimizationConfiguration(
+    prompt=initial_prompt,
+    includes_target=True,
+    evaluation_criteria=evaluation_criteria,
+    task_description=task_description,
+    iterations=3, # Number of times to repeat this process.
+    num_rows=30, # Number of rows to use from your dataset.
+    max_tokens=1024,
+    temperature=0.5,
+    generation_model_alias=Models.chat_gpt,
+    evaluation_model_alias=Models.chat_gpt,
+)
+
+# This dataset should include all variables your template is using.
+# We recommend including 20-50 rows of examples in your dataset.
+train_path = Path("hotpotqa_train.csv")
+
+# Trigger the job.
+output = optimize_prompt(
+    prompt_optimization_config=po_config,
+    dataset=train_path,
+    project_name="prompt_optimization_demo",
+    run_name="prompt_optimization",
+)
+
+
+from promptquality.prompt_optimization import fetch_prompt_optimization_result
+# Wait anywhere from 20 minutes to 1 hour
+# Querying this will show the epoch currently running
+fetch_prompt_optimization_result(
+    output
+)
+```
+
+### The Process behind the scenes
+
+The below code demonstrates the process for optimizing a prompt used in a Retrieval-Augmented Generation (RAG) application. Here is a brief overview of each step and component involved:
+
+1.  **Initial Prompt:** This is the starting point that includes placeholders (slots) for inputs.
+
+    1.  Ex. for RAG applications, the prompt can be "For the given context: {context}. Answer the question: {question}"
+
+2.  **Dataset:** This dataset MUST contain columns corresponding to the prompt's slots and optionally an expected answer column labeled 'target.' If you want to use the expected answer refer to it in your evaluation criteria as an "expected answer" for best results. Also make sure you set the flag to True in the configuration object.
+
+    1.  Ex. for our RAG example the dataset must have columns: "context", "question", "target."
+
+3.  **Evaluation Criteria:** These criteria define how to evaluate the model's output. We provide extensive examples below for a number of use cases with and without expected answers. Note: expected answers will likely improve results.
+
+    1.  Ex. For our RAG example: "Does the output semantically align with the expected answer. While we do not need a perfect syntactical match the LLM response should convey the expected answer. If it does give it a 1, if it does not give it a 0."
+
+4.  **Task Description:** A concise description of the task that helps tailor the prompt to the specific application.
+
+    1.  Ex. "The task is to answer user provided questions given context that should have the answer."
+
+5.  **Configuration and Execution:** The Python code sets up the `PromptOptimizationConfiguration` with the prompt, criteria, task description, and other parameters (like iterations and model aliases). The `optimize_prompt` function uses this configuration, along with the dataset, to perform the optimization.
+
+6.  **Fetching Results:** After optimization, the `fetch_prompt_optimization_result` function retrieves the optimized prompts and their ratings. If it has not finished computing it will show you what epoch it is on.
+
+By following these steps, you can refine your prompts to improve the performance of your AI model in specific applications.
+
+### Cost Calculation
+
+Note for a dataset of 40 rows we make the following number of calls to OpenAI's API:
+
+- 40 for generation
+
+- 40 for evaluation
+
+- 5 for gradient calculation
+
+- 1 for gradient summarization
+
+- 3 for editing the prompt
+
+- 30 for picking a new prompt
+
+Note there is a fixed cost of 39 calls per iteration, ONLY the calls for generation and evaluation will change as dataset size changes. Therefore one can reasonably calculate their cost for a specific number of iterations. In general for all datasets we have tested for 10 iterations cost has stayed below $2 for GPT 3.5.
+
+We recommend a dataset size of at least 30, and also recommend providing a validation dataset as it allows us to check that your prompt has improved once training has completed.
+
+### Assumptions
+
+- You have an openai api key stored in your production galileo environment that we will use to query models.
+
+- You have access to GPT-4o. We only utilize this for editing the prompt so it should only consume 20-30 calls.
+
+### Example Evaluation Criteria Templates
+
+Evaluation criteria is the most critical part of the prompt optimization process. Succinctly being able to describe what is a good answer will allow for higher quality optimized prompts
+
+#### Applications with target answers
+
+Note: the prompt fed to the evaluation LLM refers to the target column as "expected answer." For best results use the same verbiage in your criteria.
+
+- _RAG_: "Does the llm output match the expected answer? If the model says it does not have enough context to answer the question give it a 0. Otherwise judge whether a human would grade the output as matching the expected answer. Adding context around the answer is fine as long as the answer is correct according to the expected answer. If it does match give it a 1. If it does not give it a 0."
+
+- _Math:_ "Does the output align with the expected answer? The questions are math questions. Check if the answer matches the expected answer. Give it a 1 if a math teacher would consider the answer correct. Give it a 0 if the answer is incorrect. Do not worry about intermediate calculations, only the final answer."
+
+- _General Reasoning:_ "Does the output align with the expected answer? Check if the logic presented makes sense and the final answer could reasonably be judged as matching the expected answer. Give it a 1 if a well-educated adult would consider the answer correct. Give it a 0 if the answer is incorrect."
+
+#### Application without target answers
+
+- RAG: "Does the LLM answer the question completely based only on the information given. Be harsh and make sure the system adheres and only uses the information given in the context. If it completely adheres to the context give it a 1 otherwise give it a 0. It is ok to acknowledge the context does not have the answer but make absolutely sure that the answer to the question is nowhere in the context before giving a 1. Be very harsh."
+
+- Chat bot assistant: "Act as an impartial judge and evaluate the quality of the response provided by an AI assistant to the user question displayed below. Your evaluation should consider how helpful, thoughtful, informative and thorough an answer is. Only give perfect answers a 1. Give everything else a 0."

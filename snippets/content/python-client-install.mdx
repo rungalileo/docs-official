@@ -1,0 +1,41 @@
+    1.  Open a Python notebook or any python environment where you want to install Galileo
+
+    2.  Install the python client via **pip install** `promptquality`
+
+    3.  Next, run the following code to create your first run. Replace YOUR_GALILEO_URL with your Galileo console page URL (looks something like "console.galileo.yourcompany.com").
+
+
+    ```python
+    import promptquality as pq
+
+    MY_GALILEO_URL = # e.g. "console.galileo.yourcompany.com"
+    pq.login(MY_GALILEO_URL)
+
+    template = "Explain {topic} to me like I'm a 5 year old"
+
+    data = {"topic": ["Quantum Physics", "Politics", "Large Language Models"]}
+
+    pq.run(project_name='my_first_project',
+          template=template,
+          dataset=data,
+          settings=pq.Settings(model_alias='ChatGPT (16K context)',
+                                temperature=0.8,
+                                max_tokens=400))
+    ```
+
+    ### **Authentication**
+
+    By default, `pq.login()` will take the user to the Galileo console to copy and paste a short term token.
+
+    Alternatively, it is possible to programmatically authenticate a user by setting the `GALILEO_API_KEY` environment variable.
+
+    ```python
+    import os
+
+    os.environ['GALILEO_API_KEY']="Your Galileo API key"
+
+    MY_GALILEO_URL = # e.g. "console.galileo.yourcompany.com"
+    pq.login(MY_GALILEO_URL)
+
+    template = ...
+    ```

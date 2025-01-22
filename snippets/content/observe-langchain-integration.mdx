@@ -1,0 +1,43 @@
+We support integrating into both Python-based and Typescript-based Langchain systems:
+
+<Tabs>
+  <Tab title="Python">
+    Integrating into your Python-based Langchain application is the easiest and recommended route. You can just add `GalileoObserveCallback(project_name="YOUR_PROJECT_NAME")` to the `callbacks` of your chain invocation.
+
+    ```py
+    from galileo_observe import GalileoObserveCallback
+    from langchain.chat_models import ChatOpenAI
+
+    prompt = ChatPromptTemplate.from_template("tell me a joke about {foo}")
+    model = ChatOpenAI()
+    chain = prompt | model
+
+    monitor_handler = GalileoObserveCallback(project_name="YOUR_PROJECT_NAME")
+    chain.invoke({'foo':'bears'},
+                config(dict(callbacks=[monitor_handler])))
+    ```
+
+The GalileoObserveCallback logs your input, output, and relevant statistics back to Galileo, where additional evaluation metrics are computed.
+
+  </Tab>
+  <Tab title="Typescript">
+    Integrating into your Typescript-based Langchain application is a very simple process. You can just add a`GalileoObserveCallback` object to the `callbacks` of your chain invocation.
+
+    ```ts
+    import { GalileoObserveCallback } from "@rungalileo/galileo";
+    const observe_callback = new GalileoObserveCallback("observe_example", "app_v1")
+    await observe_callback.init();
+    ```
+
+    Add the callback `{callbacks: [observe_callback]}` in the invoke step of your application:
+
+    ```ts
+    const result = await chain.invoke(
+        { question: "What is the powerhouse of the cell?"},
+        {callbacks: [observe_callback]});
+    ```
+
+    The GalileoObserveCallback callback logs your input, output, and relevant statistics back to Galileo, where additional evaluation metrics are computed.
+
+  </Tab>
+</Tabs>

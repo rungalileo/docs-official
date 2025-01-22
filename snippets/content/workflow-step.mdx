@@ -1,0 +1,55 @@
+### WorkflowStep
+
+A workflow step is the atomic unit of logging to Galileo. They represent a single execution of a workflow, such as a chain, agent, or a RAG execution. Workflows can have multiple steps, each of which can be a different type of node, such as an LLM, Retriever, or Tool.
+
+You can log multiple workflows in a single request. Each workflow step must have the following fields:
+
+- `type`: The type of the workflow.
+- `input`: The input to the workflow.
+- `output`: The output of the workflow.
+
+## Examples
+
+### LLM Step
+
+```json
+{
+  "type": "llm",
+  "input": "What is the capital of France?",
+  "output": "Paris"
+}
+```
+
+### Retriever Step
+
+```json
+{
+  "type": "retriever",
+  "input": "What is the capital of France?",
+  "output": [{ "content": "Paris is the capital and largest city of France." }]
+}
+```
+
+### Multi-Step
+
+Workflow steps of type `workflow`, `agent` or `chain` can have sub-steps with children. A workflow with a retriver and an LLM step would look like this:
+
+```json
+{
+  "type": "workflow",
+  "input": "What is the capital of France?",
+  "output": "Paris",
+  "steps": [
+    {
+      "type": "retriever",
+      "input": "What is the capital of France?",
+      "output": [{ "content": "Paris is the capital and largest city of France." }]
+    },
+    {
+      "type": "llm",
+      "input": "What is the capital of France?",
+      "output": "Paris"
+    }
+  ]
+}
+```
