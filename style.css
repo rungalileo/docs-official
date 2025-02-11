@@ -1,14 +1,275 @@
-/* Adjust space between sidebar sections */
-.sidebar > .section {
-    margin-bottom: 0px; /* Adjust spacing as needed */
+/* Color system */
+:root {
+    --gray-10: #F9FAFB;
+    --gray-20: #F3F4F6;
+    --gray-30: #E5E7EB;
+    --gray-40: #D1D5DB;
+    --gray-50: #9CA3AF;
+    --gray-60: #6B7280;
+    --gray-70: #4B5563;
+    --gray-80: #374151;
+    --gray-90: #1F2937;
+    
+    /* Theme colors */
+    --background: var(--gray-20);
+    --text-primary: var(--gray-90);
+    --text-secondary: var(--gray-60);
+    --text-tertiary: var(--gray-50);
+    --border: var(--gray-30);
+    --hover: var(--gray-30);
 }
 
-/* Adjust space between pages within a section */
-.sidebar .page {
-    margin-bottom: 0px; /* Adjust spacing as needed */
+[data-theme='dark'] {
+    --background: var(--gray-80);
+    --text-primary: var(--gray-200);
+    --text-secondary: var(--gray-30);
+    --text-tertiary: var(--gray-40);
+    --border: var(--gray-70);
+    --hover: var(--gray-70);
 }
 
-/* Adjust padding inside each page link */
-.sidebar .page a {
-    padding: 0px 0px; /* Adjust top/bottom and left/right padding */
+/* Base styles */
+body {
+    background-color: var(--background) !important;
+    font-family: Onest, -apple-system, BlinkMacSystemFont, sans-serif !important;
+    color: var(--text-primary) !important;
+}
+
+/* Navigation focus states */
+.group:focus-visible,
+.group:focus-within,
+.group[data-focused="true"] {
+    background-color: rgb(75 85 99 / 0.10) !important; /* matches hover:bg-gray-600/5 */
+    outline: none !important;
+}
+
+[data-theme='dark'] .group:focus-visible,
+[data-theme='dark'] .group:focus-within,
+[data-theme='dark'] .group[data-focused="true"] {
+    background-color: rgb(229 231 235 / 0.10) !important; /* matches dark:hover:bg-gray-200/5 */
+    outline: none !important;
+}
+
+/* Navigation */
+.sidebar {
+    padding: 12px 0 !important;
+    background-color: var(--background) !important;
+}
+
+.sidebar-title {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    padding: 6px 16px !important;
+    margin-top: 8px !important;
+}
+
+.sidebar-item {
+    color: var(--text-secondary) !important;
+    font-size: 14px !important;
+    padding: 4px 16px !important;
+    margin: 1px 0 !important;
+    transition: all 0.2s ease !important;
+}
+
+.sidebar-item:hover,
+.sidebar-item.active {
+    background-color: var(--gray-50) !important;
+}
+
+[data-theme='dark'] .sidebar-item:hover,
+[data-theme='dark'] .sidebar-item.active {
+    background-color: var(--gray-70) !important;
+    color: var(--gray-10) !important;
+}
+
+/* Eyebrow text override */
+.eyebrow {
+    opacity: 1 !important;
+    font-weight: 600 !important;
+    color: var(--gray-50);
+    margin: 0 !important;
+}
+
+/* List spacing override */
+div[class*="ml-3"].mt-10 {
+    margin-top: 0 !important;
+}
+
+/* Navigation spacing override */
+.mt-12.lg\:mt-8 {
+    margin-top: 1.5rem !important;
+}
+
+@media (min-width: 1024px) {
+    .mt-12.lg\:mt-8 {
+        margin-top: 1rem !important;
+    }
+}
+
+/* Remove spacing between eyebrow and title */
+.space-y-2\.5 {
+    margin: 0 !important;
+}
+.space-y-2\.5 > * + * {
+    margin-top: 0 !important;
+}
+
+/* Headers */
+h1.flex.whitespace-pre-wrap.group.text-2xl.sm\:text-3xl.mt-8 {
+    font-family: 'Onest' !important;
+    font-style: normal !important;
+    font-weight: 500 !important;
+    font-size: 24px !important;
+    line-height: 20px !important;
+    margin: 0 0 12px 0 !important;
+}
+
+h2.flex.whitespace-pre-wrap.group {
+    font-family: 'Onest' !important;
+    font-style: normal !important;
+    font-weight: 500 !important;
+    font-size: 20px !important;
+    line-height: 16px !important;
+    margin: 0 0 12px 0 !important;
+}
+
+h3.flex.whitespace-pre-wrap.group {
+    font-family: 'Onest' !important;
+    font-style: normal !important;
+    font-weight: 500 !important;
+    font-size: 16px !important;
+    line-height: 12px !important;
+    margin: 0 0 12px 0 !important;
+}
+
+h1.nx-mt-2.nx-text-4xl {
+    font-family: 'Onest' !important;
+    font-style: normal !important;
+    font-weight: 500 !important;
+    font-size: 24px !important;
+    line-height: 20px !important;
+    margin: 0 0 12px 0 !important;
+    display: none !important;
+}
+
+.inline-block {
+    font-family: 'Onest' !important;
+    font-style: normal !important;
+    font-weight: 500 !important;
+    font-size: 24px !important;
+    line-height: 20px !important;
+    margin: 0 0 12px 0 !important;
+    display: none !important;
+}
+
+/* Content */
+.content-container {
+    max-width: 768px !important;
+    padding: 24px !important;
+}
+
+/* Mintlify Steps Component Override */
+.steps-container {
+    margin-top: 32px !important;
+    margin-bottom: 32px !important;
+}
+
+.steps-container .step {
+    margin-bottom: 24px !important;
+    border: none !important;
+    background: none !important;
+    padding: 0 !important;
+    position: relative !important;
+}
+
+.steps-container .step-circle {
+    display: none !important;
+}
+
+.steps-container .step-container {
+    margin-left: 24px !important;
+}
+
+.steps-container .step::before {
+    content: counter(step-counter) !important;
+    position: absolute !important;
+    left: 0 !important;
+    color: var(--text-secondary) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+
+.steps-container .step p {
+    color: var(--text-secondary) !important;
+    font-size: 14px !important;
+    line-height: 24px !important;
+    margin: 0 !important;
+}
+
+/* Right sidebar */
+#table-of-contents {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Hide "On this page" text and icon */
+#table-of-contents-content > div:first-child {
+    display: none !important;
+}
+
+/* Style all headings in table of contents */
+#table-of-contents-content ul {
+    margin: 0 !important;
+    padding: 0 !important;
+    border-left: 2px solid var(--border) !important;
+}
+
+#table-of-contents-content ul > li > a {
+    font-family: 'Onest' !important;
+    font-size: 14px !important;
+    line-height: 20px !important;
+    padding: 4px 16px !important;
+    color: var(--text-secondary) !important;
+    border-left: 2px solid transparent !important;
+    margin-left: -2px !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    display: block !important;
+}
+
+
+
+/* Dark mode adjustments */
+[data-theme='dark'] #table-of-contents-content ul {
+    border-left-color: var(--border) !important;
+    color: var(--gray-200) !important;
+}
+
+/* General text */
+p {
+    color: var(--text-secondary) !important;
+    font-size: 14px !important;
+    line-height: 24px !important;
+    margin-bottom: 16px !important;
+}
+
+/* Links */
+a {
+    color: var(--text-secondary) !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease !important;
+}
+
+a:hover {
+    color: var(--text-primary) !important;
+}
+
+/* Hide Mintlify attribution */
+a[href*="mintlify.com/preview-request"] {
+    display: none !important;
+}
+
+a.class.py-1.block.font-medium.ml-px.font-medium {
+    color: var(--gray-200);
 }
