@@ -1,0 +1,55 @@
+---
+title: Handling Ignored Instructions
+---
+
+## What's the Issue?
+
+When a model ignores instructions, it generates responses that deviate from the provided prompt structure, missing key details or adding extraneous information. This can lead to misleading, unhelpful, or non-compliant outputs.
+
+### What Went Wrong?
+- Used a vague or open-ended prompt without clear instructions
+- Did not provide examples to reinforce expected behavior
+- Allowed too much randomness in response generation
+
+### How It Showed Up in Metrics:
+- **Low Instruction Adherence**: The model did not follow the intended format
+- **High Uncertainty**: The model produced inconsistent responses
+- **High Prompt Perplexity**: The model struggled to determine what to generate next
+
+### Example of the Bad Setup
+
+```
+Prompt: "Tell me about Newton's first law."
+
+Model Response: "Newton's first law is about motion. If an object is moving, it keeps moving unless something stops it. But there's also gravity, and that can change things. Oh, and did you know Newton also studied light?"
+```
+
+## Improvements and Solutions
+<Steps>
+<Step title="Refine Your Prompt Design">
+
+- **Use explicit and structured instructions**. Example:
+
+  ```
+  Instruction: Answer in a single sentence.
+  
+  Example:
+  Q: What is Newton's first law?
+  A: An object in motion stays in motion unless acted upon by an external force.
+  ```
+
+- **Avoid ambiguity** in your prompt
+- **Provide few-shot examples** to demonstrate the expected format
+- **Use system messages** to set clear behavioral expectations
+</Step>
+<Step title="Adjust Model Parameters">
+
+- Lower **temperature** to reduce variability
+- Use **stop tokens** to prevent overgeneration
+</Step>
+<Step title="Validate Responses Automatically">
+
+- Monitor **Instruction Adherence** and flag responses below a threshold
+- Iterate on prompts based on flagged responses
+</Step>
+</Steps>

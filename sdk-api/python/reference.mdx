@@ -1,0 +1,401 @@
+---
+title: Python SDK Reference
+icon: "python"
+---
+
+## Introduction
+
+This document will cover the design and developer experience of the Python client library for Galileo 2.0.
+
+## Initialization/Authentication
+
+```env
+# Scoped to an Organization
+GALILEO_API_KEY=...
+
+# Optional, if you're not using the multi-tenant cluster
+# GALILEO_CONSOLE_URL=https://console.experimental-aws.rungalileo.io/
+
+# Optional, set a default Project
+GALILEO_PROJECT=...
+# Optional, set a default Log Stream
+GALILEO_LOG_STREAM=...
+```
+
+## Logging
+
+The simplest way to get started is to use our OpenAI client wrapper. This example will automatically produce a single-span trace in the Logstream UI:
+
+```python
+from galileo.openai import openai
+
+
+def llm_call(input):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          {"role": "system", "content": "You are a great storyteller."},
+          {"role": "user", "content": f"Write a story about {input}"}
+        ],
+    ).choices[0].message.content
+
+response = llm_call("a sailor")
+print(response)
+```
+
+By default, any traces that are created during a request are automatically flushed (i.e. uploaded to Galileo) when the request terminates. To flush traces prior to that, you can use the context manager or the GalileoLogger (outlined in a section below).
+
+The `@log` decorator is used to capture the inputs and outputs of a function as a span. By default, a workflow span is created when span_type isn't specified. Here are the different span types:
+
+- **Workflow**: A span that can have child spans, useful for nesting several child spans to denote a thread within a trace. If you add the `@log` decorator to a parent method, and calls that are made within that scope are automatically logged in the same trace.
+- **Llm**: Captures the input, output, and settings of an LLM call. This span gets automatically created when our client library wrappers (OpenAI and Anthropic) are used. Cannot have nested children.
+- **Retriever**: Contains the output documents of a retrieval operation.
+- **Tool**: Captures the input and output of a tool call. Used to decorate functions that are invoked as tools.
+
+This example will create a trace with a workflow span and two nested llm spans:
+
+```python
+@log
+def my_wrapper_function(input):
+	first_result = llm_call(input)
+	second_result = another_llm_call(first_result)
+	return second_result
+
+response = my_wrapper_function("write an essay about the Roman Empire")
+print(response)
+```
+
+This example shows how to mark a tool function:
+
+```python
+@log(span_type="tool")
+def tool_function(arg1: str, arg2: str):
+	...
+	return result
+```
+
+Logging a retriever. If the output of the function is an array, it will automatically capture it as documents in the span.
+
+```python
+@log(span_type="retriever")
+def retriever_function(input: str):
+	...
+	return documents
+```
+
+## The context manager: galileo_context()
+
+The context manager can be useful for a few things:
+- Automatically starting a trace and ensuring anything that happens in its scope is logged as a span within the trace.
+- For long running app runtimes like Streamlit, the request never terminates. You can use the context manager to start a trace and ensure that traces are flushed when the manager exits.
+- You might want to route a part of your app to a different Project or Log Stream. You can use the context manager to set the trace scope.
+
+Using the context manager to create a trace with a nested LLM span (which is automatically flushed when the manager exits):
+
+```python
+from galileo.openai import openai
+from galileo import galileo_context
+
+def llm_call(input):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          {"role": "system", "content": "You are a great storyteller."},
+          {"role": "user", "content": f"Write a story about {input}"}
+        ],
+    ).choices[0].message.content
+
+with galileo_context():
+	print(llm_call("birds"))
+```
+
+Using the context manager to route traces to a specific project and log stream:
+
+```python
+from galileo.openai import openai
+from galileo import log, galileo_context
+
+def llm_call(input):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          {"role": "system", "content": "You are a great storyteller."},
+          {"role": "user", "content": f"Write a story about {input}"}
+        ],
+    ).choices[0].message.content
+
+with galileo_context(project="my-project", log_stream="my-log-stream"):
+	print(llm_call("birds"))
+```
+
+## Langchain integration (via their callbacks API):
+
+```python
+from galileo.handlers.langchain import GalileoCallback
+from langchain.chat_models import ChatOpenAI
+ 
+callback = GalileoCallback()
+ 
+llm = ChatOpenAI(model="gpt-4o", callbacks=[callback])
+```
+
+```python
+from galileo.handlers.langchain import GalileoCallback
+from langchain.chains import LLMMathChain
+from langchain.chat_models import ChatOpenAI  
+
+handler = GalileoCallback()
+
+llm = ChatOpenAI(model="gpt-4o", callbacks=[handler])
+llm_math = LLMMathChain.from_llm(llm, callbacks=[handler])
+result = llm_math.invoke(
+        "What's 2 + 2?",
+        {
+            "callbacks": [handler],
+            "metadata": {
+                "galileo_session": "my-session",
+                "galileo_user_id": "user-id",
+            },
+        },
+    )
+```
+
+## Pure invocation using the GalileoLogger (last resort, should be used infrequently):
+
+```python
+from galileo import GalileoLogger
+
+input = "Why is the sky blue?"
+config = {
+	model,
+	temperature
+}
+logger = GalileoLogger()
+trace = logger.start_trace(
+	input
+	tags=[]
+)
+
+output = llm_call(input, config)
+logger.add_llm_span(
+	input,
+	output,
+	config,
+	type="llm"
+)
+
+logger.conclude(output)
+logger.flush()
+```
+
+TODO: Research and add OTEL support
+
+## Prompts
+
+Create and use a prompt template:
+
+```python
+from galileo.prompts import create_prompt_template, SystemMessage, UserMessage
+from galileo.openai import openai
+from galileo import log
+
+def llm_call(messages, model):
+	return openai.chat.completions.create(
+        model,
+        messages,
+    ).choices[0].message.content
+
+data = {
+	"topic": "Nuclear Physics"
+}
+
+prompt_messages = [
+	SystemMessage("You are a great storyteller."),
+UserMessage("Please write a short story about the following topic: {topic}"),
+]
+prompt_template = create_prompt_template(
+	messages=prompt_messages
+name="storyteller-prompt",
+model="gpt-4o",
+project="my-project"
+)
+
+output = llm_call(
+messages=prompt_template.with_data(data).to_messages(), model=prompt_template.get_model()
+)
+```
+
+## Datasets
+
+Create a dataset and add data to it:
+
+```python
+from galileo.datasets import create_dataset
+
+test_data = [
+        {
+            "input": "Which continent is Spain in?",
+            "expected": "Europe",
+        },
+	 {
+            "input": "Which continent is Japan in?",
+            "expected": "Asia",
+        },
+    ]
+dataset = create_dataset(
+name="countries", 
+data=test_data,
+project="my-project",
+)
+
+dataset.insert([
+        {
+            "input": "Which continent is Morocco in?",
+            "expected": "Africa",
+        },
+	 {
+            "input": "Which continent is Australia in?",
+            "expected": "Oceania",
+        },
+    ])
+```
+
+List the versions of a dataset and grab a particular version:
+
+```python
+from galileo.datasets import get_dataset
+
+dataset = get_dataset(
+name="countries",
+version=3, # if this param isn't specified, it defaults to the latest
+project="my-project",
+)
+
+print(dataset.modified_at)
+
+versions = dataset.get_version_history()
+
+oldest_version = get_dataset(
+	name="countries",
+	version=versions[-1].version
+	project="my-project"
+)
+```
+
+## Experimentation
+
+Evaluating a runner function against an existing dataset:
+
+```python
+from galileo.experiments import run_experiment
+from galileo.datasets import get_dataset
+#from galileo.metrics import correctness
+from galileo import log, openai
+
+@log
+def llm_call(data):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          {"role": "system", "content": "You are a great storyteller."},
+          {"role": "user", "content": f"Write a story about {data.input}"}
+        ],
+    ).choices[0].message.content
+
+dataset = get_dataset(name="storyteller-dataset")
+
+results = run_experiment(
+	dataset,
+	function=llm_call,
+	metrics=["correctness"]
+	concurrency=1, # number of rows to execute in parallel,
+	project="my-project",
+	tags=[],
+)
+```
+
+Evaluating a prompt against an existing dataset:
+
+```python
+from galileo.prompts import get_prompt
+from galileo.experiments import run_experiment
+from galileo.datasets import get_dataset
+from galileo.scorers import correctness
+
+prompt = get_prompt(
+	name="storyteller-prompt"
+	version="latest"
+)
+
+results = run_experiment(
+	dataset=get_dataset(name="storyteller-dataset"),
+	prompt,
+	metrics=["correctness"],
+	project="my-project",
+	tags=[],
+)
+```
+
+Evaluating a runner function against a custom dataset:
+
+```python
+from galileo.experiments import run_experiment
+from galileo.scorers import correctness
+from galileo import log, openai
+
+@log
+def llm_call(data):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          {"role": "system", "content": "You are a geography expert"},
+          {"role": "user", "content": f"Which continent does the following country belong to: {data.input}"}
+        ],
+    ).choices[0].message.content
+
+results = run_experiment(
+	dataset=lambda: [
+        {
+            "input": "Spain",
+            "expected": "Europe",
+        },
+    ],
+	function=llm_call,
+	metrics=["correctness"]
+	concurrency=1, # number of rows to execute in parallel,
+	project="my-project",
+	tags=[],
+)
+```
+
+Evaluating a runner function against a dataset using a custom metric:
+
+```python
+from galileo.experiments import run_experiment
+from galileo.datasets import get_dataset
+from galileo import log, openai
+
+@log
+def llm_call(data):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          {"role": "system", "content": "You are a great storyteller."},
+          {"role": "user", "content": f"Write a story about '{data.input}' and make it sound like a human wrote it."}
+        ],
+    ).choices[0].message.content
+
+def check_for_delve(input, output, expected) -> int:
+	return 1 if "delve" not in input else 0
+
+dataset = get_dataset(name="storyteller-dataset")
+
+results = run_experiment(
+	dataset,
+	function=llm_call,
+	metrics=[check_for_delve],
+	concurrency=2,	
+project="my-project",
+	tags=[],
+)
+```

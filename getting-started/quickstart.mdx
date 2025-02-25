@@ -1,0 +1,178 @@
+---
+title: "Getting Started with Galileo"
+icon: "code"
+syncTabs: true
+---
+
+### **What We're Doing**
+
+We're getting hands-on with Galileo, running an AI evaluation, and checking out key metrics.
+
+### **What You'll Learn**
+* Set up and run an AI evaluation with Galileo. 
+* Read and understand metrics. 
+* Spot and fix chatbot response issues with ease.
+
+<Steps>
+<Step title="Install Dependencies">
+
+Install the Galileo package:
+<CodeGroup>
+```bash Python
+pip install galileo
+```
+
+```bash TypeScript
+npm install galileo
+```
+</CodeGroup>
+</Step>
+
+<Step title="Set Up Environment Variables">
+
+Create a `.env` file in the project directory and add the following credentials:
+```text
+GALILEO_API_KEY="https://console.experimental.rungalileo.io"
+GALILEO_PROJECT=
+GALILEO_LOG_STREAM=
+OPENAI_API_KEY=your-api-key-here
+```
+</Step>
+
+<Step title="Create a Project Directory">
+
+Create a project directory and add the following files:
+<CodeGroup>
+```python Python
+/your_project_directory
+│── app.py
+│── .env
+```
+
+```typescript TypeScript
+/your_project_directory
+│── app.ts
+│── .env
+```
+</CodeGroup>
+</Step>
+
+<Step title="Application Code">
+<CodeGroup>
+```python Python
+import os
+from galileo import openai # The Galileo OpenAI client wrapper is all you need!
+from dotenv import load_dotenv
+load_dotenv()
+
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+prompt = f"Explain the following topic succinctly: Newton's First Law"
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "system", "content": prompt}],
+)
+print(response.choices[0].message.content.strip())
+```
+
+```typescript TypeScript
+import { OpenAI } from "openai";
+import { wrapOpenAI } from "galileo/wrappers";
+
+const openai = wrapOpenAI(new OpenAI(apiKey=""));
+const prompt = "Explain the following topic succinctly: Newton's First Law";
+await openai.chat.completions.create({
+ model: "gpt-4o",
+ messages: [{ content: prompt, role: "user" }],
+});
+```
+</CodeGroup>
+</Step>
+
+<Step title="Run the Application">
+
+To run this simple application, simply run the following:
+<CodeGroup>
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+node app.ts
+```
+</CodeGroup>
+</Step>
+
+<Step title="Analyze the results">
+
+Check your terminal for the output or head over to the Galileo console for extra details like cost and latency.
+
+[INSERT SCREENSHOT]
+<Card>
+<ResponseField name="The Model's Response">
+`Newton's First Law, often referred to as the Law of Inertia, states that an object will remain at rest, or in uniform motion in a straight line, unless acted upon by a net external force. This means that if an object is not influenced by any external forces, it will maintain its current state of motion. Essentially, this law emphasizes the concept of inertia, which is the natural tendency of objects to resist changes in their motion. It forms the foundation for classical mechanics, outlining the behavior of objects when forces are not in play.`
+</ResponseField>
+</Card>
+</Step>
+
+
+</Steps>
+<Note>Your application is now connected to Galileo 🎉! You can continue to explore on your own or read more about improving the prompt.</Note>
+
+### **Fixing prompt issues**
+
+If you examine the results we got for our first run, you'll see that the model's response is not exactly what we asked for. We're using **<Tooltip tip="Measures whether a model followed or adhered to the system or prompt instructions when generating a response. Instruction Adherence is a good way to uncover hallucinations where the model is ignoring instructions.">instruction adherence</Tooltip>** to check how well our model follows directions.
+
+#### **What Happened?**
+* We asked for a **succinct** explanation.
+* The model gave a **detailed** answer instead. 😢
+* Our **instruction adherence metric was 0.00%**, meaning we need to tweak our prompt. 
+
+To understand **why** our instruction adherence metric was so low we can look at the **metric explanation**: 
+
+[INSERT SCREENSHOT]
+<Card>
+<ResponseField name="Metric Explanation">
+`The instruction provided was to 'Explain the following topic succinctly: Newton's first law'.   
+The response begins by defining Newton's First Law and provides a clear explanation of the concept of inertia. However, the response is lengthy and provides more detail than the word 'succinctly' implies. While it does effectively cover the essence of the topic, it could be more concise to align better with the instruction.  Thus, while informative, the response does not fully adhere to the request for a succinct explanation.`
+</ResponseField>
+</Card>
+
+This explanation correctly points out that the answer we got wasn't exactly succinct. So, let's modify our prompt to fix this. We'll make sure to explain *what succinctness means for us*:
+<CodeGroup>
+```python Python
+prompt = """
+	1.	Explain Newton's First Law in one sentence of no more than fifteen (15) words.
+	2.	Do not add any additional sentences, examples, parentheses, bullet points, or further clarifications.
+	3.	Your answer must be exactly one sentence and must not exceed 15 words.
+"""
+```
+
+```typescript TypeScript
+const prompt = `
+	1.	Explain Newton's First Law in one sentence of no more than fifteen (15) words.
+	2.	Do not add any additional sentences, examples, parentheses, bullet points, or further clarifications.
+	3.	Your answer must be exactly one sentence and must not exceed 15 words.
+`;
+```
+</CodeGroup>
+
+Running this again, our results will look much more concise:
+
+Now, our **instruction adherence metric jumps to 100.00%**! 🎉
+
+[INSERT SCREENSHOT]
+
+## **Next Steps**
+
+This is just the starting point. Now that you have Galileo set up and a solid grasp on evaluating AI responses, here's what you can tackle next:
+
+* Review the Python or Typescript SDKs. 
+* Take a deeper look at the most common use cases for Galileo:
+* **Conversational Apps** – Learn how to evaluate chatbots, refine responses, and optimize instruction adherence.
+* **Retrieval-Based Apps** – Explore how to assess the accuracy of retrieved information, ensuring your AI provides reliable results.
+* **Agentic Apps** – Investigate how Galileo can help monitor and improve complex agent-driven workflows.
+
+[TODO - More]
+
+Each of these areas has its own unique challenges and evaluation techniques. Stay tuned for more deep dives into each of these topics.
