@@ -1,0 +1,72 @@
+---
+title: Ensuring Complete Use of Retrieved Data
+description: Learn how to ensure that your AI models use all the retrieved data.
+---
+
+Sometimes a model ignores the retrieved chunks, either generating responses from its internal knowledge or only using a small portion of the retrieved context. This results in responses that do not fully reflect the most relevant information.
+
+## What Went Wrong?
+
+* **What We Did Wrong:**  
+  * Retrieved too many or too few chunks, leading to excessive or insufficient context.  
+  * The retrieval system returned relevant chunks, but the model failed to incorporate them effectively.  
+  * The model relied too heavily on general knowledge instead of retrieved content.  
+* **How It Showed Up in Metrics:**  
+  * **Low Chunk Attribution**: Retrieved chunks did not affect the model’s response.  
+  * **High Chunk Attribution but Low Chunk Utilization**: The model referenced retrieved data but incorporated only minimal text from it.
+
+#### **Example of the Bad Setup**
+
+**User Query:** "Who discovered penicillin?" 
+
+**Retrieved Chunks:**
+
+1. "Alexander Fleming was a Scottish bacteriologist."  
+2. "Fleming conducted experiments on mold in the 1920s."  
+3. "His work led to the development of antibiotics." 
+
+**Model Response:** "Penicillin was discovered in the 1920s by a scientist."
+
+**What Went Wrong in the Response?**
+
+* The response is technically correct but **fails to attribute the retrieved chunks** by omitting the name **Alexander Fleming**.  
+  * The model is providing **vague phrasing** that does not leverage the retrieved specifics.  
+  * While the retrieved chunks contained useful details, the model only made minimal use of them, leading to **low Chunk Utilization**.
+
+## Improvements and Solutions
+
+<Steps>
+<Step title="Improve Retrieval and Chunking Strategy">
+
+* Use **adaptive chunking** instead of fixed-size chunks to ensure that complete facts are retrieved together.  
+* **Increase retrieval precision** by tuning similarity thresholds and using **query expansion** to better match relevant documents.  
+* **Reduce redundant or extraneous chunks** by dynamically adjusting retrieval depth based on query complexity.
+</Step>
+<Step title="Modify Prompting to Improve Chunk Usage">
+
+* Explicitly instruct the model to **utilize all relevant retrieved chunks**:
+
+```
+Instruction: Ensure your answer is directly supported by all retrieved context. Use named entities and relevant details present in the retrieved text.
+```
+
+* Encourage structured responses that mirror retrieved data closely.
+</Step>
+<Step title="Improve Model Processing of Retrieved Chunks">
+
+* **Reformat retrieved chunks** before passing them to the model, ensuring they are structured for easy extraction.  
+* Apply **retrieval-augmented generation (RAG) strategies** that force the model to cite specific chunks.  
+* Use citation markers (e.g., "According to source \[1\]...") to ensure traceability.  
+* Implement an extraction-first approach where the model generates responses directly based on retrieved content before synthesizing an answer.  
+* **Fine-tune the model** to better incorporate retrieved data \- fine-tune the model to prioritize **direct chunk referencing** over paraphrasing.
+</Step>
+<Step title="Analyze and Adjust Chunk Attribution">
+
+* Use **Chunk Attribution Plus** to understand why certain chunks were ignored.  
+* Optimize **post-processing of retrieved documents** to highlight key sentences before sending them to the model.  
+* Encourage chunk aggregation techniques that **combine highly relevant text segments** for improved response coherence.
+</Step>
+</Steps>
+
+With these changes, the model will learn to better **attribute** its responses to retrieved data, increasing Chunk Attribution and improving answer quality.
+

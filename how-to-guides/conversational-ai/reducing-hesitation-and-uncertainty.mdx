@@ -1,0 +1,51 @@
+---
+title: Reducing Hesitation and Uncertainty
+description: Learn how to reduce hesitation and uncertainty in your AI models.
+---
+
+Some models struggle to confidently generate responses, leading to hesitation, incomplete answers, or repeated disclaimers.
+
+### What Went Wrong?
+- Did not provide enough context for confident decision-making
+- Allowed too much randomness in token selection
+- Prompt structure was ambiguous
+
+### How It Showed Up in Metrics:
+- **High Uncertainty**: The model hesitated in its response
+- **High Prompt Perplexity**: The model struggled with predicting the next token
+- **Mid-range Instruction Adherence**: The model understood the instructions but lacked decisiveness
+
+### Example of the Bad Setup
+
+```
+Prompt: "Tell me about climate change." 
+
+Model Response: "Well, there are many aspects to climate change. Some people think it's caused by humans, and others think it's just natural. It's hard to say exactly."
+```
+
+## Improvements and Solutions
+<Steps>
+<Step title="Provide Stronger Context in Prompts">
+
+- Include explicit guiding statements, for example:
+
+  ```
+  Instruction: Assume the following is true: Climate change is driven by human activity. 
+  Provide an explanation based on scientific evidence.
+  ```
+</Step>
+<Step title="Adjust Model Sampling Parameters">
+
+- Lower **temperature** to make the model more deterministic
+- Use **top-k sampling** to limit options and prevent hesitation
+</Step>
+<Step title="Modify Prompt Structure">
+
+- Use direct phrasing to force a single, clear response
+- Avoid prompts that allow multiple equally valid answers
+</Step>
+<Step title="Apply Uncertainty-Based Filtering">
+
+- Automatically reject responses with an **Uncertainty** score above a set threshold
+</Step>
+</Steps>

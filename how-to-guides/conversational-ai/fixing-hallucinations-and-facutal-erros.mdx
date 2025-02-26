@@ -1,0 +1,71 @@
+---
+title: Fixing Hallucinations and Factual Errors
+description: Learn how to identify and address hallucinations and factual errors in your AI models
+---
+
+Hallucinations occur when an AI model generates factually incorrect information that is not grounded in any real-world knowledge. These are sometimes called "open-domain factual errors" and can significantly impact the reliability of your AI system.
+
+### What Went Wrong?
+
+When models hallucinate, it's typically due to one or more of these issues:
+
+- **No constraints on responses**: The model wasn't instructed to limit responses to known facts
+- **Allowed speculation**: The model was permitted to make claims without verification
+- **Lack of validation**: No post-processing was implemented to validate factual correctness
+
+### How It Appears in Metrics
+
+Hallucinations typically manifest in evaluation metrics as:
+
+- **Low Correctness scores**: Responses contain factual inaccuracies
+- **Poor Ground Truth Adherence**: Responses deviate from trusted sources
+- **High Uncertainty indicators**: The model shows indecisiveness or hedging
+
+## Example of Problematic Output
+
+```
+Prompt: "What are some facts about black holes?"
+
+Model Response: "Black holes are portals to other dimensions, and scientists have 
+recently confirmed that time travel is possible through them."
+```
+
+This response contains scientifically unverified claims presented as facts.
+
+## Solutions to Prevent Hallucinations
+<Steps>
+<Step title="Explicitly Instruct the Model to Avoid Guessing">
+
+Modify your prompts to discourage speculation:
+
+```
+Instruction: Only provide answers that are scientifically verified. 
+If you're unsure about something, say 'I don't know' rather than guessing.
+```
+</Step>
+<Step title="Add Response Validation">
+
+- Implement automated validation using Correctness scores
+- Flag responses with a low Ground Truth Adherence score for human review
+- Consider using retrieval-augmented generation (RAG) to ground responses in verified sources
+</Step>
+<Step title="Fine-Tune Model Behavior">
+
+- Fine-tune on domain-specific data to improve factual reliability
+- Penalize uncertain completions during training
+- Use techniques like RLHF (Reinforcement Learning from Human Feedback) to reduce hallucination tendencies
+</Step> 
+<Step title="Implement Post-Processing Checks">
+
+- Run additional LLM-based checks for factual accuracy before serving responses
+- Filter out responses that exceed an uncertainty threshold
+- Consider implementing a citation system for factual claims
+</Step>
+</Steps>        
+
+## Best Practices
+
+- Always provide clear instructions about factual accuracy in your system prompts
+- For sensitive domains, implement multiple layers of verification
+- Consider hybrid approaches that combine retrieval and generation
+- Regularly audit your system's outputs for factual accuracy

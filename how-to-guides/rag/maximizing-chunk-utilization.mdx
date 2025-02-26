@@ -1,0 +1,43 @@
+---
+title: Maximizing Chunk Utilization
+description: Learn how to maximize the utilization of retrieved chunks by your AI models.
+---
+
+If retrieved chunks contain useful information but the model only uses small portions of them, the response may lack important context, leading to incomplete or misleading answers.
+
+## What Went Wrong?
+
+* **What We Did Wrong:**  
+  * Retrieved chunks were too long, making it hard for the model to use all content.  
+  * The model failed to extract key information from chunks.  
+  * The retrieval system returned relevant but overly verbose documents.  
+* **How It Showed Up in Metrics:**  
+  * **Low Chunk Utilization**: Large portions of retrieved chunks were not reflected in responses.  
+  * **High Chunk Attribution but Low Completeness**: The model recognized the relevance of chunks but didn’t fully incorporate their content.
+
+### **Example of the Bad Setup**
+
+**User Query:** "What is the capital of Canada?" **Retrieved Chunks:** "Canada is a country in North America. It is known for its vast landscapes and multicultural cities. The capital city, Ottawa, is home to Parliament Hill." **Model Response:**"Canada is in North America."
+
+## Improvements and Solutions
+
+<Steps>
+<Step title="Tune Chunk Length and Relevance">
+
+* Shorten retrieved chunks to focus on key facts.  
+* Split long documents into smaller, more digestible segments.
+</Step>
+<Step title="Improve Model Instructions for Chunk Integration">
+
+* Modify prompts to ensure models extract and use full relevant details:
+
+```
+Instruction: Use all retrieved information to form a complete response.
+```
+</Step>
+<Step title="Track Chunk Utilization and Adjust Retrieval Strategy">
+
+* Use the **Chunk Utilization metric** to measure the fraction of retrieved text used in responses.  
+* Adjust retrieval mechanisms to return more concise, higher-impact chunks.
+</Step>
+</Steps>
