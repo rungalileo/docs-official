@@ -5,9 +5,27 @@ icon: "python"
 
 ## Introduction
 
-This document will cover the design and developer experience of the Python client library for Galileo 2.0.
+The Python SDK allows you to log all prompts, responses, and statistics around your LLM usage. There are three main ways to log your application:
+
+1. **Using a wrapper (Recommended)** - Instead of importing common LLMs like `openai`, use Galileo’s wrapper which automatically logs everything, no other code changes required!
+2. **Using a decorator** - By adding @log to a function that calls an LLM, the Galileo SDK logs all AI prompts within.
+3. **Directly using the `GalileoLogger` class (Manual)** - As a last resort, you can directly use the base class, but this requires calling multiple methods per LLM call.
+
+Regardless of how you go about logging your AI application, you will still need to initialize your API keys and install the Galileo SDK by following the steps below.
+
+## Key Concepts
+
+Throughout this reference guide there are several ideas which will be used extensively.
+1. Project - All logs are stored within a project in Galileo. You can create and manage your projects using the Galileo UI.
+2. Logs - These consist of data, metrics, and LLM responses that you can track in your Galileo UI.
+3. Traces - These track a collection of Logs which represent a "single response". For multi-step LLM calls, this helps debug how the response was built, and where issues may have occurred.
+4. Spans - Spans are a single step in a trace. They can be a "workflow" if they contain multiple sub-spans, "llm" for a step involving an LLM call, "retriever" for when you get input data, or "tool" for helper function steps. 
+
+As your application runs, it will stream logs back to Galileo in a series of traces that then get analyzed using Metrics you set up. Traces that seem problematic can then be reviewed step by step to determine what part of the pipeline needs changing, or if the Metrics need tweaking.
 
 ## Initialization/Authentication
+
+1. Create or update a .env file with the following values:
 
 ```env
 # Scoped to an Organization
@@ -22,7 +40,16 @@ GALILEO_PROJECT=...
 GALILEO_LOG_STREAM=...
 ```
 
+2. Install Galileo's Python SDK to your project by running:
+```bash
+pip install galileo
+```
+
+3. Follow the below instructions for adding logging throughout your app.
+
 ## Logging
+
+### Method 1: Using LLM Wrappers
 
 The simplest way to get started is to use our OpenAI client wrapper. This example will automatically produce a single-span trace in the Logstream UI:
 
@@ -44,6 +71,8 @@ print(response)
 ```
 
 By default, any traces that are created during a request are automatically flushed (i.e. uploaded to Galileo) when the request terminates. To flush traces prior to that, you can use the context manager or the GalileoLogger (outlined in a section below).
+
+### Method 2: Using @log Decorators
 
 The `@log` decorator is used to capture the inputs and outputs of a function as a span. By default, a workflow span is created when span_type isn't specified. Here are the different span types:
 
@@ -83,9 +112,39 @@ def retriever_function(input: str):
 	return documents
 ```
 
-## The context manager: galileo_context()
+### Method 3 (Manual): Pure invocation using the GalileoLogger (last resort, should be used infrequently):
 
-The context manager can be useful for a few things:
+```python
+from galileo import GalileoLogger
+
+input = "Why is the sky blue?"
+config = {
+	model,
+	temperature
+}
+logger = GalileoLogger()
+trace = logger.start_trace(
+	input
+	tags=[]
+)
+
+output = llm_call(input, config)
+logger.add_llm_span(
+	input,
+	output,
+	config,
+	type="llm"
+)
+
+logger.conclude(output)
+logger.flush()
+```
+
+TODO: Research and add OTEL support
+
+### Grouping and Uploading Logs Faster: galileo_context()
+
+Regardless of the method you use to add logs, the Galileo context manager can be useful for a few things:
 - Automatically starting a trace and ensuring anything that happens in its scope is logged as a span within the trace.
 - For long running app runtimes like Streamlit, the request never terminates. You can use the context manager to start a trace and ensure that traces are flushed when the manager exits.
 - You might want to route a part of your app to a different Project or Log Stream. You can use the context manager to set the trace scope.
@@ -160,35 +219,6 @@ result = llm_math.invoke(
     )
 ```
 
-## Pure invocation using the GalileoLogger (last resort, should be used infrequently):
-
-```python
-from galileo import GalileoLogger
-
-input = "Why is the sky blue?"
-config = {
-	model,
-	temperature
-}
-logger = GalileoLogger()
-trace = logger.start_trace(
-	input
-	tags=[]
-)
-
-output = llm_call(input, config)
-logger.add_llm_span(
-	input,
-	output,
-	config,
-	type="llm"
-)
-
-logger.conclude(output)
-logger.flush()
-```
-
-TODO: Research and add OTEL support
 
 ## Prompts
 
