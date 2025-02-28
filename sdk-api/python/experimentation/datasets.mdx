@@ -1,0 +1,57 @@
+---
+title: Datasets
+---
+
+Create a dataset and add data to it:
+
+```python
+from galileo.datasets import create_dataset
+
+test_data = [
+        {
+            "input": "Which continent is Spain in?",
+            "expected": "Europe",
+        },
+	 {
+            "input": "Which continent is Japan in?",
+            "expected": "Asia",
+        },
+    ]
+dataset = create_dataset(
+name="countries", 
+data=test_data,
+project="my-project",
+)
+
+dataset.insert([
+        {
+            "input": "Which continent is Morocco in?",
+            "expected": "Africa",
+        },
+	 {
+            "input": "Which continent is Australia in?",
+            "expected": "Oceania",
+        },
+    ])
+```
+
+List the versions of a dataset and grab a particular version:
+
+```python
+from galileo.datasets import get_dataset
+
+dataset = get_dataset(
+name="countries",
+version=3, # if this param isn't specified, it defaults to the latest
+project="my-project",
+)
+
+print(dataset.modified_at)
+
+versions = dataset.get_version_history()
+
+oldest_version = get_dataset(
+	name="countries",
+	version=versions[-1].version
+	project="my-project"
+)

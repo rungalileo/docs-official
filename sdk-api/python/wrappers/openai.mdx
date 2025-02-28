@@ -1,0 +1,121 @@
+---
+title: OpenAI Wrapper
+---
+
+The OpenAI wrapper is the simplest way to integrate Galileo logging into your application. By using Galileo's OpenAI wrapper instead of importing the OpenAI library directly, you can automatically log all prompts, responses, and statistics without any additional code changes.
+
+## Installation
+
+First, make sure you have the Galileo SDK installed:
+
+```bash
+pip install galileo
+```
+
+## Setup
+
+Create or update a `.env` file with your Galileo API key and other optional settings:
+
+```env
+# Scoped to an Organization
+GALILEO_API_KEY=...
+
+# Optional, if you're not using the multi-tenant cluster
+# GALILEO_CONSOLE_URL=https://console.experimental-aws.rungalileo.io/
+
+# Optional, set a default Project
+GALILEO_PROJECT=...
+# Optional, set a default Log Stream
+GALILEO_LOG_STREAM=...
+```
+
+## Basic Usage
+
+Instead of importing OpenAI directly, import it from Galileo:
+
+```python
+from galileo.openai import openai
+
+def llm_call(input):
+    return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are a great storyteller."},
+            {"role": "user", "content": f"Write a story about {input}"}
+        ],
+    ).choices[0].message.content
+
+response = llm_call("a sailor")
+print(response)
+```
+
+This example will automatically produce a single-span trace in the Galileo Logstream UI. The wrapper handles all the logging for you, capturing:
+
+- The input prompt
+- The model used
+- The response
+- Timing information
+- Other relevant metadata
+
+## Using with Context Manager
+
+For more control over when traces are flushed to Galileo, you can use the `galileo_context` context manager:
+
+```python
+from galileo.openai import openai
+from galileo import galileo_context
+
+def llm_call(input):
+    return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are a great storyteller."},
+            {"role": "user", "content": f"Write a story about {input}"}
+        ],
+    ).choices[0].message.content
+
+with galileo_context():
+    print(llm_call("birds"))
+```
+
+This ensures that traces are flushed when the context manager exits, which is particularly useful for long-running applications like Streamlit where the request never terminates.
+
+## Routing to Specific Projects or Log Streams
+
+You can also use the context manager to route traces to specific projects or log streams:
+
+```python
+from galileo.openai import openai
+from galileo import galileo_context
+
+def llm_call(input):
+    return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are a great storyteller."},
+            {"role": "user", "content": f"Write a story about {input}"}
+        ],
+    ).choices[0].message.content
+
+with galileo_context(project="my-project", log_stream="my-log-stream"):
+    print(llm_call("birds"))
+```
+
+## Advanced Usage
+
+The OpenAI wrapper is intended to support all the same functionality as the original OpenAI library, including:
+
+- Chat completions
+- Text completions
+- Embeddings
+- Image generation
+- Audio transcription and translation
+
+For each of these, the wrapper will automatically log the relevant information to Galileo, making it easy to track and analyze your AI application's performance.
+
+## Benefits of Using the Wrapper
+
+- **Zero-config logging**: No need to add logging code throughout your application
+- **Complete visibility**: All prompts and responses are automatically captured
+- **Minimal code changes**: Simply change your import statement
+- **Automatic tracing**: Creates spans and traces without manual setup

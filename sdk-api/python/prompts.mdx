@@ -1,0 +1,35 @@
+---
+title: Prompts
+---
+
+Create and use a prompt template:
+
+```python
+from galileo.prompts import create_prompt_template, SystemMessage, UserMessage
+from galileo.openai import openai
+from galileo import log
+
+def llm_call(messages, model):
+	return openai.chat.completions.create(
+        model,
+        messages,
+    ).choices[0].message.content
+
+data = {
+	"topic": "Nuclear Physics"
+}
+
+prompt_messages = [
+	SystemMessage("You are a great storyteller."),
+UserMessage("Please write a short story about the following topic: {topic}"),
+]
+prompt_template = create_prompt_template(
+	messages=prompt_messages
+name="storyteller-prompt",
+model="gpt-4o",
+project="my-project"
+)
+
+output = llm_call(
+messages=prompt_template.with_data(data).to_messages(), model=prompt_template.get_model()
+)
