@@ -1,9 +1,37 @@
 ---
-title: Langchain Integration
-icon: "link"
+title: LangChain Integration
 ---
 
-## Langchain integration (via their callbacks API):
+The Galileo LangChain integration allows you to automatically log all LangChain interactions with LLMs, including prompts, responses, and performance metrics. This integration works through LangChain's callbacks API, making it easy to add logging to your existing LangChain applications with minimal code changes.
+
+## Installation
+
+First, make sure you have the Galileo SDK and LangChain installed:
+
+```bash
+pip install galileo langchain
+```
+
+## Setup
+
+Create or update a `.env` file with your Galileo API key and other optional settings:
+
+```env
+# Scoped to an Organization
+GALILEO_API_KEY=...
+
+# Optional, if you're not using the multi-tenant cluster
+# GALILEO_CONSOLE_URL=https://console.experimental-aws.rungalileo.io/
+
+# Optional, set a default Project
+GALILEO_PROJECT=...
+# Optional, set a default Log Stream
+GALILEO_LOG_STREAM=...
+```
+
+## Basic Usage
+
+The integration is based on the `GalileoCallback` class, which implements LangChain's callback interface. To use it, simply create an instance of the callback and pass it to your LangChain components:
 
 ```python
 from galileo.handlers.langchain import GalileoCallback
@@ -13,6 +41,17 @@ callback = GalileoCallback()
  
 llm = ChatOpenAI(model="gpt-4o", callbacks=[callback])
 ```
+
+When initializing the `GalileoCallback`, you can optionally specify a project name and log stream:
+
+```python
+# Log to a specific project and log stream
+callback = GalileoCallback(project_name="my-project", log_stream="my-log-stream")
+```
+
+## Using with LangChain Chains
+
+You can also use the callback with LangChain chains. Make sure to pass the callback to both the LLM and the chain:
 
 ```python
 from galileo.handlers.langchain import GalileoCallback
@@ -33,3 +72,44 @@ result = llm_math.invoke(
             },
         },
     )
+```
+
+## Advanced Usage
+
+The `GalileoCallback` captures various LangChain events, including:
+
+- LLM starts and completions
+- Chat model interactions
+- Chain executions
+- Tool calls
+- Retriever operations
+- Agent actions
+
+For each of these events, the callback logs relevant information to Galileo, such as:
+
+- Input prompts and messages
+- Output responses
+- Model information
+- Timing data
+- Token usage
+- Error information (if any)
+
+### Adding Metadata
+
+You can add custom metadata to your logs by including it in the `metadata` parameter when invoking a chain or LLM:
+
+```python
+result = chain.invoke(
+    "Your input here",
+    {
+        "callbacks": [handler],
+        "metadata": {
+            "user_id": "user-123",
+            "session_id": "session-456",
+            "custom_field": "custom value"
+        }
+    }
+)
+```
+
+This metadata will be attached to the logs in Galileo, making it easier to filter and analyze your data.
