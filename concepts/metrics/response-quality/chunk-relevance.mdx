@@ -1,0 +1,62 @@
+---
+title: Chunk Relevance
+description: Understand how to measure and optimize the relevance of retrieved chunks to user queries in your RAG pipeline
+---
+
+**Chunk Relevance** measures the proportion of text in each retrieved chunk that contains useful information to address the user's query in a RAG pipeline.
+
+## How it Works
+
+Chunk Relevance is a continuous metric ranging from 0 to 1:
+- A value of 1 means the entire chunk is useful for answering the query
+- A value of 0.5 means only half of the chunk's content is relevant to the query
+- A value of 0 means none of the chunk's content is relevant to the query
+
+A chunk with low relevance contains "unnecessary" text that is not pertinent to the user's query, indicating potential inefficiencies in your retrieval strategy.
+
+## Calculation Method
+
+Chunk Relevance is computed using a fine-tuned in-house Galileo evaluation model:
+- The model is a transformer-based encoder trained to identify relevant information in the provided query, context, and response
+- The same model is used to compute Chunk Adherence, Chunk Completeness, Chunk Attribution, and Utilization
+- A single inference call is used to compute all the metrics at once
+- For each token in the provided context, the model outputs a relevance probability (the likelihood that this token is useful for answering the query)
+- The model is trained on carefully curated RAG datasets and optimized to closely align with the RAG Plus metrics
+
+## Explainability
+
+The model identifies which parts of the chunks were relevant to the query:
+- These sections can be highlighted in your retriever nodes by clicking on the icon next to the Chunk Utilization metric value in your Retriever nodes
+- This visualization helps you understand exactly which portions of your chunks are being utilized effectively
+
+## Optimizing Your RAG Pipeline
+
+### Addressing Low Relevance Scores
+
+Low Chunk Relevance scores indicate that your chunks are probably longer than they need to be. To improve your system:
+
+- **Tune your chunking strategy**: Experiment with different chunking methods to create more focused chunks
+- **Reduce chunk size**: Consider using smaller chunks that contain more concentrated relevant information
+- **Improve chunk boundaries**: Ensure chunks are divided at logical content boundaries rather than arbitrary character counts
+- **Benefits**: Improved system efficiency, lower cost, and reduced latency
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Refine Chunking Strategy" icon="puzzle-piece">
+    Experiment with different chunking methods (sentence-based, paragraph-based, semantic-based) to find the approach that maximizes relevance.
+  </Card>
+  <Card title="Optimize Retrieval Parameters" icon="sliders">
+    Adjust your retrieval parameters (k value, similarity thresholds) to prioritize chunks with higher relevance scores.
+  </Card>
+  <Card title="Combine with Other Metrics" icon="scale-balanced">
+    Use Chunk Relevance alongside [Chunk Utilization](/concepts/metrics/retrieval/chunk-utilization) and [Chunk Attribution](/concepts/metrics/retrieval/chunk-attribution) for a complete picture of retrieval effectiveness.
+  </Card>
+  <Card title="Monitor Query-Chunk Alignment" icon="magnifying-glass-chart">
+    Regularly analyze queries with low relevance scores to identify patterns and improve your document preprocessing or embedding strategy.
+  </Card>
+</CardGroup>
+
+<Note>
+When optimizing for Chunk Relevance, remember that the goal is to retrieve chunks that contain information relevant to the query. Extremely high relevance might come at the cost of missing important context if chunks are too small or too narrowly focused.
+</Note>

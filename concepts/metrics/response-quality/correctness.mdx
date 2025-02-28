@@ -1,0 +1,73 @@
+---
+title: Correctness
+description: Evaluate factual accuracy in AI outputs using Galileo Guardrail Metrics to detect and prevent hallucinations in your AI systems.
+---
+
+**Correctness** measures whether a given model response contains factually accurate information.
+
+## How it Works
+
+Correctness is a continuous metric ranging from 0 to 1:
+- A value of 1 (or close to 1) indicates high correctness - the information is believed to be factually accurate
+- A value of 0 (or close to 0) indicates low correctness - the response likely contains factual errors
+
+This metric is particularly valuable for uncovering open-domain hallucinations: factual errors that don't relate to any specific documents or context provided to the model.
+
+## Calculation Method
+
+Correctness is computed through a multi-step process:
+- Sending additional requests to OpenAI's GPT4-o
+- Using a carefully engineered chain-of-thought prompt that asks the model to judge whether the response is factually accurate
+- Requesting multiple distinct responses to this prompt
+- Each evaluation produces an explanation along with a final judgment: yes or no
+- The final score is the fraction of "yes" responses divided by the total number of responses
+
+We also surface one of the generated explanations, always choosing one that aligns with the majority judgment among the responses:
+- If the score is greater than 0.5, the explanation will provide an argument that the response is factual
+- If the score is less than 0.5, the explanation will provide an argument that it is not factual
+
+<Note>
+This metric is computed by prompting an LLM multiple times, and thus requires additional LLM calls to compute, which may impact usage and billing.
+</Note>
+
+## How Correctness Differs from Context Adherence
+
+It's important to understand the distinction between related metrics:
+- **Correctness** measures whether a model response has factually correct information, regardless of whether that information is contained in the provided context
+- **Context Adherence** measures whether the response adheres specifically to the information provided in the context
+
+For example, in a text-to-SQL scenario:
+- A response could be factually correct (high Correctness) but not derived from the provided context (low Context Adherence)
+- Conversely, a response could faithfully represent the context (high Context Adherence) but contain factual errors if the context itself is incorrect
+
+## Optimizing Your AI System
+
+### Addressing Low Correctness Scores
+
+When a response has a low Correctness score, it's likely that the response contains non-factual information. To improve your system:
+
+1. **Flag and examine potentially non-factual responses**: Identify patterns in responses that tend to contain factual errors
+2. **Adjust your prompts**: Instruct the model to stick to information it's given in the context and avoid speculation
+3. **Implement verification steps**: Add additional checks for factual accuracy before responses reach end users
+4. **Consider model selection**: Some models may be more factually accurate than others for specific domains
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Implement Fact-Checking" icon="clipboard-check">
+    For critical applications, implement automated fact-checking against trusted knowledge bases or databases.
+  </Card>
+  <Card title="Use Grounding Techniques" icon="anchor">
+    Instruct models to ground their responses in verifiable information and cite sources when possible.
+  </Card>
+  <Card title="Monitor Domain-Specific Accuracy" icon="chart-line">
+    Track Correctness scores across different knowledge domains to identify areas where your model may be less reliable.
+  </Card>
+  <Card title="Create Factual Guardrails" icon="shield-halved">
+    Develop domain-specific guardrails that can catch common factual errors before they reach users.
+  </Card>
+</CardGroup>
+
+<Note>
+When optimizing for Correctness, remember that even human experts can disagree on certain facts. Consider implementing confidence levels for responses, especially in domains with evolving knowledge or subjective elements.
+</Note>

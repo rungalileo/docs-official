@@ -1,0 +1,75 @@
+---
+title: Ground Truth Adherence
+description: Measure semantic equivalence between model outputs and reference answers using Galileo's Guardrail Metrics to ensure alignment with expected responses.
+---
+
+**Ground Truth Adherence** measures whether a model's response is semantically equivalent to your reference answer (Ground Truth).
+
+## How it Works
+
+Ground Truth Adherence is a continuous metric ranging from 0 to 1:
+- A value of 1 (or close to 1) indicates high adherence - the model's response is semantically equivalent to the Ground Truth
+- A value of 0 (or close to 0) indicates low adherence - the model's response is semantically different from the Ground Truth
+
+This metric helps evaluate how closely your model's outputs match expected or ideal responses, which is particularly valuable for:
+- Evaluating model performance against a benchmark dataset
+- Ensuring consistency in critical applications
+- Measuring the impact of model or prompt changes
+
+<Note>
+This metric requires a Ground Truth to be set. Check out [this page](#) to learn how to add a Ground Truth to your runs.
+</Note>
+
+## Calculation Method
+
+Ground Truth Adherence is computed through a multi-step process:
+- Sending additional requests to OpenAI's GPT4o
+- Using a carefully engineered chain-of-thought prompt that asks the model to judge whether the Ground Truth and Response are semantically equivalent
+- Requesting multiple distinct responses to this prompt
+- Each evaluation produces an explanation along with a final judgment: yes or no
+- The final score is the fraction of "yes" responses divided by the total number of responses
+
+We also surface one of the generated explanations, always choosing one that aligns with the majority judgment among the responses.
+
+<Note>
+This metric is computed by prompting an LLM multiple times, and thus requires additional LLM calls to compute, which may impact usage and billing.
+</Note>
+
+## Differentiating from Other Metrics
+
+It's important to understand how Ground Truth Adherence differs from related metrics:
+- **Ground Truth Adherence** measures semantic equivalence to a reference answer
+- **Correctness** measures factual accuracy regardless of any reference answer
+- **Context Adherence** measures alignment with provided context, not a reference answer
+
+## Optimizing Your AI System
+
+### Addressing Low Ground Truth Adherence
+
+When responses have low Ground Truth Adherence scores, your model is generating outputs that differ semantically from your reference answers. To improve your system:
+
+1. **Analyze divergence patterns**: Identify common ways in which responses differ from ground truth
+2. **Refine your prompts**: Adjust instructions to guide the model toward your expected output format and content
+3. **Consider few-shot examples**: Provide examples in your prompt that demonstrate the desired response pattern
+4. **Evaluate ground truth quality**: Ensure your reference answers are clear, consistent, and representative of ideal responses
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Maintain Diverse Ground Truths" icon="layer-group">
+    Create a varied set of reference answers that cover different response styles and edge cases.
+  </Card>
+  <Card title="Set Clear Evaluation Criteria" icon="list-check">
+    Define what constitutes semantic equivalence for your specific use case and domain.
+  </Card>
+  <Card title="Monitor Across Model Versions" icon="chart-line">
+    Track Ground Truth Adherence when upgrading models to ensure consistent performance.
+  </Card>
+  <Card title="Balance with Other Metrics" icon="scale-balanced">
+    Use Ground Truth Adherence alongside metrics like Correctness and Instruction Adherence for a complete evaluation.
+  </Card>
+</CardGroup>
+
+<Note>
+When optimizing for Ground Truth Adherence, remember that there may be multiple valid ways to express the same information. Consider whether strict adherence to specific wording is necessary, or if semantic equivalence is sufficient for your use case.
+</Note>

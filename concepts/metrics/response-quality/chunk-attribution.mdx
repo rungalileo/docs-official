@@ -1,0 +1,60 @@
+---
+title: Chunk Attribution
+description: Understand how to measure and optimize the impact of retrieved chunks in your RAG pipeline
+---
+
+import { Pill } from '/snippets/components/pill.mdx';
+
+**Chunk Attribution** measures whether or not each chunk retrieved in a RAG pipeline had an effect on the model's response.
+
+## How it Works
+
+Chunk Attribution is a binary metric: each chunk is either <Pill label="Attributed" /> or <Pill label="Not Attributed" />.
+
+A chunk is considered "Attributed" when:
+- The model incorporated information from the chunk into its response
+- The chunk influenced the model's reasoning or conclusions
+- The chunk provided context that shaped the response in some way
+
+Chunks that are retrieved but have no discernible impact on the model's output are marked as "Not Attributed."
+
+<Callout type="info">
+  Chunk Attribution is closely related to [Chunk Utilization](/concepts/metrics/retrieval/chunk-utilization): Attribution measures whether or not a chunk affected the response, while Utilization measures how much of the chunk text was involved in the effect. Only chunks that were Attributed can have Utilization scores greater than zero.
+</Callout>
+
+## Optimizing Your RAG Pipeline
+
+When analyzing Chunk Attribution in your RAG system, consider these key optimization strategies:
+
+### Tuning the Number of Retrieved Chunks
+
+If your system produces satisfactory responses but many chunks are <Pill label="Not Attributed" />, you can likely reduce the number of chunks retrieved per example without impacting response quality.
+
+This approach offers several benefits:
+- Lower costs by processing fewer chunks
+- Reduced latency and improved response time
+- More efficient system resource utilization
+
+### Debugging Anomalous Model Behavior
+
+When a specific model response is unsatisfactory or unusual, Attribution helps you identify exactly which chunks influenced that response.
+
+This debugging approach provides:
+- Faster root cause analysis for problematic responses
+- More targeted fixes based on specific influential chunks
+- Better understanding of model reasoning and information utilization
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Monitor Attribution Rates" icon="chart-line">
+    Track the percentage of chunks that are attributed over time to identify trends and potential issues in your retrieval system.
+  </Card>
+  <Card title="Balance with Other Metrics" icon="scale-balanced">
+    Use Chunk Attribution alongside [Chunk Relevance](/concepts/metrics/retrieval/chunk-relevance) and [Chunk Utilization](/concepts/metrics/retrieval/chunk-utilization) for a complete picture of retrieval effectiveness.
+  </Card>
+</CardGroup>
+
+<Note>
+When optimizing for Chunk Attribution, be careful not to reduce the number of chunks too aggressively, as this may limit the model's access to potentially useful information in edge cases.
+</Note>

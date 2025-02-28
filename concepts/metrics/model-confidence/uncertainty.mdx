@@ -1,0 +1,75 @@
+---
+title: Uncertainty
+description: Measure and analyze model confidence in AI outputs using Galileo's Uncertainty Metric to identify potential hallucinations and improve response quality.
+---
+
+**Uncertainty** measures how much a model is deciding randomly between multiple ways of continuing the output, indicating the model's confidence level in its responses.
+
+## How it Works
+
+Uncertainty is measured at both the token level and the response level:
+- **Token-level uncertainty**: Indicates how confident the model is about each individual token given the preceding tokens
+- **Response-level uncertainty**: Represents the maximum token-level uncertainty across all tokens in the model's response
+
+Higher uncertainty scores indicate the model is less certain about its output, which often correlates with:
+- Hallucinations
+- Made-up facts
+- Citations
+- Areas where the model is struggling with the content
+
+## Calculation Method
+
+Uncertainty is calculated using log probabilities from the model:
+- At the token level, it measures the model's confidence in predicting the next token given preceding tokens
+- At the response level, it takes the maximum token-level uncertainty across all tokens in the response
+- The calculation uses OpenAI's Davinci models or Chat Completion models (available via OpenAI or Azure)
+
+## Availability
+
+Uncertainty can only be calculated with LLM integrations that provide log probabilities:
+
+### OpenAI
+- Any Evaluate runs created from the Galileo Playground or with `pq.run(...)`, using the chosen model
+- Any Evaluate workflow runs using `davinci-001`
+- Any Observe workflows using `davinci-001`
+
+### Azure OpenAI
+- Any Evaluate runs created from the Galileo Playground or with `pq.run(...)`, using the chosen model
+- Any Evaluate workflow runs using `text-davinci-003` or `text-curie-001`, if available in your Azure deployment
+- Any Observe workflows using `text-davinci-003` or `text-curie-001`, if available in your Azure deployment
+
+<Note>
+To calculate the Uncertainty metric, we require having `text-curie-001` or `text-davinci-003` models available in your Azure environment to fetch log probabilities. For Galileo's Guardrail metrics that rely on GPT calls (Factuality and Groundedness), we require using `0613` or above versions of `gpt-3-5-turbo`.
+</Note>
+
+## Optimizing Your AI System
+
+### Addressing High Uncertainty
+
+When responses show high uncertainty scores, your model is likely struggling with the content. To improve your system:
+
+1. **Identify uncertainty patterns**: Analyze where in responses uncertainty spikes occur
+2. **Enhance knowledge sources**: Provide better context or retrieval results for topics with high uncertainty
+3. **Refine prompts**: Add more specific instructions or constraints for areas where the model shows uncertainty
+4. **Consider model selection**: Some models may be more confident in specific domains
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Monitor Uncertainty Hotspots" icon="temperature-high">
+    Track tokens and phrases that consistently trigger high uncertainty to identify knowledge gaps.
+  </Card>
+  <Card title="Implement Confidence Thresholds" icon="filter">
+    Set uncertainty thresholds to flag or reject responses that exceed acceptable uncertainty levels.
+  </Card>
+  <Card title="Compare Across Models" icon="chart-line">
+    Evaluate how different models perform on the same inputs to identify which ones have lower uncertainty in your domain.
+  </Card>
+  <Card title="Combine with Factual Metrics" icon="scale-balanced">
+    Use Uncertainty alongside Correctness metrics to identify correlations between model confidence and factual accuracy.
+  </Card>
+</CardGroup>
+
+<Note>
+When analyzing Uncertainty, remember that some level of uncertainty is normal and even desirable in certain contexts. Very low uncertainty might indicate the model is being overly deterministic or repeating memorized patterns rather than reasoning about the content.
+</Note>
