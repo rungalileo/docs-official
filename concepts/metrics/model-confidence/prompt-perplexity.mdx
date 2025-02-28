@@ -1,0 +1,78 @@
+---
+title: Prompt Perplexity
+description: Measure and optimize prompt quality using Galileo's Prompt Perplexity Metric to improve model performance and response generation.
+---
+
+**Prompt Perplexity** measures how predictable or familiar a prompt is to a language model, using the log probabilities provided by the model.
+
+## How it Works
+
+Prompt Perplexity is a metric that ranges from 0 to infinity:
+- **Lower values** (closer to 0) indicate the model is more certain about predicting tokens in the prompt, suggesting the prompt is well-aligned with the model's training data
+- **Higher values** indicate the model finds the prompt less predictable, which may affect response quality
+
+This metric helps evaluate how well your prompts are tuned to your chosen model, which research has shown correlates with better response generation.
+
+## Calculation Method
+
+Prompt Perplexity is calculated through a specific mathematical process:
+- It uses the exponential of the negative average of the log probabilities over the entire prompt
+- The calculation is performed using OpenAI's Davinci models or other models that provide token probabilities
+- The formula can be expressed as: Perplexity = exp(-average(log_probabilities))
+
+## Availability
+
+Prompt Perplexity can only be calculated with LLM integrations that provide log probabilities:
+
+### OpenAI
+- Any Evaluate runs created from the Galileo Playground or with `pq.run(...)`, using the chosen model
+- Any Evaluate workflow runs using `davinci-001`
+- Any Observe workflows using `davinci-001`
+
+### Azure OpenAI
+- Any Evaluate runs created from the Galileo Playground or with `pq.run(...)`, using the chosen model
+- Any Evaluate workflow runs using `text-davinci-003` or `text-curie-001`, if available in your Azure deployment
+- Any Observe workflows using `text-davinci-003` or `text-curie-001`, if available in your Azure deployment
+
+<Note>
+To calculate the Prompt Perplexity metric, we require models that provide log probabilities. This typically includes older models like `davinci-001`, `text-davinci-003`, or `text-curie-001`.
+</Note>
+
+## Optimizing Your AI System
+
+### Interpreting Perplexity Scores
+
+Lower Prompt Perplexity scores generally indicate better prompt quality:
+- **Lower perplexity** suggests your model is better tuned toward your data, as it can better predict the next token
+- Research in the paper "Demystifying Prompts in Language Models via Perplexity Estimation" has shown that lower perplexity values in prompts lead to better outcomes in the generated responses
+- Monitoring perplexity can help you iteratively improve your prompts
+
+### Improving Prompt Perplexity
+
+To achieve lower perplexity scores and better model performance:
+
+1. **Use familiar language patterns**: Phrase prompts using language patterns similar to the model's training data
+2. **Provide clear context**: Include sufficient context that helps the model predict what comes next
+3. **Avoid unusual formatting**: Use standard formatting and avoid unusual syntax that might confuse the model
+4. **Test variations**: Experiment with different phrasings of the same prompt to find lower perplexity versions
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Benchmark Across Domains" icon="chart-simple">
+    Compare perplexity scores across different topic domains to identify where your prompts perform best.
+  </Card>
+  <Card title="Track Perplexity Changes" icon="chart-line">
+    Monitor how prompt modifications affect perplexity scores to develop better prompt engineering practices.
+  </Card>
+  <Card title="Balance Perplexity and Specificity" icon="scale-balanced">
+    Find the right balance between low perplexity (familiar language) and specific instructions that achieve your goals.
+  </Card>
+  <Card title="Combine with Response Metrics" icon="link">
+    Analyze the relationship between prompt perplexity and response quality metrics to optimize your entire system.
+  </Card>
+</CardGroup>
+
+<Note>
+When optimizing for Prompt Perplexity, remember that the goal isn't always to minimize perplexity at all costs. Sometimes a slightly higher perplexity prompt might be necessary to communicate specific or technical requirements. The key is finding the right balance for your use case.
+</Note>

@@ -1,0 +1,65 @@
+---
+title: Chunk Utilization
+description: Understand how to measure and optimize the efficiency of retrieved chunks in your RAG pipeline
+---
+
+**Chunk Utilization** measures the fraction of text in each retrieved chunk that had an impact on the model's response in a RAG pipeline.
+
+## How it Works
+
+Chunk Utilization is a continuous metric ranging from 0 to 1:
+- A value of 1 means the entire chunk affected the response
+- A value of 0.5 means only half of the chunk's content influenced the response
+- A value of 0 means none of the chunk's content was utilized
+
+A chunk with low utilization contains "extraneous" text that did not affect the final response, indicating potential inefficiencies in your chunking strategy.
+
+<Callout type="info">
+  Chunk Utilization is closely related to [Chunk Attribution](/concepts/metrics/retrieval/chunk-attribution): Attribution measures whether or not a chunk affected the response, while Utilization measures how much of the chunk text was involved in the effect. Only chunks that were Attributed can have Utilization scores greater than zero.
+</Callout>
+
+## Calculation Methods
+
+We offer two ways of calculating Chunk Utilization:
+
+/////// TODO: Add more details //////
+
+## Optimizing Your RAG Pipeline
+
+When analyzing Chunk Utilization in your RAG system, consider these key optimization strategies:
+
+### Addressing Low Utilization Scores
+
+Low Chunk Utilization scores could indicate one of two scenarios:
+
+1. **Oversized Chunks**: Your chunks are longer than they need to be
+   - Check if Chunk Relevance is also low, which confirms this scenario
+   - Solution: Tune your retriever to return shorter, more focused chunks
+   - Benefits: Improved system efficiency, lower cost, and reduced latency
+
+2. **Ineffective LLM Utilization**: The LLM generator model is failing to incorporate all relevant information
+   - Check if Chunk Relevance is high, which confirms this scenario
+   - Solution: Explore a different LLM that may leverage the relevant information more effectively
+   - Benefits: Better response quality and more efficient use of retrieved information
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Optimize Chunk Size" icon="text-size">
+    Experiment with different chunking strategies to find the optimal chunk size that maximizes utilization without sacrificing relevance.
+  </Card>
+  <Card title="Monitor Across Models" icon="chart-mixed">
+    Compare Chunk Utilization scores across different LLMs to identify which models most efficiently use retrieved information.
+  </Card>
+  <Card title="Combine with Other Metrics" icon="scale-balanced">
+    Use Chunk Utilization alongside [Chunk Relevance](/concepts/metrics/retrieval/chunk-relevance) and [Chunk Attribution](/concepts/metrics/retrieval/chunk-attribution) for a complete picture of retrieval effectiveness.
+  </Card>
+  <Card title="Analyze Patterns" icon="magnifying-glass-chart">
+    Look for patterns in low-utilization chunks to identify specific content types or formats that your system processes inefficiently.
+  </Card>
+</CardGroup>
+
+<Note>
+When optimizing for Chunk Utilization, balance efficiency with comprehensiveness. Extremely high utilization might indicate chunks that are too small and lack sufficient context for the model.
+</Note>
+
