@@ -1,0 +1,121 @@
+---
+title: Experimentation
+icon: "flask"
+---
+
+## Experimentation
+
+Evaluating a runner function against an existing dataset:
+
+```python
+from galileo.experiments import run_experiment
+from galileo.datasets import get_dataset
+#from galileo.metrics import correctness
+from galileo import log, openai
+
+@log
+def llm_call(data):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          {"role": "system", "content": "You are a great storyteller."},
+          {"role": "user", "content": f"Write a story about {data.input}"}
+        ],
+    ).choices[0].message.content
+
+dataset = get_dataset(name="storyteller-dataset")
+
+results = run_experiment(
+	dataset,
+	function=llm_call,
+	metrics=["correctness"]
+	concurrency=1, # number of rows to execute in parallel,
+	project="my-project",
+	tags=[],
+)
+```
+
+Evaluating a prompt against an existing dataset:
+
+```python
+from galileo.prompts import get_prompt
+from galileo.experiments import run_experiment
+from galileo.datasets import get_dataset
+from galileo.scorers import correctness
+
+prompt = get_prompt(
+	name="storyteller-prompt"
+	version="latest"
+)
+
+results = run_experiment(
+	dataset=get_dataset(name="storyteller-dataset"),
+	prompt,
+	metrics=["correctness"],
+	project="my-project",
+	tags=[],
+)
+```
+
+Evaluating a runner function against a custom dataset:
+
+```python
+from galileo.experiments import run_experiment
+from galileo.scorers import correctness
+from galileo import log, openai
+
+@log
+def llm_call(data):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          {"role": "system", "content": "You are a geography expert"},
+          {"role": "user", "content": f"Which continent does the following country belong to: {data.input}"}
+        ],
+    ).choices[0].message.content
+
+results = run_experiment(
+	dataset=lambda: [
+        {
+            "input": "Spain",
+            "expected": "Europe",
+        },
+    ],
+	function=llm_call,
+	metrics=["correctness"]
+	concurrency=1, # number of rows to execute in parallel,
+	project="my-project",
+	tags=[],
+)
+```
+
+Evaluating a runner function against a dataset using a custom metric:
+
+```python
+from galileo.experiments import run_experiment
+from galileo.datasets import get_dataset
+from galileo import log, openai
+
+@log
+def llm_call(data):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          {"role": "system", "content": "You are a great storyteller."},
+          {"role": "user", "content": f"Write a story about '{data.input}' and make it sound like a human wrote it."}
+        ],
+    ).choices[0].message.content
+
+def check_for_delve(input, output, expected) -> int:
+	return 1 if "delve" not in input else 0
+
+dataset = get_dataset(name="storyteller-dataset")
+
+results = run_experiment(
+	dataset,
+	function=llm_call,
+	metrics=[check_for_delve],
+	concurrency=2,	
+project="my-project",
+	tags=[],
+)

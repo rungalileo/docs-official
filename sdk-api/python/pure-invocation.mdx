@@ -1,0 +1,34 @@
+---
+title: Pure Invocation
+icon: "code"
+---
+
+## Pure invocation using the GalileoLogger (last resort, should be used infrequently):
+
+```python
+from galileo import GalileoLogger
+
+input = "Why is the sky blue?"
+config = {
+	model,
+	temperature
+}
+logger = GalileoLogger()
+trace = logger.start_trace(
+	input
+	tags=[]
+)
+
+output = llm_call(input, config)
+logger.add_llm_span(
+	input,
+	output,
+	config,
+	type="llm"
+)
+
+logger.conclude(output)
+logger.flush()
+```
+
+TODO: Research and add OTEL support

@@ -1,0 +1,35 @@
+---
+title: Langchain Integration
+icon: "link"
+---
+
+## Langchain integration (via their callbacks API):
+
+```python
+from galileo.handlers.langchain import GalileoCallback
+from langchain.chat_models import ChatOpenAI
+ 
+callback = GalileoCallback()
+ 
+llm = ChatOpenAI(model="gpt-4o", callbacks=[callback])
+```
+
+```python
+from galileo.handlers.langchain import GalileoCallback
+from langchain.chains import LLMMathChain
+from langchain.chat_models import ChatOpenAI  
+
+handler = GalileoCallback()
+
+llm = ChatOpenAI(model="gpt-4o", callbacks=[handler])
+llm_math = LLMMathChain.from_llm(llm, callbacks=[handler])
+result = llm_math.invoke(
+        "What's 2 + 2?",
+        {
+            "callbacks": [handler],
+            "metadata": {
+                "galileo_session": "my-session",
+                "galileo_user_id": "user-id",
+            },
+        },
+    )
