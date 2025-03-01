@@ -3,9 +3,12 @@ title: Action Advancement
 description: Understand how to measure and optimize the effectiveness of your AI agent's actions
 ---
 
-**Action Advancement** measures whether an assistant successfully accomplishes or makes progress toward at least one user goal in a conversation.
+import { Scale } from '/snippets/components/scale.mdx';
+import { DefinitionCard } from '/snippets/components/definition-card.mdx';
 
-## How it Works
+<DefinitionCard>
+  <strong>Action Advancement</strong> measures whether an assistant successfully accomplishes or makes progress toward at least one user goal in a conversation.
+</DefinitionCard>
 
 An assistant successfully advances a user's goal when it:
 
@@ -23,11 +26,12 @@ For an interaction to count as advancing the user's goal, the assistant's respon
 If the Action Advancement score is less than 100%, it means at least one evaluator determined the assistant failed to make progress on any user goal.
 
 Action Advancement is calculated by:
-
-1. Sending multiple evaluation requests to an LLM (e.g., OpenAI's GPT4o-mini)
-2. Using a specialized chain-of-thought prompt that follows the definition above
-3. Each evaluation produces an explanation and a binary judgment (yes/no)
-4. The final score is the percentage of "yes" responses out of all responses
+<Steps>
+  <Step title="Sending multiple evaluation requests to an LLM (e.g., OpenAI's GPT4o-mini)" /> 
+  <Step title="Using a specialized chain-of-thought prompt that follows the definition above" />
+  <Step title="Each evaluation produces an explanation and a binary judgment (yes/no)" />
+  <Step title="The final score is the percentage of 'yes' responses out of all responses" />
+</Steps>
 
 We display one of the generated explanations alongside the score, always choosing one that aligns with the majority judgment.
 

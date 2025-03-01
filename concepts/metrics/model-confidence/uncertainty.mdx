@@ -2,10 +2,11 @@
 title: Uncertainty
 description: Measure and analyze model confidence in AI outputs using Galileo's Uncertainty Metric to identify potential hallucinations and improve response quality.
 ---
+import { DefinitionCard } from '/snippets/components/definition-card.mdx';
 
-**Uncertainty** measures how much a model is deciding randomly between multiple ways of continuing the output, indicating the model's confidence level in its responses.
-
-## How it Works
+<DefinitionCard>
+  <strong>Uncertainty</strong> measures how much a model is deciding randomly between multiple ways of continuing the output, indicating the model's confidence level in its responses.
+</DefinitionCard>
 
 Uncertainty is measured at both the token level and the response level:
 - **Token-level uncertainty**: Indicates how confident the model is about each individual token given the preceding tokens
@@ -20,13 +21,15 @@ Higher uncertainty scores indicate the model is less certain about its output, w
 ## Calculation Method
 
 Uncertainty is calculated using log probabilities from the model:
-- At the token level, it measures the model's confidence in predicting the next token given preceding tokens
-- At the response level, it takes the maximum token-level uncertainty across all tokens in the response
-- The calculation uses OpenAI's Davinci models or Chat Completion models (available via OpenAI or Azure)
+<Steps>
+  <Step title="At the token level, it measures the model's confidence in predicting the next token given preceding tokens" />
+  <Step title="At the response level, it takes the maximum token-level uncertainty across all tokens in the response" />
+  <Step title="The calculation uses OpenAI's Davinci models or Chat Completion models (available via OpenAI or Azure)" />
+</Steps>
 
-## Availability
+<Warning>
 
-Uncertainty can only be calculated with LLM integrations that provide log probabilities:
+<strong>Uncertainty canonly be calculated with LLM integrations that provide log probabilities</strong>:
 
 ### OpenAI
 - Any Evaluate runs created from the Galileo Playground or with `pq.run(...)`, using the chosen model
@@ -37,7 +40,7 @@ Uncertainty can only be calculated with LLM integrations that provide log probab
 - Any Evaluate runs created from the Galileo Playground or with `pq.run(...)`, using the chosen model
 - Any Evaluate workflow runs using `text-davinci-003` or `text-curie-001`, if available in your Azure deployment
 - Any Observe workflows using `text-davinci-003` or `text-curie-001`, if available in your Azure deployment
-
+</Warning>
 <Note>
 To calculate the Uncertainty metric, we require having `text-curie-001` or `text-davinci-003` models available in your Azure environment to fetch log probabilities. For Galileo's Guardrail metrics that rely on GPT calls (Factuality and Groundedness), we require using `0613` or above versions of `gpt-3-5-turbo`.
 </Note>
