@@ -1,0 +1,55 @@
+export const Scale = ({ low, mid, high, lowLabel = "Low", midLabel = "Mid", highLabel = "High", lowDescription, midDescription, highDescription, midColor = "yellow"  }) => {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+      <svg width="100%" height="30" style={{ marginBottom: '8px' }}>
+        <defs>
+          <linearGradient id="redToGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="red" />
+            <stop offset="100%" stopColor="green" />
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#redToGreen)" rx="4" ry="4" />
+      </svg>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '16px' }}>
+        <p style={{ margin: 0, fontSize: '12px' }}>{low}</p>
+        {mid && <p style={{ margin: 0, fontSize: '12px' }}>{mid}</p>}
+        <p style={{ margin: 0, fontSize: '12px' }}>{high}</p>
+      </div>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+        <div style={{ maxWidth: '40%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+            <div style={{ width: '12px', height: '12px', backgroundColor: 'red', borderRadius: '50%', marginRight: '8px' }}></div>
+            <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px' }}>{lowLabel}</p>
+          </div>
+          {lowDescription && (
+            <p style={{ margin: 0, fontSize: '14px', color: '#666', maxWidth: '250px', lineHeight: '1.4' }}>{lowDescription}</p>
+          )}
+        </div>
+        {mid && (
+          <div style={{ maxWidth: '40%', textAlign: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px' }}>
+              <div style={{ width: '12px', height: '12px', backgroundColor: midColor, borderRadius: '50%', marginRight: '8px' }}></div>
+              <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px' }}>{midLabel}</p>              
+            </div>
+            {midDescription && (
+              <p style={{ margin: 0, fontSize: '14px', color: '#666', maxWidth: '250px', textAlign: 'center', lineHeight: '1.4' }}>{midDescription}</p>
+            )}
+          </div>
+        )}
+        
+        
+        <div style={{ maxWidth: '40%', textAlign: 'right' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '4px' }}>
+            <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px' }}>{highLabel}</p>
+            <div style={{ width: '12px', height: '12px', backgroundColor: 'green', borderRadius: '50%', marginLeft: '8px' }}></div>
+          </div>
+          {highDescription && (
+            <p style={{ margin: 0, fontSize: '14px', color: '#666', maxWidth: '250px', marginLeft: 'auto', lineHeight: '1.4' }}>{highDescription}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};

@@ -2,10 +2,11 @@
 title: Uncertainty
 description: Measure and analyze model confidence in AI outputs using Galileo's Uncertainty Metric to identify potential hallucinations and improve response quality.
 ---
+import { DefinitionCard } from '/snippets/components/definition-card.mdx';
 
-**Uncertainty** measures how much a model is deciding randomly between multiple ways of continuing the output, indicating the model's confidence level in its responses.
-
-## How it Works
+<DefinitionCard>
+  <strong>Uncertainty</strong> measures how much a model is deciding randomly between multiple ways of continuing the output, indicating the model's confidence level in its responses.
+</DefinitionCard>
 
 Uncertainty is measured at both the token level and the response level:
 - **Token-level uncertainty**: Indicates how confident the model is about each individual token given the preceding tokens
@@ -20,13 +21,15 @@ Higher uncertainty scores indicate the model is less certain about its output, w
 ## Calculation Method
 
 Uncertainty is calculated using log probabilities from the model:
-- At the token level, it measures the model's confidence in predicting the next token given preceding tokens
-- At the response level, it takes the maximum token-level uncertainty across all tokens in the response
-- The calculation uses OpenAI's Davinci models or Chat Completion models (available via OpenAI or Azure)
+<Steps>
+  <Step title="At the token level, it measures the model's confidence in predicting the next token given preceding tokens" />
+  <Step title="At the response level, it takes the maximum token-level uncertainty across all tokens in the response" />
+  <Step title="The calculation uses OpenAI's Davinci models or Chat Completion models (available via OpenAI or Azure)" />
+</Steps>
 
-## Availability
+<Warning>
 
-Uncertainty can only be calculated with LLM integrations that provide log probabilities:
+<strong>Uncertainty canonly be calculated with LLM integrations that provide log probabilities</strong>:
 
 ### OpenAI
 - Any Evaluate runs created from the Galileo Playground or with `pq.run(...)`, using the chosen model
@@ -37,21 +40,41 @@ Uncertainty can only be calculated with LLM integrations that provide log probab
 - Any Evaluate runs created from the Galileo Playground or with `pq.run(...)`, using the chosen model
 - Any Evaluate workflow runs using `text-davinci-003` or `text-curie-001`, if available in your Azure deployment
 - Any Observe workflows using `text-davinci-003` or `text-curie-001`, if available in your Azure deployment
-
+</Warning>
 <Note>
 To calculate the Uncertainty metric, we require having `text-curie-001` or `text-davinci-003` models available in your Azure environment to fetch log probabilities. For Galileo's Guardrail metrics that rely on GPT calls (Factuality and Groundedness), we require using `0613` or above versions of `gpt-3-5-turbo`.
 </Note>
 
 ## Optimizing Your AI System
 
-### Addressing High Uncertainty
-
-When responses show high uncertainty scores, your model is likely struggling with the content. To improve your system:
-
-1. **Identify uncertainty patterns**: Analyze where in responses uncertainty spikes occur
-2. **Enhance knowledge sources**: Provide better context or retrieval results for topics with high uncertainty
-3. **Refine prompts**: Add more specific instructions or constraints for areas where the model shows uncertainty
-4. **Consider model selection**: Some models may be more confident in specific domains
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing High Uncertainty</h3>
+  </div>
+  
+  When responses show high uncertainty scores, your model is likely struggling with the content. To improve your system:
+      
+  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Identify uncertainty patterns:</strong> Analyze where in responses uncertainty spikes occur.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Enhance knowledge sources:</strong> Provide better context or retrieval results for topics with high uncertainty.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Refine prompts:</strong> Add more specific instructions or constraints for areas where the model shows uncertainty.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Consider model selection:</strong> Some models may be more confident in specific domains.
+  </div>
+</Card>
 
 ## Best Practices
 
