@@ -2,26 +2,35 @@
 title: Chunk Relevance
 description: Understand how to measure and optimize the relevance of retrieved chunks to user queries in your RAG pipeline
 ---
+import { Scale } from '/snippets/components/scale.mdx';
+import { DefinitionCard } from '/snippets/components/definition-card.mdx';
 
-**Chunk Relevance** measures the proportion of text in each retrieved chunk that contains useful information to address the user's query in a RAG pipeline.
-
-## How it Works
+<DefinitionCard>
+  <strong>Chunk Relevance</strong> measures the proportion of text in each retrieved chunk that contains useful information to address the user's query in a RAG pipeline.
+</DefinitionCard>
 
 Chunk Relevance is a continuous metric ranging from 0 to 1:
-- A value of 1 means the entire chunk is useful for answering the query
-- A value of 0.5 means only half of the chunk's content is relevant to the query
-- A value of 0 means none of the chunk's content is relevant to the query
+<Scale 
+  low="0" lowLabel="Low Relevance" 
+  mid="0.5" midLabel="Mid Relevance"
+  high="1" highLabel="High Relevance" 
+  lowDescription="None of the chunk's content is relevant to the query" 
+  midDescription="Only half of the chunk's content is relevant to the query" 
+  highDescription="The entire chunk is useful for answering the query"
+/>
 
 A chunk with low relevance contains "unnecessary" text that is not pertinent to the user's query, indicating potential inefficiencies in your retrieval strategy.
 
 ## Calculation Method
 
 Chunk Relevance is computed using a fine-tuned in-house Galileo evaluation model:
-- The model is a transformer-based encoder trained to identify relevant information in the provided query, context, and response
-- The same model is used to compute Chunk Adherence, Chunk Completeness, Chunk Attribution, and Utilization
-- A single inference call is used to compute all the metrics at once
-- For each token in the provided context, the model outputs a relevance probability (the likelihood that this token is useful for answering the query)
-- The model is trained on carefully curated RAG datasets and optimized to closely align with the RAG Plus metrics
+<Steps>
+  <Step title="The model is a transformer-based encoder trained to identify relevant information in the provided query, context, and response" />
+  <Step title="The same model is used to compute Chunk Adherence, Chunk Completeness, Chunk Attribution, and Utilization" />
+  <Step title="A single inference call is used to compute all the metrics at once" />
+  <Step title="For each token in the provided context, the model outputs a relevance probability (the likelihood that this token is useful for answering the query)" />
+  <Step title="The model is trained on carefully curated RAG datasets and optimized to closely align with the RAG Plus metrics" />
+</Steps>
 
 ## Explainability
 
@@ -31,14 +40,34 @@ The model identifies which parts of the chunks were relevant to the query:
 
 ## Optimizing Your RAG Pipeline
 
-### Addressing Low Relevance Scores
-
-Low Chunk Relevance scores indicate that your chunks are probably longer than they need to be. To improve your system:
-
-- **Tune your chunking strategy**: Experiment with different chunking methods to create more focused chunks
-- **Reduce chunk size**: Consider using smaller chunks that contain more concentrated relevant information
-- **Improve chunk boundaries**: Ensure chunks are divided at logical content boundaries rather than arbitrary character counts
-- **Benefits**: Improved system efficiency, lower cost, and reduced latency
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing Low Relevance Scores</h3>
+  </div>
+  
+  Low Chunk Relevance scores indicate that your chunks are probably longer than they need to be. To improve your system:
+      
+  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Tune your chunking strategy:</strong> Experiment with different chunking methods to create more focused chunks.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Reduce chunk size:</strong> Consider using smaller chunks that contain more concentrated relevant information.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Improve chunk boundaries:</strong> Ensure chunks are divided at logical content boundaries rather than arbitrary character counts.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Benefits:</strong> Improved system efficiency, lower cost, and reduced latency.
+  </div>
+</Card>
 
 ## Best Practices
 

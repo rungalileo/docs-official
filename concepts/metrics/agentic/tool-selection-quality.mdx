@@ -1,0 +1,115 @@
+---
+title: Tool Selection Quality
+description: Evaluate tool selection quality in AI agents using Galileo Guardrail Metrics to ensure agents choose appropriate tools with correct parameters.
+---
+
+import { Scale } from '/snippets/components/scale.mdx';
+import { DefinitionCard } from '/snippets/components/definition-card.mdx';
+
+<DefinitionCard>
+  <strong>Tool Selection Quality</strong> determines whether the agent selected the correct tool and for each tool the correct arguments.
+</DefinitionCard>
+
+This metric is particularly valuable for evaluating agentic AI systems where the model must decide which tools to use and how to use them correctly. Poor tool selection can lead to ineffective or incorrect responses.
+
+Here's a scale that shows the relationship between Tool Selection Quality and the potential impact on your AI system:
+
+<Scale low="0" lowLabel="Low Quality" high="1" highLabel="High Quality" lowDescription="The agent selected incorrect tools or used correct tools with incorrect parameters." midDescription="The agent selected partially correct tools or used some correct parameters." highDescription="The agent selected the correct tools with the correct parameters."/>
+
+### Calculation Method
+
+Tool Selection Quality is computed through a multi-step process:
+
+<Steps>
+  <Step title="Sending additional requests to an LLM (e.g. OpenAI's GPT4o-mini)." />
+  <Step title="Using a carefully engineered chain-of-thought prompt that asks the model to judge whether the tools selected were correct." />
+  <Step title="Requesting multiple distinct responses to this prompt." />
+  <Step title="Each evaluation produces an explanation along with a final judgment: yes or no." />
+  <Step title="The final score is the fraction of 'yes' responses divided by the total number of responses." />
+</Steps>
+
+We also surface one of the generated explanations, always choosing one that aligns with the majority judgment among the responses.
+
+<Note>
+This metric is computed by prompting an LLM multiple times, and thus requires additional LLM calls to compute, which may impact usage and billing.
+</Note>
+
+## Understanding Tool Selection Quality
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>When Tool Selection is Evaluated</h3>
+  </div>
+  
+  Tool Selection Quality evaluates different scenarios:
+      
+  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>No Tool Needed:</strong> The assistant is not expected to call tools if there are no unanswered user queries, if no tools can help answer any query, or if all the information to answer is contained in the history.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Tool Needed:</strong> When tools should be used, the turn is considered successful if the agent selected the correct tool and provided all required arguments with correct values.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Unsuccessful Selection:</strong> If the agent calls tools when it shouldn't, or selects the wrong tool/arguments when it should call tools, the turn is considered unsuccessful.
+  </div>
+</Card>
+
+## Optimizing Your AI System
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing Low Tool Selection Quality</h3>
+  </div>
+  
+  When a response has a low Tool Selection Quality score, consider these improvements:
+      
+  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Analyze error patterns:</strong> Identify common mistakes in tool selection or parameter usage.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Improve tool descriptions:</strong> Enhance tool documentation with clearer descriptions of when and how to use each tool.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Refine system prompts:</strong> Update instructions to provide better guidance on tool selection criteria.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Consider model capabilities:</strong> Some models may be better at tool selection than others.
+  </div>
+</Card>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Clear Tool Documentation" icon="file-lines">
+    Provide detailed descriptions for each tool, including when to use it and what parameters are required.
+  </Card>
+  <Card title="Parameter Validation" icon="check-circle">
+    Implement validation for tool parameters to prevent incorrect usage and provide helpful error messages.
+  </Card>
+  <Card title="Monitor Tool Usage Patterns" icon="chart-line">
+    Track which tools are frequently misused to identify opportunities for improvement in tool design or documentation.
+  </Card>
+  <Card title="Fine-tune with Examples" icon="graduation-cap">
+    Provide examples of correct tool usage in different scenarios to help the agent learn appropriate selection patterns.
+  </Card>
+</CardGroup>
+
+<Note>
+Tool Selection Quality is most useful in Agentic Workflows, where an LLM decides the course of action to take by selecting a Tool. This metric helps you detect whether the right course of action was taken by the Agent.
+</Note>

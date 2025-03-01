@@ -1,0 +1,135 @@
+---
+title: PII
+description: Detect and protect personally identifiable information in AI systems using Galileo's PII Metric to identify sensitive data and implement appropriate safeguards.
+---
+
+import { Scale } from '/snippets/components/scale.mdx';
+import { DefinitionCard } from '/snippets/components/definition-card.mdx';
+
+<DefinitionCard>
+  <strong>PII Detection</strong> identifies personally identifiable information spans within a sample (both input and output).
+</DefinitionCard>
+
+This metric is particularly valuable for identifying sensitive personal data that may require special handling or protection. Detecting PII is essential for compliance with privacy regulations and protecting user information.
+
+### Calculation Method
+PII detection is computed through a specialized process:
+
+<Steps>
+  <Step title="We leverage a Small Language Model (SLM) trained on proprietary datasets." />
+  <Step title="The model scans both input and output text for specific PII patterns." />
+  <Step title="Detected PII is categorized by type and confidence level." />
+  <Step title="Results are presented with highlighting to show exactly where PII was detected." />
+</Steps>
+
+To highlight which parts of the text were detected as PII, click on the icon next to the PII metric value. The type of PII detected along with the model's confidence will be shown on the input or output text.
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>PII Categories Detected</h3>
+  </div>
+  
+  The current model detects the following precisely defined categories:
+      
+  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Account Information:</strong> Bank account numbers, Bank Identification Code (BIC) and International Bank Account Number (IBAN).
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Address:</strong> A physical address. Must contain at least a street name and number, and may contain extra elements such as city, zip code, state, etc.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Credit Card:</strong> Credit card number (can be full or last 4 digits), Card Verification Value (CVV) and expiration date.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Date of Birth:</strong> This represents the day, month and year a person was born. The context should make it clear that it's someone's birthdate.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Email:</strong> An email address.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Name:</strong> A person's full name. It must consist of at least a first and last name to be considered PII.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Network Information:</strong> IPv4, IPv6 and MAC addresses.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Password:</strong> A password.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Phone Number:</strong> A phone number.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Social Security Number (SSN):</strong> A US Social Security Number.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Username:</strong> A username.
+  </div>
+</Card>
+
+## Optimizing Your AI System
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing PII in Your System</h3>
+  </div>
+  
+  When PII is detected in your system, consider these approaches:
+      
+  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Implement data redaction:</strong> Automatically mask or remove PII before processing or storing data.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Create PII handling policies:</strong> Develop clear guidelines for how different types of PII should be processed.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Set up user consent flows:</strong> Ensure users understand when and how their PII might be used.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Establish data retention policies:</strong> Define how long different types of PII should be stored.
+  </div>
+</Card>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Real-time PII Detection" icon="shield-halved">
+    Implement PII detection as part of your input validation pipeline to catch sensitive information before processing.
+  </Card>
+  <Card title="Data Minimization" icon="filter">
+    Only collect and process the minimum amount of PII necessary for your application's functionality.
+  </Card>
+  <Card title="Secure Storage" icon="lock">
+    When PII must be stored, ensure it's properly encrypted and access is strictly controlled.
+  </Card>
+  <Card title="Regular Audits" icon="clipboard-check">
+    Periodically review your system for unintended PII exposure or collection.
+  </Card>
+</CardGroup>
+
+<Note>
+Automatically identify PII occurrences in any part of the workflow (user input, chains, model output, etc), and respond accordingly by implementing guardrails or other preventative measures. This helps ensure compliance with privacy regulations like GDPR, CCPA, and others.
+</Note>
