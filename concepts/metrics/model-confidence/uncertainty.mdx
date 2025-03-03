@@ -22,9 +22,15 @@ Higher uncertainty scores indicate the model is less certain about its output, w
 
 Uncertainty is calculated using log probabilities from the model:
 <Steps>
-  <Step title="At the token level, it measures the model's confidence in predicting the next token given preceding tokens" />
-  <Step title="At the response level, it takes the maximum token-level uncertainty across all tokens in the response" />
-  <Step title="The calculation uses OpenAI's Davinci models or Chat Completion models (available via OpenAI or Azure)" />
+  <Step title="Token Analysis">
+    For each token in the sequence, the model calculates its confidence in predicting that token based on all preceding tokens in the context.
+  </Step>
+  <Step title="Response Aggregation">
+    The system identifies the highest uncertainty value across all tokens in the response to determine the overall response-level uncertainty.
+  </Step>
+  <Step title="Model Integration">
+    The calculation leverages log probabilities from OpenAI's Davinci models or Chat Completion models, available through both OpenAI and Azure platforms.
+  </Step>
 </Steps>
 
 <Warning>

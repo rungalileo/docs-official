@@ -24,11 +24,21 @@ This metric is particularly valuable for uncovering open-domain hallucinations: 
 
 Correctness is computed through a multi-step process:
 <Steps>
-  <Step title="Sending additional requests to OpenAI's GPT4-o" />
-  <Step title="Using a carefully engineered chain-of-thought prompt that asks the model to judge whether the response is factually accurate" />
-  <Step title="Requesting multiple distinct responses to this prompt" />
-  <Step title="Each evaluation produces an explanation along with a final judgment: yes or no" />
-  <Step title="The final score is the fraction of 'yes' responses divided by the total number of responses" />
+  <Step title="Model Request">
+    Additional evaluation requests are sent to OpenAI's GPT4-o model to analyze the response.
+  </Step>
+  <Step title="Prompt Engineering">
+    A carefully engineered chain-of-thought prompt is used to ask the model to evaluate whether the response contains factually accurate information.
+  </Step>
+  <Step title="Multiple Evaluations">
+    The system requests multiple distinct responses to this prompt to ensure robust evaluation through consensus.
+  </Step>
+  <Step title="Result Analysis">
+    Each evaluation generates both an explanation of the reasoning and a binary judgment (yes/no) on factual accuracy.
+  </Step>
+  <Step title="Score Calculation">
+    The final Correctness score is computed as the ratio of 'yes' responses to the total number of evaluation responses.
+  </Step>
 </Steps>
 
 We also surface one of the generated explanations, always choosing one that aligns with the majority judgment among the responses:

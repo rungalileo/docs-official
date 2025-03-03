@@ -21,11 +21,21 @@ Here's a scale that shows the relationship between Tool Selection Quality and th
 Tool Selection Quality is computed through a multi-step process:
 
 <Steps>
-  <Step title="Sending additional requests to an LLM (e.g. OpenAI's GPT4o-mini)." />
-  <Step title="Using a carefully engineered chain-of-thought prompt that asks the model to judge whether the tools selected were correct." />
-  <Step title="Requesting multiple distinct responses to this prompt." />
-  <Step title="Each evaluation produces an explanation along with a final judgment: yes or no." />
-  <Step title="The final score is the fraction of 'yes' responses divided by the total number of responses." />
+  <Step title="Model Request">
+    Multiple evaluation requests are sent to an LLM evaluator (e.g., OpenAI's GPT4o-mini) to analyze the agent's tool selection decisions.
+  </Step>
+  <Step title="Prompt Engineering">
+    A carefully engineered chain-of-thought prompt guides the model to evaluate whether the selected tools and their parameters were appropriate for the task.
+  </Step>
+  <Step title="Multiple Evaluations">
+    The system requests multiple distinct responses to this prompt to ensure robust evaluation through consensus.
+  </Step>
+  <Step title="Result Analysis">
+    Each evaluation generates both an explanation of the reasoning and a binary judgment (yes/no) on tool selection appropriateness.
+  </Step>
+  <Step title="Score Calculation">
+    The final Tool Selection Quality score is computed as the ratio of positive ('yes') responses to the total number of evaluation responses.
+  </Step>
 </Steps>
 
 We also surface one of the generated explanations, always choosing one that aligns with the majority judgment among the responses.

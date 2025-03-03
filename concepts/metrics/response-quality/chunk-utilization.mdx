@@ -4,6 +4,11 @@ description: Understand how to measure and optimize the efficiency of retrieved 
 ---
 import { Scale } from '/snippets/components/scale.mdx';
 import { DefinitionCard } from '/snippets/components/definition-card.mdx';
+import { Steps } from '/snippets/components/steps.mdx';
+import { Step } from '/snippets/components/step.mdx';
+import { Card } from '/snippets/components/card.mdx';
+import { CardGroup } from '/snippets/components/card-group.mdx';
+import { Note } from '/snippets/components/note.mdx';
 
 <DefinitionCard>
   <strong>Chunk Utilization</strong> measures the fraction of text in each retrieved chunk that had an impact on the model's response in a RAG pipeline.
@@ -26,11 +31,25 @@ A chunk with low utilization contains "extraneous" text that did not affect the 
   Chunk Utilization is closely related to [Chunk Attribution](/concepts/metrics/retrieval/chunk-attribution): Attribution measures whether or not a chunk affected the response, while Utilization measures how much of the chunk text was involved in the effect. Only chunks that were Attributed can have Utilization scores greater than zero.
 </Callout>
 
-### Calculation Methods
+### Calculation Method
 
-We offer two ways of calculating Chunk Utilization:
-
-/////// TODO: Add more details //////
+<Steps>
+  <Step title="Model Architecture">
+    We use a fine-tuned in-house Galileo evaluation model based on a transformer encoder architecture.
+  </Step>
+  <Step title="Multi-metric Computation">
+    The same model computes Chunk Adherence, Chunk Completeness, Chunk Attribution and Utilization in a single inference call.
+  </Step>
+  <Step title="Token-level Analysis">
+    For each token in the provided context, the model outputs a utilization probability indicating if that token affected the response.
+  </Step>
+  <Step title="Score Calculation">
+    Chunk Utilization is computed as the fraction of tokens with high utilization probability out of all tokens in the chunk.
+  </Step>
+  <Step title="Model Training">
+    The model is trained on carefully curated RAG datasets and optimized to closely align with the RAG Plus metrics.
+  </Step>
+</Steps>
 
 ## Optimizing Your RAG Pipeline
 
