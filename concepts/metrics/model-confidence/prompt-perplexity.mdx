@@ -2,6 +2,7 @@
 title: Prompt Perplexity
 description: Measure and optimize prompt quality using Galileo's Prompt Perplexity Metric to improve model performance and response generation.
 ---
+import { Scale } from '/snippets/components/scale.mdx';
 import { DefinitionCard } from '/snippets/components/definition-card.mdx';
 
 <DefinitionCard>
@@ -10,32 +11,83 @@ import { DefinitionCard } from '/snippets/components/definition-card.mdx';
 
 ## How it Works
 
-Prompt Perplexity is a metric that ranges from 0 to infinity:
-- **Lower values** (closer to 0) indicate the model is more certain about predicting tokens in the prompt, suggesting the prompt is well-aligned with the model's training data
-- **Higher values** indicate the model finds the prompt less predictable, which may affect response quality
+Prompt Perplexity is a continuous metric ranging from 0 to infinity:
+
+<Scale 
+  low="0" lowLabel="Low Perplexity" 
+  high="∞" highLabel="High Perplexity" 
+  lowDescription="The model is highly certain about predicting tokens in the prompt" 
+  midDescription="The model has moderate certainty about predicting tokens"
+  highDescription="The model finds the prompt less predictable"
+/>
 
 This metric helps evaluate how well your prompts are tuned to your chosen model, which research has shown correlates with better response generation.
 
 ## Calculation Method
 
-Prompt Perplexity is calculated through a specific mathematical process:
-- It uses the exponential of the negative average of the log probabilities over the entire prompt
-- The calculation is performed using OpenAI's Davinci models or other models that provide token probabilities
-- The formula can be expressed as: Perplexity = exp(-average(log_probabilities))
+Prompt Perplexity is computed through a specific mathematical process that measures how difficult it is for the model to predict each token in the prompt:
 
-## Availability
+<Steps>
+  <Step title="Calculate Token Probabilities" description="For each token in the prompt:">
+    1. The model processes the prompt token by token
+    2. For each position, it computes the probability distribution over the next token
+    3. We extract the log probability of the actual next token that appears in the prompt
+  </Step>
+  <Step title="Average Log Probabilities" description="Combine the token-level information:">
+    1. Sum all the log probabilities across the entire prompt
+    2. Divide by the total number of tokens to get the average
+    3. This gives us the average log probability per token
+  </Step>
+  <Step title="Apply Exponential" description="Transform to final perplexity score:">
+    1. Take the negative of the average log probability
+    2. Apply the exponential function to this value
+    3. This converts log probabilities to a more interpretable perplexity score
+  </Step>
+  <Step title="Final Formula" description="The complete calculation:">
+    Perplexity = exp(-average(log_probabilities))
+  </Step>
+</Steps>
 
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Key Properties</h3>
+  </div>
+  
+  Understanding the mathematical properties of perplexity:
+      
+  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Range:</strong> Always positive, with lower values indicating better predictability
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Scale:</strong> Exponential scale means small changes in log probabilities can lead to large perplexity differences
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Length independence:</strong> Using the average makes the metric comparable across prompts of different lengths
+  </div>
+</Card>
+
+<Warning>
+### Availability
 Prompt Perplexity can only be calculated with LLM integrations that provide log probabilities:
 
-### OpenAI
+### _OpenAI_
 - Any Evaluate runs created from the Galileo Playground or with `pq.run(...)`, using the chosen model
 - Any Evaluate workflow runs using `davinci-001`
 - Any Observe workflows using `davinci-001`
 
-### Azure OpenAI
+### _Azure OpenAI_
 - Any Evaluate runs created from the Galileo Playground or with `pq.run(...)`, using the chosen model
 - Any Evaluate workflow runs using `text-davinci-003` or `text-curie-001`, if available in your Azure deployment
 - Any Observe workflows using `text-davinci-003` or `text-curie-001`, if available in your Azure deployment
+</Warning>
 
 <Note>
 To calculate the Prompt Perplexity metric, we require models that provide log probabilities. This typically includes older models like `davinci-001`, `text-davinci-003`, or `text-curie-001`.
@@ -71,49 +123,18 @@ To calculate the Prompt Perplexity metric, we require models that provide log pr
 
 ## Optimizing Your AI System
 
-<Card>
-  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
-    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-      </svg>
-    </div>
-    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Improving Prompt Perplexity</h3>
-  </div>
-  
-  To achieve lower perplexity scores and better model performance:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Use familiar language patterns:</strong> Phrase prompts using language patterns similar to the model's training data.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Provide clear context:</strong> Include sufficient context that helps the model predict what comes next.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Avoid unusual formatting:</strong> Use standard formatting and avoid unusual syntax that might confuse the model.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Test variations:</strong> Experiment with different phrasings of the same prompt to find lower perplexity versions.
-  </div>
-</Card>
-
-## Best Practices
-
 <CardGroup cols={2}>
-  <Card title="Benchmark Across Domains" icon="chart-simple">
-    Compare perplexity scores across different topic domains to identify where your prompts perform best.
+  <Card title="Use Familiar Language" icon="language">
+    Phrase prompts using language patterns similar to the model's training data to reduce perplexity.
   </Card>
-  <Card title="Track Perplexity Changes" icon="chart-line">
-    Monitor how prompt modifications affect perplexity scores to develop better prompt engineering practices.
+  <Card title="Provide Clear Context" icon="circle-info">
+    Include sufficient context that helps the model predict what comes next in the prompt.
   </Card>
-  <Card title="Balance Perplexity and Specificity" icon="scale-balanced">
-    Find the right balance between low perplexity (familiar language) and specific instructions that achieve your goals.
+  <Card title="Avoid Unusual Formatting" icon="text-slash">
+    Use standard formatting and avoid unusual syntax that might confuse the model.
   </Card>
-  <Card title="Combine with Response Metrics" icon="link">
-    Analyze the relationship between prompt perplexity and response quality metrics to optimize your entire system.
+  <Card title="Test Variations" icon="vials">
+    Experiment with different phrasings of the same prompt to find lower perplexity versions.
   </Card>
 </CardGroup>
 

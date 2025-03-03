@@ -1,0 +1,325 @@
+---
+title: BLEU and ROUGE
+description: Evaluate sequence-to-sequence model performance using BLEU and ROUGE metrics to measure n-gram overlap between generated and target outputs.
+---
+
+import { Scale } from '/snippets/components/scale.mdx';
+import { DefinitionCard } from '/snippets/components/definition-card.mdx';
+
+<DefinitionCard>
+  <strong>BLEU and ROUGE</strong> are metrics used heavily in sequence-to-sequence tasks measuring n-gram overlap between a generated response and a target output.
+</DefinitionCard>
+
+### Understanding BLEU Score
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Why BLEU Score?</h3>
+  </div>
+
+  BLEU (Bilingual Evaluation Understudy) addresses a fundamental challenge in natural language processing: how do we evaluate generated text when multiple correct outputs are possible? Unlike classification tasks where outputs can be compared directly, language generation tasks often have many valid ways to express the same idea.
+
+  For example, these sentences could both be valid translations:
+  - "The ball is blue"
+  - "The ball has a blue color"
+
+  BLEU provides a quantitative way to evaluate such outputs by measuring how closely they match one or more reference texts.
+</Card>
+
+### BLEU Score Components
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Key Elements</h3>
+  </div>
+
+  <CardGroup cols={2}>
+    <Card title="N-grams" icon="text-size">
+      Sets of consecutive words in a sentence. For example, in "The ball is blue":
+      - 1-gram: "The", "ball", "is", "blue"
+      - 2-gram: "The ball", "ball is", "is blue"
+    </Card>
+    <Card title="Clipped Precision" icon="calculator">
+      Measures word overlap while preventing inflation through repetition. Limited by maximum word occurrences in reference text.
+    </Card>
+    <Card title="Brevity Penalty" icon="ruler">
+      Penalizes outputs that are too short compared to the reference, preventing gaming the metric with minimal outputs.
+    </Card>
+    <Card title="Score Range" icon="chart-line">
+      Scores range from 0 to 1, with 0.6-0.7 considered excellent. Scores near 1 may indicate overfitting.
+    </Card>
+  </CardGroup>
+</Card>
+
+### BLEU Calculation Method
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Computing BLEU Score</h3>
+  </div>
+
+  <Steps>
+    <Step title="Calculate N-gram Precisions" description="For each n-gram level (1 to 4):">
+      1. Count matching n-grams between generated and reference text
+      2. Apply clipping to prevent inflation from repeated words
+      3. Divide by total number of n-grams in generated text
+    </Step>
+    <Step title="Geometric Average" description="Combine n-gram scores:">
+      1. Apply weights to each n-gram level (typically uniform weights)
+      2. Calculate weighted geometric mean of precision scores
+      3. Result ranges from 0 to 1
+    </Step>
+    <Step title="Apply Brevity Penalty" description="Penalize short outputs:">
+      1. Calculate ratio of generated length to reference length
+      2. If shorter than reference, apply exponential penalty
+      3. BP = 1 if output is longer than reference
+    </Step>
+    <Step title="Final Score" description="Combine components:">
+      BLEU = BP × exp(Σ wₙ × log pₙ)
+      where BP is brevity penalty, wₙ are weights, and pₙ are precision scores
+    </Step>
+  </Steps>
+</Card>
+
+### BLEU Score Variants
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Types of BLEU Scores</h3>
+  </div>
+
+  Different BLEU variants capture different aspects of text similarity. Higher-order n-grams help ensure grammatical correctness and phrase structure:
+  
+  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>BLEU-1:</strong> Uses only unigram precision, good for capturing basic content overlap
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>BLEU-2:</strong> Geometric average of unigram and bigram precision, begins to capture local word order
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>BLEU-3:</strong> Includes up to trigram precision, better at capturing phrase structures
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>BLEU-4:</strong> Most common variant, uses up to 4-gram precision, best at ensuring fluent and grammatical outputs
+  </div>
+</Card>
+
+### Strengths and Limitations
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Understanding Trade-offs</h3>
+  </div>
+
+  <CardGroup cols={2}>
+    <Card title="Advantages" icon="plus">
+      - Quick to calculate
+      - Language-independent
+      - Correlates with human judgment
+      - Supports multiple references
+    </Card>
+    <Card title="Limitations" icon="minus">
+      - Doesn't consider meaning
+      - Misses word variations
+      - Treats all words equally
+      - Limited by reference quality
+    </Card>
+  </CardGroup>
+</Card>
+
+### Understanding ROUGE
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>What is ROUGE?</h3>
+  </div>
+
+  ROUGE (Recall-Oriented Understudy for Gisting Evaluation) is a set of metrics designed to evaluate AI-generated texts, particularly summaries and translations. It bridges the gap between machine learning outputs and human expectations by measuring how well AI captures and conveys information from source content.
+</Card>
+
+### ROUGE Variants
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Types of ROUGE Metrics</h3>
+  </div>
+
+  <CardGroup cols={2}>
+    <Card title="ROUGE-N" icon="text-size">
+      Evaluates n-gram overlap:
+      - ROUGE-1: Single words
+      - ROUGE-2: Two-word phrases
+      - ROUGE-3: Three-word phrases
+    </Card>
+    <Card title="ROUGE-L" icon="arrows-left-right">
+      Measures longest common subsequences, allowing for flexible word ordering while maintaining meaning.
+    </Card>
+    <Card title="ROUGE-W" icon="weight">
+      Weighted version that prioritizes longer matching sequences, promoting natural flow and coherence.
+    </Card>
+    <Card title="ROUGE-S" icon="shuffle">
+      Examines skip-bigrams, allowing gaps between matched words to capture rephrased content.
+    </Card>
+  </CardGroup>
+</Card>
+
+### ROUGE Calculation Method
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Computing ROUGE Scores</h3>
+  </div>
+
+  <Steps>
+    <Step title="Prepare Texts" description="For each evaluation:">
+      1. Process generated text and reference text(s)
+      2. Extract relevant units (n-grams, sequences, or skip-grams)
+      3. Handle multiple references if available
+    </Step>
+    <Step title="Calculate Precision" description="For generated content accuracy:">
+      1. Count matching units in generated text
+      2. Divide by total units in generated text
+      3. Precision = matches / total_generated
+    </Step>
+    <Step title="Calculate Recall" description="For reference content coverage:">
+      1. Count matching units in reference text
+      2. Divide by total units in reference text
+      3. Recall = matches / total_reference
+    </Step>
+    <Step title="Compute F1-Score" description="Balance precision and recall:">
+      F1 = 2 × (precision × recall) / (precision + recall)
+    </Step>
+  </Steps>
+
+  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Variant-Specific Calculations:</strong>
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>ROUGE-N:</strong> Apply above steps using n-gram matches (unigrams, bigrams, etc.)
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>ROUGE-L:</strong> Use longest common subsequence instead of n-grams
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>ROUGE-W:</strong> Apply weights based on consecutive matches in ROUGE-L
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>ROUGE-S:</strong> Consider skip-bigram matches with flexible word gaps
+  </div>
+</Card>
+
+### ROUGE Components
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Key Metrics</h3>
+  </div>
+
+  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Precision:</strong> Measures how much of the AI-generated text is relevant to the reference
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Recall:</strong> Evaluates how much of the reference text is captured in the AI output
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>F1-Score:</strong> Balanced measure combining precision and recall
+  </div>
+</Card>
+
+## Optimizing Your AI System
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Using BLEU and ROUGE Effectively</h3>
+  </div>
+  
+  To effectively use these metrics in your system:
+      
+  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Set Ground Truth:</strong> Ensure your dataset includes reference outputs for comparison.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Monitor Performance:</strong> Use scores to identify areas where model outputs deviate from expected results.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Consider Limitations:</strong> Remember BLEU doesn't account for meaning, word variants, or word importance.
+  </div>
+  
+  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
+    <strong>Iterate and Improve:</strong> Focus optimization efforts on areas with lower overlap scores.
+  </div>
+</Card>
+
+<Note>
+These metrics require a Ground Truth to be set. Check out [this page](#) to learn how to add a Ground Truth to your runs.
+</Note>
