@@ -1,0 +1,214 @@
+---
+title: Overview
+---
+
+The Python SDK allows you to log all prompts, responses, and statistics around your LLM usage. There are three main ways to log your application:
+
+1. **[Using a wrapper (Recommended)](#wrapper-method)** - Instead of importing common LLMs like `openai`, use Galileo's wrapper which automatically logs everything, no other code changes required!
+2. **[Using a decorator](#decorator-method)** - By decorating a function that calls an LLM with the `@log` decorator, the Galileo SDK logs all AI prompts within.
+3. **[Directly using the `GalileoLogger` class (Manual)](#manual-method)** - As a last resort, you can directly use the base class, but this requires calling multiple methods per LLM call.
+
+Regardless of how you go about logging your AI application, you will still need to initialize your API keys and install the Galileo SDK by following the steps below.
+
+## Key Concepts
+
+Throughout this reference guide there are several ideas which will be used extensively.
+1. **<a href="/concepts/projects">Project</a>** - All logs are stored within a project in Galileo. You can create and manage your projects using the Galileo UI.
+2. **<a href="/concepts/log-streams">Log Streams</a>** - Log streams are a way to organize logs in Galileo. You can create and manage your log streams using the Galileo UI.
+3. **<a href="/concepts/logs">Logs</a>** - These consist of data, metrics, and LLM responses that you can track in your Galileo UI.
+4. **<a href="/concepts/traces">Traces</a>** - These track a collection of Logs which represent a "single response". For multi-step LLM calls, this helps debug how the response was built, and where issues may have occurred.
+5. **<a href="/concepts/spans">Spans</a>** - Spans are a single step in a trace. They can be a `workflow` if they contain multiple sub-spans, `llm` for a step invoking an LLM call, `retriever` for when you retrieve data, or `tool` for agentic tool calls. 
+
+As your application runs, it will stream logs back to Galileo in a series of traces that then get analyzed using Metrics you set up. Traces that seem problematic can then be reviewed step by step to determine what part of the pipeline needs changing, or if the Metrics need tweaking.
+
+## Initialization/Authentication
+
+1. Create or update a `.env` file with the following values:
+
+```env
+# Scoped to an Organization
+GALILEO_API_KEY=...
+
+# Optional, if you're not using the multi-tenant cluster
+# GALILEO_CONSOLE_URL=https://console.experimental-aws.rungalileo.io/
+
+# Optional, set a default Project
+GALILEO_PROJECT=...
+# Optional, set a default Log Stream
+GALILEO_LOG_STREAM=...
+```
+
+2. Install Galileo's Python SDK to your project by running:
+```bash
+pip install "galileo[all]"
+```
+
+3. Follow the below instructions for adding logging throughout your app.
+
+<a id="wrapper-method"></a>
+## Logging
+
+### Using LLM Wrappers
+
+The simplest way to get started is to use our OpenAI client wrapper. This example will automatically produce a single-span trace in the Logstream UI. For more details, see the [wrappers documentation](./wrappers/wrappers-overview):
+<CodeGroup>
+```python wrapper.py
+from galileo.openai import openai
+
+def llm_call(input):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          {"role": "system", "content": "You are a great storyteller."},
+          {"role": "user", "content": f"Write a story about {input}"}
+        ],
+    ).choices[0].message.content
+
+response = llm_call("a sailor")
+print(response)
+```
+
+```typescript wrapper.ts
+
+```
+</CodeGroup>
+
+<a id="decorator-method"></a>
+By default, any traces that are created during a request are automatically flushed (i.e. uploaded to Galileo) when the request terminates. To flush traces prior to that, you can use the context manager or the GalileoLogger (outlined in a section below).
+
+### Using the `@log` Decorator
+
+The `@log` decorator is used to capture the inputs and outputs of a function as a span. By default, a workflow span is created when span_type isn't specified. Here are the different span types:
+
+- **Workflow**: A span that can have child spans, useful for nesting several child spans to denote a thread within a trace. If you add the `@log` decorator to a parent method, and calls that are made within that scope are automatically logged in the same trace.
+- **Llm**: Captures the input, output, and settings of an LLM call. This span gets automatically created when our client library wrappers (OpenAI and Anthropic) are used. Cannot have nested children.
+- **Retriever**: Contains the output documents of a retrieval operation.
+- **Tool**: Captures the input and output of a tool call. Used to decorate functions that are invoked as tools.
+
+This example will create a trace with a workflow span and two nested llm spans:
+
+```python
+from galileo import log
+
+@log
+def my_wrapper_function(input):
+	first_result = llm_call(input)
+	second_result = another_llm_call(first_result)
+	return second_result
+
+response = my_wrapper_function("write an essay about the Roman Empire")
+print(response)
+```
+
+This example shows how to mark a tool function:
+
+```python
+from galileo import log
+
+@log(span_type="tool")
+def tool_function(arg1: str, arg2: str):
+	...
+	return result
+```
+
+Logging a retriever. If the output of the function is an array, it will automatically capture it as documents in the span.
+
+```python
+from galileo import log
+
+@log(span_type="retriever")
+def retriever_function(input: str):
+	...
+	return documents
+```
+
+For more detailed information and examples, see the [@log Decorator documentation](./logging/log-decorator).
+
+<a id="manual-method"></a>
+### Pure invocation using the `GalileoLogger`
+This is the most verbose way to log your application. It requires manually calling the `GalileoLogger` class and adding spans to the trace. We recommend using the other two methods whenever possible.
+
+```python
+from galileo import GalileoLogger
+
+input = "Why is the sky blue?"
+config = {
+	model,
+	temperature
+}
+logger = GalileoLogger()
+trace = logger.start_trace(
+	input,
+	tags=[]
+)
+
+output = llm_call(input, config)
+logger.add_llm_span(
+	input,
+	output,
+	config,
+	type="llm"
+)
+
+logger.conclude(output)
+logger.flush()
+```
+
+For complete API documentation and advanced usage examples, see the [GalileoLogger documentation](./logging/galileo-logger).
+
+{/* TODO: Research and add OTEL support */}
+
+### Grouping and Uploading Logs Faster: `galileo_context()`
+
+Regardless of the method you use to add logs, the Galileo context manager can be useful for a few things:
+- Automatically starting a trace and ensuring anything that happens in its scope is logged as a span within the trace.
+- For long running app runtimes like Streamlit, the request never terminates. You can use the context manager to start a trace and ensure that traces are flushed when the manager exits.
+- You might want to route a part of your app to a different Project or Log Stream. You can use the context manager to set the trace scope.
+
+Using the context manager to create a trace with a nested LLM span (which is automatically flushed when the manager exits):
+
+```python
+from galileo.openai import openai
+from galileo import galileo_context
+
+def llm_call(input):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          {"role": "system", "content": "You are a great storyteller."},
+          {"role": "user", "content": f"Write a story about {input}"}
+        ],
+    ).choices[0].message.content
+
+with galileo_context():
+	print(llm_call("birds"))
+```
+
+Using the context manager to route traces to a specific project and log stream:
+
+```python
+from galileo.openai import openai
+from galileo import galileo_context
+
+def llm_call(input):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          {"role": "system", "content": "You are a great storyteller."},
+          {"role": "user", "content": f"Write a story about {input}"}
+        ],
+    ).choices[0].message.content
+
+with galileo_context(project="my-project", log_stream="my-log-stream"):
+	print(llm_call("birds"))
+```
+
+## Additional Documentation
+
+For more detailed information on specific topics, please refer to the following pages:
+
+- [OpenAI Wrapper](./wrappers/openai) - Using the OpenAI wrapper for automatic logging
+- [Langchain Integration](./wrappers/langchain) - Learn how to integrate Galileo with Langchain
+- [Prompts](./prompts) - Creating and using prompt templates
+- [Datasets](./experimentation/datasets) - Working with datasets in Galileo
+- [Experimentation](./experimentation/experimentation) - Running experiments and evaluations
