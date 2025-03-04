@@ -1,0 +1,234 @@
+---
+title: 'GalileoLogger'
+description: 'Manual control over logging with the GalileoLogger class'
+---
+
+The `GalileoLogger` class provides the most granular control over logging in Galileo. While the [wrappers](/sdk-api/python/wrappers/wrappers-overview) and [@log decorator](/sdk-api/python/logging/log-decorator) are recommended for most use cases, the `GalileoLogger` gives you complete flexibility when you need it.
+
+## Overview
+
+The `GalileoLogger` class allows you to:
+- Manually create and manage traces
+- Add spans of different types to your traces
+- Control exactly what data gets logged
+- Explicitly manage when traces are flushed to Galileo
+
+This approach requires more code than using wrappers or decorators but gives you the most control over the logging process.
+
+## Basic Usage
+
+Here's a simple example of using the `GalileoLogger` to log an LLM call:
+
+```python
+from galileo import GalileoLogger
+
+# Create a logger instance
+logger = GalileoLogger()
+
+# Start a new trace
+input_text = "Why is the sky blue?"
+trace = logger.start_trace(input_text)
+
+# Make your LLM call
+config = {
+    "model": "gpt-4o",
+    "temperature": 0.7
+}
+output = your_llm_call_function(input_text, config)
+
+# Add an LLM span to the trace
+logger.add_llm_span(
+    input=input_text,
+    output=output,
+    config=config
+)
+
+# Conclude the trace with the final output
+logger.conclude(output)
+
+# Flush the trace to Galileo
+logger.flush()
+```
+
+## Detailed API
+
+### Initialization
+
+```python
+from galileo import GalileoLogger
+
+# Initialize with default settings
+logger = GalileoLogger()
+
+# Or specify project and log stream
+logger = GalileoLogger(
+    project="my-project",
+    log_stream="my-log-stream"
+)
+```
+
+### Starting a Trace
+
+```python
+# Start a basic trace
+trace = logger.start_trace(input="User query")
+
+# Start a trace with additional metadata
+trace = logger.start_trace(
+    input="User query",
+    tags=["production", "user-123"],
+    metadata={"session_id": "abc123", "user_id": "user-456"}
+)
+```
+
+### Adding Spans
+
+The `GalileoLogger` supports adding different types of spans to your traces:
+
+#### LLM Spans
+
+```python
+logger.add_llm_span(
+    input="What is the capital of France?",
+    output="The capital of France is Paris.",
+    config={
+        "model": "gpt-4o",
+        "temperature": 0.7,
+        "max_tokens": 100
+    },
+    name="Capital Query",  # Optional
+    tags=["geography"]     # Optional
+)
+```
+
+#### Workflow Spans
+
+```python
+# Start a workflow span
+workflow_span = logger.start_workflow_span(
+    name="Data Processing",
+    input={"data": "raw_data"}
+)
+
+# ... do some processing ...
+
+# End the workflow span
+logger.end_workflow_span(
+    workflow_span,
+    output={"processed_data": result}
+)
+```
+
+#### Retriever Spans
+
+```python
+logger.add_retriever_span(
+    input="Query about Roman history",
+    documents=[
+        {"content": "Rome was founded in 753 BC...", "metadata": {"source": "history.txt"}},
+        {"content": "The Roman Empire reached its peak...", "metadata": {"source": "empire.txt"}}
+    ],
+    name="History Retrieval"  # Optional
+)
+```
+
+#### Tool Spans
+
+```python
+logger.add_tool_span(
+    name="Calculator",
+    input={"operation": "add", "numbers": [1, 2, 3]},
+    output={"result": 6}
+)
+```
+
+### Concluding and Flushing
+
+```python
+# Conclude the trace with the final output
+logger.conclude("This is the final response to the user.")
+
+# Flush the trace to Galileo
+logger.flush()
+```
+
+## Advanced Usage
+
+### Nested Spans
+
+You can create nested spans to represent complex workflows:
+
+```python
+from galileo import GalileoLogger
+
+logger = GalileoLogger()
+trace = logger.start_trace("Process user request")
+
+# Start a parent workflow span
+parent_span = logger.start_workflow_span(name="Main Process")
+
+# Add a child LLM span
+logger.add_llm_span(
+    input="Generate a story",
+    output="Once upon a time...",
+    config={"model": "gpt-4o"}
+)
+
+# Start another child workflow span
+child_workflow = logger.start_workflow_span(name="Data Processing")
+
+# Add a retriever span inside the child workflow
+logger.add_retriever_span(
+    input="Find relevant documents",
+    documents=[{"content": "Document 1"}, {"content": "Document 2"}]
+)
+
+# End the child workflow span
+logger.end_workflow_span(child_workflow, output={"status": "completed"})
+
+# End the parent workflow span
+logger.end_workflow_span(parent_span, output={"status": "completed"})
+
+# Conclude and flush the trace
+logger.conclude("Final response to user")
+logger.flush()
+```
+
+### Error Handling
+
+You can log errors in your spans:
+
+```python
+try:
+    result = risky_operation()
+    logger.add_tool_span(
+        name="Risky Operation",
+        input={"param": "value"},
+        output=result
+    )
+except Exception as e:
+    logger.add_tool_span(
+        name="Risky Operation",
+        input={"param": "value"},
+        error=str(e)
+    )
+```
+
+## Best Practices
+
+1. **Use higher-level abstractions when possible**: The `@log` decorator and wrappers are easier to use and less error-prone.
+
+2. **Flush traces when appropriate**: Call `flush()` at the end of a request or user interaction to ensure data is sent to Galileo.
+
+3. **Include relevant metadata**: Add tags and metadata to make it easier to filter and analyze your traces.
+
+4. **Structure spans logically**: Create a span hierarchy that reflects the logical structure of your application.
+
+5. **Handle errors gracefully**: Log errors in spans to help with debugging and analysis.
+
+## Related Resources
+
+- [@log Decorator](/sdk-api/python/logging/log-decorator) - For a simpler way to log function calls
+- [OpenAI Wrapper](/sdk-api/python/wrappers/openai) - For automatic logging of OpenAI calls
+- [Langchain Integration](/sdk-api/python/wrappers/langchain) - For logging Langchain workflows
+- [galileo_context()](/sdk-api/python/reference#grouping-and-uploading-logs-faster-galileo_context) - For managing trace context and automatic flushing 

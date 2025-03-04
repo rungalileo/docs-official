@@ -1,0 +1,142 @@
+---
+title: '@log Decorator'
+description: 'Easily capture function inputs and outputs as spans in your traces'
+---
+
+The `@log` decorator provides a simple way to capture the inputs and outputs of a function as a span within a trace. This is particularly useful for tracking the execution of your AI application without having to manually create and manage spans.
+
+## Overview
+
+When you decorate a function with `@log`, Galileo automatically:
+- Captures the function's input arguments
+- Tracks the function's execution
+- Records the function's return value
+- Creates an appropriate span in the current trace
+
+This approach is less automatic than using wrappers but more flexible, as you can decorate any function in your codebase, not just LLM calls.
+
+## Basic Usage
+
+To use the `@log` decorator, simply import it from the Galileo package and apply it to your functions:
+
+```python
+from galileo import log
+
+@log
+def my_function(input_text):
+    # Your function logic here
+    result = process_data(input_text)
+    return result
+
+# When called, this function will be automatically logged
+response = my_function("Some input text")
+```
+
+## Span Types
+
+By default, the `@log` decorator creates a workflow span, but you can specify different span types depending on what your function does:
+
+```python
+from galileo import log
+
+# Create a workflow span (default)
+@log
+def my_workflow_function(input):
+    # This can contain multiple steps and child spans
+    return result
+
+# Create an LLM span
+@log(span_type="llm")
+def my_llm_function(input):
+    # This should be for direct LLM calls
+    return result
+
+# Create a retriever span
+@log(span_type="retriever")
+def my_retriever_function(input):
+    # For functions that retrieve documents
+    # If the output is an array, it will be captured as documents
+    return documents
+
+# Create a tool span
+@log(span_type="tool")
+def my_tool_function(arg1, arg2):
+    # For functions that act as tools in an agent system
+    return result
+```
+
+### Span Type Descriptions
+
+- **Workflow**: A span that can have child spans, useful for nesting several child spans to denote a thread within a trace. If you add the `@log` decorator to a parent method, calls that are made within that scope are automatically logged in the same trace.
+- **Llm**: Captures the input, output, and settings of an LLM call. This span gets automatically created when our client library wrappers (OpenAI and Anthropic) are used. Cannot have nested children.
+- **Retriever**: Contains the output documents of a retrieval operation. Useful for tracking what documents were retrieved in RAG applications.
+- **Tool**: Captures the input and output of a tool call. Used to decorate functions that are invoked as tools in agent-based systems.
+
+## Nested Spans Example
+
+One of the most powerful features of the `@log` decorator is its ability to create nested spans, which helps visualize the flow of your application:
+
+```python
+from galileo import log
+from galileo.openai import openai
+
+@log
+def my_wrapper_function(input):
+    # This creates a parent workflow span
+    first_result = llm_call(input)
+    second_result = another_llm_call(first_result)
+    return second_result
+
+def llm_call(input):
+    # This will be automatically logged as a child span
+    return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": input}
+        ]
+    ).choices[0].message.content
+
+def another_llm_call(input):
+    # This will also be automatically logged as a child span
+    return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": f"Summarize this: {input}"}
+        ]
+    ).choices[0].message.content
+
+# When called, this will create a trace with a workflow span and two nested LLM spans
+response = my_wrapper_function("Write an essay about the Roman Empire")
+```
+
+## Additional Parameters
+
+The `@log` decorator accepts several optional parameters to customize the logging behavior:
+
+```python
+@log(
+    span_type="workflow",  # The type of span to create
+    name="Custom Name",    # A custom name for the span
+    tags=["tag1", "tag2"]  # Tags to associate with the span
+)
+def my_function(input):
+    return result
+```
+
+## Best Practices
+
+1. **Decorate high-level functions**: For the clearest traces, decorate the highest-level functions that encompass meaningful units of work.
+
+2. **Use appropriate span types**: Choose the span type that best represents what your function does.
+
+3. **Combine with wrappers**: The `@log` decorator works seamlessly with Galileo's wrappers, allowing you to create rich, nested traces.
+
+4. **Add meaningful tags**: Use tags to make it easier to filter and analyze your traces later.
+
+## Related Resources
+
+- [GalileoLogger](/sdk-api/python/logging/galileo-logger) - For more manual control over logging
+- [OpenAI Wrapper](/sdk-api/python/wrappers/openai) - For automatic logging of OpenAI calls
+- [Langchain Integration](/sdk-api/python/wrappers/langchain) - For logging Langchain workflows 
