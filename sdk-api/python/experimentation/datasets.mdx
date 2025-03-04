@@ -2,38 +2,92 @@
 title: Datasets
 ---
 
-Create a dataset and add data to it:
+Datasets are a fundamental building block in Galileo's experimentation workflow. They provide a structured way to organize, version, and manage your test cases. Whether you're evaluating prompts, testing LLM functions, or analyzing model behavior, having well-organized datasets is crucial for systematic testing and continuous improvement.
+
+## Creating and Growing Your Dataset
+
+When building your test suite, you'll often start with a core set of test cases and expand them over time as you discover new edge cases or scenarios. Galileo makes this process seamless by allowing you to create datasets and add to them incrementally:
 
 ```python
 from galileo.datasets import create_dataset
 
 test_data = [
-        {
-            "input": "Which continent is Spain in?",
-            "expected": "Europe",
-        },
-	 {
-            "input": "Which continent is Japan in?",
-            "expected": "Asia",
-        },
-    ]
+    {
+        "input": "Which continent is Spain in?",
+        "expected": "Europe",
+    },
+    {
+        "input": "Which continent is Japan in?",
+        "expected": "Asia",
+    },
+]
+
 dataset = create_dataset(
-name="countries", 
-data=test_data,
-project="my-project",
+    name="countries", 
+    data=test_data,
+    project="my-project",
+)
+```
+
+As you discover new test cases, you can easily add them to your dataset:
+
+```python
+dataset = get_dataset(
+    name="countries",
+    version=3, # if this param isn't specified, it defaults to the latest
+    project="my-project",
 )
 
 dataset.insert([
-        {
-            "input": "Which continent is Morocco in?",
-            "expected": "Africa",
-        },
-	 {
-            "input": "Which continent is Australia in?",
-            "expected": "Oceania",
-        },
-    ])
+    {
+        "input": "Which continent is Morocco in?",
+        "expected": "Africa",
+    },
+    {
+        "input": "Which continent is Australia in?",
+        "expected": "Oceania",
+    },
+])
 ```
+
+## Version Management and History
+
+One of the key benefits of Galileo's dataset management is automatic versioning. This allows you to track how your test suite evolves over time and ensures reproducibility of your experiments. You can always reference specific versions of a dataset or work with the latest version:
+
+```python
+from galileo.datasets import get_dataset
+
+# Get the latest version by default
+dataset = get_dataset(
+    name="countries",
+    project="my-project",
+)
+
+# Check when this version was last modified
+print(dataset.modified_at)
+
+# Review the history of your dataset
+versions = dataset.get_version_history()
+
+# Access an older version for comparison or regression testing
+oldest_version = get_dataset(
+	name="countries",
+	version=versions[-1].version
+	project="my-project"
+)
+```
+
+## Best Practices for Dataset Management
+
+When working with datasets in Galileo, consider these tips:
+
+1. **Start Small**: Begin with a core set of representative test cases
+2. **Grow Incrementally**: Add new test cases as you discover edge cases or failure modes
+3. **Version Thoughtfully**: Use versioning to track major changes in your test suite
+4. **Document Changes**: Keep track of why you added certain test cases or created new versions
+5. **Organize by Purpose**: Create separate datasets for different types of tests (e.g., basic functionality, edge cases, regression tests)
+
+By following these practices and utilizing Galileo's dataset management features, you can build a robust and maintainable test suite that grows with your application's needs.
 
 List the versions of a dataset and grab a particular version:
 
@@ -41,9 +95,8 @@ List the versions of a dataset and grab a particular version:
 from galileo.datasets import get_dataset
 
 dataset = get_dataset(
-name="countries",
-version=3, # if this param isn't specified, it defaults to the latest
-project="my-project",
+    name="countries",    
+    project="my-project",
 )
 
 print(dataset.modified_at)

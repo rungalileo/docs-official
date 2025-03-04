@@ -1,0 +1,85 @@
+---
+title: Basic OpenAI Integration
+description: Learn how to integrate and use OpenAI's API with Galileo's wrapper client.
+---
+
+When working with OpenAI's API, it's important to set up your environment and client correctly to ensure secure and efficient API calls. This guide shows you how to create a basic integration using Galileo's OpenAI client wrapper.
+
+### What You'll Need
+- OpenAI API key
+- Galileo API key
+- Python environment
+- Required packages installed
+
+### Basic Setup Requirements
+- **Environment Variables**: Secure storage of API keys
+- **Required Packages**: Galileo and OpenAI clients
+- **Python Environment**: 3.7 or higher recommended
+
+
+
+## Implementation Steps
+<Steps>
+<Step title="Set Up Environment Variables">
+
+Create a `.env` file in your project root:
+
+```text .env
+GALILEO_API_KEY=your_galileo_api_key
+GALILEO_CONSOLE_URL=your_console_url
+GALILEO_PROJECT=your_project_name
+GALILEO_LOG_STREAM=your_log_stream
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_ORGANIZATION=your_org_id
+```
+</Step>
+<Step title="Install Required Dependencies">
+
+Create a `requirements.txt` file:
+
+```text requirements.txt
+galileo==0.0.7
+openai==1.61.1
+pydantic==2.10.6
+python-dotenv==0.19.0
+```
+
+Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+</Step>
+<Step title="Initialize the Client">
+
+- Import required packages
+- Load environment variables
+- Create OpenAI client instance with Galileo wrapper
+</Step>
+<Step title="Create a Chat Completion">
+
+- Structure your prompt
+- Call the API using the client
+- Process and use the response
+
+```python app.py
+import os
+from galileo import openai # The Galileo OpenAI client wrapper is all you need!
+from dotenv import load_dotenv
+
+load_dotenv()
+
+client = openai.OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY"),
+    organization=os.environ.get("OPENAI_ORGANIZATION")
+)
+
+prompt = f"Explain the following topic succinctly: Newton's First Law"
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "system", "content": prompt}],
+)
+
+print(response.choices[0].message.content.strip())
+```
+</Step>
+</Steps>

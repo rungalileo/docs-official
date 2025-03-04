@@ -2,7 +2,35 @@
 title: Overview
 ---
 
-Evaluating a runner function against an existing dataset:
+When working with Galileo, experimentation is a crucial part of the continuous improvement cycle. As you progress from initial testing to systematic evaluation, you'll want to run experiments to validate your application's performance and behavior. Here are several ways to structure your experiments, starting from the simplest approaches and moving to more sophisticated implementations:
+
+## Working with Prompts
+
+The simplest way to get started with experimentation is by evaluating prompts directly against datasets. This is especially valuable during the initial prompt development and refinement phase, where you want to test different prompt variations:
+
+```python
+from galileo.prompts import get_prompt
+from galileo.experiments import run_experiment
+from galileo.datasets import get_dataset
+from galileo.scorers import correctness
+
+prompt = get_prompt(
+	name="storyteller-prompt"
+	version="latest"
+)
+
+results = run_experiment(
+	dataset=get_dataset(name="storyteller-dataset"),
+	prompt,
+	metrics=["correctness"],
+	project="my-project",
+	tags=[],
+)
+```
+
+## Running Experiments with Existing Datasets
+
+Once you're comfortable with basic prompt testing, you might want to evaluate more complex functions against pre-existing datasets. This approach is particularly useful when you've already collected a set of test cases or want to benchmark against known examples:
 
 ```python
 from galileo.experiments import run_experiment
@@ -32,29 +60,9 @@ results = run_experiment(
 )
 ```
 
-Evaluating a prompt against an existing dataset:
+## Custom Dataset Evaluation
 
-```python
-from galileo.prompts import get_prompt
-from galileo.experiments import run_experiment
-from galileo.datasets import get_dataset
-from galileo.scorers import correctness
-
-prompt = get_prompt(
-	name="storyteller-prompt"
-	version="latest"
-)
-
-results = run_experiment(
-	dataset=get_dataset(name="storyteller-dataset"),
-	prompt,
-	metrics=["correctness"],
-	project="my-project",
-	tags=[],
-)
-```
-
-Evaluating a runner function against a custom dataset:
+As your testing needs become more specific, you might need to work with custom datasets. This approach is perfect for focused testing of edge cases or when building up your test suite with specific scenarios:
 
 ```python
 from galileo.experiments import run_experiment
@@ -86,7 +94,9 @@ results = run_experiment(
 )
 ```
 
-Evaluating a runner function against a dataset using a custom metric:
+## Custom Metrics for Deep Analysis
+
+For the most sophisticated level of testing, you might need to track specific aspects of your application's behavior. Custom metrics provide the flexibility to define precisely what you want to measure, enabling deep analysis and targeted improvement:
 
 ```python
 from galileo.experiments import run_experiment
@@ -116,3 +126,14 @@ results = run_experiment(
 project="my-project",
 	tags=[],
 )
+```
+
+Each of these experimentation approaches fits into different stages of your development and testing workflow. As you progress from simple prompt testing to sophisticated custom metrics, Galileo's experimentation framework provides the tools you need to gather insights and improve your application's performance at every level of complexity.
+
+## Experimenting with Agentic and RAG Applications
+
+The experimentation framework extends naturally to more complex applications like agentic AI systems and RAG (Retrieval-Augmented Generation) applications. When working with agents, you can evaluate various aspects of their behavior, from decision-making capabilities to tool usage patterns. This is particularly valuable when testing how agents handle complex workflows, multi-step reasoning, or tool selection.
+
+For RAG applications, experimentation helps validate both the retrieval and generation components of your system. You can assess the quality of retrieved context, measure response relevance, and ensure that your RAG pipeline maintains high accuracy across different types of queries. This is especially important when fine-tuning retrieval parameters or testing different reranking strategies.
+
+The same experimentation patterns shown above apply to these more complex systems. You can use predefined datasets to benchmark performance, create custom datasets for specific edge cases, and define specialized metrics that capture the unique aspects of agent behavior or RAG performance. This systematic approach to testing helps ensure that your advanced AI applications maintain high quality and reliability in production environments.

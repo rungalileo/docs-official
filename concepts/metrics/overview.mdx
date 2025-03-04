@@ -3,6 +3,53 @@ title: Metrics Overview
 description: Explore Galileo's comprehensive metrics framework for evaluating and improving AI system performance across multiple dimensions.
 ---
 
+<script>
+{`
+  function highlightSection() {
+    // Remove any existing highlights
+    const prevHighlight = document.querySelector('.section-highlight');
+    if (prevHighlight) {
+      prevHighlight.classList.remove('section-highlight');
+    }
+
+    // If we have a hash, find and highlight the section
+    if (window.location.hash) {
+      const targetSection = document.querySelector(window.location.hash);
+      if (targetSection) {
+        targetSection.classList.add('section-highlight');
+        // Ensure smooth scroll
+        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }
+
+  // Run on page load and when hash changes
+  if (typeof window !== 'undefined') {
+    window.addEventListener('load', highlightSection);
+    window.addEventListener('hashchange', highlightSection);
+  }
+`}
+</script>
+
+<style>
+{`
+  .section-highlight {
+    position: relative;
+    background: #4a2ff911;
+    padding: 24px;
+    margin: -24px;
+    border-radius: 8px;
+    border-left: 4px solid #4a2ff9;
+    animation: flashHighlight 2s ease-out;
+  }
+
+  @keyframes flashHighlight {
+    0% { background: #4a2ff933; }
+    100% { background: #4a2ff911; }
+  }
+`}
+</style>
+
 Galileo provides a robust set of metrics to evaluate and improve your AI systems across multiple dimensions. These metrics help you identify issues, understand performance patterns, and implement targeted improvements to enhance your AI applications.
 
 ## Metric Categories
@@ -13,10 +60,10 @@ Our metrics are organized into five key categories, each addressing a specific a
   <Card title="Response Quality" href="#response-quality-metrics">
     Metrics that evaluate how well your AI system responds to user queries, focusing on accuracy, relevance, and comprehensiveness.
   </Card>
-  <Card title="Expression & Readability" href="#expression--readability-metrics">
+  <Card title="Expression & Readability" href="#expression-and-readability-metrics">
     Metrics that assess the linguistic quality and readability of AI-generated content, including tone and fluency.
   </Card>
-  <Card title="Safety & Compliance" href="#safety--compliance-metrics">
+  <Card title="Safety & Compliance" href="#safety-and-compliance-metrics">
     Metrics that identify potential risks related to harmful content, PII exposure, and compliance violations.
   </Card>
   <Card title="Model Confidence" href="#model-confidence-metrics">
@@ -55,7 +102,7 @@ These metrics help you understand how well your AI system is responding to user 
   </Card>
 </CardGroup>
 
-## Safety & Compliance Metrics
+## Safety and Compliance Metrics
 
 These metrics help identify potential risks and compliance issues:
 
@@ -103,7 +150,7 @@ These metrics are specifically designed for AI agents that use tools:
   </Card>
 </CardGroup>
 
-## Expression & Readability Metrics
+## Expression and Readability Metrics
 
 These metrics assess the linguistic quality of AI-generated content:
 
