@@ -1,5 +1,5 @@
 ---
-title: Basic RAG Implementation
+title: Basic RAG Example
 description: Learn how to implement a basic Retrieval-Augmented Generation (RAG) system using Galileo and OpenAI.
 ---
 
@@ -11,11 +11,46 @@ When implementing RAG systems, it's crucial to properly handle document retrieva
 - Python environment with required packages
 - Basic understanding of RAG concepts
 
-### Common Challenges
-- **Document Retrieval**: Ensuring relevant context is retrieved
-- **Context Management**: Properly formatting and using retrieved documents
-- **Error Handling**: Gracefully handling API and runtime errors
-- **User Experience**: Creating an interactive and informative interface
+## Setup Instructions
+
+<Steps>
+<Step title="Set Up Your Environment">
+
+Create a `.env` file with your API keys:
+
+```text .env
+GALILEO_API_KEY=your_galileo_api_key
+OPENAI_API_KEY=your_openai_api_key
+```
+</Step>
+
+<Step title="Install Dependencies">
+
+Install required dependencies:
+
+```text requirements.txt
+galileo==0.0.7
+openai==1.61.1
+python-dotenv==0.19.0
+rich==13.7.0
+questionary==2.0.1
+```
+</Step>
+
+<Step title="Running and Monitoring">
+
+Execute the application:
+```bash
+python app.py
+```
+
+Use Galileo to monitor:
+- Document retrieval performance
+- Query patterns and response quality
+- Error rates and types
+- System performance metrics
+</Step>
+</Steps>
 
 ## Implementation Guide
 
@@ -25,7 +60,7 @@ Let's break down the implementation into manageable sections:
 
 First, we'll set up our imports and initialize our environment:
 
-```python
+```python app.py
 import os
 from dotenv import load_dotenv
 from galileo import openai, log
@@ -57,7 +92,7 @@ This section:
 
 The document retrieval function is decorated with Galileo's logging:
 
-```python
+```python app.py
 @log(span_type="retriever")
 def retrieve_documents(query: str):
     # TODO: Replace with actual RAG retrieval
@@ -116,7 +151,7 @@ Key points:
 
 The core RAG functionality:
 
-```python
+```python app.py
 def rag(query: str):
     documents = retrieve_documents(query)
     
@@ -159,7 +194,7 @@ This section:
 
 The main application interface:
 
-```python
+```python app.py
 def main():
     console.print(Panel.fit(
         "[bold]RAG Demo[/bold]\nThis demo uses a simulated RAG system to answer your questions.",
@@ -219,61 +254,6 @@ This section provides:
 - Rich formatting for outputs
 - Graceful error handling
 - Clean exit handling
-
-## Setup Instructions
-<Steps>
-<Step title="Set Up Your Environment">
-
-Create a `.env` file with your API keys:
-
-```text .env
-GALILEO_API_KEY=your_galileo_api_key
-OPENAI_API_KEY=your_openai_api_key
-```
-
-Install required dependencies:
-
-```text requirements.txt
-galileo==0.0.7
-openai==1.61.1
-python-dotenv==0.19.0
-rich==13.7.0
-questionary==2.0.1
-```
-</Step>
-
-<Step title="Understanding the Components">
-
-The application consists of four main components:
-1. Environment setup and initialization
-2. Document retrieval system
-3. RAG pipeline for processing queries
-4. Interactive user interface
-</Step>
-
-<Step title="Customizing the Implementation">
-
-To adapt this example:
-- Replace the simulated document retrieval with your vector database
-- Adjust the prompt template for your use case
-- Modify the document formatting as needed
-- Add additional logging points using Galileo
-</Step>
-
-<Step title="Running and Monitoring">
-
-Execute the application:
-```bash
-python app.py
-```
-
-Use Galileo to monitor:
-- Document retrieval performance
-- Query patterns and response quality
-- Error rates and types
-- System performance metrics
-</Step>
-</Steps>
 
 ### Key Features
 - **Galileo Logging**: Track document retrieval and LLM interactions

@@ -1,0 +1,466 @@
+---
+title: Basic Agentic AI Example
+description: Learn how to implement a basic agentic AI system using Galileo and OpenAI.
+---
+
+When implementing agentic AI systems, it's crucial to properly handle tool definitions, function calling, and response processing. This guide demonstrates a basic agentic AI implementation using Galileo's observability features.
+
+### What You'll Need
+- OpenAI API key
+- Galileo API key
+- Python environment with required packages
+- Basic understanding of agentic AI concepts
+
+## Setup Instructions
+
+<Steps>
+<Step title="Set Up Your Environment">
+
+Create a `.env` file with your API keys:
+
+```text .env
+GALILEO_API_KEY=your_galileo_api_key
+OPENAI_API_KEY=your_openai_api_key
+```
+</Step>
+
+<Step title="Install Dependencies">
+
+Install required dependencies:
+
+```text requirements.txt
+galileo==0.0.7
+openai==1.61.1
+python-dotenv==0.19.0
+rich==13.7.0
+questionary==2.0.1
+pydantic==2.10.6
+```
+</Step>
+
+<Step title="Create Tool Definitions">
+
+Create a `tools.json` file with tool definitions:
+
+```json tools.json
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "convert_text_to_number",
+      "description": "Converts a text number (like 'seven') to its numerical value (7)",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "The text number to convert (e.g., 'seven', 'twenty-five')"
+          }
+        },
+        "required": ["text"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "calculate",
+      "description": "Performs arithmetic calculations with numerical expressions",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "expression": {
+            "type": "string",
+            "description": "The arithmetic expression to evaluate (e.g., '4 + 7', '10 * 5')"
+          }
+        },
+        "required": ["expression"]
+      }
+    }
+  }
+]
+```
+</Step>
+
+<Step title="Running and Monitoring">
+
+Execute the application:
+```bash
+python app.py
+```
+
+Use Galileo to monitor:
+- Tool usage patterns
+- Query processing performance
+- Error rates and types
+- System performance metrics
+</Step>
+</Steps>
+
+## Implementation Guide
+
+Let's break down the implementation into manageable sections:
+
+### 1. Setting Up the Environment
+
+First, we'll set up our imports and initialize our environment:
+
+```python app.py
+import os
+from galileo import log, galileo_context, openai  # Import Galileo components
+import json
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
+from dotenv import load_dotenv
+from rich.console import Console
+import questionary
+
+load_dotenv()
+
+# Initialize console and OpenAI client
+console = Console()
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+```
+
+This section:
+- Imports necessary libraries including Galileo components
+- Loads environment variables
+- Sets up rich console output
+- Initializes the OpenAI client with Galileo integration
+
+### 2. Defining Pydantic Models for Structured Output
+
+```python app.py
+# Pydantic models for structured output
+class NumberConversion(BaseModel):
+    number: int = Field(..., description="The numerical value of the text number")
+
+class CalculationResult(BaseModel):
+    result: float = Field(..., description="The result of the calculation")
+
+# Load tool specifications from JSON file
+def load_tools():
+    with open(os.path.join(os.path.dirname(__file__), "tools.json"), "r") as f:
+        return json.load(f)
+```
+
+Key points:
+- Uses Pydantic for data validation
+- Defines clear models for structured outputs
+- Loads tool definitions from external JSON file
+
+### 3. Implementing Agent Tools
+
+The agent has two main tools, each decorated with Galileo's logging:
+
+```python app.py
+# Tool: Convert text numbers to numerical values using LLM with structured output
+@log(span_type="tool")  # Galileo integration: Log this function as a tool
+def convert_text_to_number(text):
+    prompt = f"""
+Convert the text number "{text}" to a numerical value.
+Return the result as a JSON object with a 'number' field containing only the integer value.
+For example, for "twenty-five", return: {{"number": 25}}
+"""
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}],
+        response_format={"type": "json_object"}
+    )
+    
+    # Parse the JSON response
+    try:
+        json_response = json.loads(response.choices[0].message.content.strip())
+        # Validate with Pydantic
+        validated = NumberConversion(**json_response)
+        # Store the number as an integer for internal use
+        number = validated.number
+        # Return a string representation for Galileo logging
+        return str(number)
+    except Exception as e:
+        console.print(f"[bold red]Error parsing LLM response:[/bold red] {str(e)}")
+        # Fallback: try to extract a number from the raw text
+        raw_text = response.choices[0].message.content.strip()
+        try:
+            # Look for digits in the response
+            for word in raw_text.split():
+                if word.isdigit():
+                    return str(int(word))
+        except:
+            pass
+        return raw_text
+
+# Tool: Calculator for arithmetic operations
+@log(span_type="tool")  # Galileo integration: Log this function as a tool
+def calculate(expression):
+    try:
+        result = eval(expression)
+        return f"The result of {expression} is {result}"
+    except Exception as e:
+        return f"Error calculating {expression}: {str(e)}"
+```
+
+This section:
+- Uses `@log` decorator with the `tool` span type for Galileo observability
+- Implements text-to-number conversion using LLM
+- Implements a calculator for arithmetic operations
+- Includes robust error handling and fallback mechanisms
+
+### 4. Query Processing Logic
+
+The core agent functionality:
+
+```python app.py
+def process_query(query):
+    # Load tools
+    tools = load_tools()
+    
+    console.print("[bold blue]Processing query...[/bold blue]")
+    console.print(f"Query: {query}")
+    
+    # Debug: Print the tools being used
+    console.print(f"[dim]Loaded {len(tools)} tools[/dim]")
+    
+    # Ask LLM to process the query with a clear plan
+    messages = [{
+        "role": "system",
+        "content": """You are an agent that processes numerical queries using these tools:
+1. convert_text_to_number: Converts text numbers (like "seven") to digits (7)
+2. calculate: Performs arithmetic with numerical expressions ("4 + 7")
+
+For ANY query containing arithmetic operations (+, -, *, / or plus, minus, times, divide):
+1. You MUST first convert any text numbers to digits
+2. You MUST then perform the calculation with the converted numbers
+3. Both steps are required - never stop after just converting numbers"""
+    },
+    {
+        "role": "user",
+        "content": """Example: "What's 4 + seven?"
+Required steps:
+1. convert_text_to_number(text="seven") -> 7
+2. calculate(expression="4 + 7")  # This step is mandatory!
+
+Example: "What's three plus seven?"
+Required steps:
+1. convert_text_to_number(text="three") -> 3
+2. convert_text_to_number(text="seven") -> 7
+3. calculate(expression="3 + 7")  # This step is mandatory!
+
+Never stop after just converting numbers - you must calculate the result!"""
+    },
+    {
+        "role": "user", 
+        "content": f"Process this query: '{query}'"
+    }]
+    
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=messages,
+        tools=tools,
+    )
+```
+
+This section:
+- Loads tool definitions
+- Constructs a clear system prompt with instructions
+- Provides examples for the LLM to follow
+- Makes the initial API call with tools
+
+### 5. Processing Tool Calls
+
+The agent processes tool calls and manages the conversation flow:
+
+```python app.py
+    # Process function calls
+    results = []
+    converted_values = {}
+    has_arithmetic = any(op in query.lower() for op in ['+', '-', '*', '/', 'plus', 'minus', 'times', 'divide'])
+    calculation_done = False
+    
+    # Process all tool calls in sequence
+    tool_calls = response.choices[0].message.tool_calls
+    if tool_calls:
+        # Add the assistant's response to the message history
+        messages.append({
+            "role": "assistant",
+            "content": response.choices[0].message.content or "",
+            "tool_calls": [
+                {
+                    "id": call.id,
+                    "type": "function",
+                    "function": {
+                        "name": call.function.name,
+                        "arguments": call.function.arguments
+                    }
+                } for call in tool_calls
+            ]
+        })
+        
+        # Process each tool call and add tool messages to the history
+        for call in tool_calls:
+            if call.function.name == "convert_text_to_number":
+                text = json.loads(call.function.arguments)["text"]
+                console.print(f"[yellow]Converting:[/yellow] {text}")
+                number_str = convert_text_to_number(text)
+                number = int(number_str) if number_str.isdigit() else None
+                if number is not None:
+                    console.print(f"[green]Converted to:[/green] {number}")
+                    results.append(f"Converted '{text}' to {number}")
+                    converted_values[text] = number
+                    # Add the tool response to message history
+                    messages.append({
+                        "role": "tool",
+                        "tool_call_id": call.id,
+                        "content": str(number)
+                    })
+            
+            elif call.function.name == "calculate":
+                expression = json.loads(call.function.arguments)["expression"]
+                console.print(f"[yellow]Calculating:[/yellow] {expression}")
+                result = calculate(expression)
+                console.print(f"[green]Result:[/green] {result}")
+                results.append(result)
+                calculation_done = True
+                # Add the tool response to message history
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": call.id,
+                    "content": result
+                })
+```
+
+This section:
+- Processes tool calls from the LLM
+- Maintains conversation history
+- Executes the appropriate tool functions
+- Tracks the state of the conversation
+
+### 6. Handling Incomplete Sequences
+
+The agent ensures that calculations are completed:
+
+```python app.py
+        # If we have arithmetic but no calculation was done, ask LLM to complete the sequence
+        if has_arithmetic and not calculation_done:
+            console.print("[yellow]Calculation step missing - requesting completion...[/yellow]")
+            
+            # Add a message requesting completion of the sequence
+            messages.append({
+                "role": "user",
+                "content": f"Now you must calculate the result using the converted numbers. The original query was: '{query}'"
+            })
+            
+            follow_up = client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                tools=tools,
+            )
+            
+            # Process any additional tool calls
+            if follow_up.choices[0].message.tool_calls:
+                # Add the assistant's response to the message history
+                messages.append({
+                    "role": "assistant",
+                    "content": follow_up.choices[0].message.content or "",
+                    "tool_calls": [
+                        {
+                            "id": call.id,
+                            "type": "function",
+                            "function": {
+                                "name": call.function.name,
+                                "arguments": call.function.arguments
+                            }
+                        } for call in follow_up.choices[0].message.tool_calls
+                    ]
+                })
+                
+                for call in follow_up.choices[0].message.tool_calls:
+                    if call.function.name == "calculate":
+                        expression = json.loads(call.function.arguments)["expression"]
+                        console.print(f"[yellow]Calculating:[/yellow] {expression}")
+                        result = calculate(expression)
+                        console.print(f"[green]Result:[/green] {result}")
+                        results.append(result)
+                        # Add the tool response to message history
+                        messages.append({
+                            "role": "tool",
+                            "tool_call_id": call.id,
+                            "content": result
+                        })
+    else:
+        console.print("[bold yellow]No tool calls detected in the response[/bold yellow]")
+        return "I couldn't process your query. Please try again with a clearer request."
+    
+    console.print(f"[dim]Final results: {results}[/dim]")
+    return "\n".join(results) if results else "I couldn't process your query. Please try again with a clearer request."
+```
+
+This section:
+- Detects incomplete calculation sequences
+- Prompts the LLM to complete the calculation
+- Processes additional tool calls
+- Handles error cases
+
+### 7. Main Application Loop
+
+The interactive interface:
+
+```python app.py
+def main():    
+    # Add a console header
+    console.print("[bold]Number Converter & Calculator Agent[/bold]")
+    console.print("Simple agent demonstrating Galileo integration")
+    console.print("Type your query or 'exit' to quit\n")
+    
+    while True:
+        query = questionary.text(
+            "Enter your query (or 'exit' to quit):",
+            default="What's 4 + seven?"
+        ).ask()
+        
+        if query.lower() in ['exit', 'quit', 'q']:
+            break
+            
+        try:
+            # Galileo integration: Create a context for tracking this entire request
+            # This wraps the entire process in a Galileo trace for observability
+            with galileo_context():
+                result = process_query(query)
+            
+            console.print("\n[bold green]Result:[/bold green]")
+            console.print(result)
+            
+            if not questionary.confirm("Ask another question?", default=True).ask():
+                break
+                
+        except Exception as e:
+            console.print(f"[bold red]Error:[/bold red] {str(e)}")
+            import traceback
+            console.print(traceback.format_exc())
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        console.print("\n[bold]Exiting. Goodbye![/bold]")
+```
+
+This section provides:
+- User-friendly terminal interface
+- Galileo context for request tracking
+- Interactive question-answer loop
+- Error handling and graceful exits
+
+### Key Features
+- **Tool-Based Architecture**: Modular design with specialized tools
+- **Galileo Observability**: Track tool usage and performance
+- **Robust Error Handling**: Graceful handling of API and runtime errors
+- **Conversation Management**: Proper tracking of conversation state
+- **Interactive Experience**: User-friendly terminal interface
+
+### Next Steps
+- Add more sophisticated tools for complex operations
+- Implement memory for multi-turn conversations
+- Add evaluation metrics for agent performance
+- Integrate advanced Galileo logging features
+- Implement parallel tool execution for efficiency
