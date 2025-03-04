@@ -101,6 +101,27 @@ with galileo_context(project="my-project", log_stream="my-log-stream"):
     print(llm_call("birds"))
 ```
 
+## Streaming support
+
+The OpenAI wrapper also supports streaming responses. When streaming, the wrapper will log the response as it streams in.
+
+```python streaming.py
+import os
+
+from galileo import openai
+
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+stream = client.chat.completions.create(
+    messages=[{"role": "user", "content": "Say this is a test"}], model="gpt-4o", stream=True,
+)
+
+# This will create a single span trace with the OpenAI call
+for chunk in stream:
+    print(chunk.choices[0].delta.content or "", end="")
+```
+
+
 ## Advanced Usage
 
 The OpenAI wrapper is intended to support all the same functionality as the original OpenAI library, including:

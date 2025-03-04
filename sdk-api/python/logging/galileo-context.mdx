@@ -1,0 +1,43 @@
+---
+title: Galileo Context
+---
+
+## Initialize the Galileo context manager
+The `galileo_context` context manager is used to log to a specific project and log stream.
+
+```python with_context.py
+from galileo import galileo_context
+# This will log to the project and log stream specified in the context manager
+with galileo_context(project="gen-ai-project", log_stream="test2"):
+    content = make_nested_call()
+    print(content)
+```
+
+## Context Flushing
+In some cases (like long-running processes), it may be necessary to explicitly flush the trace to upload it to Galileo:
+
+```python flush_trace.py
+import os
+
+from galileo import galileo_context, openai
+
+galileo_context.init(project="your-project-id", log_stream="your-log-stream-id")
+
+# Initialize the Galileo wrapped OpenAI client
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+def call_openai():
+    chat_completion = client.chat.completions.create(
+        messages=[{"role": "user", "content": "Say this is a test"}], model="gpt-4o"
+    )
+
+    return chat_completion.choices[0].message.content
+
+
+# This will create a single span trace with the OpenAI call
+call_openai()
+
+# This will upload the trace to Galileo
+galileo_context.flush()
+```
+
