@@ -81,6 +81,7 @@ The `@log` decorator is used to capture the inputs and outputs of a function as 
 This example will create a trace with a workflow span and two nested llm spans:
 
 ```python
+from galileo import log
 @log
 def my_wrapper_function(input):
 	first_result = llm_call(input)
@@ -103,6 +104,7 @@ def tool_function(arg1: str, arg2: str):
 Logging a retriever. If the output of the function is an array, it will automatically capture it as documents in the span.
 
 ```python
+from galileo import log
 @log(span_type="retriever")
 def retriever_function(input: str):
 	...
@@ -170,7 +172,7 @@ Using the context manager to route traces to a specific project and log stream:
 
 ```python
 from galileo.openai import openai
-from galileo import log, galileo_context
+from galileo import galileo_context
 
 def llm_call(input):
 	return openai.chat.completions.create(
