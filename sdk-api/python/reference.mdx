@@ -69,7 +69,7 @@ print(response)
 
 By default, any traces that are created during a request are automatically flushed (i.e. uploaded to Galileo) when the request terminates. To flush traces prior to that, you can use the context manager or the GalileoLogger (outlined in a section below).
 
-### Method 2: Using @log Decorators
+### Method 2: Using `@log` Decorators
 
 The `@log` decorator is used to capture the inputs and outputs of a function as a span. By default, a workflow span is created when span_type isn't specified. Here are the different span types:
 
@@ -109,7 +109,8 @@ def retriever_function(input: str):
 	return documents
 ```
 
-### Method 3 (Manual): Pure invocation using the GalileoLogger (last resort, should be used infrequently):
+### Method 3 (Manual): Pure invocation using the `GalileoLogger`
+This is the most verbose way to log your application. It requires manually calling the `GalileoLogger` class and adding spans to the trace. We recommend using the other two methods whenever possible.
 
 ```python
 from galileo import GalileoLogger
@@ -137,9 +138,9 @@ logger.conclude(output)
 logger.flush()
 ```
 
-TODO: Research and add OTEL support
+{/* TODO: Research and add OTEL support */}
 
-### Grouping and Uploading Logs Faster: galileo_context()
+### Grouping and Uploading Logs Faster: `galileo_context()`
 
 Regardless of the method you use to add logs, the Galileo context manager can be useful for a few things:
 - Automatically starting a trace and ensuring anything that happens in its scope is logged as a span within the trace.

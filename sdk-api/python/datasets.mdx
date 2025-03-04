@@ -1,12 +1,10 @@
 ---
 title: Datasets
+icon: "box"
+description: Create and manage datasets
 ---
 
-Datasets are a fundamental building block in Galileo's experimentation workflow. They provide a structured way to organize, version, and manage your test cases. Whether you're evaluating prompts, testing LLM functions, or analyzing model behavior, having well-organized datasets is crucial for systematic testing and continuous improvement.
-
-## Creating and Growing Your Dataset
-
-When building your test suite, you'll often start with a core set of test cases and expand them over time as you discover new edge cases or scenarios. Galileo makes this process seamless by allowing you to create datasets and add to them incrementally:
+## Creating Datasets
 
 ```python
 from galileo.datasets import create_dataset
@@ -29,9 +27,11 @@ dataset = create_dataset(
 )
 ```
 
-As you discover new test cases, you can easily add them to your dataset:
+## Adding to Existing Datasets
 
 ```python
+from galileo.datasets import get_dataset
+
 dataset = get_dataset(
     name="countries",
     version=3, # if this param isn't specified, it defaults to the latest
@@ -50,9 +50,7 @@ dataset.insert([
 ])
 ```
 
-## Version Management and History
-
-One of the key benefits of Galileo's dataset management is automatic versioning. This allows you to track how your test suite evolves over time and ensures reproducibility of your experiments. You can always reference specific versions of a dataset or work with the latest version:
+## Working with Dataset Versions
 
 ```python
 from galileo.datasets import get_dataset
@@ -71,9 +69,9 @@ versions = dataset.get_version_history()
 
 # Access an older version for comparison or regression testing
 oldest_version = get_dataset(
-	name="countries",
-	version=versions[-1].version
-	project="my-project"
+    name="countries",
+    version=versions[-1].version,
+    project="my-project"
 )
 ```
 

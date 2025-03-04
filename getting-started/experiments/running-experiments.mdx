@@ -1,14 +1,16 @@
 ---
-title: Overview
+title: Running Experiments
+icon: "lightbulb"
 ---
 
-When working with Galileo, experimentation is a crucial part of the continuous improvement cycle. As you progress from initial testing to systematic evaluation, you'll want to run experiments to validate your application's performance and behavior. Here are several ways to structure your experiments, starting from the simplest approaches and moving to more sophisticated implementations:
+As you progress from initial testing to systematic evaluation, you'll want to run experiments to validate your application's performance and behavior. Here are several ways to structure your experiments, starting from the simplest approaches and moving to more sophisticated implementations:
 
 ## Working with Prompts
 
 The simplest way to get started with experimentation is by evaluating prompts directly against datasets. This is especially valuable during the initial prompt development and refinement phase, where you want to test different prompt variations:
 
-```python
+<CodeGroup>
+```python run_experiment.py
 from galileo.prompts import get_prompt
 from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
@@ -27,6 +29,11 @@ results = run_experiment(
 	tags=[],
 )
 ```
+
+```typescript run_experiment.ts
+// Coming soon...
+```
+</CodeGroup>
 
 ## Running Experiments with Existing Datasets
 
@@ -137,3 +144,4 @@ The experimentation framework extends naturally to more complex applications lik
 For RAG applications, experimentation helps validate both the retrieval and generation components of your system. You can assess the quality of retrieved context, measure response relevance, and ensure that your RAG pipeline maintains high accuracy across different types of queries. This is especially important when fine-tuning retrieval parameters or testing different reranking strategies.
 
 The same experimentation patterns shown above apply to these more complex systems. You can use predefined datasets to benchmark performance, create custom datasets for specific edge cases, and define specialized metrics that capture the unique aspects of agent behavior or RAG performance. This systematic approach to testing helps ensure that your advanced AI applications maintain high quality and reliability in production environments.
+

@@ -1,9 +1,10 @@
 ---
 title: Prompts
+icon: "lightbulb"
+description: Create and use a prompt template
 ---
 
-Create and use a prompt template:
-
+## Creating a Prompt Template
 ```python
 from galileo.prompts import create_prompt_template, SystemMessage, UserMessage
 from galileo.openai import openai
@@ -15,21 +16,27 @@ def llm_call(messages, model):
         messages,
     ).choices[0].message.content
 
+# This is a variable that will be replaced with 
+# the actual value when the prompt is run
 data = {
-	"topic": "Nuclear Physics"
+	"topic": "Nuclear Physics" 
 }
 
 prompt_messages = [
 	SystemMessage("You are a great storyteller."),
-UserMessage("Please write a short story about the following topic: {topic}"),
+	# Below is a user message with a variable
+	UserMessage("Please write a short story about the following topic: {topic}"), 
 ]
+
 prompt_template = create_prompt_template(
-	messages=prompt_messages
-name="storyteller-prompt",
-model="gpt-4o",
-project="my-project"
+	messages=prompt_messages,
+	name="storyteller-prompt",
+	model="gpt-4o",
+	project="my-project"
 )
 
 output = llm_call(
-messages=prompt_template.with_data(data).to_messages(), model=prompt_template.get_model()
+	messages=prompt_template.with_data(data).to_messages(),
+	model=prompt_template.get_model()
 )
+```
