@@ -1,0 +1,134 @@
+export const SyncCodeGroups = ({ ignoreErrors = false }) => {
+    /**
+     * SyncCodeGroups Component
+     *
+     * This component ensures that all CodeGroups within a Mintlify documentation page remain synchronized.
+     * Selecting a language or code sample in one CodeGroup updates all other CodeGroups on the page
+     * to use the CodeBlock at the same index. 
+     *
+     * Just including this component anywhere in your `.mdx` file (e.g., `<SyncCodeGroups />`) 
+     * enables synchronization across all CodeGroups on the page.
+     * 
+     * **How it works:**
+     * - It observes changes in the selected state (aria-selected) of the tabs within CodeGroups.
+     * - When a tab selection changes, it updates all other CodeGroups to the same index.
+     * - This requires that all CodeGroups have their code samples listed in the same order.
+     *
+     * **Example:**
+     * If a CodeGroup contains:
+     *   - index.js, main.py, main.jar
+     *   - package.json, requirements.txt, pom.xml
+     * Then selecting "index.js" will show both index.js and package.json on the page, keeping file types aligned.
+     *
+     * **Props:**
+     * @param {boolean} ignoreErrors - If true, suppresses errors related to inconsistent CodeGroup sizes.
+     *
+     * **Errors:**
+     * - If CodeGroups have different numbers of tabs, a warning message is displayed (unless ignoreErrors is set).
+     *
+     * Side Effects:
+     * One side effect of updating the content everywhere is that it can cause the page to jump a bit.
+     * This is because the content above may shrink / grow. Since most people will choose the language
+     * They care about within the 1st or 2nd codeblock, this should not be a big deal.
+     */
+
+  if (typeof document === "undefined") {
+    return null;
+  } else {
+    setTimeout(() => {
+      const clientComponent = document.getElementById("sync-code-groups");
+      if (!clientComponent) return;
+
+      let observer;
+
+      // 🛠 Helper function to select a specific index for ALL CodeGroups
+      const selectCodeGroupIndex = (index) => {
+        document.querySelectorAll('div[role="tablist"]').forEach(codeGroup => {
+          const buttons = Array.from(codeGroup.querySelectorAll('button[role="tab"]'));
+
+          if (buttons.length > index) {
+            const targetButton = buttons[index];
+
+            // Ensure no other buttons in this group are selected
+            buttons.forEach(btn => btn.setAttribute("aria-selected", "false"));
+
+            // Select the correct button
+            targetButton.setAttribute("aria-selected", "true");
+
+            // Fire a click event to trigger UI updates if necessary
+            targetButton.dispatchEvent(new Event("click", { bubbles: true }));
+          }
+        });
+      };
+
+      // 🎯 Function to detect selected tab and sync all CodeGroups
+      const updateSelectedSnippet = (mutationsList) => {
+        let lastSelectedTab = null;
+
+        mutationsList.forEach(mutation => {
+          if (mutation.type === "attributes" && mutation.attributeName === "aria-selected") {
+            const target = mutation.target;
+            if (target.getAttribute("aria-selected") === "true") {
+              lastSelectedTab = target;
+            }
+          }
+        });
+
+        if (lastSelectedTab) {
+          const codeGroup = lastSelectedTab.closest('div[role="tablist"]');
+          if (!codeGroup) return;
+
+          const buttons = Array.from(codeGroup.querySelectorAll('button[role="tab"]'));
+          const selectedIndex = buttons.indexOf(lastSelectedTab);
+
+          // 🛑 Disconnect observer to prevent infinite loops
+          observer.disconnect();
+
+          // 🔄 Use helper to update all CodeGroups
+          selectCodeGroupIndex(selectedIndex);
+
+          // ✅ Reconnect observer after batch update
+          requestAnimationFrame(() => observer.observe(document.body, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["aria-selected"],
+          }));
+        }
+      };
+
+      // 🔍 Initialize observer
+      observer = new MutationObserver(updateSelectedSnippet);
+
+      observer.observe(document.body, {
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["aria-selected"],
+      });
+
+      // Clean up observer when unmounting
+      return () => observer.disconnect();
+    }, 1);
+
+    if (!ignoreErrors) {
+      // Initial check for uniform CodeGroup lengths
+      const codeGroups = Array.from(document.querySelectorAll('div[role="tablist"]'));
+      const groupSizes = codeGroups.map(group => group.querySelectorAll('button[role="tab"]').length);
+      const allSameSize = groupSizes.every(size => size === groupSizes[0]);
+
+      if (!allSameSize) {
+        return (
+          <div id="sync-code-groups" style={{ fontWeight: "bold", padding: "10px" }}>
+            ❌ Error: Using a SyncCodeGroup component, but saw code groups with different sizes.
+            This may indicate that you are missing code samples for all languages you wanted to support.
+            If the code groups with different sizes are intentional, you can silence this error by passing in <code>ignoreErrors</code> as <code>true</code>.
+            Sizes found: {JSON.stringify(groupSizes)}
+          </div>
+        );
+      }
+    }
+    
+    return <div id="sync-code-groups"></div>;
+  }
+}
+
+export default SyncCodeGroups;
