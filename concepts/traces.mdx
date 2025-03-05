@@ -2,4 +2,592 @@
 title: Traces
 ---
 
+Traces in Galileo are collections of related <a href="/concepts/spans">spans</a> that represent complete interactions or workflows in your AI application. They provide a holistic view of how your application processes requests, from initial input to final output, capturing all the intermediate steps along the way.
+
+A **trace** is essentially a record of a complete user interaction or system process, showing the full journey of data through your application. Traces organize individual spans (discrete operations like LLM calls, retrievals, or tool executions) into a coherent, hierarchical structure that makes it easy to understand the flow and relationships between different parts of your application.
+
+### The Role of Traces in Monitoring System Behavior
+
+Traces play a critical role in monitoring and understanding AI system behavior:
+
+1. **End-to-End Visibility**: Traces provide complete visibility into how your application processes requests, from initial input to final output.
+
+2. **Workflow Reconstruction**: They allow you to reconstruct exactly what happened during an interaction, making it easier to understand complex processes.
+
+3. **Performance Analysis**: Traces help identify bottlenecks and inefficiencies by showing the time spent in each step of a process.
+
+4. **Error Diagnosis**: When issues occur, traces provide the context needed to understand what went wrong and why.
+
+5. **Quality Assessment**: Traces enable evaluation of output quality in the context of the complete interaction.
+
+### Why Traces Are Important
+
+Traces are foundational to effective AI system monitoring and optimization for several reasons:
+
+1. **Context Preservation**: Traces maintain the relationship between different operations, preserving the context that might be lost when looking at individual spans in isolation.
+
+2. **Causal Analysis**: They enable causal analysis by showing the sequence of events that led to a particular outcome.
+
+3. **System-Level Insights**: Traces provide insights at the system level, helping you understand how different components interact.
+
+4. **Debugging Efficiency**: When debugging issues, traces reduce the time needed to understand what happened by providing a complete picture of the interaction.
+
+5. **Optimization Opportunities**: By analyzing traces, you can identify opportunities to optimize your AI workflows for better performance and resource utilization.
+
+## Key Components of a Trace
+
+A trace in Galileo consists of several core components:
+
+### Spans: The Building Blocks
+
+Spans are the fundamental building blocks of traces. Each span represents a discrete operation or step in your application, such as:
+
+- An LLM call
+- A document retrieval operation
+- A tool execution
+- A workflow or processing step
+
+Spans contain detailed information about the operation they represent, including:
+- Input data
+- Output results
+- Duration
+- Configuration parameters
+- Error information (if applicable)
+
+### Hierarchical Structure
+
+Traces organize spans in a hierarchical structure:
+
+- **Root Span**: The top-level span that represents the entire interaction
+- **Parent Spans**: Spans that contain child spans, often representing workflows or logical groupings of operations
+- **Child Spans**: Spans that are contained within parent spans, representing individual operations within a workflow
+
+This hierarchical structure allows you to understand both the overall interaction and the specific details of each step.
+
+### Metadata and Session Tags
+
+Traces include metadata and session tags that provide additional context:
+
+- **Metadata**: Additional information about the trace, such as user IDs, session information, or application-specific data
+- **Session Tags**: Labels that help categorize and filter traces, making it easier to find relevant traces later
+
+### Timing Information
+
+Traces capture detailed timing information:
+
+- **Start Time**: When the trace began
+- **End Time**: When the trace completed
+- **Duration**: The total time taken for the complete interaction
+- **Span Durations**: The time taken for each individual span within the trace
+
+This timing information is crucial for performance analysis and optimization.
+
+## Creating and Managing Traces
+
+Galileo provides several methods for creating and managing traces, each offering different levels of control and convenience.
+
+### Using the Galileo SDK
+
+<CodeGroup>
+```python GalileoLogger (Python)
+from galileo import GalileoLogger
+
+# Initialize the logger
+logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
+
+# Start a new trace
+trace = logger.start_trace(input="What's the weather in San Francisco?")
+
+# Add spans to the trace
+llm_span = logger.add_llm_span(
+    input="What's the weather in San Francisco?",
+    output="The weather in San Francisco is currently sunny with a temperature of 72°F.",
+    config={"model": "gpt-4o", "temperature": 0.7}
+)
+
+# Conclude the trace
+logger.conclude(output="The weather in San Francisco is currently sunny with a temperature of 72°F.")
+
+# Flush the trace to Galileo
+logger.flush()
+```
+
+```typescript GalileoLogger (TypeScript)
+import { GalileoLogger } from "galileo";
+
+const logger = new GalileoLogger();
+
+// Start a trace
+const input = "Why is the sky blue?";
+const trace = logger.startTrace(input, ["science", "question"]);
+
+// Log an LLM span
+const output = "The sky appears blue because..."; // Result from your LLM call
+trace.logSpan(
+  input,
+  output,
+  "gpt-4o",
+  0.7,
+  "llm"
+);
+
+// Conclude the trace
+trace.conclude(output);
+
+// Flush the trace to Galileo
+trace.flush();
+```
+</CodeGroup>
+
+### Using Context Managers/Wrappers
+
+<CodeGroup>
+```python Context Manager (Python)
+from galileo import galileo_context
+from galileo.openai import openai
+
+# This will log to the project and log stream specified in the context manager
+with galileo_context(project="my-project", log_stream="my-log-stream"):
+    response = openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": "What is the capital of France?"}]
+    )
+    print(response.choices[0].message.content)
+```
+
+```typescript Context Wrapper (TypeScript)
+import { withGalileo } from "galileo";
+import { wrapOpenAI } from "galileo/wrappers";
+import { OpenAI } from "openai";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: "your-api-key" }));
+
+withGalileo({ project: "my-project", logStream: "my-log-stream" }, async () => {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{ role: "user", content: "What is the capital of France?" }],
+  });
+  return response.choices[0].message.content;
+});
+```
+</CodeGroup>
+
+### Using Integration Wrappers
+
+<CodeGroup>
+```python OpenAI Wrapper (Python)
+from galileo.openai import openai
+
+# This will automatically create a trace for the OpenAI call
+response = openai.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "What is the capital of France?"}]
+)
+print(response.choices[0].message.content)
+```
+
+```typescript OpenAI Wrapper (TypeScript)
+import { wrapOpenAI } from "galileo/wrappers";
+import { OpenAI } from "openai";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: "your-api-key" }));
+
+// This will automatically create a trace for the OpenAI call
+const response = await openai.chat.completions.create({
+  model: "gpt-4o",
+  messages: [{ role: "user", content: "What is the capital of France?" }],
+});
+console.log(response.choices[0].message.content);
+```
+</CodeGroup>
+
+### Using Decorators/Observers
+
+<CodeGroup>
+```python Decorator (Python)
+from galileo import log
+
+@log
+def process_query(query):
+    # Your processing logic here
+    return result
+
+# This will create a trace for the function call
+result = process_query("What is the capital of France?")
+```
+
+```typescript Observer (TypeScript)
+import { observe } from "galileo";
+
+const processQuery = observe(
+  { spanType: "workflow" },
+  (query) => {
+    // Your processing logic here
+    return result;
+  }
+);
+
+// This will create a trace for the function call
+const result = processQuery("What is the capital of France?");
+```
+</CodeGroup>
+
+### Required Configurations
+
+When creating traces, you need to provide:
+
+- **Input**: The initial input to the trace
+- **Project** (optional): The Galileo project to log to (defaults to environment variable)
+- **Log Stream** (optional): The specific log stream within the project (defaults to environment variable)
+- **Tags** (optional): Labels for categorization
+- **Metadata** (optional): Additional contextual information
+
+### Customization Options
+
+Traces can be customized in several ways:
+
+- **Tags**: Add tags to categorize traces and make them easier to filter
+- **Metadata**: Include additional context such as user IDs, session information, or application-specific data
+- **Span Hierarchy**: Create nested spans to represent complex workflows
+- **Error Handling**: Capture and log errors for better debugging
+
+## Using Traces in Practice
+
+### Common Use Cases
+
+Traces in Galileo are valuable for a wide range of use cases:
+
+1. **Debugging Complex Workflows**: When issues arise in multi-step processes, traces provide the context needed to understand what went wrong and why.
+
+2. **Performance Optimization**: Analyze traces to identify bottlenecks and opportunities for improvement in your AI workflows.
+
+3. **Quality Monitoring**: Track the quality of AI outputs over time in the context of complete interactions.
+
+4. **User Experience Analysis**: Understand how users interact with your AI application and identify areas for enhancement.
+
+5. **System Architecture Evaluation**: Evaluate the effectiveness of your system architecture by analyzing how different components interact.
+
+6. **A/B Testing**: Compare different models, prompts, or configurations in the context of complete interactions.
+
+### Identifying Failure Modes
+
+Traces help identify failure modes in several ways:
+
+- **Error Tracking**: Traces capture errors and exceptions, making it easier to understand when and why failures occur.
+
+- **Sequence Analysis**: By analyzing the sequence of spans in a trace, you can identify patterns that lead to failures.
+
+- **Performance Anomalies**: Unusual timing patterns in traces can signal potential issues.
+
+- **Content Analysis**: Examining the content of inputs and outputs across a trace can reveal unexpected behaviors or responses.
+
+### Optimizing Performance
+
+Traces provide valuable insights for performance optimization:
+
+- **Bottleneck Identification**: Identify which spans take the most time and focus optimization efforts there.
+
+- **Parallel Processing Opportunities**: Identify operations that could be parallelized to improve overall performance.
+
+- **Caching Opportunities**: Identify repeated operations that could benefit from caching.
+
+- **Resource Utilization**: Understand how resources are used across different parts of your application.
+
+### Best Practices
+
+When working with traces, follow these best practices:
+
+1. **Trace Granularity**: Create traces at an appropriate level of granularity - too fine-grained and you'll have too many traces to manage, too coarse-grained and you'll miss important details.
+
+2. **Meaningful Span Names**: Use descriptive names for spans to make traces easier to understand.
+
+3. **Include Relevant Metadata**: Add tags and metadata that will be useful for filtering and analysis.
+
+4. **Handle Errors Gracefully**: Log errors in spans to help with debugging and analysis.
+
+5. **Flush Traces Appropriately**: In long-running applications, flush traces at appropriate points to ensure data is sent to Galileo.
+
+## Integration with the Galileo Ecosystem
+
+### Integration with Other Features
+
+Traces integrate seamlessly with other Galileo features:
+
+1. **Logs**: Traces organize logs into a hierarchical structure, providing context for individual log entries.
+
+2. **Spans**: Traces contain spans, which represent individual operations in your application.
+
+3. **Metrics**: Traces feed into metrics, allowing you to measure and monitor key aspects of your AI application.
+
+4. **Experiments**: Traces can be used in experiments to compare different models, prompts, or configurations.
+
+5. **Datasets**: Traces can be converted into datasets for fine-tuning or evaluation.
+
+6. **Alerts**: Patterns in traces can trigger alerts to notify you of issues or anomalies.
+
+### Data Flow
+
+The typical data flow for traces in Galileo is:
+
+1. Your application generates traces using the Galileo SDK
+2. Traces are organized into a hierarchical structure of spans
+3. Traces are flushed to Galileo (automatically or manually)
+4. Galileo processes and stores the traces
+5. Traces are available for viewing, analysis, and use in other Galileo features
+6. Metrics and evaluations are computed based on the traces
+7. Insights derived from traces inform improvements to your AI application
+
+### Dependencies
+
+Traces have dependencies on several Galileo components:
+
+- **Projects**: All traces belong to a specific project
+- **Log Streams**: Traces are organized into log streams within projects
+- **API Keys**: Authentication is required to send traces to Galileo
+- **SDK**: The Galileo SDK is used to generate and send traces
+
+## Examples and Practical Applications
+
+### Basic Trace Creation
+
+<CodeGroup>
+```python Python
+from galileo import GalileoLogger
+
+logger = GalileoLogger()
+
+# Start a trace
+trace = logger.start_trace(input="Tell me a joke about programming")
+
+# Add an LLM span
+logger.add_llm_span(
+    input="Tell me a joke about programming",
+    output="Why do programmers prefer dark mode? Because light attracts bugs!",
+    config={"model": "gpt-4o", "temperature": 0.7}
+)
+
+# Conclude the trace
+logger.conclude(output="Why do programmers prefer dark mode? Because light attracts bugs!")
+
+# Flush the trace to Galileo
+logger.flush()
+```
+
+```typescript TypeScript
+import { GalileoLogger } from "galileo";
+
+const logger = new GalileoLogger();
+
+// Start a trace
+const trace = logger.startTrace("Tell me a joke about programming");
+
+// Add an LLM span
+trace.logSpan(
+  "Tell me a joke about programming",
+  "Why do programmers prefer dark mode? Because light attracts bugs!",
+  "gpt-4o",
+  0.7,
+  "llm"
+);
+
+// Conclude the trace
+trace.conclude("Why do programmers prefer dark mode? Because light attracts bugs!");
+
+// Flush the trace to Galileo
+trace.flush();
+```
+</CodeGroup>
+
+### Complex Workflow with Nested Spans
+
+<CodeGroup>
+```python Python
+from galileo import GalileoLogger
+
+logger = GalileoLogger()
+
+# Start a trace for a RAG application
+trace = logger.start_trace(input="What were the major causes of World War I?")
+
+# Start a workflow span for the retrieval process
+retrieval_workflow = logger.start_workflow_span(name="Document Retrieval")
+
+# Add a retriever span for the query
+logger.add_retriever_span(
+    input="What were the major causes of World War I?",
+    documents=[
+        {"content": "The assassination of Archduke Franz Ferdinand...", "metadata": {"source": "history.txt"}},
+        {"content": "Militarism, alliances, imperialism, and nationalism...", "metadata": {"source": "causes.txt"}}
+    ]
+)
+
+# End the retrieval workflow
+logger.end_workflow_span(retrieval_workflow, output="Retrieved 2 documents")
+
+# Add an LLM span for generating the response
+logger.add_llm_span(
+    input="Based on these documents, what were the major causes of World War I? Documents: [...]",
+    output="The major causes of World War I included the assassination of Archduke Franz Ferdinand, militarism, alliances, imperialism, and nationalism...",
+    config={"model": "gpt-4o", "temperature": 0.3}
+)
+
+# Conclude the trace
+logger.conclude(output="The major causes of World War I included...")
+
+# Flush the trace to Galileo
+logger.flush()
+```
+
+```typescript TypeScript
+import { GalileoLogger } from "galileo";
+
+const logger = new GalileoLogger();
+
+// Start a trace for a RAG application
+const trace = logger.startTrace("What were the major causes of World War I?");
+
+// Start a workflow span for the retrieval process
+const retrievalWorkflow = trace.startWorkflowSpan("Document Retrieval");
+
+// Add a retriever span for the query
+retrievalWorkflow.logRetrieverSpan(
+  "What were the major causes of World War I?",
+  [
+    { content: "The assassination of Archduke Franz Ferdinand...", metadata: { source: "history.txt" } },
+    { content: "Militarism, alliances, imperialism, and nationalism...", metadata: { source: "causes.txt" } }
+  ]
+);
+
+// End the retrieval workflow
+retrievalWorkflow.end("Retrieved 2 documents");
+
+// Add an LLM span for generating the response
+trace.logSpan(
+  "Based on these documents, what were the major causes of World War I? Documents: [...]",
+  "The major causes of World War I included the assassination of Archduke Franz Ferdinand, militarism, alliances, imperialism, and nationalism...",
+  "gpt-4o",
+  0.3,
+  "llm"
+);
+
+// Conclude the trace
+trace.conclude("The major causes of World War I included...");
+
+// Flush the trace to Galileo
+trace.flush();
+```
+</CodeGroup>
+
+### Chat Application Example
+
+<CodeGroup>
+```python Python
+from galileo import GalileoLogger
+
+logger = GalileoLogger()
+
+def process_chat_message(user_id, message, conversation_history):
+    # Start a trace for this chat interaction
+    trace = logger.start_trace(
+        input=message,
+        tags=["chat"],
+        metadata={"user_id": user_id, "conversation_length": len(conversation_history)}
+    )
+    
+    try:
+        # Add an LLM span for generating the response
+        prompt = f"Conversation history: {conversation_history}\nUser: {message}\nAssistant:"
+        logger.add_llm_span(
+            input=prompt,
+            output="I'd be happy to help with that...",
+            config={"model": "gpt-4o", "temperature": 0.7}
+        )
+        
+        # Conclude the trace
+        response = "I'd be happy to help with that..."
+        logger.conclude(output=response)
+        
+        return response
+    except Exception as e:
+        # Log the error
+        logger.add_tool_span(
+            name="Error Handler",
+            input=message,
+            error=str(e)
+        )
+        logger.conclude(error=str(e))
+        raise
+    finally:
+        # Flush the trace to Galileo
+        logger.flush()
+```
+
+```typescript TypeScript
+import { GalileoLogger } from "galileo";
+
+const logger = new GalileoLogger();
+
+async function processChatMessage(userId: string, message: string, conversationHistory: string[]) {
+  // Start a trace for this chat interaction
+  const trace = logger.startTrace(
+    message,
+    ["chat"],
+    { userId, conversationLength: conversationHistory.length }
+  );
+  
+  try {
+    // Add an LLM span for generating the response
+    const prompt = `Conversation history: ${conversationHistory.join("\n")}\nUser: ${message}\nAssistant:`;
+    const output = "I'd be happy to help with that..."; // Result from your LLM call
+    
+    trace.logSpan(
+      prompt,
+      output,
+      "gpt-4o",
+      0.7,
+      "llm"
+    );
+    
+    // Conclude the trace
+    trace.conclude(output);
+    
+    return output;
+  } catch (error) {
+    // Log the error
+    trace.logError(error);
+    throw error;
+  } finally {
+    // Flush the trace to Galileo
+    await trace.flush();
+  }
+}
+```
+</CodeGroup>
+
+## Next Steps
+
+After understanding traces, you can explore these related Galileo features:
+
+### Advanced Trace Analysis
+
+- **Trace Visualization**: Use the Galileo UI to visualize traces and understand the flow of data through your application.
+- **Performance Analysis**: Analyze trace timing information to identify bottlenecks and opportunities for improvement.
+- **Error Analysis**: Use traces to understand the root causes of errors and exceptions.
+
+### Related Galileo Workflows
+
+- **Metrics**: Set up metrics based on trace data to monitor key aspects of your AI application.
+- **Experiments**: Use traces to compare different models, prompts, or configurations.
+- **Datasets**: Convert traces into datasets for fine-tuning or evaluation.
+- **Alerts**: Configure alerts based on patterns in your traces.
+
+### Further Resources
+
+- [Logs](/concepts/logs) - Learn more about the fundamental building blocks of traces
+- [Spans](/concepts/spans) - Understand the different types of spans in Galileo
+- [Log Streams](/concepts/logstreams) - Explore how to organize traces into streams
+- [Projects](/concepts/projects) - Learn about the top-level organization of Galileo resources
+- [Metrics](/concepts/metrics) - Discover how to measure key aspects of your AI application
+- [Experiments](/concepts/experiments) - Learn how to compare different approaches
+
 
