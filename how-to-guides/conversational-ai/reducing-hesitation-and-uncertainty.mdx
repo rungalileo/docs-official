@@ -6,47 +6,165 @@ icon: person-digging
 
 Some models struggle to confidently generate responses, leading to hesitation, incomplete answers, or repeated disclaimers.
 
+For example, consider this prompt and response:
+```
+Prompt: "Tell me about climate change." 
+```
+<Card>
+Model Response: "Well, there are many aspects to climate change. Some people think it's caused by humans, and others think it's just natural. It's hard to say exactly."
+</Card>
+
 ### What Went Wrong?
-- Did not provide enough context for confident decision-making
-- Allowed too much randomness in token selection
-- Prompt structure was ambiguous
+- The prompt did not provide enough context for confident decision-making
+- The model allowed too much randomness in token selection
+- The prompt was ambiguous in the response it expected
 
 ### How It Showed Up in Metrics:
 - **High Uncertainty**: The model hesitated in its response
 - **High Prompt Perplexity**: The model struggled with predicting the next token
 - **Mid-range Instruction Adherence**: The model understood the instructions but lacked decisiveness
 
-### Example of the Bad Setup
+## Example App 
+In order to show what we can change, consider this example app that prompts gpt-4o:
+<CodeGroup>
+```python example.py
+import os
+from galileo import openai
+from dotenv import load_dotenv
+load_dotenv()
 
-```
-Prompt: "Tell me about climate change." 
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-Model Response: "Well, there are many aspects to climate change. Some people think it's caused by humans, and others think it's just natural. It's hard to say exactly."
+prompt = "Tell me about climate change."
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "system", "content": prompt}],
+)
+print(response.choices[0].message.content.strip())
 ```
+
+```typescript example.ts
+import { OpenAI } from "openai";
+import { observe } from "galileo";
+import { wrapOpenAI } from "galileo/wrappers";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+
+const callOpenAI = async (country: string) => {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: `What is the capital of ${country}?` }],
+  });
+  return response.choices[0].message.content;
+};
+
+const prompt = "Tell me about climate change.";
+await callOpenAI(prompt);
+```
+</CodeGroup>
 
 ## Improvements and Solutions
 <Steps>
 <Step title="Provide Stronger Context in Prompts">
-
 - Include explicit guiding statements, for example:
 
+  <CodeGroup>
+  ```python example.py
+  prompt = """Tell me about climate change. 
+    Assume the following is true: 
+    1. Climate change is driven by human activity. 
+    2. Provide an explanation based on scientific evidence."""
   ```
-  Instruction: Assume the following is true: Climate change is driven by human activity. 
-  Provide an explanation based on scientific evidence.
+
+  ```typescript example.ts
+  const prompt = `Tell me about climate change. 
+  Assume the following is true: 
+  1. Climate change is driven by human activity. 
+  2. Provide an explanation based on scientific evidence.`;
   ```
+  </CodeGroup>
+
+  This should reduce the uncertaincy and perplexity in your metrics on Galileo.
 </Step>
 <Step title="Adjust Model Sampling Parameters">
 
-- Lower **temperature** to make the model more deterministic
-- Use **top-k sampling** to limit options and prevent hesitation
+- Lower **temperature** to make the model more deterministic, for example:
+
+  <CodeGroup>
+  ```python example.py
+  response = client.chat.completions.create(
+      model="gpt-4o",
+      messages=[{"role": "user", "content": "Tell me a joke."}],
+      temperature=0.3  # Reduced temperature for more predictable responses
+  )
+  ```
+  
+  ```typescript example.ts
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{ role: "user", content: "Tell me a joke." }],
+    temperature: 0.3, // Reduced temperature for more predictable responses
+  });
+  ```
+  </CodeGroup>
+
+- Use **top-k sampling** to limit options and prevent hesitation, for example:
+
+  <CodeGroup>
+  ```python example.py
+  response = client.chat.completions.create(
+      model="gpt-4o",
+      messages=[{"role": "user", "content": "Give me a summary of today's news."}],
+      # This is often how top k would be set. 
+      # In practice, ChatGPT does not allow modifying top-k, but other models do
+      top_k=50  # Limits token selection to the top 50 choices
+  )
+  ```
+  
+  ```typescript example.ts
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{ role: "user", content: "Give me a summary of today's news." }],
+    // This is often how top k would be set. 
+    // In practice, ChatGPT does not allow modifying top-k, but other models do
+    top_k: 50, // Limits token selection to the top 50 choices. 
+  });
+  ```
+  </CodeGroup>
+
+    Lowering the `temperature` and decreasing `top_k` both generally increase the prompt adherence.
+
 </Step>
 <Step title="Modify Prompt Structure">
+- Use direct phrasing to force a single, clear response, for example:
 
-- Use direct phrasing to force a single, clear response
-- Avoid prompts that allow multiple equally valid answers
+  <CodeGroup>
+  ```python example.py
+  prompt = "Provide a single, definitive explanation of climate change in two sentences."
+  ```
+  
+  ```typescript example.ts
+  const prompt = "Provide a single, definitive explanation of climate change in two sentences.";
+  ```
+  </CodeGroup>
+
+- Avoid prompts that allow multiple equally valid answers, for example avoiding confusing by adding the source of the opinion we care about:
+
+  <CodeGroup>
+  ```python example.py
+  prompt = "What are the primary causes of climate change according to scientists?"
+  ```
+  
+  ```typescript example.ts
+  const prompt = "What are the primary causes of climate change according to scientists?";
+  ```
+  </CodeGroup>
 </Step>
 <Step title="Apply Uncertainty-Based Filtering">
 
 - Automatically reject responses with an **Uncertainty** score above a set threshold
+
+{/* TODO: Add an example of how to use Galileo to evaluate the Uncertainty, then trigger a change in response (ex. retrying)*/}
+
 </Step>
 </Steps>
