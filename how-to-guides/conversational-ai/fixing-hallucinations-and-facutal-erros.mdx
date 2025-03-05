@@ -4,9 +4,46 @@ description: Learn how to identify and address hallucinations and factual errors
 icon: person-digging
 ---
 
-Hallucinations occur when an AI model generates factually incorrect information that is not grounded in any real-world knowledge. These are sometimes called "open-domain factual errors" and can significantly impact the reliability of your AI system.
+Hallucinations occur when an AI model generates factually incorrect information that is not grounded in any real-world knowledge. These are sometimes called "open-domain factual errors" and can significantly impact the reliability of your AI system. In this particular guide, we're going to focus on hallucinations that have to do with "open-domain" facts - as opposed to hallucinations that have to do with "closed-domain" facts, which are more common in the context of RAG systems.
+
+## Setup
+
+Consider the following prompt:
+
+```
+Which are better: Sharks or Tigers? Explain why. Answer succinctly, you must choose one. 
+```
+
+And the following response:
+
+<Card>
+Tigers are better because they are apex predators with a versatile skill set, capable of thriving in diverse terrestrial environments, whereas sharks are specialized for aquatic life. Tigers have complex social behaviors and are more adaptable to a range of habitats compared to sharks.
+</Card>
+
+As we can see, the model cites a number of facts about sharks and tigers. While they are individually correct, the response as a whole also claims that these facts prove that tigers are better than sharks. This is a subjective statement, and the model has no way to know whether this is true or not.
 
 ### What Went Wrong?
+
+Let's look at the explanation:
+
+<Card>
+**The response has a 66.67% chance of being factually correct.**
+
+The response makes several claims regarding why tigers are better than sharks:
+
+1. **Tigers are apex predators:** This claim is factually correct as tigers are considered apex predators in their terrestrial habitats, primarily preying on larger herbivores.
+
+2. **Tigers have a versatile skill set and can thrive in diverse terrestrial environments:** This claim is true as tigers can adapt to various habitats, including forests, grasslands, and swamps, showcasing their versatility in hunting and survival skills.
+
+3. **Sharks are specialized for aquatic life:** This claim is also correct. Sharks have evolved as top predators in marine environments, having physical adaptations, such as streamlined bodies and gills, making them highly effective in water.
+
+4. **Tigers have complex social behaviors and are more adaptable to a range of habitats than sharks:** While it is true that tigers display some level of social interaction, such as mother-cub relationships, they are generally solitary animals. The adaptability claim is partially accurate; however, it should be noted that sharks are well adapted to their own environments, but they are not adaptable to land environments due to their physiological needs. 
+
+Overall, while the response presents some correct information about both species, the assertion that tigers are 'better' than sharks is subjective and lacks a definitive basis since 'better' can depend on context and criteria. In terms of factual correctness, the claims made do not fundamentally present falsehoods but the comparison drawn lacks a nuanced view of the strengths of both animals.
+</Card>
+
+As the explanation suggests, the root cause of open-domain hallucination are quite often due to ambigouty in the prompt, lack of constraints on the response, lack of context - or a combination of these factors.
+
 
 When models hallucinate, it's typically due to one or more of these issues:
 
@@ -19,19 +56,8 @@ When models hallucinate, it's typically due to one or more of these issues:
 Hallucinations typically manifest in evaluation metrics as:
 
 - **Low Correctness scores**: Responses contain factual inaccuracies
-- **Poor Ground Truth Adherence**: Responses deviate from trusted sources
-- **High Uncertainty indicators**: The model shows indecisiveness or hedging
+- **Uncertainty indicators**: The model shows some level of uncertainty about of the response
 
-## Example of Problematic Output
-
-```
-Prompt: "What are some facts about black holes?"
-
-Model Response: "Black holes are portals to other dimensions, and scientists have 
-recently confirmed that time travel is possible through them."
-```
-
-This response contains scientifically unverified claims presented as facts.
 
 ## Solutions to Prevent Hallucinations
 <Steps>
@@ -43,30 +69,101 @@ Modify your prompts to discourage speculation:
 Instruction: Only provide answers that are scientifically verified. 
 If you're unsure about something, say 'I don't know' rather than guessing.
 ```
+
+**Implementation tips:**
+- Add explicit uncertainty instructions to your system prompt
+- Include examples of good "I don't know" responses in few-shot prompts
+- Reward the model for admitting uncertainty rather than making up answers
+- Consider phrases like "It's important to be accurate rather than comprehensive"
 </Step>
+
 <Step title="Add Response Validation">
 
 - Implement automated validation using Correctness scores
 - Flag responses with a low Ground Truth Adherence score for human review
 - Consider using retrieval-augmented generation (RAG) to ground responses in verified sources
-</Step>
-<Step title="Fine-Tune Model Behavior">
 
-- Fine-tune on domain-specific data to improve factual reliability
-- Penalize uncertain completions during training
-- Use techniques like RLHF (Reinforcement Learning from Human Feedback) to reduce hallucination tendencies
-</Step> 
+**Validation techniques:**
+- Use Galileo's Ground Truth Adherence metric to compare responses against known facts
+- Implement confidence thresholds where low-confidence answers trigger fallback responses
+- For critical applications, create a verification pipeline with multiple checks
+- Consider a "cited response only" approach where all factual claims must reference sources
+</Step>
+
 <Step title="Implement Post-Processing Checks">
 
 - Run additional LLM-based checks for factual accuracy before serving responses
 - Filter out responses that exceed an uncertainty threshold
 - Consider implementing a citation system for factual claims
+
+**Advanced verification methods:**
+- Create a separate "fact-checking" LLM call that evaluates the main response
+- Implement a multi-agent approach where one agent generates and another verifies
+- Use structured output formats that separate facts from opinions/interpretations
+- For high-stakes domains, maintain a database of verified facts to check against
+</Step>
+
+<Step title="Design for Transparency">
+
+- Clearly communicate the model's limitations to users
+- Provide confidence scores alongside responses
+- Distinguish between factual statements and opinions/interpretations
+- Consider visual indicators for different levels of certainty
+
+**User experience considerations:**
+- Use UI elements like confidence meters or color-coding for certainty levels
+- Provide "View Sources" options for factual claims
+- Design graceful fallbacks when the model is uncertain
+- Consider allowing users to provide feedback on factual accuracy
+</Step>
+
+<Step title="Monitor and Continuously Improve">
+
+- Use Galileo to track hallucination rates over time
+- Collect examples of hallucinations to create targeted test cases
+- Regularly audit responses, especially for high-risk domains
+- Implement feedback loops to improve the system based on real-world performance
+
+**Monitoring strategy:**
+- Set up custom metrics in Galileo specifically for tracking hallucination types
+- Create a "hallucination dataset" of challenging examples for regression testing
+- Implement user feedback mechanisms to flag potential hallucinations
+- Schedule regular reviews of flagged responses to identify patterns
 </Step>
 </Steps>        
 
 ## Best Practices
 
-- Always provide clear instructions about factual accuracy in your system prompts
-- For sensitive domains, implement multiple layers of verification
-- Consider hybrid approaches that combine retrieval and generation
-- Regularly audit your system's outputs for factual accuracy
+<CardGroup cols={2}>
+  <Card title="Layer your defenses" icon="shield-halved">
+    Combine multiple approaches rather than relying on a single method. Use a combination of prompt engineering, validation, and post-processing checks.
+  </Card>
+  
+  <Card title="Domain-specific knowledge" icon="book">
+    For specialized domains, create custom knowledge bases or retrieval systems that contain verified information relevant to your application.
+  </Card>
+  
+  <Card title="Calibrate confidence" icon="gauge-high">
+    Train your system to accurately represent its confidence level. Models should express appropriate uncertainty when dealing with ambiguous or incomplete information.
+  </Card>
+  
+  <Card title="Progressive disclosure" icon="layer-group">
+    Consider revealing information in stages, with increasing verification for more detailed claims. Start with high-confidence facts before providing specifics.
+  </Card>
+  
+  <Card title="Continuous evaluation" icon="magnifying-glass-chart">
+    Regularly test your system against new examples of potential hallucinations. Build a test suite of challenging cases that target known weaknesses.
+  </Card>
+  
+  <Card title="Human-in-the-loop" icon="user-check">
+    For critical applications, maintain human oversight for final verification. Design workflows where humans can efficiently review and correct model outputs.
+  </Card>
+  
+  <Card title="Feedback integration" icon="arrows-spin">
+    Create mechanisms to learn from identified hallucinations. Use feedback loops to continuously improve your system's factual accuracy over time.
+  </Card>
+  
+  <Card title="Contextual awareness" icon="scale-balanced">
+    Adjust verification stringency based on the stakes of the interaction. Apply more rigorous checks for high-risk domains like healthcare or finance.
+  </Card>
+</CardGroup>
