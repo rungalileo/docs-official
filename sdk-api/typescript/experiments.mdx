@@ -1,0 +1,243 @@
+---
+title: Experiments
+icon: "flask"
+---
+
+# Experiments
+
+Galileo Experiments allow you to evaluate and improve your LLM applications by running tests against datasets and measuring performance using various metrics.
+
+## Running an Experiment with a Function
+
+```typescript
+import { OpenAI } from "openai";
+import { runExperiment } from "galileo/experiments";
+import { getDataset } from "galileo/datasets";
+import { wrapOpenAI } from "galileo/wrappers";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+
+const callOpenAI = async (input) => {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: `What is the capital of ${input["country"]}?` }],
+  });
+  return response.choices[0].message.content;
+};
+
+const dataset = getDataset({ name: "countries-dataset" });
+
+const results = runExperiment({
+  dataset,
+  function: callOpenAI,
+  scorers: ["correctness"],
+  concurrency: 1, // number of rows to execute in parallel
+  project: "my-project",
+  tags: [],
+});
+```
+
+## Running an Experiment with a Prompt
+
+```typescript
+import { runExperiment } from "galileo/experiments";
+import { getPrompt } from "galileo/prompts";
+import { getDataset } from "galileo/datasets";
+
+const prompt = getPrompt({
+  name: "storyteller-prompt",
+  version: "latest"
+});
+
+const results = runExperiment({
+  dataset: getDataset({ name: "storyteller-dataset" }),
+  prompt,
+  scorers: ["correctness"],
+  project: "my-project",
+  tags: [],
+});
+```
+
+## Running an Experiment with a Custom Dataset
+
+```typescript
+import { OpenAI } from "openai";
+import { runExperiment } from "galileo/experiments";
+import { wrapOpenAI } from "galileo/wrappers";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+
+const callOpenAI = async (input) => {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      {"role": "system", "content": "You are a geography expert"}, 
+      { role: "user", content: `What is the capital of ${input["country"]}?` }
+    ],
+  });
+  return response.choices[0].message.content;
+};
+
+const results = runExperiment({
+  dataset: () => [
+    {
+      input: { country: "Spain" },
+      expected: "Madrid",
+    },
+    {
+      input: { country: "France" },
+      expected: "Paris",
+    },
+  ],
+  function: callOpenAI,
+  scorers: ["correctness"],
+  concurrency: 1, // number of rows to execute in parallel
+  project: "my-project",
+  tags: [],
+});
+```
+
+## Using Custom Metrics
+
+```typescript
+import { OpenAI } from "openai";
+import { runExperiment } from "galileo/experiments";
+import { getDataset } from "galileo/datasets";
+import { wrapOpenAI } from "galileo/wrappers";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+
+const callOpenAI = async (input) => {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      {"role": "system", "content": "You are an expert storyteller"}, 
+      { role: "user", content: `Write a story about '${input["topic"]}' and make it sound like a human wrote it` }
+    ],
+  });
+  return response.choices[0].message.content;
+};
+
+const checkForDelve = (input, output, expected) => {
+  return output.includes("delve") ? 1 : 0;
+};
+
+const dataset = getDataset({ name: "storyteller-dataset" });
+
+const results = runExperiment({
+  dataset,
+  function: callOpenAI,
+  scorers: [checkForDelve],
+  concurrency: 1, // number of rows to execute in parallel
+  project: "my-project",
+  tags: [],
+});
+```
+
+## Analyzing Experiment Results
+
+```typescript
+import { runExperiment } from "galileo/experiments";
+import { getDataset } from "galileo/datasets";
+
+const dataset = getDataset({ name: "countries-dataset" });
+
+const results = runExperiment({
+  dataset,
+  function: myFunction,
+  scorers: ["correctness", "toxicity"],
+  project: "my-project",
+  tags: [],
+});
+
+// Access the results
+console.log(results.summary);
+console.log(results.rows);
+
+// Access individual row results
+for (const row of results.rows) {
+  console.log(`Input: ${JSON.stringify(row.input)}`);
+  console.log(`Output: ${row.output}`);
+  console.log(`Expected: ${row.expected}`);
+  console.log(`Scores: ${JSON.stringify(row.scores)}`);
+}
+```
+
+## API Reference
+
+### runExperiment
+
+```typescript
+function runExperiment(options: {
+  dataset: Dataset | (() => Array<{
+    input: any;
+    expected?: any;
+    metadata?: Record<string, any>;
+  }>);
+  function?: (input: any) => Promise<string> | string;
+  prompt?: PromptTemplate;
+  scorers?: Array<string | ((input: any, output: string, expected?: any) => number)>;
+  concurrency?: number;
+  project?: string;
+  tags?: string[];
+  metadata?: Record<string, any>;
+}): ExperimentResults
+```
+
+Runs an experiment.
+
+#### Parameters
+
+- `options`: Configuration options for the experiment
+  - `dataset`: The dataset to run the experiment on, or a function that returns the dataset
+  - `function`: (Optional) The function to evaluate
+  - `prompt`: (Optional) The prompt template to evaluate
+  - `scorers`: (Optional) The metrics to use for evaluation
+  - `concurrency`: (Optional) The number of rows to execute in parallel
+  - `project`: (Optional) The project to run the experiment in (overrides environment variable)
+  - `tags`: (Optional) Tags to add to the experiment
+  - `metadata`: (Optional) Additional metadata to include in the experiment
+
+#### Returns
+
+An `ExperimentResults` instance.
+
+### ExperimentResults
+
+```typescript
+interface ExperimentResults {
+  id: string;
+  summary: {
+    scores: Record<string, number>;
+    rowCount: number;
+    startTime: string;
+    endTime: string;
+    duration: number;
+  };
+  rows: Array<{
+    input: any;
+    output: string;
+    expected?: any;
+    scores: Record<string, number>;
+    metadata?: Record<string, any>;
+  }>;
+}
+```
+
+Represents the results of an experiment.
+
+#### Properties
+
+- `id`: The ID of the experiment
+- `summary`: A summary of the experiment results
+  - `scores`: The average scores for each metric
+  - `rowCount`: The number of rows in the experiment
+  - `startTime`: The time when the experiment started
+  - `endTime`: The time when the experiment ended
+  - `duration`: The duration of the experiment in seconds
+- `rows`: The results for each row in the experiment
+  - `input`: The input for the row
+  - `output`: The output for the row
+  - `expected`: The expected output for the row
+  - `scores`: The scores for each metric for the row
+  - `metadata`: Additional metadata for the row 

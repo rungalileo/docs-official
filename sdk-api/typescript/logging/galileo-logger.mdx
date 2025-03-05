@@ -1,0 +1,175 @@
+---
+title: Galileo Logger
+icon: "terminal"
+---
+
+# Galileo Logger
+
+The `GalileoLogger` is a low-level API for logging traces and spans to Galileo. It provides more control over the logging process than the higher-level wrappers and context managers.
+
+## Usage
+
+```typescript
+import { GalileoLogger } from "galileo";
+
+const logger = new GalileoLogger();
+```
+
+## Examples
+
+### Basic Example
+
+```typescript
+import { GalileoLogger } from "galileo";
+
+const logger = new GalileoLogger();
+
+// Start a trace
+const input = "Why is the sky blue?";
+const trace = logger.startTrace(input, []);
+
+// Log an LLM span
+const output = "The sky appears blue because..."; // Result from your LLM call
+trace.logSpan(
+  input,
+  output,
+  "gpt-4o",
+  0.7,
+  "llm"
+);
+
+// Conclude the trace
+trace.conclude(output);
+
+// Flush the trace to Galileo
+trace.flush();
+```
+
+### Complete Example
+
+```typescript
+import { GalileoLogger } from "galileo";
+import { OpenAI } from "openai";
+
+const openai = new OpenAI({ apiKey: "your-openai-api-key" });
+
+async function callLLM(input: string, model: string, temperature: number) {
+  const response = await openai.chat.completions.create({
+    model: model,
+    messages: [{ role: "user", content: input }],
+    temperature: temperature
+  });
+  return response.choices[0].message.content;
+}
+
+async function main() {
+  const logger = new GalileoLogger();
+  
+  const input = "Why is the sky blue?";
+  const model = "gpt-4o";
+  const temperature = 0.7;
+  
+  // Start a trace
+  const trace = logger.startTrace(input, ["sky", "science"]);
+  
+  try {
+    // Call the LLM
+    const output = await callLLM(input, model, temperature);
+    
+    // Log the LLM span
+    trace.logSpan(
+      input,
+      output,
+      model,
+      temperature,
+      "llm"
+    );
+    
+    // Conclude the trace
+    trace.conclude(output);
+    
+    console.log(output);
+  } catch (error) {
+    // Log the error
+    trace.logError(error);
+  } finally {
+    // Flush the trace to Galileo
+    trace.flush();
+  }
+}
+
+main();
+```
+
+## API Reference
+
+### GalileoLogger
+
+```typescript
+class GalileoLogger {
+  constructor(options?: {
+    project?: string;
+    logStream?: string;
+  });
+  
+  startTrace(
+    input: string,
+    tags?: string[],
+    metadata?: Record<string, any>
+  ): Trace;
+}
+```
+
+Creates a new Galileo logger instance.
+
+#### Parameters
+
+- `options`: (Optional) Configuration options for the logger
+  - `project`: The project to log to (overrides environment variable)
+  - `logStream`: The log stream to log to (overrides environment variable)
+
+#### Methods
+
+- `startTrace`: Starts a new trace
+  - `input`: The input to the trace
+  - `tags`: (Optional) Tags to add to the trace
+  - `metadata`: (Optional) Additional metadata to include in the trace
+  - Returns: A new `Trace` instance
+
+### Trace
+
+```typescript
+class Trace {
+  logSpan(
+    input: string | object,
+    output: string | object,
+    model?: string,
+    temperature?: number,
+    type?: "llm" | "workflow" | "retriever" | "tool",
+    metadata?: Record<string, any>
+  ): void;
+  
+  conclude(output: string | object): void;
+  
+  logError(error: Error): void;
+  
+  flush(): Promise<void>;
+}
+```
+
+Represents a trace in Galileo.
+
+#### Methods
+
+- `logSpan`: Logs a span in the trace
+  - `input`: The input to the span
+  - `output`: The output of the span
+  - `model`: (Optional) The model used for the span
+  - `temperature`: (Optional) The temperature used for the span
+  - `type`: (Optional) The type of span
+  - `metadata`: (Optional) Additional metadata to include in the span
+- `conclude`: Concludes the trace with the given output
+  - `output`: The final output of the trace
+- `logError`: Logs an error in the trace
+  - `error`: The error to log
+- `flush`: Flushes the trace to Galileo 

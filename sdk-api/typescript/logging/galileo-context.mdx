@@ -1,0 +1,111 @@
+---
+title: Galileo Context
+icon: "box"
+---
+
+# Galileo Context
+
+The `withGalileo` context wrapper allows you to wrap a block of code in a trace. It also allows you to direct logs to a specific project and log stream - this will override your environment variables.
+
+## Use Cases
+
+`withGalileo` can be useful for:
+
+- Automatically starting a trace and ensuring anything that happens in its scope is logged as a span within the trace
+- For long-running app runtimes where the request never terminates, you can use the context manager to start a trace and ensure that traces are flushed when the manager exits
+- Routing a part of your app to a different Project or Log Stream by setting the trace scope
+
+## Usage
+
+```typescript
+import { withGalileo } from "galileo";
+
+withGalileo({ project: "my-project", logStream: "my-log-stream" }, async () => {
+  // Your code here
+  // Any LLM calls or observed functions in this scope will be logged as spans in the same trace
+  return result;
+});
+```
+
+## Examples
+
+### Basic Example
+
+Using the context manager to create a trace with two spans (which is automatically flushed when the manager exits):
+
+```typescript
+import { OpenAI } from "openai";
+import { withGalileo, observe } from "galileo";
+import { wrapOpenAI } from "galileo/wrappers";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+
+withGalileo({ project: "my-project", logStream: "log-stream" }, async () => {
+  const retriever = observe(
+    { spanType: "retriever" },
+    () => {
+      // Retrieval logic
+      return ["Document 1", "Document 2"];
+    }
+  ); 
+
+  let documents = retriever();
+  
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: `Please summarize this: ${documents.join("\n")}` }],
+  });
+  return response.choices[0].message.content;
+});
+```
+
+### Nested Context
+
+You can nest context managers to create a hierarchy of traces:
+
+```typescript
+import { withGalileo } from "galileo";
+
+withGalileo({ project: "my-project" }, async () => {
+  // Outer trace
+  
+  // Some code here
+  
+  withGalileo({ logStream: "specific-log-stream" }, async () => {
+    // Inner trace, inherits project from outer trace but uses a specific log stream
+    
+    // More code here
+  });
+});
+```
+
+## API Reference
+
+### withGalileo
+
+```typescript
+function withGalileo<T>(
+  options: {
+    project?: string;
+    logStream?: string;
+    tags?: string[];
+    metadata?: Record<string, any>;
+  },
+  fn: () => T
+): T
+```
+
+Creates a context in which all LLM calls and observed functions are logged as spans in the same trace.
+
+#### Parameters
+
+- `options`: Configuration options for the context
+  - `project`: The project to log to (overrides environment variable)
+  - `logStream`: The log stream to log to (overrides environment variable)
+  - `tags`: Tags to add to the trace
+  - `metadata`: Additional metadata to include in the trace
+- `fn`: The function to execute in the context
+
+#### Returns
+
+The return value of the function. 

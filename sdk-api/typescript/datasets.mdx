@@ -1,0 +1,214 @@
+---
+title: Datasets
+icon: "database"
+---
+
+# Datasets
+
+Galileo Datasets allow you to create, manage, and version collections of data for testing and evaluating your LLM applications.
+
+## Creating a Dataset
+
+```typescript
+import { createDataset } from "galileo/datasets";
+
+const testData = [
+  {
+    input: "Which continent is Spain in?",
+    expected: "Europe",
+  },
+  {
+    input: "Which continent is Japan in?",
+    expected: "Asia",
+  },
+];
+
+const dataset = createDataset({
+  name: "countries", 
+  data: testData,
+  project: "my-project",
+});
+```
+
+## Adding Data to a Dataset
+
+```typescript
+import { createDataset } from "galileo/datasets";
+
+const dataset = createDataset({
+  name: "countries", 
+  data: [],
+  project: "my-project",
+});
+
+dataset.insert([
+  {
+    input: "Which continent is Morocco in?",
+    expected: "Africa",
+  },
+  {
+    input: "Which continent is Australia in?",
+    expected: "Oceania",
+  },
+]);
+```
+
+## Retrieving a Dataset
+
+```typescript
+import { getDataset } from "galileo/datasets";
+
+// Get the latest version of a dataset
+const dataset = getDataset({
+  name: "countries",
+  project: "my-project",
+});
+
+// Get a specific version of a dataset
+const datasetV2 = getDataset({
+  name: "countries",
+  version: 2,
+  project: "my-project",
+});
+```
+
+## Managing Dataset Versions
+
+```typescript
+import { getDataset } from "galileo/datasets";
+
+// Get the latest version of a dataset
+const dataset = getDataset({
+  name: "countries",
+  project: "my-project",
+});
+
+// Get the version history
+const versions = dataset.getVersionHistory();
+console.log(versions);
+
+// Get the oldest version
+const oldestVersion = getDataset({
+  name: "countries",
+  version: versions.slice(-1)[0].version,
+  project: "my-project",
+});
+
+// Check when a dataset was modified
+console.log(dataset.modifiedAt);
+```
+
+## Using Datasets in Experiments
+
+Datasets can be used in experiments to evaluate your LLM applications:
+
+```typescript
+import { runExperiment } from "galileo/experiments";
+import { getDataset } from "galileo/datasets";
+
+const dataset = getDataset({
+  name: "countries",
+  project: "my-project",
+});
+
+const results = runExperiment({
+  dataset,
+  function: myFunction,
+  scorers: ["correctness"],
+  project: "my-project",
+});
+```
+
+## API Reference
+
+### createDataset
+
+```typescript
+function createDataset(options: {
+  name: string;
+  data: Array<{
+    input: any;
+    expected?: any;
+    metadata?: Record<string, any>;
+  }>;
+  project?: string;
+}): Dataset
+```
+
+Creates a new dataset.
+
+#### Parameters
+
+- `options`: Configuration options for the dataset
+  - `name`: The name of the dataset
+  - `data`: The initial data for the dataset
+  - `project`: (Optional) The project to create the dataset in (overrides environment variable)
+
+#### Returns
+
+A new `Dataset` instance.
+
+### getDataset
+
+```typescript
+function getDataset(options: {
+  name: string;
+  version?: number;
+  project?: string;
+}): Dataset
+```
+
+Retrieves a dataset.
+
+#### Parameters
+
+- `options`: Configuration options for retrieving the dataset
+  - `name`: The name of the dataset
+  - `version`: (Optional) The version of the dataset to retrieve (defaults to the latest version)
+  - `project`: (Optional) The project to retrieve the dataset from (overrides environment variable)
+
+#### Returns
+
+A `Dataset` instance.
+
+### Dataset
+
+```typescript
+class Dataset {
+  name: string;
+  version: number;
+  modifiedAt: string;
+  data: Array<{
+    input: any;
+    expected?: any;
+    metadata?: Record<string, any>;
+  }>;
+  
+  insert(data: Array<{
+    input: any;
+    expected?: any;
+    metadata?: Record<string, any>;
+  }>): void;
+  
+  getVersionHistory(): Array<{
+    version: number;
+    modifiedAt: string;
+  }>;
+}
+```
+
+Represents a dataset in Galileo.
+
+#### Properties
+
+- `name`: The name of the dataset
+- `version`: The version of the dataset
+- `modifiedAt`: The date and time when the dataset was last modified
+- `data`: The data in the dataset
+
+#### Methods
+
+- `insert`: Adds data to the dataset
+  - `data`: The data to add to the dataset
+- `getVersionHistory`: Gets the version history of the dataset
+  - Returns: An array of objects containing the version number and modification date of each version 
