@@ -24,8 +24,10 @@ Model Response: "Well, there are many aspects to climate change. Some people thi
 - **High Prompt Perplexity**: The model struggled with predicting the next token
 - **Mid-range Instruction Adherence**: The model understood the instructions but lacked decisiveness
 
-## Example App 
-In order to show what we can change, consider this example app that prompts gpt-4o:
+
+## Improvements and Solutions
+
+For the following improvements, we will be showing how we could change a simple prompt script like the below example:
 <CodeGroup>
 ```python example.py
 import os
@@ -52,7 +54,7 @@ const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
 
 const callOpenAI = async (country: string) => {
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-4o",
     messages: [{ role: "user", content: `What is the capital of ${country}?` }],
   });
   return response.choices[0].message.content;
@@ -63,7 +65,6 @@ await callOpenAI(prompt);
 ```
 </CodeGroup>
 
-## Improvements and Solutions
 <Steps>
 <Step title="Provide Stronger Context in Prompts">
 - Include explicit guiding statements, for example:
@@ -114,7 +115,7 @@ await callOpenAI(prompt);
   ```python example.py
   response = client.chat.completions.create(
       model="gpt-4o",
-      messages=[{"role": "user", "content": "Give me a summary of today's news."}],
+      messages=[{"role": "user", "content": "Tell me about climate change."}],
       # This is often how top k would be set. 
       # In practice, ChatGPT does not allow modifying top-k, but other models do
       top_k=50  # Limits token selection to the top 50 choices
@@ -124,7 +125,7 @@ await callOpenAI(prompt);
   ```typescript example.ts
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
-    messages: [{ role: "user", content: "Give me a summary of today's news." }],
+    messages: [{ role: "user", content: "Tell me about climate change." }],
     // This is often how top k would be set. 
     // In practice, ChatGPT does not allow modifying top-k, but other models do
     top_k: 50, // Limits token selection to the top 50 choices. 
