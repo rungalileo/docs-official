@@ -1,0 +1,137 @@
+---
+title: Observe Wrapper
+icon: "eye"
+---
+
+# Observe Wrapper
+
+The `observe` wrapper is a utility function that allows you to wrap a function and log its execution as a span in a trace. It serves two main purposes:
+
+1. It tells our logger to wrap the function contents as a span (you can specify the type in the first argument - by default a workflow span is created).
+2. If there is no current trace when you execute a function wrapped in `observe`, it will create a single span trace.
+
+## Usage
+
+```typescript
+import { observe } from "galileo";
+
+const myFunction = () => observe(
+  { spanType: "workflow", name: "myFunction" },
+  () => {
+    // Your function code here
+    return result;
+  }
+);
+
+const result = myFunction();
+```
+
+## Span Types
+
+The `observe` wrapper supports different span types:
+
+- **workflow**: A span that can have child spans, useful for nesting several child spans to denote a thread within a trace. If you wrap a parent function with `observe`, calls that are made within that scope are automatically logged in the same trace.
+- **llm**: Captures the input, output, and settings of an LLM call. This span gets automatically created when our client library wrappers (OpenAI and Anthropic) are used. Cannot have nested children.
+- **retriever**: Contains the output documents of a retrieval operation.
+- **tool**: Captures the input and output of a tool call. Used to decorate functions that are invoked as tools.
+
+## Examples
+
+### Workflow Span
+
+Create a trace with a workflow span and two nested LLM spans:
+
+```typescript
+import { OpenAI } from "openai";
+import { observe } from "galileo";
+import { wrapOpenAI } from "galileo/wrappers";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+
+const callOpenAI = async (country: string) => {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: `What is the capital of ${country}?` }],
+  });
+  return response.choices[0].message.content;
+};
+
+const myFunction = async () => observe(
+  { spanType: "workflow", name: 'myFunction'}, 
+  async () => {
+    await callOpenAI("France");
+    await callOpenAI("Germany");
+  }
+);
+
+await myFunction();
+```
+
+### Tool Span
+
+Mark a function as a tool:
+
+```typescript
+import { observe } from "galileo";
+
+const myToolFunction = async (input: string) => observe(
+  { spanType: "tool", name: "myToolFunction" }, 
+  async () => {
+    // Tool implementation
+    return `Processed: ${input}`;
+  }
+);
+
+const result = await myToolFunction("test input");
+```
+
+### Retriever Span
+
+Log a retriever function. If the output of the function is an array, it will automatically capture it as documents in the span:
+
+```typescript
+import { observe } from "galileo";
+
+const retriever = () => observe(
+  { spanType: "retriever", name: "myRetriever" },
+  () => {
+    // Retrieval logic
+    return [
+      "Document 1 content",
+      "Document 2 content",
+      "Document 3 content"
+    ];
+  }
+); 
+
+const documents = retriever();
+```
+
+## API Reference
+
+### observe
+
+```typescript
+function observe<T>(
+  options: {
+    spanType?: "workflow" | "llm" | "retriever" | "tool";
+    name?: string;
+    metadata?: Record<string, any>;
+  },
+  fn: () => T
+): T
+```
+
+Wraps a function and logs its execution as a span in a trace.
+
+#### Parameters
+
+- `options`: Configuration options for the span
+  - `spanType`: The type of span to create (default: "workflow")
+  - `name`: The name of the span (default: function name)
+  - `metadata`: Additional metadata to include in the span
+- `fn`: The function to wrap
+
+#### Returns
+
+The return value of the wrapped function. 

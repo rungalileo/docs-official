@@ -1,0 +1,78 @@
+---
+title: TypeScript SDK Overview
+icon: "node-js"
+---
+
+# Galileo TypeScript SDK
+
+The Galileo TypeScript SDK provides a comprehensive set of tools for logging, evaluating, and experimenting with LLM applications. It's designed to be easy to use while providing powerful features for monitoring and improving your AI applications.
+
+## Installation
+
+```bash
+npm install galileo-sdk
+# or
+yarn add galileo-sdk
+```
+
+## Key Features
+
+- **Logging**: Capture LLM interactions, tool usage, and workflow execution
+- **Experimentation**: Run experiments to evaluate and improve your LLM applications
+- **Datasets**: Create and manage datasets for testing and evaluation
+- **Prompts**: Create, version, and test prompt templates
+
+## Getting Started
+
+The simplest way to get started is to use our OpenAI client wrapper:
+
+```typescript
+import { OpenAI } from "openai";
+import { wrapOpenAI } from "galileo/wrappers";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+
+await openai.chat.completions.create({
+  model: "gpt-4o",
+  messages: [{ content: "Say hello world!", role: "user" }],
+});
+```
+
+## Authentication
+
+You can configure Galileo using environment variables:
+
+```env
+# Scoped to an Organization
+GALILEO_API_KEY=...
+
+# Optional, if you're not using the multi-tenant cluster
+# GALILEO_CONSOLE_URL=https://console.experimental-aws.rungalileo.io/
+
+# Optional, set a default Project
+GALILEO_PROJECT=...
+
+# Optional, set a default Log Stream
+GALILEO_LOG_STREAM=...
+```
+
+In Node.js, you can use `process.env` to specify these variables:
+
+```typescript
+process.env.GALILEO_API_KEY = "your-api-key";
+process.env.GALILEO_CONSOLE_URL = "your-console-url";
+process.env.GALILEO_PROJECT = "your-project";
+process.env.GALILEO_LOG_STREAM = "your-log-stream";
+```
+
+## SDK Components
+
+The Galileo TypeScript SDK consists of several components:
+
+- **Wrappers**: Easily integrate with popular LLM providers like OpenAI
+- **Core Logging**: Log LLM interactions, tool usage, and workflow execution
+- **Experiments**: Run experiments to evaluate and improve your LLM applications
+- **Datasets**: Create and manage datasets for testing and evaluation
+- **Prompts**: Create, version, and test prompt templates
+
+Check out the individual component documentation for more details. 
