@@ -6,17 +6,7 @@ icon: person-digging
 
 Sometimes a model ignores the retrieved chunks, either generating responses from its internal knowledge or only using a small portion of the retrieved context. This results in responses that do not fully reflect the most relevant information.
 
-## What Went Wrong?
-
-* **What We Did Wrong:**  
-  * Retrieved too many or too few chunks, leading to excessive or insufficient context.  
-  * The retrieval system returned relevant chunks, but the model failed to incorporate them effectively.  
-  * The model relied too heavily on general knowledge instead of retrieved content.  
-* **How It Showed Up in Metrics:**  
-  * **Low Chunk Attribution**: Retrieved chunks did not affect the model’s response.  
-  * **High Chunk Attribution but Low Chunk Utilization**: The model referenced retrieved data but incorporated only minimal text from it.
-
-#### **Example of the Bad Setup**
+## **Example of the Problem**
 
 **User Query:** "Who discovered penicillin?" 
 
@@ -29,45 +19,343 @@ Sometimes a model ignores the retrieved chunks, either generating responses from
 **Model Response:** "Penicillin was discovered in the 1920s by a scientist."
 
 **What Went Wrong in the Response?**
-
 * The response is technically correct but **fails to attribute the retrieved chunks** by omitting the name **Alexander Fleming**.  
-  * The model is providing **vague phrasing** that does not leverage the retrieved specifics.  
-  * While the retrieved chunks contained useful details, the model only made minimal use of them, leading to **low Chunk Utilization**.
+* The model is providing **vague phrasing** that does not leverage the retrieved specifics.  
+* While the retrieved chunks contained useful details, the model only made minimal use of them, leading to **low Chunk Utilization**.
+
+### Example Better Response
+**Better Model Response:** "Scottish bacteriologist Alexander Fleming conducted experiments on mold in the 1920s, leading to the discovery of penicillin and the development of antibiotics (Sources: 1, 2, 3)."
+
+## What Could Be The Root Cause?
+
+* **What We Did Wrong:**  
+  * Retrieved too many or too few chunks, leading to excessive or insufficient context.  
+  * The retrieval system returned relevant chunks, but the model failed to incorporate them effectively.  
+  * The model relied too heavily on general knowledge instead of retrieved content.  
+* **How It Showed Up in Metrics:**  
+  * **Low Chunk Attribution**: Retrieved chunks did not affect the model’s response.  
+  * **High Chunk Attribution but Low Chunk Utilization**: The model referenced retrieved data but incorporated only minimal text from it.
 
 ## Improvements and Solutions
 
 <Steps>
 <Step title="Improve Retrieval and Chunking Strategy">
 
-* Use **adaptive chunking** instead of fixed-size chunks to ensure that complete facts are retrieved together.  
-* **Increase retrieval precision** by tuning similarity thresholds and using **query expansion** to better match relevant documents.  
+* Use **adaptive chunking** instead of fixed-size chunks to ensure that complete facts are retrieved together.
+<CodeGroup>
+  ```python Python
+  from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+  text_splitter = RecursiveCharacterTextSplitter(
+      chunk_size=512,  # Adaptive size based on text structure
+      chunk_overlap=50,
+      separators=["\n\n", ". ", " "],  # Adaptive chunking using logical breaks
+  )
+
+  chunks = text_splitter.split_text(long_document)
+  ```
+
+  ```typescript TypeScript
+  import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+
+  const textSplitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 512,  // Adaptive size based on text structure
+    chunkOverlap: 50,
+    separators: ["\n\n", ". ", " "],  // Adaptive chunking using logical breaks
+  });
+
+  const chunks = await textSplitter.splitText(longDocument);
+  ```
+</CodeGroup>
+* **Increase retrieval precision** by tuning similarity thresholds and using **query expansion** to better match relevant documents.
+<CodeGroup>
+  ```python Python
+  from sentence_transformers import SentenceTransformer, util
+
+  model = SentenceTransformer("all-MiniLM-L6-v2")
+  query = "climate change impact on oceans"
+  expanded_queries = ["effects of climate change on marine life", "ocean temperature rise effects"]
+
+  query_embedding = model.encode(query, convert_to_tensor=True)
+  doc_embeddings = model.encode(expanded_queries, convert_to_tensor=True)
+
+  similarity_scores = util.pytorch_cos_sim(query_embedding, doc_embeddings)
+
+  filtered_docs = [doc for doc, score in zip(expanded_queries, similarity_scores[0]) if score > 0.7]
+  ```
+
+  ```typescript TypeScript
+  import { SentenceTransformer } from 'sentence-transformers';
+  import * as util from 'sentence-transformers/util';
+
+  const model = new SentenceTransformer("all-MiniLM-L6-v2");
+  const query = "climate change impact on oceans";
+  const expandedQueries = ["effects of climate change on marine life", "ocean temperature rise effects"];
+
+  const queryEmbedding = await model.encode(query, { convertToTensor: true });
+  const docEmbeddings = await model.encode(expandedQueries, { convertToTensor: true });
+
+  const similarityScores = util.pytorchCosSim(queryEmbedding, docEmbeddings);
+
+  const filteredDocs = expandedQueries.filter((doc, index) => 
+    similarityScores[0][index] > 0.7
+  );
+  ```
+</CodeGroup>
 * **Reduce redundant or extraneous chunks** by dynamically adjusting retrieval depth based on query complexity.
+<CodeGroup>
+  ```python Python
+  def adjust_retrieval_depth(query, base_depth=5):
+      complexity_score = len(query.split())  # Approximate query complexity
+      return min(base_depth + complexity_score // 3, 20)  # Adjust dynamically
+
+  retrieval_depth = adjust_retrieval_depth("Explain quantum entanglement in simple terms.")
+  retrieved_docs = retrieve_documents(query, depth=retrieval_depth)
+  ```
+
+  ```typescript TypeScript
+  function adjustRetrievalDepth(query: string, baseDepth: number = 5): number {
+      const complexityScore = query.split(" ").length;  // Approximate query complexity
+      return Math.min(baseDepth + Math.floor(complexityScore / 3), 20);  // Adjust dynamically
+  }
+
+  const retrievalDepth = adjustRetrievalDepth("Explain quantum entanglement in simple terms.");
+  const retrievedDocs = retrieveDocuments(query, { depth: retrievalDepth });
+  ```
+</CodeGroup>
 </Step>
 <Step title="Modify Prompting to Improve Chunk Usage">
 
 * Explicitly instruct the model to **utilize all relevant retrieved chunks**:
 
-```
-Instruction: Ensure your answer is directly supported by all retrieved context. Use named entities and relevant details present in the retrieved text.
-```
+  ```bash Terminal
+  Instruction: Ensure your answer is directly supported by all retrieved context. Use named entities and relevant details present in the retrieved text.
+  ```
 
 * Encourage structured responses that mirror retrieved data closely.
+<CodeGroup>
+  ```python Python
+  def format_response(retrieved_chunks):
+      structured_response = "\n".join(
+          [f"- {chunk}" for chunk in retrieved_chunks]
+      )
+      return f"Based on retrieved information:\n{structured_response}"
+
+  response = format_response(relevant_chunks)
+  ```
+
+  ```typescript TypeScript
+  function formatResponse(retrievedChunks: string[]): string {
+      const structuredResponse = retrievedChunks
+          .map(chunk => `- ${chunk}`)
+          .join("\n");
+      
+      return `Based on retrieved information:\n${structuredResponse}`;
+  }
+
+  const response = formatResponse(relevantChunks);
+  ```
+</CodeGroup>
 </Step>
 <Step title="Improve Model Processing of Retrieved Chunks">
 
-* **Reformat retrieved chunks** before passing them to the model, ensuring they are structured for easy extraction.  
-* Apply **retrieval-augmented generation (RAG) strategies** that force the model to cite specific chunks.  
-* Use citation markers (e.g., "According to source \[1\]...") to ensure traceability.  
-* Implement an extraction-first approach where the model generates responses directly based on retrieved content before synthesizing an answer.  
+* **Reformat retrieved chunks** before passing them to the model, ensuring they are structured for easy extraction.
+<CodeGroup>
+  ```python Python
+  def reformat_chunks(chunks):
+      return [{"source": f"Doc {i+1}", "content": chunk.strip()} for i, chunk in enumerate(chunks)]
+
+  formatted_chunks = reformat_chunks(retrieved_chunks)
+  ```
+
+  ```typescript TypeScript
+  interface FormattedChunk {
+      source: string;
+      content: string;
+  }
+
+  function reformatChunks(chunks: string[]): FormattedChunk[] {
+      return chunks.map((chunk, i) => ({
+          source: `Doc ${i+1}`,
+          content: chunk.trim()
+      }));
+  }
+
+  const formattedChunks = reformatChunks(retrievedChunks);
+  ```
+</CodeGroup>
+* Apply **retrieval-augmented generation (RAG) strategies** that force the model to cite specific chunks.
+<CodeGroup>
+  ```python Python
+  def generate_with_citations(model, query, retrieved_chunks):
+      citations = [f"[{i+1}]: {chunk}" for i, chunk in enumerate(retrieved_chunks)]
+      context = "\n".join(citations)
+      prompt = f"Answer the query using the retrieved data:\n\n{context}\n\nQuery: {query}"
+      return model.generate(prompt)
+
+  response = generate_with_citations(model, "Explain black holes.", retrieved_chunks)
+  ```
+
+  ```typescript TypeScript
+  function generateWithCitations(
+      model: any, 
+      query: string, 
+      retrievedChunks: string[]
+  ): Promise<string> {
+      const citations = retrievedChunks.map((chunk, i) => `[${i+1}]: ${chunk}`);
+      const context = citations.join("\n");
+      const prompt = `Answer the query using the retrieved data:\n\n${context}\n\nQuery: ${query}`;
+      return model.generate(prompt);
+  }
+
+  const response = await generateWithCitations(model, "Explain black holes.", retrievedChunks);
+  ```
+</CodeGroup>
+* Use citation markers (e.g., "According to source \[1\]...") to ensure traceability.
+<CodeGroup>
+  ```python Python
+  def insert_citations(response, retrieved_chunks):
+      for i, chunk in enumerate(retrieved_chunks):
+          response = response.replace(chunk, f"{chunk} [Source {i+1}]")
+      return response
+
+  final_response = insert_citations(model_output, retrieved_chunks)
+  ```
+
+  ```typescript TypeScript
+  function insertCitations(response: string, retrievedChunks: string[]): string {
+      let citedResponse = response;
+      retrievedChunks.forEach((chunk, i) => {
+          citedResponse = citedResponse.replace(
+              chunk, 
+              `${chunk} [Source ${i+1}]`
+          );
+      });
+      return citedResponse;
+  }
+
+  const finalResponse = insertCitations(modelOutput, retrievedChunks);
+  ```
+</CodeGroup>
+* Implement an extraction-first approach where the model generates responses directly based on retrieved content before synthesizing an answer.
+<CodeGroup>
+  ```python Python
+  def extraction_first_approach(retrieved_chunks):
+      extracted_facts = [extract_key_info(chunk) for chunk in retrieved_chunks]
+      synthesized_answer = " ".join(extracted_facts)  # Combine extracted data
+      return synthesized_answer
+
+  response = extraction_first_approach(retrieved_chunks)
+  ```
+
+  ```typescript TypeScript
+  function extractionFirstApproach(retrievedChunks: string[]): string {
+      const extractedFacts = retrievedChunks.map(chunk => extractKeyInfo(chunk));
+      const synthesizedAnswer = extractedFacts.join(" ");  // Combine extracted data
+      return synthesizedAnswer;
+  }
+
+  const response = extractionFirstApproach(retrievedChunks);
+  ```
+</CodeGroup>
 * **Fine-tune the model** to better incorporate retrieved data \- fine-tune the model to prioritize **direct chunk referencing** over paraphrasing.
+<CodeGroup>
+  ```python Python
+  from transformers import Trainer, TrainingArguments
+
+  training_args = TrainingArguments(
+      output_dir="./model_output",
+      num_train_epochs=3,
+      per_device_train_batch_size=4,
+  )
+
+  trainer = Trainer(
+      model=model,
+      args=training_args,
+      train_dataset=fine_tuning_dataset,  # Dataset contains explicit chunk references
+  )
+
+  trainer.train()
+  ```
+
+  ```typescript TypeScript
+  import { Trainer, TrainingArguments } from 'transformers';
+
+  const trainingArgs = new TrainingArguments({
+      outputDir: "./model_output",
+      numTrainEpochs: 3,
+      perDeviceTrainBatchSize: 4,
+  });
+
+  const trainer = new Trainer({
+      model: model,
+      args: trainingArgs,
+      trainDataset: fineTuningDataset,  // Dataset contains explicit chunk references
+  });
+
+  await trainer.train();
+  ```
+</CodeGroup>
 </Step>
 <Step title="Analyze and Adjust Chunk Attribution">
 
-* Use **Chunk Attribution Plus** to understand why certain chunks were ignored.  
-* Optimize **post-processing of retrieved documents** to highlight key sentences before sending them to the model.  
+* Use **Chunk Attribution Plus** to understand why certain chunks were ignored.
+<CodeGroup>
+  ```python Python
+  def analyze_chunk_usage(model_output, retrieved_chunks):
+      ignored_chunks = [chunk for chunk in retrieved_chunks if chunk not in model_output]
+      return ignored_chunks
+
+  ignored = analyze_chunk_usage(model_response, retrieved_chunks)
+  ```
+  ```typescript TypeScript
+  function analyzeChunkUsage(modelOutput: string, retrievedChunks: string[]): string[] {
+      const ignoredChunks = retrievedChunks.filter(chunk => !modelOutput.includes(chunk));
+      return ignoredChunks;
+  }
+
+  const ignored = analyzeChunkUsage(modelResponse, retrievedChunks);
+  ```
+</CodeGroup>
+* Optimize **post-processing of retrieved documents** to highlight key sentences before sending them to the model.
+<CodeGroup>
+  ```python Python
+  def highlight_key_sentences(text):
+      sentences = text.split(". ")
+      important_sentences = [s for s in sentences if "important" in s or "key" in s]
+      return "\n".join(important_sentences)
+
+  highlighted_text = highlight_key_sentences(retrieved_doc)
+  ```
+
+  ```typescript TypeScript
+  function highlightKeySentences(text: string): string {
+      const sentences = text.split(". ");
+      const importantSentences = sentences.filter(
+          s => s.includes("important") || s.includes("key")
+      );
+      return importantSentences.join("\n");
+  }
+
+  const highlightedText = highlightKeySentences(retrievedDoc);
+  ```
+</CodeGroup>
 * Encourage chunk aggregation techniques that **combine highly relevant text segments** for improved response coherence.
+<CodeGroup>
+  ```python Python
+  def aggregate_chunks(retrieved_chunks):
+      return " ".join(retrieved_chunks[:3])  # Combine top 3 relevant chunks
+
+  aggregated_context = aggregate_chunks(retrieved_chunks)
+  ```
+
+  ```typescript TypeScript
+  function aggregateChunks(retrievedChunks: string[]): string {
+      return retrievedChunks.slice(0, 3).join(" ");  // Combine top 3 relevant chunks
+  }
+
+  const aggregatedContext = aggregateChunks(retrievedChunks);
+  ```
+</CodeGroup>
 </Step>
 </Steps>
-
-With these changes, the model will learn to better **attribute** its responses to retrieved data, increasing Chunk Attribution and improving answer quality.
-
