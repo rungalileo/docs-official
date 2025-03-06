@@ -24,23 +24,36 @@ yarn add galileo-sdk
 
 The simplest way to get started is to use our OpenAI client wrapper:
 
-```typescript
-import { OpenAI } from "openai";
-import { wrapOpenAI } from "galileo/wrappers";
+```typescript index.ts
+const dotenv = require("dotenv");
+const { wrapOpenAI, flush, init } = require("galileo");
+const { OpenAI } = require("openai");
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+dotenv.config(); // Load environment variables
 
-await openai.chat.completions.create({
-  model: "gpt-4o",
-  messages: [{ content: "Say hello world!", role: "user" }],
-});
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+
+async function run() {
+  init();
+
+  const result = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{ content: "Say hello world!", role: "user" }],
+  });
+
+  console.log(result.choices[0].message.content); // Access the response
+
+  flush();
+}
+
+run().catch(console.error);
 ```
 
 ## Authentication
 
-You can configure Galileo using environment variables:
+Make sure you have a Galileo API key and configure Galileo using environment variables:
 
-```env
+```.env
 # Scoped to an Organization
 GALILEO_API_KEY=...
 
@@ -54,13 +67,10 @@ GALILEO_PROJECT=...
 GALILEO_LOG_STREAM=...
 ```
 
-In Node.js, you can use `process.env` to specify these variables:
+## Running the Example
 
-```typescript
-process.env.GALILEO_API_KEY = "your-api-key";
-process.env.GALILEO_CONSOLE_URL = "your-console-url";
-process.env.GALILEO_PROJECT = "your-project";
-process.env.GALILEO_LOG_STREAM = "your-log-stream";
+```bash
+node index.ts
 ```
 
 ## SDK Components
