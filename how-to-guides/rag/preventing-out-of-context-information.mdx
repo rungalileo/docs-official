@@ -6,9 +6,16 @@ icon: person-digging
 
 If a model generates responses that include information not found in the retrieved context, it introduces closed-domain hallucinations. This means the model is making up facts rather than relying on retrieved information, leading to misinformation and reduced trust.
 
+### Example of the Problem
+**User Query:** "What year was the Eiffel Tower completed?" 
+
+**Retrieved Context:** "The Eiffel Tower is an iron lattice tower located in Paris, France. It was designed by Gustave Eiffel." 
+
+**Model Response:** "The Eiffel Tower was completed in 1889 and is the most visited paid monument in the world."
+
 ## What Went Wrong?
 
-* **What We Did Wrong:**  
+* **What We May Have Done Wrong:**  
   * Retrieved documents contained irrelevant information.  
   * The model overgeneralized or extrapolated beyond what was retrieved.  
   * The retrieval pipeline was returning too many noisy or loosely related chunks.  
@@ -16,45 +23,53 @@ If a model generates responses that include information not found in the retriev
   * **Low Context Adherence**: The model included information not present in the retrieved documents.  
   * **High Chunk Attribution but Low Chunk Utilization**: The model referenced retrieved data but incorporated only small portions of it.
 
-### Example of the Bad Setup
-
-**User Query:** "What year was the Eiffel Tower completed?" 
-
-**Retrieved Context:** "The Eiffel Tower is an iron lattice tower located in Paris, France. It was designed by Gustave Eiffel." 
-
-**Model Response:** "The Eiffel Tower was completed in 1889 and is the most visited paid monument in the world."
-
 ## Improvements and Solutions
 
-<Steps>
-<Step title="Improve Context Selection">
+<Note>
+Skim through each of these solutions before choosing the best one for your situation!
+</Note>
 
-* Apply **better chunking strategies** to ensure context retrieval is more structured and relevant.  
-  * Use **overlapping sliding windows** to maintain continuity in extracted information.  
-  * Optimize chunk sizes to prevent truncation of important details.  
-* **Switch to a more powerful embedding model** for retrieval to improve similarity matching.  
-* Implement **re-ranking algorithms** to prioritize the most relevant chunks from retrieved data.  
-  * Use **cross-encoders** to refine ranking.  
-  * Apply **learned ranking models** to adjust chunk importance dynamically.
+<Steps>
+<Step title="Enforce Context Adherence in Prompts">
+* Being more explicit in system prompts can help it stick to just the facts provided: 
+  ```
+  Instruction: Only use the retrieved context to answer the question. If the answer is not found, state 'I don’t know.'
+  ```
+* You can also modify the prompt to recommend it uses more of the provided context if there are many relevant results.
+  ```
+  Instruction: Use at least 3 sources in your answer if they are relevant.
+  ```
+</Step>
+<Step title="User Queries Are Too Vague">
+Use **[query expansion techniques](https://www.predli.com/post/rag-series-query-expansion)** to reformulate the user’s query to retrieve more relevant context.
+
+Ex. **User Query:** "Eifel Tower" -> "What is the Eifel Tower?", "When was the Eifel Tower created?", etc.
+
+* You can use an LLM on their query to "guess" the right answer, then use that guess as part of your context retrieval search.
+* You can also generate multiple "alternate" queries to see if they find more relevant context.
+* For short queries, you can expand them into relevant questions.
+</Step>
+<Step title="Chunks Are Truncated">
+* Increase the chunk size to prevent truncation of important details.
+* Apply **[better chunking strategies](https://medium.com/@thallyscostalat/chunking-strategies-optimization-for-retrieval-augmented-generation-rag-in-the-context-of-e47cc949931d)** to ensure context retrieval is more structured and relevant.  
+  * Ex. Use **overlapping sliding windows** to maintain continuity in extracted information.  
+</Step>
+<Step title="Retrieved Chunks Are Irrelevant">
+* **Switch to a more powerful embedding model** for retrieval to improve similarity matching.
+* Implementing **[re-ranking algorithms](https://osanseviero.github.io/hackerllama/blog/posts/sentence_embeddings2/)** to prioritize the most relevant chunks from retrieved data. This can give better adherence, but with higher compute required.  
+  * To mitigate the performance cost of cross-encoding, you can use the faster bi-encoding method to get an initial pool to prioritize further. 
+* Increase similarity thresholds to eliminate loosely related retrieved data.
 </Step>
 <Step title="Use Hybrid Retrieval Techniques">
-
-* Combine **dense vector search** (embeddings) with **sparse retrieval** (BM25, TF-IDF) for better precision.  
-* Use **query expansion techniques** to reformulate the user’s query to better match retrieved documents.  
-* Tune similarity thresholds to eliminate loosely related retrieved data.
+* Combine **dense vector search** (embeddings) with **sparse retrieval** ([BM25](https://en.wikipedia.org/wiki/Okapi_BM25), [TF-IDF](https://en.wikipedia.org/wiki/Tf%E2%80%93idf)) for better precision.
+  * This can improve **Context Adherence** and **Chunk Utilization**.
 </Step>
-<Step title="Enforce Context Adherence in Prompts">
-
-* Modify prompts to emphasize strict reliance on provided context:
-
-```
-Instruction: Only use the retrieved context to answer the question. If the answer is not found, state 'I don’t know.'
-```
-
+<Step title="Fine Tune For Adherence">
 * Penalize generations that introduce out-of-context information by fine-tuning the model with contrastive learning techniques.
+* For some RAG setups, you may accomplish higher adherence by tuning meta-parameters when generating the response (ex. reducing temperature).
+  * This can improve **Context Adherence**.
 </Step>
 <Step title="Validate Responses for Adherence">
-
 * Use **Context Adherence Plus** to generate explanations for why responses are not contextually aligned.  
 * Flag responses with adherence scores below a threshold for human review.  
 * Apply **post-processing filters** to remove non-contextual information before presenting responses to users.
