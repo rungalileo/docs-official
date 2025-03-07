@@ -3,7 +3,7 @@ title: "Getting Started with Galileo"
 icon: "code"
 syncTabs: true
 ---
-
+import { Screenshot } from '/snippets/Screenshot.mdx';
 
 Welcome to Galileo! This quickstart guide will walk you through setting up your first **AI evaluation** in minutes. You'll learn how to identify and fix common issues in AI responses using Galileo's powerful metrics and insights.
 
@@ -114,9 +114,15 @@ node app.ts
 
 <Step title="Analyze the results">
 
-Check your terminal for the output or head over to the Galileo console for extra details like cost and latency.
+Check your terminal for the output or head over to the Galileo console to review the run trace and metrics.
 
-[INSERT SCREENSHOT]
+<Screenshot
+  alt="Run Trace"
+  placeholder="Add screenshot of run trace"
+  caption="Run Trace"
+  imageUrl="/screenshots/chatbot-trace.png"
+/>
+
 <Card>
 <ResponseField name="The Model's Response">
 `Newton's First Law, often referred to as the Law of Inertia, states that an object will remain at rest, or in uniform motion in a straight line, unless acted upon by a net external force. This means that if an object is not influenced by any external forces, it will maintain its current state of motion. Essentially, this law emphasizes the concept of inertia, which is the natural tendency of objects to resist changes in their motion. It forms the foundation for classical mechanics, outlining the behavior of objects when forces are not in play.`
@@ -135,11 +141,18 @@ If you examine the results we got for our first run, you'll see that the model's
 #### **What Happened?**
 * We asked for a **succinct** explanation.
 * The model gave a **detailed** answer instead. 😢
-* Our **instruction adherence metric was 0.00%**, meaning we need to tweak our prompt. 
+* Our **instruction adherence metric was 0.6667%**, meaning we need to tweak our prompt. 
 
-To understand **why** our instruction adherence metric was so low we can look at the **metric explanation**: 
+To understand **why** our instruction adherence metric was so low we can look at the **metric explanation**. You can find this explanation when hovering over the LLM span in your trace.
 
-[INSERT SCREENSHOT]
+
+<Screenshot
+  alt="Metric explanation"
+  placeholder="Add screenshot of metric explanation"
+  caption="Metric Explanation"
+  imageUrl="/screenshots/chatbot-low-context-adherence-explanation.png"
+/>
+
 <Card>
 <ResponseField name="Metric Explanation">
 `The instruction provided was to 'Explain the following topic succinctly: Newton's first law'.   
@@ -168,9 +181,14 @@ const prompt = `
 
 Running this again, our results will look much more concise:
 
-Now, our **instruction adherence metric jumps to 100.00%**! 🎉
+Now, our **instruction adherence metric jumps to 1**! 🎉
 
-[INSERT SCREENSHOT]
+<Screenshot
+  alt="Trace improvement"
+  placeholder="Add screenshot of Trace improvement"
+  caption="Trace improvement"
+  imageUrl="/screenshots/chatbot-trace-improvement.png"
+/>
 
 ## **What's Next**
 
