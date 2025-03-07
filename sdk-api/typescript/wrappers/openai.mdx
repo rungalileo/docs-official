@@ -17,10 +17,16 @@ yarn add galileo-sdk openai
 
 ```typescript
 import { OpenAI } from "openai";
-import { wrapOpenAI } from "galileo/wrappers";
+import { init, flush, wrapOpenAI } from "galileo";
+
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
 
 // Create a wrapped OpenAI client
-const openai = wrapOpenAI(new OpenAI({ apiKey: "your-openai-api-key" }));
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 // Use the wrapped client as you normally would
 const response = await openai.chat.completions.create({
@@ -29,6 +35,9 @@ const response = await openai.chat.completions.create({
 });
 
 console.log(response.choices[0].message.content);
+
+// Flush logs before exiting
+await flush();
 ```
 
 ## Advanced Usage
@@ -39,12 +48,17 @@ You can use the OpenAI wrapper with the `withGalileo` context manager to create 
 
 ```typescript
 import { OpenAI } from "openai";
-import { withGalileo } from "galileo";
-import { wrapOpenAI } from "galileo/wrappers";
+import { withGalileo, init, wrapOpenAI } from "galileo";
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "your-openai-api-key" }));
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
 
-withGalileo({ project: "my-project", logStream: "my-log-stream" }, async () => {
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+
+withGalileo({ projectName: "my-project", logStreamName: "my-log-stream" }, async () => {
   // First LLM call
   const response1 = await openai.chat.completions.create({
     model: "gpt-4o",
@@ -72,10 +86,15 @@ You can use the OpenAI wrapper with the `observe` wrapper to create a workflow s
 
 ```typescript
 import { OpenAI } from "openai";
-import { observe } from "galileo";
-import { wrapOpenAI } from "galileo/wrappers";
+import { observe, init, flush, wrapOpenAI } from "galileo";
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "your-openai-api-key" }));
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 const getCapital = async (country: string) => {
   const response = await openai.chat.completions.create({
@@ -96,6 +115,9 @@ const getCapitals = async () => observe(
 
 const result = await getCapitals();
 console.log(result);
+
+// Flush logs before exiting
+await flush();
 ```
 
 ## API Reference

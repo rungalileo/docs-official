@@ -11,7 +11,13 @@ The `observe` wrapper is a utility function that allows you to wrap a function a
 ## Usage
 
 ```typescript
-import { observe } from "galileo";
+import { observe, init, flush } from "galileo";
+
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
 
 const myFunction = () => observe(
   { spanType: "workflow", name: "myFunction" },
@@ -22,6 +28,9 @@ const myFunction = () => observe(
 );
 
 const result = myFunction();
+
+// Flush logs before exiting
+await flush();
 ```
 
 ## Span Types
@@ -41,10 +50,15 @@ Create a trace with a workflow span and two nested LLM spans:
 
 ```typescript
 import { OpenAI } from "openai";
-import { observe } from "galileo";
-import { wrapOpenAI } from "galileo/wrappers";
+import { observe, init, flush, wrapOpenAI } from "galileo";
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 const callOpenAI = async (country: string) => {
   const response = await openai.chat.completions.create({
@@ -63,6 +77,9 @@ const myFunction = async () => observe(
 );
 
 await myFunction();
+
+// Flush logs before exiting
+await flush();
 ```
 
 ### Tool Span
@@ -70,7 +87,13 @@ await myFunction();
 Mark a function as a tool:
 
 ```typescript
-import { observe } from "galileo";
+import { observe, init, flush } from "galileo";
+
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
 
 const myToolFunction = async (input: string) => observe(
   { spanType: "tool", name: "myToolFunction" }, 
@@ -81,6 +104,9 @@ const myToolFunction = async (input: string) => observe(
 );
 
 const result = await myToolFunction("test input");
+
+// Flush logs before exiting
+await flush();
 ```
 
 ### Retriever Span
@@ -88,7 +114,13 @@ const result = await myToolFunction("test input");
 Log a retriever function. If the output of the function is an array, it will automatically capture it as documents in the span:
 
 ```typescript
-import { observe } from "galileo";
+import { observe, init, flush } from "galileo";
+
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
 
 const retriever = () => observe(
   { spanType: "retriever", name: "myRetriever" },
@@ -103,6 +135,9 @@ const retriever = () => observe(
 ); 
 
 const documents = retriever();
+
+// Flush logs before exiting
+await flush();
 ```
 
 ## API Reference

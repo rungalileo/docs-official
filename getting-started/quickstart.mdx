@@ -77,14 +77,23 @@ print(response.choices[0].message.content.strip())
 
 ```typescript TypeScript
 import { OpenAI } from "openai";
-import { wrapOpenAI } from "galileo/wrappers";
+import { init, flush, wrapOpenAI } from "galileo";
 
-const openai = wrapOpenAI(new OpenAI(apiKey=""));
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 const prompt = "Explain the following topic succinctly: Newton's First Law";
 await openai.chat.completions.create({
  model: "gpt-4o",
  messages: [{ content: prompt, role: "user" }],
 });
+
+// Flush logs before exiting
+await flush();
 ```
 </CodeGroup>
 </Step>

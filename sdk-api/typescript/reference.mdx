@@ -42,14 +42,23 @@ The simplest way to get started is to use our OpenAI client wrapper. This exampl
 
 ```typescript
 import { OpenAI } from "openai";
-import { wrapOpenAI } from "galileo/wrappers";
+import { init, flush, wrapOpenAI } from "galileo";
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 await openai.chat.completions.create({
   model: "gpt-4o",
   messages: [{ content: "Say hello world!", role: "user" }],
 });
+
+// Flush logs before exiting
+await flush();
 ```
 
 ### Context Wrapper
@@ -66,11 +75,11 @@ Using the context manager to create a trace with two spans (which is automatical
 ```typescript
 import { OpenAI } from "openai";
 import { withGalileo, observe } from "galileo";
-import { wrapOpenAI } from "galileo/wrappers";
+import { wrapOpenAI } from "galileo";
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
-withGalileo({ project: "my-project", logStream: "log-stream" }, async () => {
+withGalileo({ projectName: "my-project", logStreamName: "log-stream" }, async () => {
   const retriever = observe(
     { spanType: "retriever" },
     () => {
@@ -110,10 +119,15 @@ This example will create a trace with a workflow span and two nested LLM spans:
 
 ```typescript
 import { OpenAI } from "openai";
-import { observe } from "galileo";
-import { wrapOpenAI } from "galileo/wrappers";
+import { observe, init, flush, wrapOpenAI } from "galileo";
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 const callOpenAI = async (country: string) => {
   const response = await openai.chat.completions.create({
@@ -132,6 +146,9 @@ const myFunction = async () => observe(
 );
 
 await myFunction();
+
+// Flush logs before exiting
+await flush();
 ```
 
 #### Tool Function Example
@@ -140,10 +157,15 @@ This example shows how to mark a tool function:
 
 ```typescript
 import { OpenAI } from "openai";
-import { observe } from "galileo";
-import { wrapOpenAI } from "galileo/wrappers";
+import { observe, init, flush, wrapOpenAI } from "galileo";
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 const myFunction = async () => observe(
   { spanType: "tool"}, 
@@ -153,6 +175,9 @@ const myFunction = async () => observe(
 );
 
 await myFunction();
+
+// Flush logs before exiting
+await flush();
 ```
 
 #### Retriever Example
@@ -160,6 +185,14 @@ await myFunction();
 Logging a retriever. If the output of the function is an array, it will automatically capture it as documents in the span:
 
 ```typescript
+import { observe, init, flush } from "galileo";
+
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
+
 const retriever = observe(
   { spanType: "retriever" },
   async () => {
@@ -167,6 +200,11 @@ const retriever = observe(
     return documents;
   }
 ); 
+
+const documents = await retriever();
+
+// Flush logs before exiting
+await flush();
 ```
 
 ### GalileoLogger
@@ -181,19 +219,22 @@ let config = {
   model,
   temperature
 };
-const logger = new GalileoLogger();
+const logger = new GalileoLogger({
+  projectName: "my-project",
+  logStreamName: "development"
+});
 let trace = logger.startTrace(
   input,
   tags=[]
 );
 
 const output = llmCall(input, model, temperature);
-trace.log_span(
+trace.logSpan(
   input,
   output,
   model,
   temperature,
-  type="llm"
+  "llm"
 );
 
 trace.conclude(output);
@@ -206,10 +247,15 @@ Create and use a prompt template:
 
 ```typescript
 import { OpenAI } from "openai";
-import { createPromptTemplate } from "galileo/prompts";
-import { wrapOpenAI, log } from "galileo";
+import { createPromptTemplate, init, flush, wrapOpenAI } from "galileo";
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 const callOpenAI = async (messages, model) => {
   const response = await openai.chat.completions.create({
@@ -232,13 +278,16 @@ const prompt_template = createPromptTemplate({
   messages: promptMessages,
   name: "storyteller-prompt",
   model: "gpt-4o",
-  project: "my-project"
+  projectName: "my-project"
 });
 
 const output = callOpenAI(
   prompt_template.with_data(data).to_messages(), 
   prompt_template.model
 );
+
+// Flush logs before exiting
+await flush();
 ```
 
 ## Datasets
@@ -248,7 +297,13 @@ const output = callOpenAI(
 Create a dataset and add data to it:
 
 ```typescript
-import { createDataset } from "galileo/datasets";
+import { createDataset, init, flush } from "galileo";
+
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
 
 let testData = [
   {
@@ -264,7 +319,7 @@ let testData = [
 const dataset = createDataset({
   name: "countries", 
   data: testData,
-  project: "my-project",
+  projectName: "my-project",
 });
 
 dataset.insert([
@@ -277,6 +332,9 @@ dataset.insert([
     expected: "Oceania",
   },
 ]);
+
+// Flush logs before exiting
+await flush();
 ```
 
 ### Managing Dataset Versions
@@ -284,12 +342,18 @@ dataset.insert([
 List the versions of a dataset and grab a particular version:
 
 ```typescript
-import { getDataset } from "galileo/datasets";
+import { getDataset, init, flush } from "galileo";
+
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
 
 const dataset = getDataset({
   name: "countries",
   version: 3, // if this param isn't specified, it defaults to the latest
-  project: "my-project",
+  projectName: "my-project",
 });
 
 console.log(dataset.modifiedAt);
@@ -299,8 +363,11 @@ const versions = dataset.getVersionHistory();
 const oldestVersion = getDataset({
   name: "countries",
   version: versions.slice(-1)[0].version,
-  project: "my-project"
+  projectName: "my-project"
 });
+
+// Flush logs before exiting
+await flush();
 ```
 
 ## Experimentation
@@ -311,11 +378,15 @@ Evaluating a runner function against an existing dataset:
 
 ```typescript
 import { OpenAI } from "openai";
-import { runExperiment } from "galileo/experiments";
-import { getDataset } from "galileo/datasets";
-import { wrapOpenAI } from "galileo";
+import { runExperiment, getDataset, init, flush, wrapOpenAI } from "galileo";
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 const callOpenAI = async (input) => {
   const response = await openai.chat.completions.create({
@@ -332,9 +403,12 @@ const results = runExperiment({
   function: callOpenAI,
   scorers: ["correctness"],
   concurrency: 1, // number of rows to execute in parallel
-  project: "my-project",
+  projectName: "my-project",
   tags: [],
 });
+
+// Flush logs before exiting
+await flush();
 ```
 
 ### Evaluating a Prompt
@@ -342,9 +416,13 @@ const results = runExperiment({
 Evaluating a prompt against an existing dataset:
 
 ```typescript
-import { getPrompt } from "galileo/prompts";
-import { runExperiment } from "galileo/experiments";
-import { getDataset } from "galileo/datasets";
+import { getPrompt, runExperiment, getDataset, init, flush } from "galileo";
+
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
 
 const prompt = getPrompt({
   name: "storyteller-prompt",
@@ -355,9 +433,12 @@ const results = runExperiment({
   dataset: getDataset({ name: "storyteller-dataset" }),
   prompt,
   scorers: ["correctness"],
-  project: "my-project",
+  projectName: "my-project",
   tags: [],
 });
+
+// Flush logs before exiting
+await flush();
 ```
 
 ### Evaluating with Custom Dataset
@@ -366,12 +447,15 @@ Evaluating a runner function against a custom dataset:
 
 ```typescript
 import { OpenAI } from "openai";
-import { getPrompt } from "galileo/prompts";
-import { runExperiment } from "galileo/experiments";
-import { getDataset } from "galileo/datasets";
-import { log, wrapOpenAI } from "galileo";
+import { runExperiment, init, flush, wrapOpenAI } from "galileo";
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 const callOpenAI = async (input) => {
   const response = await openai.chat.completions.create({
@@ -394,9 +478,12 @@ const results = runExperiment({
   function: callOpenAI,
   scorers: ["correctness"],
   concurrency: 1, // number of rows to execute in parallel
-  project: "my-project",
+  projectName: "my-project",
   tags: [],
 });
+
+// Flush logs before exiting
+await flush();
 ```
 
 ### Custom Metrics
@@ -405,12 +492,15 @@ Evaluating a runner function against a dataset using a custom metric:
 
 ```typescript
 import { OpenAI } from "openai";
-import { getPrompt } from "galileo/prompts";
-import { runExperiment } from "galileo/experiments";
-import { getDataset } from "galileo/datasets";
-import { log, wrapOpenAI } from "galileo";
+import { runExperiment, init, flush, wrapOpenAI } from "galileo";
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 const callOpenAI = async (input) => {
   const response = await openai.chat.completions.create({
@@ -434,9 +524,12 @@ const results = runExperiment({
   function: callOpenAI,
   scorers: [checkForDelve],
   concurrency: 1, // number of rows to execute in parallel
-  project: "my-project",
+  projectName: "my-project",
   tags: [],
 });
+
+// Flush logs before exiting
+await flush();
 ```
 
 
