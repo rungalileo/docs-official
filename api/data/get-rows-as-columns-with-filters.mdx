@@ -5,40 +5,6 @@ openapi: post /projects/{project_id}/runs/{run_id}/prompts/rows/columnar
 
 This endpoint retrieves multiple rows in a columnar format with powerful filtering capabilities. It allows you to search, sort, and filter rows based on various criteria, making it easy to analyze specific subsets of your data. The columnar representation is particularly useful for data analysis and visualization.
 
-## Path Parameters
-
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| `project_id` | string (UUID) | The unique identifier of the project |
-| `run_id` | string (UUID) | The unique identifier of the experiment run |
-
-## Request Body
-
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| `filters` | array of objects | Optional. Filters to apply to the rows |
-| `sort_by` | object | Optional. Sorting criteria for the results |
-| `page` | integer | Optional. Page number for pagination (default: 1) |
-| `page_size` | integer | Optional. Number of items per page (default: 50, max: 100) |
-| `include_metrics` | boolean | Optional. Whether to include evaluation metrics (default: false) |
-| `include_metadata` | boolean | Optional. Whether to include additional metadata (default: false) |
-| `columns` | array of strings | Optional. Specific columns to include in the response |
-
-### Filter Object
-
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| `field` | string | The field to filter on |
-| `operator` | string | Comparison operator: "eq", "neq", "gt", "gte", "lt", "lte", "contains", "not_contains" |
-| `value` | any | The value to compare against |
-
-### Sort Object
-
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| `field` | string | The field to sort by |
-| `direction` | string | Sort direction: "asc" or "desc" |
-
 ### Example Request
 
 ```json
@@ -163,14 +129,6 @@ The response contains multiple rows in a columnar format, filtered and sorted ac
 | `404` | Project or run not found |
 | `403` | Insufficient permissions to access the data |
 | `400` | Invalid request body or parameters |
-
-## Security
-
-This endpoint requires authentication. You can authenticate using:
-
-- An API key in the `Galileo-API-Key` header
-- OAuth2 password flow
-- HTTP Basic authentication
 
 ## Notes
 

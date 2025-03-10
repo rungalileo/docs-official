@@ -1,3 +1,36 @@
 ---
+title: Update User Dataset Collaborator
 openapi: patch /datasets/{dataset_id}/users/{user_id}
 ---
+
+This endpoint allows you to update the role of a user who has access to a dataset. This is useful for changing a user's level of access, such as promoting a viewer to an editor or demoting an editor to a viewer.
+
+### Roles
+
+- **owner**: Full control over the dataset, including deletion and sharing
+- **editor**: Can view and modify the dataset content
+- **annotator**: Can view the dataset and add annotations
+- **viewer**: Can only view the dataset content
+
+## Response
+
+The response returns the updated user collaborator object:
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `id` | string (UUID) | Unique identifier for the collaborator relationship |
+| `user_id` | string (UUID) | Unique identifier of the user |
+| `role` | string | Updated role for the user |
+| `first_name` | string or null | First name of the user |
+| `last_name` | string or null | Last name of the user |
+| `email` | string | Email address of the user |
+| `created_at` | string (date-time) | When the collaborator was added |
+| `permissions` | array of objects | Permissions associated with this collaborator |
+
+## Notes
+
+- You must have share permission for the dataset to update collaborator roles
+- Changing a user's role to "owner" transfers ownership of the dataset to that user
+- You cannot change your own role if you are the owner (you must transfer ownership first)
+- Users will receive notifications about changes to their access level
+- If the dataset or user doesn't exist, or you don't have permission to update collaborators, a 404 error will be returned

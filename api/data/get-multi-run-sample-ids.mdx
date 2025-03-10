@@ -5,22 +5,6 @@ openapi: get /projects/{project_id}/runs/prompts/rows/columnar
 
 This endpoint retrieves sample IDs across multiple experiment runs in a columnar format, enabling cross-run analysis and comparison. It's particularly valuable for tracking how the same prompts or inputs perform across different model versions, parameter settings, or prompt templates. The columnar representation makes it easy to align and compare results from multiple runs side by side.
 
-## Path Parameters
-
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| `project_id` | string (UUID) | The unique identifier of the project containing the runs |
-
-## Query Parameters
-
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| `run_ids` | array of strings | Required. List of run IDs to include in the comparison |
-| `filters` | string | Optional. JSON-encoded filter criteria to select specific samples |
-| `include_metadata` | boolean | Optional. Whether to include additional metadata (default: false) |
-| `page` | integer | Optional. Page number for pagination (default: 1) |
-| `page_size` | integer | Optional. Number of items per page (default: 50, max: 100) |
-
 ## Response
 
 The response contains sample IDs and optional metadata in a columnar format, organized by run.
@@ -103,14 +87,6 @@ The response contains sample IDs and optional metadata in a columnar format, org
 | `404` | Project not found |
 | `403` | Insufficient permissions to access the runs |
 | `400` | Invalid query parameters or missing required parameters |
-
-## Security
-
-This endpoint requires authentication. You can authenticate using:
-
-- An API key in the `Galileo-API-Key` header
-- OAuth2 password flow
-- HTTP Basic authentication
 
 ## Notes
 

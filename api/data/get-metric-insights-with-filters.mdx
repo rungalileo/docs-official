@@ -5,66 +5,6 @@ openapi: post /projects/{project_id}/runs/{run_id}/prompts/insights/metrics
 
 This endpoint retrieves detailed metric insights from a specific experiment run with powerful filtering capabilities. It allows you to analyze performance metrics across different dimensions, identify patterns, and extract actionable insights from your prompt data. The flexible filtering system enables you to focus on specific subsets of your data for targeted analysis.
 
-## Path Parameters
-
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| `project_id` | string (UUID) | The unique identifier of the project |
-| `run_id` | string (UUID) | The unique identifier of the experiment run |
-
-## Request Body
-
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| `metrics` | array of strings | List of metric names to include in the response |
-| `filters` | array of objects | Optional. Filters to apply to the data |
-| `group_by` | array of strings | Optional. Fields to group the results by |
-| `sort_by` | object | Optional. Sorting criteria for the results |
-| `limit` | integer | Optional. Maximum number of results to return (default: 100) |
-| `include_metadata` | boolean | Optional. Whether to include additional metadata (default: false) |
-
-### Filter Object
-
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| `field` | string | The field to filter on |
-| `operator` | string | Comparison operator: "eq", "neq", "gt", "gte", "lt", "lte", "contains", "not_contains" |
-| `value` | any | The value to compare against |
-
-### Sort Object
-
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| `field` | string | The field to sort by |
-| `direction` | string | Sort direction: "asc" or "desc" |
-
-### Example Request
-
-```json
-{
-  "metrics": ["response_time", "token_count", "instruction_adherence_score"],
-  "filters": [
-    {
-      "field": "model_name",
-      "operator": "eq",
-      "value": "gpt-4"
-    },
-    {
-      "field": "response_time",
-      "operator": "gt",
-      "value": 1.5
-    }
-  ],
-  "group_by": ["prompt_template", "model_name"],
-  "sort_by": {
-    "field": "instruction_adherence_score",
-    "direction": "desc"
-  },
-  "limit": 50,
-  "include_metadata": true
-}
-```
-
 ## Response
 
 The response contains the requested metric insights, grouped and sorted according to the request parameters.

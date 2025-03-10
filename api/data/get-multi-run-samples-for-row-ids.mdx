@@ -5,32 +5,6 @@ openapi: post /projects/{project_id}/runs/prompts/rows/columnar
 
 This endpoint retrieves detailed sample data for specific row IDs across multiple experiment runs. It's particularly useful for comparing how the same inputs perform across different model configurations, prompt templates, or parameter settings. The endpoint returns comprehensive information about each sample, including prompts, completions, and evaluation metrics.
 
-## Path Parameters
-
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| `project_id` | string (UUID) | The unique identifier of the project containing the runs |
-
-## Request Body
-
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| `run_ids` | array of strings | Required. List of run IDs to include in the comparison |
-| `row_ids` | array of strings | Required. List of row IDs to retrieve |
-| `include_metrics` | boolean | Optional. Whether to include evaluation metrics (default: false) |
-| `include_metadata` | boolean | Optional. Whether to include additional metadata (default: false) |
-
-### Example Request
-
-```json
-{
-  "run_ids": ["run_12345", "run_67890"],
-  "row_ids": ["sample_1", "sample_2", "sample_3"],
-  "include_metrics": true,
-  "include_metadata": true
-}
-```
-
 ## Response
 
 The response contains detailed information about the requested samples across the specified runs.
@@ -131,14 +105,6 @@ The response contains detailed information about the requested samples across th
 | `404` | Project not found |
 | `403` | Insufficient permissions to access the runs |
 | `400` | Invalid request body or missing required parameters |
-
-## Security
-
-This endpoint requires authentication. You can authenticate using:
-
-- An API key in the `Galileo-API-Key` header
-- OAuth2 password flow
-- HTTP Basic authentication
 
 ## Notes
 

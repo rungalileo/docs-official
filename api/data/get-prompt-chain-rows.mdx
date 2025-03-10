@@ -5,23 +5,6 @@ openapi: get /projects/{project_id}/runs/{run_id}/chains/{chain_id}
 
 This endpoint retrieves detailed information about all rows in a specific prompt chain. Prompt chains represent multi-step processes where the output of one step becomes the input for the next step. This endpoint provides comprehensive data about each row in the chain, including prompts, completions, and metadata for each step in the sequence.
 
-## Path Parameters
-
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| `project_id` | string (UUID) | The unique identifier of the project |
-| `run_id` | string (UUID) | The unique identifier of the experiment run |
-| `chain_id` | string (UUID) | The unique identifier of the prompt chain |
-
-## Query Parameters
-
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| `include_metrics` | boolean | Optional. Whether to include evaluation metrics (default: false) |
-| `include_metadata` | boolean | Optional. Whether to include additional metadata (default: false) |
-| `page` | integer | Optional. Page number for pagination (default: 1) |
-| `page_size` | integer | Optional. Number of items per page (default: 50, max: 100) |
-
 ## Response
 
 The response contains detailed information about all rows in the specified prompt chain.
@@ -160,14 +143,6 @@ The response contains detailed information about all rows in the specified promp
 | `404` | Project, run, or chain not found |
 | `403` | Insufficient permissions to access the data |
 | `400` | Invalid query parameters |
-
-## Security
-
-This endpoint requires authentication. You can authenticate using:
-
-- An API key in the `Galileo-API-Key` header
-- OAuth2 password flow
-- HTTP Basic authentication
 
 ## Notes
 

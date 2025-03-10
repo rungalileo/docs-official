@@ -5,25 +5,6 @@ openapi: get /projects/{project_id}/runs/{run_id}/prompts/export_prompt_dataset
 
 This endpoint allows you to export prompt data from a specific experiment run as a structured dataset. The exported dataset contains all prompts, completions, and associated metadata from the run, making it easy to analyze, share, or use in other systems. This is particularly useful for creating training datasets, performing offline analysis, or archiving experiment results.
 
-## Path Parameters
-
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| `project_id` | string (UUID) | The unique identifier of the project containing the run |
-| `run_id` | string (UUID) | The unique identifier of the experiment run to export |
-
-## Query Parameters
-
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| `format` | string | Optional. The export format: "json" (default), "csv", or "jsonl" |
-| `include_metadata` | boolean | Optional. Whether to include additional metadata in the export (default: true) |
-| `filter` | string | Optional. JSON-encoded filter criteria to select specific prompts |
-
-## Response
-
-The response is a file download in the requested format containing the prompt dataset.
-
 ### JSON Format Example
 
 ```json
@@ -58,14 +39,6 @@ The response is a file download in the requested format containing the prompt da
 | `404` | Project or run not found |
 | `403` | Insufficient permissions to access the run |
 | `400` | Invalid format or filter parameter |
-
-## Security
-
-This endpoint requires authentication. You can authenticate using:
-
-- An API key in the `Galileo-API-Key` header
-- OAuth2 password flow
-- HTTP Basic authentication
 
 ## Notes
 

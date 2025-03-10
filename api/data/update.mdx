@@ -5,29 +5,6 @@ openapi: patch /scorers/{scorer_id}
 
 This endpoint allows you to update the metadata and default settings of an existing scorer in your Galileo account. You can modify attributes such as the name, description, tags, and default configuration parameters. Note that this endpoint updates the scorer itself, not its versions; scorer versions are immutable once created.
 
-## Path Parameters
-
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| `scorer_id` | string (UUID) | The unique identifier of the scorer to update |
-
-## Request Body
-
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| `name` | string | Optional. New name for the scorer |
-| `description` | string | Optional. New description for the scorer |
-| `tags` | array of strings | Optional. New tags for the scorer |
-| `defaults` | object | Optional. New default settings for the scorer |
-
-### defaults Object
-
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| `model_name` | string | Optional. Default model to use for LLM scorers |
-| `num_judges` | integer | Optional. Default number of judges for ensemble scoring |
-| `filters` | array | Optional. Default filters to apply when using this scorer |
-
 ### Example Request
 
 ```json
@@ -95,14 +72,6 @@ The response contains the updated scorer information.
 | `404` | Scorer not found |
 | `403` | Insufficient permissions to update the scorer |
 | `400` | Invalid request body or parameters |
-
-## Security
-
-This endpoint requires authentication. You can authenticate using:
-
-- An API key in the `Galileo-API-Key` header
-- OAuth2 password flow
-- HTTP Basic authentication
 
 ## Notes
 

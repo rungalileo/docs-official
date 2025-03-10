@@ -1,3 +1,36 @@
 ---
+title: Query Datasets
 openapi: post /datasets/query
 ---
+
+This endpoint allows you to search and filter datasets using advanced query parameters. It provides more flexibility than the List Datasets endpoint by allowing complex filtering and sorting options.
+
+## Response
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `starting_token` | integer | The starting token used for this request |
+| `limit` | integer | The limit used for this request |
+| `paginated` | boolean | Whether the results are paginated |
+| `next_starting_token` | integer or null | Token to use for the next page of results, or null if no more results |
+| `datasets` | array of objects | List of dataset objects matching the query |
+
+### Dataset Object
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `id` | string (UUID) | Unique identifier for the dataset |
+| `name` | string | Name of the dataset |
+| `created_at` | string (date-time) | Creation timestamp |
+| `updated_at` | string (date-time) | Last update timestamp |
+| `project_count` | integer | Number of projects using this dataset |
+| `num_rows` | integer | Number of rows in the dataset |
+| `column_names` | array of strings | Names of columns in the dataset |
+| `permissions` | array of objects | Permissions associated with the dataset |
+
+## Notes
+
+- This endpoint is more powerful than the List Datasets endpoint for complex queries
+- You can combine multiple filters to create complex queries
+- Use pagination parameters to efficiently retrieve large result sets
+- The response includes permissions that indicate what actions the current user can perform on each dataset

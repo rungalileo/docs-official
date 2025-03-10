@@ -1,3 +1,35 @@
 ---
+title: Update Group Dataset Collaborator
 openapi: patch /datasets/{dataset_id}/groups/{group_id}
 ---
+
+This endpoint allows you to update the role of a group that has access to a dataset. This is useful for changing a group's level of access, such as promoting a viewer group to an editor group or demoting an editor group to a viewer group.
+
+
+### Roles
+
+- **owner**: Full control over the dataset, including deletion and sharing
+- **editor**: Can view and modify the dataset content
+- **annotator**: Can view the dataset and add annotations
+- **viewer**: Can only view the dataset content
+
+## Response
+
+The response returns the updated group collaborator object:
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `id` | string (UUID) | Unique identifier for the collaborator relationship |
+| `group_id` | string (UUID) | Unique identifier of the group |
+| `group_name` | string | Name of the group |
+| `role` | string | Updated role for the group |
+| `created_at` | string (date-time) | When the collaborator was added |
+| `permissions` | array of objects | Permissions associated with this collaborator |
+
+## Notes
+
+- You must have share permission for the dataset to update group collaborator roles
+- Changing a group's role affects all members of that group
+- Changing a group's role to "owner" transfers ownership of the dataset to that group
+- If the dataset or group doesn't exist, or you don't have permission to update collaborators, a 404 error will be returned
+- Group members will receive notifications about changes to their access level

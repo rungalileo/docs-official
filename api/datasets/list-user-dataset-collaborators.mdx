@@ -1,3 +1,36 @@
 ---
+title: List User Dataset Collaborators
 openapi: get /datasets/{dataset_id}/users
 ---
+
+This endpoint retrieves a list of all users who have been granted access to a specific dataset. It shows who the dataset has been shared with and what level of access each user has.
+
+## Response
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `starting_token` | integer | The starting token used for this request |
+| `limit` | integer | The limit used for this request |
+| `paginated` | boolean | Whether the results are paginated |
+| `next_starting_token` | integer or null | Token to use for the next page of results, or null if no more results |
+| `collaborators` | array of objects | List of user collaborator objects |
+
+### Collaborator Object
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `id` | string (UUID) | Unique identifier for the collaborator relationship |
+| `user_id` | string (UUID) | Unique identifier of the user |
+| `role` | string | Assigned role for the user: "owner", "editor", "annotator", or "viewer" |
+| `first_name` | string or null | First name of the user |
+| `last_name` | string or null | Last name of the user |
+| `email` | string | Email address of the user |
+| `created_at` | string (date-time) | When the collaborator was added |
+| `permissions` | array of objects | Permissions associated with this collaborator |
+
+## Notes
+
+- You must have at least viewer access to the dataset to list its collaborators
+- The list includes yourself if you are a collaborator on the dataset
+- Use pagination parameters to efficiently retrieve large lists of collaborators
+- If the dataset doesn't exist or the user doesn't have permission to access it, a 404 error will be returned
