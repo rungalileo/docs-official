@@ -1,0 +1,106 @@
+---
+title: Playground
+---
+import { Screenshot } from '/snippets/Screenshot.mdx';
+
+The Playground provides an interactive environment where you can craft prompts, select models, and immediately see the generated outputs. This makes it ideal for rapid iteration and experimentation with different prompt engineering techniques.
+
+<Screenshot 
+    alt="The Galileo Playground"
+    imageUrl="/screenshots/playground.png"
+    caption="The Galileo Playground"
+/>
+
+## Interface Components
+
+### Prompt Section
+
+At the top of the Playground, you'll find the **PROMPT** section where you can input your instructions for the AI model. This is where you craft the text that will guide the model's response.
+
+### Model Selection
+
+The **MODEL** dropdown allows you to select from various available AI models to test your prompts against. Different models may respond differently to the same prompt, making this selection crucial for your testing.
+
+### Editor Options
+
+The Playground offers two editing modes:
+- **Messages**: For creating conversational prompts with multiple turns
+- **Raw Template**: For directly editing the prompt template with more advanced formatting
+
+### System Message
+
+You can specify a **System** message that provides context and instructions to the model about its role and how it should respond. This helps set the tone and behavior for the model's outputs.
+
+### Variables
+
+The Playground supports variables within your prompts using double curly braces (e.g., `{{my_input}}`). This allows you to create dynamic prompts where specific parts can be easily changed without rewriting the entire prompt.
+
+<Screenshot
+    alt="Variables in the Playground"
+    imageUrl="/screenshots/playground-with-variable.png"
+    caption="Variables in the Playground"
+/>
+
+#### How Variables Work
+
+The Playground's variable system provides a powerful way to parameterize your prompts:
+
+1. **Variable Definition**: On the left panel under "VARIABLES," you can define your variables. Each variable has a name that you'll reference in your prompt.
+
+2. **Variable Naming Rules**: As noted in the interface, variable names must follow specific formatting rules - they can only contain letters, numbers, hyphens, and underscores.
+
+3. **Variable Sets**: The Playground organizes variables into sets. Each set represents a complete collection of values that will be used for a single run of your prompt.
+
+4. **Using Variables in Prompts**: In your prompt text, reference variables using the `{{variable_name}}` syntax. For example, if you have a variable named "input", you would reference it as `{{input}}` in your prompt.
+
+5. **Variable Assignment**: In the "VARIABLE SET" section at the bottom left, you can assign specific values to each variable. In the example shown, the variable `{{input}}` is assigned the value "Galileo".
+
+6. **JSON Input Format**: The right panel shows how variables are formatted in the underlying JSON structure. This is particularly useful when using the Raw Template mode or when integrating with the API.
+
+#### Benefits of Using Variables
+
+- **Reusability**: Create template prompts that can be reused with different inputs
+- **Batch Testing**: Test how your prompt performs with different inputs by creating multiple variable sets
+- **Clarity**: Make your prompts more readable by separating the dynamic content from the static instructions
+- **Integration**: Variables make it easier to integrate your prompts with external systems that can provide different inputs
+
+#### Advanced Variable Usage
+
+You can also use the "Add Dataset" button to import multiple variable sets at once from a dataset. This is particularly useful when you want to test your prompt against a large number of different inputs or when you're evaluating prompt performance systematically.
+
+The "Hide Input" toggle allows you to temporarily hide the variable input panel when you want to focus on other aspects of the playground interface.
+
+### Add Message
+
+For conversational interfaces, you can add multiple messages to simulate a back-and-forth conversation between the user and the AI.
+
+### Metrics
+
+The **Add Metric** button allows you to define custom evaluation criteria for your prompts. These metrics help you objectively measure the quality and effectiveness of different prompt variations.
+
+### Run Button
+
+Once your prompt is ready, click the **Run** button to execute it and see the model's response in the **OUTPUT** section below.
+
+## Using the Playground Effectively
+
+### Comparing Prompts
+
+Use the **Compare Prompt** feature at the top right to test multiple prompt variations side by side. This helps identify which phrasing or structure produces the best results.
+
+### Iterative Testing
+
+The Playground is designed for rapid iteration. Make small changes to your prompts, run them, and observe how these changes affect the output. This iterative approach is key to effective prompt engineering.
+
+### Evaluating Results
+
+The OUTPUT section displays the model's response to your prompt. Evaluate these results against your metrics to determine if the prompt is achieving your desired outcomes.
+
+### Saving Successful Prompts
+
+When you find a prompt that works well, you can save it for future use or share it with your team. Successful prompts can be incorporated into your applications or used as starting points for further refinement.
+
+## Integration with Other Galileo Features
+
+The Playground works seamlessly with other Galileo features like **Experiments** for more structured testing, **Metrics** for performance evaluation, and **Datasets** for testing against diverse inputs. Use the navigation bar at the top to switch between these features as needed.
+
