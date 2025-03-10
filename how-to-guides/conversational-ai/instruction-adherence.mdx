@@ -29,15 +29,18 @@ print(response.choices[0].message.content.strip())
 
 
 ### What Showed Up in Metrics:
-When we examine the metric Instruction Adherence metric, we see that the model did not really follow the instructions in the prompt.
-To understand why Galileo flagged this, we can review the explanation:
+When we examine the Instruction Adherence metric, we see a score of 0.6667:
 
 {/* Screenshot: Instruction Adherence Metrics - Before Optimization */}
 <Screenshot
   alt="Instruction adherence metrics dashboard before applying optimization techniques"
   placeholder="Add screenshot of instruction adherence metrics before optimization"
   caption="Instruction Adherence Metrics - Before Optimization"
+  imageUrl="/screenshots/chatbot-low-instruction-adherence-metric.png"
 />
+That means the model didn't fully follow the instructions in the prompt.
+To understand why Galileo flagged this, we can review the explanation:
+
 
 As shown in the dashboard above, the instruction adherence score is low, indicating that our prompt wasn't followed correctly.
 
@@ -52,27 +55,10 @@ The response begins by defining Newton's First Law and provides a clear explanat
 ### What Went Wrong?
 As the explanation indicates, the main reason the model did not follow the instructions is that the prompt is too vague. The prompt does not provide enough information about what constitutes a "succinct" explanation. 
 
-{/* Screenshot: Prompt Perplexity Visualization */}
-<Screenshot
-  alt="Visualization of prompt perplexity metrics and analysis"
-  placeholder="Add screenshot of prompt perplexity visualization"
-  caption="Prompt Perplexity Visualization"
-/>
-
-The perplexity visualization above shows how ambiguous terms like "succinctly" can lead to inconsistent interpretations by the model, resulting in responses that don't match our expectations.
 
 
 ## The Solution
 In order to fix this, we can modify the prompt to provide more specific instructions:
-
-{/* Screenshot: Adherence Configuration Panel */}
-<Screenshot
-  alt="Configuration panel showing available settings for instruction adherence"
-  placeholder="Add screenshot of adherence configuration panel"
-  caption="Adherence Configuration Panel"
-/>
-
-Using the configuration panel shown above, we can set up specific parameters for instruction adherence monitoring. Now, let's update our prompt with clearer instructions:
 
 <CodeGroup>
 ```python Python
@@ -107,7 +93,8 @@ Now, our instruction adherence metric jumps to 100.00%!
   alt="Instruction adherence metrics dashboard after applying optimization techniques, showing improvements"
   placeholder="Add screenshot of instruction adherence metrics after optimization"
   caption="Instruction Adherence Metrics - After Optimization"
-/>
+  imageUrl="/screenshots/chatbot-trace-improvement.png"
+  />
 
 As demonstrated in the metrics dashboard above, our optimized prompt with specific, unambiguous instructions resulted in perfect adherence to our requirements. The model now produces exactly what we asked for: a concise, single-sentence explanation within the specified word limit.
 
