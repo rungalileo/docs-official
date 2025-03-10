@@ -1,3 +1,96 @@
 ---
+title: Get Rows
 openapi: get /projects/{project_id}/runs/{run_id}/prompts/rows
 ---
+
+This endpoint retrieves a list of rows from a specific experiment run. It provides basic information about each row, including identifiers and timestamps, making it useful for discovering available data before fetching more detailed information. This endpoint supports pagination and filtering to help manage large datasets.
+
+## Path Parameters
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `project_id` | string (UUID) | The unique identifier of the project |
+| `run_id` | string (UUID) | The unique identifier of the experiment run |
+
+## Query Parameters
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `filter` | string | Optional. JSON-encoded filter criteria to select specific rows |
+| `page` | integer | Optional. Page number for pagination (default: 1) |
+| `page_size` | integer | Optional. Number of items per page (default: 50, max: 100) |
+| `sort_by` | string | Optional. Field to sort by (default: "created_at") |
+| `sort_direction` | string | Optional. Sort direction: "asc" or "desc" (default: "desc") |
+
+## Response
+
+The response contains a list of rows from the specified experiment run.
+
+### Example Response
+
+```json
+{
+  "rows": [
+    {
+      "row_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "created_at": "2023-05-15T10:00:00Z",
+      "updated_at": "2023-05-15T10:00:05Z",
+      "prompt_hash": "a1b2c3d4e5f6",
+      "has_metrics": true,
+      "has_feedback": false,
+      "tags": ["security", "authentication"]
+    },
+    {
+      "row_id": "4fa85f64-5717-4562-b3fc-2c963f66afa7",
+      "created_at": "2023-05-14T15:30:00Z",
+      "updated_at": "2023-05-14T15:30:08Z",
+      "prompt_hash": "f6e5d4c3b2a1",
+      "has_metrics": true,
+      "has_feedback": true,
+      "tags": ["database", "performance"]
+    },
+    {
+      "row_id": "5fa85f64-5717-4562-b3fc-2c963f66afa8",
+      "created_at": "2023-05-13T09:45:00Z",
+      "updated_at": "2023-05-13T09:45:03Z",
+      "prompt_hash": "1a2b3c4d5e6f",
+      "has_metrics": false,
+      "has_feedback": false,
+      "tags": ["api", "design"]
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "page_size": 50,
+    "total_items": 145,
+    "total_pages": 3
+  }
+}
+```
+
+## Error Responses
+
+| Status Code | Description |
+| ----------- | ----------- |
+| `404` | Project or run not found |
+| `403` | Insufficient permissions to access the data |
+| `400` | Invalid query parameters |
+
+## Security
+
+This endpoint requires authentication. You can authenticate using:
+
+- An API key in the `Galileo-API-Key` header
+- OAuth2 password flow
+- HTTP Basic authentication
+
+## Notes
+
+- This endpoint provides a lightweight overview of available rows, without including the full prompt and completion data
+- Use the `filter` parameter to narrow down the results based on specific criteria
+- The `has_metrics` field indicates whether evaluation metrics are available for the row
+- The `has_feedback` field indicates whether user feedback is available for the row
+- The `prompt_hash` can be used to identify rows with the same input across different runs
+- For detailed information about specific rows, use the Get Row as Column endpoint
+- For analyzing multiple rows with their full data, use the Get Rows as Columns with Filters endpoint
+- For large datasets, use pagination to manage response size and loading times
