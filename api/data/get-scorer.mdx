@@ -1,3 +1,109 @@
 ---
+title: Get Scorer
 openapi: get /scorers/{scorer_id}
 ---
+
+This endpoint retrieves detailed information about a specific scorer in your Galileo account. Scorers are evaluation tools that help you assess the quality and performance of your AI model outputs. This endpoint provides comprehensive details about the scorer's configuration, versions, and metadata.
+
+## Path Parameters
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `scorer_id` | string (UUID) | The unique identifier of the scorer to retrieve |
+
+## Query Parameters
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `include_versions` | boolean | Optional. Whether to include all versions of the scorer in the response (default: false) |
+
+## Response
+
+The response contains detailed information about the requested scorer.
+
+### Example Response
+
+```json
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "name": "Customer Support Quality Evaluator",
+  "description": "Evaluates customer support responses for accuracy, completeness, and tone",
+  "scorer_type": "llm",
+  "defaults": {
+    "model_name": "gpt-4",
+    "num_judges": 3,
+    "filters": [
+      {
+        "field": "response_type",
+        "value": "customer_support"
+      }
+    ]
+  },
+  "latest_version": {
+    "id": "4fa85f64-5717-4562-b3fc-2c963f66afa7",
+    "version": "1.2.0",
+    "created_at": "2023-04-15T09:30:00Z",
+    "created_by": "user_12345"
+  },
+  "versions": [
+    {
+      "id": "4fa85f64-5717-4562-b3fc-2c963f66afa7",
+      "version": "1.2.0",
+      "created_at": "2023-04-15T09:30:00Z",
+      "created_by": "user_12345",
+      "is_latest": true
+    },
+    {
+      "id": "5fa85f64-5717-4562-b3fc-2c963f66afa8",
+      "version": "1.1.0",
+      "created_at": "2023-03-10T14:20:00Z",
+      "created_by": "user_12345",
+      "is_latest": false
+    },
+    {
+      "id": "6fa85f64-5717-4562-b3fc-2c963f66afa9",
+      "version": "1.0.0",
+      "created_at": "2023-02-05T11:45:00Z",
+      "created_by": "user_12345",
+      "is_latest": false
+    }
+  ],
+  "tags": [
+    "customer-support",
+    "quality",
+    "production"
+  ],
+  "included_fields": [
+    "accuracy",
+    "completeness",
+    "tone"
+  ],
+  "created_by": "user_12345",
+  "created_at": "2023-02-05T11:45:00Z",
+  "updated_at": "2023-04-15T09:30:00Z"
+}
+```
+
+## Error Responses
+
+| Status Code | Description |
+| ----------- | ----------- |
+| `404` | Scorer not found |
+| `403` | Insufficient permissions to access the scorer |
+
+## Security
+
+This endpoint requires authentication. You can authenticate using:
+
+- An API key in the `Galileo-API-Key` header
+- OAuth2 password flow
+- HTTP Basic authentication
+
+## Notes
+
+- Use the `include_versions` parameter to retrieve the full version history of the scorer
+- The `latest_version` field provides a quick reference to the most recent version
+- The `defaults` object contains the default configuration settings for the scorer
+- The `scorer_type` field indicates whether this is an LLM-based, code-based, or preset scorer
+- For detailed information about a specific version, use the Get Scorer Version or Latest endpoint
+- For code-based scorers, use the Get Scorer Version Code endpoint to retrieve the actual code implementation
