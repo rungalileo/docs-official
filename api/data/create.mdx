@@ -1,3 +1,55 @@
 ---
+title: Create Scorer
 openapi: post /scorers
 ---
+
+Scorers are evaluation tools that help you assess the quality and performance of your AI model outputs. This endpoint allows you to create a new scorer that can be used to evaluate responses based on specific criteria. Galileo supports different types of scorers, including LLM-based scorers for subjective evaluations, code-based scorers for custom metrics, and preset scorers for common evaluation needs.
+
+## Request Body
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `name` | string | Name of the scorer |
+| `description` | string | Optional description of the scorer's purpose |
+| `tags` | array of strings | Optional tags for categorizing the scorer |
+| `defaults` | object | Optional default settings for the scorer |
+| `scorer_type` | string | Type of scorer to create: "llm", "code", or "preset" |
+
+### defaults Object
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `model_name` | string | Optional default model to use for LLM scorers |
+| `num_judges` | integer | Optional default number of judges for ensemble scoring |
+| `filters` | array | Optional default filters to apply when using this scorer |
+
+## Response
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `id` | string (UUID) | Unique identifier for the scorer |
+| `name` | string | Name of the scorer |
+| `scorer_type` | string | Type of the scorer: "llm", "code", or "preset" |
+| `defaults` | object | Default settings for the scorer |
+| `latest_version` | object | Details of the latest version of the scorer (if any) |
+| `tags` | array of strings | Tags associated with the scorer |
+| `included_fields` | array of strings | Fields that can be configured when using this scorer |
+| `description` | string | Description of the scorer |
+| `created_by` | string (UUID) | ID of the user who created the scorer |
+| `created_at` | string (date-time) | Creation timestamp |
+| `updated_at` | string (date-time) | Last update timestamp |
+
+## Security
+
+This endpoint requires authentication. You can authenticate using:
+
+- An API key in the `Galileo-API-Key` header
+- OAuth2 password flow
+- HTTP Basic authentication
+
+## Notes
+
+- After creating a scorer, you'll need to create a version for it using the appropriate endpoint based on the scorer type
+- LLM scorers are best for subjective evaluations like tone, creativity, or adherence to complex requirements
+- Code scorers are ideal for implementing custom metrics or complex scoring logic
+- Preset scorers provide ready-to-use evaluations for common metrics

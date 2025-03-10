@@ -1,3 +1,94 @@
 ---
+title: Get Group
 openapi: get /groups/{group_id}
 ---
+
+This endpoint retrieves detailed information about a specific group in your Galileo account. Groups are organizational units that help you manage access control and resource sharing across projects, datasets, and other Galileo resources. This endpoint provides comprehensive details about the group, including its members, permissions, and associated resources.
+
+## Path Parameters
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `group_id` | string (UUID) | The unique identifier of the group to retrieve |
+
+## Query Parameters
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `include_members` | boolean | Optional. Whether to include the list of group members in the response (default: true) |
+| `include_resources` | boolean | Optional. Whether to include the list of resources associated with the group (default: false) |
+
+## Response
+
+The response contains detailed information about the requested group.
+
+### Example Response
+
+```json
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "name": "Data Science Team",
+  "description": "Group for all data science team members",
+  "created_at": "2023-01-15T08:30:00Z",
+  "updated_at": "2023-06-22T14:45:00Z",
+  "created_by": "user_12345",
+  "members": [
+    {
+      "user_id": "user_12345",
+      "email": "alice@example.com",
+      "name": "Alice Johnson",
+      "role": "admin",
+      "joined_at": "2023-01-15T08:30:00Z"
+    },
+    {
+      "user_id": "user_67890",
+      "email": "bob@example.com",
+      "name": "Bob Smith",
+      "role": "member",
+      "joined_at": "2023-02-10T11:20:00Z"
+    }
+  ],
+  "resources": [
+    {
+      "id": "proj_12345",
+      "type": "project",
+      "name": "Customer Support AI",
+      "shared_at": "2023-03-05T09:15:00Z"
+    },
+    {
+      "id": "dataset_67890",
+      "type": "dataset",
+      "name": "Support Tickets 2023",
+      "shared_at": "2023-04-12T16:30:00Z"
+    }
+  ],
+  "settings": {
+    "default_project_access": "read",
+    "allow_resource_sharing": true,
+    "require_approval_for_invites": false
+  }
+}
+```
+
+## Error Responses
+
+| Status Code | Description |
+| ----------- | ----------- |
+| `404` | Group not found |
+| `403` | Insufficient permissions to access the group |
+
+## Security
+
+This endpoint requires authentication. You can authenticate using:
+
+- An API key in the `Galileo-API-Key` header
+- OAuth2 password flow
+- HTTP Basic authentication
+
+## Notes
+
+- You must be a member of the group or have organization-level permissions to access group details
+- Group administrators can see all information about the group, including all members and resources
+- Regular members may have limited visibility into certain group settings and resources based on their permissions
+- Use this endpoint to verify group membership, check resource access, or retrieve group metadata for integration with other systems
+- For large groups, the response may be paginated if `include_members` or `include_resources` is set to true

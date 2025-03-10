@@ -1,3 +1,135 @@
 ---
+title: Get Chain as Columns
 openapi: get /projects/{project_id}/runs/{run_id}/prompts/rows/chains/{chain_id}/columnar
 ---
+
+This endpoint retrieves data from a specific prompt chain in a columnar format, making it easier to analyze and visualize multi-step prompt chains. The columnar representation organizes each step of the chain as a separate column, allowing you to see the progression of prompts, completions, and metadata across the entire chain.
+
+## Path Parameters
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `project_id` | string (UUID) | The unique identifier of the project |
+| `run_id` | string (UUID) | The unique identifier of the experiment run |
+| `chain_id` | string (UUID) | The unique identifier of the prompt chain to retrieve |
+
+## Query Parameters
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `include_metadata` | boolean | Optional. Whether to include additional metadata for each step (default: false) |
+| `include_metrics` | boolean | Optional. Whether to include evaluation metrics for each step (default: false) |
+| `page` | integer | Optional. Page number for pagination (default: 1) |
+| `page_size` | integer | Optional. Number of items per page (default: 50, max: 100) |
+
+## Response
+
+The response contains the prompt chain data in a columnar format, with each step of the chain represented as a separate column.
+
+### Example Response
+
+```json
+{
+  "chain_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "chain_name": "RAG Processing Chain",
+  "total_steps": 3,
+  "columns": [
+    {
+      "step_id": "step_1",
+      "step_name": "Query Processing",
+      "prompts": [
+        "Process the following query: How do I configure SSL certificates?",
+        "Process the following query: What are the system requirements?"
+      ],
+      "completions": [
+        "PROCESSED: configure SSL certificates",
+        "PROCESSED: system requirements"
+      ],
+      "metadata": [
+        {
+          "model": "gpt-3.5-turbo",
+          "tokens": 45
+        },
+        {
+          "model": "gpt-3.5-turbo",
+          "tokens": 38
+        }
+      ]
+    },
+    {
+      "step_id": "step_2",
+      "step_name": "Document Retrieval",
+      "prompts": [
+        "Find documents about: configure SSL certificates",
+        "Find documents about: system requirements"
+      ],
+      "completions": [
+        "Found 3 documents: [doc1, doc2, doc3]",
+        "Found 2 documents: [doc4, doc5]"
+      ],
+      "metadata": [
+        {
+          "retrieval_method": "vector_search",
+          "documents_found": 3
+        },
+        {
+          "retrieval_method": "vector_search",
+          "documents_found": 2
+        }
+      ]
+    },
+    {
+      "step_id": "step_3",
+      "step_name": "Answer Generation",
+      "prompts": [
+        "Using these documents, answer: How do I configure SSL certificates?",
+        "Using these documents, answer: What are the system requirements?"
+      ],
+      "completions": [
+        "To configure SSL certificates, you need to...",
+        "The system requirements include..."
+      ],
+      "metadata": [
+        {
+          "model": "gpt-4",
+          "tokens": 320
+        },
+        {
+          "model": "gpt-4",
+          "tokens": 280
+        }
+      ]
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "page_size": 50,
+    "total_items": 2,
+    "total_pages": 1
+  }
+}
+```
+
+## Error Responses
+
+| Status Code | Description |
+| ----------- | ----------- |
+| `404` | Project, run, or chain not found |
+| `403` | Insufficient permissions to access the data |
+| `400` | Invalid query parameters |
+
+## Security
+
+This endpoint requires authentication. You can authenticate using:
+
+- An API key in the `Galileo-API-Key` header
+- OAuth2 password flow
+- HTTP Basic authentication
+
+## Notes
+
+- This endpoint is particularly useful for analyzing multi-step prompt chains like RAG (Retrieval-Augmented Generation) processes
+- The columnar format makes it easier to visualize the flow of information through each step of the chain
+- Including metrics can help identify which steps in the chain might be causing issues or bottlenecks
+- For chains with many rows, use pagination to manage response size and loading times
+- This representation can be easily imported into data analysis tools or visualization libraries

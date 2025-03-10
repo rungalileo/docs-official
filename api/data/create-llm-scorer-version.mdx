@@ -1,3 +1,56 @@
 ---
+title: Create LLM Scorer Version
 openapi: post /scorers/{scorer_id}/version/llm
 ---
+
+LLM scorers leverage language models to evaluate and score AI outputs based on custom criteria. This endpoint allows you to create a new version of an LLM scorer by providing instructions and a template for how the evaluation should be performed. LLM scorers are particularly useful for subjective evaluations like tone, creativity, or adherence to complex requirements that are difficult to measure programmatically.
+
+## Request Body
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `instructions` | string | Instructions for how the LLM should evaluate outputs |
+| `chain_poll_template` | object | Template configuration for the evaluation process |
+
+### chain_poll_template Object
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `metric_system_prompt` | string | System prompt for the metric |
+| `metric_description` | string | Description of what the metric should do |
+| `value_field_name` | string | Field name to look for in the response for the rating (default: "rating") |
+| `explanation_field_name` | string | Field name to look for in the response for the explanation (default: "explanation") |
+| `template` | string | Chainpoll prompt template |
+| `metric_few_shot_examples` | array | Few-shot examples for the metric |
+
+## Path Parameters
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `scorer_id` | string (UUID) | The ID of the scorer to create a version for |
+
+## Response
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `id` | string (UUID) | Unique identifier for the scorer version |
+| `version` | integer | Version number |
+| `generated_scorer` | object | Generated scorer details (if applicable) |
+| `registered_scorer` | object | Registered scorer details (if applicable) |
+| `created_at` | string (date-time) | Creation timestamp |
+| `updated_at` | string (date-time) | Last update timestamp |
+
+## Security
+
+This endpoint requires authentication. You can authenticate using:
+
+- An API key in the `Galileo-API-Key` header
+- OAuth2 password flow
+- HTTP Basic authentication
+
+## Notes
+
+- The instructions should clearly define the evaluation criteria
+- Few-shot examples can significantly improve the consistency and quality of evaluations
+- Each upload creates a new version of the scorer
+- Previous versions remain accessible but the latest version will be used by default

@@ -1,3 +1,87 @@
 ---
+title: Get Prompt Groups
 openapi: get /prompts/rows/groups
 ---
+
+This endpoint retrieves all prompt groups available in your Galileo account. Prompt groups are collections of related prompts that share common characteristics or purposes. This endpoint allows you to discover and explore the different prompt groups that have been defined, making it easier to organize, filter, and analyze your prompt data.
+
+## Query Parameters
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `project_id` | string (UUID) | Optional. Filter groups by project ID |
+| `run_id` | string (UUID) | Optional. Filter groups by experiment run ID |
+| `include_stats` | boolean | Optional. Include usage statistics for each group (default: false) |
+| `page` | integer | Optional. Page number for pagination (default: 1) |
+| `page_size` | integer | Optional. Number of items per page (default: 50, max: 100) |
+
+## Response
+
+The response contains a list of prompt groups and their details.
+
+### Example Response
+
+```json
+{
+  "groups": [
+    {
+      "id": "group_12345",
+      "name": "Customer Support Queries",
+      "description": "Prompts related to customer support interactions",
+      "created_at": "2023-03-10T14:25:00Z",
+      "updated_at": "2023-05-18T09:30:00Z",
+      "prompt_count": 156,
+      "tags": ["support", "customer-service", "queries"],
+      "stats": {
+        "total_tokens": 45680,
+        "average_response_time": 1.2,
+        "success_rate": 0.94
+      }
+    },
+    {
+      "id": "group_67890",
+      "name": "Product Recommendations",
+      "description": "Prompts for generating product recommendations",
+      "created_at": "2023-04-05T11:15:00Z",
+      "updated_at": "2023-06-12T16:40:00Z",
+      "prompt_count": 89,
+      "tags": ["recommendations", "products", "personalization"],
+      "stats": {
+        "total_tokens": 32450,
+        "average_response_time": 1.5,
+        "success_rate": 0.88
+      }
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "page_size": 50,
+    "total_items": 12,
+    "total_pages": 1
+  }
+}
+```
+
+## Error Responses
+
+| Status Code | Description |
+| ----------- | ----------- |
+| `403` | Insufficient permissions to access prompt groups |
+| `400` | Invalid query parameters |
+
+## Security
+
+This endpoint requires authentication. You can authenticate using:
+
+- An API key in the `Galileo-API-Key` header
+- OAuth2 password flow
+- HTTP Basic authentication
+
+## Notes
+
+- Prompt groups help organize and categorize your prompts for easier management and analysis
+- Use the `project_id` parameter to filter groups specific to a particular project
+- Use the `run_id` parameter to see groups that were used in a specific experiment run
+- The `include_stats` parameter provides additional usage metrics that can be helpful for performance analysis
+- Groups can be used to compare performance across different prompt strategies or use cases
+- For accounts with many prompt groups, use pagination to manage response size and loading times

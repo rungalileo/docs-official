@@ -1,3 +1,181 @@
 ---
+title: Get Metric Insights with Filters
 openapi: post /projects/{project_id}/runs/{run_id}/prompts/insights/metrics
 ---
+
+This endpoint retrieves detailed metric insights from a specific experiment run with powerful filtering capabilities. It allows you to analyze performance metrics across different dimensions, identify patterns, and extract actionable insights from your prompt data. The flexible filtering system enables you to focus on specific subsets of your data for targeted analysis.
+
+## Path Parameters
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `project_id` | string (UUID) | The unique identifier of the project |
+| `run_id` | string (UUID) | The unique identifier of the experiment run |
+
+## Request Body
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `metrics` | array of strings | List of metric names to include in the response |
+| `filters` | array of objects | Optional. Filters to apply to the data |
+| `group_by` | array of strings | Optional. Fields to group the results by |
+| `sort_by` | object | Optional. Sorting criteria for the results |
+| `limit` | integer | Optional. Maximum number of results to return (default: 100) |
+| `include_metadata` | boolean | Optional. Whether to include additional metadata (default: false) |
+
+### Filter Object
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `field` | string | The field to filter on |
+| `operator` | string | Comparison operator: "eq", "neq", "gt", "gte", "lt", "lte", "contains", "not_contains" |
+| `value` | any | The value to compare against |
+
+### Sort Object
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `field` | string | The field to sort by |
+| `direction` | string | Sort direction: "asc" or "desc" |
+
+### Example Request
+
+```json
+{
+  "metrics": ["response_time", "token_count", "instruction_adherence_score"],
+  "filters": [
+    {
+      "field": "model_name",
+      "operator": "eq",
+      "value": "gpt-4"
+    },
+    {
+      "field": "response_time",
+      "operator": "gt",
+      "value": 1.5
+    }
+  ],
+  "group_by": ["prompt_template", "model_name"],
+  "sort_by": {
+    "field": "instruction_adherence_score",
+    "direction": "desc"
+  },
+  "limit": 50,
+  "include_metadata": true
+}
+```
+
+## Response
+
+The response contains the requested metric insights, grouped and sorted according to the request parameters.
+
+### Example Response
+
+```json
+{
+  "insights": [
+    {
+      "group": {
+        "prompt_template": "Customer Support Template",
+        "model_name": "gpt-4"
+      },
+      "metrics": {
+        "response_time": {
+          "avg": 2.3,
+          "min": 1.7,
+          "max": 3.5,
+          "median": 2.1,
+          "p90": 3.1,
+          "count": 125
+        },
+        "token_count": {
+          "avg": 320,
+          "min": 150,
+          "max": 650,
+          "median": 310,
+          "p90": 520,
+          "count": 125
+        },
+        "instruction_adherence_score": {
+          "avg": 0.87,
+          "min": 0.65,
+          "max": 0.98,
+          "median": 0.89,
+          "p90": 0.95,
+          "count": 125
+        }
+      },
+      "metadata": {
+        "sample_count": 125,
+        "first_seen": "2023-05-10T08:15:00Z",
+        "last_seen": "2023-06-15T16:30:00Z"
+      }
+    },
+    {
+      "group": {
+        "prompt_template": "Product Recommendation Template",
+        "model_name": "gpt-4"
+      },
+      "metrics": {
+        "response_time": {
+          "avg": 2.8,
+          "min": 1.9,
+          "max": 4.2,
+          "median": 2.6,
+          "p90": 3.8,
+          "count": 98
+        },
+        "token_count": {
+          "avg": 450,
+          "min": 220,
+          "max": 780,
+          "median": 430,
+          "p90": 650,
+          "count": 98
+        },
+        "instruction_adherence_score": {
+          "avg": 0.82,
+          "min": 0.60,
+          "max": 0.95,
+          "median": 0.84,
+          "p90": 0.92,
+          "count": 98
+        }
+      },
+      "metadata": {
+        "sample_count": 98,
+        "first_seen": "2023-05-12T10:20:00Z",
+        "last_seen": "2023-06-14T14:45:00Z"
+      }
+    }
+  ],
+  "total_count": 12,
+  "filtered_count": 2
+}
+```
+
+## Error Responses
+
+| Status Code | Description |
+| ----------- | ----------- |
+| `404` | Project or run not found |
+| `403` | Insufficient permissions to access the data |
+| `400` | Invalid request body or parameters |
+
+## Security
+
+This endpoint requires authentication. You can authenticate using:
+
+- An API key in the `Galileo-API-Key` header
+- OAuth2 password flow
+- HTTP Basic authentication
+
+## Notes
+
+- This endpoint is particularly useful for identifying performance patterns and outliers in your prompt data
+- The `group_by` parameter allows you to segment your data for comparative analysis
+- Use the `filters` parameter to focus on specific subsets of your data, such as a particular model or performance range
+- For complex analyses, you can request multiple metrics simultaneously
+- Statistical aggregations (avg, min, max, etc.) are provided for each metric to give a comprehensive view of performance
+- Consider using a smaller `limit` value for initial exploratory analysis, then refine your query as needed
+- The `include_metadata` option provides additional context about each group, which can be helpful for understanding trends over time
