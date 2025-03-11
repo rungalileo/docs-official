@@ -6,9 +6,12 @@ description: Create and manage datasets
 
 ## Creating Datasets
 
+You can create a new dataset using the `create_dataset` function:
+
 ```python
 from galileo.datasets import create_dataset
 
+# Create a dataset with test data
 test_data = [
     {
         "input": "Which continent is Spain in?",
@@ -22,23 +25,53 @@ test_data = [
 
 dataset = create_dataset(
     name="countries", 
-    data=test_data,
+    content=test_data,
+    project="my-project",
+)
+```
+
+## Getting Existing Datasets
+
+You can retrieve an existing dataset using the `get_dataset` function:
+
+```python
+from galileo.datasets import get_dataset
+
+# Get a dataset by name
+dataset = get_dataset(
+    name="countries",
+    project="my-project",
+)
+
+# Get a dataset by ID
+dataset = get_dataset(
+    id="dataset-id",
+    project="my-project",
+)
+
+# Get a dataset with its content
+dataset = get_dataset(
+    name="countries", 
+    with_content=True,
     project="my-project",
 )
 ```
 
 ## Adding to Existing Datasets
 
+You can add rows to an existing dataset using the `add_rows` method:
+
 ```python
 from galileo.datasets import get_dataset
 
+# Get an existing dataset
 dataset = get_dataset(
     name="countries",
-    version=3, # if this param isn't specified, it defaults to the latest
     project="my-project",
 )
 
-dataset.insert([
+# Add new rows to the dataset
+dataset.add_rows([
     {
         "input": "Which continent is Morocco in?",
         "expected": "Africa",
@@ -50,7 +83,48 @@ dataset.insert([
 ])
 ```
 
+## Listing Datasets
+
+You can list all available datasets using the `list_datasets` function:
+
+```python
+from galileo.datasets import list_datasets
+
+# List all datasets in a project
+datasets = list_datasets(
+    project="my-project",
+)
+
+# List datasets with a custom limit
+datasets = list_datasets(
+    project="my-project",
+    limit=50,
+)
+```
+
+## Deleting Datasets
+
+You can delete a dataset using the `delete_dataset` function:
+
+```python
+from galileo.datasets import delete_dataset
+
+# Delete a dataset by name
+delete_dataset(
+    name="countries",
+    project="my-project",
+)
+
+# Delete a dataset by ID
+delete_dataset(
+    id="dataset-id",
+    project="my-project",
+)
+```
+
 ## Working with Dataset Versions
+
+Galileo automatically creates new versions of datasets when they are modified. You can access different versions:
 
 ```python
 from galileo.datasets import get_dataset
@@ -75,15 +149,46 @@ oldest_version = get_dataset(
 )
 ```
 
+## Using Datasets in Experiments
+
+Datasets are primarily used for running experiments to evaluate the performance of your LLM applications:
+
+```python
+from galileo.datasets import get_dataset
+from galileo.experiments import run_experiment
+from galileo.prompts import get_prompt_template
+
+# Get an existing dataset
+dataset = get_dataset(
+    name="countries",
+    project="my-project",
+)
+
+# Get an existing prompt template
+prompt = get_prompt_template(
+    project="my-project",
+    name="geography-prompt"
+)
+
+# Run an experiment with the dataset and prompt
+results = run_experiment(
+    "geography-experiment",
+    dataset=dataset,
+    prompt=prompt,
+    metrics=["correctness"],
+    project="my-project",
+)
+```
+
 ## Best Practices for Dataset Management
 
 When working with datasets in Galileo, consider these tips:
 
 1. **Start Small**: Begin with a core set of representative test cases
 2. **Grow Incrementally**: Add new test cases as you discover edge cases or failure modes
-3. **Version Thoughtfully**: Use versioning to track major changes in your test suite
-4. **Document Changes**: Keep track of why you added certain test cases or created new versions
-5. **Organize by Purpose**: Create separate datasets for different types of tests (e.g., basic functionality, edge cases, regression tests)
+3. **Use Consistent Formats**: Maintain a consistent format for your datasets to make them easier to use
+4. **Include Expected Outputs**: Always include expected outputs for evaluation
+5. **Document Your Datasets**: Add descriptions and metadata to make it clear what each dataset is for
 
 By following these practices and utilizing Galileo's dataset management features, you can build a robust and maintainable test suite that grows with your application's needs.
 

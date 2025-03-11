@@ -22,29 +22,25 @@ Here's a simple example of using the `GalileoLogger` to log an LLM call:
 ```python
 from galileo import GalileoLogger
 
-# Create a logger instance
-logger = GalileoLogger()
+# Create a logger instance with project and log stream
+logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
 
 # Start a new trace
-input_text = "Why is the sky blue?"
-trace = logger.start_trace(input_text)
-
-# Make your LLM call
-config = {
-    "model": "gpt-4o",
-    "temperature": 0.7
-}
-output = your_llm_call_function(input_text, config)
+trace = logger.start_trace("Say this is a test")
 
 # Add an LLM span to the trace
 logger.add_llm_span(
-    input=input_text,
-    output=output,
-    config=config
+    input="Say this is a test",
+    output="Hello, this is a test",
+    model="gpt-4o",
+    num_input_tokens=10,
+    num_output_tokens=3,
+    total_tokens=13,
+    duration_ns=1000,
 )
 
 # Conclude the trace with the final output
-logger.conclude(output)
+logger.conclude(output="Hello, this is a test", duration_ns=1000)
 
 # Flush the trace to Galileo
 logger.flush()
@@ -57,7 +53,7 @@ logger.flush()
 ```python
 from galileo import GalileoLogger
 
-# Initialize with default settings
+# Initialize with default settings (uses environment variables)
 logger = GalileoLogger()
 
 # Or specify project and log stream
@@ -76,8 +72,11 @@ trace = logger.start_trace(input="User query")
 # Start a trace with additional metadata
 trace = logger.start_trace(
     input="User query",
+    name="User Interaction",
     tags=["production", "user-123"],
-    metadata={"session_id": "abc123", "user_id": "user-456"}
+    metadata={"session_id": "abc123", "user_id": "user-456"},
+    duration_ns=1000000,  # Optional duration in nanoseconds
+    created_at=datetime.now()  # Optional creation timestamp
 )
 ```
 
@@ -91,31 +90,18 @@ The `GalileoLogger` supports adding different types of spans to your traces:
 logger.add_llm_span(
     input="What is the capital of France?",
     output="The capital of France is Paris.",
-    config={
-        "model": "gpt-4o",
-        "temperature": 0.7,
-        "max_tokens": 100
-    },
-    name="Capital Query",  # Optional
-    tags=["geography"]     # Optional
-)
-```
-
-#### Workflow Spans
-
-```python
-# Start a workflow span
-workflow_span = logger.start_workflow_span(
-    name="Data Processing",
-    input={"data": "raw_data"}
-)
-
-# ... do some processing ...
-
-# End the workflow span
-logger.end_workflow_span(
-    workflow_span,
-    output={"processed_data": result}
+    model="gpt-4o",
+    tools=None,  # Optional list of tools used
+    name="Capital Query",  # Optional name
+    duration_ns=1000000,  # Optional duration in nanoseconds
+    metadata={"temperature": "0.7"},  # Optional metadata
+    tags=["geography"],  # Optional tags
+    num_input_tokens=10,  # Optional token counts
+    num_output_tokens=5,
+    total_tokens=15,
+    temperature=0.7,  # Optional model parameters
+    status_code=200,  # Optional status code
+    time_to_first_token_ns=500000  # Optional time to first token
 )
 ```
 
@@ -124,11 +110,12 @@ logger.end_workflow_span(
 ```python
 logger.add_retriever_span(
     input="Query about Roman history",
-    documents=[
-        {"content": "Rome was founded in 753 BC...", "metadata": {"source": "history.txt"}},
-        {"content": "The Roman Empire reached its peak...", "metadata": {"source": "empire.txt"}}
-    ],
-    name="History Retrieval"  # Optional
+    output=["Rome was founded in 753 BC...", "The Roman Empire reached its peak..."],
+    name="History Retrieval",  # Optional
+    duration_ns=500000,  # Optional
+    metadata={"source": "history_db"},  # Optional
+    tags=["history"],  # Optional
+    status_code=200  # Optional
 )
 ```
 
@@ -136,17 +123,43 @@ logger.add_retriever_span(
 
 ```python
 logger.add_tool_span(
-    name="Calculator",
     input={"operation": "add", "numbers": [1, 2, 3]},
-    output={"result": 6}
+    output={"result": 6},
+    name="Calculator",  # Optional
+    duration_ns=100000,  # Optional
+    metadata={"tool_version": "1.0"},  # Optional
+    tags=["math"],  # Optional
+    status_code=200,  # Optional
+    tool_call_id="tool-123"  # Optional
 )
+```
+
+#### Workflow Spans
+
+```python
+# Start a workflow span
+workflow_span = logger.add_workflow_span(
+    input="Process user request",
+    output=None,  # Can be set later
+    name="Main Process",  # Optional
+    duration_ns=None,  # Optional, can be set later
+    metadata={"workflow_type": "user_request"},  # Optional
+    tags=["workflow"]  # Optional
+)
+
+# Later, you can conclude the workflow span when concluding the trace
 ```
 
 ### Concluding and Flushing
 
 ```python
 # Conclude the trace with the final output
-logger.conclude("This is the final response to the user.")
+logger.conclude(
+    output="Final response to the user",
+    duration_ns=2000000,  # Optional duration in nanoseconds
+    status_code=200,  # Optional status code
+    conclude_all=False  # Whether to conclude all open spans
+)
 
 # Flush the trace to Galileo
 logger.flush()
@@ -154,64 +167,68 @@ logger.flush()
 
 ## Advanced Usage
 
-### Nested Spans
+### Creating a Single-Span Trace
 
-You can create nested spans to represent complex workflows:
+For simple LLM calls, you can create a trace with a single LLM span in one step:
+
+```python
+logger.add_single_llm_span_trace(
+    input="What is the capital of France?",
+    output="The capital of France is Paris.",
+    model="gpt-4o",
+    tools=None,
+    name="Capital Query",
+    duration_ns=1000000,
+    metadata={"temperature": "0.7"},
+    tags=["geography"],
+    num_input_tokens=10,
+    num_output_tokens=5,
+    total_tokens=15
+)
+```
+
+### Complex Trace Example
+
+Here's an example of creating a more complex trace with multiple spans:
 
 ```python
 from galileo import GalileoLogger
+from datetime import datetime
 
-logger = GalileoLogger()
-trace = logger.start_trace("Process user request")
+logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
 
-# Start a parent workflow span
-parent_span = logger.start_workflow_span(name="Main Process")
-
-# Add a child LLM span
-logger.add_llm_span(
-    input="Generate a story",
-    output="Once upon a time...",
-    config={"model": "gpt-4o"}
+# Start a trace for a user query
+trace = logger.start_trace(
+    input="Who's a good bot?",
+    name="User Query",
+    tags=["bot-interaction"]
 )
 
-# Start another child workflow span
-child_workflow = logger.start_workflow_span(name="Data Processing")
-
-# Add a retriever span inside the child workflow
+# Add a retriever span for document retrieval
 logger.add_retriever_span(
-    input="Find relevant documents",
-    documents=[{"content": "Document 1"}, {"content": "Document 2"}]
+    input="Who's a good bot?",
+    output=["Research shows that I am a good bot."],
+    name="Document Retrieval",
+    duration_ns=1000000
 )
 
-# End the child workflow span
-logger.end_workflow_span(child_workflow, output={"status": "completed"})
+# Add an LLM span for generating a response
+logger.add_llm_span(
+    input="Who's a good bot?",
+    output="I am!",
+    model="gpt-4o",
+    name="Response Generation",
+    num_input_tokens=25,
+    num_output_tokens=3,
+    total_tokens=28,
+    duration_ns=1000000
+)
 
-# End the parent workflow span
-logger.end_workflow_span(parent_span, output={"status": "completed"})
+# Conclude the trace
+logger.conclude(output="I am!", duration_ns=2000000)
 
-# Conclude and flush the trace
-logger.conclude("Final response to user")
+# Flush the trace to Galileo
 logger.flush()
-```
-
-### Error Handling
-
-You can log errors in your spans:
-
-```python
-try:
-    result = risky_operation()
-    logger.add_tool_span(
-        name="Risky Operation",
-        input={"param": "value"},
-        output=result
-    )
-except Exception as e:
-    logger.add_tool_span(
-        name="Risky Operation",
-        input={"param": "value"},
-        error=str(e)
-    )
 ```
 
 ## Best Practices
@@ -224,11 +241,11 @@ except Exception as e:
 
 4. **Structure spans logically**: Create a span hierarchy that reflects the logical structure of your application.
 
-5. **Handle errors gracefully**: Log errors in spans to help with debugging and analysis.
+5. **Handle errors gracefully**: Include status codes and error information in your spans to help with debugging.
 
 ## Related Resources
 
 - [@log Decorator](/sdk-api/python/logging/log-decorator) - For a simpler way to log function calls
 - [OpenAI Wrapper](/sdk-api/python/wrappers/openai) - For automatic logging of OpenAI calls
 - [Langchain Integration](/sdk-api/python/wrappers/langchain) - For logging Langchain workflows
-- [galileo_context()](/sdk-api/python/reference#grouping-and-uploading-logs-faster-galileo_context) - For managing trace context and automatic flushing 
+- [galileo_context()](/sdk-api/python/logging/galileo-context) - For managing trace context and automatic flushing 

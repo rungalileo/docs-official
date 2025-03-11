@@ -1,26 +1,91 @@
 ---
 title: Galileo Context
+description: 'Manage trace context and control logging behavior with the galileo_context context manager'
 ---
 
-## Initialize the Galileo context manager
-The `galileo_context` context manager is used to log to a specific project and log stream.
+The `galileo_context` context manager provides a convenient way to control the logging behavior of your application. It allows you to:
 
-```python with_context.py
+1. Set the project and log stream for all logs within its scope
+2. Automatically start and flush traces
+3. Group related operations into a single trace
+4. Ensure traces are flushed even in long-running applications
+
+## Basic Usage
+
+The simplest way to use `galileo_context` is as a context manager:
+
+```python
 from galileo import galileo_context
-# This will log to the project and log stream specified in the context manager
+
+# This will log to the default project and log stream (from environment variables)
+with galileo_context():
+    # All operations within this block will be logged to the same trace
+    result = your_function()
+    print(result)
+```
+
+## Specifying Project and Log Stream
+
+You can specify the project and log stream to use for all logs within the context:
+
+```python
+from galileo import galileo_context
+
+# This will log to the specified project and log stream
+with galileo_context(project="my-project", log_stream="my-log-stream"):
+    # All operations within this block will be logged to the same trace
+    # in the specified project and log stream
+    result = your_function()
+    print(result)
+```
+
+## Using with OpenAI Wrapper
+
+The `galileo_context` works seamlessly with the OpenAI wrapper:
+
+```python
+import os
+from galileo import galileo_context, openai
+
+# Initialize the Galileo wrapped OpenAI client
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+# This will log to the specified project and log stream
+with galileo_context(project="gen-ai-project", log_stream="test2"):
+    chat_completion = client.chat.completions.create(
+        messages=[{"role": "user", "content": "Say this is a test"}], 
+        model="gpt-4o"
+    )
+    print(chat_completion.choices[0].message.content)
+```
+
+## Using with Decorated Functions
+
+The `galileo_context` also works with functions decorated with `@log`:
+
+```python
+from galileo import log, galileo_context
+
+@log
+def make_nested_call():
+    # Function implementation
+    return "result"
+
+# This will log to the specified project and log stream
 with galileo_context(project="gen-ai-project", log_stream="test2"):
     content = make_nested_call()
     print(content)
 ```
 
-## Context Flushing
-In some cases (like long-running processes), it may be necessary to explicitly flush the trace to upload it to Galileo:
+## Initialization and Flushing
 
-```python flush_trace.py
+In some cases, you may want to initialize the context and flush traces explicitly:
+
+```python
 import os
-
 from galileo import galileo_context, openai
 
+# Initialize the context with project and log stream
 galileo_context.init(project="your-project-id", log_stream="your-log-stream-id")
 
 # Initialize the Galileo wrapped OpenAI client
@@ -28,11 +93,10 @@ client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 def call_openai():
     chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}], model="gpt-4o"
+        messages=[{"role": "user", "content": "Say this is a test"}], 
+        model="gpt-4o"
     )
-
     return chat_completion.choices[0].message.content
-
 
 # This will create a single span trace with the OpenAI call
 call_openai()
@@ -41,3 +105,94 @@ call_openai()
 galileo_context.flush()
 ```
 
+This approach is particularly useful for long-running applications where you need to control when traces are flushed to Galileo.
+
+## Nesting Contexts
+
+You can nest `galileo_context` calls to temporarily override the project or log stream:
+
+```python
+from galileo import galileo_context
+
+with galileo_context(project="main-project", log_stream="main-stream"):
+    # This will log to main-project/main-stream
+    operation_1()
+    
+    with galileo_context(log_stream="sub-stream"):
+        # This will log to main-project/sub-stream
+        operation_2()
+    
+    # Back to logging to main-project/main-stream
+    operation_3()
+```
+
+## API Reference
+
+### galileo_context
+
+```python
+def galileo_context(*, project: Optional[str] = None, log_stream: Optional[str] = None) -> GalileoDecorator:
+    """
+    Context manager for controlling the logging behavior of your application.
+    
+    Parameters
+    ----------
+    project : Optional[str]
+        The project to log to. If not specified, uses the default project.
+    log_stream : Optional[str]
+        The log stream to log to. If not specified, uses the default log stream.
+        
+    Returns
+    -------
+    GalileoDecorator
+        A context manager that can be used with the `with` statement.
+    """
+```
+
+### galileo_context.init
+
+```python
+def init(project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
+    """
+    Initialize the Galileo context with the specified project and log stream.
+    
+    Parameters
+    ----------
+    project : Optional[str]
+        The project to log to. If not specified, uses the default project.
+    log_stream : Optional[str]
+        The log stream to log to. If not specified, uses the default log stream.
+    """
+```
+
+### galileo_context.flush
+
+```python
+def flush(project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
+    """
+    Flush all traces to Galileo.
+    
+    Parameters
+    ----------
+    project : Optional[str]
+        The project to flush traces for. If not specified, uses the current project.
+    log_stream : Optional[str]
+        The log stream to flush traces for. If not specified, uses the current log stream.
+    """
+```
+
+## Best Practices
+
+1. **Use context managers for logical grouping**: Wrap related operations in a `galileo_context` to group them into a single trace.
+
+2. **Specify project and log stream explicitly**: While environment variables work, it's often clearer to specify the project and log stream in your code.
+
+3. **Flush in long-running applications**: In applications that don't terminate (like web servers or Streamlit apps), explicitly flush traces to ensure they're sent to Galileo.
+
+4. **Use nesting judiciously**: Nested contexts can be powerful but can also make your code harder to follow. Use them when you need to temporarily override settings.
+
+## Related Resources
+
+- [@log Decorator](/sdk-api/python/logging/log-decorator) - For decorating functions with logging
+- [GalileoLogger](/sdk-api/python/logging/galileo-logger) - For more manual control over logging
+- [OpenAI Wrapper](/sdk-api/python/wrappers/openai) - For automatic logging of OpenAI calls

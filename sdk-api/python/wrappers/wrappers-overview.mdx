@@ -13,6 +13,51 @@ Galileo currently supports the following wrappers:
 - [**OpenAI Wrapper**](./openai) - A drop-in replacement for the OpenAI library that automatically logs all prompts, responses, and statistics.
 - [**LangChain Integration**](./langchain) - A callback-based integration for LangChain that logs all LLM interactions within your LangChain workflows.
 
+## Basic Usage
+
+### OpenAI Wrapper
+
+```python
+import os
+from galileo import openai
+
+# Initialize the Galileo wrapped OpenAI client
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+def call_openai():
+    chat_completion = client.chat.completions.create(
+        messages=[{"role": "user", "content": "Say this is a test"}], 
+        model="gpt-4o"
+    )
+    return chat_completion.choices[0].message.content
+
+# This will create a single span trace with the OpenAI call
+response = call_openai()
+print(response)
+```
+
+### LangChain Integration
+
+```python
+from galileo.handlers.langchain import GalileoCallback
+from langchain_openai import ChatOpenAI
+from langchain.schema import HumanMessage
+
+# Create a callback handler
+callback = GalileoCallback()
+
+# Initialize the LLM with the callback
+llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.7, callbacks=[callback])
+
+# Create a message with the user's query
+messages = [HumanMessage(content="What is LangChain and how is it used with OpenAI?")]
+
+# Make the API call
+response = llm.invoke(messages)
+
+print(response.content)
+```
+
 ## Alternative Methods of Logging
 
 If you're using an LLM library that doesn't have a dedicated Galileo wrapper, you can still log your application using:
@@ -20,4 +65,30 @@ If you're using an LLM library that doesn't have a dedicated Galileo wrapper, yo
 1. **The `@log` Decorator** - Add the `@log` decorator to functions that call LLMs to automatically capture inputs and outputs.
 2. **Direct Use of the `GalileoLogger` Class** - For more control, you can use the base logger class directly.
 
-For detailed information on these alternative logging methods, see the [Python SDK Overview](../reference).
+For detailed information on these alternative logging methods, see the [Python SDK Overview](../overview).
+
+## Using with Context Manager
+
+All wrappers work seamlessly with the `galileo_context` context manager for more control over trace management:
+
+```python
+import os
+from galileo import galileo_context, openai
+
+# Initialize the Galileo wrapped OpenAI client
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+# This will log to the specified project and log stream
+with galileo_context(project="my-project", log_stream="my-log-stream"):
+    chat_completion = client.chat.completions.create(
+        messages=[{"role": "user", "content": "Say this is a test"}], 
+        model="gpt-4o"
+    )
+    print(chat_completion.choices[0].message.content)
+```
+
+## Related Resources
+
+- [@log Decorator](/sdk-api/python/logging/log-decorator) - For decorating functions with logging
+- [GalileoLogger](/sdk-api/python/logging/galileo-logger) - For more manual control over logging
+- [galileo_context](/sdk-api/python/logging/galileo-context) - For managing trace context and automatic flushing

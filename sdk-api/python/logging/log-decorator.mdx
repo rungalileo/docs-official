@@ -53,16 +53,16 @@ def my_llm_function(input):
 
 # Create a retriever span
 @log(span_type="retriever")
-def my_retriever_function(input):
+def my_retriever_function(query):
     # For functions that retrieve documents
     # If the output is an array, it will be captured as documents
-    return documents
+    return ["doc1", "doc2"]
 
 # Create a tool span
 @log(span_type="tool")
-def my_tool_function(arg1, arg2):
+def my_tool_function(input="tool call input"):
     # For functions that act as tools in an agent system
-    return result
+    return "tool call output"
 ```
 
 ### Span Type Descriptions
@@ -77,38 +77,30 @@ def my_tool_function(arg1, arg2):
 One of the most powerful features of the `@log` decorator is its ability to create nested spans, which helps visualize the flow of your application:
 
 ```python
+import os
 from galileo import log
-from galileo.openai import openai
+from galileo import openai
+
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+def call_openai(prompt):
+    # This will be automatically logged as a child span
+    chat_completion = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return chat_completion.choices[0].message.content
 
 @log
-def my_wrapper_function(input):
+def make_nested_call():
     # This creates a parent workflow span
-    first_result = llm_call(input)
-    second_result = another_llm_call(first_result)
+    first_result = call_openai("Tell me about the Roman Empire")
+    second_result = call_openai(f"Summarize this: {first_result}")
     return second_result
 
-def llm_call(input):
-    # This will be automatically logged as a child span
-    return openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": input}
-        ]
-    ).choices[0].message.content
-
-def another_llm_call(input):
-    # This will also be automatically logged as a child span
-    return openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"Summarize this: {input}"}
-        ]
-    ).choices[0].message.content
-
 # When called, this will create a trace with a workflow span and two nested LLM spans
-response = my_wrapper_function("Write an essay about the Roman Empire")
+response = make_nested_call()
+print(response)
 ```
 
 ## Additional Parameters
@@ -119,10 +111,46 @@ The `@log` decorator accepts several optional parameters to customize the loggin
 @log(
     span_type="workflow",  # The type of span to create
     name="Custom Name",    # A custom name for the span
-    tags=["tag1", "tag2"]  # Tags to associate with the span
+    project="my-project",  # The project to log to
+    log_stream="my-log-stream",  # The log stream to log to
+    params={"key": "value"}  # Additional parameters to include in the span
 )
 def my_function(input):
     return result
+```
+
+## Context Management
+
+You can also use the `galileo_context` to set the project and log stream for all decorated functions within its scope:
+
+```python
+from galileo import log, galileo_context
+
+@log
+def my_function(input):
+    return f"Processed: {input}"
+
+# This will log to the specified project and log stream
+with galileo_context(project="my-project", log_stream="my-log-stream"):
+    result = my_function("test input")
+    print(result)
+```
+
+## Handling Generators
+
+The `@log` decorator also works with generator functions, both synchronous and asynchronous:
+
+```python
+from galileo import log
+
+@log
+def generate_numbers(count):
+    for i in range(count):
+        yield i
+
+# The generator will be logged as a workflow span
+for num in generate_numbers(5):
+    print(num)
 ```
 
 ## Best Practices
@@ -133,10 +161,13 @@ def my_function(input):
 
 3. **Combine with wrappers**: The `@log` decorator works seamlessly with Galileo's wrappers, allowing you to create rich, nested traces.
 
-4. **Add meaningful tags**: Use tags to make it easier to filter and analyze your traces later.
+4. **Add meaningful tags**: Use the `params` parameter to add metadata that will make it easier to filter and analyze your traces later.
+
+5. **Be mindful of performance**: While the decorator adds minimal overhead, be cautious about decorating very frequently called or performance-critical functions.
 
 ## Related Resources
 
 - [GalileoLogger](/sdk-api/python/logging/galileo-logger) - For more manual control over logging
 - [OpenAI Wrapper](/sdk-api/python/wrappers/openai) - For automatic logging of OpenAI calls
-- [Langchain Integration](/sdk-api/python/wrappers/langchain) - For logging Langchain workflows 
+- [Langchain Integration](/sdk-api/python/wrappers/langchain) - For logging Langchain workflows
+- [galileo_context](/sdk-api/python/logging/galileo-context) - For managing trace context and automatic flushing 
