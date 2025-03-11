@@ -5,12 +5,14 @@ icon: "node-js"
 
 The Galileo TypeScript SDK provides a comprehensive set of tools for logging, evaluating, and experimenting with LLM applications. It's designed to be easy to use while providing powerful features for monitoring and improving your AI applications.
 
+> Note: This library is in pre-release mode and may not be stable.
+
 ## Installation
 
 ```bash
-npm install galileo-sdk
+npm install galileo-experimental
 # or
-yarn add galileo-sdk
+yarn add galileo-experimental
 ```
 
 ## Key Features
@@ -24,29 +26,25 @@ yarn add galileo-sdk
 
 The simplest way to get started is to use our OpenAI client wrapper:
 
-```typescript index.ts
-const dotenv = require("dotenv");
-const { wrapOpenAI, flush, init } = require("galileo");
-const { OpenAI } = require("openai");
+```typescript
+import { OpenAI } from "openai";
+import { wrapOpenAI, flush, init } from "galileo-experimental";
 
-dotenv.config(); // Load environment variables
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
 
 const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
-async function run() {
-  init();
+await openai.chat.completions.create({
+  model: "gpt-4o",
+  messages: [{ content: "Say hello world!", role: "user" }],
+});
 
-  const result = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [{ content: "Say hello world!", role: "user" }],
-  });
-
-  console.log(result.choices[0].message.content); // Access the response
-
-  flush();
-}
-
-run().catch(console.error);
+// Flush logs before exiting
+await flush();
 ```
 
 ## Authentication
@@ -57,20 +55,14 @@ Make sure you have a Galileo API key and configure Galileo using environment var
 # Scoped to an Organization
 GALILEO_API_KEY=...
 
-# Optional, if you're not using the multi-tenant cluster
-# GALILEO_CONSOLE_URL=https://console.experimental-aws.rungalileo.io/
+# Optional, if you're not using the default environment
+# GALILEO_CONSOLE_URL=https://app.galileo.ai/
 
 # Optional, set a default Project
 GALILEO_PROJECT=...
 
 # Optional, set a default Log Stream
 GALILEO_LOG_STREAM=...
-```
-
-## Running the Example
-
-```bash
-node index.ts
 ```
 
 ## SDK Components

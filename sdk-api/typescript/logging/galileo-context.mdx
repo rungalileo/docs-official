@@ -1,22 +1,23 @@
 ---
-title: Galileo Context
+title: Log Function Wrapper
 icon: "box"
 ---
 
-The `withGalileo` context wrapper allows you to wrap a block of code in a trace. It also allows you to direct logs to a specific project and log stream - this will override your environment variables.
+The `log` function wrapper allows you to wrap functions with spans of different types. This is useful for creating workflow spans with nested LLM calls or tool spans.
 
 ## Use Cases
 
-`withGalileo` can be useful for:
+The `log` function wrapper can be useful for:
 
-- Automatically starting a trace and ensuring anything that happens in its scope is logged as a span within the trace
-- For long-running app runtimes where the request never terminates, you can use the context manager to start a trace and ensure that traces are flushed when the manager exits
-- Routing a part of your app to a different Project or Log Stream by setting the trace scope
+- Creating workflow spans that can contain nested LLM calls or other spans
+- Marking functions as tool spans to track tool usage
+- Creating retriever spans to track document retrieval operations
+- Automatically capturing the input and output of functions
 
 ## Usage
 
 ```typescript
-import { withGalileo, init } from "galileo";
+import { log, init } from "galileo-experimental";
 
 // Initialize Galileo
 init({
@@ -24,56 +25,68 @@ init({
   logStreamName: "development"
 });
 
-withGalileo({ projectName: "my-project", logStreamName: "my-log-stream" }, async () => {
-  // Your code here
-  // Any LLM calls or observed functions in this scope will be logged as spans in the same trace
-  return result;
-});
+const wrappedFunc = log(
+  { name: 'workflow span' }, 
+  (input) => {
+    // Your code here
+    return result;
+  }
+);
+
+const result = wrappedFunc('input data');
 ```
 
 ## Examples
 
 ### Basic Example
 
-Using the context manager to create a trace with two spans (which is automatically flushed when the manager exits):
+Using the log wrapper to create a workflow span with nested LLM and tool spans:
 
 ```typescript
 import { OpenAI } from "openai";
-import { withGalileo, observe, init, wrapOpenAI } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
+import { wrapOpenAI, flush, log, init } from 'galileo-experimental';
 
 const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
-withGalileo({ projectName: "my-project", logStreamName: "log-stream" }, async () => {
-  const retriever = observe(
-    { spanType: "retriever" },
-    () => {
-      // Retrieval logic
-      return ["Document 1", "Document 2"];
-    }
-  ); 
-
-  let documents = retriever();
-  
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: `Please summarize this: ${documents.join("\n")}` }],
+// This will automatically create an llm span since we're using the `wrapOpenAI` wrapper
+const callOpenAI = async (input) => {
+  const result = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [{ content: `Say hello ${input}!`, role: 'user' }]
   });
-  return response.choices[0].message.content;
+  return result;
+};
+
+// Optionally initialize the logger if you haven't set GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
+await init({
+  projectName: 'my-test-project',
+  logStreamName: 'my-test-log-stream'
 });
+
+const wrappedToolCall = log(
+  { name: 'tool span', spanType: 'tool' },
+  (input) => {
+    return 'tool call result';
+  }
+);
+
+const wrappedFunc = await log({ name: 'workflow span' }, async (input) => {
+  const result = await callOpenAI(input);
+  return wrappedToolCall(result);
+});
+
+// This will create a workflow span with an llm span and a tool span
+const result = await wrappedFunc('world');
+
+await flush();
 ```
 
-### Nested Context
+### Retriever Example
 
-You can nest context managers to create a hierarchy of traces:
+Creating a retriever span to track document retrieval:
 
 ```typescript
-import { withGalileo, init } from "galileo";
+import { log, init, flush } from "galileo-experimental";
 
 // Initialize Galileo
 init({
@@ -81,46 +94,53 @@ init({
   logStreamName: "development"
 });
 
-withGalileo({ projectName: "my-project" }, async () => {
-  // Outer trace
-  
-  // Some code here
-  
-  withGalileo({ logStreamName: "specific-log-stream" }, async () => {
-    // Inner trace, inherits project from outer trace but uses a specific log stream
-    
-    // More code here
-  });
-});
+const retriever = log(
+  { name: 'document retriever', spanType: 'retriever' },
+  (query) => {
+    // Retrieval logic
+    return ["Document 1", "Document 2"];
+  }
+);
+
+const documents = retriever("search query");
+
+await flush();
 ```
+
+## Span Types
+
+The `log` function wrapper supports different span types:
+
+- **workflow**: A span that can have child spans, useful for nesting several child spans to denote a thread within a trace. If you wrap a parent function with `log`, calls that are made within that scope are automatically logged in the same trace.
+- **llm**: Captures the input, output, and settings of an LLM call. This span gets automatically created when our client library wrappers (OpenAI and Anthropic) are used. Cannot have nested children.
+- **retriever**: Contains the output documents of a retrieval operation.
+- **tool**: Captures the input and output of a tool call. Used to decorate functions that are invoked as tools.
 
 ## API Reference
 
-### withGalileo
+### log
 
 ```typescript
-function withGalileo<T>(
+function log<T>(
   options: {
-    projectName?: string;
-    logStreamName?: string;
-    tags?: string[];
+    name?: string;
+    spanType?: "workflow" | "llm" | "retriever" | "tool";
     metadata?: Record<string, any>;
   },
-  fn: () => T
-): T
+  fn: (...args: any[]) => T
+): (...args: any[]) => T
 ```
 
-Creates a context in which all LLM calls and observed functions are logged as spans in the same trace.
+Wraps a function and logs its execution as a span.
 
 #### Parameters
 
-- `options`: Configuration options for the context
-  - `projectName`: The project to log to (overrides environment variable)
-  - `logStreamName`: The log stream to log to (overrides environment variable)
-  - `tags`: Tags to add to the trace
-  - `metadata`: Additional metadata to include in the trace
-- `fn`: The function to execute in the context
+- `options`: Configuration options for the span
+  - `name`: The name of the span
+  - `spanType`: The type of span to create (default: "workflow")
+  - `metadata`: Additional metadata to include in the span
+- `fn`: The function to wrap
 
 #### Returns
 
-The return value of the function.
+A wrapped function that, when called, will log its execution as a span.

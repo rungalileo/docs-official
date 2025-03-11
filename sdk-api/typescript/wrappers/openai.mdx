@@ -8,16 +8,16 @@ The OpenAI wrapper provides a simple way to automatically log all OpenAI API cal
 ## Installation
 
 ```bash
-npm install galileo-sdk openai
+npm install galileo-experimental openai
 # or
-yarn add galileo-sdk openai
+yarn add galileo-experimental openai
 ```
 
 ## Usage
 
 ```typescript
 import { OpenAI } from "openai";
-import { init, flush, wrapOpenAI } from "galileo";
+import { init, flush, wrapOpenAI } from "galileo-experimental";
 
 // Initialize Galileo
 init({
@@ -42,13 +42,13 @@ await flush();
 
 ## Advanced Usage
 
-### With Context Manager
+### With Log Function Wrapper
 
-You can use the OpenAI wrapper with the `withGalileo` context manager to create a trace with multiple spans:
+You can use the OpenAI wrapper with the `log` function wrapper to create a workflow span with nested LLM calls:
 
 ```typescript
 import { OpenAI } from "openai";
-import { withGalileo, init, wrapOpenAI } from "galileo";
+import { log, init, flush, wrapOpenAI } from "galileo-experimental";
 
 // Initialize Galileo
 init({
@@ -58,35 +58,39 @@ init({
 
 const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
-withGalileo({ projectName: "my-project", logStreamName: "my-log-stream" }, async () => {
-  // First LLM call
-  const response1 = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [{ role: "user", content: "What is the capital of France?" }],
+// This will automatically create an llm span since we're using the `wrapOpenAI` wrapper
+const callOpenAI = async (input) => {
+  const result = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [{ content: input, role: 'user' }]
   });
-  
-  // Second LLM call
-  const response2 = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      { role: "user", content: "What is the capital of Germany?" }
-    ],
-  });
+  return result;
+};
+
+const wrappedFunc = await log({ name: 'capitals workflow' }, async () => {
+  const franceResult = await callOpenAI("What is the capital of France?");
+  const germanyResult = await callOpenAI("What is the capital of Germany?");
   
   return {
-    france: response1.choices[0].message.content,
-    germany: response2.choices[0].message.content
+    france: franceResult.choices[0].message.content,
+    germany: germanyResult.choices[0].message.content
   };
 });
+
+const result = await wrappedFunc();
+console.log(result);
+
+// Flush logs before exiting
+await flush();
 ```
 
-### With Observe Wrapper
+### Multiple LLM Calls in a Workflow
 
-You can use the OpenAI wrapper with the `observe` wrapper to create a workflow span with nested LLM calls:
+You can make multiple LLM calls within a workflow span:
 
 ```typescript
 import { OpenAI } from "openai";
-import { observe, init, flush, wrapOpenAI } from "galileo";
+import { log, init, flush, wrapOpenAI } from "galileo-experimental";
 
 // Initialize Galileo
 init({
@@ -96,7 +100,7 @@ init({
 
 const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
-const getCapital = async (country: string) => {
+const getCapital = async (country) => {
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
     messages: [{ role: "user", content: `What is the capital of ${country}?` }],
@@ -104,8 +108,8 @@ const getCapital = async (country: string) => {
   return response.choices[0].message.content;
 };
 
-const getCapitals = async () => observe(
-  { spanType: "workflow", name: "getCapitals" },
+const getCapitals = log(
+  { name: "getCapitals", spanType: "workflow" },
   async () => {
     const franceCapital = await getCapital("France");
     const germanyCapital = await getCapital("Germany");
@@ -125,7 +129,7 @@ await flush();
 ### wrapOpenAI
 
 ```typescript
-function wrapOpenAI(client: OpenAI, options?: WrapperOptions): OpenAI
+function wrapOpenAI(client: OpenAI): OpenAI
 ```
 
 Wraps an OpenAI client instance to automatically log all API calls to Galileo.
@@ -133,9 +137,6 @@ Wraps an OpenAI client instance to automatically log all API calls to Galileo.
 #### Parameters
 
 - `client`: An instance of the OpenAI client
-- `options`: (Optional) Configuration options for the wrapper
-  - `project`: The project to log to (overrides environment variable)
-  - `logStream`: The log stream to log to (overrides environment variable)
 
 #### Returns
 

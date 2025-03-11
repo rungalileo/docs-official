@@ -5,7 +5,15 @@ icon: "node-js"
 
 ## Introduction
 
-This document covers the design and developer experience of the TypeScript client library for Galileo 2.0.
+This document covers the design and developer experience of the TypeScript client library for Galileo.
+
+> Note: This library is in pre-release mode and may not be stable.
+
+## Installation
+
+```bash
+npm i galileo-experimental
+```
 
 ## Initialization/Authentication
 
@@ -15,8 +23,8 @@ You can configure Galileo using environment variables:
 # Scoped to an Organization
 GALILEO_API_KEY=...
 
-# Optional, if you're not using the multi-tenant cluster
-# GALILEO_CONSOLE_URL=https://console.experimental-aws.rungalileo.io/
+# Optional, if you're not using the default environment
+# GALILEO_CONSOLE_URL=https://app.galileo.ai/
 
 # Optional, set a default Project
 GALILEO_PROJECT=...
@@ -42,7 +50,7 @@ The simplest way to get started is to use our OpenAI client wrapper. This exampl
 
 ```typescript
 import { OpenAI } from "openai";
-import { init, flush, wrapOpenAI } from "galileo";
+import { init, flush, wrapOpenAI } from "galileo-experimental";
 
 // Initialize Galileo
 init({
@@ -61,184 +69,123 @@ await openai.chat.completions.create({
 await flush();
 ```
 
-### Context Wrapper
+### Log Function Wrapper
 
-The `withGalileo` context wrapper allows you to wrap a block of code in a trace. It also allows you to direct logs to a specific project and log stream - this will override your environment variables.
-
-`withGalileo` can be useful for:
-- Automatically starting a trace and ensuring anything that happens in its scope is logged as a span within the trace
-- For long-running app runtimes where the request never terminates, you can use the context manager to start a trace and ensure that traces are flushed when the manager exits
-- Routing a part of your app to a different Project or Log Stream by setting the trace scope
-
-Using the context manager to create a trace with two spans (which is automatically flushed when the manager exits):
+The `log` function wrapper allows you to wrap functions with spans of different types. This is useful for creating workflow spans with nested LLM calls or tool spans.
 
 ```typescript
 import { OpenAI } from "openai";
-import { withGalileo, observe } from "galileo";
-import { wrapOpenAI } from "galileo";
+import { wrapOpenAI, flush, log, init } from 'galileo-experimental';
 
 const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
-withGalileo({ projectName: "my-project", logStreamName: "log-stream" }, async () => {
-  const retriever = observe(
-    { spanType: "retriever" },
-    () => {
-      // ...
-      return documents;
-    }
-  ); 
-
-  let documents = retriever();
-  
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: `Please summarize this: ${documents.join("\n")}` }],
+// This will automatically create an llm span since we're using the `wrapOpenAI` wrapper
+const callOpenAI = async (input) => {
+  const result = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [{ content: `Say hello ${input}!`, role: 'user' }]
   });
-  return response.choices[0].message.content;
+  return result;
+};
+
+// Optionally initialize the logger if you haven't set GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
+await init({
+  projectName: 'my-test-project',
+  logStreamName: 'my-test-log-stream'
 });
+
+const wrappedToolCall = log(
+  { name: 'tool span', spanType: 'tool' },
+  (input) => {
+    return 'tool call result';
+  }
+);
+
+const wrappedFunc = await log({ name: 'workflow span' }, async (input) => {
+  const result = await callOpenAI(input);
+  return wrappedToolCall(result);
+});
+
+// This will create a workflow span with an llm span and a tool span
+const result = await wrappedFunc('world');
+
+await flush();
 ```
-
-By default, any traces that are created during a request are automatically flushed (i.e., uploaded to Galileo) when the process terminates. To flush traces prior to that, you can use the context wrapper or the GalileoLogger (outlined below).
-
-### Observe Wrapper
-
-The `observe` wrapper serves two functions:
-1. It tells our logger to wrap the function contents as a span (you can specify the type in the first argument - by default a workflow span is created). This is useful for cases where you might want to create a workflow span with nested LLM calls.
-2. If there is no current trace when you execute a function wrapped in `observe`, it will create a single span trace.
 
 #### Span Types
 
 Here are the different span types:
 
-- **Workflow**: A span that can have child spans, useful for nesting several child spans to denote a thread within a trace. If you wrap a parent function with `observe`, calls that are made within that scope are automatically logged in the same trace.
+- **Workflow**: A span that can have child spans, useful for nesting several child spans to denote a thread within a trace. If you wrap a parent function with `log`, calls that are made within that scope are automatically logged in the same trace.
 - **Llm**: Captures the input, output, and settings of an LLM call. This span gets automatically created when our client library wrappers (OpenAI and Anthropic) are used. Cannot have nested children.
 - **Retriever**: Contains the output documents of a retrieval operation.
 - **Tool**: Captures the input and output of a tool call. Used to decorate functions that are invoked as tools.
 
-This example will create a trace with a workflow span and two nested LLM spans:
-
-```typescript
-import { OpenAI } from "openai";
-import { observe, init, flush, wrapOpenAI } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-const callOpenAI = async (country: string) => {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: `What is the capital of ${country}?` }],
-  });
-  return response.choices[0].message.content;
-};
-
-const myFunction = async () => observe(
-  { spanType: "workflow", name: 'myFunction'}, 
-  async () => {
-    await callOpenAI("France");
-    await callOpenAI("Germany");
-  }
-);
-
-await myFunction();
-
-// Flush logs before exiting
-await flush();
-```
-
-#### Tool Function Example
-
-This example shows how to mark a tool function:
-
-```typescript
-import { OpenAI } from "openai";
-import { observe, init, flush, wrapOpenAI } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-const myFunction = async () => observe(
-  { spanType: "tool"}, 
-  async () => {
-    // ...
-  }
-);
-
-await myFunction();
-
-// Flush logs before exiting
-await flush();
-```
-
-#### Retriever Example
-
-Logging a retriever. If the output of the function is an array, it will automatically capture it as documents in the span:
-
-```typescript
-import { observe, init, flush } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const retriever = observe(
-  { spanType: "retriever" },
-  async () => {
-    // ...
-    return documents;
-  }
-); 
-
-const documents = await retriever();
-
-// Flush logs before exiting
-await flush();
-```
-
 ### GalileoLogger
 
-Pure invocation using the GalileoLogger (last resort, should be used infrequently):
+For more advanced use cases, you can use the GalileoLogger directly:
 
 ```typescript
-import { GalileoLogger } from "galileo";
+import { GalileoLogger } from 'galileo-experimental';
 
-let input = "Why is the sky blue?";
-let config = {
-  model,
-  temperature
-};
+// You can set the GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
 const logger = new GalileoLogger({
-  projectName: "my-project",
-  logStreamName: "development"
+  projectName: 'my-test-project',
+  logStreamName: 'my-test-log-stream'
 });
-let trace = logger.startTrace(
-  input,
-  tags=[]
+
+console.log('Creating trace with spans...');
+
+// Create a new trace
+const trace = logger.startTrace(
+  'Example trace input', // input
+  undefined, // output (will be set later)
+  'Example Trace', // name
+  Date.now() * 1000000, // createdAt in nanoseconds
+  undefined, // durationNs
+  { source: 'test-script' }, // metadata
+  ['test', 'example'] // tags
 );
 
-const output = llmCall(input, model, temperature);
-trace.logSpan(
-  input,
-  output,
-  model,
-  temperature,
-  "llm"
+// Add a workflow span (parent span)
+const workflowSpan = logger.addWorkflowSpan(
+  'Processing workflow', // input
+  undefined, // output (will be set later)
+  'Main Workflow', // name
+  undefined, // durationNs
+  Date.now() * 1000000, // createdAt in nanoseconds
+  { workflow_type: 'test' }, // userMetadata
+  ['workflow'] // tags
 );
 
-trace.conclude(output);
-trace.flush();
+// Add an LLM span as a child of the workflow span
+logger.addLlmSpan({
+  input: [{ role: 'user', content: 'Hello, how are you?' }], // input messages
+  output: {
+    role: 'assistant',
+    content: 'I am doing well, thank you for asking!'
+  }, // output message
+  model: 'gpt-3.5-turbo', // model name
+  name: 'Chat Completion', // name
+  durationNs: 1000000000, // durationNs (1s)
+  userMetadata: { temperature: '0.7' }, // userMetadata
+  tags: ['llm', 'chat'] // tags
+});
+
+// Conclude the workflow span
+logger.conclude({
+  output: 'Workflow completed successfully',
+  durationNs: 2000000000 // 2 seconds
+});
+
+// Conclude the trace
+logger.conclude({
+  output: 'Final trace output with all spans completed',
+  durationNs: 3000000000 // 3 seconds
+});
+
+// Flush the traces to Galileo
+const flushedTraces = await logger.flush();
 ```
 
 ## Prompts
@@ -246,290 +193,122 @@ trace.flush();
 Create and use a prompt template:
 
 ```typescript
-import { OpenAI } from "openai";
-import { createPromptTemplate, init, flush, wrapOpenAI } from "galileo";
+import { createPromptTemplate, runExperiment } from 'galileo-experimental';
 
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
+const template = await createPromptTemplate({
+  template: [{ role: 'user', content: 'Say "Hello, {name}"!' }],
+  projectName: 'my-test-project',
+  name: `Hello name prompt`
 });
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-const callOpenAI = async (messages, model) => {
-  const response = await openai.chat.completions.create({
-    model: model,
-    messages: messages,
-  });
-  return response.choices[0].message.content;
-};
-
-const data = {
-  topic: "Magical elves"
-};
-
-const promptMessages = [
-  SystemMessage("You are a great storyteller."),
-  UserMessage("Please write a short story about the following topic: {topic}"),
-];
-
-const prompt_template = createPromptTemplate({
-  messages: promptMessages,
-  name: "storyteller-prompt",
-  model: "gpt-4o",
-  projectName: "my-project"
+// Run the experiment. You'll receive a URL to view the results.
+await runExperiment({
+  name: `Test Experiment`,
+  datasetName: 'names',
+  promptTemplate: template,
+  metrics: ['output_tone'],
+  projectName: 'my-test-project'
 });
+```
 
-const output = callOpenAI(
-  prompt_template.with_data(data).to_messages(), 
-  prompt_template.model
+You can also use an existing template:
+
+```typescript
+import {
+  getPromptTemplate,
+  getDataset,
+  runExperiment
+} from 'galileo-experimental';
+
+const template = await getPromptTemplate(
+  'my-test-project',
+  'Hello name prompt'
 );
 
-// Flush logs before exiting
-await flush();
+const dataset = await getDataset(undefined, 'names');
+
+await runExperiment({
+  name: `Test Experiment`,
+  dataset: dataset,
+  promptTemplate: template,
+  metrics: ['output_tone'],
+  projectName: 'my-test-project'
+});
 ```
 
 ## Datasets
 
-### Creating and Adding Data
+### Creating and Using Datasets
 
-Create a dataset and add data to it:
-
-```typescript
-import { createDataset, init, flush } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-let testData = [
-  {
-    input: "Which continent is Spain in?",
-    expected: "Europe",
-  },
-  {
-    input: "Which continent is Japan in?",
-    expected: "Asia",
-  },
-];
-
-const dataset = createDataset({
-  name: "countries", 
-  data: testData,
-  projectName: "my-project",
-});
-
-dataset.insert([
-  {
-    input: "Which continent is Morocco in?",
-    expected: "Africa",
-  },
-  {
-    input: "Which continent is Australia in?",
-    expected: "Oceania",
-  },
-]);
-
-// Flush logs before exiting
-await flush();
-```
-
-### Managing Dataset Versions
-
-List the versions of a dataset and grab a particular version:
+You can create and use datasets for experimentation:
 
 ```typescript
-import { getDataset, init, flush } from "galileo";
+import { getDataset } from 'galileo-experimental';
 
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const dataset = getDataset({
-  name: "countries",
-  version: 3, // if this param isn't specified, it defaults to the latest
-  projectName: "my-project",
-});
-
-console.log(dataset.modifiedAt);
-
-const versions = dataset.getVersionHistory();
-
-const oldestVersion = getDataset({
-  name: "countries",
-  version: versions.slice(-1)[0].version,
-  projectName: "my-project"
-});
-
-// Flush logs before exiting
-await flush();
+const dataset = await getDataset(undefined, 'names');
 ```
 
 ## Experimentation
 
-### Evaluating with Existing Dataset
+### Evaluating with Runner Function
 
-Evaluating a runner function against an existing dataset:
+You can use a runner function to run an experiment with a dataset:
 
 ```typescript
-import { OpenAI } from "openai";
-import { runExperiment, getDataset, init, flush, wrapOpenAI } from "galileo";
+import { runExperiment } from 'galileo-experimental';
+import { OpenAI } from 'openai';
 
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-const callOpenAI = async (input) => {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: `What is the capital of ${input["country"]}?` }],
+const runner = async (input) => {
+  const result = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages: [{ content: `Say hello ${input['name']}!`, role: 'user' }]
   });
-  return response.choices[0].message.content;
+  return result;
 };
 
-const dataset = getDataset({ name: "storyteller-dataset" });
-
-const results = runExperiment({
-  dataset,
-  function: callOpenAI,
-  scorers: ["correctness"],
-  concurrency: 1, // number of rows to execute in parallel
-  projectName: "my-project",
-  tags: [],
+await runExperiment({
+  name: `Test Experiment`,
+  datasetName: 'names',
+  runner: runner,
+  metrics: ['output_tone'],
+  projectName: 'my-test-project'
 });
-
-// Flush logs before exiting
-await flush();
-```
-
-### Evaluating a Prompt
-
-Evaluating a prompt against an existing dataset:
-
-```typescript
-import { getPrompt, runExperiment, getDataset, init, flush } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const prompt = getPrompt({
-  name: "storyteller-prompt",
-  version: "latest"
-});
-
-const results = runExperiment({
-  dataset: getDataset({ name: "storyteller-dataset" }),
-  prompt,
-  scorers: ["correctness"],
-  projectName: "my-project",
-  tags: [],
-});
-
-// Flush logs before exiting
-await flush();
 ```
 
 ### Evaluating with Custom Dataset
 
-Evaluating a runner function against a custom dataset:
+You can also use a locally generated dataset with a runner function:
 
 ```typescript
-import { OpenAI } from "openai";
-import { runExperiment, init, flush, wrapOpenAI } from "galileo";
+import { runExperiment } from 'galileo-experimental';
+import { OpenAI } from 'openai';
 
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+const dataset = [
+  { name: 'John' },
+  { name: 'Jane' },
+  { name: 'Bob' },
+  { name: 'Alice' }
+];
 
-const callOpenAI = async (input) => {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {"role": "system", "content": "You are a geography expert"}, 
-      { role: "user", content: `What is the capital of ${input["country"]}?` }
-    ],
+const runner = async (input) => {
+  const result = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages: [{ content: `Say hello ${input['name']}!`, role: 'user' }]
   });
-  return response.choices[0].message.content;
+  return result;
 };
 
-const results = runExperiment({
-  dataset: () => [
-    {
-      input: { country: "Spain" },
-      expected: "Europe",
-    },
-  ],
-  function: callOpenAI,
-  scorers: ["correctness"],
-  concurrency: 1, // number of rows to execute in parallel
-  projectName: "my-project",
-  tags: [],
+await runExperiment({
+  name: `Test Experiment`,
+  dataset: dataset,
+  runner: runner,
+  metrics: ['output_tone'],
+  projectName: 'my-test-project'
 });
-
-// Flush logs before exiting
-await flush();
-```
-
-### Custom Metrics
-
-Evaluating a runner function against a dataset using a custom metric:
-
-```typescript
-import { OpenAI } from "openai";
-import { runExperiment, init, flush, wrapOpenAI } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-const callOpenAI = async (input) => {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {"role": "system", "content": "You are an expert storyteller"}, 
-      { role: "user", content: `Write a story about '${input["topic"]}' and make it sound like a human wrote it` }
-    ],
-  });
-  return response.choices[0].message.content;
-};
-
-const checkForDelve = (input, output, expected) => {
-  return output.includes("delve") ? 1 : 0;
-};
-
-const dataset = getDataset({ name: "storyteller-dataset" });
-
-const results = runExperiment({
-  dataset,
-  function: callOpenAI,
-  scorers: [checkForDelve],
-  concurrency: 1, // number of rows to execute in parallel
-  projectName: "my-project",
-  tags: [],
-});
-
-// Flush logs before exiting
-await flush();
 ```
 
 

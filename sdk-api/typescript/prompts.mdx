@@ -8,18 +8,15 @@ Galileo Prompts allow you to create, version, and test prompt templates for your
 ## Creating a Prompt Template
 
 ```typescript
-import { createPromptTemplate } from "galileo/prompts";
+import { createPromptTemplate } from "galileo-experimental";
 
-const promptMessages = [
-  { role: "system", content: "You are a great storyteller." },
-  { role: "user", content: "Please write a short story about the following topic: {topic}" },
-];
-
-const promptTemplate = createPromptTemplate({
-  messages: promptMessages,
-  name: "storyteller-prompt",
-  model: "gpt-4o",
-  project: "my-project"
+const template = await createPromptTemplate({
+  template: [
+    { role: "system", content: "You are a great storyteller." },
+    { role: "user", content: "Please write a short story about the following topic: {topic}" }
+  ],
+  projectName: "my-test-project",
+  name: "storyteller-prompt"
 });
 ```
 
@@ -27,10 +24,9 @@ const promptTemplate = createPromptTemplate({
 
 ```typescript
 import { OpenAI } from "openai";
-import { createPromptTemplate } from "galileo/prompts";
-import { wrapOpenAI } from "galileo/wrappers";
+import { createPromptTemplate, wrapOpenAI } from "galileo-experimental";
 
-const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 const callOpenAI = async (messages, model) => {
   const response = await openai.chat.completions.create({
@@ -44,41 +40,30 @@ const data = {
   topic: "Magical elves"
 };
 
-const promptMessages = [
-  { role: "system", content: "You are a great storyteller." },
-  { role: "user", content: "Please write a short story about the following topic: {topic}" },
-];
-
-const promptTemplate = createPromptTemplate({
-  messages: promptMessages,
-  name: "storyteller-prompt",
-  model: "gpt-4o",
-  project: "my-project"
+const template = await createPromptTemplate({
+  template: [
+    { role: "system", content: "You are a great storyteller." },
+    { role: "user", content: "Please write a short story about the following topic: {topic}" }
+  ],
+  projectName: "my-test-project",
+  name: "storyteller-prompt"
 });
 
-const output = await callOpenAI(
-  promptTemplate.withData(data).toMessages(), 
-  promptTemplate.model
-);
+// Use the template with data
+const messages = template.with_data(data).to_messages();
+const output = await callOpenAI(messages, "gpt-4o");
 ```
 
 ## Retrieving a Prompt Template
 
 ```typescript
-import { getPrompt } from "galileo/prompts";
+import { getPromptTemplate } from "galileo-experimental";
 
-// Get the latest version of a prompt template
-const promptTemplate = getPrompt({
-  name: "storyteller-prompt",
-  project: "my-project",
-});
-
-// Get a specific version of a prompt template
-const promptTemplateV2 = getPrompt({
-  name: "storyteller-prompt",
-  version: 2,
-  project: "my-project",
-});
+// Get a prompt template
+const template = await getPromptTemplate(
+  "my-test-project",
+  "storyteller-prompt"
+);
 ```
 
 ## Using Prompts in Experiments
@@ -86,22 +71,21 @@ const promptTemplateV2 = getPrompt({
 Prompts can be used in experiments to evaluate different prompt templates:
 
 ```typescript
-import { runExperiment } from "galileo/experiments";
-import { getPrompt } from "galileo/prompts";
-import { getDataset } from "galileo/datasets";
+import { runExperiment, getPromptTemplate, getDataset } from "galileo-experimental";
 
-const prompt = getPrompt({
-  name: "storyteller-prompt",
-  version: "latest",
-  project: "my-project",
-});
+const template = await getPromptTemplate(
+  "my-test-project",
+  "storyteller-prompt"
+);
 
-const results = runExperiment({
-  dataset: getDataset({ name: "storyteller-dataset" }),
-  prompt,
-  scorers: ["correctness"],
-  project: "my-project",
-  tags: [],
+const dataset = await getDataset(undefined, "storyteller-dataset");
+
+await runExperiment({
+  name: "Test Experiment",
+  dataset: dataset,
+  promptTemplate: template,
+  metrics: ["output_tone"],
+  projectName: "my-test-project"
 });
 ```
 
@@ -110,15 +94,14 @@ const results = runExperiment({
 ### createPromptTemplate
 
 ```typescript
-function createPromptTemplate(options: {
-  messages: Array<{
+async function createPromptTemplate(options: {
+  template: Array<{
     role: "system" | "user" | "assistant";
     content: string;
   }>;
   name: string;
-  model?: string;
-  project?: string;
-}): PromptTemplate
+  projectName: string;
+}): Promise<PromptTemplate>
 ```
 
 Creates a new prompt template.
@@ -126,53 +109,43 @@ Creates a new prompt template.
 #### Parameters
 
 - `options`: Configuration options for the prompt template
-  - `messages`: The messages in the prompt template
+  - `template`: The messages in the prompt template
   - `name`: The name of the prompt template
-  - `model`: (Optional) The default model to use with the prompt template
-  - `project`: (Optional) The project to create the prompt template in (overrides environment variable)
+  - `projectName`: The project to create the prompt template in
 
 #### Returns
 
-A new `PromptTemplate` instance.
+A Promise that resolves to a new `PromptTemplate` instance.
 
-### getPrompt
+### getPromptTemplate
 
 ```typescript
-function getPrompt(options: {
-  name: string;
-  version?: number | "latest";
-  project?: string;
-}): PromptTemplate
+async function getPromptTemplate(
+  projectName: string,
+  name: string
+): Promise<PromptTemplate>
 ```
 
 Retrieves a prompt template.
 
 #### Parameters
 
-- `options`: Configuration options for retrieving the prompt template
-  - `name`: The name of the prompt template
-  - `version`: (Optional) The version of the prompt template to retrieve (defaults to the latest version)
-  - `project`: (Optional) The project to retrieve the prompt template from (overrides environment variable)
+- `projectName`: The project to retrieve the prompt template from
+- `name`: The name of the prompt template
 
 #### Returns
 
-A `PromptTemplate` instance.
+A Promise that resolves to a `PromptTemplate` instance.
 
 ### PromptTemplate
 
 ```typescript
 class PromptTemplate {
   name: string;
-  version: number;
-  model?: string;
-  messages: Array<{
-    role: "system" | "user" | "assistant";
-    content: string;
-  }>;
   
-  withData(data: Record<string, any>): PromptTemplate;
+  with_data(data: Record<string, any>): PromptTemplate;
   
-  toMessages(): Array<{
+  to_messages(): Array<{
     role: "system" | "user" | "assistant";
     content: string;
   }>;
@@ -184,14 +157,11 @@ Represents a prompt template in Galileo.
 #### Properties
 
 - `name`: The name of the prompt template
-- `version`: The version of the prompt template
-- `model`: The default model to use with the prompt template
-- `messages`: The messages in the prompt template
 
 #### Methods
 
-- `withData`: Fills in the template variables with the provided data
+- `with_data`: Fills in the template variables with the provided data
   - `data`: The data to fill in the template variables with
   - Returns: A new `PromptTemplate` instance with the template variables filled in
-- `toMessages`: Converts the prompt template to a list of messages that can be used with an LLM
+- `to_messages`: Converts the prompt template to a list of messages that can be used with an LLM
   - Returns: An array of message objects 
