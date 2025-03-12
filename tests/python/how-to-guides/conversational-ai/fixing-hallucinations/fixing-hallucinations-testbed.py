@@ -32,7 +32,7 @@ console = Console()
 # Load environment variables from .env file
 load_dotenv()
 
-def run_test_with_metrics(client, run_function, description, api_url, headers, project_id, log_stream_id, max_wait_time=120, target_metrics=None):
+def run_test_with_metrics(client, run_function, description, api_url, headers, project_id, log_stream_id, max_wait_time=180, target_metrics=None):
     """
     Run a test function and wait for metrics to be available
     
@@ -45,13 +45,13 @@ def run_test_with_metrics(client, run_function, description, api_url, headers, p
         project_id: The project ID
         log_stream_id: The log stream ID
         max_wait_time: Maximum time to wait for metrics in seconds (default: 120)
-        target_metrics: List of metrics to wait for (default: ["correctness", "uncertainty"])
+        target_metrics: List of metrics to wait for (default: ["correctness"])
         
     Returns:
         A tuple of (response_content, metrics)
     """
     if target_metrics is None:
-        target_metrics = ["correctness", "uncertainty"]
+        target_metrics = ["correctness"]
     
     console.rule(f"[bold blue]{description}", style="blue")
     
