@@ -1,70 +1,89 @@
-# Galileo Trace Lister
+# Galileo Quickstart Examples
 
-This script lists all traces in a specified log stream for a Galileo project.
+This directory contains examples demonstrating how to use Galileo to track and evaluate prompts, with a focus on improving instruction adherence metrics.
+
+## Files
+
+- `before.py`: A simple example using a basic prompt without specific constraints
+- `after.py`: An improved example using a prompt with clear, measurable constraints
+- `quickstart_testbed.py`: A comprehensive testbed that runs both examples and compares their metrics
 
 ## Prerequisites
 
-- Python 3.7 or higher
-- Galileo API key
-- Galileo project and log stream
+Before running these examples, you'll need:
 
-## Installation
+1. A Galileo account with API access
+2. An OpenAI API key
+3. Python 3.7 or higher
+4. Required Python packages (install with `pip install -r requirements.txt`)
 
-1. Clone this repository or download the script files.
+## Setup
 
-2. Install the required dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-3. Create a `.env` file in the same directory as the script with the following content:
+1. Create a `.env` file in the root directory with the following variables:
 
 ```
 GALILEO_CONSOLE_URL="https://api.galileo.ai"
 GALILEO_PROJECT="your-project-name"
 GALILEO_LOG_STREAM="your-log-stream-name"
 GALILEO_API_KEY="your-galileo-api-key"
+OPENAI_API_KEY="your-openai-api-key"
 ```
 
-Replace the placeholder values with your actual Galileo project name, log stream name, and API key.
-
-## Usage
-
-Run the script with:
+2. Install the required packages:
 
 ```bash
-./browser.py
+pip install -r requirements.txt
 ```
 
-or
+## Running the Examples
+
+### Individual Examples
+
+You can run each example individually:
 
 ```bash
-python browser.py
+# Run the "before" example
+python before.py
+
+# Run the "after" example
+python after.py
 ```
 
-The script will:
+### Testbed
 
-1. Check if all required environment variables are set
-2. Get the project ID and log stream ID from their names
-3. Fetch traces from the specified log stream
-4. Display the traces in a table with their IDs, creation times, and snippets of their inputs and outputs
+For a comprehensive comparison, run the testbed:
 
-## Customization
+```bash
+python quickstart_testbed.py
+```
 
-You can modify the script to change:
+The testbed will:
+1. Run both the original and improved prompts
+2. Wait for metrics to be available (up to 2 minutes)
+3. Display the metrics for each prompt
+4. Compare the instruction adherence scores
+5. Show a visual representation of the improvement
 
-- The maximum number of traces to fetch (change the `MAX_TRACES` constant)
-- The display format of the traces (modify the `display_traces` function)
-- The sorting order of the traces (modify the `params` dictionary in the `get_traces` function)
+## Understanding the Results
+
+The key metric to observe is `instruction_adherence`, which measures how well the model follows the instructions in the prompt. The improved prompt typically achieves a higher score because it provides clear, measurable constraints that the model can follow.
+
+## Example Prompts
+
+1. **Original Prompt** (before.py):
+   ```
+   Explain the following topic succinctly: Newton's First Law
+   ```
+
+2. **Improved Prompt** (after.py):
+   ```
+   Explain Newton's First Law in exactly 15 words or less.
+   ```
+
+The improved prompt adds a specific, measurable constraint (15 words or less) that makes it clear what "succinctly" means, resulting in better instruction adherence.
 
 ## Troubleshooting
 
-If you encounter any issues:
-
-- Make sure your `.env` file is correctly set up with valid credentials
-- Check that your Galileo project and log stream names are correct
-- Verify that your Galileo API key is valid and has the necessary permissions
-- Check your internet connection
-
-If you see an "Unexpected response format" error, the Galileo API might have changed. Please check the latest API documentation. 
+- If metrics aren't appearing, ensure that metrics are enabled for your project in the Galileo console
+- If authentication fails, verify your API keys and ensure they have the necessary permissions
+- If you encounter any other issues, check the Galileo documentation or contact support 
