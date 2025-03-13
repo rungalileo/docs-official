@@ -26,7 +26,19 @@ await runExperiment({
   datasetName: 'names',
   runner: runner,
   metrics: ['output_tone'],
-  projectName: 'my-test-project'
+  projectName: 'my-project'
+});
+```
+
+## Creating a Prompt Template
+
+```typescript
+import { createPromptTemplate } from 'galileo-experimental';
+
+const template = await createPromptTemplate({
+  template: [{ role: 'user', content: 'Say "Hello, {name}"!' }],
+  projectName: 'my-project',
+  name: `Hello name prompt`
 });
 ```
 
@@ -40,7 +52,7 @@ import {
 } from 'galileo-experimental';
 
 const template = await getPromptTemplate(
-  'my-test-project',
+  'my-project',
   'Hello name prompt'
 );
 
@@ -51,7 +63,7 @@ await runExperiment({
   dataset: dataset,
   promptTemplate: template,
   metrics: ['output_tone'],
-  projectName: 'my-test-project'
+  projectName: 'my-project'
 });
 ```
 
@@ -83,7 +95,7 @@ await runExperiment({
   dataset: dataset,
   runner: runner,
   metrics: ['output_tone'],
-  projectName: 'my-test-project'
+  projectName: 'my-project'
 });
 ```
 

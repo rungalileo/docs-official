@@ -90,8 +90,8 @@ const callOpenAI = async (input) => {
 
 // Optionally initialize the logger if you haven't set GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
 await init({
-  projectName: 'my-test-project',
-  logStreamName: 'my-test-log-stream'
+  projectName: 'my-project',
+  logStreamName: 'my-log-stream'
 });
 
 const wrappedToolCall = log(
@@ -130,8 +130,8 @@ import { GalileoLogger } from 'galileo-experimental';
 
 // You can set the GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
 const logger = new GalileoLogger({
-  projectName: 'my-test-project',
-  logStreamName: 'my-test-log-stream'
+  projectName: 'my-project',
+  logStreamName: 'my-log-stream'
 });
 
 console.log('Creating trace with spans...');
@@ -197,7 +197,7 @@ import { createPromptTemplate, runExperiment } from 'galileo-experimental';
 
 const template = await createPromptTemplate({
   template: [{ role: 'user', content: 'Say "Hello, {name}"!' }],
-  projectName: 'my-test-project',
+  projectName: 'my-project',
   name: `Hello name prompt`
 });
 
@@ -207,7 +207,7 @@ await runExperiment({
   datasetName: 'names',
   promptTemplate: template,
   metrics: ['output_tone'],
-  projectName: 'my-test-project'
+  projectName: 'my-project'
 });
 ```
 
@@ -221,7 +221,7 @@ import {
 } from 'galileo-experimental';
 
 const template = await getPromptTemplate(
-  'my-test-project',
+  'my-project',
   'Hello name prompt'
 );
 
@@ -232,7 +232,7 @@ await runExperiment({
   dataset: dataset,
   promptTemplate: template,
   metrics: ['output_tone'],
-  projectName: 'my-test-project'
+  projectName: 'my-project'
 });
 ```
 
@@ -240,7 +240,7 @@ await runExperiment({
 
 ### Creating and Using Datasets
 
-You can create and use datasets for experimentation:
+You can create and use datasets for experiments:
 
 ```typescript
 import { getDataset } from 'galileo-experimental';
@@ -248,7 +248,7 @@ import { getDataset } from 'galileo-experimental';
 const dataset = await getDataset(undefined, 'names');
 ```
 
-## Experimentation
+## Experiments
 
 ### Evaluating with Runner Function
 
@@ -273,11 +273,48 @@ await runExperiment({
   datasetName: 'names',
   runner: runner,
   metrics: ['output_tone'],
-  projectName: 'my-test-project'
+  projectName: 'my-project'
 });
 ```
 
-### Evaluating with Custom Dataset
+### Creating a Prompt Template
+
+```typescript
+import { createPromptTemplate } from 'galileo-experimental';
+
+const template = await createPromptTemplate({
+  template: [{ role: 'user', content: 'Say "Hello, {name}"!' }],
+  projectName: 'my-project',
+  name: `Hello name prompt`
+});
+```
+
+### Running an Experiment with a Prompt Template
+
+```typescript
+import {
+  getPromptTemplate,
+  getDataset,
+  runExperiment
+} from 'galileo-experimental';
+
+const template = await getPromptTemplate(
+  'my-project',
+  'Hello name prompt'
+);
+
+const dataset = await getDataset(undefined, 'names');
+
+await runExperiment({
+  name: `Test Experiment`,
+  dataset: dataset,
+  promptTemplate: template,
+  metrics: ['output_tone'],
+  projectName: 'my-project'
+});
+```
+
+### Running an Experiment with Custom Dataset
 
 You can also use a locally generated dataset with a runner function:
 
@@ -307,7 +344,7 @@ await runExperiment({
   dataset: dataset,
   runner: runner,
   metrics: ['output_tone'],
-  projectName: 'my-test-project'
+  projectName: 'my-project'
 });
 ```
 
