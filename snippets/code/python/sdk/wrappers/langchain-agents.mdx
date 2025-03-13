@@ -1,0 +1,37 @@
+```python Python
+from galileo.handlers.langchain import GalileoCallback
+from langchain.agents import AgentExecutor, create_react_agent
+from langchain.tools import Tool
+from langchain_openai import ChatOpenAI
+
+# Create a callback handler
+handler = GalileoCallback()
+
+# Initialize the LLM with the callback
+llm = ChatOpenAI(model="gpt-4o", callbacks=[handler])
+
+# Define tools
+tools = [
+    Tool(
+        name="Calculator",
+        func=lambda x: eval(x),
+        description="Useful for when you need to calculate something"
+    )
+]
+
+# Create an agent
+agent = create_react_agent(llm, tools, "You are a helpful assistant.")
+agent_executor = AgentExecutor.from_agent_and_tools(
+    agent=agent,
+    tools=tools,
+    callbacks=[handler]
+)
+
+# Run the agent
+result = agent_executor.invoke(
+    {"input": "What is 2 + 2?"},
+    {"callbacks": [handler]}
+)
+
+print(result["output"])
+``` 

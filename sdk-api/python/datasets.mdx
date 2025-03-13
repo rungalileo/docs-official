@@ -77,25 +77,3 @@ When working with datasets in Galileo, consider these tips:
 3. **Use Consistent Formats**: Maintain a consistent format for your datasets to make them easier to use
 4. **Include Expected Outputs**: Always include expected outputs for evaluation
 5. **Document Your Datasets**: Add descriptions and metadata to make it clear what each dataset is for
-
-By following these practices and utilizing Galileo's dataset management features, you can build a robust and maintainable test suite that grows with your application's needs.
-
-List the versions of a dataset and grab a particular version:
-
-```python
-from galileo.datasets import get_dataset
-
-dataset = get_dataset(
-    name="countries",    
-    project="my-project",
-)
-
-print(dataset.modified_at)
-
-versions = dataset.get_version_history()
-
-oldest_version = get_dataset(
-	name="countries",
-	version=versions[-1].version,
-	project="my-project"
-)

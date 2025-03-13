@@ -2,103 +2,54 @@
 title: LangChain Integration
 ---
 
+import SnippetLangchainInstallation from '/snippets/code/python/sdk/wrappers/langchain-installation.mdx'
+import SnippetLangchainEnvSetup from '/snippets/code/python/sdk/wrappers/langchain-env-setup.mdx'
+import SnippetLangchainBasic from '/snippets/code/python/sdk/wrappers/langchain.mdx'
+import SnippetLangchainCustomLogger from '/snippets/code/python/sdk/wrappers/langchain-custom-logger.mdx'
+import SnippetLangchainChains from '/snippets/code/python/sdk/wrappers/langchain-chains.mdx'
+import SnippetLangchainAgents from '/snippets/code/python/sdk/wrappers/langchain-agents.mdx'
+import SnippetLangchainMetadata from '/snippets/code/python/sdk/wrappers/langchain-metadata.mdx'
+import SnippetLangchainContext from '/snippets/code/python/sdk/wrappers/langchain-context.mdx'
+
 The Galileo LangChain integration allows you to automatically log all LangChain interactions with LLMs, including prompts, responses, and performance metrics. This integration works through LangChain's callbacks API, making it easy to add logging to your existing LangChain applications with minimal code changes.
 
 ## Installation
 
 First, make sure you have the Galileo SDK and LangChain installed:
 
-```bash
-pip install galileo langchain
-```
+<CodeGroup>
+<SnippetLangchainInstallation />
+</CodeGroup>
 
 ## Setup
 
 Create or update a `.env` file with your Galileo API key and other optional settings:
 
-```env
-# Scoped to an Organization
-GALILEO_API_KEY=...
-
-# Optional, set a default Project
-GALILEO_PROJECT=...
-# Optional, set a default Log Stream
-GALILEO_LOG_STREAM=...
-```
+<CodeGroup>
+<SnippetLangchainEnvSetup />
+</CodeGroup>
 
 ## Basic Usage
 
 The integration is based on the `GalileoCallback` class, which implements LangChain's callback interface. To use it, simply create an instance of the callback and pass it to your LangChain components:
 
-```python
-from galileo.handlers.langchain import GalileoCallback
-from langchain_openai import ChatOpenAI
-from langchain.schema import HumanMessage
-
-# Create a callback handler
-callback = GalileoCallback()
-
-# Initialize the LLM with the callback
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.7, callbacks=[callback])
-
-# Create a message with the user's query
-messages = [HumanMessage(content="What is LangChain and how is it used with OpenAI?")]
-
-# Make the API call
-response = llm.invoke(messages)
-
-print(response.content)
-```
+<CodeGroup>
+<SnippetLangchainBasic />
+</CodeGroup>
 
 When initializing the `GalileoCallback`, you can optionally specify a Galileo logger instance or control trace behavior:
 
-```python
-from galileo import GalileoLogger
-from galileo.handlers.langchain import GalileoCallback
-
-# Create a custom logger
-logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
-
-# Create a callback with the custom logger
-callback = GalileoCallback(
-    galileo_logger=logger,  # Optional custom logger
-    start_new_trace=True,   # Whether to start a new trace for each chain
-    flush_on_chain_end=True # Whether to flush traces when chains end
-)
-```
+<CodeGroup>
+<SnippetLangchainCustomLogger />
+</CodeGroup>
 
 ## Using with LangChain Chains
 
 You can also use the callback with LangChain chains. Make sure to pass the callback to both the LLM and the chain:
 
-```python
-from galileo.handlers.langchain import GalileoCallback
-from langchain.chains import LLMMathChain
-from langchain_openai import ChatOpenAI
-
-# Create a callback handler
-handler = GalileoCallback()
-
-# Initialize the LLM with the callback
-llm = ChatOpenAI(model="gpt-4o", callbacks=[handler])
-
-# Initialize the chain with the callback
-llm_math = LLMMathChain.from_llm(llm, callbacks=[handler])
-
-# Invoke the chain with the callback and additional metadata
-result = llm_math.invoke(
-    "What's 2 + 2?",
-    {
-        "callbacks": [handler],
-        "metadata": {
-            "galileo_session": "my-session",
-            "galileo_user_id": "user-id",
-        },
-    },
-)
-
-print(result)
-```
+<CodeGroup>
+<SnippetLangchainChains />
+</CodeGroup>
 
 ## Advanced Usage
 
@@ -124,19 +75,9 @@ For each of these events, the callback logs relevant information to Galileo, suc
 
 You can add custom metadata to your logs by including it in the `metadata` parameter when invoking a chain or LLM:
 
-```python
-result = chain.invoke(
-    "Your input here",
-    {
-        "callbacks": [handler],
-        "metadata": {
-            "user_id": "user-123",
-            "session_id": "session-456",
-            "custom_field": "custom value"
-        }
-    }
-)
-```
+<CodeGroup>
+<SnippetLangchainMetadata />
+</CodeGroup>
 
 This metadata will be attached to the logs in Galileo, making it easier to filter and analyze your data.
 
@@ -144,43 +85,9 @@ This metadata will be attached to the logs in Galileo, making it easier to filte
 
 The `GalileoCallback` automatically handles nested chains and agents, creating a hierarchical trace that reflects the structure of your LangChain application:
 
-```python
-from galileo.handlers.langchain import GalileoCallback
-from langchain.agents import AgentExecutor, create_react_agent
-from langchain.tools import Tool
-from langchain_openai import ChatOpenAI
-
-# Create a callback handler
-handler = GalileoCallback()
-
-# Initialize the LLM with the callback
-llm = ChatOpenAI(model="gpt-4o", callbacks=[handler])
-
-# Define tools
-tools = [
-    Tool(
-        name="Calculator",
-        func=lambda x: eval(x),
-        description="Useful for when you need to calculate something"
-    )
-]
-
-# Create an agent
-agent = create_react_agent(llm, tools, "You are a helpful assistant.")
-agent_executor = AgentExecutor.from_agent_and_tools(
-    agent=agent,
-    tools=tools,
-    callbacks=[handler]
-)
-
-# Run the agent
-result = agent_executor.invoke(
-    {"input": "What is 2 + 2?"},
-    {"callbacks": [handler]}
-)
-
-print(result["output"])
-```
+<CodeGroup>
+<SnippetLangchainAgents />
+</CodeGroup>
 
 ## Best Practices
 
@@ -190,16 +97,9 @@ print(result["output"])
 
 3. **Use with galileo_context**: You can combine the LangChain integration with `galileo_context` for more control over trace management:
 
-```python
-from galileo import galileo_context
-from galileo.handlers.langchain import GalileoCallback
-from langchain_openai import ChatOpenAI
-
-with galileo_context(project="my-project", log_stream="my-log-stream"):
-    callback = GalileoCallback()
-    llm = ChatOpenAI(model="gpt-4o", callbacks=[callback])
-    # Your LangChain code here
-```
+<CodeGroup>
+<SnippetLangchainContext />
+</CodeGroup>
 
 ## Related Resources
 

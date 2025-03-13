@@ -1,0 +1,28 @@
+```python Python
+from galileo.handlers.langchain import GalileoCallback
+from langchain.chains import LLMMathChain
+from langchain_openai import ChatOpenAI
+
+# Create a callback handler
+handler = GalileoCallback()
+
+# Initialize the LLM with the callback
+llm = ChatOpenAI(model="gpt-4o", callbacks=[handler])
+
+# Initialize the chain with the callback
+llm_math = LLMMathChain.from_llm(llm, callbacks=[handler])
+
+# Invoke the chain with the callback and additional metadata
+result = llm_math.invoke(
+    "What's 2 + 2?",
+    {
+        "callbacks": [handler],
+        "metadata": {
+            "galileo_session": "my-session",
+            "galileo_user_id": "user-id",
+        },
+    },
+)
+
+print(result)
+``` 

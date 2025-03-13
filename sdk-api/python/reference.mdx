@@ -3,30 +3,34 @@ title: Python SDK Reference
 icon: "python"
 ---
 
+import SnippetInstallation from '/snippets/code/python/sdk/installation.mdx'
+import SnippetEnvSetup from '/snippets/code/python/sdk/env-setup.mdx'
+import SnippetOpenAIBasic from '/snippets/code/python/sdk/wrappers/openai-basic.mdx'
+import SnippetLogDecoratorBasic from '/snippets/code/python/sdk/decorators/log-decorator-basic.mdx'
+import SnippetContextBasic from '/snippets/code/python/sdk/context/basic.mdx'
+import SnippetGalileoLogger from '/snippets/code/python/sdk/manual/galileo-logger.mdx'
+import SnippetDatasetsBasic from '/snippets/code/python/sdk/datasets/datasets-basic.mdx'
+import SnippetPromptsBasic from '/snippets/code/python/sdk/prompts/prompts-basic.mdx'
+import SnippetExperimentsBasic from '/snippets/code/python/sdk/experiments/experiments-basic.mdx'
+import SnippetLangchainBasic from '/snippets/code/python/sdk/wrappers/langchain.mdx'
+
 ## Introduction
 
 This document provides a comprehensive reference for the Galileo Python SDK, covering all the key classes, methods, and functions available for logging and analyzing your LLM applications.
 
 ## Installation
 
-```bash
-pip install galileo
-```
+<CodeGroup>
+<SnippetInstallation />
+</CodeGroup>
 
 ## Initialization/Authentication
 
 You can configure Galileo using environment variables:
 
-```env
-# Scoped to an Organization
-GALILEO_API_KEY=...
-
-# Optional, set a default Project
-GALILEO_PROJECT=...
-
-# Optional, set a default Log Stream
-GALILEO_LOG_STREAM=...
-```
+<CodeGroup>
+<SnippetEnvSetup />
+</CodeGroup>
 
 ## Core Components
 
@@ -34,207 +38,65 @@ GALILEO_LOG_STREAM=...
 
 The simplest way to get started is to use our OpenAI client wrapper:
 
-```python
-import os
-from galileo import openai
-
-# Initialize the Galileo wrapped OpenAI client
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-def call_openai():
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}], 
-        model="gpt-4o"
-    )
-    return chat_completion.choices[0].message.content
-
-# This will create a single span trace with the OpenAI call
-response = call_openai()
-print(response)
-```
+<CodeGroup>
+<SnippetOpenAIBasic />
+</CodeGroup>
 
 ### @log Decorator
 
 The `@log` decorator allows you to capture function inputs and outputs as spans:
 
-```python
-from galileo import log
-
-@log
-def my_function(input_text):
-    # Function implementation
-    return result
-
-# With span type specified
-@log(span_type="llm")
-def my_llm_function(input_text):
-    # Function implementation
-    return result
-
-# With additional parameters
-@log(
-    span_type="workflow",
-    name="Custom Name",
-    project="my-project",
-    log_stream="my-log-stream",
-    params={"key": "value"}
-)
-def my_custom_function(input_text):
-    # Function implementation
-    return result
-```
+<CodeGroup>
+<SnippetLogDecoratorBasic />
+</CodeGroup>
 
 ### galileo_context
 
 The `galileo_context` context manager provides control over trace context:
 
-```python
-from galileo import galileo_context
-
-# Basic usage
-with galileo_context():
-    # Operations within this block will be logged to the same trace
-    result = your_function()
-
-# With project and log stream specified
-with galileo_context(project="my-project", log_stream="my-log-stream"):
-    result = your_function()
-
-# Initialization and flushing
-galileo_context.init(project="my-project", log_stream="my-log-stream")
-# ... operations ...
-galileo_context.flush()
-```
+<CodeGroup>
+<SnippetContextBasic />
+</CodeGroup>
 
 ### GalileoLogger
 
 For more manual control over logging:
 
-```python
-from galileo import GalileoLogger
-
-# Initialize the logger
-logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
-
-# Start a trace
-trace = logger.start_trace(input="User query")
-
-# Add spans
-logger.add_llm_span(
-    input="What is the capital of France?",
-    output="The capital of France is Paris.",
-    model="gpt-4o"
-)
-
-# Conclude and flush
-logger.conclude(output="Final response")
-logger.flush()
-```
+<CodeGroup>
+<SnippetGalileoLogger />
+</CodeGroup>
 
 ## Datasets
 
 For creating and managing datasets:
 
-```python
-from galileo.datasets import create_dataset, get_dataset, list_datasets, delete_dataset
-
-# Create a dataset
-dataset = create_dataset(
-    name="my-dataset",
-    content=[{"input": "example", "expected": "result"}]
-)
-
-# Get a dataset
-dataset = get_dataset(name="my-dataset")
-
-# List datasets
-datasets = list_datasets()
-
-# Delete a dataset
-delete_dataset(name="my-dataset")
-
-# Add rows to a dataset
-dataset.add_rows([{"input": "new example", "expected": "new result"}])
-```
+<CodeGroup>
+<SnippetDatasetsBasic />
+</CodeGroup>
 
 ## Prompts
 
 For creating and using prompt templates:
 
-```python
-from galileo.prompts import create_prompt_template, get_prompt_template
-from galileo.resources.models import Message, MessageRole
-
-# Create a prompt template
-prompt = create_prompt_template(
-    name="my-prompt",
-    project="my-project",
-    messages=[
-        Message(role=MessageRole.SYSTEM, content="You are a helpful assistant."),
-        Message(role=MessageRole.USER, content="Answer this question: {question}")
-    ]
-)
-
-# Get a prompt template
-prompt = get_prompt_template(
-    project="my-project",
-    name="my-prompt"
-)
-
-# Use a prompt template
-messages = prompt.with_data({"question": "What is AI?"}).to_messages()
-```
+<CodeGroup>
+<SnippetPromptsBasic />
+</CodeGroup>
 
 ## Experiments
 
 For running experiments:
 
-```python
-from galileo.experiments import run_experiment, create_experiment, get_experiment, get_experiments
-
-# Run an experiment
-results = run_experiment(
-    "my-experiment",
-    dataset=get_dataset(name="my-dataset"),
-    prompt=get_prompt_template(project="my-project", name="my-prompt"),
-    metrics=["correctness"],
-    project="my-project"
-)
-
-# Create an experiment
-experiment = create_experiment(
-    project_id="my-project-id",
-    experiment_name="my-experiment"
-)
-
-# Get an experiment
-experiment = get_experiment(
-    project_id="my-project-id",
-    experiment_name="my-experiment"
-)
-
-# List experiments
-experiments = get_experiments(project_id="my-project-id")
-```
+<CodeGroup>
+<SnippetExperimentsBasic />
+</CodeGroup>
 
 ## LangChain Integration
 
 For integrating with LangChain:
 
-```python
-from galileo.handlers.langchain import GalileoCallback
-from langchain_openai import ChatOpenAI
-from langchain.schema import HumanMessage
-
-# Create a callback handler
-callback = GalileoCallback()
-
-# Initialize the LLM with the callback
-llm = ChatOpenAI(model="gpt-3.5-turbo", callbacks=[callback])
-
-# Make the API call
-response = llm.invoke([HumanMessage(content="Hello")])
-```
+<CodeGroup>
+<SnippetLangchainBasic />
+</CodeGroup>
 
 ## API Reference
 
