@@ -1,0 +1,117 @@
+---
+title: Custom Metrics - LLM-as-a-Judge
+description: "Learn how to create evaluation metrics using LLMs to judge the quality of responses"
+---
+
+LLM-as-a-Judge metrics leverage the capabilities of large language models to evaluate the quality of responses from your LLM applications. This approach is particularly useful for subjective assessments that are difficult to capture with code-based metrics, such as helpfulness, accuracy, or adherence to specific guidelines.
+
+## Creating an LLM-as-a-Judge Metric
+
+<Steps>
+  <Step title="Navigate to the Metrics section">
+    In the Galileo platform, go to the Metrics section and click the "Create New Metric" button in the top right corner.
+    
+    ![Create a new metric](/images/g2/custom-metrics-create-new-metric-button.png)
+  </Step>
+
+  <Step title="Select the LLM-as-a-Judge metric type">
+    From the dialog that appears, choose the "LLM-as-a-Judge" metric type. This allows you to create metrics that use an LLM to evaluate responses based on criteria you define.
+    
+    ![Select the LLM-as-a-Judge metric type](/images/g2/custom-metrics-create-new-metric-dialog.png)
+  </Step>
+
+  <Step title="Configure your LLM-as-a-Judge metric">
+    The configuration interface provides several important settings:
+    
+    - **Metric Name**: Give your metric a descriptive name that clearly indicates what it evaluates
+    - **Short Description**: Provide a brief explanation of what this metric measures and its purpose
+    - **LLM Model**: Select which language model will serve as the judge for your evaluations
+    - **Number of AI Judges**: Choose how many independent LLM judges to use in a chain-poll approach
+      - Using more judges increases accuracy but also increases processing time and cost
+      - This is particularly useful for reducing variance in subjective evaluations
+    - **Prompt Editor**: Define in natural language what you want this metric to evaluate
+      - This is where you'll describe the evaluation criteria in detail
+      - You can specify what aspects of responses should be assessed
+      - You can define scoring scales and output formats
+    
+    ![LLM-as-a-judge Prompt Editor](/images/g2/custom-metrics-llm-prompt-editor.png)
+    
+    The interface includes helpful guidance and placeholders to help you create an effective evaluation prompt.
+  </Step>
+
+  <Step title="Use the example as a reference">
+    The editor includes an example prompt that demonstrates how to structure your evaluation criteria. This example shows:
+    
+    - How to define specific evaluation dimensions
+    - How to set up a clear scoring scale
+    - How to request explanations for scores
+    
+    ![LLM-as-a-judge Prompt Example](/images/g2/custom-metrics-llm-prompt-editor-example.png)
+    
+    You can use this example as a starting point and modify it to fit your specific evaluation needs.
+  </Step>
+
+  <Step title="Review the generated prompt">
+    After configuring your evaluation criteria, you'll see the complete prompt that will be sent to the LLM. This includes:
+    
+    - The system instructions for the LLM
+    - Your evaluation criteria
+    - The scoring system
+    - The expected output format
+    
+    ![LLM-as-a-judge Generated Prompt](/images/g2/custom-metrics-llm-prompt-generated-metric-editor.png)
+    
+    Review this prompt carefully to ensure it will guide the LLM to evaluate responses according to your requirements.
+  </Step>
+
+  <Step title="Test your metric">
+    Before finalizing your metric, you can test it with sample inputs and outputs. The test interface allows you to:
+    
+    - Enter a sample input (user query)
+    - Enter a sample output (LLM response)
+    - See how your metric would evaluate this response
+    
+    ![LLM-as-a-judge Metric Test](/images/g2/custom-metrics-llm-prompt-metric-test.png)
+    
+    The test results will show you the score and reasoning provided by the LLM judge, helping you refine your evaluation criteria if needed.
+  </Step>
+
+  <Step title="Save your metric">
+    Once you're satisfied with your LLM-as-a-Judge metric, click the "Create Metric" button. Your metric will now be available for use in evaluations across your organization.
+  </Step>
+</Steps>
+
+## Best Practices for LLM-as-a-Judge Metrics
+
+### When to Use LLM-as-a-Judge Metrics
+
+LLM-as-a-Judge metrics are particularly valuable for:
+
+- **Subjective evaluations**: Assessing qualities like helpfulness, creativity, or appropriateness
+- **Complex criteria**: Evaluating adherence to multiple guidelines or requirements
+- **Nuanced feedback**: Getting detailed explanations about strengths and weaknesses
+- **Human-like judgment**: Approximating how a human might perceive the quality of a response
+
+### Understanding the Number of AI Judges
+
+The "Number of AI Judges" setting allows you to configure how many independent LLM evaluations to run in a chain-poll approach. This feature balances evaluation accuracy with processing efficiency:
+
+- Using more judges generally produces more consistent and reliable evaluations by reducing the impact of individual outlier judgments
+- However, increasing the number of judges also increases processing time and associated costs
+
+Consider your specific evaluation needs when configuring this setting, weighing the importance of evaluation consistency against performance and cost considerations.
+
+## Limitations and Considerations
+
+While powerful, LLM-as-a-Judge metrics have some limitations to keep in mind:
+
+- **Potential bias**: The LLM judge may have inherent biases that affect its evaluations
+- **Consistency challenges**: Evaluations may vary slightly between runs
+- **Cost considerations**: Using LLMs for evaluation incurs additional API costs
+- **Prompt sensitivity**: The quality of evaluation depends heavily on how well the prompt is crafted
+
+## Next Steps
+
+- Explore our [metrics overview](/concepts/metrics/overview) to understand how LLM-as-a-Judge metrics complement other evaluation approaches
+- Learn how to [run experiments](/getting-started/experiments/running-experiments) with your custom metrics
+- See how to [analyze metric insights](/cookbooks/features/insights/custom-metric-creation) in the Galileo UI

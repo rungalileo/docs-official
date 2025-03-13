@@ -1,0 +1,334 @@
+---
+title: "Custom Metrics - Code based scoring"
+description: "Learn how to create, register, and use custom metrics to evaluate your LLM applications"
+---
+
+Custom metrics allow you to define specific evaluation criteria for your LLM applications. Galileo supports two types of custom metrics:
+
+- **Registered Scorers**: Server-side metrics that can be shared across your organization
+- **Custom Scorers**: Local metrics that run in your notebook environment
+
+## Registered Scorers
+
+Registered Scorers run in Galileo's backend environment and can be used across your organization in both Evaluate and Observe projects.
+
+### Creating a Registered Scorer
+
+You can create a registered scorer either through the Python SDK or directly in the Galileo UI. Let's walk through the UI approach:
+
+<Steps>
+  <Step title="Navigate to the Metrics section">
+    In the Galileo platform, go to the Metrics section and click the "Create New Metric" button in the top right corner.
+    
+    ![Create a new metric](/images/g2/custom-metrics-create-new-metric-button.png)
+  </Step>
+
+  <Step title="Select the Code metric type">
+    From the dialog that appears, choose the "Code" metric type. This option allows you to write custom Python code to evaluate your LLM outputs.
+    
+    ![Select the Code metric type](/images/g2/custom-metrics-create-new-metric-dialog.png)
+  </Step>
+
+  <Step title="Write your custom metric">
+    Use the code editor to write your custom metric. The editor provides a template with the required functions and helpful comments to guide you.
+    
+    ![Code editor](/images/g2/custom-metrics-code-editor.png)
+    
+    The code editor allows you to write and test your metric directly in the browser. You'll need to define at least the `scorer_fn` and `aggregator_fn` functions as described below.
+  </Step>
+
+  <Step title="Save your metric">
+    After writing your custom metric code, click the "Save" button in the top right corner of the code editor. Your metric will be validated and, if there are no errors, it will be saved and become available for use across your organization.
+    
+    You can now select this metric when running evaluations in both the Evaluate and Observe modules.
+  </Step>
+</Steps>
+
+#### 1. The Scorer Function (`scorer_fn`)
+
+This function evaluates individual responses and returns a score:
+
+```python
+def scorer_fn(*, 
+              index: Union[int, str], 
+              node_input: str, 
+              node_output: str, 
+              **kwargs: Any) -> Union[float, int, bool, str, None]:
+    # Your scoring logic here
+    return score
+```
+
+The function must accept `**kwargs` to ensure forward compatibility. Here's a complete example that measures the difference in length between the output and ground truth:
+
+```python
+def scorer_fn(*, 
+              index: Union[int, str], 
+              node_input: str, 
+              node_output: str, 
+              node_name: Optional[str], 
+              node_type: Optional[str], 
+              node_id: Optional[UUID], 
+              tools: Optional[List[Dict[str, Any]]], 
+              dataset_variables: Dict[str, str], 
+              **kwargs: Any) -> Union[float, int, bool, str, None]:
+    
+    ground_truth = dataset_variables.get("target", "")  # Ground truth if provided
+    return abs(len(node_output) - len(ground_truth))
+```
+
+**Parameter details:**
+- `index`: Row index in the dataset
+- `node_input`: Input to the node
+- `node_output`: Output from the node
+- `node_name`, `node_type`, `node_id`, `tools`: Workflow/chain-specific parameters
+- `dataset_variables`: Key-value pairs from the dataset (includes ground truth)
+
+#### 2. The Aggregator Function (`aggregator_fn`)
+
+This function aggregates individual scores into summary metrics:
+
+```python
+def aggregator_fn(*, 
+                 scores: List[Union[float, int, bool, str, None]]
+                 ) -> Dict[str, Union[float, int, bool, str, None]]:
+    # Your aggregation logic here
+    return {
+        "Metric Name 1": aggregated_value_1,
+        "Metric Name 2": aggregated_value_2
+    }
+```
+
+#### Optional Functions
+
+##### Score Type Function
+
+```python
+def score_type() -> Type[float] | Type[int] | Type[str] | Type[bool]:
+    return float  # Or int, str, bool
+```
+
+This function defines the return type of your scorer (default is `float`).
+
+##### Node Type Restriction
+
+```python
+def scoreable_node_types_fn() -> List[str]:
+    return ["llm", "chat"]  # Default
+```
+
+This function restricts which node types your scorer can evaluate. For example, to only score retriever nodes:
+
+```python
+def scoreable_node_types_fn() -> List[str]:
+    return ["retriever"]
+```
+
+##### LLM Credentials Access
+
+To access LLM credentials during scorer execution:
+
+```python
+include_llm_credentials = True  # Default is False
+```
+
+When enabled, credentials are passed to `scorer_fn` as a dictionary:
+
+```json
+{
+  "openai": {
+    "api_key": "sk-...",
+    "organization": "org-..."
+  }
+}
+```
+
+
+### Complete Example: Response Length Scorer
+
+Let's create a custom metric that measures response length:
+
+```python
+from typing import List, Dict, Type
+
+def scorer_fn(*, node_output: str, **kwargs) -> int:
+    return len(node_output)
+
+def aggregator_fn(*, scores: List[int]) -> Dict[str, int]:
+    return {
+        "Total Response Length": sum(scores),
+        "Average Response Length": sum(scores) / len(scores) if scores else 0,
+    }
+
+# Correct way to define score_type
+def score_type():
+    return int
+
+def scoreable_node_types_fn() -> List[str]:
+    return ["llm", "chat"]
+```
+
+### Execution Environment
+
+Registered Scorers run in a Python 3.10 environment with these libraries:
+
+```
+numpy~=1.26.4
+pandas~=2.2.2
+pydantic~=2.7.1
+scikit-learn~=1.4.2
+tensorflow~=2.16.1
+networkx
+openai
+```
+
+We provide advance notice before major version updates to these libraries.
+
+## Custom Scorers
+
+If you need additional libraries or want to run metrics locally, use Custom Scorers. These run in your notebook environment but are limited to the Evaluate module.
+
+### Creating a Custom Scorer
+
+Custom Scorers require two functions:
+
+#### 1. The Executor Function
+
+```python
+def executor(row: PromptRow) -> float:
+    # Your scoring logic here
+    return score
+```
+
+#### 2. The Aggregator Function
+
+```python
+def aggregator_fn(scores: List[float], indices: List[int]) -> Dict[str, float]:
+    return {
+        "Metric Name 1": aggregated_value_1,
+        "Metric Name 2": aggregated_value_2
+    }
+```
+
+### Example: Response Length Custom Scorer
+
+```python
+from typing import Dict, List
+from galileo import PromptRow, CustomScorer
+
+def executor(row: PromptRow) -> float:
+    return len(row.response)
+
+def aggregator_fn(scores: List[float], indices: List[int]) -> Dict[str, float]:
+    return {
+        'Total Response Length': sum(scores),
+        'Average Response Length': sum(scores)/len(scores) if scores else 0
+    }
+
+my_scorer = CustomScorer(
+    name='Response Length', 
+    executor=executor, 
+    aggregator=aggregator_fn
+)
+```
+
+Use your Custom Scorer:
+
+```python
+from galileo import run
+
+template = "Explain {topic} to me like I'm a 5 year old"
+data = {"topic": ["Quantum Physics", "Politics", "Large Language Models"]}
+run(template=template, dataset=data, scorers=[my_scorer])
+```
+
+## Comparison: Registered vs. Custom Scorers
+
+| Feature | Registered Scorers | Custom Scorers |
+|---------|-------------------|---------------|
+| **Creation** | Python client, activatable via UI | Python client only |
+| **Sharing** | Organization-wide | Current project only |
+| **Modules** | Evaluate and Observe | Evaluate only |
+| **Definition** | Independent Python file | Within notebook |
+| **Environment** | Server-side | Local Python environment |
+| **Libraries** | Limited to Galileo environment | Any available library |
+| **Resources** | Restricted by Galileo | Local resources |
+
+## Common Use Cases
+
+Custom metrics are ideal for:
+
+- **Heuristic evaluation**: Checking for specific patterns, keywords, or structural elements
+- **Model-guided evaluation**: Using pre-trained models to detect entities or LLMs to grade outputs
+- **Business-specific metrics**: Measuring domain-specific quality indicators
+- **Comparative analysis**: Comparing outputs against ground truth or reference data
+
+## Simple Example: Sentiment Scorer
+
+Here's a simple custom metric that evaluates the sentiment of responses:
+
+```python
+# sentiment_scorer.py
+from typing import Dict, List, Union, Type
+
+def scorer_fn(*, node_output: str, **kwargs) -> float:
+    """
+    A simple sentiment scorer that counts positive and negative words.
+    Returns a score between -1 (negative) and 1 (positive).
+    """
+    positive_words = ["good", "great", "excellent", "positive", "happy", "best", "wonderful"]
+    negative_words = ["bad", "poor", "negative", "terrible", "worst", "awful", "horrible"]
+    
+    # Convert to lowercase for case-insensitive matching
+    text = node_output.lower()
+    
+    # Count occurrences
+    positive_count = sum(text.count(word) for word in positive_words)
+    negative_count = sum(text.count(word) for word in negative_words)
+    
+    total_count = positive_count + negative_count
+    
+    # Calculate sentiment score
+    if total_count == 0:
+        return 0.0  # Neutral
+    
+    return (positive_count - negative_count) / total_count
+
+def aggregator_fn(*, scores: List[float]) -> Dict[str, float]:
+    """Aggregate sentiment scores across responses."""
+    if not scores:
+        return {"Average Sentiment": 0.0}
+    
+    avg_sentiment = sum(scores) / len(scores)
+    
+    return {
+        "Average Sentiment": round(avg_sentiment, 2),
+        "Positive Responses": sum(1 for score in scores if score > 0.2),
+        "Neutral Responses": sum(1 for score in scores if -0.2 <= score <= 0.2),
+        "Negative Responses": sum(1 for score in scores if score < -0.2)
+    }
+
+# Correct way to define score_type
+def score_type():
+    return float
+```
+
+### Register and Use the Scorer
+
+```python
+from galileo import register_scorer, run
+
+# Register the scorer
+register_scorer("sentiment", "sentiment_scorer.py")
+
+# Use the scorer
+template = "What do you think about {topic}?"
+data = {"topic": ["artificial intelligence", "climate change", "social media"]}
+run(template=template, dataset=data, scorers=["sentiment"])
+```
+
+This simple sentiment scorer:
+- Counts positive and negative words in responses
+- Calculates a sentiment score between -1 (negative) and 1 (positive)
+- Aggregates results to show the distribution of positive, neutral, and negative responses
+
+You can easily extend this with more sophisticated sentiment analysis techniques or domain-specific terminology.
