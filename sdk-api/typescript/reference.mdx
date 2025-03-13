@@ -12,7 +12,7 @@ This document covers the design and developer experience of the TypeScript clien
 ## Installation
 
 ```bash
-npm i galileo-experimental
+npm i galileo
 ```
 
 ## Initialization/Authentication
@@ -22,9 +22,6 @@ You can configure Galileo using environment variables:
 ```env
 # Scoped to an Organization
 GALILEO_API_KEY=...
-
-# Optional, if you're not using the default environment
-# GALILEO_CONSOLE_URL=https://app.galileo.ai/
 
 # Optional, set a default Project
 GALILEO_PROJECT=...
@@ -37,7 +34,6 @@ In Node.js, you can use `process.env` to specify these variables:
 
 ```typescript
 process.env.GALILEO_API_KEY = "your-api-key";
-process.env.GALILEO_CONSOLE_URL = "your-console-url";
 process.env.GALILEO_PROJECT = "your-project";
 process.env.GALILEO_LOG_STREAM = "your-log-stream";
 ```
@@ -50,7 +46,7 @@ The simplest way to get started is to use our OpenAI client wrapper. This exampl
 
 ```typescript
 import { OpenAI } from "openai";
-import { init, flush, wrapOpenAI } from "galileo-experimental";
+import { init, flush, wrapOpenAI } from "galileo";
 
 // Initialize Galileo
 init({
@@ -75,7 +71,7 @@ The `log` function wrapper allows you to wrap functions with spans of different 
 
 ```typescript
 import { OpenAI } from "openai";
-import { wrapOpenAI, flush, log, init } from 'galileo-experimental';
+import { wrapOpenAI, flush, log, init } from 'galileo';
 
 const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
@@ -126,7 +122,7 @@ Here are the different span types:
 For more advanced use cases, you can use the GalileoLogger directly:
 
 ```typescript
-import { GalileoLogger } from 'galileo-experimental';
+import { GalileoLogger } from 'galileo';
 
 // You can set the GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
 const logger = new GalileoLogger({
@@ -193,7 +189,7 @@ const flushedTraces = await logger.flush();
 Create and use a prompt template:
 
 ```typescript
-import { createPromptTemplate, runExperiment } from 'galileo-experimental';
+import { createPromptTemplate, runExperiment } from 'galileo';
 
 const template = await createPromptTemplate({
   template: [{ role: 'user', content: 'Say "Hello, {name}"!' }],
@@ -206,7 +202,7 @@ await runExperiment({
   name: `Test Experiment`,
   datasetName: 'names',
   promptTemplate: template,
-  metrics: ['output_tone'],
+  metrics: ['toxicity'],
   projectName: 'my-project'
 });
 ```
@@ -218,7 +214,7 @@ import {
   getPromptTemplate,
   getDataset,
   runExperiment
-} from 'galileo-experimental';
+} from 'galileo';
 
 const template = await getPromptTemplate(
   'my-project',
@@ -231,7 +227,7 @@ await runExperiment({
   name: `Test Experiment`,
   dataset: dataset,
   promptTemplate: template,
-  metrics: ['output_tone'],
+  metrics: ['tox'],
   projectName: 'my-project'
 });
 ```
@@ -243,7 +239,7 @@ await runExperiment({
 You can create and use datasets for experiments:
 
 ```typescript
-import { getDataset } from 'galileo-experimental';
+import { getDataset } from 'galileo';
 
 const dataset = await getDataset(undefined, 'names');
 ```
@@ -255,7 +251,7 @@ const dataset = await getDataset(undefined, 'names');
 You can use a runner function to run an experiment with a dataset:
 
 ```typescript
-import { runExperiment } from 'galileo-experimental';
+import { runExperiment } from 'galileo';
 import { OpenAI } from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -272,7 +268,7 @@ await runExperiment({
   name: `Test Experiment`,
   datasetName: 'names',
   runner: runner,
-  metrics: ['output_tone'],
+  metrics: ['tox'],
   projectName: 'my-project'
 });
 ```
@@ -280,7 +276,7 @@ await runExperiment({
 ### Creating a Prompt Template
 
 ```typescript
-import { createPromptTemplate } from 'galileo-experimental';
+import { createPromptTemplate } from 'galileo';
 
 const template = await createPromptTemplate({
   template: [{ role: 'user', content: 'Say "Hello, {name}"!' }],
@@ -296,7 +292,7 @@ import {
   getPromptTemplate,
   getDataset,
   runExperiment
-} from 'galileo-experimental';
+} from 'galileo';
 
 const template = await getPromptTemplate(
   'my-project',
@@ -309,7 +305,7 @@ await runExperiment({
   name: `Test Experiment`,
   dataset: dataset,
   promptTemplate: template,
-  metrics: ['output_tone'],
+  metrics: ['tox'],
   projectName: 'my-project'
 });
 ```
@@ -319,7 +315,7 @@ await runExperiment({
 You can also use a locally generated dataset with a runner function:
 
 ```typescript
-import { runExperiment } from 'galileo-experimental';
+import { runExperiment } from 'galileo';
 import { OpenAI } from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -343,7 +339,7 @@ await runExperiment({
   name: `Test Experiment`,
   dataset: dataset,
   runner: runner,
-  metrics: ['output_tone'],
+  metrics: ['tox'],
   projectName: 'my-project'
 });
 ```

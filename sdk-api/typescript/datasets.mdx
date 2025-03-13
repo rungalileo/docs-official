@@ -10,7 +10,7 @@ Galileo Datasets allow you to create, manage, and version collections of data fo
 You can create and use datasets for experimentation:
 
 ```typescript
-import { getDataset } from 'galileo-experimental';
+import { getDataset } from 'galileo';
 
 const dataset = await getDataset(undefined, 'names');
 ```
@@ -20,7 +20,7 @@ const dataset = await getDataset(undefined, 'names');
 Datasets can be used in experiments to evaluate your LLM applications:
 
 ```typescript
-import { runExperiment } from 'galileo-experimental';
+import { runExperiment } from 'galileo';
 import { OpenAI } from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -37,7 +37,7 @@ await runExperiment({
   name: `Test Experiment`,
   datasetName: 'names',
   runner: runner,
-  metrics: ['output_tone'],
+  metrics: ['toxicity'],
   projectName: 'my-project'
 });
 ```
@@ -47,7 +47,7 @@ await runExperiment({
 You can also use locally generated datasets for experiments:
 
 ```typescript
-import { runExperiment } from 'galileo-experimental';
+import { runExperiment } from 'galileo';
 import { OpenAI } from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -71,7 +71,7 @@ await runExperiment({
   name: `Test Experiment`,
   dataset: dataset,
   runner: runner,
-  metrics: ['output_tone'],
+  metrics: ['tox'],
   projectName: 'my-project'
 });
 ```

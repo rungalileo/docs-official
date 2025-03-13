@@ -8,7 +8,7 @@ Galileo Prompts allow you to create, version, and test prompt templates for your
 ## Creating a Prompt Template
 
 ```typescript
-import { createPromptTemplate } from "galileo-experimental";
+import { createPromptTemplate } from "galileo";
 
 const template = await createPromptTemplate({
   template: [
@@ -24,7 +24,7 @@ const template = await createPromptTemplate({
 
 ```typescript
 import { OpenAI } from "openai";
-import { createPromptTemplate, wrapOpenAI } from "galileo-experimental";
+import { createPromptTemplate, wrapOpenAI } from "galileo";
 
 const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
@@ -57,7 +57,7 @@ const output = await callOpenAI(messages, "gpt-4o");
 ## Retrieving a Prompt Template
 
 ```typescript
-import { getPromptTemplate } from "galileo-experimental";
+import { getPromptTemplate } from "galileo";
 
 // Get a prompt template
 const template = await getPromptTemplate(
@@ -71,7 +71,7 @@ const template = await getPromptTemplate(
 Prompts can be used in experiments to evaluate different prompt templates:
 
 ```typescript
-import { runExperiment, getPromptTemplate, getDataset } from "galileo-experimental";
+import { runExperiment, getPromptTemplate, getDataset } from "galileo";
 
 const template = await getPromptTemplate(
   "my-project",
@@ -84,7 +84,7 @@ await runExperiment({
   name: "Test Experiment",
   dataset: dataset,
   promptTemplate: template,
-  metrics: ["output_tone"],
+  metrics: ["toxicity"],
   projectName: "my-project"
 });
 ```

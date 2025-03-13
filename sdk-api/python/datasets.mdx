@@ -4,181 +4,69 @@ icon: "table"
 description: Create and manage datasets
 ---
 
+import SnippetSdkDatasetsCreate from '/snippets/code/python/sdk/datasets/create.mdx';
+import SnippetSdkDatasetsGet from '/snippets/code/python/sdk/datasets/get.mdx';
+import SnippetSdkDatasetsAddRows from '/snippets/code/python/sdk/datasets/add-rows.mdx';
+import SnippetSdkDatasetsList from '/snippets/code/python/sdk/datasets/list.mdx';
+import SnippetSdkDatasetsDelete from '/snippets/code/python/sdk/datasets/delete.mdx';
+import SnippetSdkDatasetsVersions from '/snippets/code/python/sdk/datasets/versions.mdx';
+import SnippetSdkDatasetsExperiments from '/snippets/code/python/sdk/datasets/experiments.mdx';
+
 ## Creating Datasets
 
 You can create a new dataset using the `create_dataset` function:
 
-```python
-from galileo.datasets import create_dataset
-
-# Create a dataset with test data
-test_data = [
-    {
-        "input": "Which continent is Spain in?",
-        "output": "Europe",
-    },
-    {
-        "input": "Which continent is Japan in?",
-        "output": "Asia",
-    },
-]
-
-dataset = create_dataset(
-    name="countries", 
-    content=test_data,
-    project="my-project",
-)
-```
+<CodeGroup>
+<SnippetSdkDatasetsCreate />
+</CodeGroup>
 
 ## Getting Existing Datasets
 
 You can retrieve an existing dataset using the `get_dataset` function:
 
-```python
-from galileo.datasets import get_dataset
-
-# Get a dataset by name
-dataset = get_dataset(
-    name="countries",
-    project="my-project",
-)
-
-# Get a dataset by ID
-dataset = get_dataset(
-    id="dataset-id",
-    project="my-project",
-)
-
-# Get a dataset with its content
-dataset = get_dataset(
-    name="countries", 
-    with_content=True,
-    project="my-project",
-)
-```
+<CodeGroup>
+<SnippetSdkDatasetsGet />
+</CodeGroup>
 
 ## Adding to Existing Datasets
 
 You can add rows to an existing dataset using the `add_rows` method:
 
-```python
-from galileo.datasets import get_dataset
-
-# Get an existing dataset
-dataset = get_dataset(
-    name="countries",
-    project="my-project",
-)
-
-# Add new rows to the dataset
-dataset.add_rows([
-    {
-        "input": "Which continent is Morocco in?",
-        "output": "Africa",
-    },
-    {
-        "input": "Which continent is Australia in?",
-        "output": "Oceania",
-    },
-])
-```
+<CodeGroup>
+<SnippetSdkDatasetsAddRows />
+</CodeGroup>
 
 ## Listing Datasets
 
 You can list all available datasets using the `list_datasets` function:
 
-```python
-from galileo.datasets import list_datasets
-
-# List all datasets in a project
-datasets = list_datasets(
-    project="my-project",
-)
-
-# List datasets with a custom limit
-datasets = list_datasets(
-    project="my-project",
-    limit=50,
-)
-```
+<CodeGroup>
+<SnippetSdkDatasetsList />
+</CodeGroup>
 
 ## Deleting Datasets
 
 You can delete a dataset using the `delete_dataset` function:
 
-```python
-from galileo.datasets import delete_dataset
-
-# Delete a dataset by name
-delete_dataset(
-    name="countries",
-    project="my-project",
-)
-
-# Delete a dataset by ID
-delete_dataset(
-    id="dataset-id",
-    project="my-project",
-)
-```
+<CodeGroup>
+<SnippetSdkDatasetsDelete />
+</CodeGroup>
 
 ## Working with Dataset Versions
 
 Galileo automatically creates new versions of datasets when they are modified. You can access different versions:
 
-```python
-from galileo.datasets import get_dataset
-
-# Get the latest version by default
-dataset = get_dataset(
-    name="countries",
-    project="my-project",
-)
-
-# Check when this version was last modified
-print(dataset.modified_at)
-
-# Review the history of your dataset
-versions = dataset.get_version_history()
-
-# Access an older version for comparison or regression testing
-oldest_version = get_dataset(
-    name="countries",
-    version=versions[-1].version,
-    project="my-project"
-)
-```
+<CodeGroup>
+<SnippetSdkDatasetsVersions />
+</CodeGroup>
 
 ## Using Datasets in Experiments
 
 Datasets are primarily used for running experiments to evaluate the performance of your LLM applications:
 
-```python
-from galileo.datasets import get_dataset
-from galileo.experiments import run_experiment
-from galileo.prompts import get_prompt_template
-
-# Get an existing dataset
-dataset = get_dataset(
-    name="countries",
-    project="my-project",
-)
-
-# Get an existing prompt template
-prompt = get_prompt_template(
-    project="my-project",
-    name="geography-prompt"
-)
-
-# Run an experiment with the dataset and prompt
-results = run_experiment(
-    "geography-experiment",
-    dataset=dataset,
-    prompt=prompt,
-    metrics=["correctness"],
-    project="my-project",
-)
-```
+<CodeGroup>
+<SnippetSdkDatasetsExperiments />
+</CodeGroup>
 
 ## Best Practices for Dataset Management
 

@@ -4,138 +4,58 @@ icon: "lightbulb"
 description: Create and use a prompt template
 ---
 
-Prompt templates in Galileo allow you to create, version, and reuse prompts across your application. This is particularly useful for standardizing prompts and running experiments with different prompt variations.
+import SnippetSdkPromptsCreate from '/snippets/code/python/sdk/prompts/create.mdx'
+import SnippetSdkPromptsGet from '/snippets/code/python/sdk/prompts/get.mdx'
+import SnippetSdkPromptsList from '/snippets/code/python/sdk/prompts/list.mdx'
+import SnippetSdkPromptsDelete from '/snippets/code/python/sdk/prompts/delete.mdx'
 
-## Creating a Prompt Template
 
-You can create a prompt template using the `create_prompt_template` function:
+Prompt templates in Galileo allow you to create, store, and reuse prompts across your experiments. They provide a structured way to manage your prompts and ensure consistency in your LLM interactions.
 
-```python
-from galileo.prompts import create_prompt_template
-from galileo.resources.models import Message, MessageRole
+## Creating Prompt Templates
 
-# Create a prompt template with system and user messages
-prompt_template = create_prompt_template(
-    name="storyteller-prompt",
-    project="my-project",
-    messages=[
-        Message(role=MessageRole.SYSTEM, content="You are a great storyteller."),
-        Message(role=MessageRole.USER, content="Please write a short story about the following topic: {topic}")
-    ]
-)
-```
+To create a prompt template, use the `create_prompt_template` function:
 
-## Getting an Existing Prompt Template
+<CodeGroup>
+  <SnippetSdkPromptsCreate />
+</CodeGroup>
 
-You can retrieve an existing prompt template using the `get_prompt_template` function:
+## Getting Prompt Templates
 
-```python
-from galileo.prompts import get_prompt_template
+You can retrieve existing prompt templates using the `get_prompt_template` function:
 
-# Get an existing prompt template
-prompt_template = get_prompt_template(
-    project="my-project",
-    name="storyteller-prompt"
-)
-```
+<CodeGroup>
+  <SnippetSdkPromptsGet />
+</CodeGroup>
 
-## Using a Prompt Template with OpenAI
+## Listing Prompt Templates
 
-Once you have a prompt template, you can use it with the OpenAI wrapper:
+To list all prompt templates in a project:
 
-```python
-import os
-from galileo import openai
-from galileo.prompts import get_prompt_template
+<CodeGroup>
+  <SnippetSdkPromptsList />
+</CodeGroup>
 
-# Initialize the OpenAI client
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+## Deleting Prompt Templates
 
-# Get an existing prompt template
-prompt = get_prompt_template(
-    project="my-project",
-    name="storyteller-prompt"
-)
+To delete a prompt template:
 
-# Prepare the data for the template variables
-data = {
-    "topic": "Nuclear Physics"
-}
-
-# Use the prompt template with OpenAI
-response = client.chat.completions.create(
-    model="gpt-4o",
-    messages=prompt.with_data(data).to_messages()
-)
-
-print(response.choices[0].message.content)
-```
-
-## Using Prompt Templates in Experiments
-
-Prompt templates are particularly useful for running experiments to compare different prompt variations:
-
-```python
-from galileo.datasets import get_dataset
-from galileo.experiments import run_experiment
-from galileo.prompts import get_prompt_template
-
-# Get an existing prompt template
-prompt = get_prompt_template(
-    project="my-project",
-    name="storyteller-prompt"
-)
-
-# Run an experiment with the prompt template
-results = run_experiment(
-    "my-experiment",
-    dataset=get_dataset(name="storyteller-dataset"),
-    prompt=prompt,
-    metrics=["correctness"],
-    project="my-project",
-)
-```
-
-## Creating a New Prompt Template if Not Exists
-
-You can check if a prompt template exists and create it if it doesn't:
-
-```python
-from galileo.prompts import get_prompt_template, create_prompt_template
-from galileo.resources.models import Message, MessageRole
-
-# Try to get an existing prompt template
-prompt = get_prompt_template(
-    project="my-project",
-    name="storyteller-prompt"
-)
-
-# If the prompt doesn't exist, create it
-if prompt is None:
-    prompt = create_prompt_template(
-        name="storyteller-prompt",
-        project="my-project",
-        messages=[
-            Message(role=MessageRole.SYSTEM, content="You are a great storyteller."),
-            Message(role=MessageRole.USER, content="Please write a short story about the following topic: {topic}")
-        ]
-    )
-```
+<CodeGroup>
+  <SnippetSdkPromptsDelete />
+</CodeGroup>
 
 ## Best Practices
 
-1. **Use descriptive names**: Choose clear, descriptive names for your prompt templates to make them easy to find and understand.
+When working with prompt templates:
 
-2. **Version your prompts**: Create new versions of prompts when making significant changes to track performance over time.
-
-3. **Use template variables**: Use template variables (like `{topic}`) to make your prompts more flexible and reusable.
-
-4. **Test different variations**: Use experiments to test different prompt variations and see which performs best.
-
-5. **Include system messages**: Use system messages to set the tone and context for the LLM.
+1. Use descriptive names that reflect the template's purpose
+2. Include clear system messages to set context
+3. Document any required input variables
+4. Version your templates appropriately
+5. Test templates with various inputs before using in production
 
 ## Related Resources
 
-- [Experiments](./experiments) - Running experiments with prompt templates
-- [Datasets](./experimentation/datasets) - Creating and managing datasets for experiments
-- [OpenAI Wrapper](./wrappers/openai) - Using the OpenAI wrapper with prompt templates
+- [Running Experiments](/sdk-api/python/experiments)
+- [Managing Datasets](/sdk-api/python/datasets)
+- [API Reference](/api-reference/prompt-templates)
