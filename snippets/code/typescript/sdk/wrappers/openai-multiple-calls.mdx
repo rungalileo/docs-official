@@ -1,0 +1,42 @@
+```typescript TypeScript
+import { OpenAI } from "openai";
+import { log, init, flush, wrapOpenAI } from "galileo";
+
+// Initialize Galileo
+init({
+  projectName: "my-project",
+  logStreamName: "development"
+});
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+
+const getCapital = async (country) => {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{ role: "user", content: `What is the capital of ${country}?` }],
+  });
+  return response.choices[0].message.content;
+};
+
+async function runWorkflow() {
+  const getCapitals = log(
+    { name: "getCapitals", spanType: "workflow" },
+    async () => {
+      const franceCapital = await getCapital("France");
+      const germanyCapital = await getCapital("Germany");
+      return { france: franceCapital, germany: germanyCapital };
+    }
+  );
+
+  const result = await getCapitals();
+  console.log(result);
+
+  // Flush logs before exiting
+  await flush();
+  
+  return result;
+}
+
+// Run the workflow
+runWorkflow(); 
+```

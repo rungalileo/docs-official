@@ -3,6 +3,11 @@ title: Log Function Wrapper
 icon: "eye"
 ---
 
+import SnippetLogWrapperBasic from '/snippets/code/typescript/sdk/logging/log-wrapper-basic.mdx'
+import SnippetLogWrapperExample from '/snippets/code/typescript/sdk/logging/log-wrapper-example.mdx'
+import SnippetLogWrapperRetriever from '/snippets/code/typescript/sdk/logging/log-wrapper-retriever.mdx'
+import SnippetLogWrapperApi from '/snippets/code/typescript/sdk/logging/log-wrapper-api.mdx'
+
 The `log` function wrapper allows you to wrap functions with spans of different types. It serves two main purposes:
 
 1. It tells our logger to wrap the function contents as a span (you can specify the type in the first argument - by default a workflow span is created).
@@ -10,28 +15,9 @@ The `log` function wrapper allows you to wrap functions with spans of different 
 
 ## Usage
 
-```typescript
-import { log, init, flush } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const wrappedFunc = log(
-  { name: 'workflow span', spanType: 'workflow' },
-  (input) => {
-    // Your function code here
-    return `Processed: ${input}`;
-  }
-);
-
-const result = wrappedFunc('test input');
-
-// Flush logs before exiting
-await flush();
-```
+<CodeGroup>
+<SnippetLogWrapperBasic />
+</CodeGroup>
 
 ## Span Types
 
@@ -48,122 +34,22 @@ The `log` function wrapper supports different span types:
 
 Create a trace with a workflow span and nested LLM spans:
 
-```typescript
-import { OpenAI } from "openai";
-import { wrapOpenAI, flush, log, init } from 'galileo';
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-// This will automatically create an llm span since we're using the `wrapOpenAI` wrapper
-const callOpenAI = async (input) => {
-  const result = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [{ content: `Say hello ${input}!`, role: 'user' }]
-  });
-  return result;
-};
-
-// Optionally initialize the logger if you haven't set GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
-await init({
-  projectName: 'my-project',
-  logStreamName: 'my-log-stream'
-});
-
-const wrappedFunc = await log({ name: 'workflow span' }, async (input) => {
-  const result1 = await callOpenAI(`${input} from France`);
-  const result2 = await callOpenAI(`${input} from Germany`);
-  return [result1, result2];
-});
-
-// This will create a workflow span with two llm spans
-const results = await wrappedFunc('world');
-
-await flush();
-```
-
-### Tool Span
-
-Mark a function as a tool:
-
-```typescript
-import { log, init, flush } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const wrappedToolCall = log(
-  { name: 'tool span', spanType: 'tool' },
-  (input) => {
-    // Tool implementation
-    return `Processed: ${input}`;
-  }
-);
-
-const result = wrappedToolCall('test input');
-
-// Flush logs before exiting
-await flush();
-```
+<CodeGroup>
+<SnippetLogWrapperExample />
+</CodeGroup>
 
 ### Retriever Span
 
 Log a retriever function. If the output of the function is an array, it will automatically capture it as documents in the span:
 
-```typescript
-import { log, init, flush } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const retriever = log(
-  { name: 'document retriever', spanType: 'retriever' },
-  (query) => {
-    // Retrieval logic
-    return [
-      "Document 1 content",
-      "Document 2 content",
-      "Document 3 content"
-    ];
-  }
-);
-
-const documents = retriever("search query");
-
-// Flush logs before exiting
-await flush();
-```
+<CodeGroup>
+<SnippetLogWrapperRetriever />
+</CodeGroup>
 
 ## API Reference
 
 ### log
 
-```typescript
-function log<T>(
-  options: {
-    name?: string;
-    spanType?: "workflow" | "llm" | "retriever" | "tool";
-    metadata?: Record<string, any>;
-  },
-  fn: (...args: any[]) => T
-): (...args: any[]) => T
-```
-
-Wraps a function and logs its execution as a span.
-
-#### Parameters
-
-- `options`: Configuration options for the span
-  - `name`: The name of the span
-  - `spanType`: The type of span to create (default: "workflow")
-  - `metadata`: Additional metadata to include in the span
-- `fn`: The function to wrap
-
-#### Returns
-
-A wrapped function that, when called, will log its execution as a span.
+<CodeGroup>
+<SnippetLogWrapperApi />
+</CodeGroup>

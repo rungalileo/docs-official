@@ -1,0 +1,70 @@
+
+```typescript TypeScript
+import { GalileoLogger } from "galileo";
+
+async function runLoggerExample() {
+  // You can set the GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
+  const logger = new GalileoLogger({
+    projectName: 'my-project',
+    logStreamName: 'my-log-stream'
+  });
+
+  console.log('Creating trace with spans...');
+
+  // Create a new trace
+  const trace = logger.startTrace(
+    'Example trace input', // input
+    undefined, // output (will be set later)
+    'Example Trace', // name
+    Date.now() * 1000000, // createdAt in nanoseconds
+    undefined, // durationNs
+    { source: 'test-script' }, // metadata
+    ['test', 'example'] // tags
+  );
+
+  // Add a workflow span (parent span)
+  const workflowSpan = logger.addWorkflowSpan(
+    'Processing workflow', // input
+    undefined, // output (will be set later)
+    'Main Workflow', // name
+    undefined, // durationNs
+    Date.now() * 1000000, // createdAt in nanoseconds
+    { workflow_type: 'test' }, // userMetadata
+    ['workflow'] // tags
+  );
+
+  // Add an LLM span as a child of the workflow span
+  logger.addLlmSpan({
+    input: [{ role: 'user', content: 'Hello, how are you?' }], // input messages
+    output: {
+      role: 'assistant',
+      content: 'I am doing well, thank you for asking!'
+    }, // output message
+    model: 'gpt-3.5-turbo', // model name
+    name: 'Chat Completion', // name
+    durationNs: 1000000000, // durationNs (1s)
+    userMetadata: { temperature: '0.7' }, // userMetadata
+    tags: ['llm', 'chat'] // tags
+  });
+
+  // Conclude the workflow span
+  logger.conclude({
+    output: 'Workflow completed successfully',
+    durationNs: 2000000000 // 2 seconds
+  });
+
+  // Conclude the trace
+  logger.conclude({
+    output: 'Final trace output with all spans completed',
+    durationNs: 3000000000 // 3 seconds
+  });
+
+  // Flush the traces to Galileo
+  const flushedTraces = await logger.flush();
+  
+  return flushedTraces;
+}
+
+// Run the example
+runLoggerExample(); 
+```

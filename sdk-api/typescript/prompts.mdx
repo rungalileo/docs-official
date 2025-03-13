@@ -3,163 +3,36 @@ title: Prompts
 icon: "message"
 ---
 
+import SnippetCreatePrompt from '/snippets/code/typescript/sdk/prompts/create-prompt.mdx'
+import SnippetUsePrompt from '/snippets/code/typescript/sdk/prompts/use-prompt.mdx'
+import SnippetGetPrompt from '/snippets/code/typescript/sdk/prompts/get-prompt.mdx'
+import SnippetExperiment from '/snippets/code/typescript/sdk/prompts/experiment.mdx'
+import SnippetApiReference from '/snippets/code/typescript/sdk/prompts/api-reference.mdx'
+
 Galileo Prompts allow you to create, version, and test prompt templates for your LLM applications.
 
 ## Creating a Prompt Template
 
-```typescript
-import { createPromptTemplate } from "galileo";
-
-const template = await createPromptTemplate({
-  template: [
-    { role: "system", content: "You are a great storyteller." },
-    { role: "user", content: "Please write a short story about the following topic: {topic}" }
-  ],
-  projectName: "my-project",
-  name: "storyteller-prompt"
-});
-```
+<CodeGroup>
+<SnippetCreatePrompt />
+</CodeGroup>
 
 ## Using a Prompt Template
 
-```typescript
-import { OpenAI } from "openai";
-import { createPromptTemplate, wrapOpenAI } from "galileo";
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-const callOpenAI = async (messages, model) => {
-  const response = await openai.chat.completions.create({
-    model: model,
-    messages: messages,
-  });
-  return response.choices[0].message.content;
-};
-
-const data = {
-  topic: "Magical elves"
-};
-
-const template = await createPromptTemplate({
-  template: [
-    { role: "system", content: "You are a great storyteller." },
-    { role: "user", content: "Please write a short story about the following topic: {topic}" }
-  ],
-  projectName: "my-project",
-  name: "storyteller-prompt"
-});
-
-// Use the template with data
-const messages = template.with_data(data).to_messages();
-const output = await callOpenAI(messages, "gpt-4o");
-```
+<CodeGroup>
+<SnippetUsePrompt />
+</CodeGroup>
 
 ## Retrieving a Prompt Template
 
-```typescript
-import { getPromptTemplate } from "galileo";
-
-// Get a prompt template
-const template = await getPromptTemplate({projectName:'my-project', name:'Hello name prompt'});
-
-```
+<CodeGroup>
+<SnippetGetPrompt />
+</CodeGroup>
 
 ## Using Prompts in Experiments
 
 Prompts can be used in experiments to evaluate different prompt templates:
 
-```typescript
-import { runExperiment, getPromptTemplate, getDataset } from "galileo";
-
-const template = await getPromptTemplate({
-  projectName: "my-project",
-  name: "storyteller-prompt"
-});
-
-const dataset = await getDataset(undefined, "storyteller-dataset");
-
-await runExperiment({
-  name: "Test Experiment",
-  dataset: dataset,
-  promptTemplate: template,
-  metrics: ["toxicity"],
-  projectName: "my-project"
-});
-```
-
-## API Reference
-
-### createPromptTemplate
-
-```typescript
-async function createPromptTemplate(options: {
-  template: Array<{
-    role: "system" | "user" | "assistant";
-    content: string;
-  }>;
-  name: string;
-  projectName: string;
-}): Promise<PromptTemplate>
-```
-
-Creates a new prompt template.
-
-#### Parameters
-
-- `options`: Configuration options for the prompt template
-  - `template`: The messages in the prompt template
-  - `name`: The name of the prompt template
-  - `projectName`: The project to create the prompt template in
-
-#### Returns
-
-A Promise that resolves to a new `PromptTemplate` instance.
-
-### getPromptTemplate
-
-```typescript
-async function getPromptTemplate(
-  projectName: string,
-  name: string
-): Promise<PromptTemplate>
-```
-
-Retrieves a prompt template.
-
-#### Parameters
-
-- `projectName`: The project to retrieve the prompt template from
-- `name`: The name of the prompt template
-
-#### Returns
-
-A Promise that resolves to a `PromptTemplate` instance.
-
-### PromptTemplate
-
-```typescript
-class PromptTemplate {
-  name: string;
-  
-  with_data(data: Record<string, any>): PromptTemplate;
-  
-  to_messages(): Array<{
-    role: "system" | "user" | "assistant";
-    content: string;
-  }>;
-}
-```
-
-Represents a prompt template in Galileo.
-
-#### Properties
-
-- `name`: The name of the prompt template
-
-#### Methods
-
-- `with_data`: Fills in the template variables with the provided data
-  - `data`: The data to fill in the template variables with
-  - Returns: A new `PromptTemplate` instance with the template variables filled in
-- `to_messages`: Converts the prompt template to a list of messages that can be used with an LLM
-  - Returns: An array of message objects 
+<CodeGroup>
+<SnippetExperiment />
+</CodeGroup>

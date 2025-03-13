@@ -1,0 +1,72 @@
+```typescript TypeScript
+import { GalileoLogger } from "galileo";
+import { OpenAI } from "openai";
+
+async function callLLM(input: string, model: string, temperature: number) {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const response = await openai.chat.completions.create({
+    model: model,
+    messages: [{ role: "user", content: input }],
+    temperature: temperature
+  });
+  return response.choices[0].message.content;
+}
+
+async function main() {
+  const logger = new GalileoLogger({
+    projectName: 'my-project',
+    logStreamName: 'my-log-stream'
+  });
+  
+  const input = "Why is the sky blue?";
+  const model = "gpt-4o";
+  const temperature = 0.7;
+  
+  // Start a trace
+  const trace = logger.startTrace(
+    input, // input
+    undefined, // output (will be set later)
+    'Sky Question', // name
+    Date.now() * 1000000, // createdAt in nanoseconds
+    undefined, // durationNs
+    { source: 'test-script' }, // metadata
+    ['sky', 'science'] // tags
+  );
+  
+  try {
+    // Call the LLM
+    const startTime = Date.now();
+    const output = await callLLM(input, model, temperature);
+    const endTime = Date.now();
+    const durationNs = (endTime - startTime) * 1000000; // convert to nanoseconds
+    
+    // Add an LLM span
+    logger.addLlmSpan({
+      input: [{ role: 'user', content: input }],
+      output: { role: 'assistant', content: output },
+      model: model,
+      name: 'Sky Question LLM Call',
+      durationNs: durationNs,
+      userMetadata: { temperature: temperature.toString() },
+      tags: ['llm', 'sky']
+    });
+    
+    // Conclude the trace
+    logger.conclude({
+      output: output,
+      durationNs: durationNs
+    });
+    
+    console.log(output);
+  } catch (error) {
+    // Log the error
+    console.error('Error:', error);
+  } finally {
+    // Flush the trace to Galileo
+    await logger.flush();
+  }
+}
+
+// Run the example
+main(); 
+```

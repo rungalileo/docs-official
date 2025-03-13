@@ -3,189 +3,43 @@ title: Experiments
 icon: "flask"
 ---
 
+import SnippetPromptTemplate from '/snippets/code/typescript/sdk/experiments/prompt-template.mdx'
+import SnippetRunnerFunction from '/snippets/code/typescript/sdk/experiments/runner-function.mdx'
+import SnippetCustomDataset from '/snippets/code/typescript/sdk/experiments/custom-dataset.mdx'
+import SnippetCustomMetrics from '/snippets/code/typescript/sdk/experiments/custom-metrics.mdx'
+import SnippetApiReferenceRun from '/snippets/code/typescript/sdk/experiments/api-reference-run.mdx'
+import SnippetApiReferenceCreatePrompt from '/snippets/code/typescript/sdk/experiments/api-reference-create-prompt.mdx'
+
 Galileo Experiments allow you to evaluate and improve your LLM applications by running tests against datasets and measuring performance using various metrics.
 
 ## Running an Experiment with a Prompt Template
 
 The simplest way to get started is by using a prompt template:
 
-```typescript
-import { createPromptTemplate, runExperiment } from 'galileo';
-
-const template = await createPromptTemplate({
-  template: [
-    { role: 'system', content: 'You are a great storyteller.' },
-    { role: 'user', content: 'Write a story about {input}' }
-  ],
-  projectName: 'my-project',
-  name: 'storyteller-prompt'
-});
-
-await runExperiment({
-  name: 'story-experiment',
-  datasetName: 'storyteller-dataset',
-  promptTemplate: template,
-  metrics: ['correctness'],
-  projectName: 'my-project'
-});
-```
+<CodeGroup>
+<SnippetPromptTemplate />
+</CodeGroup>
 
 ## Running an Experiment with a Runner Function
 
 For more complex scenarios, you can use a runner function:
 
-```typescript
-import { runExperiment } from 'galileo';
-import { OpenAI } from 'openai';
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-const runner = async (input) => {
-  const result = await openai.chat.completions.create({
-    model: 'gpt-4',
-    messages: [
-      { role: 'system', content: 'You are a great storyteller.' },
-      { role: 'user', content: `Write a story about ${input.input}` }
-    ]
-  });
-  return result;
-};
-
-await runExperiment({
-  name: 'story-function-experiment',
-  datasetName: 'storyteller-dataset',
-  runner: runner,
-  metrics: ['correctness'],
-  projectName: 'my-project'
-});
-```
+<CodeGroup>
+<SnippetRunnerFunction />
+</CodeGroup>
 
 ## Running an Experiment with a Custom Dataset
 
 When you need to test specific scenarios:
 
-```typescript
-import { runExperiment } from 'galileo';
-import { OpenAI } from 'openai';
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-const dataset = [
-  { input: 'Spain', expected: 'Europe' }
-];
-
-const runner = async (input) => {
-  const result = await openai.chat.completions.create({
-    model: 'gpt-4',
-    messages: [
-      { role: 'system', content: 'You are a geography expert' },
-      { role: 'user', content: `Which continent does the following country belong to: ${input.input}` }
-    ]
-  });
-  return result;
-};
-
-await runExperiment({
-  name: 'geography-experiment',
-  dataset: dataset,
-  runner: runner,
-  metrics: ['correctness'],
-  projectName: 'my-project'
-});
-```
+<CodeGroup>
+<SnippetCustomDataset />
+</CodeGroup>
 
 ## Running an Experiment with Custom Metrics
 
 For sophisticated evaluation needs:
 
-```typescript
-import { runExperiment } from 'galileo';
-import { OpenAI } from 'openai';
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-const dataset = [
-  { input: 'A magical forest' }
-];
-
-const runner = async (input) => {
-  const result = await openai.chat.completions.create({
-    model: 'gpt-4',
-    messages: [
-      { role: 'system', content: 'You are a great storyteller.' },
-      { role: 'user', content: `Write a story about '${input.input}' and make it sound like a human wrote it.` }
-    ]
-  });
-  return result;
-};
-
-const checkForDelve = (input, output, expected) => {
-  return input.includes('delve') ? 0 : 1;
-};
-
-await runExperiment({
-  name: 'custom-metric-experiment',
-  dataset: dataset,
-  runner: runner,
-  metrics: [checkForDelve],
-  projectName: 'my-project'
-});
-```
-
-## API Reference
-
-### runExperiment
-
-```typescript
-async function runExperiment(options: {
-  name: string;
-  dataset?: any[];
-  datasetName?: string;
-  runner?: (input: any) => Promise<any>;
-  promptTemplate?: PromptTemplate;
-  metrics?: Array<string | ((input: any, output: any, expected: any) => number)>;
-  projectName: string;
-  tags?: string[];
-}): Promise<string>
-```
-
-Runs an experiment.
-
-#### Parameters
-
-- `options`: Configuration options for the experiment
-  - `name`: The name of the experiment
-  - `dataset`: (Optional) An array of data objects to use for the experiment
-  - `datasetName`: (Optional) The name of a dataset to use for the experiment
-  - `runner`: (Optional) A function that takes an input and returns a result
-  - `promptTemplate`: (Optional) A prompt template to use for the experiment
-  - `metrics`: (Optional) An array of metric names or custom metric functions
-  - `projectName`: The project to run the experiment in
-  - `tags`: (Optional) Array of tags to associate with the experiment
-
-#### Returns
-
-A Promise that resolves to a URL where you can view the experiment results.
-
-### createPromptTemplate
-
-```typescript
-async function createPromptTemplate(options: {
-  template: Array<{role: string, content: string}>;
-  projectName: string;
-  name: string;
-}): Promise<PromptTemplate>
-```
-
-Creates a new prompt template.
-
-#### Parameters
-
-- `options`: Configuration options for the prompt template
-  - `template`: Array of message objects with role and content
-  - `projectName`: The project to create the template in
-  - `name`: The name of the template
-
-#### Returns
-
-A Promise that resolves to the created PromptTemplate object. 
+<CodeGroup>
+<SnippetCustomMetrics />
+</CodeGroup>

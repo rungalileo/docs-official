@@ -1,0 +1,34 @@
+```typescript TypeScript
+import { runExperiment } from 'galileo';
+import { OpenAI } from 'openai';
+
+async function runCustomDatasetExperiment() {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  const dataset = [
+    { name: 'John' },
+    { name: 'Jane' },
+    { name: 'Bob' },
+    { name: 'Alice' }
+  ];
+
+  const runner = async (input) => {
+    const result = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [{ content: `Say hello ${input['name']}!`, role: 'user' }]
+    });
+    return result;
+  };
+
+  await runExperiment({
+    name: `Test Experiment`,
+    dataset: dataset,
+    runner: runner,
+    metrics: ['tox'],
+    projectName: 'my-project'
+  });
+}
+
+// Run the experiment
+runCustomDatasetExperiment(); 
+```

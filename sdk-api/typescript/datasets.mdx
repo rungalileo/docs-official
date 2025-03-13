@@ -3,138 +3,34 @@ title: Datasets
 icon: "database"
 ---
 
+import SnippetCreateDataset from '/snippets/code/typescript/sdk/datasets/create-dataset.mdx'
+import SnippetExperiments from '/snippets/code/typescript/sdk/datasets/experiments.mdx'
+import SnippetCustomDatasets from '/snippets/code/typescript/sdk/datasets/custom-datasets.mdx'
+import SnippetApiReferenceGet from '/snippets/code/typescript/sdk/datasets/api-reference-get.mdx'
+import SnippetApiReferenceCreate from '/snippets/code/typescript/sdk/datasets/api-reference-create.mdx'
+
 Galileo Datasets allow you to create, manage, and version collections of data for testing and evaluating your LLM applications.
 
 ## Creating and Using Datasets
 
 You can create and use datasets for experimentation:
 
-```typescript
-import { createDataset, getDataset } from 'galileo';
-
-// Create a dataset from a file path
-const datasetFromFile = await createDataset('/path/to/dataset.csv', 'my-dataset-name');
-
-// Create a dataset from an array of objects
-const datasetFromArray = await createDataset([
-  { name: 'John' },
-  { name: 'Jane' },
-  { name: 'Bob' },
-  { name: 'Alice' }
-], 'names-dataset');
-
-// Create a dataset from a dictionary of arrays
-const datasetFromDict = await createDataset({
-  name: ['John', 'Jane', 'Bob', 'Alice'],
-  age: ['30', '25', '40', '35']
-}, 'people-dataset');
-
-// Get a dataset by name
-const dataset = await getDataset(undefined, 'names');
-```
+<CodeGroup>
+<SnippetCreateDataset />
+</CodeGroup>
 
 ## Using Datasets in Experiments
 
 Datasets can be used in experiments to evaluate your LLM applications:
 
-```typescript
-import { runExperiment } from 'galileo';
-import { OpenAI } from 'openai';
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-const runner = async (input) => {
-  const result = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
-    messages: [{ content: `Say hello ${input['name']}!`, role: 'user' }]
-  });
-  return result;
-};
-
-await runExperiment({
-  name: `Test Experiment`,
-  datasetName: 'names',
-  runner: runner,
-  metrics: ['toxicity'],
-  projectName: 'my-project'
-});
-```
+<CodeGroup>
+<SnippetExperiments />
+</CodeGroup>
 
 ## Using Custom Datasets
 
 You can also use locally generated datasets for experiments:
 
-```typescript
-import { runExperiment } from 'galileo';
-import { OpenAI } from 'openai';
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-const dataset = [
-  { name: 'John' },
-  { name: 'Jane' },
-  { name: 'Bob' },
-  { name: 'Alice' }
-];
-
-const runner = async (input) => {
-  const result = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
-    messages: [{ content: `Say hello ${input['name']}!`, role: 'user' }]
-  });
-  return result;
-};
-
-await runExperiment({
-  name: `Test Experiment`,
-  dataset: dataset,
-  runner: runner,
-  metrics: ['tox'],
-  projectName: 'my-project'
-});
-```
-
-## API Reference
-
-### getDataset
-
-```typescript
-async function getDataset(
-  projectName?: string,
-  datasetName: string
-): Promise<any[]>
-```
-
-Retrieves a dataset.
-
-#### Parameters
-
-- `projectName`: (Optional) The project to retrieve the dataset from
-- `datasetName`: The name of the dataset
-
-#### Returns
-
-A Promise that resolves to an array of data objects. 
-
-### createDataset
-
-```typescript
-async function createDataset(
-  dataset: PathLike | string | Record<string, string[]> | Array<Record<string, string>>,
-  name?: string
-): Promise<Dataset>
-```
-
-Creates a new dataset.
-
-#### Parameters
-
-- `dataset`: The dataset to create. Can be one of the following:
-  - A path to a file (CSV, JSONL, or Feather format)
-  - An array of objects, where each object represents a row in the dataset
-  - A dictionary of arrays, where each key is a column name and each array contains the values for that column
-- `name`: (Optional) The name of the dataset. If not provided, the filename will be used for file paths, or a default name will be generated.
-
-#### Returns
-
-A Promise that resolves to a Dataset object containing metadata about the created dataset. 
+<CodeGroup>
+<SnippetCustomDatasets />
+</CodeGroup>

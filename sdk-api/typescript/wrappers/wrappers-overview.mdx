@@ -1,7 +1,10 @@
 ---
-title: Wrappers Overview
+title: Overview
 icon: "box"
 ---
+
+import SnippetOpenAISimple from '/snippets/code/typescript/sdk/wrappers/openai-simple.mdx'
+import SnippetOpenAIBasic from '/snippets/code/typescript/sdk/wrappers/openai-basic.mdx'
 
 Galileo provides wrappers for popular LLM providers and frameworks to make it easy to integrate logging into your existing applications. These wrappers automatically capture LLM interactions and log them to Galileo.
 
@@ -14,38 +17,12 @@ Galileo provides wrappers for popular LLM providers and frameworks to make it ea
 
 Import the wrapper for your LLM provider and wrap your client instance:
 
-```typescript
-import { OpenAI } from "openai";
-import { wrapOpenAI } from "galileo";
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-// Use the wrapped client as you normally would
-await openai.chat.completions.create({
-  model: "gpt-4o",
-  messages: [{ content: "Say hello world!", role: "user" }],
-});
-```
+<CodeGroup>
+<SnippetOpenAISimple />
+</CodeGroup>
 
 ## Example with Logging
 
-```typescript
-import { OpenAI } from "openai";
-import { wrapOpenAI, flush, init } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-await openai.chat.completions.create({
-  model: "gpt-4o",
-  messages: [{ content: "Say hello world!", role: "user" }],
-});
-
-// Flush logs before exiting
-await flush();
-``` 
+<CodeGroup>
+<SnippetOpenAIBasic />
+</CodeGroup> 

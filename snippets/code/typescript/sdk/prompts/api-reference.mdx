@@ -1,0 +1,29 @@
+```typescript TypeScript
+// createPromptTemplate
+async function createPromptTemplate(options: {
+  template: Array<{
+    role: "system" | "user" | "assistant";
+    content: string;
+  }>;
+  name: string;
+  projectName: string;
+}): Promise<PromptTemplate>
+
+// getPromptTemplate
+async function getPromptTemplate(options: {
+  projectName: string;
+  name: string;
+}): Promise<PromptTemplate>
+
+// PromptTemplate
+class PromptTemplate {
+  name: string;
+  
+  with_data(data: Record<string, any>): PromptTemplate;
+  
+  to_messages(): Array<{
+    role: "system" | "user" | "assistant";
+    content: string;
+  }>;
+} 
+```

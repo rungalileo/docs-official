@@ -1,0 +1,20 @@
+```typescript TypeScript
+import { runExperiment, getPromptTemplate, getDataset } from "galileo";
+
+async function runPromptExperiment() {
+  const template = await getPromptTemplate({
+    projectName: "my-project",
+    name: "storyteller-prompt"
+  });
+
+  const dataset = await getDataset(undefined, "storyteller-dataset");
+
+  await runExperiment({
+    name: "Test Experiment",
+    dataset: dataset,
+    promptTemplate: template,
+    metrics: ["toxicity"],
+    projectName: "my-project"
+  });
+} 
+```

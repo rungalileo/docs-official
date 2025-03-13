@@ -1,0 +1,45 @@
+```typescript TypeScript
+class GalileoLogger {
+  constructor(options?: {
+    projectName?: string;
+    logStreamName?: string;
+  });
+  
+  startTrace(
+    input: any,
+    output?: any,
+    name?: string,
+    createdAt?: number,
+    durationNs?: number,
+    metadata?: Record<string, any>,
+    tags?: string[]
+  ): GalileoLogger;
+  
+  addWorkflowSpan(
+    input: any,
+    output?: any,
+    name?: string,
+    durationNs?: number,
+    createdAt?: number,
+    userMetadata?: Record<string, any>,
+    tags?: string[]
+  ): GalileoLogger;
+  
+  addLlmSpan(options: {
+    input: any;
+    output?: any;
+    model?: string;
+    name?: string;
+    durationNs?: number;
+    userMetadata?: Record<string, any>;
+    tags?: string[];
+  }): GalileoLogger;
+  
+  conclude(options: {
+    output?: any;
+    durationNs?: number;
+  }): GalileoLogger;
+  
+  flush(): Promise<any>;
+} 
+```

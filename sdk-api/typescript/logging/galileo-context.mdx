@@ -3,6 +3,11 @@ title: Log Function Wrapper
 icon: "box"
 ---
 
+import SnippetLogWrapperBasic from '/snippets/code/typescript/sdk/logging/log-wrapper-basic.mdx'
+import SnippetLogWrapperExample from '/snippets/code/typescript/sdk/logging/log-wrapper-example.mdx'
+import SnippetLogWrapperRetriever from '/snippets/code/typescript/sdk/logging/log-wrapper-retriever.mdx'
+import SnippetLogWrapperApi from '/snippets/code/typescript/sdk/logging/log-wrapper-api.mdx'
+
 The `log` function wrapper allows you to wrap functions with spans of different types. This is useful for creating workflow spans with nested LLM calls or tool spans.
 
 ## Use Cases
@@ -16,25 +21,9 @@ The `log` function wrapper can be useful for:
 
 ## Usage
 
-```typescript
-import { log, init } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const wrappedFunc = log(
-  { name: 'workflow span' }, 
-  (input) => {
-    // Your code here
-    return result;
-  }
-);
-
-const result = wrappedFunc('input data');
-```
+<CodeGroup>
+<SnippetLogWrapperBasic />
+</CodeGroup>
 
 ## Examples
 
@@ -42,70 +31,17 @@ const result = wrappedFunc('input data');
 
 Using the log wrapper to create a workflow span with nested LLM and tool spans:
 
-```typescript
-import { OpenAI } from "openai";
-import { wrapOpenAI, flush, log, init } from 'galileo';
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-// This will automatically create an llm span since we're using the `wrapOpenAI` wrapper
-const callOpenAI = async (input) => {
-  const result = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [{ content: `Say hello ${input}!`, role: 'user' }]
-  });
-  return result;
-};
-
-// Optionally initialize the logger if you haven't set GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
-await init({
-  projectName: 'my-project',
-  logStreamName: 'my-log-stream'
-});
-
-const wrappedToolCall = log(
-  { name: 'tool span', spanType: 'tool' },
-  (input) => {
-    return 'tool call result';
-  }
-);
-
-const wrappedFunc = await log({ name: 'workflow span' }, async (input) => {
-  const result = await callOpenAI(input);
-  return wrappedToolCall(result);
-});
-
-// This will create a workflow span with an llm span and a tool span
-const result = await wrappedFunc('world');
-
-await flush();
-```
+<CodeGroup>
+<SnippetLogWrapperExample />
+</CodeGroup>
 
 ### Retriever Example
 
 Creating a retriever span to track document retrieval:
 
-```typescript
-import { log, init, flush } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const retriever = log(
-  { name: 'document retriever', spanType: 'retriever' },
-  (query) => {
-    // Retrieval logic
-    return ["Document 1", "Document 2"];
-  }
-);
-
-const documents = retriever("search query");
-
-await flush();
-```
+<CodeGroup>
+<SnippetLogWrapperRetriever />
+</CodeGroup>
 
 ## Span Types
 
@@ -115,32 +51,3 @@ The `log` function wrapper supports different span types:
 - **llm**: Captures the input, output, and settings of an LLM call. This span gets automatically created when our client library wrappers (OpenAI and Anthropic) are used. Cannot have nested children.
 - **retriever**: Contains the output documents of a retrieval operation.
 - **tool**: Captures the input and output of a tool call. Used to decorate functions that are invoked as tools.
-
-## API Reference
-
-### log
-
-```typescript
-function log<T>(
-  options: {
-    name?: string;
-    spanType?: "workflow" | "llm" | "retriever" | "tool";
-    metadata?: Record<string, any>;
-  },
-  fn: (...args: any[]) => T
-): (...args: any[]) => T
-```
-
-Wraps a function and logs its execution as a span.
-
-#### Parameters
-
-- `options`: Configuration options for the span
-  - `name`: The name of the span
-  - `spanType`: The type of span to create (default: "workflow")
-  - `metadata`: Additional metadata to include in the span
-- `fn`: The function to wrap
-
-#### Returns
-
-A wrapped function that, when called, will log its execution as a span.

@@ -3,258 +3,35 @@ title: Galileo Logger
 icon: "terminal"
 ---
 
+import SnippetGalileoLoggerBasic from '/snippets/code/typescript/sdk/logging/galileo-logger-basic.mdx'
+import SnippetGalileoLoggerExample from '/snippets/code/typescript/sdk/logging/galileo-logger-example.mdx'
+import SnippetGalileoLoggerOpenAI from '/snippets/code/typescript/sdk/logging/galileo-logger-openai.mdx'
+import SnippetGalileoLoggerApi from '/snippets/code/typescript/sdk/logging/galileo-logger-api.mdx'
+
 The `GalileoLogger` is a low-level API for logging traces and spans to Galileo. It provides more control over the logging process than the higher-level wrappers.
 
 ## Usage
 
-```typescript
-import { GalileoLogger } from "galileo";
-
-// You can set the GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
-const logger = new GalileoLogger({
-  projectName: 'my-project',
-  logStreamName: 'my-log-stream'
-});
-```
+<CodeGroup>
+<SnippetGalileoLoggerBasic />
+</CodeGroup>
 
 ## Examples
 
 ### Basic Example
 
-```typescript
-import { GalileoLogger } from "galileo";
-
-// You can set the GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
-const logger = new GalileoLogger({
-  projectName: 'my-project',
-  logStreamName: 'my-log-stream'
-});
-
-console.log('Creating trace with spans...');
-
-// Create a new trace
-const trace = logger.startTrace(
-  'Example trace input', // input
-  undefined, // output (will be set later)
-  'Example Trace', // name
-  Date.now() * 1000000, // createdAt in nanoseconds
-  undefined, // durationNs
-  { source: 'test-script' }, // metadata
-  ['test', 'example'] // tags
-);
-
-// Add a workflow span (parent span)
-const workflowSpan = logger.addWorkflowSpan(
-  'Processing workflow', // input
-  undefined, // output (will be set later)
-  'Main Workflow', // name
-  undefined, // durationNs
-  Date.now() * 1000000, // createdAt in nanoseconds
-  { workflow_type: 'test' }, // userMetadata
-  ['workflow'] // tags
-);
-
-// Add an LLM span as a child of the workflow span
-logger.addLlmSpan({
-  input: [{ role: 'user', content: 'Hello, how are you?' }], // input messages
-  output: {
-    role: 'assistant',
-    content: 'I am doing well, thank you for asking!'
-  }, // output message
-  model: 'gpt-3.5-turbo', // model name
-  name: 'Chat Completion', // name
-  durationNs: 1000000000, // durationNs (1s)
-  userMetadata: { temperature: '0.7' }, // userMetadata
-  tags: ['llm', 'chat'] // tags
-});
-
-// Conclude the workflow span
-logger.conclude({
-  output: 'Workflow completed successfully',
-  durationNs: 2000000000 // 2 seconds
-});
-
-// Conclude the trace
-logger.conclude({
-  output: 'Final trace output with all spans completed',
-  durationNs: 3000000000 // 3 seconds
-});
-
-// Flush the traces to Galileo
-const flushedTraces = await logger.flush();
-```
+<CodeGroup>
+<SnippetGalileoLoggerExample />
+</CodeGroup>
 
 ### Complete Example with OpenAI
 
-```typescript
-import { GalileoLogger } from "galileo";
-import { OpenAI } from "openai";
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-async function callLLM(input: string, model: string, temperature: number) {
-  const response = await openai.chat.completions.create({
-    model: model,
-    messages: [{ role: "user", content: input }],
-    temperature: temperature
-  });
-  return response.choices[0].message.content;
-}
-
-async function main() {
-  const logger = new GalileoLogger({
-    projectName: 'my-project',
-    logStreamName: 'my-log-stream'
-  });
-  
-  const input = "Why is the sky blue?";
-  const model = "gpt-4o";
-  const temperature = 0.7;
-  
-  // Start a trace
-  const trace = logger.startTrace(
-    input, // input
-    undefined, // output (will be set later)
-    'Sky Question', // name
-    Date.now() * 1000000, // createdAt in nanoseconds
-    undefined, // durationNs
-    { source: 'test-script' }, // metadata
-    ['sky', 'science'] // tags
-  );
-  
-  try {
-    // Call the LLM
-    const startTime = Date.now();
-    const output = await callLLM(input, model, temperature);
-    const endTime = Date.now();
-    const durationNs = (endTime - startTime) * 1000000; // convert to nanoseconds
-    
-    // Add an LLM span
-    logger.addLlmSpan({
-      input: [{ role: 'user', content: input }],
-      output: { role: 'assistant', content: output },
-      model: model,
-      name: 'Sky Question LLM Call',
-      durationNs: durationNs,
-      userMetadata: { temperature: temperature.toString() },
-      tags: ['llm', 'sky']
-    });
-    
-    // Conclude the trace
-    logger.conclude({
-      output: output,
-      durationNs: durationNs
-    });
-    
-    console.log(output);
-  } catch (error) {
-    // Log the error
-    console.error('Error:', error);
-  } finally {
-    // Flush the trace to Galileo
-    await logger.flush();
-  }
-}
-
-main();
-```
+<CodeGroup>
+<SnippetGalileoLoggerOpenAI />
+</CodeGroup>
 
 ## API Reference
 
-### GalileoLogger
-
-```typescript
-class GalileoLogger {
-  constructor(options?: {
-    projectName?: string;
-    logStreamName?: string;
-  });
-  
-  startTrace(
-    input: any,
-    output?: any,
-    name?: string,
-    createdAt?: number,
-    durationNs?: number,
-    metadata?: Record<string, any>,
-    tags?: string[]
-  ): GalileoLogger;
-  
-  addWorkflowSpan(
-    input: any,
-    output?: any,
-    name?: string,
-    durationNs?: number,
-    createdAt?: number,
-    userMetadata?: Record<string, any>,
-    tags?: string[]
-  ): GalileoLogger;
-  
-  addLlmSpan(options: {
-    input: any;
-    output?: any;
-    model?: string;
-    name?: string;
-    durationNs?: number;
-    userMetadata?: Record<string, any>;
-    tags?: string[];
-  }): GalileoLogger;
-  
-  conclude(options: {
-    output?: any;
-    durationNs?: number;
-  }): GalileoLogger;
-  
-  flush(): Promise<any>;
-}
-```
-
-Creates a new Galileo logger instance.
-
-#### Parameters
-
-- `options`: (Optional) Configuration options for the logger
-  - `projectName`: The project to log to (overrides environment variable)
-  - `logStreamName`: The log stream to log to (overrides environment variable)
-
-#### Methods
-
-- `startTrace`: Starts a new trace
-  - `input`: The input to the trace
-  - `output`: (Optional) The output of the trace
-  - `name`: (Optional) The name of the trace
-  - `createdAt`: (Optional) The creation time in nanoseconds
-  - `durationNs`: (Optional) The duration in nanoseconds
-  - `metadata`: (Optional) Additional metadata to include in the trace
-  - `tags`: (Optional) Tags to add to the trace
-  - Returns: The logger instance for chaining
-
-- `addWorkflowSpan`: Adds a workflow span to the trace
-  - `input`: The input to the span
-  - `output`: (Optional) The output of the span
-  - `name`: (Optional) The name of the span
-  - `durationNs`: (Optional) The duration in nanoseconds
-  - `createdAt`: (Optional) The creation time in nanoseconds
-  - `userMetadata`: (Optional) Additional metadata to include in the span
-  - `tags`: (Optional) Tags to add to the span
-  - Returns: The logger instance for chaining
-
-- `addLlmSpan`: Adds an LLM span to the trace
-  - `options`: Configuration options for the span
-    - `input`: The input to the span
-    - `output`: (Optional) The output of the span
-    - `model`: (Optional) The model used for the span
-    - `name`: (Optional) The name of the span
-    - `durationNs`: (Optional) The duration in nanoseconds
-    - `userMetadata`: (Optional) Additional metadata to include in the span
-    - `tags`: (Optional) Tags to add to the span
-  - Returns: The logger instance for chaining
-
-- `conclude`: Concludes the trace or current span with the given output
-  - `options`: Configuration options for concluding
-    - `output`: (Optional) The final output
-    - `durationNs`: (Optional) The duration in nanoseconds
-  - Returns: The logger instance for chaining
-
-- `flush`: Flushes the trace to Galileo
-  - Returns: A Promise that resolves when the trace has been flushed 
+<CodeGroup>
+<SnippetGalileoLoggerApi />
+</CodeGroup>

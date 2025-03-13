@@ -2,17 +2,23 @@
 title: Overview
 ---
 
+import SnippetInstallationNpm from '/snippets/code/typescript/sdk/installation/npm.mdx'
+import SnippetInstallationYarn from '/snippets/code/typescript/sdk/installation/yarn.mdx'
+import SnippetInstallationPnpm from '/snippets/code/typescript/sdk/installation/pnpm.mdx'
+import SnippetEnvSetup from '/snippets/code/typescript/sdk/env-setup/env.mdx'
+import SnippetOpenAIBasic from '/snippets/code/typescript/sdk/wrappers/openai-basic.mdx'
+
 The Galileo TypeScript SDK provides a comprehensive set of tools for logging, evaluating, and experimenting with LLM applications. It's designed to be easy to use while providing powerful features for monitoring and improving your AI applications.
 
 > Note: This library is in pre-release mode and may not be stable.
 
 ## Installation
 
-```bash
-npm install galileo
-# or
-yarn add galileo
-```
+<CodeGroup>
+<SnippetInstallationNpm />
+<SnippetInstallationYarn />
+<SnippetInstallationPnpm />
+</CodeGroup>
 
 ## Key Features
 
@@ -25,41 +31,17 @@ yarn add galileo
 
 The simplest way to get started is to use our OpenAI client wrapper:
 
-```typescript
-import { OpenAI } from "openai";
-import { wrapOpenAI, flush, init } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-await openai.chat.completions.create({
-  model: "gpt-4o",
-  messages: [{ content: "Say hello world!", role: "user" }],
-});
-
-// Flush logs before exiting
-await flush();
-```
+<CodeGroup>
+<SnippetOpenAIBasic />
+</CodeGroup>
 
 ## Authentication
 
 Make sure you have a Galileo API key and configure Galileo using environment variables:
 
-```.env
-# Scoped to an Organization
-GALILEO_API_KEY=...
-
-# Optional, set a default Project
-GALILEO_PROJECT=...
-
-# Optional, set a default Log Stream
-GALILEO_LOG_STREAM=...
-```
+<CodeGroup>
+<SnippetEnvSetup />
+</CodeGroup>
 
 ## SDK Components
 

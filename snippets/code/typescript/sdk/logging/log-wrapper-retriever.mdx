@@ -1,0 +1,28 @@
+```typescript TypeScript
+import { log, init, flush } from "galileo";
+
+async function runRetrieverExample() {
+  // Initialize Galileo
+  init({
+    projectName: "my-project",
+    logStreamName: "development"
+  });
+
+  const retriever = log(
+    { name: 'document retriever', spanType: 'retriever' },
+    (query) => {
+      // Retrieval logic
+      return ["Document 1", "Document 2"];
+    }
+  );
+
+  const documents = retriever("search query");
+
+  await flush();
+  
+  return documents;
+}
+
+// Run the example
+runRetrieverExample(); 
+```

@@ -3,42 +3,25 @@ title: OpenAI Wrapper
 icon: "openai"
 ---
 
+import SnippetOpenAIInstallation from '/snippets/code/typescript/sdk/wrappers/openai-installation.mdx'
+import SnippetOpenAIUsage from '/snippets/code/typescript/sdk/wrappers/openai-usage.mdx'
+import SnippetOpenAILogFunction from '/snippets/code/typescript/sdk/wrappers/openai-log-function.mdx'
+import SnippetOpenAIMultipleCalls from '/snippets/code/typescript/sdk/wrappers/openai-multiple-calls.mdx'
+import SnippetOpenAIApiReference from '/snippets/code/typescript/sdk/wrappers/openai-api-reference.mdx'
+
 The OpenAI wrapper provides a simple way to automatically log all OpenAI API calls to Galileo. It wraps the official OpenAI Node.js client and intercepts all API calls to log them.
 
 ## Installation
 
-```bash
-npm install galileo openai
-# or
-yarn add galileo openai
-```
+<CodeGroup>
+<SnippetOpenAIInstallation />
+</CodeGroup>
 
 ## Usage
 
-```typescript
-import { OpenAI } from "openai";
-import { init, flush, wrapOpenAI } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-// Create a wrapped OpenAI client
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-// Use the wrapped client as you normally would
-const response = await openai.chat.completions.create({
-  model: "gpt-4o",
-  messages: [{ role: "user", content: "Say hello world!" }],
-});
-
-console.log(response.choices[0].message.content);
-
-// Flush logs before exiting
-await flush();
-```
+<CodeGroup>
+<SnippetOpenAIUsage />
+</CodeGroup>
 
 ## Advanced Usage
 
@@ -46,98 +29,14 @@ await flush();
 
 You can use the OpenAI wrapper with the `log` function wrapper to create a workflow span with nested LLM calls:
 
-```typescript
-import { OpenAI } from "openai";
-import { log, init, flush, wrapOpenAI } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-// This will automatically create an llm span since we're using the `wrapOpenAI` wrapper
-const callOpenAI = async (input) => {
-  const result = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [{ content: input, role: 'user' }]
-  });
-  return result;
-};
-
-const wrappedFunc = await log({ name: 'capitals workflow' }, async () => {
-  const franceResult = await callOpenAI("What is the capital of France?");
-  const germanyResult = await callOpenAI("What is the capital of Germany?");
-  
-  return {
-    france: franceResult.choices[0].message.content,
-    germany: germanyResult.choices[0].message.content
-  };
-});
-
-const result = await wrappedFunc();
-console.log(result);
-
-// Flush logs before exiting
-await flush();
-```
+<CodeGroup>
+<SnippetOpenAILogFunction />
+</CodeGroup>
 
 ### Multiple LLM Calls in a Workflow
 
 You can make multiple LLM calls within a workflow span:
 
-```typescript
-import { OpenAI } from "openai";
-import { log, init, flush, wrapOpenAI } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-const getCapital = async (country) => {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [{ role: "user", content: `What is the capital of ${country}?` }],
-  });
-  return response.choices[0].message.content;
-};
-
-const getCapitals = log(
-  { name: "getCapitals", spanType: "workflow" },
-  async () => {
-    const franceCapital = await getCapital("France");
-    const germanyCapital = await getCapital("Germany");
-    return { france: franceCapital, germany: germanyCapital };
-  }
-);
-
-const result = await getCapitals();
-console.log(result);
-
-// Flush logs before exiting
-await flush();
-```
-
-## API Reference
-
-### wrapOpenAI
-
-```typescript
-function wrapOpenAI(client: OpenAI): OpenAI
-```
-
-Wraps an OpenAI client instance to automatically log all API calls to Galileo.
-
-#### Parameters
-
-- `client`: An instance of the OpenAI client
-
-#### Returns
-
-A wrapped OpenAI client instance that automatically logs all API calls to Galileo.
+<CodeGroup>
+<SnippetOpenAIMultipleCalls />
+</CodeGroup>

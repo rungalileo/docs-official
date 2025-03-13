@@ -3,6 +3,19 @@ title: Typescript SDK Reference
 icon: "node-js"
 ---
 
+import SnippetNpmInstall from '/snippets/code/typescript/sdk/installation/npm.mdx'
+import SnippetYarnInstall from '/snippets/code/typescript/sdk/installation/yarn.mdx'
+import SnippetPnpmInstall from '/snippets/code/typescript/sdk/installation/pnpm.mdx'
+import SnippetEnvSetup from '/snippets/code/typescript/sdk/env-setup/env.mdx'
+import SnippetOpenAISimple from '/snippets/code/typescript/sdk/wrappers/openai-simple.mdx'
+import SnippetLogWrapperExample from '/snippets/code/typescript/sdk/logging/log-wrapper-example.mdx'
+import SnippetGalileoLoggerExample from '/snippets/code/typescript/sdk/logging/galileo-logger-example.mdx'
+import SnippetCreatePrompt from '/snippets/code/typescript/sdk/prompts/create-prompt.mdx'
+import SnippetGetPrompt from '/snippets/code/typescript/sdk/prompts/get-prompt.mdx'
+import SnippetExperiment from '/snippets/code/typescript/sdk/prompts/experiment.mdx'
+import SnippetRunnerFunction from '/snippets/code/typescript/sdk/experiments/runner-function.mdx'
+import SnippetCustomDataset from '/snippets/code/typescript/sdk/experiments/custom-dataset.mdx'
+
 ## Introduction
 
 This document covers the design and developer experience of the TypeScript client library for Galileo.
@@ -11,24 +24,19 @@ This document covers the design and developer experience of the TypeScript clien
 
 ## Installation
 
-```bash
-npm i galileo
-```
+<CodeGroup>
+<SnippetNpmInstall />
+<SnippetYarnInstall />
+<SnippetPnpmInstall />
+</CodeGroup>
 
 ## Initialization/Authentication
 
 You can configure Galileo using environment variables:
 
-```env
-# Scoped to an Organization
-GALILEO_API_KEY=...
-
-# Optional, set a default Project
-GALILEO_PROJECT=...
-
-# Optional, set a default Log Stream
-GALILEO_LOG_STREAM=...
-```
+<CodeGroup>
+<SnippetEnvSetup />
+</CodeGroup>
 
 In Node.js, you can use `process.env` to specify these variables:
 
@@ -44,69 +52,17 @@ process.env.GALILEO_LOG_STREAM = "your-log-stream";
 
 The simplest way to get started is to use our OpenAI client wrapper. This example will automatically produce a single-span trace in the Logstream UI:
 
-```typescript
-import { OpenAI } from "openai";
-import { init, flush, wrapOpenAI } from "galileo";
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-await openai.chat.completions.create({
-  model: "gpt-4o",
-  messages: [{ content: "Say hello world!", role: "user" }],
-});
-
-// Flush logs before exiting
-await flush();
-```
+<CodeGroup>
+<SnippetOpenAISimple />
+</CodeGroup>
 
 ### Log Function Wrapper
 
 The `log` function wrapper allows you to wrap functions with spans of different types. This is useful for creating workflow spans with nested LLM calls or tool spans.
 
-```typescript
-import { OpenAI } from "openai";
-import { wrapOpenAI, flush, log, init } from 'galileo';
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-// This will automatically create an llm span since we're using the `wrapOpenAI` wrapper
-const callOpenAI = async (input) => {
-  const result = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [{ content: `Say hello ${input}!`, role: 'user' }]
-  });
-  return result;
-};
-
-// Optionally initialize the logger if you haven't set GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
-await init({
-  projectName: 'my-project',
-  logStreamName: 'my-log-stream'
-});
-
-const wrappedToolCall = log(
-  { name: 'tool span', spanType: 'tool' },
-  (input) => {
-    return 'tool call result';
-  }
-);
-
-const wrappedFunc = await log({ name: 'workflow span' }, async (input) => {
-  const result = await callOpenAI(input);
-  return wrappedToolCall(result);
-});
-
-// This will create a workflow span with an llm span and a tool span
-const result = await wrappedFunc('world');
-
-await flush();
-```
+<CodeGroup>
+<SnippetLogWrapperExample />
+</CodeGroup>
 
 #### Span Types
 
@@ -121,116 +77,23 @@ Here are the different span types:
 
 For more advanced use cases, you can use the GalileoLogger directly:
 
-```typescript
-import { GalileoLogger } from 'galileo';
-
-// You can set the GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
-const logger = new GalileoLogger({
-  projectName: 'my-project',
-  logStreamName: 'my-log-stream'
-});
-
-console.log('Creating trace with spans...');
-
-// Create a new trace
-const trace = logger.startTrace(
-  'Example trace input', // input
-  undefined, // output (will be set later)
-  'Example Trace', // name
-  Date.now() * 1000000, // createdAt in nanoseconds
-  undefined, // durationNs
-  { source: 'test-script' }, // metadata
-  ['test', 'example'] // tags
-);
-
-// Add a workflow span (parent span)
-const workflowSpan = logger.addWorkflowSpan(
-  'Processing workflow', // input
-  undefined, // output (will be set later)
-  'Main Workflow', // name
-  undefined, // durationNs
-  Date.now() * 1000000, // createdAt in nanoseconds
-  { workflow_type: 'test' }, // userMetadata
-  ['workflow'] // tags
-);
-
-// Add an LLM span as a child of the workflow span
-logger.addLlmSpan({
-  input: [{ role: 'user', content: 'Hello, how are you?' }], // input messages
-  output: {
-    role: 'assistant',
-    content: 'I am doing well, thank you for asking!'
-  }, // output message
-  model: 'gpt-3.5-turbo', // model name
-  name: 'Chat Completion', // name
-  durationNs: 1000000000, // durationNs (1s)
-  userMetadata: { temperature: '0.7' }, // userMetadata
-  tags: ['llm', 'chat'] // tags
-});
-
-// Conclude the workflow span
-logger.conclude({
-  output: 'Workflow completed successfully',
-  durationNs: 2000000000 // 2 seconds
-});
-
-// Conclude the trace
-logger.conclude({
-  output: 'Final trace output with all spans completed',
-  durationNs: 3000000000 // 3 seconds
-});
-
-// Flush the traces to Galileo
-const flushedTraces = await logger.flush();
-```
+<CodeGroup>
+<SnippetGalileoLoggerExample />
+</CodeGroup>
 
 ## Prompts
 
 Create and use a prompt template:
 
-```typescript
-import { createPromptTemplate, runExperiment } from 'galileo';
-
-const template = await createPromptTemplate({
-  template: [{ role: 'user', content: 'Say "Hello, {name}"!' }],
-  projectName: 'my-project',
-  name: `Hello name prompt`
-});
-
-// Run the experiment. You'll receive a URL to view the results.
-await runExperiment({
-  name: `Test Experiment`,
-  datasetName: 'names',
-  promptTemplate: template,
-  metrics: ['toxicity'],
-  projectName: 'my-project'
-});
-```
+<CodeGroup>
+<SnippetCreatePrompt />
+</CodeGroup>
 
 You can also use an existing template:
 
-```typescript
-import {
-  getPromptTemplate,
-  getDataset,
-  runExperiment
-} from 'galileo';
-
-const template = await getPromptTemplate({
-  projectName: 'my-project',
-  name: 'Hello name prompt'
-});
-
-const dataset = await getDataset(undefined, 'names');
-
-await runExperiment({
-  name: `Test Experiment`,
-  dataset: dataset,
-  promptTemplate: template,
-  metrics: ['tox'],
-  projectName: 'my-project'
-});
-```
+<CodeGroup>
+<SnippetGetPrompt />
+</CodeGroup>
 
 ## Datasets
 
@@ -250,99 +113,23 @@ const dataset = await getDataset(undefined, 'names');
 
 You can use a runner function to run an experiment with a dataset:
 
-```typescript
-import { runExperiment } from 'galileo';
-import { OpenAI } from 'openai';
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-const runner = async (input) => {
-  const result = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
-    messages: [{ content: `Say hello ${input['name']}!`, role: 'user' }]
-  });
-  return result;
-};
-
-await runExperiment({
-  name: `Test Experiment`,
-  datasetName: 'names',
-  runner: runner,
-  metrics: ['tox'],
-  projectName: 'my-project'
-});
-```
-
-### Creating a Prompt Template
-
-```typescript
-import { createPromptTemplate } from 'galileo';
-
-const template = await createPromptTemplate({
-  template: [{ role: 'user', content: 'Say "Hello, {name}"!' }],
-  projectName: 'my-project',
-  name: `Hello name prompt`
-});
-```
+<CodeGroup>
+<SnippetRunnerFunction />
+</CodeGroup>
 
 ### Running an Experiment with a Prompt Template
 
-```typescript
-import {
-  getPromptTemplate,
-  getDataset,
-  runExperiment
-} from 'galileo';
-
-const template = await getPromptTemplate({
-  projectName: 'my-project',
-  name: 'Hello name prompt'
-});
-
-const dataset = await getDataset(undefined, 'names');
-
-await runExperiment({
-  name: `Test Experiment`,
-  dataset: dataset,
-  promptTemplate: template,
-  metrics: ['tox'],
-  projectName: 'my-project'
-});
-```
+<CodeGroup>
+<SnippetExperiment />
+</CodeGroup>
 
 ### Running an Experiment with Custom Dataset
 
 You can also use a locally generated dataset with a runner function:
 
-```typescript
-import { runExperiment } from 'galileo';
-import { OpenAI } from 'openai';
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-const dataset = [
-  { name: 'John' },
-  { name: 'Jane' },
-  { name: 'Bob' },
-  { name: 'Alice' }
-];
-
-const runner = async (input) => {
-  const result = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
-    messages: [{ content: `Say hello ${input['name']}!`, role: 'user' }]
-  });
-  return result;
-};
-
-await runExperiment({
-  name: `Test Experiment`,
-  dataset: dataset,
-  runner: runner,
-  metrics: ['tox'],
-  projectName: 'my-project'
-});
-```
+<CodeGroup>
+<SnippetCustomDataset />
+</CodeGroup>
 
 
 

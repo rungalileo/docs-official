@@ -1,0 +1,19 @@
+```typescript TypeScript
+import { OpenAI } from "openai";
+import { wrapOpenAI } from "galileo";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+
+// Use the wrapped client as you normally would
+async function callOpenAI() {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{ content: "Say hello world!", role: "user" }],
+  });
+  
+  return response;
+}
+
+// Call the function
+callOpenAI(); 
+```
