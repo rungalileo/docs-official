@@ -12,27 +12,55 @@ The simplest way to get started with experimentation is by evaluating prompts di
 
 <CodeGroup>
 ```python run_experiment.py
-from galileo.prompts import get_prompt
+from galileo.prompts import get_prompt_template, create_prompt_template
 from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
-from galileo.scorers import correctness
+from galileo.resources.models import MessageRole, Message
 
-prompt = get_prompt(
-	name="storyteller-prompt"
-	version="latest"
+prompt = get_prompt_template(
+	name="storyteller-prompt",
+	project="my-project"
 )
 
+if prompt is None:
+	prompt = create_prompt_template(
+		name="storyteller-prompt",
+		project="my-project",
+		messages=[
+			Message(role=MessageRole.SYSTEM, content="You are a great storyteller."),
+			Message(role=MessageRole.USER, content="Write a story about {input}")
+		]
+	)
+
 results = run_experiment(
+	"story-experiment",
 	dataset=get_dataset(name="storyteller-dataset"),
-	prompt,
+	prompt=prompt,
 	metrics=["correctness"],
 	project="my-project",
-	tags=[],
+	tags=[]
 )
 ```
 
 ```typescript run_experiment.ts
-// Coming soon...
+import { createPromptTemplate, runExperiment } from 'galileo-experimental';
+
+const template = await createPromptTemplate({
+  template: [
+    { role: 'system', content: 'You are a great storyteller.' },
+    { role: 'user', content: 'Write a story about {input}' }
+  ],
+  projectName: 'my-project',
+  name: 'storyteller-prompt'
+});
+
+await runExperiment({
+  name: 'story-experiment',
+  datasetName: 'storyteller-dataset',
+  promptTemplate: template,
+  metrics: ['correctness'],
+  projectName: 'my-project'
+});
 ```
 </CodeGroup>
 
@@ -44,13 +72,12 @@ Once you're comfortable with basic prompt testing, you might want to evaluate mo
 ```python run_experiment_with_existing_dataset.py
 from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
-#from galileo.metrics import correctness
 from galileo import log, openai
 
 @log
 def llm_call(data):
 	return openai.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4",
         messages=[
           {"role": "system", "content": "You are a great storyteller."},
           {"role": "user", "content": f"Write a story about {data.input}"}
@@ -60,17 +87,40 @@ def llm_call(data):
 dataset = get_dataset(name="storyteller-dataset")
 
 results = run_experiment(
-	dataset,
+	"story-function-experiment",
+	dataset=dataset,
 	function=llm_call,
-	metrics=["correctness"]
+	metrics=["correctness"],
 	concurrency=1, # number of rows to execute in parallel,
 	project="my-project",
-	tags=[],
+	tags=[]
 )
 ```
 
 ```typescript run_experiment_with_existing_dataset.ts
-// Coming soon...
+import { runExperiment } from 'galileo-experimental';
+import { OpenAI } from 'openai';
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const runner = async (input) => {
+  const result = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: 'You are a great storyteller.' },
+      { role: 'user', content: `Write a story about ${input.input}` }
+    ]
+  });
+  return result;
+};
+
+await runExperiment({
+  name: 'story-function-experiment',
+  datasetName: 'storyteller-dataset',
+  runner: runner,
+  metrics: ['correctness'],
+  projectName: 'my-project'
+});
 ```
 </CodeGroup>
 
@@ -81,13 +131,12 @@ As your testing needs become more specific, you might need to work with custom d
 <CodeGroup>
 ```python run_experiment_with_custom_dataset.py
 from galileo.experiments import run_experiment
-from galileo.scorers import correctness
 from galileo import log, openai
 
 @log
 def llm_call(data):
 	return openai.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4",
         messages=[
           {"role": "system", "content": "You are a geography expert"},
           {"role": "user", "content": f"Which continent does the following country belong to: {data.input}"}
@@ -95,6 +144,7 @@ def llm_call(data):
     ).choices[0].message.content
 
 results = run_experiment(
+	"geography-experiment",
 	dataset=lambda: [
         {
             "input": "Spain",
@@ -102,15 +152,41 @@ results = run_experiment(
         },
     ],
 	function=llm_call,
-	metrics=["correctness"]
+	metrics=["correctness"],
 	concurrency=1, # number of rows to execute in parallel,
 	project="my-project",
-	tags=[],
+	tags=[]
 )
 ```
 
 ```typescript run_experiment_with_custom_dataset.ts
-// Coming soon...
+import { runExperiment } from 'galileo-experimental';
+import { OpenAI } from 'openai';
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const dataset = [
+  { input: 'Spain', expected: 'Europe' }
+];
+
+const runner = async (input) => {
+  const result = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: 'You are a geography expert' },
+      { role: 'user', content: `Which continent does the following country belong to: ${input.input}` }
+    ]
+  });
+  return result;
+};
+
+await runExperiment({
+  name: 'geography-experiment',
+  dataset: dataset,
+  runner: runner,
+  metrics: ['correctness'],
+  projectName: 'my-project'
+});
 ```
 </CodeGroup>
 
@@ -127,7 +203,7 @@ from galileo import log, openai
 @log
 def llm_call(data):
 	return openai.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4",
         messages=[
           {"role": "system", "content": "You are a great storyteller."},
           {"role": "user", "content": f"Write a story about '{data.input}' and make it sound like a human wrote it."}
@@ -140,17 +216,48 @@ def check_for_delve(input, output, expected) -> int:
 dataset = get_dataset(name="storyteller-dataset")
 
 results = run_experiment(
-	dataset,
+	"custom-metric-experiment",
+	dataset=dataset,
 	function=llm_call,
 	metrics=[check_for_delve],
 	concurrency=2,	
-project="my-project",
-	tags=[],
+	project="my-project",
+	tags=[]
 )
 ```
 
 ```typescript run_experiment_with_custom_metric.ts
-// Coming soon...
+import { runExperiment } from 'galileo-experimental';
+import { OpenAI } from 'openai';
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const dataset = [
+  { input: 'A magical forest' }
+];
+
+const runner = async (input) => {
+  const result = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: 'You are a great storyteller.' },
+      { role: 'user', content: `Write a story about '${input.input}' and make it sound like a human wrote it.` }
+    ]
+  });
+  return result;
+};
+
+const checkForDelve = (input, output, expected) => {
+  return input.includes('delve') ? 0 : 1;
+};
+
+await runExperiment({
+  name: 'custom-metric-experiment',
+  dataset: dataset,
+  runner: runner,
+  metrics: [checkForDelve],
+  projectName: 'my-project'
+});
 ```
 </CodeGroup>
 

@@ -8,90 +8,7 @@ Experiments in Galileo allow you to evaluate and compare different prompts, mode
 
 ## Running Experiments with Prompt Templates
 
-You can run experiments using prompt templates and datasets:
-
-```python
-from galileo.datasets import get_dataset
-from galileo.experiments import run_experiment
-from galileo.prompts import get_prompt_template
-
-# Get an existing prompt template
-prompt = get_prompt_template(
-    project="my-project",
-    name="storyteller-prompt"
-)
-
-# Run an experiment with the prompt template
-results = run_experiment(
-    "my-experiment",
-    dataset=get_dataset(name="storyteller-dataset"),
-    prompt=prompt,
-    metrics=["correctness"],
-    project="my-project",
-)
-```
-
-## Running Experiments with Custom Functions
-
-You can also run experiments with custom functions that use the OpenAI wrapper:
-
-```python
-from galileo.datasets import get_dataset
-from galileo.experiments import run_experiment
-from galileo import log, openai
-import os
-
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-@log
-def llm_call(data):
-    return client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-          {"role": "system", "content": "You are a great storyteller."},
-          {"role": "user", "content": f"Write a story about {data['input']}"}
-        ],
-    ).choices[0].message.content
-
-# Get an existing dataset
-dataset = get_dataset(name="storyteller-dataset")
-
-# Run an experiment with the custom function
-results = run_experiment(
-    "my-experiment",
-    dataset=dataset,
-    function=llm_call,
-    metrics=["correctness"],
-    project="my-project",
-)
-```
-
-## Creating and Using Experiments
-
-You can create, get, and list experiments programmatically:
-
-```python
-from galileo.experiments import create_experiment, get_experiment, get_experiments
-
-# Create a new experiment
-experiment = create_experiment(
-    project_id="my-project-id",
-    experiment_name="my-experiment"
-)
-
-# Get an existing experiment
-experiment = get_experiment(
-    project_id="my-project-id",
-    experiment_name="my-experiment"
-)
-
-# List all experiments in a project
-experiments = get_experiments(project_id="my-project-id")
-```
-
-## Creating a New Prompt Template for Experiments
-
-You can create a new prompt template if it doesn't exist and use it in an experiment:
+The simplest way to get started is by using prompt templates:
 
 ```python
 from galileo.datasets import get_dataset
@@ -101,8 +18,8 @@ from galileo.resources.models import Message, MessageRole
 
 # Try to get an existing prompt template
 prompt = get_prompt_template(
-    project="my-project",
-    name="storyteller-prompt"
+    name="storyteller-prompt",
+    project="my-project"
 )
 
 # If the prompt doesn't exist, create it
@@ -112,57 +29,177 @@ if prompt is None:
         project="my-project",
         messages=[
             Message(role=MessageRole.SYSTEM, content="You are a great storyteller."),
-            Message(role=MessageRole.USER, content="Please write a short story about the following topic: {topic}")
+            Message(role=MessageRole.USER, content="Write a story about {input}")
         ]
     )
 
 # Run an experiment with the prompt template
 results = run_experiment(
-    "my-experiment",
+    "story-experiment",
     dataset=get_dataset(name="storyteller-dataset"),
     prompt=prompt,
     metrics=["correctness"],
     project="my-project",
+    tags=[]
 )
 ```
 
-## Custom Metrics for Experiments
+## Running Experiments with Custom Functions
 
-You can use custom metrics to evaluate your experiments:
+For more complex scenarios, you can use custom functions with the OpenAI wrapper:
 
 ```python
 from galileo.datasets import get_dataset
 from galileo.experiments import run_experiment
 from galileo import log, openai
-import os
-
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 @log
 def llm_call(data):
-    return client.chat.completions.create(
-        model="gpt-4o",
+    return openai.chat.completions.create(
+        model="gpt-4",
         messages=[
-          {"role": "system", "content": "You are a great storyteller."},
-          {"role": "user", "content": f"Write a story about '{data['input']}' and make it sound like a human wrote it."}
+            {"role": "system", "content": "You are a great storyteller."},
+            {"role": "user", content": f"Write a story about {data.input}"}
+        ],
+    ).choices[0].message.content
+
+dataset = get_dataset(name="storyteller-dataset")
+
+results = run_experiment(
+    "story-function-experiment",
+    dataset=dataset,
+    function=llm_call,
+    metrics=["correctness"],
+    concurrency=1,  # number of rows to execute in parallel
+    project="my-project",
+    tags=[]
+)
+```
+
+## Custom Dataset Evaluation
+
+When you need to test specific scenarios:
+
+```python
+from galileo.experiments import run_experiment
+from galileo import log, openai
+
+@log
+def llm_call(data):
+    return openai.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a geography expert"},
+            {"role": "user", "content": f"Which continent does the following country belong to: {data.input}"}
+        ],
+    ).choices[0].message.content
+
+results = run_experiment(
+    "geography-experiment",
+    dataset=lambda: [
+        {
+            "input": "Spain",
+            "expected": "Europe",
+        },
+    ],
+    function=llm_call,
+    metrics=["correctness"],
+    concurrency=1,  # number of rows to execute in parallel
+    project="my-project",
+    tags=[]
+)
+```
+
+## Custom Metrics for Deep Analysis
+
+For sophisticated evaluation needs:
+
+```python
+from galileo.datasets import get_dataset
+from galileo.experiments import run_experiment
+from galileo import log, openai
+
+@log
+def llm_call(data):
+    return openai.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a great storyteller."},
+            {"role": "user", "content": f"Write a story about '{data.input}' and make it sound like a human wrote it."}
         ],
     ).choices[0].message.content
 
 def check_for_delve(input, output, expected) -> int:
-    return 1 if "delve" not in output else 0
+    return 1 if "delve" not in input else 0
 
-# Get an existing dataset
 dataset = get_dataset(name="storyteller-dataset")
 
-# Run an experiment with the custom function and metric
 results = run_experiment(
-    "my-experiment",
+    "custom-metric-experiment",
     dataset=dataset,
     function=llm_call,
     metrics=[check_for_delve],
+    concurrency=2,
     project="my-project",
+    tags=[]
 )
 ```
+
+## API Reference
+
+### run_experiment
+
+```python
+def run_experiment(
+    name: str,
+    dataset: Union[Dataset, List[Dict], Callable[[], List[Dict]]],
+    prompt: Optional[PromptTemplate] = None,
+    function: Optional[Callable] = None,
+    metrics: List[Union[str, Callable[[Any, Any, Any], int]]] = None,
+    project: str = None,
+    concurrency: int = 1,
+    tags: List[str] = None
+) -> str:
+```
+
+Runs an experiment.
+
+#### Parameters
+
+- `name`: The name of the experiment
+- `dataset`: Either a Dataset object, a list of dictionaries, or a callable that returns a list of dictionaries
+- `prompt`: (Optional) A PromptTemplate to use for the experiment
+- `function`: (Optional) A function that takes input data and returns a result
+- `metrics`: List of metric names or custom metric functions
+- `project`: The project to run the experiment in
+- `concurrency`: Number of rows to execute in parallel
+- `tags`: List of tags to associate with the experiment
+
+#### Returns
+
+A URL where you can view the experiment results.
+
+### create_prompt_template
+
+```python
+def create_prompt_template(
+    name: str,
+    project: str,
+    messages: List[Message]
+) -> PromptTemplate:
+```
+
+Creates a new prompt template.
+
+#### Parameters
+
+- `name`: The name of the template
+- `project`: The project to create the template in
+- `messages`: List of Message objects defining the template
+
+#### Returns
+
+The created PromptTemplate object.
 
 ## Best Practices
 

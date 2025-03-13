@@ -5,7 +5,34 @@ icon: "flask"
 
 Galileo Experiments allow you to evaluate and improve your LLM applications by running tests against datasets and measuring performance using various metrics.
 
+## Running an Experiment with a Prompt Template
+
+The simplest way to get started is by using a prompt template:
+
+```typescript
+import { createPromptTemplate, runExperiment } from 'galileo-experimental';
+
+const template = await createPromptTemplate({
+  template: [
+    { role: 'system', content: 'You are a great storyteller.' },
+    { role: 'user', content: 'Write a story about {input}' }
+  ],
+  projectName: 'my-project',
+  name: 'storyteller-prompt'
+});
+
+await runExperiment({
+  name: 'story-experiment',
+  datasetName: 'storyteller-dataset',
+  promptTemplate: template,
+  metrics: ['correctness'],
+  projectName: 'my-project'
+});
+```
+
 ## Running an Experiment with a Runner Function
+
+For more complex scenarios, you can use a runner function:
 
 ```typescript
 import { runExperiment } from 'galileo-experimental';
@@ -15,59 +42,27 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const runner = async (input) => {
   const result = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
-    messages: [{ content: `Say hello ${input['name']}!`, role: 'user' }]
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: 'You are a great storyteller.' },
+      { role: 'user', content: `Write a story about ${input.input}` }
+    ]
   });
   return result;
 };
 
 await runExperiment({
-  name: `Test Experiment`,
-  datasetName: 'names',
+  name: 'story-function-experiment',
+  datasetName: 'storyteller-dataset',
   runner: runner,
-  metrics: ['output_tone'],
-  projectName: 'my-project'
-});
-```
-
-## Creating a Prompt Template
-
-```typescript
-import { createPromptTemplate } from 'galileo-experimental';
-
-const template = await createPromptTemplate({
-  template: [{ role: 'user', content: 'Say "Hello, {name}"!' }],
-  projectName: 'my-project',
-  name: `Hello name prompt`
-});
-```
-
-## Running an Experiment with a Prompt Template
-
-```typescript
-import {
-  getPromptTemplate,
-  getDataset,
-  runExperiment
-} from 'galileo-experimental';
-
-const template = await getPromptTemplate(
-  'my-project',
-  'Hello name prompt'
-);
-
-const dataset = await getDataset(undefined, 'names');
-
-await runExperiment({
-  name: `Test Experiment`,
-  dataset: dataset,
-  promptTemplate: template,
-  metrics: ['output_tone'],
+  metrics: ['correctness'],
   projectName: 'my-project'
 });
 ```
 
 ## Running an Experiment with a Custom Dataset
+
+When you need to test specific scenarios:
 
 ```typescript
 import { runExperiment } from 'galileo-experimental';
@@ -76,25 +71,63 @@ import { OpenAI } from 'openai';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const dataset = [
-  { name: 'John' },
-  { name: 'Jane' },
-  { name: 'Bob' },
-  { name: 'Alice' }
+  { input: 'Spain', expected: 'Europe' }
 ];
 
 const runner = async (input) => {
   const result = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
-    messages: [{ content: `Say hello ${input['name']}!`, role: 'user' }]
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: 'You are a geography expert' },
+      { role: 'user', content: `Which continent does the following country belong to: ${input.input}` }
+    ]
   });
   return result;
 };
 
 await runExperiment({
-  name: `Test Experiment`,
+  name: 'geography-experiment',
   dataset: dataset,
   runner: runner,
-  metrics: ['output_tone'],
+  metrics: ['correctness'],
+  projectName: 'my-project'
+});
+```
+
+## Running an Experiment with Custom Metrics
+
+For sophisticated evaluation needs:
+
+```typescript
+import { runExperiment } from 'galileo-experimental';
+import { OpenAI } from 'openai';
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const dataset = [
+  { input: 'A magical forest' }
+];
+
+const runner = async (input) => {
+  const result = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: 'You are a great storyteller.' },
+      { role: 'user', content: `Write a story about '${input.input}' and make it sound like a human wrote it.` }
+    ]
+  });
+  return result;
+};
+
+const checkForDelve = (input, output, expected) => {
+  return input.includes('delve') ? 0 : 1;
+};
+
+await runExperiment({
+  name: 'custom-metric-experiment',
+  dataset: dataset,
+  runner: runner,
+  metrics: [checkForDelve],
   projectName: 'my-project'
 });
 ```
@@ -110,8 +143,9 @@ async function runExperiment(options: {
   datasetName?: string;
   runner?: (input: any) => Promise<any>;
   promptTemplate?: PromptTemplate;
-  metrics?: string[];
+  metrics?: Array<string | ((input: any, output: any, expected: any) => number)>;
   projectName: string;
+  tags?: string[];
 }): Promise<string>
 ```
 
@@ -125,9 +159,33 @@ Runs an experiment.
   - `datasetName`: (Optional) The name of a dataset to use for the experiment
   - `runner`: (Optional) A function that takes an input and returns a result
   - `promptTemplate`: (Optional) A prompt template to use for the experiment
-  - `metrics`: (Optional) An array of metric names to use for evaluation
+  - `metrics`: (Optional) An array of metric names or custom metric functions
   - `projectName`: The project to run the experiment in
+  - `tags`: (Optional) Array of tags to associate with the experiment
 
 #### Returns
 
-A Promise that resolves to a URL where you can view the experiment results. 
+A Promise that resolves to a URL where you can view the experiment results.
+
+### createPromptTemplate
+
+```typescript
+async function createPromptTemplate(options: {
+  template: Array<{role: string, content: string}>;
+  projectName: string;
+  name: string;
+}): Promise<PromptTemplate>
+```
+
+Creates a new prompt template.
+
+#### Parameters
+
+- `options`: Configuration options for the prompt template
+  - `template`: Array of message objects with role and content
+  - `projectName`: The project to create the template in
+  - `name`: The name of the template
+
+#### Returns
+
+A Promise that resolves to the created PromptTemplate object. 
