@@ -369,4 +369,226 @@ def wait_for_metrics(api_url, headers, project_id, trace_id, max_wait_time=120, 
     
     console.print(f"[bold yellow]⚠ Timed out after {max_wait_time} seconds. '{target_metric}' metric not found.[/]")
     # Return an empty dict as a fallback
-    return {} 
+    return {}
+
+def get_datasets(api_url, headers, project_id):
+    """
+    Get datasets from the Galileo API
+    
+    Args:
+        api_url: The Galileo API URL
+        headers: The API request headers
+        project_id: The project ID
+        
+    Returns:
+        A list of datasets or empty list if none are found
+    """
+    console.print("[bold cyan]Fetching datasets...[/]")
+    
+    url = f"{api_url}/projects/{project_id}/datasets"
+    
+    try:
+        response = requests.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            result = response.json()
+            
+            # Check if result is a dict with a 'datasets' field
+            if isinstance(result, dict) and 'datasets' in result:
+                datasets = result['datasets']
+                console.print(f"[bold green]✓ Found {len(datasets)} datasets[/]")
+                return datasets
+            # Check if result is a list
+            elif isinstance(result, list):
+                console.print(f"[bold green]✓ Found {len(result)} datasets[/]")
+                return result
+            else:
+                console.print(f"[bold yellow]⚠ Unexpected response format from datasets API[/]")
+                return []
+        else:
+            console.print(f"[bold red]✗ Error fetching datasets: {response.status_code}[/]")
+            console.print(f"[red]{response.text}[/]")
+            return []
+    except Exception as e:
+        console.print(f"[bold red]✗ Error fetching datasets: {str(e)}[/]")
+        return []
+
+def get_dataset_details(api_url, headers, project_id, dataset_id):
+    """
+    Get detailed information about a specific dataset
+    
+    Args:
+        api_url: The Galileo API URL
+        headers: The API request headers
+        project_id: The project ID
+        dataset_id: The dataset ID
+        
+    Returns:
+        The dataset details or None if the dataset is not found
+    """
+    console.print(f"[bold cyan]Fetching details for dataset {dataset_id}...[/]")
+    
+    url = f"{api_url}/projects/{project_id}/datasets/{dataset_id}"
+    
+    try:
+        response = requests.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            dataset_data = response.json()
+            console.print(f"[bold green]✓ Successfully retrieved dataset details[/]")
+            
+            # Get dataset entries if they're not included in the response
+            if 'entries' not in dataset_data:
+                entries_url = f"{url}/entries"
+                entries_response = requests.get(entries_url, headers=headers)
+                
+                if entries_response.status_code == 200:
+                    entries_result = entries_response.json()
+                    
+                    # Check different possible response formats
+                    if isinstance(entries_result, dict) and 'entries' in entries_result:
+                        dataset_data['entries'] = entries_result['entries']
+                    elif isinstance(entries_result, list):
+                        dataset_data['entries'] = entries_result
+                    
+                    console.print(f"[bold green]✓ Retrieved {len(dataset_data.get('entries', []))} dataset entries[/]")
+            
+            return dataset_data
+        else:
+            console.print(f"[bold red]✗ Error fetching dataset details: {response.status_code}[/]")
+            console.print(f"[red]{response.text}[/]")
+            return None
+    except Exception as e:
+        console.print(f"[bold red]✗ Error fetching dataset details: {str(e)}[/]")
+        return None
+
+def get_experiments(api_url, headers, project_id):
+    """
+    Get experiments from the Galileo API
+    
+    Args:
+        api_url: The Galileo API URL
+        headers: The API request headers
+        project_id: The project ID
+        
+    Returns:
+        A list of experiments or empty list if none are found
+    """
+    console.print("[bold cyan]Fetching experiments...[/]")
+    
+    # If project_id is None, try to get it from environment
+    if project_id is None:
+        project_name = os.getenv("GALILEO_PROJECT")
+        if project_name:
+            console.print(f"[bold cyan]Using project name from environment: {project_name}[/]")
+            # Get project ID from name
+            project_id, _ = get_project_and_log_stream_ids(api_url, headers, project_name, "")
+    
+    # Try different possible endpoints for experiments
+    endpoints = [
+        "/projects/{project_id}/experiments",  # Project-specific endpoint (preferred)
+        "/experiments",  # Standard endpoint
+        "/api/experiments"  # Alternative endpoint
+    ]
+    
+    # Add project_id as a query parameter if provided
+    params = {}
+    if project_id:
+        params["project_id"] = project_id
+    
+    for endpoint_template in endpoints:
+        try:
+            # Replace {project_id} placeholder if present
+            endpoint = endpoint_template.format(project_id=project_id) if "{project_id}" in endpoint_template and project_id else endpoint_template
+            url = f"{api_url}{endpoint}"
+            
+            console.print(f"[bold cyan]Trying endpoint: {url}[/]")
+            response = requests.get(url, headers=headers, params=params)
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Check if result is a dict with an 'experiments' field
+                if isinstance(result, dict) and 'experiments' in result:
+                    experiments = result['experiments']
+                    console.print(f"[bold green]✓ Found {len(experiments)} experiments[/]")
+                    return experiments
+                # Check if result is a list
+                elif isinstance(result, list):
+                    console.print(f"[bold green]✓ Found {len(result)} experiments[/]")
+                    return result
+                else:
+                    console.print(f"[bold yellow]⚠ Unexpected response format from experiments API[/]")
+            else:
+                console.print(f"[bold yellow]⚠ Endpoint {url} returned status code: {response.status_code}[/]")
+        except Exception as e:
+            console.print(f"[bold yellow]⚠ Error with endpoint {endpoint_template}: {str(e)}[/]")
+    
+    # If we've tried all endpoints and none worked, return an empty list
+    console.print(f"[bold red]✗ Could not fetch experiments from any endpoint[/]")
+    return []
+
+def get_experiment_details(api_url, headers, project_id, experiment_id):
+    """
+    Get detailed information about a specific experiment
+    
+    Args:
+        api_url: The Galileo API URL
+        headers: The API request headers
+        project_id: The project ID
+        experiment_id: The experiment ID
+        
+    Returns:
+        The experiment details or None if the experiment is not found
+    """
+    console.print(f"[bold cyan]Fetching details for experiment {experiment_id}...[/]")
+    
+    # If project_id is None, try to get it from environment
+    if project_id is None:
+        project_name = os.getenv("GALILEO_PROJECT")
+        if project_name:
+            console.print(f"[bold cyan]Using project name from environment: {project_name}[/]")
+            # Get project ID from name
+            project_id, _ = get_project_and_log_stream_ids(api_url, headers, project_name, "")
+    
+    # Try different possible endpoints for experiment details
+    endpoints = [
+        "/projects/{project_id}/experiments/{experiment_id}",  # Project-specific endpoint (preferred)
+        "/experiments/{experiment_id}",  # Standard endpoint
+        "/api/experiments/{experiment_id}"  # Alternative endpoint
+    ]
+    
+    # Add project_id as a query parameter if provided
+    params = {}
+    if project_id:
+        params["project_id"] = project_id
+    
+    for endpoint_template in endpoints:
+        try:
+            # Replace placeholders
+            if "{project_id}" in endpoint_template and project_id:
+                endpoint = endpoint_template.format(
+                    project_id=project_id,
+                    experiment_id=experiment_id
+                )
+            else:
+                endpoint = endpoint_template.format(
+                    experiment_id=experiment_id
+                )
+            url = f"{api_url}{endpoint}"
+            
+            console.print(f"[bold cyan]Trying endpoint: {url}[/]")
+            response = requests.get(url, headers=headers, params=params)
+            
+            if response.status_code == 200:
+                experiment_data = response.json()
+                console.print(f"[bold green]✓ Successfully retrieved experiment details[/]")
+                return experiment_data
+            else:
+                console.print(f"[bold yellow]⚠ Endpoint {url} returned status code: {response.status_code}[/]")
+        except Exception as e:
+            console.print(f"[bold yellow]⚠ Error with endpoint {endpoint_template}: {str(e)}[/]")
+    
+    # If we've tried all endpoints and none worked, return None
+    console.print(f"[bold red]✗ Could not fetch experiment details from any endpoint[/]")
+    return None 
