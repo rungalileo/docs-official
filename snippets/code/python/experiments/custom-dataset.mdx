@@ -1,0 +1,29 @@
+```python Python
+from galileo.experiments import run_experiment
+from galileo import log, openai
+
+@log
+def llm_call(data):
+	return openai.chat.completions.create(
+        model="gpt-4",
+        messages=[
+          {"role": "system", "content": "You are a geography expert"},
+          {"role": "user", "content": f"Which continent does the following country belong to: {data.input}"}
+        ],
+    ).choices[0].message.content
+
+results = run_experiment(
+	"geography-experiment",
+	dataset=lambda: [
+        {
+            "input": "Spain",
+            "expected": "Europe",
+        },
+    ],
+	function=llm_call,
+	metrics=["correctness"],
+	concurrency=1, # number of rows to execute in parallel,
+	project="my-project",
+	tags=[]
+) 
+``` 

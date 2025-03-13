@@ -1,0 +1,20 @@
+```typescript TypeScript
+import { createPromptTemplate, runExperiment } from 'galileo-experimental';
+
+const template = await createPromptTemplate({
+  template: [
+    { role: 'system', content: 'You are a great storyteller.' },
+    { role: 'user', content: 'Write a story about {input}' }
+  ],
+  projectName: 'my-project',
+  name: 'storyteller-prompt'
+});
+
+await runExperiment({
+  name: 'story-experiment',
+  datasetName: 'storyteller-dataset',
+  promptTemplate: template,
+  metrics: ['correctness'],
+  projectName: 'my-project'
+}); 
+```

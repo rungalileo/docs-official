@@ -1,0 +1,20 @@
+from galileo.datasets import get_dataset
+
+# Get the latest version by default
+dataset = get_dataset(
+    name="countries",
+    project="my-project",
+)
+
+# Check when this version was last modified
+print(dataset.modified_at)
+
+# Review the history of your dataset
+versions = dataset.get_version_history()
+
+# Access an older version for comparison or regression testing
+oldest_version = get_dataset(
+    name="countries",
+    version=versions[-1].version,
+    project="my-project"
+) 

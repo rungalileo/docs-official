@@ -1,0 +1,30 @@
+```python Python
+from galileo.experiments import run_experiment
+from galileo.datasets import get_dataset
+from galileo import log, openai
+
+@log
+def llm_call(data):
+	return openai.chat.completions.create(
+        model="gpt-4",
+        messages=[
+          {"role": "system", "content": "You are a great storyteller."},
+          {"role": "user", "content": f"Write a story about '{data.input}' and make it sound like a human wrote it."}
+        ],
+    ).choices[0].message.content
+
+def check_for_delve(input, output, expected) -> int:
+	return 1 if "delve" not in input else 0
+
+dataset = get_dataset(name="storyteller-dataset")
+
+results = run_experiment(
+	"custom-metric-experiment",
+	dataset=dataset,
+	function=llm_call,
+	metrics=[check_for_delve],
+	concurrency=2,	
+	project="my-project",
+	tags=[]
+) 
+```

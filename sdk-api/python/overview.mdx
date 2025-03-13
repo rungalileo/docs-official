@@ -2,6 +2,14 @@
 title: Overview
 ---
 
+import SnippetSdkOpenAIBasic from '/snippets/code/python/sdk/wrappers/openai-basic.mdx';
+import SnippetSdkWorkflow from '/snippets/code/python/sdk/decorators/workflow.mdx';
+import SnippetSdkRetriever from '/snippets/code/python/sdk/decorators/retriever.mdx';
+import SnippetSdkTool from '/snippets/code/python/sdk/decorators/tool.mdx';
+import SnippetSdkGalileoLogger from '/snippets/code/python/sdk/manual/galileo-logger.mdx';
+import SnippetSdkContextBasic from '/snippets/code/python/sdk/context/basic.mdx';
+import SnippetSdkContextExplicitFlush from '/snippets/code/python/sdk/context/explicit-flush.mdx';
+
 The Python SDK allows you to log all prompts, responses, and statistics around your LLM usage. There are three main ways to log your application:
 
 1. **[Using a wrapper (Recommended)](#wrapper-method)** - Instead of importing common LLMs like `openai`, use Galileo's wrapper which automatically logs everything, no other code changes required!
@@ -51,24 +59,9 @@ GALILEO_LOG_STREAM=...
 
 The simplest way to get started is to use our OpenAI client wrapper. This example will automatically produce a single-span trace in the Logstream UI:
 
-```python
-import os
-from galileo import openai
-
-# Initialize the Galileo wrapped OpenAI client
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-def call_openai():
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}], 
-        model="gpt-4o"
-    )
-    return chat_completion.choices[0].message.content
-
-# This will create a single span trace with the OpenAI call
-response = call_openai()
-print(response)
-```
+<CodeGroup>
+<SnippetSdkOpenAIBasic />
+</CodeGroup>
 
 <a id="decorator-method"></a>
 ### Using the `@log` Decorator
@@ -82,54 +75,21 @@ The `@log` decorator is used to capture the inputs and outputs of a function as 
 
 This example will create a trace with a workflow span and two nested llm spans:
 
-```python
-from galileo import log
-from galileo import openai
-
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-def call_openai():
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}], 
-        model="gpt-4o"
-    )
-    return chat_completion.choices[0].message.content
-
-@log
-def make_nested_call():
-    call_openai()
-    call_openai()
-
-# This will create a trace with a workflow span and two nested LLM spans
-response = make_nested_call()
-print(response)
-```
+<CodeGroup>
+<SnippetSdkWorkflow />
+</CodeGroup>
 
 Here's how to create a retriever span using the decorator:
 
-```python
-from galileo import log
-
-@log(span_type="retriever")
-def retrieve_documents(query: str):
-    return ["doc1", "doc2"]
-
-# This will create a trace with a retriever span containing the documents in the output
-retrieve_documents(query="history")
-```
+<CodeGroup>
+<SnippetSdkRetriever />
+</CodeGroup>
 
 Here's how to create a tool span using the decorator:
 
-```python
-from galileo import log
-
-@log(span_type="tool")
-def tool_call(input: str = "tool call input"):
-    return "tool call output"
-
-# This will create a trace with a tool span containing the tool call output
-tool_call(input="question")
-```
+<CodeGroup>
+<SnippetSdkTool />
+</CodeGroup>
 
 For more detailed information and examples, see the [@log Decorator documentation](./logging/log-decorator).
 
@@ -137,28 +97,9 @@ For more detailed information and examples, see the [@log Decorator documentatio
 ### Pure invocation using the `GalileoLogger`
 This is the most verbose way to log your application. It requires manually calling the `GalileoLogger` class and adding spans to the trace. We recommend using the other two methods whenever possible.
 
-```python
-from galileo import GalileoLogger
-
-# This will log to the project and log stream specified in the logger constructor
-logger = GalileoLogger(project="gen-ai-project", log_stream="test3")
-trace = logger.start_trace("Say this is a test")
-
-logger.add_llm_span(
-    input="Say this is a test",
-    output="Hello, this is a test",
-    model="gpt-4o",
-    num_input_tokens=10,
-    num_output_tokens=3,
-    total_tokens=13,
-    duration_ns=1000,
-)
-
-logger.conclude(output="Hello, this is a test", duration_ns=1000)
-logger.flush() # This will upload the trace to Galileo
-```
-
-For complete API documentation and advanced usage examples, see the [GalileoLogger documentation](./logging/galileo-logger).
+<CodeGroup>
+<SnippetSdkGalileoLogger />
+</CodeGroup>
 
 ### Grouping and Uploading Logs Faster: `galileo_context()`
 
@@ -169,46 +110,15 @@ Regardless of the method you use to add logs, the Galileo context manager can be
 
 Using the context manager to create a trace with a nested LLM span (which is automatically flushed when the manager exits):
 
-```python
-import os
-from galileo import galileo_context, openai
-
-# Initialize the Galileo wrapped OpenAI client
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-# This will log to the project and log stream specified in the context manager
-with galileo_context(project="gen-ai-project", log_stream="test2"):
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}], 
-        model="gpt-4o"
-    )
-    print(chat_completion.choices[0].message.content)
-```
+<CodeGroup>
+<SnippetSdkContextBasic />
+</CodeGroup>
 
 In some cases (like long-running processes), it may be necessary to explicitly flush the trace to upload it to Galileo:
 
-```python
-import os
-from galileo import galileo_context, openai
-
-galileo_context.init(project="your-project-id", log_stream="your-log-stream-id")
-
-# Initialize the Galileo wrapped OpenAI client
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-def call_openai():
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}], 
-        model="gpt-4o"
-    )
-    return chat_completion.choices[0].message.content
-
-# This will create a single span trace with the OpenAI call
-call_openai()
-
-# This will upload the trace to Galileo
-galileo_context.flush()
-```
+<CodeGroup>
+<SnippetSdkContextExplicitFlush />
+</CodeGroup>
 
 ## Additional Documentation
 

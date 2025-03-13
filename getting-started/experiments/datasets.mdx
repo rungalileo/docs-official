@@ -4,6 +4,12 @@ icon: "table"
 ---
 
 import { Screenshot } from '/snippets/Screenshot.mdx';
+import SnippetDatasetsCreatePython from '/snippets/code/python/datasets/create.mdx';
+import SnippetDatasetsCreateTypescript from '/snippets/code/typescript/datasets/create.mdx';
+import SnippetDatasetsAddSamplesPython from '/snippets/code/python/datasets/add-samples.mdx';
+import SnippetDatasetsAddSamplesTypescript from '/snippets/code/typescript/datasets/add-samples.mdx';
+import SnippetDatasetsVersionsPython from '/snippets/code/python/datasets/versions.mdx';
+import SnippetDatasetsVersionsTypescript from '/snippets/code/typescript/datasets/versions.mdx';
 
 **Datasets** are a fundamental building block in Galileo's experimentation workflow. They provide a structured way to **organize, version, and manage** your test cases. Whether you're evaluating prompts, testing application functionality, or analyzing model behavior, having well-organized datasets is crucial for systematic testing and continuous improvement.
 
@@ -65,30 +71,8 @@ After we add a new sample to the dataset, we can see the version history by clic
 When building your test suite programmatically, you can create datasets using the Galileo SDK:
 
 <CodeGroup>
-```python create_dataset.py
-from galileo.datasets import create_dataset
-
-test_data = [
-    {
-        "input": "Which continent is Spain in?",
-        "output": "Europe",
-    },
-    {
-        "input": "Which continent is Japan in?",
-        "output": "Asia",
-    },
-]
-
-dataset = create_dataset(
-    name="countries", 
-    data=test_data,
-    project="my-project",
-)
-```
-
-```typescript create_dataset.ts
-// Coming soon...
-```
+<SnippetDatasetsCreatePython />
+<SnippetDatasetsCreateTypescript />
 </CodeGroup>
 
 ### Adding Samples to Your Dataset
@@ -96,28 +80,8 @@ dataset = create_dataset(
 As you discover new test cases, you can easily add them to your dataset programmatically:
 
 <CodeGroup>
-```python create_dataset.py
-dataset = get_dataset(
-    name="countries",
-    version=3, # if this param isn't specified, it defaults to the latest
-    project="my-project",
-)
-
-dataset.insert([
-    {
-        "input": "Which continent is Morocco in?",
-        "output": "Africa",
-    },
-    {
-        "input": "Which continent is Australia in?",
-        "output": "Oceania",
-    },
-])
-```
-
-```typescript create_dataset.ts
-// Coming soon...
-```
+<SnippetDatasetsAddSamplesPython />
+<SnippetDatasetsAddSamplesTypescript />
 </CodeGroup>
 
 ### Working with Dataset Versions
@@ -125,32 +89,8 @@ dataset.insert([
 One of the key benefits of Galileo's dataset management is automatic versioning. This allows you to track how your test suite evolves over time and ensures reproducibility of your experiments:
 
 <CodeGroup>
-```python get_dataset.py
-from galileo.datasets import get_dataset
-
-# Get the latest version by default
-dataset = get_dataset(
-    name="countries",
-    project="my-project",
-)
-
-# Check when this version was last modified
-print(dataset.modified_at)
-
-# Review the history of your dataset
-versions = dataset.get_version_history()
-
-# Access an older version for comparison or regression testing
-oldest_version = get_dataset(
-    name="countries",
-    version=versions[-1].version,
-    project="my-project"
-)
-```
-
-```typescript get_dataset.ts
-// Coming soon...
-```
+<SnippetDatasetsVersionsPython />
+<SnippetDatasetsVersionsTypescript />
 </CodeGroup>
 
 ## Creating Focus Sets

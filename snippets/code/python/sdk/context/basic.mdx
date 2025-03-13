@@ -1,0 +1,15 @@
+```python Python
+import os
+from galileo import galileo_context, openai
+
+# Initialize the Galileo wrapped OpenAI client
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+# This will log to the project and log stream specified in the context manager
+with galileo_context(project="gen-ai-project", log_stream="test2"):
+    chat_completion = client.chat.completions.create(
+        messages=[{"role": "user", "content": "Say this is a test"}], 
+        model="gpt-4o"
+    )
+    print(chat_completion.choices[0].message.content) 
+```
