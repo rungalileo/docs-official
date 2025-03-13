@@ -2,52 +2,39 @@
 title: OpenAI Wrapper
 ---
 
+import SnippetSdkWrappersInstallation from '/snippets/code/python/sdk/wrappers/installation.mdx'
+import SnippetSdkWrappersEnvSetup from '/snippets/code/python/sdk/wrappers/env-setup.mdx'
+import SnippetSdkWrappersOpenAIBasic from '/snippets/code/python/sdk/wrappers/openai-basic.mdx'
+import SnippetSdkWrappersContextManager from '/snippets/code/python/sdk/wrappers/context-manager.mdx'
+import SnippetSdkWrappersOpenAIStreaming from '/snippets/code/python/sdk/wrappers/openai-streaming.mdx'
+import SnippetSdkWrappersOpenAIExplicitFlush from '/snippets/code/python/sdk/wrappers/openai-explicit-flush.mdx'
+import SnippetSdkWrappersOpenAILogDecorator from '/snippets/code/python/sdk/wrappers/openai-log-decorator.mdx'
+
 The OpenAI wrapper is the simplest way to integrate Galileo logging into your application. By using Galileo's OpenAI wrapper instead of importing the OpenAI library directly, you can automatically log all prompts, responses, and statistics without any additional code changes.
 
 ## Installation
 
 First, make sure you have the Galileo SDK installed:
 
-```bash
-pip install galileo
-```
+<CodeGroup>
+<SnippetSdkWrappersInstallation />
+</CodeGroup>
 
 ## Setup
 
 Create or update a `.env` file with your Galileo API key and other optional settings:
 
-```env
-# Scoped to an Organization
-GALILEO_API_KEY=...
-
-# Optional, set a default Project
-GALILEO_PROJECT=...
-# Optional, set a default Log Stream
-GALILEO_LOG_STREAM=...
-```
+<CodeGroup>
+<SnippetSdkWrappersEnvSetup />
+</CodeGroup>
 
 ## Basic Usage
 
 Instead of importing OpenAI directly, import it from Galileo:
 
-```python
-import os
-from galileo import openai
-
-# Initialize the Galileo wrapped OpenAI client
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-def call_openai():
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}], 
-        model="gpt-4o"
-    )
-    return chat_completion.choices[0].message.content
-
-# This will create a single span trace with the OpenAI call
-response = call_openai()
-print(response)
-```
+<CodeGroup>
+<SnippetSdkWrappersOpenAIBasic />
+</CodeGroup>
 
 This example will automatically produce a single-span trace in the Galileo Logstream UI. The wrapper handles all the logging for you, capturing:
 
@@ -62,21 +49,9 @@ This example will automatically produce a single-span trace in the Galileo Logst
 
 For more control over when traces are flushed to Galileo, you can use the `galileo_context` context manager:
 
-```python
-import os
-from galileo import galileo_context, openai
-
-# Initialize the Galileo wrapped OpenAI client
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-# This will log to the project and log stream specified in the context manager
-with galileo_context(project="gen-ai-project", log_stream="test2"):
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}], 
-        model="gpt-4o"
-    )
-    print(chat_completion.choices[0].message.content)
-```
+<CodeGroup>
+<SnippetSdkWrappersContextManager />
+</CodeGroup>
 
 This ensures that traces are flushed when the context manager exits, which is particularly useful for long-running applications like Streamlit where the request never terminates.
 
@@ -84,49 +59,17 @@ This ensures that traces are flushed when the context manager exits, which is pa
 
 The OpenAI wrapper also supports streaming responses. When streaming, the wrapper will log the response as it streams in:
 
-```python
-import os
-from galileo import openai
-
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-stream = client.chat.completions.create(
-    messages=[{"role": "user", "content": "Say this is a test"}], 
-    model="gpt-4o", 
-    stream=True,
-)
-
-# This will create a single span trace with the OpenAI call
-for chunk in stream:
-    print(chunk.choices[0].delta.content or "", end="")
-```
+<CodeGroup>
+<SnippetSdkWrappersOpenAIStreaming />
+</CodeGroup>
 
 ## Explicit Flushing
 
 In some cases (like long-running processes), it may be necessary to explicitly flush the trace to upload it to Galileo:
 
-```python
-import os
-from galileo import galileo_context, openai
-
-galileo_context.init(project="your-project-id", log_stream="your-log-stream-id")
-
-# Initialize the Galileo wrapped OpenAI client
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-def call_openai():
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}], 
-        model="gpt-4o"
-    )
-    return chat_completion.choices[0].message.content
-
-# This will create a single span trace with the OpenAI call
-call_openai()
-
-# This will upload the trace to Galileo
-galileo_context.flush()
-```
+<CodeGroup>
+<SnippetSdkWrappersOpenAIExplicitFlush />
+</CodeGroup>
 
 ## Advanced Usage
 
@@ -144,29 +87,9 @@ For each of these, the wrapper will automatically log the relevant information t
 
 You can combine the OpenAI wrapper with the `@log` decorator to create more complex traces:
 
-```python
-import os
-from galileo import log, openai
-
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-def call_openai(prompt):
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": prompt}], 
-        model="gpt-4o"
-    )
-    return chat_completion.choices[0].message.content
-
-@log
-def make_nested_call():
-    first_result = call_openai("Tell me about the Roman Empire")
-    second_result = call_openai(f"Summarize this: {first_result}")
-    return second_result
-
-# This will create a trace with a workflow span and two nested LLM spans
-response = make_nested_call()
-print(response)
-```
+<CodeGroup>
+<SnippetSdkWrappersOpenAILogDecorator />
+</CodeGroup>
 
 ## Benefits of Using the Wrapper
 

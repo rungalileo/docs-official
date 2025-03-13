@@ -1,0 +1,21 @@
+import os
+from galileo import log, openai
+
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+def call_openai(prompt):
+    chat_completion = client.chat.completions.create(
+        messages=[{"role": "user", "content": prompt}], 
+        model="gpt-4o"
+    )
+    return chat_completion.choices[0].message.content
+
+@log
+def make_nested_call():
+    first_result = call_openai("Tell me about the Roman Empire")
+    second_result = call_openai(f"Summarize this: {first_result}")
+    return second_result
+
+# This will create a trace with a workflow span and two nested LLM spans
+response = make_nested_call()
+print(response) 

@@ -60,10 +60,8 @@ const output = await callOpenAI(messages, "gpt-4o");
 import { getPromptTemplate } from "galileo";
 
 // Get a prompt template
-const template = await getPromptTemplate(
-  "my-project",
-  "storyteller-prompt"
-);
+const template = await getPromptTemplate({projectName:'my-project', name:'Hello name prompt'});
+
 ```
 
 ## Using Prompts in Experiments
@@ -73,10 +71,10 @@ Prompts can be used in experiments to evaluate different prompt templates:
 ```typescript
 import { runExperiment, getPromptTemplate, getDataset } from "galileo";
 
-const template = await getPromptTemplate(
-  "my-project",
-  "storyteller-prompt"
-);
+const template = await getPromptTemplate({
+  projectName: "my-project",
+  name: "storyteller-prompt"
+});
 
 const dataset = await getDataset(undefined, "storyteller-dataset");
 
