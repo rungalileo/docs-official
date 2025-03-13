@@ -10,8 +10,26 @@ Galileo Datasets allow you to create, manage, and version collections of data fo
 You can create and use datasets for experimentation:
 
 ```typescript
-import { getDataset } from 'galileo';
+import { createDataset, getDataset } from 'galileo';
 
+// Create a dataset from a file path
+const datasetFromFile = await createDataset('/path/to/dataset.csv', 'my-dataset-name');
+
+// Create a dataset from an array of objects
+const datasetFromArray = await createDataset([
+  { name: 'John' },
+  { name: 'Jane' },
+  { name: 'Bob' },
+  { name: 'Alice' }
+], 'names-dataset');
+
+// Create a dataset from a dictionary of arrays
+const datasetFromDict = await createDataset({
+  name: ['John', 'Jane', 'Bob', 'Alice'],
+  age: ['30', '25', '40', '35']
+}, 'people-dataset');
+
+// Get a dataset by name
 const dataset = await getDataset(undefined, 'names');
 ```
 
@@ -97,3 +115,26 @@ Retrieves a dataset.
 #### Returns
 
 A Promise that resolves to an array of data objects. 
+
+### createDataset
+
+```typescript
+async function createDataset(
+  dataset: PathLike | string | Record<string, string[]> | Array<Record<string, string>>,
+  name?: string
+): Promise<Dataset>
+```
+
+Creates a new dataset.
+
+#### Parameters
+
+- `dataset`: The dataset to create. Can be one of the following:
+  - A path to a file (CSV, JSONL, or Feather format)
+  - An array of objects, where each object represents a row in the dataset
+  - A dictionary of arrays, where each key is a column name and each array contains the values for that column
+- `name`: (Optional) The name of the dataset. If not provided, the filename will be used for file paths, or a default name will be generated.
+
+#### Returns
+
+A Promise that resolves to a Dataset object containing metadata about the created dataset. 
