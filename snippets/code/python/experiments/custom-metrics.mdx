@@ -1,7 +1,8 @@
 ```python Python
 from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
-from galileo import log, openai
+from galileo.openai import openai
+from galileo import log
 
 @log
 def llm_call(data):
@@ -23,8 +24,6 @@ results = run_experiment(
 	dataset=dataset,
 	function=llm_call,
 	metrics=[check_for_delve],
-	concurrency=2,	
-	project="my-project",
-	tags=[]
+	project="my-project"
 ) 
 ```
