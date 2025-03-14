@@ -2,6 +2,21 @@
 title: Traces
 ---
 
+import SnippetPythonGalileoLogger from '/snippets/code/python/concepts/traces/galileo-logger.mdx'
+import SnippetTSGalileoLogger from '/snippets/code/typescript/concepts/traces/galileo-logger.mdx'
+import SnippetPythonContextManager from '/snippets/code/python/concepts/traces/context-manager.mdx'
+import SnippetTSContextWrapper from '/snippets/code/typescript/concepts/traces/context-wrapper.mdx'
+import SnippetPythonOpenAIWrapper from '/snippets/code/python/concepts/traces/openai-wrapper.mdx'
+import SnippetTSOpenAIWrapper from '/snippets/code/typescript/concepts/traces/openai-wrapper.mdx'
+import SnippetPythonDecorator from '/snippets/code/python/concepts/traces/decorator.mdx'
+import SnippetTSObserver from '/snippets/code/typescript/concepts/traces/observer.mdx'
+import SnippetPythonBasicTrace from '/snippets/code/python/concepts/traces/basic-trace.mdx'
+import SnippetTSBasicTrace from '/snippets/code/typescript/concepts/traces/basic-trace.mdx'
+import SnippetPythonComplexWorkflow from '/snippets/code/python/concepts/traces/complex-workflow.mdx'
+import SnippetTSComplexWorkflow from '/snippets/code/typescript/concepts/traces/complex-workflow.mdx'
+import SnippetPythonChatApplication from '/snippets/code/python/concepts/traces/chat-application.mdx'
+import SnippetTSChatApplication from '/snippets/code/typescript/concepts/traces/chat-application.mdx'
+
 Traces in Galileo are collections of related <a href="/concepts/spans">spans</a> that represent complete interactions or workflows in your AI application. They provide a holistic view of how your application processes requests, from initial input to final output, capturing all the intermediate steps along the way.
 
 A **trace** is essentially a record of a complete user interaction or system process, showing the full journey of data through your application. Traces organize individual spans (discrete operations like LLM calls, retrievals, or tool executions) into a coherent, hierarchical structure that makes it easy to understand the flow and relationships between different parts of your application.
@@ -89,147 +104,29 @@ Galileo provides several methods for creating and managing traces, each offering
 ### Using the Galileo SDK
 
 <CodeGroup>
-```python GalileoLogger (Python)
-from galileo import GalileoLogger
-
-# Initialize the logger
-logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
-
-# Start a new trace
-trace = logger.start_trace(input="What's the weather in San Francisco?")
-
-# Add spans to the trace
-llm_span = logger.add_llm_span(
-    input="What's the weather in San Francisco?",
-    output="The weather in San Francisco is currently sunny with a temperature of 72°F.",
-    config={"model": "gpt-4o", "temperature": 0.7}
-)
-
-# Conclude the trace
-logger.conclude(output="The weather in San Francisco is currently sunny with a temperature of 72°F.")
-
-# Flush the trace to Galileo
-logger.flush()
-```
-
-```typescript GalileoLogger (TypeScript)
-import { GalileoLogger } from "galileo";
-
-const logger = new GalileoLogger();
-
-// Start a trace
-const input = "Why is the sky blue?";
-const trace = logger.startTrace(input, ["science", "question"]);
-
-// Log an LLM span
-const output = "The sky appears blue because..."; // Result from your LLM call
-trace.logSpan(
-  input,
-  output,
-  "gpt-4o",
-  0.7,
-  "llm"
-);
-
-// Conclude the trace
-trace.conclude(output);
-
-// Flush the trace to Galileo
-trace.flush();
-```
+<SnippetPythonGalileoLogger />
+<SnippetTSGalileoLogger />
 </CodeGroup>
 
 ### Using Context Managers/Wrappers
 
 <CodeGroup>
-```python Context Manager (Python)
-from galileo import galileo_context
-from galileo.openai import openai
-
-# This will log to the project and log stream specified in the context manager
-with galileo_context(project="my-project", log_stream="my-log-stream"):
-    response = openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": "What is the capital of France?"}]
-    )
-    print(response.choices[0].message.content)
-```
-
-```typescript Context Wrapper (TypeScript)
-import { withGalileo } from "galileo";
-import { wrapOpenAI } from "galileo/wrappers";
-import { OpenAI } from "openai";
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: "your-api-key" }));
-
-withGalileo({ project: "my-project", logStream: "my-log-stream" }, async () => {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [{ role: "user", content: "What is the capital of France?" }],
-  });
-  return response.choices[0].message.content;
-});
-```
+<SnippetPythonContextManager />
+<SnippetTSContextWrapper />
 </CodeGroup>
 
 ### Using Integration Wrappers
 
 <CodeGroup>
-```python OpenAI Wrapper (Python)
-from galileo.openai import openai
-
-# This will automatically create a trace for the OpenAI call
-response = openai.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role": "user", "content": "What is the capital of France?"}]
-)
-print(response.choices[0].message.content)
-```
-
-```typescript OpenAI Wrapper (TypeScript)
-import { wrapOpenAI } from "galileo/wrappers";
-import { OpenAI } from "openai";
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: "your-api-key" }));
-
-// This will automatically create a trace for the OpenAI call
-const response = await openai.chat.completions.create({
-  model: "gpt-4o",
-  messages: [{ role: "user", content: "What is the capital of France?" }],
-});
-console.log(response.choices[0].message.content);
-```
+<SnippetPythonOpenAIWrapper />
+<SnippetTSOpenAIWrapper />
 </CodeGroup>
 
 ### Using Decorators/Observers
 
 <CodeGroup>
-```python Decorator (Python)
-from galileo import log
-
-@log
-def process_query(query):
-    # Your processing logic here
-    return result
-
-# This will create a trace for the function call
-result = process_query("What is the capital of France?")
-```
-
-```typescript Observer (TypeScript)
-import { observe } from "galileo";
-
-const processQuery = observe(
-  { spanType: "workflow" },
-  (query) => {
-    // Your processing logic here
-    return result;
-  }
-);
-
-// This will create a trace for the function call
-const result = processQuery("What is the capital of France?");
-```
+<SnippetPythonDecorator />
+<SnippetTSObserver />
 </CodeGroup>
 
 ### Required Configurations
@@ -351,217 +248,22 @@ Traces have dependencies on several Galileo components:
 ### Basic Trace Creation
 
 <CodeGroup>
-```python Python
-from galileo import GalileoLogger
-
-logger = GalileoLogger()
-
-# Start a trace
-trace = logger.start_trace(input="Tell me a joke about programming")
-
-# Add an LLM span
-logger.add_llm_span(
-    input="Tell me a joke about programming",
-    output="Why do programmers prefer dark mode? Because light attracts bugs!",
-    config={"model": "gpt-4o", "temperature": 0.7}
-)
-
-# Conclude the trace
-logger.conclude(output="Why do programmers prefer dark mode? Because light attracts bugs!")
-
-# Flush the trace to Galileo
-logger.flush()
-```
-
-```typescript TypeScript
-import { GalileoLogger } from "galileo";
-
-const logger = new GalileoLogger();
-
-// Start a trace
-const trace = logger.startTrace("Tell me a joke about programming");
-
-// Add an LLM span
-trace.logSpan(
-  "Tell me a joke about programming",
-  "Why do programmers prefer dark mode? Because light attracts bugs!",
-  "gpt-4o",
-  0.7,
-  "llm"
-);
-
-// Conclude the trace
-trace.conclude("Why do programmers prefer dark mode? Because light attracts bugs!");
-
-// Flush the trace to Galileo
-trace.flush();
-```
+<SnippetPythonBasicTrace />
+<SnippetTSBasicTrace />
 </CodeGroup>
 
 ### Complex Workflow with Nested Spans
 
 <CodeGroup>
-```python Python
-from galileo import GalileoLogger
-
-logger = GalileoLogger()
-
-# Start a trace for a RAG application
-trace = logger.start_trace(input="What were the major causes of World War I?")
-
-# Start a workflow span for the retrieval process
-retrieval_workflow = logger.start_workflow_span(name="Document Retrieval")
-
-# Add a retriever span for the query
-logger.add_retriever_span(
-    input="What were the major causes of World War I?",
-    documents=[
-        {"content": "The assassination of Archduke Franz Ferdinand...", "metadata": {"source": "history.txt"}},
-        {"content": "Militarism, alliances, imperialism, and nationalism...", "metadata": {"source": "causes.txt"}}
-    ]
-)
-
-# End the retrieval workflow
-logger.end_workflow_span(retrieval_workflow, output="Retrieved 2 documents")
-
-# Add an LLM span for generating the response
-logger.add_llm_span(
-    input="Based on these documents, what were the major causes of World War I? Documents: [...]",
-    output="The major causes of World War I included the assassination of Archduke Franz Ferdinand, militarism, alliances, imperialism, and nationalism...",
-    config={"model": "gpt-4o", "temperature": 0.3}
-)
-
-# Conclude the trace
-logger.conclude(output="The major causes of World War I included...")
-
-# Flush the trace to Galileo
-logger.flush()
-```
-
-```typescript TypeScript
-import { GalileoLogger } from "galileo";
-
-const logger = new GalileoLogger();
-
-// Start a trace for a RAG application
-const trace = logger.startTrace("What were the major causes of World War I?");
-
-// Start a workflow span for the retrieval process
-const retrievalWorkflow = trace.startWorkflowSpan("Document Retrieval");
-
-// Add a retriever span for the query
-retrievalWorkflow.logRetrieverSpan(
-  "What were the major causes of World War I?",
-  [
-    { content: "The assassination of Archduke Franz Ferdinand...", metadata: { source: "history.txt" } },
-    { content: "Militarism, alliances, imperialism, and nationalism...", metadata: { source: "causes.txt" } }
-  ]
-);
-
-// End the retrieval workflow
-retrievalWorkflow.end("Retrieved 2 documents");
-
-// Add an LLM span for generating the response
-trace.logSpan(
-  "Based on these documents, what were the major causes of World War I? Documents: [...]",
-  "The major causes of World War I included the assassination of Archduke Franz Ferdinand, militarism, alliances, imperialism, and nationalism...",
-  "gpt-4o",
-  0.3,
-  "llm"
-);
-
-// Conclude the trace
-trace.conclude("The major causes of World War I included...");
-
-// Flush the trace to Galileo
-trace.flush();
-```
+<SnippetPythonComplexWorkflow />
+<SnippetTSComplexWorkflow />
 </CodeGroup>
 
 ### Chat Application Example
 
 <CodeGroup>
-```python Python
-from galileo import GalileoLogger
-
-logger = GalileoLogger()
-
-def process_chat_message(user_id, message, conversation_history):
-    # Start a trace for this chat interaction
-    trace = logger.start_trace(
-        input=message,
-        tags=["chat"],
-        metadata={"user_id": user_id, "conversation_length": len(conversation_history)}
-    )
-    
-    try:
-        # Add an LLM span for generating the response
-        prompt = f"Conversation history: {conversation_history}\nUser: {message}\nAssistant:"
-        logger.add_llm_span(
-            input=prompt,
-            output="I'd be happy to help with that...",
-            config={"model": "gpt-4o", "temperature": 0.7}
-        )
-        
-        # Conclude the trace
-        response = "I'd be happy to help with that..."
-        logger.conclude(output=response)
-        
-        return response
-    except Exception as e:
-        # Log the error
-        logger.add_tool_span(
-            name="Error Handler",
-            input=message,
-            error=str(e)
-        )
-        logger.conclude(error=str(e))
-        raise
-    finally:
-        # Flush the trace to Galileo
-        logger.flush()
-```
-
-```typescript TypeScript
-import { GalileoLogger } from "galileo";
-
-const logger = new GalileoLogger();
-
-async function processChatMessage(userId: string, message: string, conversationHistory: string[]) {
-  // Start a trace for this chat interaction
-  const trace = logger.startTrace(
-    message,
-    ["chat"],
-    { userId, conversationLength: conversationHistory.length }
-  );
-  
-  try {
-    // Add an LLM span for generating the response
-    const prompt = `Conversation history: ${conversationHistory.join("\n")}\nUser: ${message}\nAssistant:`;
-    const output = "I'd be happy to help with that..."; // Result from your LLM call
-    
-    trace.logSpan(
-      prompt,
-      output,
-      "gpt-4o",
-      0.7,
-      "llm"
-    );
-    
-    // Conclude the trace
-    trace.conclude(output);
-    
-    return output;
-  } catch (error) {
-    // Log the error
-    trace.logError(error);
-    throw error;
-  } finally {
-    // Flush the trace to Galileo
-    await trace.flush();
-  }
-}
-```
+<SnippetPythonChatApplication />
+<SnippetTSChatApplication />
 </CodeGroup>
 
 ## Next Steps

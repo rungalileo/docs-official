@@ -1,0 +1,24 @@
+```typescript TypeScript
+import { init, flush, wrapOpenAI } from 'galileo-experimental';
+import { OpenAI } from 'openai';
+
+// Initialize Galileo with project and log stream
+await init({
+  projectName: 'my-project',
+  logStreamName: 'my-log-stream'
+});
+
+// Create a wrapped OpenAI client
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+
+// Use the wrapped client - this will automatically create a trace
+const response = await openai.chat.completions.create({
+  model: "gpt-4o",
+  messages: [{ role: "user", content: "What is the capital of France?" }],
+});
+
+console.log(response.choices[0].message.content);
+
+// Always flush logs before exiting
+await flush(); 
+```

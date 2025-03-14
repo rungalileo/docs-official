@@ -1,0 +1,22 @@
+```python Python
+from galileo import GalileoLogger
+
+# Initialize the logger
+logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
+
+# Start a new trace
+trace = logger.start_trace(input="What's the weather in San Francisco?")
+
+# Add spans to the trace
+llm_span = logger.add_llm_span(
+    input="What's the weather in San Francisco?",
+    output="The weather in San Francisco is currently sunny with a temperature of 72°F.",
+    config={"model": "gpt-4o", "temperature": 0.7}
+)
+
+# Conclude the trace
+logger.conclude(output="The weather in San Francisco is currently sunny with a temperature of 72°F.")
+
+# Flush the trace to Galileo
+logger.flush() 
+```

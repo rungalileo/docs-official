@@ -1,0 +1,21 @@
+```python Python
+from galileo import GalileoLogger
+
+logger = GalileoLogger()
+
+# Start a trace
+trace = logger.start_trace(input="Tell me a joke about programming")
+
+# Add an LLM span
+logger.add_llm_span(
+    input="Tell me a joke about programming",
+    output="Why do programmers prefer dark mode? Because light attracts bugs!",
+    config={"model": "gpt-4o", "temperature": 0.7}
+)
+
+# Conclude the trace
+logger.conclude(output="Why do programmers prefer dark mode? Because light attracts bugs!")
+
+# Flush the trace to Galileo
+logger.flush() 
+```

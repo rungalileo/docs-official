@@ -1,0 +1,12 @@
+```python Python
+from galileo import galileo_context
+from galileo.openai import openai
+
+# This will log to the project and log stream specified in the context manager
+with galileo_context(project="my-project", log_stream="my-log-stream"):
+    response = openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": "What is the capital of France?"}]
+    )
+    print(response.choices[0].message.content) 
+```

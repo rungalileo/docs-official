@@ -1,0 +1,37 @@
+
+```python Python
+from galileo import GalileoLogger
+
+logger = GalileoLogger()
+
+# Start a trace for a RAG application
+trace = logger.start_trace(input="What were the major causes of World War I?")
+
+# Start a workflow span for the retrieval process
+retrieval_workflow = logger.start_workflow_span(name="Document Retrieval")
+
+# Add a retriever span for the query
+logger.add_retriever_span(
+    input="What were the major causes of World War I?",
+    documents=[
+        {"content": "The assassination of Archduke Franz Ferdinand...", "metadata": {"source": "history.txt"}},
+        {"content": "Militarism, alliances, imperialism, and nationalism...", "metadata": {"source": "causes.txt"}}
+    ]
+)
+
+# End the retrieval workflow
+logger.end_workflow_span(retrieval_workflow, output="Retrieved 2 documents")
+
+# Add an LLM span for generating the response
+logger.add_llm_span(
+    input="Based on these documents, what were the major causes of World War I? Documents: [...]",
+    output="The major causes of World War I included the assassination of Archduke Franz Ferdinand, militarism, alliances, imperialism, and nationalism...",
+    config={"model": "gpt-4o", "temperature": 0.3}
+)
+
+# Conclude the trace
+logger.conclude(output="The major causes of World War I included...")
+
+# Flush the trace to Galileo
+logger.flush() 
+```
