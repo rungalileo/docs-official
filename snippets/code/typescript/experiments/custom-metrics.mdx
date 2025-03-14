@@ -5,7 +5,7 @@ import { OpenAI } from 'openai';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const dataset = [
-  { input: 'A magical forest' }
+  { topic: 'A magical forest' }
 ];
 
 const runner = async (input) => {
@@ -13,7 +13,7 @@ const runner = async (input) => {
     model: 'gpt-4',
     messages: [
       { role: 'system', content: 'You are a great storyteller.' },
-      { role: 'user', content: `Write a story about '${input.input}' and make it sound like a human wrote it.` }
+      { role: 'user', content: `Write a story about '${input["topic"]}' and make it sound like a human wrote it.` }
     ]
   });
   return result;
@@ -26,7 +26,7 @@ const checkForDelve = (input, output, expected) => {
 await runExperiment({
   name: 'custom-metric-experiment',
   dataset: dataset,
-  runner: runner,
+  function: runner,
   metrics: [checkForDelve],
   projectName: 'my-project'
 }); 
