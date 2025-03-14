@@ -4,27 +4,21 @@ from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
 from galileo.resources.models import MessageRole, Message
 
-prompt = get_prompt_template(
+prompt_template = create_prompt_template(
 	name="storyteller-prompt",
-	project="my-project"
+	project="my-project",
+	messages=[
+		Message(role=MessageRole.SYSTEM, content="You are a great storyteller."),
+		Message(role=MessageRole.USER, content="Write a story about {input}")
+	]
 )
-
-if prompt is None:
-	prompt = create_prompt_template(
-		name="storyteller-prompt",
-		project="my-project",
-		messages=[
-			Message(role=MessageRole.SYSTEM, content="You are a great storyteller."),
-			Message(role=MessageRole.USER, content="Write a story about {input}")
-		]
-	)
+	
 
 results = run_experiment(
 	"story-experiment",
 	dataset=get_dataset(name="storyteller-dataset"),
-	prompt=prompt,
+	prompt_template=prompt_template,
 	metrics=["correctness"],
-	project="my-project",
-	tags=[]
+	project="my-project"
 ) 
 ```
