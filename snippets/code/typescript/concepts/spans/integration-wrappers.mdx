@@ -1,0 +1,16 @@
+```typescript TypeScript
+import { wrapOpenAI, flush } from 'galileo-experimental';
+import { OpenAI } from 'openai';
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+
+// This will automatically create a trace with an LLM span for the OpenAI call
+const response = await openai.chat.completions.create({
+  model: "gpt-4o",
+  messages: [{ role: "user", content: "What is the capital of France?" }],
+});
+console.log(response.choices[0].message.content);
+
+// Always flush logs before exiting
+await flush(); 
+```

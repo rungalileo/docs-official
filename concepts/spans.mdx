@@ -3,6 +3,17 @@ title: Spans
 description: Building Blocks of Traces in Galileo
 ---
 
+import SnippetPythonBasicSpan from '/snippets/code/python/concepts/spans/basic-span.mdx'
+import SnippetTSBasicSpan from '/snippets/code/typescript/concepts/spans/basic-span.mdx'
+import SnippetPythonDetailedMetadata from '/snippets/code/python/concepts/spans/detailed-metadata.mdx'
+import SnippetTSDetailedMetadata from '/snippets/code/typescript/concepts/spans/detailed-metadata.mdx'
+import SnippetPythonMultiSpanRAG from '/snippets/code/python/concepts/spans/multi-span-rag.mdx'
+import SnippetTSMultiSpanRAG from '/snippets/code/typescript/concepts/spans/multi-span-rag.mdx'
+import SnippetPythonContextManagers from '/snippets/code/python/concepts/spans/context-managers.mdx'
+import SnippetTSContextManagers from '/snippets/code/typescript/concepts/spans/context-managers.mdx'
+import SnippetPythonIntegrationWrappers from '/snippets/code/python/concepts/spans/integration-wrappers.mdx'
+import SnippetTSIntegrationWrappers from '/snippets/code/typescript/concepts/spans/integration-wrappers.mdx'
+
 **Spans** in Galileo are the fundamental building blocks of traces, representing discrete operations or units of work within your AI application. A span captures a single step in your application's workflow, such as an LLM call, a document retrieval operation, a tool execution, or any other distinct process.
 
 Each span records detailed information about a specific operation, including its inputs, outputs, duration, and any relevant metadata. Spans are organized hierarchically within traces, allowing you to understand both individual operations and their relationships to each other.
@@ -99,177 +110,22 @@ Galileo provides several methods for creating and managing spans, each offering 
 ### Using the Galileo SDK
 
 <CodeGroup>
-```python Python
-from galileo import GalileoLogger
-
-# Initialize the logger
-logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
-
-# Start a trace
-trace = logger.start_trace(input="What's the weather in San Francisco?")
-
-# Add an LLM span
-llm_span = logger.add_llm_span(
-    input="What's the weather in San Francisco?",
-    output="The weather in San Francisco is currently sunny with a temperature of 72°F.",
-    config={"model": "gpt-4o", "temperature": 0.7}
-)
-
-# Add a retriever span
-retriever_span = logger.add_retriever_span(
-    input="weather San Francisco",
-    documents=[
-        {"content": "San Francisco weather report: Sunny, 72°F", "metadata": {"source": "weather-api"}}
-    ]
-)
-
-# Add a tool span
-tool_span = logger.add_tool_span(
-    name="WeatherAPI",
-    input={"location": "San Francisco"},
-    output={"condition": "Sunny", "temperature": 72}
-)
-
-# Add a workflow span
-workflow_span = logger.start_workflow_span(name="Process Weather Query")
-# Add child spans to the workflow span
-# ...
-logger.end_workflow_span(workflow_span, output="Processed weather query successfully")
-
-# Conclude the trace
-logger.conclude(output="The weather in San Francisco is currently sunny with a temperature of 72°F.")
-
-# Flush the trace to Galileo
-logger.flush()
-```
-
-```typescript TypeScript
-import { GalileoLogger } from "galileo";
-
-// Initialize the logger
-const logger = new GalileoLogger();
-
-// Start a trace
-const trace = logger.startTrace("What's the weather in San Francisco?");
-
-// Add an LLM span
-trace.logSpan(
-  "What's the weather in San Francisco?",
-  "The weather in San Francisco is currently sunny with a temperature of 72°F.",
-  "gpt-4o",
-  0.7,
-  "llm"
-);
-
-// Add a retriever span
-trace.logRetrieverSpan(
-  "weather San Francisco",
-  [
-    { content: "San Francisco weather report: Sunny, 72°F", metadata: { source: "weather-api" } }
-  ]
-);
-
-// Add a tool span
-trace.logToolSpan(
-  "WeatherAPI",
-  { location: "San Francisco" },
-  { condition: "Sunny", temperature: 72 }
-);
-
-// Add a workflow span
-const workflowSpan = trace.startWorkflowSpan("Process Weather Query");
-// Add child spans to the workflow span
-// ...
-workflowSpan.end("Processed weather query successfully");
-
-// Conclude the trace
-trace.conclude("The weather in San Francisco is currently sunny with a temperature of 72°F.");
-
-// Flush the trace to Galileo
-trace.flush();
-```
+<SnippetPythonBasicSpan />
+<SnippetTSBasicSpan />
 </CodeGroup>
 
 ### Using Context Managers/Wrappers
 
 <CodeGroup>
-```python Python
-from galileo import galileo_context, span_context
-from galileo.openai import openai
-
-# This will create a trace and automatically add spans for OpenAI calls
-with galileo_context(project="my-project", log_stream="my-log-stream"):
-    # This will create a workflow span
-    with span_context(name="Process User Query", span_type="workflow"):
-        # This will automatically create an LLM span
-        response = openai.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": "What is the capital of France?"}]
-        )
-        
-        # This will create a tool span
-        with span_context(name="Database Lookup", span_type="tool"):
-            # Perform database lookup
-            result = lookup_database("France", "capital")
-            
-        print(response.choices[0].message.content)
-```
-
-```typescript TypeScript
-import { withGalileo, withSpan } from "galileo";
-import { wrapOpenAI } from "galileo/wrappers";
-import { OpenAI } from "openai";
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: "your-api-key" }));
-
-withGalileo({ project: "my-project", logStream: "my-log-stream" }, async () => {
-  // This will create a workflow span
-  return withSpan({ name: "Process User Query", spanType: "workflow" }, async () => {
-    // This will automatically create an LLM span
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "user", content: "What is the capital of France?" }],
-    });
-    
-    // This will create a tool span
-    const result = await withSpan({ name: "Database Lookup", spanType: "tool" }, async () => {
-      // Perform database lookup
-      return lookupDatabase("France", "capital");
-    });
-    
-    return response.choices[0].message.content;
-  });
-});
-```
+<SnippetPythonContextManagers />
+<SnippetTSContextManagers />
 </CodeGroup>
 
 ### Using Integration Wrappers
 
 <CodeGroup>
-```python Python
-from galileo.openai import openai
-
-# This will automatically create a trace with an LLM span for the OpenAI call
-response = openai.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role": "user", "content": "What is the capital of France?"}]
-)
-print(response.choices[0].message.content)
-```
-
-```typescript TypeScript
-import { wrapOpenAI } from "galileo/wrappers";
-import { OpenAI } from "openai";
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: "your-api-key" }));
-
-// This will automatically create a trace with an LLM span for the OpenAI call
-const response = await openai.chat.completions.create({
-  model: "gpt-4o",
-  messages: [{ role: "user", content: "What is the capital of France?" }],
-});
-console.log(response.choices[0].message.content);
-```
+<SnippetPythonIntegrationWrappers />
+<SnippetTSIntegrationWrappers />
 </CodeGroup>
 
 ### Required Inputs and Configurations
@@ -390,210 +246,22 @@ Spans have dependencies on several Galileo components:
 ### Basic Span Creation
 
 <CodeGroup>
-```python Python
-from galileo import GalileoLogger
-
-logger = GalileoLogger()
-
-# Start a trace
-trace = logger.start_trace(input="Tell me about Mars")
-
-# Add an LLM span
-logger.add_llm_span(
-    input="Tell me about Mars",
-    output="Mars is the fourth planet from the Sun and the second-smallest planet in the Solar System...",
-    config={"model": "gpt-4o", "temperature": 0.7}
-)
-
-# Conclude the trace
-logger.conclude(output="Mars is the fourth planet from the Sun...")
-
-# Flush the trace to Galileo
-logger.flush()
-```
-
-```typescript TypeScript
-import { GalileoLogger } from "galileo";
-
-const logger = new GalileoLogger();
-
-// Start a trace
-const trace = logger.startTrace("Tell me about Mars");
-
-// Add an LLM span
-trace.logSpan(
-  "Tell me about Mars",
-  "Mars is the fourth planet from the Sun and the second-smallest planet in the Solar System...",
-  "gpt-4o",
-  0.7,
-  "llm"
-);
-
-// Conclude the trace
-trace.conclude("Mars is the fourth planet from the Sun...");
-
-// Flush the trace to Galileo
-trace.flush();
-```
+<SnippetPythonBasicSpan />
+<SnippetTSBasicSpan />
 </CodeGroup>
 
 ### Spans with Detailed Metadata
 
 <CodeGroup>
-```python Python
-from galileo import GalileoLogger
-
-logger = GalileoLogger()
-
-# Start a trace with metadata
-trace = logger.start_trace(
-    input="What's the weather in New York?",
-    metadata={"user_id": "user-123", "session_id": "session-456", "client_info": {"device": "mobile", "os": "iOS"}}
-)
-
-# Add an LLM span with detailed metadata
-logger.add_llm_span(
-    input="What's the weather in New York?",
-    output="The weather in New York is currently cloudy with a temperature of 65°F.",
-    config={"model": "gpt-4o", "temperature": 0.7},
-    metadata={"request_id": "req-789", "latency_ms": 250, "token_count": {"input": 10, "output": 15}}
-)
-
-# Conclude the trace
-logger.conclude(output="The weather in New York is currently cloudy with a temperature of 65°F.")
-
-# Flush the trace to Galileo
-logger.flush()
-```
-
-```typescript TypeScript
-import { GalileoLogger } from "galileo";
-
-const logger = new GalileoLogger();
-
-// Start a trace with metadata
-const trace = logger.startTrace(
-  "What's the weather in New York?",
-  [],
-  { 
-    user_id: "user-123", 
-    session_id: "session-456", 
-    client_info: { device: "mobile", os: "iOS" } 
-  }
-);
-
-// Add an LLM span with detailed metadata
-trace.logSpan(
-  "What's the weather in New York?",
-  "The weather in New York is currently cloudy with a temperature of 65°F.",
-  "gpt-4o",
-  0.7,
-  "llm",
-  { 
-    request_id: "req-789", 
-    latency_ms: 250, 
-    token_count: { input: 10, output: 15 } 
-  }
-);
-
-// Conclude the trace
-trace.conclude("The weather in New York is currently cloudy with a temperature of 65°F.");
-
-// Flush the trace to Galileo
-trace.flush();
-```
+<SnippetPythonDetailedMetadata />
+<SnippetTSDetailedMetadata />
 </CodeGroup>
 
 ### Multi-Span RAG Example
 
 <CodeGroup>
-```python Python
-from galileo import GalileoLogger
-
-logger = GalileoLogger()
-
-# Start a trace for a RAG application
-trace = logger.start_trace(input="What are the health benefits of meditation?")
-
-# Start a workflow span for the retrieval process
-retrieval_workflow = logger.start_workflow_span(name="Document Retrieval")
-
-# Add a retriever span for the query
-logger.add_retriever_span(
-    input="health benefits meditation",
-    documents=[
-        {"content": "Meditation has been shown to reduce stress and anxiety...", "metadata": {"source": "health-journal.pdf"}},
-        {"content": "Regular meditation practice can lower blood pressure...", "metadata": {"source": "medical-research.txt"}}
-    ]
-)
-
-# End the retrieval workflow
-logger.end_workflow_span(retrieval_workflow, output="Retrieved 2 documents")
-
-# Start a workflow span for the generation process
-generation_workflow = logger.start_workflow_span(name="Response Generation")
-
-# Add an LLM span for generating the response
-logger.add_llm_span(
-    input="Based on these documents, what are the health benefits of meditation? Documents: [...]",
-    output="Based on the research, meditation offers several health benefits including reduced stress and anxiety, lower blood pressure...",
-    config={"model": "gpt-4o", "temperature": 0.3}
-)
-
-# End the generation workflow
-logger.end_workflow_span(generation_workflow, output="Generated response successfully")
-
-# Conclude the trace
-logger.conclude(output="Based on the research, meditation offers several health benefits...")
-
-# Flush the trace to Galileo
-logger.flush()
-```
-
-```typescript TypeScript
-import { GalileoLogger } from "galileo";
-
-const logger = new GalileoLogger();
-
-// Start a trace for a RAG application
-const trace = logger.startTrace("What are the health benefits of meditation?");
-
-// Start a workflow span for the retrieval process
-const retrievalWorkflow = trace.startWorkflowSpan("Document Retrieval");
-
-// Add a retriever span for the query
-retrievalWorkflow.logRetrieverSpan(
-  "health benefits meditation",
-  [
-    { content: "Meditation has been shown to reduce stress and anxiety...", metadata: { source: "health-journal.pdf" } },
-    { content: "Regular meditation practice can lower blood pressure...", metadata: { source: "medical-research.txt" } }
-  ]
-);
-
-// End the retrieval workflow
-retrievalWorkflow.end("Retrieved 2 documents");
-
-// Start a workflow span for the generation process
-const generationWorkflow = trace.startWorkflowSpan("Response Generation");
-
-// Add an LLM span for generating the response
-generationWorkflow.logSpan(
-  "Based on these documents, what are the health benefits of meditation? Documents: [...]",
-  "Based on the research, meditation offers several health benefits including reduced stress and anxiety, lower blood pressure...",
-  "gpt-4o",
-  0.3,
-  "llm"
-);
-
-// End the generation workflow
-generationWorkflow.end("Generated response successfully");
-
-// Conclude the trace
-trace.conclude("Based on the research, meditation offers several health benefits...");
-
-// Flush the trace to Galileo
-trace.flush();
-```
+<SnippetPythonMultiSpanRAG />
+<SnippetTSMultiSpanRAG />
 </CodeGroup>
 
 ## Next Steps

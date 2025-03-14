@@ -1,0 +1,31 @@
+```python Python
+from galileo import GalileoLogger
+
+logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
+
+# Start a trace
+trace = logger.start_trace(
+    input="Tell me about Mars",
+    output=None,  # Will be set later
+    name="Mars Information",
+    metadata={"source": "example"},
+    tags=["space", "planets"]
+)
+
+# Add an LLM span
+logger.add_llm_span(
+    input="Tell me about Mars",
+    output="Mars is the fourth planet from the Sun and the second-smallest planet in the Solar System...",
+    config={"model": "gpt-4o", "temperature": 0.7},
+    name="Mars Information",
+    duration_ns=1000000000,  # 1 second
+    user_metadata={"request_id": "req-123"},
+    tags=["llm", "space"]
+)
+
+# Conclude the trace
+logger.conclude(output="Mars is the fourth planet from the Sun...")
+
+# Flush the trace to Galileo
+logger.flush() 
+```

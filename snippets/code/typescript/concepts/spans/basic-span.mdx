@@ -1,0 +1,42 @@
+```typescript TypeScript
+import { GalileoLogger } from 'galileo-experimental';
+
+const logger = new GalileoLogger({
+  projectName: 'my-project',
+  logStreamName: 'my-log-stream'
+});
+
+// Start a trace
+const trace = logger.startTrace(
+  "Tell me about Mars", // input
+  undefined, // output (will be set later)
+  "Mars Information", // name
+  Date.now() * 1000000, // createdAt in nanoseconds
+  undefined, // durationNs
+  { source: 'example' }, // metadata
+  ['space', 'planets'] // tags
+);
+
+// Add an LLM span
+logger.addLlmSpan({
+  input: [{ role: 'user', content: "Tell me about Mars" }],
+  output: { 
+    role: 'assistant', 
+    content: "Mars is the fourth planet from the Sun and the second-smallest planet in the Solar System..." 
+  },
+  model: "gpt-4o",
+  name: "Mars Information",
+  durationNs: 1000000000, // 1 second
+  userMetadata: { temperature: "0.7" },
+  tags: ['llm', 'space']
+});
+
+// Conclude the trace
+logger.conclude({
+  output: "Mars is the fourth planet from the Sun...",
+  durationNs: 1500000000 // 1.5 seconds
+});
+
+// Flush the trace to Galileo
+await logger.flush(); 
+```

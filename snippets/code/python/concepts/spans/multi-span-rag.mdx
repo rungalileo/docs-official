@@ -1,0 +1,66 @@
+```python Python
+from galileo import GalileoLogger
+
+logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
+
+# Start a trace for a RAG application
+trace = logger.start_trace(
+    input="What are the health benefits of meditation?",
+    output=None,  # Will be set later
+    name="Meditation Benefits Query",
+    metadata={"source": "example"},
+    tags=["health", "meditation", "rag"]
+)
+
+# Start a workflow span for the retrieval process
+retrieval_workflow = logger.start_workflow_span(
+    name="Document Retrieval",
+    input="What are the health benefits of meditation?",
+    metadata={"workflow_type": "retrieval"},
+    tags=["retrieval"]
+)
+
+# Add a retriever span for the query
+logger.add_retriever_span(
+    input="health benefits meditation",
+    documents=[
+        {"content": "Meditation has been shown to reduce stress and anxiety...", "metadata": {"source": "health-journal.pdf"}},
+        {"content": "Regular meditation practice can lower blood pressure...", "metadata": {"source": "medical-research.txt"}}
+    ],
+    name="Document Search",
+    duration_ns=1000000000,  # 1 second
+    user_metadata={"retriever_type": "vector_search"},
+    tags=["retrieval", "vector"]
+)
+
+# End the retrieval workflow
+logger.end_workflow_span(retrieval_workflow, output="Retrieved 2 documents")
+
+# Start a workflow span for the generation process
+generation_workflow = logger.start_workflow_span(
+    name="Response Generation",
+    input="Based on these documents, what are the health benefits of meditation?",
+    metadata={"workflow_type": "generation"},
+    tags=["generation"]
+)
+
+# Add an LLM span for generating the response
+logger.add_llm_span(
+    input="Based on these documents, what are the health benefits of meditation? Documents: [...]",
+    output="Based on the research, meditation offers several health benefits including reduced stress and anxiety, lower blood pressure...",
+    config={"model": "gpt-4o", "temperature": 0.3},
+    name="Answer Generation",
+    duration_ns=2000000000,  # 2 seconds
+    user_metadata={"request_id": "req-789"},
+    tags=["llm", "health"]
+)
+
+# End the generation workflow
+logger.end_workflow_span(generation_workflow, output="Generated response successfully")
+
+# Conclude the trace
+logger.conclude(output="Based on the research, meditation offers several health benefits...")
+
+# Flush the trace to Galileo
+logger.flush() 
+```

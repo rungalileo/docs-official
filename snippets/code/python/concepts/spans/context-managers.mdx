@@ -1,0 +1,21 @@
+```python Python
+from galileo import galileo_context, span_context
+from galileo.openai import openai
+
+# This will create a trace and automatically add spans for OpenAI calls
+with galileo_context(project="my-project", log_stream="my-log-stream"):
+    # This will create a workflow span
+    with span_context(name="Process User Query", span_type="workflow"):
+        # This will automatically create an LLM span
+        response = openai.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": "What is the capital of France?"}]
+        )
+        
+        # This will create a tool span
+        with span_context(name="Database Lookup", span_type="tool"):
+            # Perform database lookup
+            result = "Paris"  # Simulated database lookup
+            
+        print(response.choices[0].message.content) 
+```
