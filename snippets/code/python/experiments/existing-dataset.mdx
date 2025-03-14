@@ -1,15 +1,14 @@
 ```python Python
 from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
-from galileo import log, openai
+from galileo.openai import openai
 
-@log
-def llm_call(data):
+def llm_call(input):
 	return openai.chat.completions.create(
         model="gpt-4",
         messages=[
           {"role": "system", "content": "You are a great storyteller."},
-          {"role": "user", "content": f"Write a story about {data.input}"}
+          {"role": "user", "content": f"Write a story about {input['topic']}"}
         ],
     ).choices[0].message.content
 
