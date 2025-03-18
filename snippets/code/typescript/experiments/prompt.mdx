@@ -1,20 +1,26 @@
 ```typescript TypeScript
-import { createPromptTemplate, runExperiment } from 'galileo';
+import { createPromptTemplate, runExperiment } from "galileo";
 
 const template = await createPromptTemplate({
   template: [
-    { role: 'system', content: 'You are a great storyteller.' },
-    { role: 'user', content: 'Write a story about {input}' }
+    { role: "system", content: "You are a great storyteller." },
+    { role: "user", content: "Write a story about {input}" },
   ],
-  projectName: 'my-project',
-  name: 'storyteller-prompt'
+  projectName: "my-project",
+  name: "storyteller-prompt",
 });
 
 await runExperiment({
-  name: 'story-experiment',
-  datasetName: 'storyteller-dataset',
+  name: "story-experiment",
+  datasetName: "storyteller-dataset",
   promptTemplate: template,
-  metrics: ['correctness'],
-  projectName: 'my-project'
-}); 
+  // Optional
+  promptSettings: {
+    max_tokens: 256,
+    model_alias: "GPT-4o", // Make sure you have an integration set up for the model alias you're using
+    temperature: 0.8,
+  },
+  metrics: ["correctness"],
+  projectName: "my-project",
+});
 ```
