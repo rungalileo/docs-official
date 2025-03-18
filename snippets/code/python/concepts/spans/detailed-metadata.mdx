@@ -9,8 +9,8 @@ trace = logger.start_trace(
     output=None,  # Will be set later
     name="Weather Query",
     metadata={
-        "user_id": "user-123", 
-        "session_id": "session-456", 
+        "user_id": "user-123",
+        "session_id": "session-456",
         "client_info": {"device": "mobile", "os": "iOS"}
     },
     tags=["weather", "query"]
@@ -23,9 +23,9 @@ logger.add_llm_span(
     config={"model": "gpt-4o", "temperature": 0.7},
     name="Weather Information",
     duration_ns=1000000000,  # 1 second
-    user_metadata={
-        "request_id": "req-789", 
-        "latency_ms": 250, 
+    metadata={
+        "request_id": "req-789",
+        "latency_ms": 250,
         "token_count": {"input": 10, "output": 15}
     },
     tags=["llm", "weather"]
@@ -35,5 +35,5 @@ logger.add_llm_span(
 logger.conclude(output="The weather in New York is currently cloudy with a temperature of 65°F.")
 
 # Flush the trace to Galileo
-logger.flush() 
+logger.flush()
 ```

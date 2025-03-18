@@ -1,20 +1,11 @@
 ```typescript TypeScript
-import { getDataset } from 'galileo';
+import { getDataset } from "galileo";
 
 async function workWithDatasetVersions() {
   // Get the latest version by default
-  const dataset = await getDataset("my-project", "countries");
-  
+  const dataset = await getDataset({ name: "countries" });
+
   // Check when this version was last modified
   console.log(dataset.modifiedAt);
-  
-  // Review the history of your dataset
-  const versions = await dataset.getVersionHistory();
-  
-  // Access an older version for comparison or regression testing
-  const oldestVersion = await getDataset(
-    "my-project",
-    "countries",
-    versions[versions.length - 1].version
-  );
-} 
+}
+```

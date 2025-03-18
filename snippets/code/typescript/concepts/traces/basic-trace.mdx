@@ -1,42 +1,43 @@
 ```typescript TypeScript
-import { GalileoLogger } from 'galileo';
+import { GalileoLogger } from "galileo";
 
 const logger = new GalileoLogger({
-  projectName: 'my-project',
-  logStreamName: 'my-log-stream'
+  projectName: "my-project",
+  logStreamName: "my-log-stream",
 });
 
 // Start a trace
-const trace = logger.startTrace(
-  "Tell me a joke about programming", // input
-  undefined, // output (will be set later)
-  "Programming Joke", // name
-  Date.now() * 1000000, // createdAt in nanoseconds
-  undefined, // durationNs
-  { source: 'example' }, // metadata
-  ['joke', 'programming'] // tags
-);
+const trace = logger.startTrace({
+  input: "Tell me a joke about programming", // input
+  output: undefined, // output (will be set later)
+  name: "Programming Joke", // name
+  createdAt: Date.now() * 1000000, // createdAt in nanoseconds
+  durationNs: undefined, // durationNs
+  metadata: { source: "example" }, // metadata
+  tags: ["joke", "programming"], // tags
+});
 
 // Add an LLM span
 logger.addLlmSpan({
-  input: [{ role: 'user', content: "Tell me a joke about programming" }],
-  output: { 
-    role: 'assistant', 
-    content: "Why do programmers prefer dark mode? Because light attracts bugs!" 
+  input: [{ role: "user", content: "Tell me a joke about programming" }],
+  output: {
+    role: "assistant",
+    content:
+      "Why do programmers prefer dark mode? Because light attracts bugs!",
   },
   model: "gpt-4o",
   name: "Joke Generation",
   durationNs: 1000000000, // 1 second
-  userMetadata: { temperature: "0.7" },
-  tags: ['llm', 'joke']
+  metadata: { temperature: "0.7" },
+  tags: ["llm", "joke"],
 });
 
 // Conclude the trace
 logger.conclude({
   output: "Why do programmers prefer dark mode? Because light attracts bugs!",
-  durationNs: 1500000000 // 1.5 seconds
+  durationNs: 1500000000, // 1.5 seconds
 });
 
 // Flush the trace to Galileo
-await logger.flush(); 
+await logger.flush();
 ```

@@ -1,34 +1,35 @@
 ```typescript TypeScript
-import { runExperiment } from 'galileo';
-import { OpenAI } from 'openai';
+import { runExperiment } from "galileo";
+import { OpenAI } from "openai";
 
 async function runCustomDatasetExperiment() {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-  const dataset = [
-    { input: 'Spain', expected: 'Europe' }
-  ];
+  const dataset = [{ input: "Spain", expected: "Europe" }];
 
   const runner = async (input) => {
     const result = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: "gpt-4",
       messages: [
-        { role: 'system', content: 'You are a geography expert' },
-        { role: 'user', content: `Which continent does the following country belong to: ${input.input}` }
-      ]
+        { role: "system", content: "You are a geography expert" },
+        {
+          role: "user",
+          content: `Which continent does the following country belong to: ${input["input"]}`,
+        },
+      ],
     });
     return result;
   };
 
   await runExperiment({
-    name: 'geography-experiment',
+    name: "geography-experiment",
     dataset: dataset,
     function: runner,
-    metrics: ['correctness'],
-    projectName: 'my-project'
+    metrics: ["correctness"],
+    projectName: "my-project",
   });
 }
 
 // Run the experiment
-runCustomDatasetExperiment(); 
+runCustomDatasetExperiment();
 ```

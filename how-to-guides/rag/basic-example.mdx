@@ -6,6 +6,7 @@ description: Learn how to implement a basic Retrieval-Augmented Generation (RAG)
 When implementing RAG systems, it's crucial to properly handle document retrieval, context management, and response generation. This guide demonstrates a basic RAG implementation using Galileo's observability features.
 
 ### What You'll Need
+
 - OpenAI API key
 - Galileo API key
 - Python environment with required packages
@@ -22,6 +23,7 @@ Create a `.env` file with your API keys:
 GALILEO_API_KEY=your_galileo_api_key
 OPENAI_API_KEY=your_openai_api_key
 ```
+
 </Step>
 
 <Step title="Install Dependencies">
@@ -35,23 +37,26 @@ python-dotenv==0.19.0
 rich==13.7.0
 questionary==2.0.1
 ```
+
 </Step>
 
 <Step title="Running and Monitoring">
 
 Execute the application:
+
 ```bash
 python app.py
 ```
 
 Use Galileo to monitor:
+
 - Document retrieval performance
-    - Chunk relevance
-    - Chunk utilization
-    - Chunk attribution
-    - Completeness
+  - Chunk relevance
+  - Chunk utilization
+  - Chunk attribution
+  - Completeness
 - System performance metrics
-</Step>
+  </Step>
 </Steps>
 
 ## Implementation Guide
@@ -65,7 +70,8 @@ First, we'll set up our imports and initialize our environment:
 ```python app.py
 import os
 from dotenv import load_dotenv
-from galileo import openai, log
+from galileo import log
+from galileo.openai import openai
 from rich.console import Console
 from rich.panel import Panel
 from rich.markdown import Markdown
@@ -85,6 +91,7 @@ client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 ```
 
 This section:
+
 - Imports necessary libraries
 - Loads environment variables
 - Sets up rich console output
@@ -144,6 +151,7 @@ def retrieve_documents(query: str):
 ```
 
 Key points:
+
 - Uses `@log` decorator with the `retriever` span type
 - Returns structured document objects
 - Includes metadata for tracking sources
@@ -156,7 +164,7 @@ The core RAG functionality:
 ```python app.py
 def rag(query: str):
     documents = retrieve_documents(query)
-    
+
     # Format documents for better readability in the prompt
     formatted_docs = ""
     for i, doc in enumerate(documents):
@@ -164,7 +172,7 @@ def rag(query: str):
 
     prompt = f"""
     Answer the following question based on the context provided. If the answer is not in the context, say you don't know.
-    
+
     Question: {query}
 
     Context:
@@ -186,6 +194,7 @@ def rag(query: str):
 ```
 
 This section:
+
 - Retrieves relevant documents
 - Formats context for the LLM
 - Constructs a clear prompt
@@ -203,43 +212,43 @@ def main():
         title="Galileo RAG Terminal Demo",
         border_style="blue"
     ))
-    
+
     # Check environment setup
     if logging_enabled:
         console.print("[green]✅ Galileo logging is enabled[/green]")
     else:
         console.print("[yellow]⚠️ Galileo logging is disabled[/yellow]")
-    
+
     api_key = os.environ.get("OPENAI_API_KEY")
     if api_key:
         console.print("[green]✅ OpenAI API Key is set[/green]")
     else:
         console.print("[red]❌ OpenAI API Key is missing[/red]")
         sys.exit(1)
-    
+
     # Main interaction loop
     while True:
         query = questionary.text(
             "Enter your question about Galileo, RAG, or AI techniques:",
             validate=lambda text: len(text) > 0
         ).ask()
-        
+
         if query.lower() in ['exit', 'quit', 'q']:
             break
-            
+
         try:
             result = rag(query)
             console.print("\n[bold green]Answer:[/bold green]")
             console.print(Panel(Markdown(result), border_style="green"))
-            
+
             continue_session = questionary.confirm(
                 "Do you want to ask another question?",
                 default=True
             ).ask()
-            
+
             if not continue_session:
                 break
-                
+
         except Exception as e:
             console.print(f"[bold red]Error:[/bold red] {str(e)}")
 
@@ -251,6 +260,7 @@ if __name__ == "__main__":
 ```
 
 This section provides:
+
 - Environment validation
 - Interactive question-answer loop
 - Rich formatting for outputs
@@ -258,6 +268,7 @@ This section provides:
 - Clean exit handling
 
 ### Key Features
+
 - **Galileo Logging**: Track document retrieval and LLM interactions
 - **Rich Console Interface**: User-friendly terminal interface
 - **Error Handling**: Graceful handling of API and runtime errors
@@ -265,6 +276,7 @@ This section provides:
 - **Interactive Experience**: Easy-to-use question-answering interface
 
 ### Next Steps
+
 - Implement real document retrieval using a vector database
 - Add response streaming for better user experience
 - Implement more sophisticated prompt engineering
@@ -272,24 +284,28 @@ This section provides:
 - Integrate advanced Galileo logging features
 
 {/* Screenshot: RAG Setup Interface */}
+
 <Screenshot
   description="Interface for setting up and configuring RAG implementation"
   placeholder="Add screenshot of RAG setup interface"
 />
 
 {/* Screenshot: Retrieval Configuration */}
+
 <Screenshot
   description="Panel showing retrieval configuration options and settings"
   placeholder="Add screenshot of retrieval configuration panel"
 />
 
 {/* Screenshot: Results Visualization */}
+
 <Screenshot
   description="Visualization of RAG results and retrieved content"
   placeholder="Add screenshot of results visualization"
 />
 
 {/* Screenshot: Performance Metrics */}
+
 <Screenshot
   description="Dashboard showing RAG performance metrics and analytics"
   placeholder="Add screenshot of performance metrics view"

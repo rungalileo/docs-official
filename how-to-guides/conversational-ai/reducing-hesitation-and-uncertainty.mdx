@@ -8,31 +8,37 @@ import { Screenshot } from "/snippets/Screenshot.mdx";
 Some models struggle to confidently generate responses, leading to hesitation, incomplete answers, or repeated disclaimers.
 
 For example, consider this prompt and response:
+
 ```
-Prompt: "Tell me about climate change." 
+Prompt: "Tell me about climate change."
 ```
+
 <Card>
-Model Response: "Well, there are many aspects to climate change. Some people think it's caused by humans, and others think it's just natural. It's hard to say exactly."
+  Model Response: "Well, there are many aspects to climate change. Some people
+  think it's caused by humans, and others think it's just natural. It's hard to
+  say exactly."
 </Card>
 
 ### What Went Wrong?
+
 - The prompt did not provide enough context for confident decision-making
 - The model allowed too much randomness in token selection
 - The prompt was ambiguous in the response it expected
 
 ### How It Showed Up in Metrics:
+
 - **High Uncertainty**: The model hesitated in its response
 - **High Prompt Perplexity**: The model struggled with predicting the next token
 - **Mid-range Instruction Adherence**: The model understood the instructions but lacked decisiveness
 
-
 ## Improvements and Solutions
 
 For the following improvements, we will be showing how we could change a simple prompt script like the below example:
+
 <CodeGroup>
 ```python example.py
 import os
-from galileo import openai
+from galileo.openai import openai
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -40,11 +46,12 @@ client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 prompt = "Tell me about climate change."
 response = client.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role": "system", "content": prompt}],
+model="gpt-4o",
+messages=[{"role": "system", "content": prompt}],
 )
 print(response.choices[0].message.content.strip())
-```
+
+````
 
 ```typescript example.ts
 import { OpenAI } from "openai";
@@ -63,7 +70,8 @@ const callOpenAI = async (country: string) => {
 
 const prompt = "Tell me about climate change.";
 await callOpenAI(prompt);
-```
+````
+
 </CodeGroup>
 
 <Steps>
@@ -78,15 +86,17 @@ Include explicit guiding statements, for example:
     2. Provide an explanation based on scientific evidence."""
   ```
 
-  ```typescript example.ts
-  const prompt = `Tell me about climate change. 
-  Assume the following is true: 
-  1. Climate change is driven by human activity. 
-  2. Provide an explanation based on scientific evidence.`;
-  ```
+```typescript example.ts
+const prompt = `Tell me about climate change. 
+Assume the following is true: 
+1. Climate change is driven by human activity. 
+2. Provide an explanation based on scientific evidence.`;
+```
+
   </CodeGroup>
 
-  This should reduce the uncertaincy and perplexity in your metrics on Galileo.
+This should reduce the uncertaincy and perplexity in your metrics on Galileo.
+
 </Step>
 <Step title="Adjust Model Sampling Parameters">
 
@@ -140,15 +150,13 @@ Use **top-k sampling** to limit options and prevent hesitation, for example:
 <Step title="Modify Prompt Structure">
 Use direct phrasing to force a single, clear response, for example:
 
-  <CodeGroup>
-  ```python example.py
-  prompt = "Provide a single, definitive explanation of climate change in two sentences."
-  ```
-  
-  ```typescript example.ts
-  const prompt = "Provide a single, definitive explanation of climate change in two sentences.";
-  ```
-  </CodeGroup>
+{" "}
+<CodeGroup>
+  ```python example.py prompt = "Provide a single, definitive explanation of
+  climate change in two sentences." ``` ```typescript example.ts const prompt =
+  "Provide a single, definitive explanation of climate change in two
+  sentences."; ```
+</CodeGroup>
 
 Avoid prompts that allow multiple equally valid answers, for example avoiding confusing by adding the source of the opinion we care about:
 
@@ -166,12 +174,13 @@ Avoid prompts that allow multiple equally valid answers, for example avoiding co
 
 Automatically reject responses with an **Uncertainty** score above a set threshold
 
-{/* TODO: Add an example of how to use Galileo to evaluate the Uncertainty, then trigger a change in response (ex. retrying)*/}
+{/* TODO: Add an example of how to use Galileo to evaluate the Uncertainty, then trigger a change in response (ex. retrying) */}
 
 </Step>
 </Steps>
 
 {/* Screenshot: Uncertainty Metrics - Before Optimization */}
+
 <Screenshot
   description="Uncertainty metrics dashboard showing initial state before optimization"
   placeholder="Add screenshot of uncertainty metrics before optimization"
@@ -179,6 +188,7 @@ Automatically reject responses with an **Uncertainty** score above a set thresho
 />
 
 {/* Screenshot: Uncertainty Metrics - After Optimization */}
+
 <Screenshot
   description="Uncertainty metrics dashboard showing improvements after optimization"
   placeholder="Add screenshot of uncertainty metrics after optimization"
@@ -186,12 +196,14 @@ Automatically reject responses with an **Uncertainty** score above a set thresho
 />
 
 {/* Screenshot: Response Trigger Configuration */}
+
 <Screenshot
   description="Configuration panel for response triggers and uncertainty thresholds"
   placeholder="Add screenshot of response trigger configuration"
 />
 
 {/* Screenshot: Hesitation Pattern Analysis */}
+
 <Screenshot
   description="Analysis view showing patterns of hesitation in responses"
   placeholder="Add screenshot of hesitation pattern analysis"

@@ -3,7 +3,7 @@ title: Handling Ignored Instructions
 description: Learn how to handle ignored instructions and ensure that your AI models follow your instructions.
 ---
 
-import { Screenshot } from '/snippets/Screenshot.mdx';
+import { Screenshot } from "/snippets/Screenshot.mdx";
 
 When a model ignores instructions, it generates responses that deviate from the provided prompt structure, missing key details or adding extraneous information. This can lead to misleading, unhelpful, or non-compliant outputs.
 
@@ -11,9 +11,9 @@ When a model ignores instructions, it generates responses that deviate from the 
 
 In this example, we'll use the `gpt-4o` model to generate a response to for a simple prompt. We'll enable the `instruction_adherence` metric to monitor the model's adherence to the prompt.
 
-```python 
+```python
 import os
-from galileo import openai # The Galileo OpenAI client wrapper is all you need!
+from galileo.openai import openai # The Galileo OpenAI client wrapper is all you need!
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -27,8 +27,8 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content.strip())
 ```
 
-
 ### What Showed Up in Metrics:
+
 When we examine the Instruction Adherence metric, we see a score of 0.6667:
 
 {/* Screenshot: Instruction Adherence Metrics - Before Optimization */}
@@ -37,23 +37,27 @@ When we examine the Instruction Adherence metric, we see a score of 0.6667:
 That means the model didn't fully follow the instructions in the prompt.
 To understand why Galileo flagged this, we can review the explanation:
 
-
 As shown in the dashboard above, the instruction adherence score is low, indicating that our prompt wasn't followed correctly.
 
 <Card>
-<ResponseField name="Metric Explanation">
-`The instruction provided was to 'Explain the following topic succinctly: Newton's first law'.   
-The response begins by defining Newton's First Law and provides a clear explanation of the concept of inertia. However, the response is lengthy and provides more detail than the word 'succinctly' implies. While it does effectively cover the essence of the topic, it could be more concise to align better with the instruction.  Thus, while informative, the response does not fully adhere to the request for a succinct explanation.`
-</ResponseField>
+  <ResponseField name="Metric Explanation">
+    `The instruction provided was to 'Explain the following topic succinctly:
+    Newton's first law'. The response begins by defining Newton's First Law and
+    provides a clear explanation of the concept of inertia. However, the
+    response is lengthy and provides more detail than the word 'succinctly'
+    implies. While it does effectively cover the essence of the topic, it could
+    be more concise to align better with the instruction. Thus, while
+    informative, the response does not fully adhere to the request for a
+    succinct explanation.`
+  </ResponseField>
 </Card>
 
-
 ### What Went Wrong?
-As the explanation indicates, the main reason the model did not follow the instructions is that the prompt is too vague. The prompt does not provide enough information about what constitutes a "succinct" explanation. 
 
-
+As the explanation indicates, the main reason the model did not follow the instructions is that the prompt is too vague. The prompt does not provide enough information about what constitutes a "succinct" explanation.
 
 ## The Solution
+
 In order to fix this, we can modify the prompt to provide more specific instructions:
 
 <CodeGroup>
@@ -72,6 +76,7 @@ const prompt = `
 	3.	Your answer must be exactly one sentence and must not exceed 15 words.
 `;
 ```
+
 </CodeGroup>
 
 In this updated prompt, we gave the model more specific instructions about what constitutes a "succinct" explanation. We worded the prompt in three distinct variations to eliminate any ambiguity.

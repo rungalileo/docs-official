@@ -1,66 +1,75 @@
 ```typescript TypeScript
-import { GalileoLogger } from 'galileo';
+import { GalileoLogger } from "galileo";
 
 const logger = new GalileoLogger({
-  projectName: 'my-project',
-  logStreamName: 'my-log-stream'
+  projectName: "my-project",
+  logStreamName: "my-log-stream",
 });
 
-async function processChatMessage(userId: string, message: string, conversationHistory: string[]) {
+async function processChatMessage(
+  userId: string,
+  message: string,
+  conversationHistory: string[]
+) {
   // Start a trace for this chat interaction
-  const trace = logger.startTrace(
-    message, // input
-    undefined, // output (will be set later)
-    "Chat Interaction", // name
-    Date.now() * 1000000, // createdAt in nanoseconds
-    undefined, // durationNs
-    { userId, conversationLength: conversationHistory.length }, // metadata
-    ['chat'] // tags
-  );
-  
+  const trace = logger.startTrace({
+    input: message, // input
+    output: undefined, // output (will be set later)
+    name: "Chat Interaction", // name
+    createdAt: Date.now() * 1000000, // createdAt in nanoseconds
+    durationNs: undefined, // durationNs
+    metadata: { userId, conversationLength: conversationHistory.length }, // metadata
+    tags: ["chat"], // tags
+  });
+
   try {
     // Add an LLM span for generating the response
-    const prompt = `Conversation history: ${conversationHistory.join("\n")}\nUser: ${message}\nAssistant:`;
-    
+    const prompt = `Conversation history: ${conversationHistory.join(
+      "\n"
+    )}\nUser: ${message}\nAssistant:`;
+
     logger.addLlmSpan({
-      input: [{ role: 'user', content: prompt }],
-      output: { role: 'assistant', content: "I'd be happy to help with that..." },
+      input: [{ role: "user", content: prompt }],
+      output: {
+        role: "assistant",
+        content: "I'd be happy to help with that...",
+      },
       model: "gpt-4o",
       name: "Chat Response Generation",
       durationNs: 1000000000, // 1 second
-      userMetadata: { temperature: "0.7" },
-      tags: ['llm', 'chat']
+      metadata: { temperature: "0.7" },
+      tags: ["llm", "chat"],
     });
-    
+
     // Conclude the trace
     const output = "I'd be happy to help with that...";
     logger.conclude({
       output: output,
-      durationNs: 1200000000 // 1.2 seconds
+      durationNs: 1200000000, // 1.2 seconds
     });
-    
+
     return output;
   } catch (error) {
     // Log the error
-    logger.addToolSpan(
-      "Error Handler", // name
-      message, // input
-      undefined, // output
-      undefined, // durationNs
-      Date.now() * 1000000, // createdAt
-      { error: String(error) }, // userMetadata
-      ['error', 'chat'] // tags
-    );
-    
-    logger.conclude({
-      error: String(error),
-      durationNs: 500000000 // 0.5 seconds
+    logger.addToolSpan({
+      name: "Error Handler", // name
+      input: message, // input
+      output: undefined, // output
+      durationNs: undefined, // durationNs
+      createdAt: Date.now() * 1000000, // createdAt
+      metadata: { error: String(error) }, // metadata
+      tags: ["error", "chat"], // tags
     });
-    
+
+    logger.conclude({
+      output: String(error),
+      durationNs: 500000000, // 0.5 seconds
+    });
+
     throw error;
   } finally {
     // Flush the trace to Galileo
     await logger.flush();
   }
-} 
+}
 ```

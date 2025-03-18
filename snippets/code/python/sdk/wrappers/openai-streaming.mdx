@@ -5,12 +5,12 @@ from galileo.openai import openai
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 stream = client.chat.completions.create(
-    messages=[{"role": "user", "content": "Say this is a test"}], 
-    model="gpt-4o", 
+    messages=[{"role": "user", "content": "Say this is a test"}],
+    model="gpt-4o",
     stream=True,
 )
 
 # This will create a single span trace with the OpenAI call
 for chunk in stream:
-    print(chunk.choices[0].delta.content or "", end="") 
+    print(chunk.choices[0].delta.content or "", end="")
 ```
