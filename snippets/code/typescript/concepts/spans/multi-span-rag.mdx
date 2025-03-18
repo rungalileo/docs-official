@@ -1,92 +1,105 @@
 ```typescript TypeScript
-import { GalileoLogger } from 'galileo';
+import { GalileoLogger } from "galileo";
 
 const logger = new GalileoLogger({
-  projectName: 'my-project',
-  logStreamName: 'my-log-stream'
+  projectName: "my-project",
+  logStreamName: "my-log-stream",
 });
 
 // Start a trace for a RAG application
-const trace = logger.startTrace(
-  "What are the health benefits of meditation?", // input
-  undefined, // output (will be set later)
-  "Meditation Benefits Query", // name
-  Date.now() * 1000000, // createdAt in nanoseconds
-  undefined, // durationNs
-  { source: 'example' }, // metadata
-  ['health', 'meditation', 'rag'] // tags
-);
+const trace = logger.startTrace({
+  input: "What are the health benefits of meditation?", // input
+  output: undefined, // output (will be set later)
+  name: "Meditation Benefits Query", // name
+  createdAt: Date.now() * 1000000, // createdAt in nanoseconds
+  durationNs: undefined, // durationNs
+  metadata: { source: "example" }, // metadata
+  tags: ["health", "meditation", "rag"], // tags
+});
 
 // Add a workflow span for the retrieval process
-const retrievalWorkflow = logger.addWorkflowSpan(
-  "What are the health benefits of meditation?", // input
-  undefined, // output (will be set later)
-  "Document Retrieval", // name
-  undefined, // durationNs
-  Date.now() * 1000000, // createdAt in nanoseconds
-  { workflow_type: 'retrieval' }, // userMetadata
-  ['retrieval'] // tags
-);
+const retrievalWorkflow = logger.addWorkflowSpan({
+  input: "What are the health benefits of meditation?", // input
+  output: undefined, // output (will be set later)
+  name: "Document Retrieval", // name
+  durationNs: undefined, // durationNs
+  createdAt: Date.now() * 1000000, // createdAt in nanoseconds
+  metadata: { workflow_type: "retrieval" }, // metadata
+  tags: ["retrieval"], // tags
+});
 
 // Add a retriever span for the query
-logger.addRetrieverSpan(
-  "health benefits meditation", // input
-  [ // documents
-    { content: "Meditation has been shown to reduce stress and anxiety...", metadata: { source: "health-journal.pdf" } },
-    { content: "Regular meditation practice can lower blood pressure...", metadata: { source: "medical-research.txt" } }
+logger.addRetrieverSpan({
+  input: "health benefits meditation", // input
+  output: [
+    // documents
+    {
+      content: "Meditation has been shown to reduce stress and anxiety...",
+      metadata: { source: "health-journal.pdf" },
+    },
+    {
+      content: "Regular meditation practice can lower blood pressure...",
+      metadata: { source: "medical-research.txt" },
+    },
   ],
-  "Document Search", // name
-  1000000000, // durationNs (1 second)
-  { retriever_type: 'vector_search' }, // userMetadata
-  ['retrieval', 'vector'] // tags
-);
+  name: "Document Search", // name
+  durationNs: 1000000000, // durationNs (1 second)
+  createdAt: Date.now() * 1000000, // createdAt in nanoseconds
+  metadata: { retriever_type: "vector_search" }, // metadata
+  tags: ["retrieval", "vector"], // tags
+});
 
 // Conclude the retrieval workflow
 logger.conclude({
   output: "Retrieved 2 documents",
-  durationNs: 1200000000 // 1.2 seconds
+  durationNs: 1200000000, // 1.2 seconds
 });
 
 // Add a workflow span for the generation process
-const generationWorkflow = logger.addWorkflowSpan(
-  "Based on these documents, what are the health benefits of meditation?", // input
-  undefined, // output (will be set later)
-  "Response Generation", // name
-  undefined, // durationNs
-  Date.now() * 1000000, // createdAt in nanoseconds
-  { workflow_type: 'generation' }, // userMetadata
-  ['generation'] // tags
-);
+const generationWorkflow = logger.addWorkflowSpan({
+  input:
+    "Based on these documents, what are the health benefits of meditation?", // input
+  output: undefined, // output (will be set later)
+  name: "Response Generation", // name
+  durationNs: undefined, // durationNs
+  createdAt: Date.now() * 1000000, // createdAt in nanoseconds
+  metadata: { workflow_type: "generation" }, // metadata
+  tags: ["generation"], // tags
+});
 
 // Add an LLM span for generating the response
 logger.addLlmSpan({
-  input: [{ 
-    role: 'user', 
-    content: "Based on these documents, what are the health benefits of meditation? Documents: [...]" 
-  }],
-  output: { 
-    role: 'assistant', 
-    content: "Based on the research, meditation offers several health benefits including reduced stress and anxiety, lower blood pressure..." 
+  input: [
+    {
+      role: "user",
+      content:
+        "Based on these documents, what are the health benefits of meditation? Documents: [...]",
+    },
+  ],
+  output: {
+    role: "assistant",
+    content:
+      "Based on the research, meditation offers several health benefits including reduced stress and anxiety, lower blood pressure...",
   },
   model: "gpt-4o",
   name: "Answer Generation",
   durationNs: 2000000000, // 2 seconds
-  userMetadata: { temperature: "0.3" },
-  tags: ['llm', 'health']
+  metadata: { temperature: "0.3" },
+  tags: ["llm", "health"],
 });
 
 // Conclude the generation workflow
 logger.conclude({
   output: "Generated response successfully",
-  durationNs: 2500000000 // 2.5 seconds
+  durationNs: 2500000000, // 2.5 seconds
 });
 
 // Conclude the trace
 logger.conclude({
   output: "Based on the research, meditation offers several health benefits...",
-  durationNs: 4000000000 // 4 seconds
+  durationNs: 4000000000, // 4 seconds
 });
 
 // Flush the trace to Galileo
-await logger.flush(); 
+await logger.flush();
 ```

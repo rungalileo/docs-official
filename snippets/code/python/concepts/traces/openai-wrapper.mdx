@@ -1,10 +1,14 @@
 ```python Python
+from galileo import galileo_context
 from galileo.openai import openai
 
-# This will automatically create a trace for the OpenAI call
-response = openai.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role": "user", "content": "What is the capital of France?"}]
-)
-print(response.choices[0].message.content)
-``` 
+# Initialize the OpenAI client using the Galileo wrapper and your OpenAI API key
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+with galileo_context():
+    response = openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": "What is the capital of France?"}]
+    )
+    print(response.choices[0].message.content)
+```

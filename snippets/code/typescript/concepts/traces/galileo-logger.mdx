@@ -1,38 +1,39 @@
 ```typescript TypeScript
-import { GalileoLogger } from 'galileo';
+import { GalileoLogger } from "galileo";
 
 const logger = new GalileoLogger({
-  projectName: 'my-project',
-  logStreamName: 'my-log-stream'
+  projectName: "my-project",
+  logStreamName: "my-log-stream",
 });
 
 // Start a trace
-const trace = logger.startTrace(
-  "Why is the sky blue?", // input
-  undefined, // output (will be set later)
-  "Sky Question", // name
-  Date.now() * 1000000, // createdAt in nanoseconds
-  undefined, // durationNs
-  { source: 'example' }, // metadata
-  ['science', 'question'] // tags
-);
+const trace = logger.startTrace({
+  input: "Why is the sky blue?", // input
+  output: undefined, // output (will be set later)
+  name: "Sky Question", // name
+  createdAt: Date.now() * 1000000, // createdAt in nanoseconds
+  durationNs: undefined, // durationNs
+  metadata: { source: "example" }, // metadata
+  tags: ["science", "question"], // tags
+});
 
 // Add an LLM span
 logger.addLlmSpan({
-  input: [{ role: 'user', content: "Why is the sky blue?" }],
-  output: { role: 'assistant', content: "The sky appears blue because..." },
+  input: [{ role: "user", content: "Why is the sky blue?" }],
+  output: { role: "assistant", content: "The sky appears blue because..." },
   model: "gpt-4o",
   name: "Sky Question LLM Call",
   durationNs: 1000000000, // 1 second
-  userMetadata: { temperature: "0.7" },
-  tags: ['llm', 'science']
+  metadata: { temperature: "0.7" },
+  tags: ["llm", "science"],
 });
 
 // Conclude the trace
 logger.conclude({
   output: "The sky appears blue because...",
-  durationNs: 1500000000 // 1.5 seconds
+  durationNs: 1500000000, // 1.5 seconds
 });
 
 // Flush the trace to Galileo
-await logger.flush(); 
+await logger.flush();
+```

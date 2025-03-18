@@ -1,75 +1,86 @@
 ```typescript TypeScript
-import { GalileoLogger } from 'galileo';
+import { GalileoLogger } from "galileo";
 
 const logger = new GalileoLogger({
-  projectName: 'my-project',
-  logStreamName: 'my-log-stream'
+  projectName: "my-project",
+  logStreamName: "my-log-stream",
 });
 
 // Start a trace for a RAG application
-const trace = logger.startTrace(
-  "What were the major causes of World War I?", // input
-  undefined, // output (will be set later)
-  "World War I Query", // name
-  Date.now() * 1000000, // createdAt in nanoseconds
-  undefined, // durationNs
-  { source: 'example' }, // metadata
-  ['history', 'rag'] // tags
-);
+const trace = logger.startTrace({
+  input: "What were the major causes of World War I?", // input
+  output: undefined, // output (will be set later)
+  name: "World War I Query", // name
+  createdAt: Date.now() * 1000000, // createdAt in nanoseconds
+  durationNs: undefined, // durationNs
+  metadata: { source: "example" }, // metadata
+  tags: ["history", "rag"], // tags
+});
 
 // Add a workflow span for the retrieval process
-const retrievalWorkflow = logger.addWorkflowSpan(
-  "What were the major causes of World War I?", // input
-  undefined, // output (will be set later)
-  "Document Retrieval", // name
-  undefined, // durationNs
-  Date.now() * 1000000, // createdAt in nanoseconds
-  { workflow_type: 'retrieval' }, // userMetadata
-  ['retrieval'] // tags
-);
+const retrievalWorkflow = logger.addWorkflowSpan({
+  input: "What were the major causes of World War I?", // input
+  output: undefined, // output (will be set later)
+  name: "Document Retrieval", // name
+  durationNs: undefined, // durationNs
+  createdAt: Date.now() * 1000000, // createdAt in nanoseconds
+  metadata: { workflow_type: "retrieval" }, // metadata
+  tags: ["retrieval"], // tags
+});
 
 // Add a retriever span for the query
-logger.addRetrieverSpan(
-  "What were the major causes of World War I?", // input
-  [ // documents
-    { content: "The assassination of Archduke Franz Ferdinand...", metadata: { source: "history.txt" } },
-    { content: "Militarism, alliances, imperialism, and nationalism...", metadata: { source: "causes.txt" } }
+logger.addRetrieverSpan({
+  input: "What were the major causes of World War I?", // input
+  documents: [
+    // documents
+    {
+      content: "The assassination of Archduke Franz Ferdinand...",
+      metadata: { source: "history.txt" },
+    },
+    {
+      content: "Militarism, alliances, imperialism, and nationalism...",
+      metadata: { source: "causes.txt" },
+    },
   ],
-  "Document Search", // name
-  1000000000, // durationNs (1 second)
-  { retriever_type: 'vector_search' }, // userMetadata
-  ['retrieval', 'vector'] // tags
-);
+  name: "Document Search", // name
+  durationNs: 1000000000, // durationNs (1 second)
+  metadata: { retriever_type: "vector_search" }, // metadata
+  tags: ["retrieval", "vector"], // tags
+});
 
 // Conclude the workflow span
 logger.conclude({
   output: "Retrieved 2 documents",
-  durationNs: 1200000000 // 1.2 seconds
+  durationNs: 1200000000, // 1.2 seconds
 });
 
 // Add an LLM span for generating the response
 logger.addLlmSpan({
-  input: [{ 
-    role: 'user', 
-    content: "Based on these documents, what were the major causes of World War I? Documents: [...]" 
-  }],
-  output: { 
-    role: 'assistant', 
-    content: "The major causes of World War I included the assassination of Archduke Franz Ferdinand, militarism, alliances, imperialism, and nationalism..." 
+  input: [
+    {
+      role: "user",
+      content:
+        "Based on these documents, what were the major causes of World War I? Documents: [...]",
+    },
+  ],
+  output: {
+    role: "assistant",
+    content:
+      "The major causes of World War I included the assassination of Archduke Franz Ferdinand, militarism, alliances, imperialism, and nationalism...",
   },
   model: "gpt-4o",
   name: "Answer Generation",
   durationNs: 2000000000, // 2 seconds
-  userMetadata: { temperature: "0.3" },
-  tags: ['llm', 'history']
+  metadata: { temperature: "0.3" },
+  tags: ["llm", "history"],
 });
 
 // Conclude the trace
 logger.conclude({
   output: "The major causes of World War I included...",
-  durationNs: 3500000000 // 3.5 seconds
+  durationNs: 3500000000, // 3.5 seconds
 });
 
 // Flush the trace to Galileo
-await logger.flush(); 
+await logger.flush();
 ```

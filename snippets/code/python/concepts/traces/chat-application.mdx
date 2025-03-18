@@ -10,20 +10,21 @@ def process_chat_message(user_id, message, conversation_history):
         tags=["chat"],
         metadata={"user_id": user_id, "conversation_length": len(conversation_history)}
     )
-    
+
     try:
         # Add an LLM span for generating the response
         prompt = f"Conversation history: {conversation_history}\nUser: {message}\nAssistant:"
         logger.add_llm_span(
             input=prompt,
             output="I'd be happy to help with that...",
-            config={"model": "gpt-4o", "temperature": 0.7}
+            model="gpt-4o",
+            temperature=0.7
         )
-        
+
         # Conclude the trace
         response = "I'd be happy to help with that..."
         logger.conclude(output=response)
-        
+
         return response
     except Exception as e:
         # Log the error
@@ -36,5 +37,5 @@ def process_chat_message(user_id, message, conversation_history):
         raise
     finally:
         # Flush the trace to Galileo
-        logger.flush() 
+        logger.flush()
 ```

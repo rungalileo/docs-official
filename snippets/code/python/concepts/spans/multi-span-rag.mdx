@@ -29,7 +29,7 @@ logger.add_retriever_span(
     ],
     name="Document Search",
     duration_ns=1000000000,  # 1 second
-    user_metadata={"retriever_type": "vector_search"},
+    metadata={"retriever_type": "vector_search"},
     tags=["retrieval", "vector"]
 )
 
@@ -51,7 +51,7 @@ logger.add_llm_span(
     config={"model": "gpt-4o", "temperature": 0.3},
     name="Answer Generation",
     duration_ns=2000000000,  # 2 seconds
-    user_metadata={"request_id": "req-789"},
+    metadata={"request_id": "req-789"},
     tags=["llm", "health"]
 )
 
@@ -62,5 +62,5 @@ logger.end_workflow_span(generation_workflow, output="Generated response success
 logger.conclude(output="Based on the research, meditation offers several health benefits...")
 
 # Flush the trace to Galileo
-logger.flush() 
+logger.flush()
 ```

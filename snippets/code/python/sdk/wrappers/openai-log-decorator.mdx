@@ -1,12 +1,13 @@
 ```python Python
 import os
-from galileo import log, openai
+from galileo.openai import openai
+from galileo import log
 
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 def call_openai(prompt):
     chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": prompt}], 
+        messages=[{"role": "user", "content": prompt}],
         model="gpt-4o"
     )
     return chat_completion.choices[0].message.content
@@ -19,5 +20,5 @@ def make_nested_call():
 
 # This will create a trace with a workflow span and two nested LLM spans
 response = make_nested_call()
-print(response) 
+print(response)
 ```
