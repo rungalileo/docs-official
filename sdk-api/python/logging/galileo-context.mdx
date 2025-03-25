@@ -1,6 +1,6 @@
 ---
 title: Galileo Context
-description: 'Manage trace context and control logging behavior with the galileo_context context manager'
+description: "Manage trace context and control logging behavior with the galileo_context context manager"
 ---
 
 The `galileo_context` context manager provides a convenient way to control the logging behavior of your application. It allows you to:
@@ -53,7 +53,7 @@ client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 # This will log to the specified project and log stream
 with galileo_context(project="gen-ai-project", log_stream="test2"):
     chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}], 
+        messages=[{"role": "user", "content": "Say this is a test"}],
         model="gpt-4o"
     )
     print(chat_completion.choices[0].message.content)
@@ -86,14 +86,14 @@ import os
 from galileo import galileo_context, openai
 
 # Initialize the context with project and log stream
-galileo_context.init(project="your-project-id", log_stream="your-log-stream-id")
+galileo_context.init(project="your-project-name", log_stream="your-log-stream-name")
 
 # Initialize the Galileo wrapped OpenAI client
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 def call_openai():
     chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}], 
+        messages=[{"role": "user", "content": "Say this is a test"}],
         model="gpt-4o"
     )
     return chat_completion.choices[0].message.content
@@ -117,11 +117,11 @@ from galileo import galileo_context
 with galileo_context(project="main-project", log_stream="main-stream"):
     # This will log to main-project/main-stream
     operation_1()
-    
+
     with galileo_context(log_stream="sub-stream"):
         # This will log to main-project/sub-stream
         operation_2()
-    
+
     # Back to logging to main-project/main-stream
     operation_3()
 ```
