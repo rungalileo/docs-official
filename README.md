@@ -1,6 +1,6 @@
 # Galileo Docs
 
-This repo is the source for [Galileo's docs](https://docs.rungalileo.io/). We use [Mintlify](https://mintlify.com/) for building and publishing our docs.
+This repo is the source for [Galileo's docs](https://v2docs.galileo.ai/). We use [Mintlify](https://mintlify.com/) for building and publishing our docs.
 
 ## Contributing
 
