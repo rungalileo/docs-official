@@ -3,29 +3,33 @@ import { createDataset, createPromptTemplate, runExperiment } from "galileo";
 import { MessageRole } from "galileo/dist/types/message.types";
 
 async function runPromptTemplateExperiment() {
-  const suffix = Array.from({ length: 6 }, () =>
-    Math.floor(Math.random() * 10)
-  ).join("");
-  const projectName = "My first project";
-  const dataset = await createDataset(
-    [{ input: "Cryptography" }, { input: "Middle earth" }],
-    "storyteller-dataset-" + suffix
-  );
+  const projectName = "my-project";
+  
+  const dataset = await createDataset([
+    { input: "Which continent is Spain in?", output: "Europe" },
+    { input: "Which continent is Japan in?", output: "Asia" }
+  ], "geography-dataset");
+
   const template = await createPromptTemplate({
     template: [
-      { role: MessageRole.system, content: "You are a great storyteller." },
-      { role: MessageRole.user, content: "Write a story about {input}" },
+      { role: MessageRole.system, content: "You are a geography expert. Respond with only the continent name." },
+      { role: MessageRole.user, content: "{{input}}" }
     ],
     projectName: projectName,
-    name: "storyteller-prompt-" + suffix,
+    name: "geography-prompt"
   });
 
   await runExperiment({
-    name: "story-experiment",
+    name: "geography-experiment",
     dataset: dataset,
     promptTemplate: template,
+    promptSettings: {
+      max_tokens: 256,
+      model_alias: "GPT-4o",
+      temperature: 0.8
+    },
     metrics: ["correctness"],
-    projectName: projectName,
+    projectName: projectName
   });
 }
 
