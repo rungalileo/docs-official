@@ -1,26 +1,34 @@
-```typescript TypeScript
-import { createPromptTemplate, runExperiment } from "galileo";
+```typescript Typescript
+import { createDataset, createPromptTemplate, runExperiment } from "galileo";
+import { MessageRole } from "galileo/dist/types/message.types";
 
-const template = await createPromptTemplate({
-  template: [
-    { role: "system", content: "You are a great storyteller." },
-    { role: "user", content: "Write a story about {input}" },
-  ],
-  projectName: "my-project",
-  name: "storyteller-prompt",
-});
+async function runPromptTemplateExperiment() {
+  const suffix = Array.from({ length: 6 }, () =>
+    Math.floor(Math.random() * 10)
+  ).join("");
+  const projectName = "My first project";
+  const dataset = await createDataset(
+    [{ input: "Cryptography" }, { input: "Middle earth" }],
+    "storyteller-dataset-" + suffix
+  );
+  const template = await createPromptTemplate({
+    template: [
+      { role: MessageRole.system, content: "You are a great storyteller." },
+      { role: MessageRole.user, content: "Write a story about {input}" },
+    ],
+    projectName: projectName,
+    name: "storyteller-prompt-" + suffix,
+  });
 
-await runExperiment({
-  name: "story-experiment",
-  datasetName: "storyteller-dataset",
-  promptTemplate: template,
-  // Optional
-  promptSettings: {
-    max_tokens: 256,
-    model_alias: "GPT-4o", // Make sure you have an integration set up for the model alias you're using
-    temperature: 0.8,
-  },
-  metrics: ["correctness"],
-  projectName: "my-project",
-});
+  await runExperiment({
+    name: "story-experiment",
+    dataset: dataset,
+    promptTemplate: template,
+    metrics: ["correctness"],
+    projectName: projectName,
+  });
+}
+
+// Run the experiment
+runPromptTemplateExperiment();
 ```
