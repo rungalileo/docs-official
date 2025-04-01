@@ -79,7 +79,7 @@ LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
 ## Full Working Example
 
 Check out a complete working example on Colab:  
-🔗 [OpenTelemetry + Galileo Integration Notebook](https://colab.research.google.com/drive/14c1-UVmOVBQt_CRGnOlTEcvgf7yBLiPB)
+🔗 [OpenTelemetry + Galileo Integration Notebook](https://colab.research.google.com/drive/1gro0sip8tr3DZuMLlxjuiKF7QQZJT8Q-)
 
 ---
 
@@ -128,19 +128,47 @@ Log in to the Galileo console and create a new logging project. After creation, 
 Choose the instrumentor(s) matching your framework:
 
 ```python
+# OpenAI
 from openinference.instrumentation.openai import OpenAIInstrumentor
+
+# LlamaIndex
 from openinference.instrumentation.llama_index import LlamaIndexInstrumentor
+
+# DSPy
 from openinference.instrumentation.dspy import DSPyInstrumentor
+
+# Bedrock
 from openinference.instrumentation.bedrock import BedrockInstrumentor
+
+# LangChain
 from openinference.instrumentation.langchain import LangChainInstrumentor
+
+# Mistral AI
 from openinference.instrumentation.mistralai import MistralAIInstrumentor
+
+# Guardrails
 from openinference.instrumentation.guardrails import GuardrailsInstrumentor
+
+# Vertex AI
 from openinference.instrumentation.vertexai import VertexAIInstrumentor
+
+# CrewAI
 from openinference.instrumentation.crewai import CrewAIInstrumentor
+from openinference.instrumentation.langchain import LangChainInstrumentor
+
+# Haystack
 from openinference.instrumentation.haystack import HaystackInstrumentor
+
+# LiteLLM
 from openinference.instrumentation.litellm import LiteLLMInstrumentor
+
+# Groq
 from openinference.instrumentation.groq import GroqInstrumentor
+
+# Instructor
 from openinference.instrumentation.instructor import InstructorInstrumentor
+
+# Anthropic
 from openinference.instrumentation.anthropic import AnthropicInstrumentor
 ```
 
@@ -190,6 +218,7 @@ with tracer.start_as_current_span("test-span"):
 - ✅ Make sure the environment variable is correctly formatted.
 - ✅ Ensure the endpoint is accessible from your environment.
 - ✅ Instrument your framework before using it.
+- ✅ Restart environment after changing environment variables.
 - ✅ Use `print(os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS'])` to debug your header string.
 
 ---
