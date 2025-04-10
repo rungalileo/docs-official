@@ -7,10 +7,11 @@ import { Screenshot } from '/snippets/Screenshot.mdx';
 
 {/* Note: When screenshots are available, add the imageUrl prop to each Screenshot component */}
 
+
 {/* Screenshot: Console Homepage Navigation */}
 <Screenshot
   alt="Console homepage navigation showing the main dashboard and key navigation elements"
-  placeholder="Add screenshot of console homepage navigation"
+  src="/images/g2/chatbot-trace-improvement.png"
 />
 
 {/* Screenshot: New Experiment Creation */}
@@ -37,8 +38,141 @@ import { Screenshot } from '/snippets/Screenshot.mdx';
   placeholder="Add screenshot of completed experiment results"
 />
 
-## Running Experiments
 
 This section will guide you through the process of running experiments in the Galileo Console.
 
-{/* TODO: Add more content */}
+## Walkthrough
+
+Test and improve your AI projects using [Galileo's Console UI](https://app.galileo.ai).
+
+### Step 1: Select Project & Open Playground
+
+On [app.galileo.ai](https://app.galileo.ai), use the **drop down menu in the top-left** to select the project you would like to experiment with. Or, create a new project.
+
+Then, click the **"Open Playground"** button to access the Galileo Console.
+
+<Screenshot
+  alt="app.galileo.ai"
+  imageUrl="/images/home-navigation.png"
+/>
+
+
+### Step 2: Select Model & Enter API Keys
+
+In the Galileo Console UI, **select a model** using the "Model" drop down menu.
+
+Some models require that you **enter your corresponding API key**. Visit their respective API platforms to obtain your keys.
+
+<Screenshot
+  alt="Select a Model"
+  imageUrl="/images/model-select.png"
+/>
+
+
+## Examples of Common Experiment Scenarios
+
+These examples illustrate how users typically run experiments in the Galileo Console to validate and improve AI application performance.
+
+### Example 1: Validating a Sentiment Analysis Function
+
+**Goal:** Ensure the model correctly classifies customer reviews as Positive, Neutral, or Negative.
+
+**Setup:**
+- **Function**: `analyze_sentiment` – takes in review text, returns a label and optional confidence score.
+- **Dataset**: 1,000 real customer reviews across different products.
+- **Metrics**: Correctness (using exact label match), Token Highlighting enabled.
+
+**Steps:**
+1. Upload or select the review dataset.  
+2. Select the `analyze_sentiment` function.  
+3. Choose **Correctness** as the metric and enable token-level explainability.  
+4. Run the experiment.
+
+**Expected Outcome:**  
+High accuracy in Positive/Negative samples. Token-level highlights reveal the influence of negation words and intensifiers.
+
+{/* Screenshot: Completed Experiment Results */}
+<Screenshot
+  alt="Results view of a completed experiment showing metrics and outcomes"
+  placeholder="Add screenshot of completed experiment results"
+/>
+
+
+
+### Example 2: Comparing Two LLMs on a Customer Support Task
+
+**Goal:** Identify which model gives more helpful responses to customer queries.
+
+**Setup:**
+- **Functions**: `gpt-4` and `claude-3-haiku` versions of the same prompt template.
+- **Dataset**: 100 frequently asked customer service questions.
+- **Metrics**: Relevance and Completeness (measured via Galileo’s scoring UI or custom feedback rubric).
+
+**Steps:**
+1. Create one experiment per model with identical datasets.  
+2. Manually score Relevance and Completeness or configure custom metrics.  
+3. Use the Experiment Comparison view.
+
+**Expected Outcome:**  
+Clear visual comparison of performance by metric. Decision support for production model selection.
+
+{/* Screenshot: Model Comparison Chart */}
+<Screenshot
+  alt="Side-by-side comparison chart of model outputs across metrics"
+  placeholder="Add screenshot of model comparison chart"
+/>
+
+
+
+### Example 3: Safety Evaluation of a Chatbot
+
+**Goal:** Check for potential unsafe or toxic responses to edge-case prompts.
+
+**Setup:**
+- **Function**: `chatbot_response_v2`
+- **Dataset**: Curated prompts designed to trigger edge behaviors (e.g., controversial, sensitive, or adversarial topics).
+- **Metrics**: Safety (with Galileo's built-in Safety scoring model).
+
+**Steps:**
+1. Select the edge-case dataset.  
+2. Select the chatbot function.  
+3. Choose **Safety** as the metric.  
+4. Run the experiment and review flagged outputs.
+
+**Expected Outcome:**  
+Identification of prompt types that lead to unsafe outputs. Use results to fine-tune safety guardrails or re-train the model.
+
+{/* Screenshot: Safety Heatmap */}
+<Screenshot
+  alt="Safety metric heatmap with flagged response samples"
+  placeholder="Add screenshot of safety evaluation results"
+/>
+
+
+
+
+{/*
+~~~ Extra Example ~~~
+
+### Example 4: Post-Deployment Regression Test
+
+**Goal:** Validate that a recent model update did not degrade performance on core use cases.
+
+**Setup:**
+- **Function**: `qa_model_v3`
+- **Dataset**: Golden set of key use-case inputs with known expected behavior.
+- **Metrics**: Correctness, Token Highlighting.
+
+**Steps:**
+1. Run the latest model version on the test set.  
+2. Compare against the previous experiment’s results using Experiment Comparison.  
+3. Investigate any performance dips.
+
+**Expected Outcome:**  
+Confidence in regression safety. Easy rollback if new issues are detected.
+
+{/* Screenshot: Regression Comparison View */}
+<Screenshot
+  alt="Regression analysis view comparing performance before and after deployment"
+  placeholder="Add screenshot of regression test comparison"
+/>
