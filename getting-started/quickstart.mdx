@@ -126,7 +126,7 @@ OPENAI_API_KEY="your-OpenAI-api-key-here"
 
 In the `.env` file, fill in the API key values:
 * `OPENAI_API_KEY` : Obtain your OpenAI API key by logging in to your OpenAI account on [their website](https://platform.openai.com/settings/organization/api-keys).
-* `GALILEO_API_KEY` : Obtain your Galileo API key by logging in to your Galileo account on [Galileo.ai](https://app.galileo.ai/settings/api-keys). Open "Settings & Users" from the drop down menu in the top-right corner. Then, click "API Keys" in the left column, and generate your API key by clicking "+ Create New Key".
+* `GALILEO_API_KEY` : Obtain your Galileo API key by logging in to your Galileo account on [Galileo.ai](https://app.galileo.ai/settings/api-keys). Open "Settings & Users" from the drop down menu in the top-right corner. Then, click "API Keys" in the left column, and generate your API key by clicking "+ Create new key".
 ![Create API Key](/images/create-api-key.png)
 </Step>
 
@@ -136,52 +136,8 @@ In the `.env` file, fill in the API key values:
 Copy the code below into your application file:
 
 <CodeGroup>
-```python Python
-# app.py
-
-import os
-from galileo import galileo_context # The Galileo context manager
-from galileo.openai import openai # The Galileo OpenAI client wrapper
-from dotenv import load_dotenv
-load_dotenv()
-
-# Initialize the OpenAI client using the Galileo wrapper and your OpenAI API key
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-# The Galileo context manager will automatically create a trace and flush the logs when exiting
-with galileo_context():
-    prompt = f"Explain the following topic succinctly: Newton's First Law"
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "system", "content": prompt}],
-    )
-    print(response.choices[0].message.content.strip())
-```
-
-```typescript TypeScript
-// app.ts
-
-import { OpenAI } from "openai";
-import { init, flush, wrapOpenAI } from "galileo";
-import dotenv from 'dotenv';
-dotenv.config();
-
-// Initialize Galileo
-init({
-  projectName: "my-project",
-  logStreamName: "development"
-});
-
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-const prompt = "Explain the following topic succinctly: Newton's First Law";
-await openai.chat.completions.create({
- model: "gpt-4o",
- messages: [{ content: prompt, role: "user" }],
-});
-
-// Flush logs before exiting
-await flush();
-```
+<SnippetGettingStarted1Python />
+<SnippetGettingStarted1Typescript />
 </CodeGroup>
 </Step>
 
