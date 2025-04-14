@@ -58,14 +58,14 @@ Find solutions to errors with the [Galileo API](/sdk-api/python/reference) below
 - **Message**: `POST method not supported for this endpoint.`
 - **Interpretation**: The wrong HTTP method was used.
 - **Troubleshooting**:
-  - Consult API docs to confirm the correct method (GET, POST, PUT, DELETE).
+  - Consult the [API documentation](api-reference/getting-started) to confirm the correct method (`GET`, `POST`, `PUT`, `DELETE`).
 
 ### 422: Unprocessable Entity
 - **Message**: `Field 'logits' must be an array of floats matching number of classes.`
 - **Interpretation**: The data format is incorrect even though the syntax is valid.
 - **Troubleshooting**:
   - Ensure arrays like `logits`, `tokens`, or `labels` match expected dimensions.
-  - Refer to the model type’s required input structure.
+  - Refer to the model type’s [required input structure](/how-to-guides/overview).
 
 **Example (incorrect logits dimensions):**
 ```json
@@ -140,7 +140,7 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
 - **Interpretation**: The SDK currently supports a limited set of model types.
 - **Troubleshooting**:
   - Use supported types like `classification`, `token_classification`, or `text_generation`.
-  - Review [Galileo model compatibility](https://docs.rungalileo.io/docs/intro/model-support).
+  - Review [Galileo model compatibility](/intro/model-support).
 
 
 ### Token Mismatch Error
@@ -148,14 +148,14 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
 - **Interpretation**: The offsets passed during token classification are misaligned.
 - **Troubleshooting**:
   - Validate token offset array lengths match token arrays.
-  - Use the Galileo tokenizer helpers when possible.
+  - Use the [Galileo tokenizer](/missinglink) helpers when possible.
 
 
 ### Dataset Not Found
 - **Error Message**: `DatasetNotFoundError: Dataset 'reviews_v2' not found.`
 - **Interpretation**: The specified dataset was not found in the project or workspace.
 - **Troubleshooting**:
-  - Confirm dataset name and project association in the Galileo Console.
+  - Confirm dataset name and project association in the [Galileo Console](https://app.galileo.ai).
   - Run `galileo.get_datasets()` to verify available datasets.
 
 
