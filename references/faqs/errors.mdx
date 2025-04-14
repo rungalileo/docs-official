@@ -1,5 +1,255 @@
 ---
-title: Errors
+title: Common Errors Guide
 ---
 
-Content for errors
+This guide describes common errors and their solutions.
+
+---
+## ↔️ Galileo API Errors
+
+Find solutions to errors with the [Galileo API](/sdk-api/python/reference) below.
+
+### 400: Bad Request
+- **Message**: `Missing required field: 'model_id'`
+- **Interpretation**: A required field in the request body is missing or malformed.
+- **Troubleshooting**:
+  - Validate your JSON payload structure.
+  - Review the [API documentation](/getting-started/quickstart) for required fields.
+
+**Example (missing field):**
+```json
+{
+  "dataset": "review_data"
+}
+```
+
+**Fix:**
+```json
+{
+  "model_id": "bert-v1",
+  "dataset": "review_data"
+}
+```
+
+### 401: Unauthorized
+- **Message**: `Authentication credentials were not provided.`
+- **Interpretation**: The request was made without a valid API key.
+- **Troubleshooting**:
+  - Ensure the `Authorization` header is set.
+  - Visit your [Galileo account settings](https://app.galileo.ai/settings/api-keys) to confirm the API key is valid and not expired.
+
+### 403: Forbidden
+- **Message**: `You do not have permission to access this resource.`
+- **Interpretation**: The API key is valid, but access to the specified resource is denied.
+- **Troubleshooting**:
+  - Double-check your project, workspace, or dataset permissions.
+  - Visit your [Galileo account settings](https://app.galileo.ai/settings/api-keys) to confirm your API key has the correct scope.
+
+
+### 404: Not Found
+- **Message**: `Project ID 'xyz' not found.`
+- **Interpretation**: The specified resource doesn’t exist.
+- **Troubleshooting**:
+  - Verify the resource ID exists in your [Galileo Console](https://app.galileo.ai).
+  - Double-check for typos in the endpoint or parameter.
+
+
+### 405: Method Not Allowed
+- **Message**: `POST method not supported for this endpoint.`
+- **Interpretation**: The wrong HTTP method was used.
+- **Troubleshooting**:
+  - Consult API docs to confirm the correct method (GET, POST, PUT, DELETE).
+
+### 422: Unprocessable Entity
+- **Message**: `Field 'logits' must be an array of floats matching number of classes.`
+- **Interpretation**: The data format is incorrect even though the syntax is valid.
+- **Troubleshooting**:
+  - Ensure arrays like `logits`, `tokens`, or `labels` match expected dimensions.
+  - Refer to the model type’s required input structure.
+
+**Example (incorrect logits dimensions):**
+```json
+{
+  "model_id": "bert-v1",
+  "dataset": "reviews",
+  "inputs": ["This movie was amazing!"],
+  "logits": [[1.2, 0.8]],  // ❌ Only 2 values, should be 3
+  "labels": [2]
+}
+```
+
+**Fix:**
+```json
+{
+  "model_id": "bert-v1",
+  "dataset": "reviews",
+  "inputs": ["This movie was amazing!"],
+  "logits": [[1.2, 0.8, -0.3]],  // ✅ 3 values
+  "labels": [2]
+}
+```
+
+### 501: Not Implemented
+- **Message**: `This endpoint is not available.`
+- **Interpretation**: The endpoint exists but is not supported or publicly accessible.
+- **Troubleshooting**:
+  - Do not use undocumented endpoints.
+  - [Contact support](mailto:support@rungalileo.io) if access to the endpoint is expected.
+
+---
+
+## 📁 Galileo SDK Errors
+
+### Missing or Invalid API Key
+- **Error Message**: `ValueError: No API key found. Please set your GALILEO_API_KEY.`
+- **Interpretation**: The SDK cannot authenticate with the Galileo API.
+- **Troubleshooting**:
+  - Set your API key using an environment variable:
+    ```bash
+    export GALILEO_API_KEY="your-api-key"
+    ```
+  - Or programmatically:
+    ```python
+    import galileo
+    galileo.set_api_key("your-api-key")
+    ```
+
+
+### Invalid Input Shape
+- **Error Message**: `ValueError: Inputs and logits must have the same batch size.`
+- **Interpretation**: The arrays passed to `log_model_outputs()` are mismatched.
+- **Troubleshooting**:
+  - Ensure the number of entries in `inputs`, `logits`, and `labels` is the same.
+
+**Example (incorrect):**
+```python
+inputs = ["text1", "text2"]
+logits = [[0.1, 0.9]]  # Only one set of logits
+labels = [1, 0]
+galileo.log_model_outputs(inputs=inputs, logits=logits, labels=labels)
+```
+
+**Fix:**
+```python
+logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
+```
+
+
+### Unsupported Model Type
+- **Error Message**: `UnsupportedModelTypeError: Model type 'regression' is not supported.`
+- **Interpretation**: The SDK currently supports a limited set of model types.
+- **Troubleshooting**:
+  - Use supported types like `classification`, `token_classification`, or `text_generation`.
+  - Review [Galileo model compatibility](https://docs.rungalileo.io/docs/intro/model-support).
+
+
+### Token Mismatch Error
+- **Error Message**: `ValueError: Token offsets do not match number of tokens.`
+- **Interpretation**: The offsets passed during token classification are misaligned.
+- **Troubleshooting**:
+  - Validate token offset array lengths match token arrays.
+  - Use the Galileo tokenizer helpers when possible.
+
+
+### Dataset Not Found
+- **Error Message**: `DatasetNotFoundError: Dataset 'reviews_v2' not found.`
+- **Interpretation**: The specified dataset was not found in the project or workspace.
+- **Troubleshooting**:
+  - Confirm dataset name and project association in the Galileo Console.
+  - Run `galileo.get_datasets()` to verify available datasets.
+
+
+### Experiment Creation Failed
+- **Error Message**: `ExperimentError: Cannot create experiment. Missing metadata.`
+- **Interpretation**: Required metadata fields were not logged before calling `create_experiment()`.
+- **Troubleshooting**:
+  - Ensure you’ve logged inputs, outputs, and model predictions.
+  - Call `log_model_outputs()` before `create_experiment()`.
+
+
+
+### Network or Timeout Issues
+- **Error Message**: `requests.exceptions.ConnectionError`
+- **Interpretation**: SDK could not connect to the Galileo API.
+- **Troubleshooting**:
+  - Check your internet connection.
+  - Retry after a few moments.
+  - Ensure the API base URL is not overridden or misconfigured.
+
+
+---
+
+## 🖥️ Galileo Console Errors
+
+### Access Denied
+- **Error Message**: `You do not have permission to view this project.`
+- **Interpretation**: Your account lacks access to a resource within a workspace or project.
+- **Troubleshooting**:
+  - Ask your admin to verify your permissions.
+  - Ensure you’re logged into the correct workspace.
+
+
+### Project Not Found
+- **Error Message**: `Project does not exist or has been deleted.`
+- **Interpretation**: The requested project ID or slug is invalid.
+- **Troubleshooting**:
+  - Refresh the Console and check your project list.
+  - Ask a teammate to verify the project is still active.
+
+
+
+### Dataset Load Failed
+- **Error Message**: `Failed to load dataset. Please try again.`
+- **Interpretation**: The dataset may not have been logged properly, or it failed to sync.
+- **Troubleshooting**:
+  - Verify that the dataset was successfully logged via SDK or API.
+  - Try refreshing the browser or logging out and back in.
+  - If persistent, check SDK logs for any upload errors.
+
+
+### Experiment Failed to Run
+- **Error Message**: `Unable to create experiment. Check that all required data is available.`
+- **Interpretation**: The backend did not receive sufficient input data.
+- **Troubleshooting**:
+  - Ensure model inputs, outputs, and predictions were logged.
+  - Confirm the correct dataset is selected.
+  - Re-run `log_model_outputs()` before retrying in the Console.
+
+
+### Visualization Error
+- **Error Message**: `Visualization failed to render.`
+- **Interpretation**: The plot component encountered unexpected data or rendering issues.
+- **Troubleshooting**:
+  - Try changing filters, date range, or toggling options.
+  - If you uploaded custom metadata, ensure it follows the schema.
+  - Try a different browser or clear cache.
+
+
+### File Upload Failed
+- **Error Message**: `File type not supported.` or `Upload failed. Please retry.`
+- **Interpretation**: Invalid file type or temporary server-side issue.
+- **Troubleshooting**:
+  - Check that the file format is supported (e.g., CSV, JSONL).
+  - Rename the file and try again.
+  - If issue persists, contact support.
+
+
+### Export Unavailable
+- **Error Message**: `Export failed. No records available for download.`
+- **Interpretation**: Attempting to export an empty or invalid dataset or experiment.
+- **Troubleshooting**:
+  - Ensure filters are not excluding all records.
+  - Re-run the experiment to regenerate results.
+
+
+
+### General Tips
+- Refresh the Console often when data changes.
+- Use the latest version of a modern browser (Chrome, Edge, Firefox).
+- Ensure cookies and local storage are enabled for session persistence.
+
+---
+
+
+If issues persist, contact support at [support@rungalileo.io](mailto:support@rungalileo.io) with your request payload and full error message.
+
