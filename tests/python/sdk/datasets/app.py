@@ -9,11 +9,11 @@ load_dotenv()
 test_data = [
     {
         "input": "Which continent is Spain in?",
-        "expected": "Europe",
+        "output": "Europe",
     },
     {
         "input": "Which continent is Japan in?",
-        "expected": "Asia",
+        "output": "Asia",
     },
 ]
 
