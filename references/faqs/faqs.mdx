@@ -1,6 +1,17 @@
 ---
 title: FAQ
 ---
+import SnippetFAQ1 from '/snippets/code/python/references/faqs/faqs-1.mdx';
+import SnippetFAQ2 from '/snippets/code/python/references/faqs/faqs-2.mdx';
+import SnippetFAQ3 from '/snippets/code/python/references/faqs/faqs-3.mdx';
+import SnippetFAQ4 from '/snippets/code/python/references/faqs/faqs-4.mdx';
+import SnippetFAQ5 from '/snippets/code/python/references/faqs/faqs-5.mdx';
+import SnippetFAQ6 from '/snippets/code/python/references/faqs/faqs-6.mdx';
+import SnippetFAQ7 from '/snippets/code/python/references/faqs/faqs-7.mdx';
+import SnippetFAQ8 from '/snippets/code/python/references/faqs/faqs-8.mdx';
+import SnippetFAQ9 from '/snippets/code/python/references/faqs/faqs-9.mdx';
+import SnippetFAQ10 from '/snippets/code/python/references/faqs/faqs-10.mdx';
+import SnippetFAQ11 from '/snippets/code/python/references/faqs/faqs-11.mdx';
 
 ## 🧠 General & Core Concepts
 
@@ -72,13 +83,7 @@ Galileo provides Python and Typescript SDK designed to integrate with your gener
 You can install the SDK via the command line:
 
 <CodeGroup>
-```bash Python
-pip install galileo
-```
-
-```bash Typescript
-npm install galileo
-```
+<SnippetFAQ1 />
 </CodeGroup>
 
 [Python SDK installation instructions →](/sdk-api/python/overview)
@@ -88,17 +93,9 @@ npm install galileo
 
 You can log a prompt and generation using the `log_sample()` method:
 
-```python
-from galileo import GalileoLogger
-
-logger = GalileoLogger(task_type="text-generation")
-
-logger.log_sample(
-    prompt="Summarize the following article...",
-    generation="The article discusses...",
-    metadata={"source": "news_article_123"}
-)
-```
+<CodeGroup>
+<SnippetFAQ2 />
+</CodeGroup>
 
 This data will then be visible in the Galileo Console for further evaluation.
 
@@ -108,13 +105,10 @@ This data will then be visible in the Galileo Console for further evaluation.
 
 Yes, Galileo allows you to log both built-in and custom metrics. You can use the `log_metric()` method after evaluating a generation:
 
-```python
-logger.log_metric(
-    sample_id="sample_001",
-    metric_name="custom_readability_score",
-    value=0.92
-)
-```
+<CodeGroup>
+<SnippetFAQ3 />
+</CodeGroup>
+
 
 Custom metrics help tailor evaluation to your specific use case.
 
@@ -126,20 +120,9 @@ Custom metrics help tailor evaluation to your specific use case.
 
 To batch log data, use the `log_samples()` method with a list of dictionaries:
 
-```python
-samples = [
-    {
-        "prompt": "Write a poem about the ocean.",
-        "generation": "The waves crash soft and deep..."
-    },
-    {
-        "prompt": "Explain black holes.",
-        "generation": "Black holes are regions in space..."
-    }
-]
-
-logger.log_samples(samples)
-```
+<CodeGroup>
+<SnippetFAQ4 />
+</CodeGroup>
 
 Batch logging is useful for processing datasets or logging results from async tasks.
 
@@ -149,13 +132,9 @@ Batch logging is useful for processing datasets or logging results from async ta
 
 Use the `metadata` field to attach tags, experiment IDs, or dataset names. This allows you to slice and compare data later in the Galileo UI.
 
-```python
-logger.log_sample(
-    prompt="Summarize the following email...",
-    generation="Here's a summary...",
-    metadata={"dataset": "customer_support", "experiment_id": "v2_ablation"}
-)
-```
+<CodeGroup>
+<SnippetFAQ5 />
+</CodeGroup>
 
 These tags make it easier to drill into specific subsets of data during evaluation.
 
@@ -165,13 +144,9 @@ These tags make it easier to drill into specific subsets of data during evaluati
 
 Yes — Galileo supports streaming workflows by allowing you to log samples incrementally. While you can log the final generation normally, you can also update or re-log a sample with the same `sample_id` if you’re assembling the response over time.
 
-```python
-logger.log_sample(
-    sample_id="stream_001",
-    prompt="Write a poem line by line.",
-    generation="The sun rose slow across the bay..."
-)
-```
+<CodeGroup>
+<SnippetFAQ6 />
+</CodeGroup>
 
 Make sure to use a consistent `sample_id` if you plan to overwrite or update logged data.
 
@@ -181,13 +156,9 @@ Make sure to use a consistent `sample_id` if you plan to overwrite or update log
 
 If your prompts or generations may contain personally identifiable information (PII), ensure that you mask, anonymize, or exclude that data before logging. Galileo recommends using metadata fields to mark sensitive content without logging it directly.
 
-```python
-logger.log_sample(
-    prompt="[REDACTED]",
-    generation="[REDACTED]",
-    metadata={"pii_redacted": True}
-)
-```
+<CodeGroup>
+<SnippetFAQ7 />
+</CodeGroup>
 
 You can also add preprocessing steps in your pipeline to sanitize the data automatically.
 
@@ -197,16 +168,9 @@ You can also add preprocessing steps in your pipeline to sanitize the data autom
 
 If you’re running asynchronous model inference or processing batches of generations in a job queue, you can use the `log_samples()` method to send logs in groups. This is both efficient and compatible with job processing pipelines.
 
-```python
-results = run_model_async(prompts)
-
-samples = [
-    {"prompt": r["input"], "generation": r["output"], "metadata": {"batch": "evening_test_run"}}
-    for r in results
-]
-
-logger.log_samples(samples)
-```
+<CodeGroup>
+<SnippetFAQ8 />
+</CodeGroup>
 
 This approach is ideal for logging from cron jobs, workers, or serverless functions.
 
@@ -326,12 +290,9 @@ Avoid nesting values within arrays or objects, as these may not render properly 
 
 You can use tools like [Postman](https://www.postman.com/) or [cURL](https://curl.se/) to send test requests manually. Here's an example using cURL:
 
-```bash
-curl -X POST https://api.galileo.ai/samples \
-  -H "Authorization: Bearer YOUR_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"task_type": "text-generation", "prompt": "Hello", "generation": "Hi there!"}'
-```
+<CodeGroup>
+<SnippetFAQ9 />
+</CodeGroup>
 
 This is helpful for debugging or trying out new endpoints quickly.
 
@@ -413,31 +374,9 @@ Start by reviewing the evaluation configuration, including which metrics are bei
 
 Use representative prompts and outputs that reflect your production use cases. Include both typical and edge-case examples to ensure robustness. Tag samples with metadata like version, domain, or scenario to enable slicing. Avoid leaking answers or clues into the prompts, and ensure that the ground truth or expectations are well-defined if you're using metrics that rely on references.
 
-```python
-from galileo import GalileoLogger
-logger = GalileoLogger(task_type="text-generation")
-evaluation_set = [
-    {
-        "prompt": "Explain the difference between TCP and UDP.",
-        "generation": "TCP is connection-based, UDP is connectionless...",
-        "metadata": {
-            "topic": "networking",
-            "difficulty": "medium",
-            "scenario": "interview_prep",
-            "split": "eval_v1"
-        }
-    },
-    {
-        "prompt": "Translate 'How are you?' to Japanese.",
-        "generation": "お元気ですか？",
-        "metadata": {
-            "task": "translation",
-            "language": "ja",
-            "split": "eval_v1"
-        }
-    }
-]
-```
+<CodeGroup>
+<SnippetFAQ10 />
+</CodeGroup>
 
 [Dataset design tips →](/concepts/traces)
 
@@ -445,23 +384,9 @@ evaluation_set = [
 
 Long inputs or generations can occasionally hit system or model limits. Break up extremely long inputs into chunks when possible, and monitor token counts if you're using hosted LLMs with token caps. If evaluating through the SDK or API, add retry logic and ensure that the timeout settings are reasonable. Galileo also supports logging partial generations with the same `sample_id` to update them later.
 
-```python
-long_input = " ".join(["This is a sentence."] * 1000)  # ~20K tokens
-
-# Break into chunks
-chunk_size = 500  # characters or tokens, depending on your tokenizer
-chunks = [long_input[i:i+chunk_size] for i in range(0, len(long_input), chunk_size)]
-
-for i, chunk in enumerate(chunks):
-    generated_text = f"Generated response for chunk {i + 1}"
-    logger.log_sample(
-        sample_id=sample_id,
-        prompt=chunk,
-        generation=generated_text,
-        metadata={"chunk_index": i + 1, "is_chunked": True}
-    )
-```
-
+<CodeGroup>
+<SnippetFAQ11 />
+</CodeGroup>
 
 ### How can I ensure my evaluation metrics align with real user needs or product goals?
 

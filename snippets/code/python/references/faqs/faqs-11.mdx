@@ -1,0 +1,16 @@
+```python Python
+long_input = " ".join(["This is a sentence."] * 1000)  # ~20K tokens
+
+# Break into chunks
+chunk_size = 500  # characters or tokens, depending on your tokenizer
+chunks = [long_input[i:i+chunk_size] for i in range(0, len(long_input), chunk_size)]
+
+for i, chunk in enumerate(chunks):
+    generated_text = f"Generated response for chunk {i + 1}"
+    logger.log_sample(
+        sample_id=sample_id,
+        prompt=chunk,
+        generation=generated_text,
+        metadata={"chunk_index": i + 1, "is_chunked": True}
+    )
+```
