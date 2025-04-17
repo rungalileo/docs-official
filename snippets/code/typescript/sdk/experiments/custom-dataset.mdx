@@ -5,7 +5,7 @@ import { OpenAI } from "openai";
 async function runCustomDatasetExperiment() {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-  const dataset = [{ input: "Spain", expected: "Europe" }];
+  const dataset = [{ input: "Spain", output: "Europe" }];
 
   const runner = async (input) => {
     const result = await openai.chat.completions.create({
@@ -18,7 +18,7 @@ async function runCustomDatasetExperiment() {
         },
       ],
     });
-    return result;
+    return [result.choices[0].message.content];;
   };
 
   await runExperiment({

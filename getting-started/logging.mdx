@@ -1,21 +1,58 @@
 ---
-title: Overview
+title: Logging
+icon: "terminal"
 ---
 
-There are several concepts which will you'll encounter when logging with Galileo.
-1. The **Galileo Logger** - This is the main object you'll use to log data from your application. You can access it directly using the <a href="">Python</a> or <a href="">TypeScript SDKs</a>.
-2. **<a href="/concepts/projects">Project</a>** - All logs are stored within a project in Galileo. You can create and manage your projects using the Galileo UI.
-3. **<a href="/concepts/logstreams">Log Streams</a>** - Log streams are a way to organize logs in Galileo. You can create and manage your log streams using the Galileo UI.
-4. **<a href="/concepts/traces">Traces</a>** - These track a collection of Logs which represent a "single response". For multi-step LLM calls, this helps debug how the response was built, and where issues may have occurred.
-5. **<a href="/concepts/spans">Spans</a>** - Spans are a single step in a trace. They can be a `workflow` if they contain multiple sub-spans, `llm` for a step invoking an LLM call, `retriever` for when you retrieve data, or `tool` for agentic tool calls. 
+Logging with Galileo involves several core concepts. These make it easier to identify problems or ways to improve your pipeline.
 
-As your application runs, it will stream logs back to Galileo in a series of traces that then get analyzed using Metrics you set up. Traces that seem problematic can then be reviewed step by step to determine what part of the pipeline needs changing, or if the Metrics need tweaking.
+### **Spans**
 
+A [span](/concepts/spans) is the atomic unit of logging in Galileo. Each represents a discrete operation or step within your AI application.
 
-<Card title="Learn about logging in Python" icon="python" href="/getting-started/logging/python">
+Spans can have several different types:
+* `llm` - when a span invokes an LLM call.
+* `retriever` - when a span is retrieving data.
+* `tool` - when a span makes agentic tool calls.
+* `workflow` - when a span contains multiple sub-spans.
+
+Spans record detailed information about these operations, including inputs, outputs, duration, relevant metadata, and their relationships to each other. Spans are organized hierarchically within **traces**.
+
+### **Traces**
+
+A [trace](/concepts/traces) is a collection of related spans that, together, represent a single logical response.
+
+Traces help you understand how a response was generated across multiple steps, and are especially useful when debugging multi-step LLM workflows. This organization facilitates end-to-end visibility, workflow reconstruction, performance analysis, error diagnosis, and quality assessment.
+
+To more efficiently analyze and manage traces across different contexts, they are organized into **log streams**.
+
+### **Log Streams**
+
+[Log streams](/concepts/logstreams) ​are organizational units that group related traces together based on logical deployments, applications, or environments.
+
+Log streams provide a structured way to categorize and manage traces across your AI workflows, making it easier to monitor, analyze, and debug specific segments of your application ecosystem. By organizing traces into log streams, you can separate data from different environments (`development`, `staging`, `production`), isolate traces from various applications or services, and group traces by feature, team, or business unit.
+
+All log streams are organized and managed within **projects**.
+
+### **Projects**
+
+[Projects](/concepts/projects) serve as the top-level organizational units that encapsulate all log streams related to your AI applications.
+
+Projects provide a structured environment where you can manage and coordinate log streams, ensuring that related streams are grouped together. This allows for effective user management, where different access levels can be assigned to team members, such as `viewers`, `editors`, and `admins`.
+
+Programmatic management and interaction with log streams within a project is accomplished using the **Galileo Logger**.
+
+### **Galileo Logger**
+
+The **Galileo Logger** is the SDK interface used to create and manage spans, traces, log streams and projects.
+
+As your application runs, the Galileo Logger streams logs back to Galileo as **spans**, which are collected into **traces**. These traces get analyzed using the **Metrics** you set up, and related traces are organized into **log streams**. Traces that seem problematic can then be reviewed step by step within **projects** to determine what part of the pipeline needs changing, or if the Metrics need tweaking.
+
+You can access the Galileo Logger directly using the [Python SDK](/sdk-api/python/overview) or [TypeScript SDK](/sdk-api/typescript/overview).
+
+<Card title="Learn about logging in Python" icon="python" href="/sdk-api/python/overview">
   Learn how to use the Galileo SDK to log data from your application.
 </Card>
 
-<Card title="Learn about logging in TypeScript" icon="js" href="/getting-started/logging/typescript">
+<Card title="Learn about logging in TypeScript" icon="js" href="/sdk-api/typescript/overview">
   Learn how to use the Galileo SDK to log data from your application.
 </Card>
