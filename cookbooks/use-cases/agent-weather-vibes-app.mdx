@@ -1,0 +1,445 @@
+---
+title: How to create and build a python weather agent.
+---
+
+## Overview 
+This cookbook demonstrates how to build agentic system for a smart weather application in a python-based tech stack.  We'll create a Weather Vibes agent that not only calls the weather, but recommends a song to set the mood based on the weather.  Thanks to Galileo's Python SDK we'll be able to check the application's performance and tool selection.
+
+This cookbook demonstrates how to build the WeatherMood agent that:
+1. Retrieves current weather data for a location
+2. Decides if an umbrella is needed
+3. Finds YouTube videos that match the weather mood
+
+The application leverages multiple tools to create its final end result. 
+- Umbrella Decider - determines if you should/should not take an umbrella. 
+- Weather Retriever - gets the current weather based on geographic location
+- YouTube Retriever - calls the YouTube API key guided by a prompt to retrieve a video that represents the current "vibes" of the weather. 
+
+Finally, we'll run this application to demonstrate Galileo's Agent Evaluation functionality, where it will determine the success of each run and tool call. 
+
+### What you'll learn
+Through building the weather vibes application, you will learn how to implement agentic evaluations and tool selection metrics, to ensure your agentic applications are set up for success. 
+
+### Requirements
+- Python package manager + some familiarity with Python (for the sake of this cookbook, we'll use [UV](https://docs.astral.sh/uv/))
+- OpenAI Key [get one here](https://platform.openai.com/api-keys)*
+- OpenWeatherMap API Key [get a free key here](https://openweathermap.org/api)
+- YouTube Data API Key [get a free key here](https://developers.google.com/youtube/v3/getting-started)
+- A free [Galileo Developer Account](https://app.galileo.ai)
+* paid tool or feature
+
+
+### Sample Application
+To see a completed version of this application and other agentic examples, please [refer to our simple agent framework repository in GitHub.](https://github.com/rungalileo/simple-agent-framework)
+
+## Setup
+First clone the [Simple Agent Framework](https://github.com/rungalileo/simple-agent-framework/).  
+
+```
+git clone https://github.com/rungalileo/simple-agent-framework/tree/main
+```
+
+Navigate into the examples folder.
+
+```
+cd examples
+```
+
+Now, create a virtual environment, activate it, and install the following packages.  We'll be using UV for this step, however feel free to use whatever Python package manager of your choice.
+
+```
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create and activate a virtual environment
+uv venv .venv
+source .venv/bin/activate 
+# On Windows: .venv\Scripts\activate
+
+# Install required packages
+uv pip install openai
+uv pip install python-dotenv
+uv pip install aiohttp
+uv pip install galileo
+```
+
+Now, take the time to create an .env file, and add the following keys.
+
+Links are provided below
+- OpenAI Key [get one here](https://platform.openai.com/api-keys)*
+- OpenWeatherMap API Key [get a free key here](https://openweathermap.org/api)
+- YouTube Data API Key [get a free key here](https://developers.google.com/youtube/v3/getting-started)
+- A free [Galileo Developer Account](https://app.galileo.ai) and your respective Galileo API Key, Galileo Project ID, and Galileo Log Stream. 
+* paid tool or feature
+
+If you're unsure on where to get the respective keys, please refer to [our FAQs]() on where they're located. 
+TODO: update link when [PR](https://github.com/orgs/rungalileo/projects/8/views/1?pane=issue&itemId=106805030&issue=rungalileo%7Cdocs-official%7C94) is merged. 
+
+```
+touch .env
+```
+
+```
+- OPENAI_API_KEY=Your OpenAI API key
+- WEATHER_API_KEY=A key from WeatherAPI.com
+- YOUTUBE_API_KEY=A key from the YouTube Data API
+- GALILEO_API_KEY=your_galileo_api_key
+- GALILEO_PROJECT=your-galileo-project-key
+- GALILEO_LOG_STREAM=your-galileo-log-stream-key
+```
+
+Don't forget to add your .env file to your .gitignore file to make sure your secrets stay secret. 
+
+Now, let's break down the structure of this example before diving in and seeing how it works. 
+
+
+
+"""
+from agent_framework.config import AgentConfiguration
+from agent_framework.factory import AgentFactory
+from agent_framework.models import VerbosityLevel
+from agents.weather_vibes_agent.agent import WeatherVibesAgent
+
+# Set your API keys
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+# Initialize the agent configuration
+config = AgentConfiguration(
+    name="WeatherMood",
+    description="An agent that provides weather information and mood-enhancing content",
+    verbosity=VerbosityLevel.DEBUG
+)
+
+# Create the agent
+agent = AgentFactory.create_agent(config)
+
+# The WeatherMood agent uses three specialized tools:
+# 1. Weather Retriever Tool - Gets current weather data from WeatherAPI.com
+# 2. Umbrella Decider Tool - Analyzes weather data to determine if an umbrella is needed
+# 3. YouTube Weather Vibes Tool - Finds videos that match the current weather mood
+
+Let's look at each tool in detail:
+
+Weather Retriever Tool
+This tool uses the WeatherAPI.com service to get current weather data for a location. It returns:
+- Location name
+- Temperature in Celsius
+- Weather condition
+- Chance of precipitation
+
+# --- Tool: Weather Retriever ---
+class WeatherRetrieverTool(BaseTool):
+    """Tool for retrieving weather data"""
+    
+    @classmethod
+    def get_metadata(cls) -> ToolMetadata:
+        return ToolMetadata(
+            name="weather_retriever",
+            description="Retrieves current weather data for a given location",
+            tags=["weather", "location"],
+            input_schema=WeatherRetrieverInput.model_json_schema(),
+            output_schema=WeatherRetrieverOutput.model_json_schema(),
+        )
+
+    async def execute(self, location: str) -> Dict[str, Any]:
+        """Get weather data for location"""
+        api_key = os.getenv("WEATHER_API_KEY")
+        if not api_key:
+            raise ValueError("WEATHER_API_KEY environment variable is required")
+
+        url = "http://api.weatherapi.com/v1/current.json"
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                url,
+                params={
+                    "key": api_key,
+                    "q": location,
+                    "aqi": "no"
+                }
+            ) as response:
+                if response.status != 200:
+                    raise Exception(f"Weather API error: {await response.text()}")
+                    
+                data = await response.json()
+                
+                return {
+                    "location": data["location"]["name"],
+                    "temperature": data["current"]["temp_c"],
+                    "weather_condition": data["current"]["condition"]["text"],
+                    "precipitation_chance": data["current"].get("precip_mm", 0) * 100
+                }
+
+Umbrella Decider Tool
+This tool analyzes the weather data to determine if an umbrella is needed. It considers:
+- Precipitation chance (umbrella needed if > 30%)
+- Weather condition (umbrella needed if contains "rain")
+
+# --- Tool: Umbrella Decider ---
+class UmbrellaDeciderTool(BaseTool):
+    """Tool for deciding if an umbrella is needed"""
+    
+    name = "umbrella_decider"
+    description = "Decide if an umbrella is needed based on weather data"
+    tags = ["decision", "weather"]
+    input_schema = UmbrellaDeciderInput.model_json_schema()
+    output_schema = UmbrellaDeciderOutput.model_json_schema()
+    metadata = UmbrellaDeciderMetadata
+    
+    async def execute(self, weather_data: Dict[str, Any]) -> bool:
+        """Execute the tool with given inputs"""
+        weather_data = WeatherRetrieverOutput(**weather_data)
+        
+        needs_umbrella = (
+            weather_data.precipitation_chance > 30 or
+            "rain" in weather_data.weather_condition.lower()
+        )
+        
+        return UmbrellaDeciderOutput(needs_umbrella=needs_umbrella).needs_umbrella
+
+YouTube Weather Vibes Tool
+This tool finds YouTube videos that match the current weather vibe. It:
+- Generates a search query based on weather conditions and temperature
+- Searches YouTube for matching videos
+- Returns video details including title, URL, and description
+
+# --- Tool: YouTube Weather Vibes ---
+class YoutubeWeatherVibesTool(BaseTool):
+    """Tool for finding YouTube videos that match weather vibes"""
+
+    @classmethod
+    def get_metadata(cls) -> ToolMetadata:
+        return ToolMetadata(
+            name="youtube_weather_vibes",
+            description="Finds YouTube videos that match the vibe of the current weather",
+            tags=["weather", "youtube", "vibes", "entertainment"],
+            input_schema=YoutubeWeatherVibesInput.model_json_schema(),
+            output_schema=YoutubeWeatherVibesOutput.model_json_schema(),
+        )
+
+    async def execute(self, weather_condition: str = None, temperature: float = None, 
+                     weather_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Find YouTube videos that match the weather vibe"""
+        # Get weather data from various sources
+        if weather_condition is None or temperature is None:
+            if weather_data:
+                weather_condition = weather_data.get('weather_condition', weather_condition)
+                temperature = weather_data.get('temperature', temperature)
+        
+        if weather_condition is None or temperature is None:
+            raise ValueError("Missing required weather data")
+            
+        api_key = os.getenv('YOUTUBE_API_KEY')
+        if not api_key:
+            raise ValueError("YOUTUBE_API_KEY environment variable is not set")
+
+        # Generate search query based on weather
+        search_query = self._generate_search_query(weather_condition, temperature)
+        
+        # Search YouTube
+        url = "https://www.googleapis.com/youtube/v3/search"
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                url,
+                params={
+                    "key": api_key,
+                    "part": "snippet",
+                    "q": search_query,
+                    "type": "video",
+                    "maxResults": 5,
+                    "videoEmbeddable": "true"
+                }
+            ) as response:
+                if response.status != 200:
+                    raise Exception(f"YouTube API error: {await response.text()}")
+                    
+                data = await response.json()
+                
+                videos = []
+                for item in data.get("items", []):
+                    video_id = item.get("id", {}).get("videoId")
+                    if video_id:
+                        videos.append({
+                            "title": item.get("snippet", {}).get("title", ""),
+                            "video_url": f"https://www.youtube.com/watch?v={video_id}",
+                            "description": item.get("snippet", {}).get("description", "")
+                        })
+                
+                return {
+                    "weather_condition": weather_condition,
+                    "temperature": temperature,
+                    "search_query": search_query,
+                    "videos": videos
+                }
+
+    def _generate_search_query(self, weather_condition: str, temperature: float) -> str:
+        """Generate a search query based on weather condition and temperature"""
+        # Temperature-based modifiers
+        temp_modifier = ""
+        if temperature < 0:
+            temp_modifier = "freezing cold winter"
+        elif temperature < 10:
+            temp_modifier = "cold winter"
+        elif temperature < 15:
+            temp_modifier = "cool spring"
+        elif temperature < 22:
+            temp_modifier = "mild pleasant"
+        elif temperature < 28:
+            temp_modifier = "warm summer"
+        else:
+            temp_modifier = "hot summer"
+            
+        # Weather condition modifiers
+        condition_modifier = ""
+        condition_lower = weather_condition.lower()
+        
+        if "rain" in condition_lower:
+            condition_modifier = "rainy day relaxing"
+        elif "snow" in condition_lower:
+            condition_modifier = "snowy day cozy"
+        elif "cloud" in condition_lower:
+            condition_modifier = "cloudy day chill"
+        elif "sun" in condition_lower:
+            condition_modifier = "sunny day upbeat"
+        elif "fog" in condition_lower:
+            condition_modifier = "foggy atmospheric"
+        elif "thunder" in condition_lower:
+            condition_modifier = "thunderstorm dramatic"
+        elif "wind" in condition_lower:
+            condition_modifier = "windy day ambient"
+        else:
+            condition_modifier = f"{weather_condition} vibes"
+            
+        return f"{condition_modifier} {temp_modifier} music playlist"
+
+Creating the Agent
+Now we'll create the WeatherMood agent that orchestrates these tools:
+
+# --- Agent: WeatherMood Agent ---
+class WeatherMoodAgent(Agent):
+    """Agent that determines if you need an umbrella and suggests weather-appropriate YouTube videos"""
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.state = AgentState()
+        
+        # Set up template environment
+        template_dir = Path(__file__).parent / "templates"
+        self.template_env = Environment(
+            loader=FileSystemLoader(template_dir),
+            trim_blocks=True,
+            lstrip_blocks=True
+        )
+        
+        # Initialize logger and register tools
+        self.logger = GalileoAgentLogger(agent_id=self.agent_id)
+        self._register_tools()
+
+    def _register_tools(self) -> None:
+        """Register all tools with the registry"""
+        self.tool_registry.register(
+            metadata=WeatherRetrieverTool.get_metadata(),
+            implementation=WeatherRetrieverTool
+        )
+        
+        self.tool_registry.register(
+            metadata=UmbrellaDeciderTool.get_metadata(),
+            implementation=UmbrellaDeciderTool
+        )
+        
+        self.tool_registry.register(
+            metadata=YoutubeWeatherVibesTool.get_metadata(),
+            implementation=YoutubeWeatherVibesTool
+        )
+        
+        self._setup_logger(logger=self.logger)
+
+    async def _format_result(self, task: str, results: List[Tuple[str, Dict[str, Any]]]) -> str:
+        """Format the final result from tool executions"""
+        weather_data = self.state.get_tool_result("weather_retriever")
+        umbrella_needed = self.state.get_tool_result("umbrella_decider")
+        youtube_vibes = self.state.get_tool_result("youtube_weather_vibes")
+        
+        # Format umbrella decision
+        result = "You need an umbrella today!" if umbrella_needed else "No umbrella needed today!"
+        result += f"\n\nWeather details for {weather_data['location']}:"
+        result += f"\n- Temperature: {weather_data.get('temperature', 'N/A')}°C"
+        result += f"\n- Condition: {weather_data.get('weather_condition', 'N/A')}"
+        result += f"\n- Chance of rain: {weather_data.get('precipitation_chance', 'N/A')}%"
+        
+        # Format YouTube video recommendations
+        if youtube_vibes and "videos" in youtube_vibes and youtube_vibes["videos"]:
+            result += "\n\n🎵 Weather Vibe Videos 🎵"
+            result += f"\nSearch query: \"{youtube_vibes.get('search_query', 'N/A')}\""
+            
+            for i, video in enumerate(youtube_vibes["videos"][:3], 1):
+                result += f"\n\n{i}. {video.get('title', 'Unknown')}"
+                result += f"\n   {video.get('video_url', 'No URL available')}"
+                result += f"\n   {video.get('description', 'No description')[:100]}..." if video.get('description') else ""
+        else:
+            result += "\n\nNo weather vibe videos found."
+        
+        return result
+
+Running the Agent
+Now let's run the agent with some example locations:
+
+async def main():
+    # Load configuration from environment
+    config = AgentConfiguration.from_env(
+        required_keys=["openai", "weather", "youtube"],
+    )
+    
+    # Override specific settings
+    config = config.with_overrides(
+        verbosity=VerbosityLevel.HIGH,
+        enable_logging=False,
+        metadata={"location": "Seattle, WA"}
+    )
+    
+    # Create factory and agent
+    factory = AgentFactory(config)
+    agent = factory.create_agent(
+        agent_class=WeatherMoodAgent,
+        agent_id="weather-mood-agent"
+    )
+    
+    # Test locations
+    locations = [
+        "Seattle, WA",
+        "Miami, FL",
+        "London, UK"
+    ]
+    
+    for location in locations:
+        print(f"\nChecking weather for {location}...")
+        result = await agent.run(location)
+        print(result)
+        print("\n" + "="*50 + "\n")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+This cookbook demonstrates how to build a sophisticated weather assistant that:
+1. Retrieves accurate weather data from a reliable source
+2. Makes practical decisions about umbrella needs
+3. Provides entertainment suggestions that match the weather mood
+
+The agent uses a modular architecture that makes it easy to:
+- Add new tools for additional functionality
+- Modify existing tools without affecting others
+- Test each component independently
+- Scale the system to handle more locations or features
+
+To extend this system, you could:
+1. Add more weather data sources for redundancy
+2. Include more sophisticated video recommendation logic
+3. Add historical weather analysis
+4. Integrate with calendar systems to provide weather forecasts for events
+
+The possibilities are endless, and the modular architecture makes it easy to add new features while maintaining the system's reliability and performance.
+
+
