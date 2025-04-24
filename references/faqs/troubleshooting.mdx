@@ -3,6 +3,9 @@ title: Troubleshooting
 ---
 import SnippetTroubleshooting1 from '/snippets/code/multilingual/troubleshooting/troubleshooting-1.mdx';
 import SnippetTroubleshooting2 from '/snippets/code/multilingual/troubleshooting/troubleshooting-2.mdx';
+import SnippetTroubleshooting3 from '/snippets/code/multilingual/troubleshooting/troubleshooting-3.mdx';
+import SnippetTroubleshooting4 from '/snippets/code/multilingual/troubleshooting/troubleshooting-4.mdx';
+import SnippetTroubleshooting5 from '/snippets/code/multilingual/troubleshooting/troubleshooting-5.mdx';
 
 Welcome to the Galileo troubleshooting guide. This guide addresses common issues users may encounter when working with the Galileo SDK, API, Console, and overall integration process.
 
@@ -95,6 +98,7 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 **Causes:**
 - Incorrect Project name or Log Stream name
 - GalileoLogger or Traces not properly configured in application
+- Failing to conclude or flush the GalileoLogger
 
 **Solutions:**
 - Confirm that the Project and Log Stream names in the UI match the names used when invoking the `GalileoLogger` or using `galileo_context` in your application code.
@@ -105,6 +109,28 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 - In your application code, ensure the `GalileoLogger` is properly initialized and [Traces](/concepts/traces) are configured correctly.
     <CodeGroup>
     <SnippetTroubleshooting2 />
+    </CodeGroup>
+
+- At the end of your application code, ensure the `GalileoLogger` is concluded and logs are flushed.
+    <CodeGroup>
+    <SnippetTroubleshooting3 />
+    </CodeGroup>
+
+### Problem: <span style={{ fontWeight: 'normal' }}>Spans appearing as separate Traces</span>
+
+**Causes:**
+- Spans not encapsulated within a Workflow Span
+- Traces invoked multiple times without concluding and flushing logs
+
+**Solutions:**
+- Create a [Workflow Span](/concepts/spans) to act as a parent Span before logging other Spans.
+    <CodeGroup>
+    <SnippetTroubleshooting4 />
+    </CodeGroup>
+
+- Ensure [Traces](/concepts/traces) are concluded and flushed after creating Spans, and look for loops in your application code that may invoke Traces multiple times.
+    <CodeGroup>
+    <SnippetTroubleshooting5 />
     </CodeGroup>
 ---
 
