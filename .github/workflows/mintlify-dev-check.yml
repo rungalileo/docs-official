@@ -1,0 +1,87 @@
+# .github/workflows/mintlify-dev-check.yml
+
+name: Mintlify Dev Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - 'release/**'
+
+jobs:
+  mintlify-dev:
+    runs-on: ubuntu-latest
+    name: Check Mintlify Dev Server
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Mintlify CLI
+        run: npm install -g mintlify
+
+      - name: Run Mintlify Dev (Short Test)
+        id: dev_test
+        continue-on-error: true
+        run: |
+          timeout 15s npx mintlify dev > dev.log 2>&1
+          if [ $? -ne 0 ]; then
+            echo "status=failed" >> $GITHUB_OUTPUT
+            cat dev.log
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for errors in logs
+        id: log_check
+        if: always()
+        run: |
+          if grep -i "error" dev.log; then
+            echo "Found errors in dev log"
+            echo "status=failed" >> $GITHUB_OUTPUT
+          else
+            echo "No errors found in dev log"
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload Dev Log (for debug)
+        if: steps.dev_test.outputs.status == 'failed' || steps.log_check.outputs.status == 'failed'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mintlify-dev-log
+          path: dev.log
+
+      - name: Comment Dev Failure on PR
+        if: steps.dev_test.outputs.status == 'failed' || steps.log_check.outputs.status == 'failed'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: mintlify-dev
+          message: |
+            ❌ Mintlify Dev Server Failed!
+
+            <details>
+            <summary>Click to see dev log</summary>
+
+            ```text
+            $(tail -n 100 dev.log)
+            ```
+
+            </details>
+
+      - name: Comment Success on PR
+        if: steps.dev_test.outputs.status == 'success' && steps.log_check.outputs.status == 'success'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: mintlify-dev
+          message: |
+            ✅ Mintlify Dev Server Started Successfully!
+            
+            The documentation can be served without errors. 
