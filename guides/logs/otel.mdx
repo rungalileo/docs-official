@@ -55,7 +55,7 @@ from opentelemetry.sdk.trace.export import ConsoleSpanExporter
 from openinference.instrumentation.langchain import LangChainInstrumentor
 
 # OTEL exporter endpoint
-endpoint = "http://api.galileo.ai/otel/traces"
+endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
 
 # Configure OTEL tracer provider
 tracer_provider = trace_sdk.TracerProvider()
@@ -88,7 +88,7 @@ Check out a complete working example on Colab:
 To enable OTEL logging with Galileo:
 
 1. Set the OTEL headers using your API key, project name, and log stream name.
-2. Set the exporter endpoint: `http://api.galileo.ai/otel/traces`
+2. Set the exporter endpoint: `https://app.galileo.ai/api/galileo/otel/traces`
 3. Register your tracer provider and processors.
 4. Import and apply the OpenInference instrumentor(s) before initializing your application.
 
@@ -189,10 +189,12 @@ client = instructor.from_openai(OpenAI())
 Use the Galileo API base URL with the `/otel/traces` path:
 
 ```
-http://api.galileo.ai/otel/traces
+https://app.galileo.ai/api/galileo/otel/traces
+or cluster your custom cluster
+http://api.YOUR_CLUSTER_URL/otel/traces
 ```
 
-If your console URL is `https://console.galileo.ai`, the endpoint becomes `http://api.galileo.ai/otel/traces`.
+If your console URL is `https://console.your_cluster_url.com`, the endpoint becomes `http://api.your_cluster_url.com/otel/traces`.
 
 ---
 
