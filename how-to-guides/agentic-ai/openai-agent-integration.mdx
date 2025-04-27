@@ -1,0 +1,283 @@
+---
+title: "OpenAI Agent Integration"
+syncTabs: true
+---
+
+import SnippetAgentIntegration1Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-1.mdx';
+import SnippetAgentIntegration2Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-2.mdx';
+import SnippetAgentIntegration3Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-3.mdx';
+import SnippetAgentIntegration4Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-4.mdx';
+import SnippetAgentIntegration5Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-5.mdx';
+import SnippetAgentIntegration6Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-6.mdx';
+import SnippetAgentIntegration7Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-7.mdx';
+import SnippetAgentIntegration8Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-8.mdx';
+import SnippetAgentIntegration9Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-9.mdx';
+import SnippetAgentIntegration10Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-10.mdx';
+import SnippetAgentIntegration1Typescript from '/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-1.mdx';
+import SnippetAgentIntegration2Typescript from '/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-2.mdx';
+import SnippetAgentIntegration3Typescript from '/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-3.mdx';
+import SnippetAgentIntegration4Typescript from '/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-4.mdx';
+import SnippetAgentIntegration5Typescript from '/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-5.mdx';
+import SnippetAgentIntegration6Typescript from '/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-6.mdx';
+import SnippetAgentIntegration7Typescript from '/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-7.mdx';
+import SnippetAgentIntegration8Typescript from '/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-8.mdx';
+import SnippetAgentIntegration9Typescript from '/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-9.mdx';
+import SnippetAgentIntegration10Typescript from '/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-10.mdx';
+
+Follow this step-by-step guide to build a "Homework Assistant" AI agent pipeline using **Galileo's OpenAI integrations**.
+
+## OpenAI Agent Walkthrough
+
+<Steps>
+
+<Step title="Create Project Folder">
+
+Create a new project folder and navigate to it in your terminal.
+
+<CodeGroup>
+```python Python
+mkdir homework-assistant
+cd homework-assistant
+```
+
+```typescript TypeScript
+mkdir homework-assistant
+cd homework-assistant
+```
+</CodeGroup>
+</Step>
+
+
+
+
+<Step title="Install Dependencies">
+
+Install the **Galileo SDK** and other necessary dependencies using the following command in your terminal.
+
+<CodeGroup>
+<SnippetAgentIntegration1Python />
+<SnippetAgentIntegration1Typescript />
+</CodeGroup>
+</Step>
+
+
+
+
+<Step title="Create Project Files">
+
+In your project folder, create a new blank application file and `.env` file.
+<CodeGroup>
+```python Python
+homework-assistant/
+│── app.py
+│── .env
+```
+
+```typescript TypeScript
+homework-assistant/
+│── app.ts
+│── .env
+```
+</CodeGroup>
+</Step>
+
+
+
+
+<Step title="Set Environment Variables">
+
+In your `.env` file, set your environment variables by filling in your API keys, Project name, and Log Stream name.
+
+By using these exact variable names, Galileo will **automatically use them** in your application.
+```text
+GALILEO_PROJECT="Homework Assistant"
+GALILEO_LOG_STREAM="batch-1"
+GALILEO_API_KEY="your-Galileo-api-key-here"
+OPENAI_API_KEY="your-OpenAI-api-key-here"
+```
+
+* **NOTE:** The Project name and Log Stream name are customizable. Change them as needed for your own experiments. You can view all your Projects and Log Streams in the [Galileo Console](https://app.galileo.ai).
+</Step>
+
+
+
+
+<Step title="Import Libraries">
+In your application file, add the following code to import all required libraries.
+
+<CodeGroup>
+<SnippetAgentIntegration2Python />
+<SnippetAgentIntegration2Typescript />
+</CodeGroup>
+</Step>
+
+
+
+
+<Step title="Define Output Structure">
+Add the code below to your application file to define an output structure.
+
+The Guardrail agent uses this structure to **reject invalid outputs by type**. For example, an `int` would be an invalid output in response to the question "Who was the first president of the United States?"
+
+This is achieved in **Python** using `BaseModel`, or in **TypeScript** using an `interface`.
+
+* **BaseModel:** A **Python** class from the `pydantic` library which automatically validates whether groups of values are the correct types.
+
+<CodeGroup>
+<SnippetAgentIntegration3Python />
+<SnippetAgentIntegration3Typescript />
+</CodeGroup>
+</Step>
+
+
+
+
+<Step title="Create Tutor Agents">
+
+Add the code below to your application file to create **two specialized "tutor agents"**. One handles math questions, and the other handles history.
+
+- **Agent**: An AI module that receives inputs and provides specialized outputs based on predefined instructions.
+
+<CodeGroup>
+<SnippetAgentIntegration4Python />
+<SnippetAgentIntegration4Typescript />
+</CodeGroup>
+</Step>
+
+
+
+
+<Step title="Create Guardrail Agent">
+
+Add the code below to your application file to set up a **Guardrail agent** that will filter out non-homework questions.
+
+- **Guardrail Agent**: A specialized agent for evaluating inputs and determining whether they meet specific criteria.
+
+<CodeGroup>
+<SnippetAgentIntegration5Python />
+<SnippetAgentIntegration5Typescript />
+</CodeGroup>
+</Step>
+
+
+
+
+<Step title="Define Guardrail Function">
+
+Add the code below to your application file to define the Guardrail agent's logic for accepting valid inputs (in this case, homework questions) and rejecting invalid ones.
+
+- **Tripwire**: A condition that triggers if the guardrail criteria are not met, preventing further processing.
+
+<CodeGroup>
+<SnippetAgentIntegration6Python />
+<SnippetAgentIntegration6Typescript />
+</CodeGroup>
+</Step>
+
+
+
+
+<Step title="Create Triage Agent">
+
+Add the code below to your application file to set up a **Triage agent** to pass the input question to the appropriate tutor agent.
+
+- **Triage Agent**: An agent that analyzes the input and determines which specialized agent should handle the request.
+
+<CodeGroup>
+<SnippetAgentIntegration7Python />
+<SnippetAgentIntegration7Typescript />
+</CodeGroup>
+</Step>
+
+
+
+
+<Step title="Run the Agents">
+
+Add the code below to your application file. It **runs the complete system** by sending sample inputs and observing which agents handles the questions.
+
+- **Runner**: A utility that executes the agents with provided input and context.
+
+<CodeGroup>
+<SnippetAgentIntegration8Python />
+<SnippetAgentIntegration8Typescript />
+</CodeGroup>
+</Step>
+
+
+
+
+<Step title="Complete Application Code">
+
+Below is the **final combined code** for the "Homework Assistant" AI agent application. Review it and compare it with your code.
+
+<CodeGroup>
+<SnippetAgentIntegration9Python />
+<SnippetAgentIntegration9Typescript />
+</CodeGroup>
+</Step>
+
+
+
+
+<Step title="Open Project & Log Stream">
+
+In your browser, open the [Galileo Console](https://app.galileo.ai). Then, select the Project and Log Stream whose names you used in your `.env` file.
+
+You will see new Traces, each containing data logged from running your AI agent pipeline.
+
+* **NOTE:** Learn more about using **Projects** and **Log Streams** in the [Getting Started Guide](/getting-started/quickstart).
+
+![Log Stream](/images/console-ui/openai-agent-log-stream.PNG)
+
+</Step>
+
+
+
+
+<Step title="View Results">
+
+In the [Galileo Console](https://app.galileo.ai), click on one of the new Trace entries to see all of the data and steps executed by running your "Homework Assistant" application.
+
+You should see:
+* Each agent involved and when it was used
+* All agent inputs, outputs, and handoffs
+* Whether Guardrail Tripwires were passed or triggered
+* The time of execution, Project ID, Run ID, Trace ID, and Parent ID (viewable in the "Parameters" tab in the top-right)
+
+![View Trace](/images/console-ui/openai-agent-trace.PNG)
+
+</Step>
+
+
+
+
+<Step title="OPTIONAL: Test the Guardrail Tripwire">
+
+To see the Tripwire get triggered, modify one of the inputs to be a question that is **not** about homework.
+
+* **NOTE:** This will **cause an error** because the Gaurdail agent rejects questions that trigger the Tripwire.
+
+<CodeGroup>
+<SnippetAgentIntegration10Python />
+<SnippetAgentIntegration10Typescript />
+</CodeGroup>
+</Step>
+
+
+
+
+<Step title="Congratulations!">
+
+Your OpenAI agent pipeline is complete and ready to use.
+</Step>
+
+</Steps>
+
+---
+
+## Next Steps
+* Create your own project with new `instructions` to define **your own specialized agents**.
+* Include [Metadata](/concepts/annotations) and [Tags](/concepts/annotations) in your logs to track results and add automations.
+* Add [Metrics](/concepts/metrics) to your experiment to evaluate results.
+* Create [Datasets](/concepts/datasets) to improve evaluation accuracy and compare performance improvements.
