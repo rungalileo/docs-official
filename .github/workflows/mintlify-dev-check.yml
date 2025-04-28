@@ -21,18 +21,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
-
-      - name: Install Mintlify CLI
-        run: npm install -g mintlify
+        run: npm ci
 
       - name: Run Mintlify Dev (Short Test)
         id: dev_test
         continue-on-error: true
         run: |
-          timeout 15s npx mintlify dev > dev.log 2>&1
+          # Run the dev script with a timeout
+          timeout 15s npm run dev > dev.log 2>&1
           if [ $? -ne 0 ]; then
             echo "status=failed" >> $GITHUB_OUTPUT
             cat dev.log
