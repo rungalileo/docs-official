@@ -6,18 +6,16 @@ const datasetFromFile = await createDataset('/path/to/dataset.csv', 'my-dataset-
 
 // Create a dataset from an array of objects
 const datasetFromArray = await createDataset([
-  { name: 'John' },
-  { name: 'Jane' },
-  { name: 'Bob' },
-  { name: 'Alice' }
-], 'names-dataset');
+  { input: "Which continent is Spain in?", output: "Europe" },
+  { input: "Which continent is Japan in?", output: "Asia" },
+], 'countries');
 
 // Create a dataset from a dictionary of arrays
 const datasetFromDict = await createDataset({
-  name: ['John', 'Jane', 'Bob', 'Alice'],
-  age: ['30', '25', '40', '35']
-}, 'people-dataset');
+  input: ['Which continent is Spain in?', 'Which continent is Japan in?'],
+  output: ['Europe', 'Asia']
+}, 'countries');
 
 // Get a dataset by name
-const dataset = await getDataset({name: 'names'}); 
+const dataset = await getDataset({name: 'countries'}); 
 ```

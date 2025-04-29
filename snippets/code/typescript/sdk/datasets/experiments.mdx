@@ -5,19 +5,19 @@ import { OpenAI } from 'openai';
 async function runDatasetExperiment() {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-  const runner = async (input) => {
+  const runner = async (data) => {
     const result = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
-      messages: [{ content: `Say hello ${input['name']}!`, role: 'user' }]
+      messages: [{ content: `Which continent is ${data['input']} in?`, role: 'user' }]
     });
     return result;
   };
 
   await runExperiment({
     name: `Test Experiment`,
-    datasetName: 'names',
+    datasetName: 'countries',
     function: runner,
-    metrics: ['toxicity'],
+    metrics: ['correctness'],
     projectName: 'my-project'
   });
 }
