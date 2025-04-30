@@ -11,7 +11,7 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 
 ---
 
-## 🛠️ SDK Setup and Configuration
+## SDK Setup and Configuration
 
 ### Problem: <span style={{ fontWeight: 'normal' }}>SDK fails to initialize</span>
 
@@ -22,16 +22,17 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 
 **Solutions:**
 
-- Use `console.log(Galileo.config)` to inspect current SDK configuration.
+- Confirm Galileo is installed and check its version:
+    - **Python:** `pip show galileo`
+    - **TypeScript:** `npm list galileo`
 - Reinstall the SDK:
     - **Python:** `pip install galileo`
     - **TypeScript:** `npm install galileo`
 - Double-check `.env` configuration, making sure that API keys are correct, the keys are named correctly, and loaded via tools like `dotenv`.
-- Initialize the SDK in a `useEffect` or equivalent lifecycle method, placing it after all environment variables are loaded and user ID is available.
 
 ---
 
-## 🔑 API Connectivity and Authentication
+## API Connectivity and Authentication
 
 ### Problem: <span style={{ fontWeight: 'normal' }}>401 Unauthorized when calling Galileo APIs</span>
 
@@ -62,25 +63,37 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 
 ---
 
-## 🔗 Integration Issues
+## Integration Issues
 
-### Problem: <span style={{ fontWeight: 'normal' }}>Components not appearing in your product UI</span>
+### Problem: <span style={{ fontWeight: 'normal' }}>Rate limit issues</span>
 
 **Causes:**
 
-- Galileo SDK not properly embedded or improperly imported
-- SDK is out of date or improperly installed
+- Some metrics rely on OpenAI APIs or other external APIs which have their own rate limits
+- Some agents rely on external APIs which have their own rate limits
 
 **Solutions:**
 
-- Follow the diagnostic steps for [SDK Setup & Configuration](#sdk-setup-and-configuration).
-- Verify the SDK is included in your project dependencies by checking your `package.json` for `@galileo-ai/sdk` and running `npm ls @galileo-ai/sdk` or `yarn list @galileo-ai/sdk` in your terminal.
-- Ensure the SDK is initialized correctly in your application entry point, such as within a `useEffect()` in React or equivalent lifecycle method.
-- Check for console warnings or errors related to SDK by opening the developer console in your browser (F12 or right-click → Inspect → Console).
+- Request higher rate limits from OpenAI for your organization.
+- Use different API keys or organizations for separate projects or environments (e.g., production vs. pre-production) to distribute load.
+
+
+### Problem: <span style={{ fontWeight: 'normal' }}>JSON parsing errors</span>
+
+**Causes:**
+
+- Some metrics rely on OpenAI or other API responses being valid JSON
+
+**Solutions:**
+
+- Retry the metric computation as transient errors may cause invalid JSON.
+- Check the output format of the model you're using in its provider's documentation, such as [OpenAI's](https://platform.openai.com/docs/).
+
+
 
 ---
 
-## 🖥️ Galileo Console UI
+## Galileo Console UI
 
 ### Problem: <span style={{ fontWeight: 'normal' }}>Console UI not loading</span>
 
@@ -142,20 +155,6 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 **Solutions:**
 - Check your experiment to confirm that your [Dataset](/concepts/datasets) has an "output" column. If it does not, add one.
 - Metrics may appear to be missing because they do not apply to Log Streams. With Log Streams, no [Ground Truths](/concepts/metrics/response-quality/ground-truth-adherence) are provided.
----
-
-## ⚡ Performance Optimization Guidance
-
-### Tip: Reduce SDK impact on page load
-
-- Load the SDK asynchronously by placing the script at the bottom of the HTML body or using dynamic import syntax.
-- Defer SDK-related operations until after the main content loads, such as inside a `requestIdleCallback()` or post-mount hook.
-
-### Tip: Minimize data transfer
-
-- Batch feedback requests where possible by grouping API requests.
-- Avoid excessive component logging in development by disabling debug mode and turning off unnecessary tracking features.
-
 ---
 
 For additional help:
