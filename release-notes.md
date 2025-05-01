@@ -1,5 +1,3 @@
-# Release Notes
-
 This page provides information about the latest updates and enhancements to Galileo.
 
 ## May 2nd, 2025 Release
