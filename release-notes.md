@@ -16,7 +16,7 @@ This page provides information about the latest updates and enhancements to Gali
 
 4. **Reference output and metadata availability:** The reference output and metadata from the datasets are now available in the corresponding experiment traces so it can easily referenced.
 
-![Reference Output Interface](images/images/Reference-output-and-metadata-from-datasets.png)
+![Reference Output Interface](images/Reference-output-and-metadata-from-datasets.png)
 
 ### Datasets and Playground
 
