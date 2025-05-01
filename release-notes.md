@@ -12,11 +12,11 @@ This page provides information about the latest updates and enhancements to Gali
 
 3. **Added aggregate metrics and ranking criteria** to All Experiments page. Aggregate metrics compile the metric values from individual traces in an experiment to show a combined value for each metric on the all experiments page. This enables you to quickly assess the performance of the underlying traces in an experiment. Ranking criteria allow you to determine which experiments were most successful by specifying a weighted average of the underlying metrics for each experiment. 
 
-![Ranking Criteria Interface](images/Added aggregate metrics.png)
+![Ranking Criteria Interface](images/Added-aggregate-metrics.png)
 
 4. **Reference output and metadata availability:** The reference output and metadata from the datasets are now available in the corresponding experiment traces so it can easily referenced.
 
-![Reference Output Interface](images/The reference output and metadata from the datasets.png)
+![Reference Output Interface](images/images/Reference-output-and-metadata-from-datasets.png)
 
 ### Datasets and Playground
 
