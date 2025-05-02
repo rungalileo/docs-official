@@ -4,7 +4,7 @@ This page provides information about the latest updates and enhancements to Gali
 
 ### Key New Features
 
-1. **Metrics on experiments UI:** Users can now compute additional metrics for logged experiments directly within the experiments UI. Until now, users didn’t have a way to compute more metrics for logged experiments from the UI or SDK (even in Galileo 1.0).    
+1. **Metrics on experiments UI:** Users can now compute additional metrics for logged experiments directly within the experiments UI. Until now, users didn’t have a way to compute more metrics for logged experiments from the UI or SDK.    
 
 ![Metrics on experiments UI](images/AddingMetricstoExperimentsinUI-ezgif.com-optimize.gif)
 
