@@ -4,11 +4,11 @@ This page provides information about the latest updates and enhancements to Gali
 
 ### Key New Features
 
-1. **Metrics on experiments UI:** Users can now compute additional metrics for logged experiments directly within the experiments UI. Until now, users didn’t have a way to compute more metrics for logged experiments from the UI or SDK.    
+1. **Metrics on experiments UI:** You can now compute additional metrics for logged experiments directly within the experiments UI. Until now, users didn’t have a way to compute more metrics for logged experiments from the UI or SDK.    
 
 ![Metrics on experiments UI](images/AddingMetricstoExperimentsinUI-ezgif.com-optimize.gif)
 
-2. **Public APIs** Released public APIs to allow developers to manage logstreams, experiments, and trace data programmatically.
+2. **Public APIs** Released public APIs to allow developers to manage logstreams, experiments, and trace data programmatically. While these can already be managed through the TypeScript and Python SDK, public APIs allow users to programmatically interact with these components in any language. Sample use cases include logging data from a production AI app, running experiments, and retrieving evaluation result
 
 3. **Aggregate metrics and ranking criteria for Experiments** Added to All Experiments page. Aggregate metrics compile the metric values from individual traces in an experiment to show a combined value for each metric on the all experiments page. This enables you to quickly assess the performance of the underlying traces in an experiment. Ranking criteria allow you to determine which experiments were most successful by specifying a weighted average of the underlying metrics for each experiment. 
 
@@ -20,7 +20,7 @@ This page provides information about the latest updates and enhancements to Gali
 
 ### Datasets and Playground
 
-5. **Enhanced playground inputs:** to show complete dataset input rather than only variables so you can more flexibly define variables.
+5. **Enhanced playground inputs:** to show complete dataset input rather than only variables so you can more flexibly define variable inputs.
 
 ![Enhanced Playground Inputs](images/playground-enhanced-inputs.png)
 
