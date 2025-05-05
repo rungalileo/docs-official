@@ -17,7 +17,6 @@ A command-line agent that:
 ### **What you'll learn:**
 - Building multi-service AI agents
 - Integrating with external APIs
-- Instrumenting code with Galileo
 - Analyzing agent performance
 
 The application leverages multiple tools to create its final end result. 
@@ -55,22 +54,22 @@ To see a completed version of this application and other examples using the Gali
    ```
 
 2. **Create a virtual environment:**
+   **on Windows**
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate
+   ```
+
    **on Mac**
    Using a standard virtual environment
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-
    Or using uv (faster)
    ```bash
    uv venv venv
    source venv/bin/activate
-   ```
-   ** on Windows**
-   ```bash
-   python -m venv venv
-   venv\Scripts\activate
    ```
 
 3. **Install dependencies:**
@@ -80,7 +79,7 @@ To see a completed version of this application and other examples using the Gali
    ```
    OR using uv
    ```bash
-   uv install -r requirements.txt
+   uv pip install -r requirements.txt
    ```
 
 4. **Create a .env file** in the project root:
@@ -177,12 +176,14 @@ Let's examine the Weather Tool to understand how it works and where Galileo fits
 
 2. **Request Formatting:**
    ```python
-   url = f"https://api.openweathermap.org/data/2.5/weather"
+   url = "http://api.weatherapi.com/v1/forecast.json"
    params = {
-       "q": location,
-       "units": units,
-       "appid": api_key
-   }
+    "key": api_key,
+    "q": location,
+    "days": days,
+    "aqi": "yes",  # Include air quality data
+    "alerts": "yes"  # Include weather alerts
+      }
    ```
 
 3. **Response Processing:**
