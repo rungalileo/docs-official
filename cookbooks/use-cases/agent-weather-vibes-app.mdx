@@ -18,7 +18,6 @@ A command-line agent that:
 - Building multi-service AI agents
 - Integrating with external APIs
 - Instrumenting code with Galileo
-- Implementing proper error handling
 - Analyzing agent performance
 
 The application leverages multiple tools to create its final end result. 
@@ -26,12 +25,12 @@ The application leverages multiple tools to create its final end result.
 - **Weather Retriever** - gets the current weather based on geographic location
 - **YouTube Retriever** - calls the YouTube API key guided by a prompt to retrieve a video that represents the current "vibes" of the weather. 
 
-Finally, we'll run this application to demonstrate Galileo's Agent Evaluation functionality, where it will determine the success of each run and tool call. 
+Finally, we'll run this application to demonstrate [Galileo's Agent Evaluation functionality](https://www.galileo.ai/blog/introducing-agentic-evaluations), where it will determine the success of each run and tool call. 
 
 ### Requirements
 - Python package manager + some familiarity with Python (for the sake of this cookbook, we'll use [UV](https://docs.astral.sh/uv/))
-- OpenAI Key [get one here](https://platform.openai.com/api-keys)
-- OpenWeatherMap API Key [get a free key here](https://openweathermap.org/api)
+- OpenAI Key to assist  [get one here](https://platform.openai.com/api-keys)
+- WeatherAPI Key [get a free key here](https://www.weatherapi.com)
 - YouTube Data API Key [get a free key here](https://developers.google.com/youtube/v3/getting-started)
 - A free [Galileo Developer Account](https://app.galileo.ai)
 
@@ -87,7 +86,7 @@ To see a completed version of this application and other examples using the Gali
 4. **Create a .env file** in the project root:
    ```
    OPENAI_API_KEY=your_openai_key_here
-   OPENWEATHER_API_KEY=your_openweather_key_here
+   WEATHERAPI_KEY=your_weatherapi_key_here
    YOUTUBE_API_KEY=your_youtube_key_here
    GALILEO_API_KEY=your_galileo_key_here
    GALILEO_LOG_STREAM=weather_vibes_agent
@@ -101,7 +100,7 @@ Handles the main agent logic, coordinates tools, and processes requests.
 
 ### 🛠️ Tools
 Specialized modules for specific tasks:
-- **Weather Tool (`tools/weather_tool.py`)**: Fetches weather data from OpenWeatherMap
+- **Weather Tool (`tools/weather_tool.py`)**: Fetches weather data from WeatherAPI
 - **Recommendations Tool (`tools/recommendation_tool.py`)**: Generates weather-appropriate item suggestions
 - **YouTube Tool (`tools/youtube_tool.py`)**: Finds videos matching the weather mood
 
@@ -166,7 +165,7 @@ This lets you analyze the complete flow and identify bottlenecks or errors.
 Let's examine the Weather Tool to understand how it works and where Galileo fits in.
 
 **Key Ingredients:**
-- OpenWeatherMap API
+- WeatherAPI
 - Async HTTP requests
 - Error handling
 - Response parsing
@@ -174,7 +173,7 @@ Let's examine the Weather Tool to understand how it works and where Galileo fits
 **How it works:**
 
 1. **API Integration:**
-   The tool makes requests to the OpenWeatherMap API to get current weather data.
+   The tool makes requests to the WeatherAPI to get current weather data.
 
 2. **Request Formatting:**
    ```python
@@ -442,18 +441,16 @@ You've now learned how to build, run, and monitor the Weather Vibes Agent with G
 
 **Next Steps:**
 - Check out the [Galileo YouTube Channel](https://www.youtube.com/@rungalileo) to see what you can build! 
-- Star the [Galileo SDK-examples repo]()to bookmark more ways to get started with the Galileo SDK.
-- Follow [Galileo on LinkedIn]() to stay in touch with the latest news and reosurces. 
+- Star the [Galileo SDK-examples repo](https://github.com/rungalileo/sdk-examples)to bookmark more ways to get started with the Galileo SDK.
+- Follow [Galileo on LinkedIn](https://www.linkedin.com/company/galileo-ai/) to stay in touch with the latest news and resources.
 
 
 Happy building! 🚀
 
 ## Common Issues and Solutions
-
 Here are some problems you might encounter and how to fix them:
 
 ### Import Errors
-
 **Problem:** `ModuleNotFoundError: No module named 'weather_vibes'`
 
 **Solution:**
