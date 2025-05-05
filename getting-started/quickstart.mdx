@@ -57,23 +57,62 @@ Set up metrics in the Galileo console.
 
 </Step> */}
 
-<Step title="Install Dependencies">
+<Step title="Create Project Folder">
 
-Install the Galileo package:
+Create a new project folder and navigate to it in your terminal:
 <CodeGroup>
 ```bash Python
-pip install galileo python-dotenv
+mkdir first-AI-evaluation
+cd first-AI-evaluation
 ```
 
 ```bash TypeScript
-npm install galileo
+mkdir first-AI-evaluation
+cd first-AI-evaluation
 ```
 </CodeGroup>
 </Step>
 
+<Step title="Install Dependencies">
+
+Install the Galileo package with OpenAI support, and the dotenv package, using the following command in your terminal:
+
+<CodeGroup>
+```bash Python
+pip install "galileo[openai]" python-dotenv
+```
+
+```bash TypeScript
+npm install galileo dotenv --save
+```
+</CodeGroup>
+</Step>
+
+
+
+<Step title="Create Project Files">
+
+In your project folder, create a new blank application file and `.env` file:
+<CodeGroup>
+```python Python
+first-AI-evaluation/
+│── app.py
+│── .env
+```
+
+```typescript TypeScript
+first-AI-evaluation/
+│── app.ts
+│── .env
+```
+</CodeGroup>
+</Step>
+
+
+
 <Step title="Set Up Environment Variables">
 
-Create a `.env` file in the project directory and add the following credentials:
+In the `.env` file, add the following credentials:
 ```text
 GALILEO_PROJECT="my-project"
 GALILEO_LOG_STREAM="my-log-stream"
@@ -82,27 +121,22 @@ OPENAI_API_KEY="your-OpenAI-api-key-here"
 ```
 </Step>
 
-<Step title="Create a Project Directory">
 
-Create a project directory and add the following files:
-<CodeGroup>
-```python Python
-project_directory/
-│── app.py
-│── .env
-```
 
-```typescript TypeScript
-project_directory/
-│── app.ts
-│── .env
-```
-</CodeGroup>
+<Step title="Fill in Environment Variables">
+
+In the `.env` file, fill in the API key values:
+* `OPENAI_API_KEY` : Obtain your OpenAI API key by logging in to your OpenAI account on [their website](https://platform.openai.com/settings/organization/api-keys).
+* `GALILEO_API_KEY` : Obtain your Galileo API key by logging in to your Galileo account on [Galileo.ai](https://app.galileo.ai/settings/api-keys). Open "Settings & Users" from the drop down menu in the top-right corner. Then, click "API Keys" in the left column, and generate your API key by clicking "+ Create new key".
+![Create API Key](/images/create-api-key.png)
 </Step>
 
-<Step title="Application Code">
-<CodeGroup>
 
+
+<Step title="Application Code">
+Copy the code below into your application file:
+
+<CodeGroup>
 <SnippetGettingStarted1Python />
 <SnippetGettingStarted1Typescript />
 </CodeGroup>
@@ -117,7 +151,8 @@ python app.py
 ```
 
 ```bash TypeScript
-node app.ts
+npm install tsx
+npx tsx app.ts
 ```
 </CodeGroup>
 </Step>
@@ -159,9 +194,13 @@ The response begins by defining Newton's First Law and provides a clear explanat
 </ResponseField>
 </Card>
 
-This explanation correctly points out that the answer we got wasn't exactly succinct. So, let's modify our prompt to fix this. We'll make sure to explain *what succinctness means for us*:
+This explanation correctly points out that the answer we got wasn't exactly succinct. So, let's modify our prompt to fix this. We'll make sure to explain *what succinctness means for us*.
+
+To do this, replace the prompt in your application file with a new prompt:
 <CodeGroup>
 ```python Python
+# app.py
+
 prompt = """
 	1.	Explain Newton's First Law in one sentence of no more than fifteen (15) words.
 	2.	Do not add any additional sentences, examples, parentheses, bullet points, or further clarifications.
@@ -170,6 +209,8 @@ prompt = """
 ```
 
 ```typescript TypeScript
+// app.ts
+
 const prompt = `
 	1.	Explain Newton's First Law in one sentence of no more than fifteen (15) words.
 	2.	Do not add any additional sentences, examples, parentheses, bullet points, or further clarifications.
