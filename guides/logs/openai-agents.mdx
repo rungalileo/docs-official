@@ -4,6 +4,10 @@ description: "Integrate the Galileo tracing processor with the OpenAI Agents SDK
 icon: "python"
 ---
 
+import SnippetAgents1Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agents/openai-agents-py-1.mdx';
+import SnippetAgents2Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agents/openai-agents-py-2.mdx';
+import SnippetAgents3Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agents/openai-agents-py-3.mdx';
+
 The OpenAI Agents Python SDK provides a framework for building multi-agent workflows. Galileo provides a GalileoTracingProcessor, allowing you to send detailed trace information to Galileo for monitoring, analysis, and debugging.
 
 
@@ -18,109 +22,27 @@ Ensure you have both the openai-agents library and the Galileo SDK installed:
 First create an [API key](/galileo/gen-ai-studio-products/galileo-evaluate/quickstart#getting-an-api-key) to authenticate.
 Copy your project name and log stream name and set the environment variables.
 
-```python
-import os
-
-# Replace with your actual Galileo credentials
-os.environ["GALILEO_API_KEY"] = "YOUR_GALILEO_API_KEY"
-os.environ["GALILEO_PROJECT"] = "YOUR_PROJECT_NAME"
-os.environ["GALILEO_LOG_STREAM"] = "YOUR_LOG_STREAM_NAME" # Often used per run/experiment
-
-# Also ensure your OpenAI API key is set for the agents to function
-os.environ["OPENAI_API_KEY"] = "YOUR_OPENAI_API_KEY"
-```
+<CodeGroup>
+<SnippetAgents1Python />
+</CodeGroup>
 
 
 ## Python setup: Adding the Galileo processor
 
 The integration is two lines of code adding the GalileoTracingProcessor to the list of trace processors used by the openai-agents SDK.
 
-```python
-from agents import set_trace_processors
-from galileo.handlers.openai_agents import GalileoTracingProcessor
-# Ensure environment variables for Galileo and OpenAI are set as shown above
+<CodeGroup>
+<SnippetAgents2Python />
+</CodeGroup>
 
-# Initialize and register the Galileo Tracing Processor
-
-set_trace_processors([GalileoTracingProcessor()])
-```
 
 ## Example Usage
 Here's a complete example demonstrating how to set up agents and run them with Galileo tracing enabled:
 
-```python
-import os
-import asyncio
-from agents import (
-    Agent,
-    GuardrailFunctionOutput,
-    InputGuardrail,
-    InputGuardrailTripwireTriggered,
-    Runner,
-    set_trace_processors
-)
-from pydantic import BaseModel
-from galileo.handlers.openai_agents import GalileoTracingProcessor
+<CodeGroup>
+<SnippetAgents3Python />
+</CodeGroup>
 
-# --- 1. Configure Credentials (Replace with your actual keys/names) ---
-os.environ["GALILEO_API_KEY"] = "YOUR_GALILEO_API_KEY"
-os.environ["GALILEO_PROJECT"] = "MyAgentProject"
-os.environ["GALILEO_LOG_STREAM"] = "TutorAgentRun_1"
-os.environ["OPENAI_API_KEY"] = "YOUR_OPENAI_API_KEY"
-
-# --- 2. Setup Galileo Tracing ---
-set_trace_processors([GalileoTracingProcessor()])
-
-# --- 3. Define Agents and Logic ---
-class HomeworkOutput(BaseModel):
-    is_homework: bool
-    reasoning: str
-
-guardrail_agent = Agent(
-    name="Guardrail check", instructions="Check if the user is asking about homework.", output_type=HomeworkOutput
-)
-
-math_tutor_agent = Agent(
-    name="Math Tutor",
-    handoff_description="Specialist agent for math questions",
-    instructions="You provide help with math problems. Explain your reasoning.",
-)
-
-history_tutor_agent = Agent(
-    name="History Tutor",
-    handoff_description="Specialist agent for historical questions",
-    instructions="You provide assistance with historical queries.",
-)
-
-async def homework_guardrail(ctx, agent, input_data):
-    print("Running homework guardrail...")
-    result = await Runner.run(guardrail_agent, input_data, context=ctx.context)
-    final_output = result.final_output_as(HomeworkOutput)
-    # Tripwire triggers if it *is* homework (we want to block homework)
-    return GuardrailFunctionOutput(output_info=final_output, tripwire_triggered=final_output.is_homework)
-
-triage_agent = Agent(
-    name="Triage Agent",
-    instructions="Determine which specialist agent (Math or History) to use based on the user's question. If it's not clearly Math or History, say you cannot help.",
-    handoffs=[history_tutor_agent, math_tutor_agent],
-    input_guardrails=[InputGuardrail(guardrail_function=homework_guardrail)],
-)
-
-# --- 4. Run the Agent Workflow ---
-async def main():
-    print("Running agent for a history question...")
-    result_history = await Runner.run(triage_agent, "Who was the first president of the United States?")
-    print("\n--- History Result ---")
-    print(result_history.final_output)
-
-if __name__ == "__main__":
-    # In Jupyter/Colab, use nest_asyncio or run directly if event loop exists
-    # import nest_asyncio
-    # nest_asyncio.apply()
-    # asyncio.run(main())
-    # Or if running in a script:
-    asyncio.run(main())
-```
 ## Summary
 
 1. Set the environment variables with the API key, project name and log stream name.
