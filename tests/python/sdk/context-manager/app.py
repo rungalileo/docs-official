@@ -25,7 +25,7 @@ def run_context_manager_example():
     with galileo_context(project=project, log_stream=log_stream):
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": "Explain what a context manager is in Python in one sentence."}], 
-            model="gpt-3.5-turbo"
+            model="gpt-4o"
         )
         
         # Return the response content
