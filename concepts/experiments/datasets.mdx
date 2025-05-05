@@ -1,15 +1,15 @@
 ---
 title: Datasets
-description: The data driving your experiments
+icon: "table"
 ---
 
 import { Screenshot } from '/snippets/Screenshot.mdx';
-import SnippetPythonCreateDataset from '/snippets/code/python/concepts/datasets/create-dataset.mdx'
-import SnippetPythonAddToDataset from '/snippets/code/python/concepts/datasets/add-to-dataset.mdx'
-import SnippetPythonGetDataset from '/snippets/code/python/concepts/datasets/get-dataset.mdx'
-import SnippetTSCreateDataset from '/snippets/code/typescript/concepts/datasets/create-dataset.mdx'
-import SnippetTSAddToDataset from '/snippets/code/typescript/concepts/datasets/add-to-dataset.mdx'
-import SnippetTSGetDataset from '/snippets/code/typescript/concepts/datasets/get-dataset.mdx'
+import SnippetDatasetsCreatePython from '/snippets/code/python/concepts/experiments/datasets/create.mdx';
+import SnippetDatasetsCreateTypescript from '/snippets/code/typescript/concepts/experiments/datasets/create.mdx';
+import SnippetDatasetsAddSamplesPython from '/snippets/code/python/concepts/experiments/datasets/add-samples.mdx';
+import SnippetDatasetsAddSamplesTypescript from '/snippets/code/typescript/concepts/experiments/datasets/add-samples.mdx';
+import SnippetDatasetsVersionsPython from '/snippets/code/python/concepts/experiments/datasets/versions.mdx';
+import SnippetDatasetsVersionsTypescript from '/snippets/code/typescript/concepts/experiments/datasets/versions.mdx';
 
 **Datasets** are a fundamental building block in Galileo's experimentation workflow. They provide a structured way to **organize, version, and manage** your test cases. Whether you're evaluating prompts, testing application functionality, or analyzing model behavior, having well-organized datasets is crucial for systematic testing and continuous improvement.
 
@@ -29,37 +29,37 @@ You can use datasets in two ways:
 
 Choose the approach that best fits your workflow and team's needs. Many users combine both approaches, using code for bulk operations and the UI for visualization and quick edits.
 
-For detailed information about dataset management, see our [Datasets Documentation](/sdk-api/python/experimentation/datasets).
-
 ## Path 1: Creating and Managing Datasets via UI
 
 ### Creating a New Dataset
 
-![Dataset creation button](/images/dataset-create-button.png)
+![Creating a new dataset in Galileo's interface](/images/dataset-create-button.png)
 
 The dataset creation button, shown above, is your starting point for organizing test cases in Galileo's interface.
 
-![Dataset dialog](/images/dataset-dialog.png)
+![Dataset configuration dialog](/images/dataset-dialog.png)
 
 The dataset configuration dialog provides options for naming, describing, and setting up your dataset with the appropriate schema for your testing needs.
 
 ### Adding Samples to Your Dataset
 
-![Manual sample creation](/images/dataset-manual-sample.png)
+
+
+![Manual sample creation in a dataset](/images/console-ui/dataset-create.png)
 
 As shown above, you can manually add samples to your dataset through the interface, allowing you to quickly capture problematic inputs or edge cases as you discover them.
+- **NOTE:** Columns in datasets may only include "input", "output", and "metadata" to be usable in an [Experiment](/concepts/experiments). The JSON-formatted [metadata](/concepts/experiments) column is ideal for including additional data about the experiment.
 
 ### Saving Changes and Creating Versions
 
-![Dataset save button](/images/dataset-save-button.png)
-
+![Saving changes to your dataset](/images/dataset-save-button.png)
 
 After making changes to your dataset, use the save button to create a new version that preserves your modifications while maintaining the history of previous versions.
 
 ### Viewing Version History
 The version history view allows you to track changes to your dataset over time, see when modifications were made, and access previous versions for comparison or regression testing.
 
-![Dataset versions](/images/dataset-versions.png)
+![Viewing version history of a dataset](/images/dataset-versions.png)
 
 After we add a new sample to the dataset, we can see the version history by clicking the "Version History" tab.
 
@@ -67,29 +67,31 @@ After we add a new sample to the dataset, we can see the version history by clic
 
 ## Path 2: Creating and Managing Datasets via Code
 
-### Creating and Growing Your Dataset
+### Creating a New Dataset
 
 When building your test suite programmatically, you can create datasets using the Galileo SDK:
 
 <CodeGroup>
-<SnippetPythonCreateDataset />
-<SnippetTSCreateDataset />
+<SnippetDatasetsCreatePython />
+<SnippetDatasetsCreateTypescript />
 </CodeGroup>
 
-As you discover new test cases, you can easily add them to your dataset:
+### Adding Samples to Your Dataset
+
+As you discover new test cases, you can easily add them to your dataset programmatically:
 
 <CodeGroup>
-<SnippetPythonAddToDataset />
-<SnippetTSAddToDataset />
+<SnippetDatasetsAddSamplesPython />
+<SnippetDatasetsAddSamplesTypescript />
 </CodeGroup>
 
-### Version Management and History
+### Working with Dataset Versions
 
-One of the key benefits of Galileo's dataset management is automatic versioning. This allows you to track how your test suite evolves over time and ensures reproducibility of your experiments. You can always reference specific versions of a dataset or work with the latest version:
+One of the key benefits of Galileo's dataset management is automatic versioning. This allows you to track how your test suite evolves over time and ensures reproducibility of your experiments:
 
 <CodeGroup>
-<SnippetPythonGetDataset />
-<SnippetTSGetDataset />
+<SnippetDatasetsVersionsPython />
+<SnippetDatasetsVersionsTypescript />
 </CodeGroup>
 
 ## Creating Focus Sets
@@ -113,8 +115,6 @@ When working with datasets in Galileo, consider these tips:
 4. **Document Changes**: Keep track of why you added certain test cases or created new versions
 5. **Organize by Purpose**: Create separate datasets for different types of tests (e.g., basic functionality, edge cases, regression tests)
 6. **Choose the Right Approach**: Use the UI for visual exploration and quick edits, and code for automation and bulk operations
-7. **Track Progress**: Monitor how changes affect both specific issues and overall performance
-8. **Keep History**: Save problematic inputs to prevent regressions
 
 By following these practices and utilizing Galileo's dataset management features, you can build a robust and maintainable test suite that grows with your application's needs.
 
