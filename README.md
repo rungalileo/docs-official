@@ -21,6 +21,18 @@ If you want to validate your changes locally before pushing them up, you can do 
 
 It'll watch for updates and keep auto-refreshing as long as the command is running.
 
+## Updating API Reference
+
+To be run from within `/api-reference` folder
+
+1. Run `rm openapi.json && wget https://api.dev.rungalileo.io/openapi.json` to update the OpenAPI spec.
+2. Update the `INCLUDE_ENDPOINTS_STARTING_WITH` in `include_endpoints.py` file with endpoints you want to include.
+3. Run `python include_endpoints.py` to exclude non included paths.
+
+To be run from the root folder.
+
+1. Run `mintlify dev` to check if the API Reference section is updated with your changes.
+
 ### Troubleshooting
 
 - Mintlify dev isn't running: Run `mintlify install` it'll re-install dependencies.
