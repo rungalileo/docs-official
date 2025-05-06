@@ -1,0 +1,7 @@
+```python Python
+# Set tripwire to filter out non-homework questions with Guardrail agent
+async def homework_guardrail(ctx, agent, input_data):
+    result = await Runner.run(guardrail_agent, input_data, context=ctx.context)
+    final_output = result.final_output_as(HomeworkOutput)
+    return GuardrailFunctionOutput(output_info=final_output, tripwire_triggered=not final_output.is_homework)
+```
