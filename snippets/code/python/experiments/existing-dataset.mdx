@@ -3,19 +3,19 @@ from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
 from galileo.openai import openai
 
+dataset = get_dataset(name="countries")
+
 def llm_call(input):
 	return openai.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o",
         messages=[
-          {"role": "system", "content": "You are a great storyteller."},
-          {"role": "user", "content": f"Write a story about {input['topic']}"}
+          {"role": "system", "content": "You are a geography expert."},
+          {"role": "user", "content": f"Which continent does the following country belong to: {input['input']}"}
         ],
     ).choices[0].message.content
 
-dataset = get_dataset(name="storyteller-dataset")
-
 results = run_experiment(
-	"story-function-experiment",
+	"geography-experiment",
 	dataset=dataset,
 	function=llm_call,
 	metrics=["correctness"],
