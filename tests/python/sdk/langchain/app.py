@@ -21,7 +21,7 @@ def run_langchain_example():
     
     # Initialize the LLM with the callback
     llm = ChatOpenAI(
-        model="gpt-3.5-turbo", 
+        model="gpt-4o", 
         temperature=0.7, 
         callbacks=[callback],
         openai_api_key=os.environ.get("OPENAI_API_KEY")

@@ -6,16 +6,20 @@ async function runCustomDatasetExperiment() {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   const dataset = [
-    { name: 'John' },
-    { name: 'Jane' },
-    { name: 'Bob' },
-    { name: 'Alice' }
+    {
+        "input": "Spain",
+        "output": "Europe",
+    },
+    {
+        "input": "Japan",
+        "output": "Asia",
+    },
   ];
 
   const runner = async (input) => {
     const result = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [{ content: `Say hello ${input['name']}!`, role: 'user' }]
+      model: 'gpt-4o',
+      messages: [{ content: `Which continent does the following country belong to ${input['input']}!`, role: 'user' }]
     });
     return result;
   };
