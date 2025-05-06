@@ -80,7 +80,7 @@ client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 with galileo_context(project="my-project", log_stream="my-log-stream"):
     chat_completion = client.chat.completions.create(
         messages=[{"role": "user", "content": "Your prompt here"}], 
-        model="gpt-3.5-turbo"
+        model="gpt-4o"
     )
 ```
 
