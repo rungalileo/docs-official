@@ -78,7 +78,7 @@ from langchain_openai import ChatOpenAI
 callback = GalileoCallback()
 
 # Initialize the LLM with the callback
-llm = ChatOpenAI(model="gpt-3.5-turbo", callbacks=[callback])
+llm = ChatOpenAI(model="gpt-4o", callbacks=[callback])
 ```
 
 When you make a call to the LLM, the callback will automatically create traces in Galileo:
