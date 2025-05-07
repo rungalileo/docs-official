@@ -2,8 +2,9 @@
 title: Correctness
 description: Evaluate factual accuracy in AI outputs using Galileo Guardrail Metrics to detect and prevent hallucinations in your AI systems.
 ---
-import { Scale } from '/snippets/components/scale.mdx';
-import { DefinitionCard } from '/snippets/components/definition-card.mdx';
+
+import { Scale } from "/snippets/components/scale.mdx";
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 
 <DefinitionCard>
   <strong>Correctness</strong> measures whether a given model response contains factually accurate information.
@@ -11,42 +12,45 @@ import { DefinitionCard } from '/snippets/components/definition-card.mdx';
 
 Correctness is a continuous metric ranging from 0 to 1:
 
-<Scale 
-  low="0" lowLabel="Low Correctness" 
-  high="1" highLabel="High Correctness" 
-  lowDescription="The response contains factual errors" 
-  highDescription="The response is factually accurate"
-/>
+<Scale low="0" lowLabel="Low Correctness" high="1" highLabel="High Correctness" lowDescription="The response contains factual errors" highDescription="The response is factually accurate" />
 
 This metric is particularly valuable for uncovering open-domain hallucinations: factual errors that don't relate to any specific documents or context provided to the model.
 
 ### Calculation Method
 
 Correctness is computed through a multi-step process:
+
 <Steps>
   <Step title="Model Request">
     Additional evaluation requests are sent to OpenAI's GPT4-o model to analyze the response.
-  </Step>
+
+</Step>
   <Step title="Prompt Engineering">
     A carefully engineered chain-of-thought prompt is used to ask the model to evaluate whether the response contains factually accurate information.
-  </Step>
+
+</Step>
   <Step title="Multiple Evaluations">
     The system requests multiple distinct responses to this prompt to ensure robust evaluation through consensus.
-  </Step>
+
+</Step>
   <Step title="Result Analysis">
     Each evaluation generates both an explanation of the reasoning and a binary judgment (yes/no) on factual accuracy.
-  </Step>
+
+</Step>
   <Step title="Score Calculation">
     The final Correctness score is computed as the ratio of 'yes' responses to the total number of evaluation responses.
-  </Step>
+
+</Step>
 </Steps>
 
 We also surface one of the generated explanations, always choosing one that aligns with the majority judgment among the responses:
+
 - If the score is greater than 0.5, the explanation will provide an argument that the response is factual
 - If the score is less than 0.5, the explanation will provide an argument that it is not factual
 
 <Note>
 This metric is computed by prompting an LLM multiple times, and thus requires additional LLM calls to compute, which may impact usage and billing.
+
 </Note>
 
 ## Understanding Correctness
@@ -61,20 +65,22 @@ This metric is computed by prompting an LLM multiple times, and thus requires ad
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>How Correctness Differs from Context Adherence</h3>
   </div>
-  
-  It's important to understand the distinction between related metrics:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Correctness:</strong> Measures whether a model response has factually correct information, regardless of whether that information is contained in the provided context.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Context Adherence:</strong> Measures whether the response adheres specifically to the information provided in the context.
-  </div>
-  
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Example:</strong> In a text-to-SQL scenario, a response could be factually correct (high Correctness) but not derived from the provided context (low Context Adherence). Conversely, a response could faithfully represent the context (high Context Adherence) but contain factual errors if the context itself is incorrect.
-  </div>
+
+It's important to understand the distinction between related metrics:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Correctness:</strong> Measures whether a model response has factually correct information, regardless of whether that information is contained in the provided context.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Context Adherence:</strong> Measures whether the response adheres specifically to the information provided in the context.
+</div>
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Example:</strong> In a text-to-SQL scenario, a response could be factually correct (high Correctness) but not derived from the provided context (low Context Adherence). Conversely, a response could faithfully represent the context
+  (high Context Adherence) but contain factual errors if the context itself is incorrect.
+</div>
+
 </Card>
 
 ## Optimizing Your AI System
@@ -88,24 +94,25 @@ This metric is computed by prompting an LLM multiple times, and thus requires ad
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing Low Correctness Scores</h3>
   </div>
-  
-  When a response has a low Correctness score, it's likely that the response contains non-factual information. To improve your system:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Flag and examine potentially non-factual responses:</strong> Identify patterns in responses that tend to contain factual errors.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Adjust your prompts:</strong> Instruct the model to stick to information it's given in the context and avoid speculation.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Implement verification steps:</strong> Add additional checks for factual accuracy before responses reach end users.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Consider model selection:</strong> Some models may be more factually accurate than others for specific domains.
-  </div>
+
+When a response has a low Correctness score, it's likely that the response contains non-factual information. To improve your system:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Flag and examine potentially non-factual responses:</strong> Identify patterns in responses that tend to contain factual errors.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Adjust your prompts:</strong> Instruct the model to stick to information it's given in the context and avoid speculation.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Implement verification steps:</strong> Add additional checks for factual accuracy before responses reach end users.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Consider model selection:</strong> Some models may be more factually accurate than others for specific domains.
+</div>
+
 </Card>
 
 ## Best Practices
@@ -113,18 +120,23 @@ This metric is computed by prompting an LLM multiple times, and thus requires ad
 <CardGroup cols={2}>
   <Card title="Implement Fact-Checking" icon="clipboard-check">
     For critical applications, implement automated fact-checking against trusted knowledge bases or databases.
-  </Card>
+
+</Card>
   <Card title="Use Grounding Techniques" icon="anchor">
     Instruct models to ground their responses in verifiable information and cite sources when possible.
-  </Card>
+
+</Card>
   <Card title="Monitor Domain-Specific Accuracy" icon="chart-line">
     Track Correctness scores across different knowledge domains to identify areas where your model may be less reliable.
-  </Card>
+
+</Card>
   <Card title="Create Factual Guardrails" icon="shield-halved">
     Develop domain-specific guardrails that can catch common factual errors before they reach users.
-  </Card>
+
+</Card>
 </CardGroup>
 
 <Note>
 When optimizing for Correctness, remember that even human experts can disagree on certain facts. Consider implementing confidence levels for responses, especially in domains with evolving knowledge or subjective elements.
+
 </Note>

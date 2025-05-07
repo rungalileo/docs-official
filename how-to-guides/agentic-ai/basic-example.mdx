@@ -6,6 +6,7 @@ description: Learn how to implement a basic agentic AI system using Galileo and 
 When implementing agentic AI systems, it's crucial to properly handle tool definitions, function calling, and response processing. This guide demonstrates a basic agentic AI implementation using Galileo's observability features.
 
 ### What You'll Need
+
 - OpenAI API key
 - Galileo API key
 - Python environment with required packages
@@ -22,6 +23,7 @@ Create a `.env` file with your API keys:
 GALILEO_API_KEY=your_galileo_api_key
 OPENAI_API_KEY=your_openai_api_key
 ```
+
 </Step>
 
 <Step title="Install Dependencies">
@@ -36,6 +38,7 @@ rich==13.7.0
 questionary==2.0.1
 pydantic==2.10.6
 ```
+
 </Step>
 
 <Step title="Create Tool Definitions">
@@ -80,20 +83,24 @@ Create a `tools.json` file with tool definitions:
   }
 ]
 ```
+
 </Step>
 
 <Step title="Running and Monitoring">
 
 Execute the application:
+
 ```bash
 python app.py
 ```
 
 Use Galileo to monitor:
+
 - Tool usage patterns
 - Query processing performance
 - Error rates and types
 - System performance metrics
+
 </Step>
 </Steps>
 
@@ -123,6 +130,7 @@ client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 ```
 
 This section:
+
 - Imports necessary libraries including Galileo components
 - Loads environment variables
 - Sets up rich console output
@@ -145,6 +153,7 @@ def load_tools():
 ```
 
 Key points:
+
 - Uses Pydantic for data validation
 - Defines clear models for structured outputs
 - Loads tool definitions from external JSON file
@@ -167,7 +176,7 @@ For example, for "twenty-five", return: {{"number": 25}}
         messages=[{"role": "user", "content": prompt}],
         response_format={"type": "json_object"}
     )
-    
+
     # Parse the JSON response
     try:
         json_response = json.loads(response.choices[0].message.content.strip())
@@ -201,6 +210,7 @@ def calculate(expression):
 ```
 
 This section:
+
 - Uses `@log` decorator with the `tool` span type for Galileo observability
 - Implements text-to-number conversion using LLM
 - Implements a calculator for arithmetic operations
@@ -214,13 +224,13 @@ The core agent functionality:
 def process_query(query):
     # Load tools
     tools = load_tools()
-    
+
     console.print("[bold blue]Processing query...[/bold blue]")
     console.print(f"Query: {query}")
-    
+
     # Debug: Print the tools being used
     console.print(f"[dim]Loaded {len(tools)} tools[/dim]")
-    
+
     # Ask LLM to process the query with a clear plan
     messages = [{
         "role": "system",
@@ -249,10 +259,10 @@ Required steps:
 Never stop after just converting numbers - you must calculate the result!"""
     },
     {
-        "role": "user", 
+        "role": "user",
         "content": f"Process this query: '{query}'"
     }]
-    
+
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=messages,
@@ -261,6 +271,7 @@ Never stop after just converting numbers - you must calculate the result!"""
 ```
 
 This section:
+
 - Loads tool definitions
 - Constructs a clear system prompt with instructions
 - Provides examples for the LLM to follow
@@ -276,7 +287,7 @@ The agent processes tool calls and manages the conversation flow:
     converted_values = {}
     has_arithmetic = any(op in query.lower() for op in ['+', '-', '*', '/', 'plus', 'minus', 'times', 'divide'])
     calculation_done = False
-    
+
     # Process all tool calls in sequence
     tool_calls = response.choices[0].message.tool_calls
     if tool_calls:
@@ -295,7 +306,7 @@ The agent processes tool calls and manages the conversation flow:
                 } for call in tool_calls
             ]
         })
-        
+
         # Process each tool call and add tool messages to the history
         for call in tool_calls:
             if call.function.name == "convert_text_to_number":
@@ -313,7 +324,7 @@ The agent processes tool calls and manages the conversation flow:
                         "tool_call_id": call.id,
                         "content": str(number)
                     })
-            
+
             elif call.function.name == "calculate":
                 expression = json.loads(call.function.arguments)["expression"]
                 console.print(f"[yellow]Calculating:[/yellow] {expression}")
@@ -330,6 +341,7 @@ The agent processes tool calls and manages the conversation flow:
 ```
 
 This section:
+
 - Processes tool calls from the LLM
 - Maintains conversation history
 - Executes the appropriate tool functions
@@ -343,19 +355,19 @@ The agent ensures that calculations are completed:
         # If we have arithmetic but no calculation was done, ask LLM to complete the sequence
         if has_arithmetic and not calculation_done:
             console.print("[yellow]Calculation step missing - requesting completion...[/yellow]")
-            
+
             # Add a message requesting completion of the sequence
             messages.append({
                 "role": "user",
                 "content": f"Now you must calculate the result using the converted numbers. The original query was: '{query}'"
             })
-            
+
             follow_up = client.chat.completions.create(
                 model="gpt-4o",
                 messages=messages,
                 tools=tools,
             )
-            
+
             # Process any additional tool calls
             if follow_up.choices[0].message.tool_calls:
                 # Add the assistant's response to the message history
@@ -373,7 +385,7 @@ The agent ensures that calculations are completed:
                         } for call in follow_up.choices[0].message.tool_calls
                     ]
                 })
-                
+
                 for call in follow_up.choices[0].message.tool_calls:
                     if call.function.name == "calculate":
                         expression = json.loads(call.function.arguments)["expression"]
@@ -390,12 +402,13 @@ The agent ensures that calculations are completed:
     else:
         console.print("[bold yellow]No tool calls detected in the response[/bold yellow]")
         return "I couldn't process your query. Please try again with a clearer request."
-    
+
     console.print(f"[dim]Final results: {results}[/dim]")
     return "\n".join(results) if results else "I couldn't process your query. Please try again with a clearer request."
 ```
 
 This section:
+
 - Detects incomplete calculation sequences
 - Prompts the LLM to complete the calculation
 - Processes additional tool calls
@@ -406,33 +419,33 @@ This section:
 The interactive interface:
 
 ```python app.py
-def main():    
+def main():
     # Add a console header
     console.print("[bold]Number Converter & Calculator Agent[/bold]")
     console.print("Simple agent demonstrating Galileo integration")
     console.print("Type your query or 'exit' to quit\n")
-    
+
     while True:
         query = questionary.text(
             "Enter your query (or 'exit' to quit):",
             default="What's 4 + seven?"
         ).ask()
-        
+
         if query.lower() in ['exit', 'quit', 'q']:
             break
-            
+
         try:
             # Galileo integration: Create a context for tracking this entire request
             # This wraps the entire process in a Galileo trace for observability
             with galileo_context():
                 result = process_query(query)
-            
+
             console.print("\n[bold green]Result:[/bold green]")
             console.print(result)
-            
+
             if not questionary.confirm("Ask another question?", default=True).ask():
                 break
-                
+
         except Exception as e:
             console.print(f"[bold red]Error:[/bold red] {str(e)}")
             import traceback
@@ -446,12 +459,14 @@ if __name__ == "__main__":
 ```
 
 This section provides:
+
 - User-friendly terminal interface
 - Galileo context for request tracking
 - Interactive question-answer loop
 - Error handling and graceful exits
 
 ### Key Features
+
 - **Tool-Based Architecture**: Modular design with specialized tools
 - **Galileo Observability**: Track tool usage and performance
 - **Robust Error Handling**: Graceful handling of API and runtime errors
@@ -459,6 +474,7 @@ This section provides:
 - **Interactive Experience**: User-friendly terminal interface
 
 ### Next Steps
+
 - Add more sophisticated tools for complex operations
 - Implement memory for multi-turn conversations
 - Add evaluation metrics for agent performance

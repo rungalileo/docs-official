@@ -19,12 +19,12 @@ test_data = [
 
 try:
     dataset = create_dataset(
-        name="test_dataset", 
+        name="test_dataset",
         content=test_data,
     )
-    
+
     # Print dataset information
     print(f"Successfully created dataset: {dataset.name if hasattr(dataset, 'name') else 'Unknown'}")
     print(f"Dataset ID: {dataset.id if hasattr(dataset, 'id') else 'Unknown'}")
 except Exception as e:
-    print(f"Error creating dataset: {str(e)}") 
+    print(f"Error creating dataset: {str(e)}")

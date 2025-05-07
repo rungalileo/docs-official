@@ -8,49 +8,53 @@ AI agents rely on reasoning, tool use, and multi-step decision-making to complet
 
 ## What Went Wrong?
 
-* The LLM selected incorrect tools or parameters.  
-* The agent executed tools incorrectly, leading to errors.  
-* The reasoning path was incoherent or inefficient.
+- The LLM selected incorrect tools or parameters.
+- The agent executed tools incorrectly, leading to errors.
+- The reasoning path was incoherent or inefficient.
 
 ## How It Showed Up in Metrics:
 
-* **Low Tool Selection Quality:** The LLM made incorrect decisions on which tools to use.  
-* **High Tool Errors:** The tools failed due to incorrect inputs or logic mistakes.
+- **Low Tool Selection Quality:** The LLM made incorrect decisions on which tools to use.
+- **High Tool Errors:** The tools failed due to incorrect inputs or logic mistakes.
 
-**Example of the Bad Setup:** 
+**Example of the Bad Setup:**
 
-*Task:* "Find the current stock price of Apple and summarize key financial trends."
+_Task:_ "Find the current stock price of Apple and summarize key financial trends."
 
 **Agent Execution:**
 
-1. Calls a weather API instead of a stock price API. *(Incorrect tool selection)*  
-2. Returns: "Apple’s stock is 80°F today\!" *(Tool error and faulty logic)*
+1. Calls a weather API instead of a stock price API. _(Incorrect tool selection)_
+2. Returns: "Apple’s stock is 80°F today\!" _(Tool error and faulty logic)_
 
 ## Improvements and Solutions
 
 <Steps>
 <Step title="Leverage metrics to diagnose the issue">
 
-* Use **Tool Selection Quality** to identify where the LLM is choosing incorrect tools.  
-* Analyze **Tool Errors** to track failed executions and understand failure patterns.  
-* Trace **Action Advancement** to see where the agent gets stuck or takes unnecessary steps.
+- Use **Tool Selection Quality** to identify where the LLM is choosing incorrect tools.
+- Analyze **Tool Errors** to track failed executions and understand failure patterns.
+- Trace **Action Advancement** to see where the agent gets stuck or takes unnecessary steps.
+
 </Step>
 <Step title="Improve Tool Selection with better prompting">
 
-* Use structured instructions that emphasize **correct tool use**.  
-* Implement **few-shot examples** demonstrating correct tool selection.  
-* Adjust prompts based on insights from Galileo’s **Tool Selection Quality** metric.
+- Use structured instructions that emphasize **correct tool use**.
+- Implement **few-shot examples** demonstrating correct tool selection.
+- Adjust prompts based on insights from Galileo’s **Tool Selection Quality** metric.
+
 </Step>
 <Step title="Detect and Reduce Tool Errors">
 
-* Monitor **Tool Error rates** in Galileo to spot recurring failures.  
-* Implement **error handling** by checking if tools return expected outputs.  
-* Use **fallback mechanisms** to retry or select alternative tools based on **Tool Error trends**.
+- Monitor **Tool Error rates** in Galileo to spot recurring failures.
+- Implement **error handling** by checking if tools return expected outputs.
+- Use **fallback mechanisms** to retry or select alternative tools based on **Tool Error trends**.
+
 </Step>
 <Step title="Iterate and Test with Galileo">
 
-* **Trace AI decision paths** in Galileo to analyze breakdowns in tool selection and reasoning.  
-* Adjust prompts and retry actions based on **Action Advancement** insights.  
-* Run **A/B tests** and compare **Tool Selection Quality** and **Tool Errors** across iterations
+- **Trace AI decision paths** in Galileo to analyze breakdowns in tool selection and reasoning.
+- Adjust prompts and retry actions based on **Action Advancement** insights.
+- Run **A/B tests** and compare **Tool Selection Quality** and **Tool Errors** across iterations
+
 </Step>
 </Steps>

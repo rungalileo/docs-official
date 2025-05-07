@@ -6,11 +6,7 @@ const logger = new GalileoLogger({
   logStreamName: "my-log-stream",
 });
 
-async function processChatMessage(
-  userId: string,
-  message: string,
-  conversationHistory: string[]
-) {
+async function processChatMessage(userId: string, message: string, conversationHistory: string[]) {
   // Start a trace for this chat interaction
   const trace = logger.startTrace({
     input: message, // input
@@ -24,9 +20,7 @@ async function processChatMessage(
 
   try {
     // Add an LLM span for generating the response
-    const prompt = `Conversation history: ${conversationHistory.join(
-      "\n"
-    )}\nUser: ${message}\nAssistant:`;
+    const prompt = `Conversation history: ${conversationHistory.join("\n")}\nUser: ${message}\nAssistant:`;
 
     logger.addLlmSpan({
       input: [{ role: "user", content: prompt }],

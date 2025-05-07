@@ -2,9 +2,9 @@
 title: Chunk Utilization
 description: Understand how to measure and optimize the efficiency of retrieved chunks in your RAG pipeline
 ---
-import { Scale } from '/snippets/components/scale.mdx';
-import { DefinitionCard } from '/snippets/components/definition-card.mdx';
 
+import { Scale } from "/snippets/components/scale.mdx";
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 
 <DefinitionCard>
   <strong>Chunk Utilization</strong> measures the fraction of text in each retrieved chunk that had an impact on the model's response in a RAG pipeline.
@@ -12,19 +12,23 @@ import { DefinitionCard } from '/snippets/components/definition-card.mdx';
 
 Chunk Utilization is a continuous metric ranging from 0 to 1:
 
-<Scale 
-  low="0" lowLabel="Low Utilization" 
-  mid="0.5" midLabel="Mid Utilization"
-  high="1" highLabel="High Utilization" 
-  lowDescription="None of the chunk's content was utilized" 
-  midDescription="Only half of the chunk's content influenced the response" 
+<Scale
+  low="0"
+  lowLabel="Low Utilization"
+  mid="0.5"
+  midLabel="Mid Utilization"
+  high="1"
+  highLabel="High Utilization"
+  lowDescription="None of the chunk's content was utilized"
+  midDescription="Only half of the chunk's content influenced the response"
   highDescription="The entire chunk's content influenced the response"
 />
 
 A chunk with low utilization contains "extraneous" text that did not affect the final response, indicating potential inefficiencies in your chunking strategy.
 
 <Callout type="info">
-  Chunk Utilization is closely related to [Chunk Attribution](/concepts/metrics/response-quality/chunk-attribution): Attribution measures whether or not a chunk affected the response, while Utilization measures how much of the chunk text was involved in the effect. Only chunks that were Attributed can have Utilization scores greater than zero.
+  Chunk Utilization is closely related to [Chunk Attribution](/concepts/metrics/response-quality/chunk-attribution): Attribution measures whether or not a chunk affected the response, while Utilization measures how much of the chunk text
+  was involved in the effect. Only chunks that were Attributed can have Utilization scores greater than zero.
 </Callout>
 
 ### Calculation Method
@@ -32,19 +36,24 @@ A chunk with low utilization contains "extraneous" text that did not affect the 
 <Steps>
   <Step title="Model Architecture">
     We use a fine-tuned in-house Galileo evaluation model based on a transformer encoder architecture.
-  </Step>
+
+</Step>
   <Step title="Multi-metric Computation">
     The same model computes Chunk Adherence, Chunk Completeness, Chunk Attribution and Utilization in a single inference call.
-  </Step>
+
+</Step>
   <Step title="Token-level Analysis">
     For each token in the provided context, the model outputs a utilization probability indicating if that token affected the response.
-  </Step>
+
+</Step>
   <Step title="Score Calculation">
     Chunk Utilization is computed as the fraction of tokens with high utilization probability out of all tokens in the chunk.
-  </Step>
+
+</Step>
   <Step title="Model Training">
     The model is trained on carefully curated RAG datasets and optimized to closely align with the RAG Plus metrics.
-  </Step>
+
+</Step>
 </Steps>
 
 ## Optimizing Your RAG Pipeline
@@ -58,26 +67,27 @@ A chunk with low utilization contains "extraneous" text that did not affect the 
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing Low Utilization Scores</h3>
   </div>
-  
-  Low Chunk Utilization scores could indicate one of two scenarios:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Oversized Chunks:</strong> Your chunks are longer than they need to be
-    <ul style={{marginTop: '0.5rem'}}>
-      <li>Check if Chunk Relevance is also low, which confirms this scenario</li>
-      <li>Solution: Tune your retriever to return shorter, more focused chunks</li>
-      <li>Benefits: Improved system efficiency, lower cost, and reduced latency</li>
-    </ul>
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Ineffective LLM Utilization:</strong> The LLM generator model is failing to incorporate all relevant information
-    <ul style={{marginTop: '0.5rem'}}>
-      <li>Check if Chunk Relevance is high, which confirms this scenario</li>
-      <li>Solution: Explore a different LLM that may leverage the relevant information more effectively</li>
-      <li>Benefits: Better response quality and more efficient use of retrieved information</li>
-    </ul>
-  </div>
+
+Low Chunk Utilization scores could indicate one of two scenarios:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Oversized Chunks:</strong> Your chunks are longer than they need to be
+  <ul style={{ marginTop: "0.5rem" }}>
+    <li>Check if Chunk Relevance is also low, which confirms this scenario</li>
+    <li>Solution: Tune your retriever to return shorter, more focused chunks</li>
+    <li>Benefits: Improved system efficiency, lower cost, and reduced latency</li>
+  </ul>
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Ineffective LLM Utilization:</strong> The LLM generator model is failing to incorporate all relevant information
+  <ul style={{ marginTop: "0.5rem" }}>
+    <li>Check if Chunk Relevance is high, which confirms this scenario</li>
+    <li>Solution: Explore a different LLM that may leverage the relevant information more effectively</li>
+    <li>Benefits: Better response quality and more efficient use of retrieved information</li>
+  </ul>
+</div>
+
 </Card>
 
 ## Best Practices
@@ -85,19 +95,23 @@ A chunk with low utilization contains "extraneous" text that did not affect the 
 <CardGroup cols={2}>
   <Card title="Optimize Chunk Size" icon="text-size">
     Experiment with different chunking strategies to find the optimal chunk size that maximizes utilization without sacrificing relevance.
-  </Card>
+
+</Card>
   <Card title="Monitor Across Models" icon="chart-mixed">
     Compare Chunk Utilization scores across different LLMs to identify which models most efficiently use retrieved information.
-  </Card>
+
+</Card>
   <Card title="Combine with Other Metrics" icon="scale-balanced">
     Use Chunk Utilization alongside [Chunk Relevance](/concepts/metrics/response-quality/chunk-relevance) and [Chunk Attribution](/concepts/metrics/response-quality/chunk-attribution) for a complete picture of retrieval effectiveness.
-  </Card>
+
+</Card>
   <Card title="Analyze Patterns" icon="magnifying-glass-chart">
     Look for patterns in low-utilization chunks to identify specific content types or formats that your system processes inefficiently.
-  </Card>
+
+</Card>
 </CardGroup>
 
 <Note>
 When optimizing for Chunk Utilization, balance efficiency with comprehensiveness. Extremely high utilization might indicate chunks that are too small and lack sufficient context for the model.
-</Note>
 
+</Note>

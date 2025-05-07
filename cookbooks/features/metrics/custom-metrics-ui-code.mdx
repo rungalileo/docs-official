@@ -19,29 +19,33 @@ You can create a registered scorer either through the Python SDK or directly in 
 <Steps>
   <Step title="Navigate to the Metrics section">
     In the Galileo platform, go to the Metrics section and click the "Create New Metric" button in the top right corner.
-    
+
     ![Create a new metric](/images/g2/custom-metrics-create-new-metric-button.png)
-  </Step>
+
+</Step>
 
   <Step title="Select the Code metric type">
     From the dialog that appears, choose the "Code" metric type. This option allows you to write custom Python code to evaluate your LLM outputs.
-    
+
     ![Select the Code metric type](/images/g2/custom-metrics-create-new-metric-dialog.png)
-  </Step>
+
+</Step>
 
   <Step title="Write your custom metric">
     Use the code editor to write your custom metric. The editor provides a template with the required functions and helpful comments to guide you.
-    
+
     ![Code editor](/images/g2/custom-metrics-code-editor.png)
-    
+
     The code editor allows you to write and test your metric directly in the browser. You'll need to define at least the `scorer_fn` and `aggregator_fn` functions as described below.
-  </Step>
+
+</Step>
 
   <Step title="Save your metric">
     After writing your custom metric code, click the "Save" button in the top right corner of the code editor. Your metric will be validated and, if there are no errors, it will be saved and become available for use across your organization.
-    
+
     You can now select this metric when running evaluations in both the Evaluate and Observe modules.
-  </Step>
+
+</Step>
 </Steps>
 
 #### 1. The Scorer Function (`scorer_fn`)
@@ -49,10 +53,10 @@ You can create a registered scorer either through the Python SDK or directly in 
 This function evaluates individual responses and returns a score:
 
 ```python
-def scorer_fn(*, 
-              index: Union[int, str], 
-              node_input: str, 
-              node_output: str, 
+def scorer_fn(*,
+              index: Union[int, str],
+              node_input: str,
+              node_output: str,
               **kwargs: Any) -> Union[float, int, bool, str, None]:
     # Your scoring logic here
     return score
@@ -61,22 +65,23 @@ def scorer_fn(*,
 The function must accept `**kwargs` to ensure forward compatibility. Here's a complete example that measures the difference in length between the output and ground truth:
 
 ```python
-def scorer_fn(*, 
-              index: Union[int, str], 
-              node_input: str, 
-              node_output: str, 
-              node_name: Optional[str], 
-              node_type: Optional[str], 
-              node_id: Optional[UUID], 
-              tools: Optional[List[Dict[str, Any]]], 
-              dataset_variables: Dict[str, str], 
+def scorer_fn(*,
+              index: Union[int, str],
+              node_input: str,
+              node_output: str,
+              node_name: Optional[str],
+              node_type: Optional[str],
+              node_id: Optional[UUID],
+              tools: Optional[List[Dict[str, Any]]],
+              dataset_variables: Dict[str, str],
               **kwargs: Any) -> Union[float, int, bool, str, None]:
-    
+
     ground_truth = dataset_variables.get("target", "")  # Ground truth if provided
     return abs(len(node_output) - len(ground_truth))
 ```
 
 **Parameter details:**
+
 - `index`: Row index in the dataset
 - `node_input`: Input to the node
 - `node_output`: Output from the node
@@ -88,7 +93,7 @@ def scorer_fn(*,
 This function aggregates individual scores into summary metrics:
 
 ```python
-def aggregator_fn(*, 
+def aggregator_fn(*,
                  scores: List[Union[float, int, bool, str, None]]
                  ) -> Dict[str, Union[float, int, bool, str, None]]:
     # Your aggregation logic here
@@ -141,7 +146,6 @@ When enabled, credentials are passed to `scorer_fn` as a dictionary:
   }
 }
 ```
-
 
 ### Complete Example: Response Length Scorer
 
@@ -225,8 +229,8 @@ def aggregator_fn(scores: List[float], indices: List[int]) -> Dict[str, float]:
     }
 
 my_scorer = CustomScorer(
-    name='Response Length', 
-    executor=executor, 
+    name='Response Length',
+    executor=executor,
     aggregator=aggregator_fn
 )
 ```
@@ -243,15 +247,15 @@ run(template=template, dataset=data, scorers=[my_scorer])
 
 ## Comparison: Registered vs. Custom Scorers
 
-| Feature | Registered Scorers | Custom Scorers |
-|---------|-------------------|---------------|
-| **Creation** | Python client, activatable via UI | Python client only |
-| **Sharing** | Organization-wide | Current project only |
-| **Modules** | Evaluate and Observe | Evaluate only |
-| **Definition** | Independent Python file | Within notebook |
-| **Environment** | Server-side | Local Python environment |
-| **Libraries** | Limited to Galileo environment | Any available library |
-| **Resources** | Restricted by Galileo | Local resources |
+| Feature         | Registered Scorers                | Custom Scorers           |
+| --------------- | --------------------------------- | ------------------------ |
+| **Creation**    | Python client, activatable via UI | Python client only       |
+| **Sharing**     | Organization-wide                 | Current project only     |
+| **Modules**     | Evaluate and Observe              | Evaluate only            |
+| **Definition**  | Independent Python file           | Within notebook          |
+| **Environment** | Server-side                       | Local Python environment |
+| **Libraries**   | Limited to Galileo environment    | Any available library    |
+| **Resources**   | Restricted by Galileo             | Local resources          |
 
 ## Common Use Cases
 
@@ -277,29 +281,29 @@ def scorer_fn(*, node_output: str, **kwargs) -> float:
     """
     positive_words = ["good", "great", "excellent", "positive", "happy", "best", "wonderful"]
     negative_words = ["bad", "poor", "negative", "terrible", "worst", "awful", "horrible"]
-    
+
     # Convert to lowercase for case-insensitive matching
     text = node_output.lower()
-    
+
     # Count occurrences
     positive_count = sum(text.count(word) for word in positive_words)
     negative_count = sum(text.count(word) for word in negative_words)
-    
+
     total_count = positive_count + negative_count
-    
+
     # Calculate sentiment score
     if total_count == 0:
         return 0.0  # Neutral
-    
+
     return (positive_count - negative_count) / total_count
 
 def aggregator_fn(*, scores: List[float]) -> Dict[str, float]:
     """Aggregate sentiment scores across responses."""
     if not scores:
         return {"Average Sentiment": 0.0}
-    
+
     avg_sentiment = sum(scores) / len(scores)
-    
+
     return {
         "Average Sentiment": round(avg_sentiment, 2),
         "Positive Responses": sum(1 for score in scores if score > 0.2),
@@ -313,6 +317,7 @@ def score_type():
 ```
 
 This simple sentiment scorer:
+
 - Counts positive and negative words in responses
 - Calculates a sentiment score between -1 (negative) and 1 (positive)
 - Aggregates results to show the distribution of positive, neutral, and negative responses
