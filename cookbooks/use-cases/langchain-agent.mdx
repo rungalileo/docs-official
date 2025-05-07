@@ -1,0 +1,185 @@
+---
+title: 🧠 LangChain Agent Monitoring with Galileo
+description: Learn how to monitor LangChain agents using the Galileo SDK in a Python-based project.
+---
+
+## Overview 
+This guide walks you through setting up a [LangChain-powered](https://www.langchain.com/) agent with real-time monitoring via the Galileo Python SDK and the Galileo LangChain Wrapper. You'll create a simple agent that uses [OpenAI's API](https://platform.openai.com/) and a custom tool, while automatically logging agent actions into your Galileo dashboard.
+
+### **What you'll build:** 
+A command-line agent that:
+- Greets a user with a custom tool
+- Runs using OpenAI's gpt-4 model
+- Logs all tool calls, inputs, and outputs to Galileo for traceability
+
+### **What you'll learn:**
+- LangChain agent setup
+- Creating and registering a simple tool
+- Monitoring agent workflows with Galileo
+
+### Requirements
+- A free [Galileo Developer Account](https://app.galileo.ai)
+- OpenAI Key to assist  [get one here](https://platform.openai.com/api-keys)
+- Python package manager + some familiarity with Python (for the sake of this cookbook, we'll use [UV](https://docs.astral.sh/uv/))
+
+Note, this cookbook assumes that you have already created an account on [https://app.galileo.ai](https://app.galileo.ai ) — if you haven't, take a moment to create your account, and subsequently create a new project. 
+
+Create a project named `langchain-docs`. For the sake of this cookbook, we'll keep the log stream name the default one for now — `my-log-stream`. 
+
+![Creating a new project in Galileo titled `langchain-docs`](../../images/create-new-project-galileo.gif)
+
+### Sample Application
+TODO: needs SDK Repo PR to be merged first.
+To see a completed version of this application and other examples using the Galileo SDK, check out our [SDK Examples Repository](https://github.com/rungalileo/sdk-examples/tree/c8f5aa5e63f39a7b261cfbbb998f6c5a4c223057/python/agent/weather-vibes-agent)
+
+## Environment Setup
+**Ingredients:**
+- git
+- Python environment tools
+- Package manager (pip or uv)
+
+**Steps:**
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/rungalileo/sdk-examples.git
+   cd sdk-examples/python/agent/langchain-agent
+   ```
+
+2. **Create a virtual environment:**
+   **on Windows**
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate
+   ```
+
+   **on Mac**
+   Using a standard virtual environment
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+   Or using uv (faster)
+   ```bash
+   uv venv venv
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies:**
+   Using pip
+   ```bash
+   pip install -r requirements.txt
+   ```
+   OR using uv
+   ```bash
+   uv pip install -r requirements.txt
+   ```
+
+4. **Create a .env file** in the project root:
+   ```
+   OPENAI_API_KEY=your_openai_key_here
+   GALILEO_API_KEY=your_galileo_key_here
+   ```
+
+## Building the Agent
+The agent and the tool it calls is built all within the same file.  Navigate to "main.py" and see the below code: 
+
+```python
+from dotenv import load_dotenv
+from langchain.agents import initialize_agent, Tool
+from langchain.agents.agent_types import AgentType
+from langchain_openai import ChatOpenAI
+from langchain.tools import tool
+from galileo import galileo_context
+from galileo.handlers.langchain import GalileoCallback
+import os
+
+load_dotenv()  # Load API keys from .env
+
+@tool
+def greet(name: str) -> str:
+    """Say hello to someone."""
+    return f"Hello, {name}! 👋"
+
+with galileo_context(project="langchain-docs", log_stream="my_log_stream"):
+    agent = initialize_agent(
+        tools=[greet],
+        llm=ChatOpenAI(model="gpt-4", temperature=0.7, callbacks=[GalileoCallback()]),
+        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        verbose=True
+    )
+
+    if __name__ == "__main__":
+        result = agent.invoke({"input": "Say hello to Erin"})
+        print(f"\nAgent Response:\n{result}")
+```
+
+### 🛠️ Tools
+The tool is called directly within the same file. In this example, we see a tool call that is a tool which will greet someone. 
+
+```python
+@tool
+def greet(name: str) -> str:
+    """Say hello to someone."""
+    return f"Hello, {name}! 👋"
+```
+
+The tool will get the name from where the agent is invoked further down in the file: 
+
+```python
+    if __name__ == "__main__":
+        result = agent.invoke({"input": "Say hello to Erin"})
+        print(f"\nAgent Response:\n{result}")
+```
+
+In this case, the agent is invoked with the input "Say hello to Erin".  Swap out the name or text to test out different responses. 
+
+### 🔎 Breakdown of the code
+- `galileo_context(...)` sets the logging scope for all actions inside the block. Think of it as turning on the observability camera.
+- `initialize_agent(...)` builds the LangChain agent with a tool and logging callback attached.
+- `agent.invoke(...)` sends input to the agent and triggers the workflow.
+- `The __name__ == "__main__"` check ensures this only runs when the script is executed directly (not imported).
+
+### ▶️ Running the Agent
+Run the agent from your command line by running `python main.py`
+
+The expected result will look something like so: 
+```
+> Entering new AgentExecutor chain...
+I need to use the greet function to say hello to Erin.
+Action: greet
+Action Input: Erin
+Observation: Hello, Erin! 👋
+Thought:I now know the final answer
+Final Answer: Hello, Erin! 👋
+
+> Finished chain.
+```
+
+## 👀 Viewing Logs in Galileo
+- Log into your [Galileo Dashboard](https://app.galileo.ai/)
+- Open your project: `langchain-docs`
+- Go to log stream: `my_log_stream`
+- Explore inputs, tool spans, model calls, and final outputs
+
+## Further Customization
+- Add more tools using the `@tool` decorator
+- Change OpenAI model or temperature settings
+
+## Next Steps 
+- Check out the [Galileo YouTube Channel](https://www.youtube.com/@rungalileo) to see what you can build! 
+- Star the [Galileo SDK-examples repo](https://github.com/rungalileo/sdk-examples)to bookmark more ways to get started with the Galileo SDK.
+- Follow [Galileo on LinkedIn](https://www.linkedin.com/company/galileo-ai/) to stay in touch with the latest news and resources.
+
+Happy building! 🚀
+
+## Common Issues and Solutions
+Here are some problems you might encounter and how to fix them:
+
+### No Logs in Galileo 
+- Check that API keys are correct and .env is loaded
+- Confirm you’re using the Galileo context and callback
+- Check internet connectivity
+
+### Trace Errors
+- Avoid mixing the `@log` decorator with `GalileoCallback` in LangChain
+- Use one instrumentation method to avoid conflicts
