@@ -1,6 +1,6 @@
 ```typescript TypeScript
 import { OpenAI } from "openai";
-import { wrapOpenAI, flush, log, init } from 'galileo';
+import { wrapOpenAI, flush, log, init } from "galileo";
 
 async function runExample() {
   const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
@@ -8,38 +8,35 @@ async function runExample() {
   // This will automatically create an llm span since we're using the `wrapOpenAI` wrapper
   const callOpenAI = async (input) => {
     const result = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [{ content: `Say hello ${input}!`, role: 'user' }]
+      model: "gpt-4o",
+      messages: [{ content: `Say hello ${input}!`, role: "user" }],
     });
     return result;
   };
 
   // Optionally initialize the logger if you haven't set GALILEO_PROJECT and GALILEO_LOG_STREAM environment variables
   await init({
-    projectName: 'my-project',
-    logStreamName: 'my-log-stream'
+    projectName: "my-project",
+    logStreamName: "my-log-stream",
   });
 
-  const wrappedToolCall = log(
-    { name: 'tool span', spanType: 'tool' },
-    (input) => {
-      return 'tool call result';
-    }
-  );
+  const wrappedToolCall = log({ name: "tool span", spanType: "tool" }, (input) => {
+    return "tool call result";
+  });
 
-  const wrappedFunc = await log({ name: 'workflow span' }, async (input) => {
+  const wrappedFunc = await log({ name: "workflow span" }, async (input) => {
     const result = await callOpenAI(input);
     return wrappedToolCall(result);
   });
 
   // This will create a workflow span with an llm span and a tool span
-  const result = await wrappedFunc('world');
+  const result = await wrappedFunc("world");
 
   await flush();
-  
+
   return result;
 }
 
 // Run the example
-runExample(); 
+runExample();
 ```

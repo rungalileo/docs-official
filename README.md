@@ -26,3 +26,27 @@ It'll watch for updates and keep auto-refreshing as long as the command is runni
 - Mintlify dev isn't running: Run `mintlify install` it'll re-install dependencies.
 - Page loads as a 404: Make sure you are running in a folder with `mint.json`
 - New page not showing in directory: Add the page to `mint.json`.
+- `prettier` pre-commit check can fail sometimes repeatedly. This can happen because `prettier` [doesn't yet know how to handle MDX3](https://github.com/prettier/prettier/issues/12209) format. Workaround is to ensure we add an extra line before close tags.
+
+```
+# If your DOM looks like this
+<Steps>
+<Step>
+Step 1
+</Step>
+<Step>
+</Step>
+</Steps>
+
+# Structure it with an extra empty line before end tags instead.
+<Steps>
+<Step>
+Step 1
+
+</Step>
+<Step>
+
+</Step>
+
+</Steps>
+```

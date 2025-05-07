@@ -4,14 +4,14 @@ export const SyncCodeGroups = ({ ignoreErrors = false }) => {
      *
      * This component ensures that all CodeGroups within a Mintlify documentation page remain synchronized.
      * Selecting a language or code sample in one CodeGroup updates all other CodeGroups on the page
-     * to use the CodeBlock at the same index. 
-     * 
-     * TODO: Figure out how to import this component. Currently this entire implementation be copied in directly, 
+     * to use the CodeBlock at the same index.
+     *
+     * TODO: Figure out how to import this component. Currently this entire implementation be copied in directly,
      * and then used with <SyncCodeGroups/>.
      *
-     * Just including this component anywhere in your `.mdx` file (e.g., `<SyncCodeGroups/>`) 
+     * Just including this component anywhere in your `.mdx` file (e.g., `<SyncCodeGroups/>`)
      * enables synchronization across all CodeGroups on the page.
-     * 
+     *
      * **How it works:**
      * - It observes changes in the selected state (aria-selected) of the tabs within CodeGroups.
      * - When a tab selection changes, it updates all other CodeGroups to the same index.
@@ -35,12 +35,12 @@ export const SyncCodeGroups = ({ ignoreErrors = false }) => {
      * They care about within the 1st or 2nd codeblock, this should not be a big deal.
      */
 
-  if (typeof document === "undefined") {
-    return null;
-  } else {
-    setTimeout(() => {
-      const clientComponent = document.getElementById("sync-code-groups");
-      if (!clientComponent) return;
+if (typeof document === "undefined") {
+return null;
+} else {
+setTimeout(() => {
+const clientComponent = document.getElementById("sync-code-groups");
+if (!clientComponent) return;
 
       let observer;
 
@@ -129,9 +129,10 @@ export const SyncCodeGroups = ({ ignoreErrors = false }) => {
         );
       }
     }
-    
+
     return <div id="sync-code-groups"></div>;
-  }
+
+}
 }
 
 export default SyncCodeGroups;

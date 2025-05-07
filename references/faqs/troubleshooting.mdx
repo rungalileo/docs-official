@@ -1,11 +1,12 @@
 ---
 title: Troubleshooting
 ---
-import SnippetTroubleshooting1 from '/snippets/code/multilingual/troubleshooting/troubleshooting-1.mdx';
-import SnippetTroubleshooting2 from '/snippets/code/multilingual/troubleshooting/troubleshooting-2.mdx';
-import SnippetTroubleshooting3 from '/snippets/code/multilingual/troubleshooting/troubleshooting-3.mdx';
-import SnippetTroubleshooting4 from '/snippets/code/multilingual/troubleshooting/troubleshooting-4.mdx';
-import SnippetTroubleshooting5 from '/snippets/code/multilingual/troubleshooting/troubleshooting-5.mdx';
+
+import SnippetTroubleshooting1 from "/snippets/code/multilingual/troubleshooting/troubleshooting-1.mdx";
+import SnippetTroubleshooting2 from "/snippets/code/multilingual/troubleshooting/troubleshooting-2.mdx";
+import SnippetTroubleshooting3 from "/snippets/code/multilingual/troubleshooting/troubleshooting-3.mdx";
+import SnippetTroubleshooting4 from "/snippets/code/multilingual/troubleshooting/troubleshooting-4.mdx";
+import SnippetTroubleshooting5 from "/snippets/code/multilingual/troubleshooting/troubleshooting-5.mdx";
 
 Welcome to the Galileo troubleshooting guide. This guide addresses common issues users may encounter when working with the Galileo SDK, API, Console, and overall integration process.
 
@@ -23,11 +24,11 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 **Solutions:**
 
 - Confirm Galileo is installed and check its version:
-    - **Python:** `pip show galileo`
-    - **TypeScript:** `npm list galileo`
+  - **Python:** `pip show galileo`
+  - **TypeScript:** `npm list galileo`
 - Reinstall the SDK:
-    - **Python:** `pip install galileo`
-    - **TypeScript:** `npm install galileo`
+  - **Python:** `pip install galileo`
+  - **TypeScript:** `npm install galileo`
 - Double-check `.env` configuration, making sure that API keys are correct, the keys are named correctly, and loaded via tools like `dotenv`.
 
 ---
@@ -77,7 +78,6 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 - Request higher rate limits from OpenAI for your organization.
 - Use different API keys or organizations for separate projects or environments (e.g., production vs. pre-production) to distribute load.
 
-
 ### Problem: <span style={{ fontWeight: 'normal' }}>JSON parsing errors</span>
 
 **Causes:**
@@ -89,8 +89,6 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 - Retry the metric computation as transient errors may cause invalid JSON.
 - Check the output format of the model you're using in its provider's documentation, such as [OpenAI's](https://platform.openai.com/docs/).
 
-
-
 ---
 
 ## Galileo Console UI
@@ -98,6 +96,7 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 ### Problem: <span style={{ fontWeight: 'normal' }}>Console UI not loading</span>
 
 **Causes:**
+
 - Browser extensions are interfering with [Galileo Console](https://app.galileo.ai)
 - Browser cache and cookies are interfering with [Galileo Console](https://app.galileo.ai)
 
@@ -109,55 +108,66 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 ### Problem: <span style={{ fontWeight: 'normal' }}>Logging data not appearing in Console UI</span>
 
 **Causes:**
+
 - Incorrect Project name or Log Stream name
 - GalileoLogger or Traces not properly configured in application
 - Failing to conclude or flush the GalileoLogger
 
 **Solutions:**
+
 - Confirm that the Project and Log Stream names in the UI match the names used when invoking the `GalileoLogger` or using `galileo_context` in your application code.
-    <CodeGroup>
+
+  <CodeGroup>
     <SnippetTroubleshooting1 />
-    </CodeGroup>
+  </CodeGroup>
 
 - In your application code, ensure the `GalileoLogger` is properly initialized and [Traces](/concepts/traces) are configured correctly.
-    <CodeGroup>
+
+  <CodeGroup>
     <SnippetTroubleshooting2 />
-    </CodeGroup>
+  </CodeGroup>
 
 - At the end of your application code, ensure the `GalileoLogger` is concluded and logs are flushed.
-    <CodeGroup>
+  <CodeGroup>
     <SnippetTroubleshooting3 />
-    </CodeGroup>
+  </CodeGroup>
 
 ### Problem: <span style={{ fontWeight: 'normal' }}>Spans appearing as separate Traces</span>
 
 **Causes:**
+
 - Spans not encapsulated within a Workflow Span
 - Traces invoked multiple times without concluding and flushing logs
 
 **Solutions:**
+
 - Create a [Workflow Span](/concepts/spans) to act as a parent Span before logging other Spans.
-    <CodeGroup>
+
+  <CodeGroup>
     <SnippetTroubleshooting4 />
-    </CodeGroup>
+  </CodeGroup>
 
 - Ensure [Traces](/concepts/traces) are concluded and flushed after creating Spans, and look for loops in your application code that may invoke Traces multiple times.
-    <CodeGroup>
+  <CodeGroup>
     <SnippetTroubleshooting5 />
-    </CodeGroup>
+  </CodeGroup>
 
 ### Problem: <span style={{ fontWeight: 'normal' }}>Ground truth metrics are not appearing (e.g. BLEU, ROUGE)</span>
 
 **Causes:**
+
 - Dataset is missing an "output" column
 - No Ground Truths are provided
 
 **Solutions:**
+
 - Check your experiment to confirm that your [Dataset](/concepts/datasets) has an "output" column. If it does not, add one.
 - Metrics may appear to be missing because they do not apply to Log Streams. With Log Streams, no [Ground Truths](/concepts/metrics/response-quality/ground-truth-adherence) are provided.
+
 ---
 
 For additional help:
+
 - Visit our [Community Forum](https://community.galileo.ai/).
 - Contact [Support](mailto:support@galileo.ai).
 - Explore our [Common Errors Guide](/references/faqs/errors) and [FAQ page](/references/faqs/faqs).

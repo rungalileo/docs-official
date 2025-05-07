@@ -1,29 +1,27 @@
 ```typescript TypeScript
-import { runExperiment } from 'galileo';
-import { OpenAI } from 'openai';
+import { runExperiment } from "galileo";
+import { OpenAI } from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const dataset = [
-  { country: 'Spain' }
-];
+const dataset = [{ country: "Spain" }];
 
 const runner = async (input) => {
   const result = await openai.chat.completions.create({
-    model: 'gpt-4',
+    model: "gpt-4",
     messages: [
-      { role: 'system', content: 'You are a geography expert' },
-      { role: 'user', content: `Which continent does the following country belong to: ${input["country"]}` }
-    ]
+      { role: "system", content: "You are a geography expert" },
+      { role: "user", content: `Which continent does the following country belong to: ${input["country"]}` },
+    ],
   });
   return result;
 };
 
 await runExperiment({
-  name: 'geography-experiment',
+  name: "geography-experiment",
   dataset: dataset,
   function: runner,
-  metrics: ['correctness'],
-  projectName: 'my-project'
-}); 
+  metrics: ["correctness"],
+  projectName: "my-project",
+});
 ```
