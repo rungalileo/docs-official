@@ -30,7 +30,7 @@ load_dotenv()
 def run_app_and_verify_traces():
     """Run the app.py script and verify that traces were created"""
     console.rule("[bold blue]Testing Galileo OpenAI Wrapper", style="blue")
-    
+
     # Check environment variables
     required_vars = [
         "GALILEO_CONSOLE_URL",
@@ -41,29 +41,29 @@ def run_app_and_verify_traces():
     ]
     if not config.check_environment_variables(required_vars):
         return False
-    
+
     # Set up API configuration
     api_url, api_key, project_name, log_stream_name = config.setup_api_config()
-    
+
     # Get authentication token
     auth_token = galileo_api.get_auth_token(api_url, api_key)
-    
+
     # API headers with token
     headers = config.setup_headers(auth_token, api_key)
-    
+
     # Get project and log stream IDs
     project_id, log_stream_id = galileo_api.get_project_and_log_stream_ids(api_url, headers, project_name, log_stream_name)
-    
+
     if not project_id or not log_stream_id:
         console.print("[bold red]✗ Cannot proceed without project and log stream IDs[/]")
         return False
-    
+
     # Get the current number of traces
     console.print("[bold cyan]Checking current traces...[/]")
     current_traces = galileo_api.get_traces_by_query(api_url, headers, project_id, log_stream_id, {"limit": 1})
     current_trace_count = len(current_traces)
     console.print(f"[bold cyan]Current trace count: {current_trace_count}[/]")
-    
+
     # Run the app.py script
     console.print("[bold cyan]Running app.py...[/]")
     try:
@@ -74,11 +74,11 @@ def run_app_and_verify_traces():
         console.print(f"[bold red]✗ Error running app.py: {e}[/]")
         console.print(Panel(e.stderr.strip(), title="[bold red]Error Output[/]", border_style="red"))
         return False
-    
+
     # Wait a moment for the trace to be processed
     console.print("[bold cyan]Waiting for trace to be processed...[/]")
     time.sleep(5)
-    
+
     # Check for new traces
     console.print("[bold cyan]Checking for new traces...[/]")
     max_attempts = 12
@@ -86,39 +86,39 @@ def run_app_and_verify_traces():
         console.print(f"[bold cyan]Attempt {attempt}/{max_attempts}...[/]")
         new_traces = galileo_api.get_traces_by_query(api_url, headers, project_id, log_stream_id, {"limit": 10})
         new_trace_count = len(new_traces)
-        
+
         if new_trace_count > current_trace_count:
             console.print(f"[bold green]✓ Found {new_trace_count - current_trace_count} new trace(s)[/]")
-            
+
             # Get the latest trace
             latest_trace = new_traces[0]
             trace_id = latest_trace.get('id')
             console.print(f"[bold green]✓ Latest trace ID: {trace_id}[/]")
-            
+
             # Get trace details
             trace_data = galileo_api.get_trace_data(api_url, headers, project_id, trace_id)
-            
+
             if trace_data:
                 console.print("[bold green]✓ Successfully retrieved trace data[/]")
-                
+
                 # Check if the trace has spans
                 if 'spans' in trace_data and len(trace_data['spans']) > 0:
                     console.print(f"[bold green]✓ Trace contains {len(trace_data['spans'])} span(s)[/]")
-                    
+
                     # Display span information
                     for i, span in enumerate(trace_data['spans']):
                         console.print(f"[bold cyan]Span {i+1}:[/] {span.get('name', 'Unknown')} - {span.get('status', 'Unknown')}")
-                    
+
                     return True
                 else:
                     console.print("[bold yellow]⚠ Trace does not contain any spans[/]")
             else:
                 console.print("[bold yellow]⚠ Could not retrieve trace data[/]")
-        
+
         if attempt < max_attempts:
             console.print("[bold cyan]Waiting and trying again...[/]")
             time.sleep(5)
-    
+
     console.print("[bold red]✗ No new traces found after running app.py[/]")
     return False
 
@@ -131,9 +131,9 @@ def main():
         title="[bold blue]Welcome[/]",
         border_style="blue"
     ))
-    
+
     success = run_app_and_verify_traces()
-    
+
     if success:
         console.rule("[bold green]Test Summary", style="green")
         console.print(Panel(

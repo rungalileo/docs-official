@@ -2,8 +2,9 @@
 title: Instruction Adherence
 description: Assess instruction adherence in AI outputs using Galileo Guardrail Metrics to ensure prompt-driven models generate precise and actionable results.
 ---
-import { Scale } from '/snippets/components/scale.mdx';
-import { DefinitionCard } from '/snippets/components/definition-card.mdx';
+
+import { Scale } from "/snippets/components/scale.mdx";
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 
 <DefinitionCard>
   <strong>Instruction Adherence</strong> measures whether a model followed or adhered to the system or prompt instructions when generating a response.
@@ -15,36 +16,48 @@ This metric is particularly valuable for uncovering hallucinations where the mod
 
 Here's a scale that shows the relationship between Instruction Adherence and the potential impact on your AI system:
 
-
-
-
-<Scale low="0" lowLabel="Low Adherence" high="1" highLabel="High Adherence" lowDescription="The model ignored its instructions when generating its response." midDescription="The model partially followed its instructions when generating its response." highDescription="The model followed its instructions when generating its response."/>
+<Scale
+  low="0"
+  lowLabel="Low Adherence"
+  high="1"
+  highLabel="High Adherence"
+  lowDescription="The model ignored its instructions when generating its response."
+  midDescription="The model partially followed its instructions when generating its response."
+  highDescription="The model followed its instructions when generating its response."
+/>
 
 ## Calculation Method
+
 Instruction Adherence is computed through a multi-step process:
 
 <Steps>
   <Step title="Model Evaluation">
     The system sends multiple evaluation requests to OpenAI's GPT4o model to analyze whether the response follows the provided instructions.
-  </Step>
+
+</Step>
   <Step title="Analysis Process">
     A specialized chain-of-thought prompt guides the model through a detailed evaluation of how well the response adheres to the specific instructions given.
-  </Step>
+
+</Step>
   <Step title="Multiple Assessments">
     The system requests and collects multiple distinct responses to ensure a robust evaluation through consensus.
-  </Step>
+
+</Step>
   <Step title="Result Generation">
     Each evaluation produces both a detailed explanation of the reasoning and a binary judgment (yes/no) on instruction adherence.
-  </Step>
+
+</Step>
   <Step title="Score Calculation">
     The final score is computed as the ratio of positive ('yes') responses to the total number of evaluation responses.
-  </Step>
+
+</Step>
 </Steps>
 
 We also surface one of the generated explanations, always choosing one that aligns with the majority judgment among the responses.
 
 <Note>
 This metric is computed by prompting an LLM multiple times, and thus requires additional LLM calls to compute, which may impact usage and billing.
+
 </Note>
 
 ## Understanding Instruction Adherence
@@ -59,16 +72,17 @@ This metric is computed by prompting an LLM multiple times, and thus requires ad
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Differentiating from Context Adherence</h3>
   </div>
-  
-  It's important to understand the distinction between related metrics:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Instruction Adherence:</strong> Measures whether the response follows the instructions in your prompt template.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Context Adherence:</strong> Measures whether the response adheres to the context provided (e.g., your retrieved documents).
-  </div>
+
+It's important to understand the distinction between related metrics:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Instruction Adherence:</strong> Measures whether the response follows the instructions in your prompt template.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Context Adherence:</strong> Measures whether the response adheres to the context provided (e.g., your retrieved documents).
+</div>
+
 </Card>
 
 ## Optimizing Your AI System
@@ -82,24 +96,25 @@ This metric is computed by prompting an LLM multiple times, and thus requires ad
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing Low Instruction Adherence</h3>
   </div>
-  
-  When a response has a low Instruction Adherence score, the model likely ignored its instructions. To improve your system:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Flag and examine non-compliant responses:</strong> Identify patterns in responses that don't follow instructions.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Experiment with prompt engineering:</strong> Test different prompt formulations to find versions the model is more likely to adhere to.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Implement guardrails:</strong> Take precautionary measures to prevent non-compliant responses from reaching end users.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Consider model selection:</strong> Some models may be better at following instructions than others.
-  </div>
+
+When a response has a low Instruction Adherence score, the model likely ignored its instructions. To improve your system:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Flag and examine non-compliant responses:</strong> Identify patterns in responses that don't follow instructions.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Experiment with prompt engineering:</strong> Test different prompt formulations to find versions the model is more likely to adhere to.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Implement guardrails:</strong> Take precautionary measures to prevent non-compliant responses from reaching end users.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Consider model selection:</strong> Some models may be better at following instructions than others.
+</div>
+
 </Card>
 
 ## Best Practices
@@ -107,18 +122,23 @@ This metric is computed by prompting an LLM multiple times, and thus requires ad
 <CardGroup cols={2}>
   <Card title="Clarify Instructions" icon="pen-to-square">
     Write clear, specific instructions without ambiguity or contradictions to improve adherence rates.
-  </Card>
+
+</Card>
   <Card title="Prioritize Critical Instructions" icon="list-check">
     Place the most important instructions prominently in your prompt and consider repeating them for emphasis.
-  </Card>
+
+</Card>
   <Card title="Monitor Across Models" icon="chart-line">
     Compare Instruction Adherence scores across different LLMs to identify which models best follow your specific instructions.
-  </Card>
+
+</Card>
   <Card title="Implement Feedback Loops" icon="rotate">
     Use low-adherence examples to refine your prompts and create test cases for future prompt iterations.
-  </Card>
+
+</Card>
 </CardGroup>
 
 <Note>
 When optimizing for Instruction Adherence, balance strict adherence with allowing the model some flexibility. Overly rigid instructions may limit the model's ability to provide helpful responses in edge cases.
+
 </Note>
