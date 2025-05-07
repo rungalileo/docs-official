@@ -11,52 +11,13 @@ import SnippetGettingStarted1Typescript from "/snippets/code/typescript/getting-
 Welcome to Galileo! This quickstart guide will walk you through setting up **your first AI evaluation in minutes**. You'll learn how to identify and fix common issues in AI responses using Galileo's powerful metrics and insights.
 
 ### **What You'll Learn**
-* Set up and run an AI evaluation with Galileo in less than 5 minutes
-* Interpret key metrics to identify response quality issues
-* Apply prompt engineering techniques to fix common AI response problems
-* Understand how Galileo helps you build more reliable AI applications
 
-
-
+- Set up and run an AI evaluation with Galileo in less than 5 minutes
+- Interpret key metrics to identify response quality issues
+- Apply prompt engineering techniques to fix common AI response problems
+- Understand how Galileo helps you build more reliable AI applications
 
 <Steps>
-{/* <Step title="Set Up a Project">
-
-Create a project in the Galileo console.
-
-<Screenshot
-  alt="Project creation"
-  placeholder="Add screenshot of project creation"
-  caption="Project creation"  
-/>
-
-</Step>
-<Step title="Create a Log Stream">
-
-Create a log stream in the Galileo console.
-
-<Screenshot
-  alt="Log stream creation"
-  placeholder="Add screenshot of log stream creation"
-  caption="Log stream creation"
-/>
-
-</Step>
-
-<Step title="Set up metrics">
-
-Set up metrics in the Galileo console.
-
-<Screenshot
-  alt="Metric creation"
-  placeholder="Add screenshot of metric creation"
-  caption="Metric creation"
-/>
-
-![Select metric](/images/metrics-configuration.png)
-
-
-</Step> */}
 
 <Step title="Create Project Folder">
 
@@ -75,9 +36,6 @@ cd first-AI-evaluation
 
 </CodeGroup>
 </Step>
-
-
-
 
 <Step title="Install Dependencies">
 
@@ -115,11 +73,10 @@ first-AI-evaluation/
 </CodeGroup>
 </Step>
 
-
-
 <Step title="Set Up Environment Variables">
 
 In the `.env` file, add the following credentials:
+
 ```text
 GALILEO_API_KEY="your-Galileo-api-key-here"
 OPENAI_API_KEY="your-OpenAI-api-key-here"
@@ -129,26 +86,23 @@ GALILEO_LOG_STREAM="physics-questions"
 
 </Step>
 
-
 <Step title="Log in to the Galileo Console">
 
 To access your Galileo API keys, open the [Galileo Console](https://app.galileo.ai) and log in or create an account.
 
 The **Galileo Console** is the hub for viewing all your Galileo projects, configuring your experiments, and viewing your logged data.
+
 </Step>
-
-
-
 
 <Step title="Fill in API Keys">
 
 In the `.env` file, fill in the API key values:
-* `OPENAI_API_KEY` : Obtain your OpenAI API key by logging in to your OpenAI account on [their website](https://platform.openai.com/settings/organization/api-keys).
-* `GALILEO_API_KEY` : Obtain your Galileo API key by logging in to your Galileo account on [Galileo.ai](https://app.galileo.ai/settings/api-keys). Open "Settings & Users" from the drop down menu in the top-right corner. Then, click "API Keys" in the left column, and generate your API key by clicking "+ Create new key".
-![Create API Key](/images/create-api-key.png)
+
+- `OPENAI_API_KEY` : Obtain your OpenAI API key by logging in to your OpenAI account on [their website](https://platform.openai.com/settings/organization/api-keys).
+- `GALILEO_API_KEY` : Obtain your Galileo API key by logging in to your Galileo account on [Galileo.ai](https://app.galileo.ai/settings/api-keys). Open "Settings & Users" from the drop down menu in the top-right corner. Then, click "API Keys" in the left column, and generate your API key by clicking "+ Create new key".
+  ![Create API Key](/images/console-ui/create-api-key.png)
+
 </Step>
-
-
 
 <Step title="Application Code">
 Copy the code below into your application file:
@@ -159,12 +113,10 @@ Copy the code below into your application file:
 </CodeGroup>
 </Step>
 
-
-
-
 <Step title="Run the Application">
 
 To run this simple application, simply run the following:
+
 <CodeGroup>
 
 ```python Python
@@ -179,9 +131,6 @@ npx tsx app.ts
 </CodeGroup>
 </Step>
 
-
-
-
 <Step title="View Results in Terminal">
 
 **Congratulations!** You have run your first AI inference using the **Galileo SDK**.
@@ -195,7 +144,6 @@ Newton's First Law, often referred to as the Law of Inertia, states that an obje
 </Card>
 </Step>
 
-
 </Steps>
 <Note>Your application is now connected to Galileo with Metrics 🎉! You can continue to explore on your own or read more about improving the prompt.</Note>
 
@@ -204,9 +152,10 @@ Newton's First Law, often referred to as the Law of Inertia, states that an obje
 If you examine the results we got for our first run, you'll see that the model's response is not exactly what we asked for.
 
 #### **What Happened?**
-* We asked for a **succinct** explanation.
-* The model gave a **detailed** answer instead. 😢
-* Our **instruction adherence metric was 0.6667%**, meaning we need to tweak our prompt. 
+
+- We asked for a **succinct** explanation.
+- The model gave a **detailed** answer instead. 😢
+- Our **instruction adherence metric was 0.6667%**, meaning we need to tweak our prompt.
 
 To understand **why** our instruction adherence metric was so low, we can look at the **metric explanation**. You can find this explanation by clicking the LLM node in the Trace steps on the left, and then mousing over the instruction adherence percent output.
 
@@ -234,12 +183,14 @@ To do this, replace the prompt in your application file with a new prompt:
 # app.py
 
 prompt = """
-  1. Explain Newton's First Law in one sentence of no more than fifteen (15)
-     words.
-  2. Do not add any additional sentences, examples, parentheses, bullet
-     points, or further clarifications.
-  3. Your answer must be exactly one sentence and must not exceed 15 words.
-  """
+
+1. Explain Newton's First Law in one sentence of no more than fifteen (15)
+   words.
+2. Do not add any additional sentences, examples, parentheses, bullet
+   points, or further clarifications.
+3. Your answer must be exactly one sentence and must not exceed 15 words.
+   """
+
 ```
 
 ```typescript TypeScript
