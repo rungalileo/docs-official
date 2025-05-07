@@ -1,8 +1,8 @@
 ```python Python
+from galileo import Message, MessageRole
 from galileo.prompts import get_prompt_template, create_prompt_template
 from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
-from galileo.resources.models import MessageRole, Message
 
 project = "my-project"
 
@@ -13,8 +13,8 @@ if prompt_template is None:
         name="geography-prompt",
         project=project,
         messages=[
-            Message(role=MessageRole.SYSTEM, content="You are a geography expert. Respond with only the continent name."),
-            Message(role=MessageRole.USER, content="{{input}}")
+            Message(role=MessageRole.system, content="You are a geography expert. Respond with only the continent name."),
+            Message(role=MessageRole.user, content=f"{input['input']}")
         ]
     )
 

@@ -1,0 +1,39 @@
+```python Python
+from galileo import GalileoLogger
+logger = GalileoLogger()
+
+## Initialize a new trace and start listening for logs to add to it
+trace = logger.start_trace(
+    input="Your prompt",
+    name="Example Trace Name"
+    tags=["example_tag1", "example_tag2"],
+    metadata={"example_key": "example_value"}
+)
+
+## ...Spans are created...
+
+## Conclude the Trace and flush logs
+logger.conclude(output="Final trace output with all spans completed",
+                 durationNs=3000000000)
+logger.flush()
+```
+
+```typescript Typescript
+import { GalileoLogger } from 'galileo';
+const logger = new GalileoLogger();
+
+// Initialize a new trace and start listening for logs to add to it
+const trace = logger.startTrace({
+    input: "Your prompt",
+    name: "Example Trace Name",
+    tags: ["example_tag1", "example_tag2"],
+    metadata: { example_key: "example_value" }
+});
+
+// ...Spans are created...
+
+// Conclude the Trace and flush logs
+logger.conclude({output: "Final trace output with all spans completed",
+                 durationNs: 3000000000})
+logger.flush()
+```
