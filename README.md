@@ -21,11 +21,6 @@ If you want to validate your changes locally before pushing them up, you can do 
 
 It'll watch for updates and keep auto-refreshing as long as the command is running.
 
-## Updating API Reference
-
-1. Run `cd api-reference && rm openapi.json && wget https://api.acme.rungalileo.io/public/openapi.json && cd ..` to update the specs.
-2. Run `mintlify dev` to check if the API Reference section is updated with your changes.
-
 ### Troubleshooting
 
 - Mintlify dev isn't running: Run `mintlify install` it'll re-install dependencies.
