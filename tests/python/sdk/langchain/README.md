@@ -11,17 +11,20 @@ This directory contains examples and tests for integrating LangChain with Galile
 ## Setup
 
 1. Create a virtual environment (recommended):
+
    ```bash
    python -m venv .venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
 2. Install the required dependencies:
+
    ```bash
    pip install galileo openai langchain langchain-openai python-dotenv rich
    ```
 
 3. Create a `.env` file in this directory with the following variables:
+
    ```
    GALILEO_CONSOLE_URL=https://console.galileo.io
    GALILEO_API_KEY=your_galileo_api_key
@@ -31,6 +34,7 @@ This directory contains examples and tests for integrating LangChain with Galile
    ```
 
    You can copy the `.env.example` file and fill in your values:
+
    ```bash
    cp .env.example .env
    ```
@@ -61,6 +65,7 @@ python test.py
 ```
 
 This script will:
+
 1. Run the app.py example
 2. Check for new traces in your Galileo project
 3. Verify that the traces contain spans related to LangChain
@@ -78,7 +83,7 @@ from langchain_openai import ChatOpenAI
 callback = GalileoCallback()
 
 # Initialize the LLM with the callback
-llm = ChatOpenAI(model="gpt-3.5-turbo", callbacks=[callback])
+llm = ChatOpenAI(model="gpt-4o", callbacks=[callback])
 ```
 
 When you make a call to the LLM, the callback will automatically create traces in Galileo:
@@ -102,4 +107,4 @@ If you encounter issues:
 3. Verify that you have installed all required dependencies
 4. Check the Galileo console to see if traces are being created
 
-For more information, visit the [Galileo documentation](https://docs.galileo.io). 
+For more information, visit the [Galileo documentation](https://docs.galileo.io).

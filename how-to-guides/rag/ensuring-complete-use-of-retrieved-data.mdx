@@ -1,361 +1,354 @@
 ---
-title: Ensuring Complete Use of Retrieved Data
-description: Learn how to ensure that your AI models use all the retrieved data.
-icon: person-digging
+title: Completeness in RAG Systems
+description: Learn how to ensure that your RAG systems provide complete answers using the Galileo completeness metric.
 ---
 
-Sometimes a model ignores the retrieved chunks, either generating responses from its internal knowledge or only using a small portion of the retrieved context. This results in responses that do not fully reflect the most relevant information.
+This guide explains the challenge of ensuring answer completeness in Retrieval-Augmented Generation (RAG) systems, using the Galileo completeness metric to measure success. We'll compare a basic implementation with an enhanced version to demonstrate how different approaches affect answer completeness.
 
-## **Example of the Problem**
+## The Completeness Challenge
 
-**User Query:** "Who discovered penicillin?" 
+Answer completeness refers to how thoroughly and comprehensively a RAG system answers a given question. The Galileo completeness metric evaluates this by using the LLM as a judge to compare the response against its own knowledge of the topic. This approach has important implications:
 
-**Retrieved Chunks:**
+- The metric can identify when a response misses information that is part of open domain knowledge
+- The metric cannot identify gaps in information that is not part of open domain knowledge
+- The evaluation helps ensure responses are complete relative to what is generally known about a topic
 
-1. "Alexander Fleming was a Scottish bacteriologist."  
-2. "Fleming conducted experiments on mold in the 1920s."  
-3. "His work led to the development of antibiotics." 
+A complete answer should:
 
-**Model Response:** "Penicillin was discovered in the 1920s by a scientist."
+- Cover all relevant aspects of the question
+- Include all significant details from the source documents
+- Synthesize information from multiple sources when relevant
+- Provide proper context and background information
+- Not miss any important information that is part of open domain knowledge
 
-**What Went Wrong in the Response?**
-* The response is technically correct but **fails to attribute the retrieved chunks** by omitting the name **Alexander Fleming**.  
-* The model is providing **vague phrasing** that does not leverage the retrieved specifics.  
-* While the retrieved chunks contained useful details, the model only made minimal use of them, leading to **low Chunk Utilization**.
+The Galileo completeness metric evaluates these aspects by analyzing how well the answer covers all relevant information that is part of open domain knowledge, using the LLM as a judge to identify any gaps or omissions in the response.
 
-### Example Better Response
-**Better Model Response:** "Scottish bacteriologist Alexander Fleming conducted experiments on mold in the 1920s, leading to the discovery of penicillin and the development of antibiotics (Sources: 1, 2, 3)."
+## Basic Implementation
 
-## What Could Be The Root Cause?
-
-* **What We Did Wrong:**  
-  * Retrieved too many or too few chunks, leading to excessive or insufficient context.  
-  * The retrieval system returned relevant chunks, but the model failed to incorporate them effectively.  
-  * The model relied too heavily on general knowledge instead of retrieved content.  
-* **How It Showed Up in Metrics:**  
-  * **Low Chunk Attribution**: Retrieved chunks did not affect the model’s response.  
-  * **High Chunk Attribution but Low Chunk Utilization**: The model referenced retrieved data but incorporated only minimal text from it.
-
-## Improvements and Solutions
+The basic implementation ([`ensure-completeness-basic.py`](https://github.com/rungalileo/sdk-examples/blob/main/python/rag/challenges/ensure-completeness-basic.py)) demonstrates several limitations that lead to incomplete answers:
 
 <Steps>
-<Step title="Improve Retrieval and Chunking Strategy">
+<Step title="Limited Document Retrieval">
 
-* Use **adaptive chunking** instead of fixed-size chunks to ensure that complete facts are retrieved together.
-<CodeGroup>
-  ```python Python
-  from langchain.text_splitter import RecursiveCharacterTextSplitter
+```python
+# In ensure-completeness-basic.py
+store = DocumentStoreBasic(
+    source="custom",
+    custom_documents_path=str(custom_docs_path),
+    num_docs=1,  # Only one document
+    chunk_size=1000  # Larger chunks, less precise
+)
+```
 
-  text_splitter = RecursiveCharacterTextSplitter(
-      chunk_size=512,  # Adaptive size based on text structure
-      chunk_overlap=50,
-      separators=["\n\n", ". ", " "],  # Adaptive chunking using logical breaks
-  )
+The basic implementation suffers from several critical limitations in document retrieval. It's designed to return only a single document, which significantly limits the breadth of information available for answering questions. The search mechanism relies on basic L2 distance for similarity matching, which is less effective for semantic search compared to more sophisticated approaches. Additionally, the system lacks any form of reranking or relevance scoring, meaning it can't refine its results based on deeper semantic understanding. The chunk size is also quite large at 1000 characters, which can lead to less precise and potentially less relevant information being included in each chunk.
 
-  chunks = text_splitter.split_text(long_document)
-  ```
-
-  ```typescript TypeScript
-  import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-
-  const textSplitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 512,  // Adaptive size based on text structure
-    chunkOverlap: 50,
-    separators: ["\n\n", ". ", " "],  // Adaptive chunking using logical breaks
-  });
-
-  const chunks = await textSplitter.splitText(longDocument);
-  ```
-</CodeGroup>
-* **Increase retrieval precision** by tuning similarity thresholds and using **query expansion** to better match relevant documents.
-<CodeGroup>
-  ```python Python
-  from sentence_transformers import SentenceTransformer, util
-
-  model = SentenceTransformer("all-MiniLM-L6-v2")
-  query = "climate change impact on oceans"
-  expanded_queries = ["effects of climate change on marine life", "ocean temperature rise effects"]
-
-  query_embedding = model.encode(query, convert_to_tensor=True)
-  doc_embeddings = model.encode(expanded_queries, convert_to_tensor=True)
-
-  similarity_scores = util.pytorch_cos_sim(query_embedding, doc_embeddings)
-
-  filtered_docs = [doc for doc, score in zip(expanded_queries, similarity_scores[0]) if score > 0.7]
-  ```
-
-  ```typescript TypeScript
-  import { SentenceTransformer } from 'sentence-transformers';
-  import * as util from 'sentence-transformers/util';
-
-  const model = new SentenceTransformer("all-MiniLM-L6-v2");
-  const query = "climate change impact on oceans";
-  const expandedQueries = ["effects of climate change on marine life", "ocean temperature rise effects"];
-
-  const queryEmbedding = await model.encode(query, { convertToTensor: true });
-  const docEmbeddings = await model.encode(expandedQueries, { convertToTensor: true });
-
-  const similarityScores = util.pytorchCosSim(queryEmbedding, docEmbeddings);
-
-  const filteredDocs = expandedQueries.filter((doc, index) => 
-    similarityScores[0][index] > 0.7
-  );
-  ```
-</CodeGroup>
-* **Reduce redundant or extraneous chunks** by dynamically adjusting retrieval depth based on query complexity.
-<CodeGroup>
-  ```python Python
-  def adjust_retrieval_depth(query, base_depth=5):
-      complexity_score = len(query.split())  # Approximate query complexity
-      return min(base_depth + complexity_score // 3, 20)  # Adjust dynamically
-
-  retrieval_depth = adjust_retrieval_depth("Explain quantum entanglement in simple terms.")
-  retrieved_docs = retrieve_documents(query, depth=retrieval_depth)
-  ```
-
-  ```typescript TypeScript
-  function adjustRetrievalDepth(query: string, baseDepth: number = 5): number {
-      const complexityScore = query.split(" ").length;  // Approximate query complexity
-      return Math.min(baseDepth + Math.floor(complexityScore / 3), 20);  // Adjust dynamically
-  }
-
-  const retrievalDepth = adjustRetrievalDepth("Explain quantum entanglement in simple terms.");
-  const retrievedDocs = retrieveDocuments(query, { depth: retrievalDepth });
-  ```
-</CodeGroup>
 </Step>
-<Step title="Modify Prompting to Improve Chunk Usage">
 
-* Explicitly instruct the model to **utilize all relevant retrieved chunks**:
+<Step title="Simple Document Processing">
 
-  ```bash Terminal
-  Instruction: Ensure your answer is directly supported by all retrieved context. Use named entities and relevant details present in the retrieved text.
-  ```
+```python
+# In document_store_basic.py
+def _load_custom_documents(self, documents_path: str, chunk_size: int):
+    # Simple chunking by paragraphs
+    paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
+    # Basic sentence-based chunking
+    sentences = re.split(r'(?<=[.!?])\s+', paragraph)
+```
 
-* Encourage structured responses that mirror retrieved data closely.
-<CodeGroup>
-  ```python Python
-  def format_response(retrieved_chunks):
-      structured_response = "\n".join(
-          [f"- {chunk}" for chunk in retrieved_chunks]
-      )
-      return f"Based on retrieved information:\n{structured_response}"
+The document processing in the basic implementation is quite rudimentary. It uses a simple paragraph-based splitting approach followed by basic sentence-based chunking. This method doesn't preserve context effectively, as it doesn't maintain relationships between chunks or consider the semantic coherence of the text. The metadata stored with each chunk is minimal, containing only basic information like source and chunk ID, without any sophisticated enrichment or relationship tracking. The chunking strategy is also fixed, applying the same approach regardless of the content type or structure.
 
-  response = format_response(relevant_chunks)
-  ```
-
-  ```typescript TypeScript
-  function formatResponse(retrievedChunks: string[]): string {
-      const structuredResponse = retrievedChunks
-          .map(chunk => `- ${chunk}`)
-          .join("\n");
-      
-      return `Based on retrieved information:\n${structuredResponse}`;
-  }
-
-  const response = formatResponse(relevantChunks);
-  ```
-</CodeGroup>
 </Step>
-<Step title="Improve Model Processing of Retrieved Chunks">
 
-* **Reformat retrieved chunks** before passing them to the model, ensuring they are structured for easy extraction.
-<CodeGroup>
-  ```python Python
-  def reformat_chunks(chunks):
-      return [{"source": f"Doc {i+1}", "content": chunk.strip()} for i, chunk in enumerate(chunks)]
+<Step title="Basic Prompting">
 
-  formatted_chunks = reformat_chunks(retrieved_chunks)
-  ```
+```python
+# In ensure-completeness-basic.py
+SYSTEM_PROMPT = "You are a helpful assistant. Answer questions based on the provided document."
 
-  ```typescript TypeScript
-  interface FormattedChunk {
-      source: string;
-      content: string;
-  }
+class Prompts:
+    BASIC = """Question: {query}
 
-  function reformatChunks(chunks: string[]): FormattedChunk[] {
-      return chunks.map((chunk, i) => ({
-          source: `Doc ${i+1}`,
-          content: chunk.trim()
-      }));
-  }
+Document:
+{documents}
 
-  const formattedChunks = reformatChunks(retrievedChunks);
-  ```
-</CodeGroup>
-* Apply **retrieval-augmented generation (RAG) strategies** that force the model to cite specific chunks.
-<CodeGroup>
-  ```python Python
-  def generate_with_citations(model, query, retrieved_chunks):
-      citations = [f"[{i+1}]: {chunk}" for i, chunk in enumerate(retrieved_chunks)]
-      context = "\n".join(citations)
-      prompt = f"Answer the query using the retrieved data:\n\n{context}\n\nQuery: {query}"
-      return model.generate(prompt)
+Please provide an answer based on the document above."""
+```
 
-  response = generate_with_citations(model, "Explain black holes.", retrieved_chunks)
-  ```
+The prompting strategy in the basic implementation is minimal and lacks specific guidance for ensuring complete answers. The system prompt is very simple, providing no explicit instructions about completeness or how to handle multiple sources of information. There are no requirements for document synthesis or citation, which can lead to answers that don't fully utilize the available information or properly attribute their sources.
 
-  ```typescript TypeScript
-  function generateWithCitations(
-      model: any, 
-      query: string, 
-      retrievedChunks: string[]
-  ): Promise<string> {
-      const citations = retrievedChunks.map((chunk, i) => `[${i+1}]: ${chunk}`);
-      const context = citations.join("\n");
-      const prompt = `Answer the query using the retrieved data:\n\n${context}\n\nQuery: ${query}`;
-      return model.generate(prompt);
-  }
-
-  const response = await generateWithCitations(model, "Explain black holes.", retrievedChunks);
-  ```
-</CodeGroup>
-* Use citation markers (e.g., "According to source \[1\]...") to ensure traceability.
-<CodeGroup>
-  ```python Python
-  def insert_citations(response, retrieved_chunks):
-      for i, chunk in enumerate(retrieved_chunks):
-          response = response.replace(chunk, f"{chunk} [Source {i+1}]")
-      return response
-
-  final_response = insert_citations(model_output, retrieved_chunks)
-  ```
-
-  ```typescript TypeScript
-  function insertCitations(response: string, retrievedChunks: string[]): string {
-      let citedResponse = response;
-      retrievedChunks.forEach((chunk, i) => {
-          citedResponse = citedResponse.replace(
-              chunk, 
-              `${chunk} [Source ${i+1}]`
-          );
-      });
-      return citedResponse;
-  }
-
-  const finalResponse = insertCitations(modelOutput, retrievedChunks);
-  ```
-</CodeGroup>
-* Implement an extraction-first approach where the model generates responses directly based on retrieved content before synthesizing an answer.
-<CodeGroup>
-  ```python Python
-  def extraction_first_approach(retrieved_chunks):
-      extracted_facts = [extract_key_info(chunk) for chunk in retrieved_chunks]
-      synthesized_answer = " ".join(extracted_facts)  # Combine extracted data
-      return synthesized_answer
-
-  response = extraction_first_approach(retrieved_chunks)
-  ```
-
-  ```typescript TypeScript
-  function extractionFirstApproach(retrievedChunks: string[]): string {
-      const extractedFacts = retrievedChunks.map(chunk => extractKeyInfo(chunk));
-      const synthesizedAnswer = extractedFacts.join(" ");  // Combine extracted data
-      return synthesizedAnswer;
-  }
-
-  const response = extractionFirstApproach(retrievedChunks);
-  ```
-</CodeGroup>
-* **Fine-tune the model** to better incorporate retrieved data \- fine-tune the model to prioritize **direct chunk referencing** over paraphrasing.
-<CodeGroup>
-  ```python Python
-  from transformers import Trainer, TrainingArguments
-
-  training_args = TrainingArguments(
-      output_dir="./model_output",
-      num_train_epochs=3,
-      per_device_train_batch_size=4,
-  )
-
-  trainer = Trainer(
-      model=model,
-      args=training_args,
-      train_dataset=fine_tuning_dataset,  # Dataset contains explicit chunk references
-  )
-
-  trainer.train()
-  ```
-
-  ```typescript TypeScript
-  import { Trainer, TrainingArguments } from 'transformers';
-
-  const trainingArgs = new TrainingArguments({
-      outputDir: "./model_output",
-      numTrainEpochs: 3,
-      perDeviceTrainBatchSize: 4,
-  });
-
-  const trainer = new Trainer({
-      model: model,
-      args: trainingArgs,
-      trainDataset: fineTuningDataset,  // Dataset contains explicit chunk references
-  });
-
-  await trainer.train();
-  ```
-</CodeGroup>
-</Step>
-<Step title="Analyze and Adjust Chunk Attribution">
-
-* Use **Chunk Attribution Plus** to understand why certain chunks were ignored.
-<CodeGroup>
-  ```python Python
-  def analyze_chunk_usage(model_output, retrieved_chunks):
-      ignored_chunks = [chunk for chunk in retrieved_chunks if chunk not in model_output]
-      return ignored_chunks
-
-  ignored = analyze_chunk_usage(model_response, retrieved_chunks)
-  ```
-  ```typescript TypeScript
-  function analyzeChunkUsage(modelOutput: string, retrievedChunks: string[]): string[] {
-      const ignoredChunks = retrievedChunks.filter(chunk => !modelOutput.includes(chunk));
-      return ignoredChunks;
-  }
-
-  const ignored = analyzeChunkUsage(modelResponse, retrievedChunks);
-  ```
-</CodeGroup>
-* Optimize **post-processing of retrieved documents** to highlight key sentences before sending them to the model.
-<CodeGroup>
-  ```python Python
-  def highlight_key_sentences(text):
-      sentences = text.split(". ")
-      important_sentences = [s for s in sentences if "important" in s or "key" in s]
-      return "\n".join(important_sentences)
-
-  highlighted_text = highlight_key_sentences(retrieved_doc)
-  ```
-
-  ```typescript TypeScript
-  function highlightKeySentences(text: string): string {
-      const sentences = text.split(". ");
-      const importantSentences = sentences.filter(
-          s => s.includes("important") || s.includes("key")
-      );
-      return importantSentences.join("\n");
-  }
-
-  const highlightedText = highlightKeySentences(retrievedDoc);
-  ```
-</CodeGroup>
-* Encourage chunk aggregation techniques that **combine highly relevant text segments** for improved response coherence.
-<CodeGroup>
-  ```python Python
-  def aggregate_chunks(retrieved_chunks):
-      return " ".join(retrieved_chunks[:3])  # Combine top 3 relevant chunks
-
-  aggregated_context = aggregate_chunks(retrieved_chunks)
-  ```
-
-  ```typescript TypeScript
-  function aggregateChunks(retrievedChunks: string[]): string {
-      return retrievedChunks.slice(0, 3).join(" ");  // Combine top 3 relevant chunks
-  }
-
-  const aggregatedContext = aggregateChunks(retrievedChunks);
-  ```
-</CodeGroup>
 </Step>
 </Steps>
+
+These limitations in the basic implementation often result in incomplete answers that miss key information from other relevant documents, lose context due to poor chunking, fail to synthesize information across different sources, and omit important details. This typically leads to lower completeness scores.
+
+## Imprvoed Implementation
+
+The improved implementation ([`ensure-completeness-enhanced.py`](https://github.com/rungalileo/sdk-examples/blob/main/python/rag/challenges/ensure-completeness-enhanced.py)) addresses these limitations through several significant improvements:
+
+<Steps>
+<Step title="Improved Document Retrieval">
+
+```python
+# In ensure-completeness-enhanced.py
+store = DocumentStore(
+    source="custom",
+    custom_documents_path=str(custom_docs_path),
+    num_docs=10,  # More documents
+    use_reranking=True,  # Use reranking
+    reranking_threshold=0.6
+)
+```
+
+The improved implementation significantly improves document retrieval by returning multiple relevant documents (10 or more) instead of just one. It uses cosine similarity for semantic matching, which provides better results for finding conceptually related content. The system implements sophisticated reranking with a threshold of 0.6, allowing it to refine and prioritize the most relevant results. The chunk size is also reduced to 512 characters, making the chunks more precise and focused.
+
+</Step>
+
+<Step title="Sophisticated Document Processing">
+
+```python
+# In document_store.py
+def _chunk_text(self, text: str, chunk_size: int) -> List[str]:
+    # First split into sentences
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    # Maintain context by keeping sentences together
+    chunks = []
+    current_chunk = []
+    current_length = 0
+```
+
+The document processing in the improved implementation is much more sophisticated. It uses context-aware chunking that preserves sentence relationships and maintains semantic coherence. Each chunk is enriched with rich metadata including relevance scores, source tracking, and detailed formatting with relevance indicators. The system also implements dynamic chunking that adapts to the content structure, ensuring better context preservation.
+
+</Step>
+
+<Step title="Improved Prompting">
+
+```python
+# In ensure-completeness-enhanced.py
+SYSTEM_PROMPT = """You are a knowledgeable science historian tasked with providing comprehensive answers...
+
+IMPORTANT INSTRUCTIONS:
+1. You MUST use ALL relevant information from the retrieved documents...
+2. For each key fact or detail you mention, explicitly cite the source document number...
+3. If multiple documents contain related information, synthesize them...
+"""
+```
+
+The improved implementation uses a comprehensive system prompt that provides clear guidance for ensuring complete answers. It explicitly instructs the model to use all relevant information from the retrieved documents, requires proper citation of sources, and encourages synthesis of information across multiple documents. The prompt also specifies thoroughness requirements and provides a clear role for the model as a knowledgeable science historian.
+
+</Step>
+</Steps>
+
+These improvements in the improved implementation lead to more comprehensive answers that better incorporate multiple sources, preserve context through improved chunking, effectively synthesize information across documents, and include all significant details. This typically results in higher Galileo completeness scores.
+
+## Key Differences in Practice
+
+When comparing the two implementations:
+
+<Steps>
+<Step title="Document Selection">
+
+```python
+# Basic (document_store_basic.py)
+def search(self, query: str) -> list:
+    # Get only one result
+    distances, indices = self.index.search(query_vector.astype('float32'), self.num_docs)
+
+# Enhanced (document_store.py)
+def search(self, query: str) -> list:
+    # Get more initial results if using reranking
+    initial_k = self.k * self.reranking_multiplier if self.use_reranking else self.k
+    scores, indices = self.index.search(query_vector.astype('float32'), initial_k)
+```
+
+The basic implementation's search functionality is quite limited, returning only a single document which can lead to missing key information. In contrast, the improved implementation uses a more sophisticated approach that retrieves multiple documents and implements reranking to ensure comprehensive coverage of the topic. The enhanced version also uses a multiplier for initial results when reranking is enabled, allowing for better selection of the most relevant content.
+
+</Step>
+
+<Step title="Information Synthesis">
+
+```python
+# Basic (ensure-completeness-basic.py)
+SYSTEM_PROMPT = "You are a helpful assistant. Answer questions based on the provided document."
+
+# Enhanced (ensure-completeness-enhanced.py)
+SYSTEM_PROMPT = """You are a knowledgeable science historian..."""
+```
+
+The basic implementation's prompting strategy is minimal and doesn't encourage synthesis of information across multiple sources. The improved implementation, however, uses a more sophisticated prompt that explicitly requires the model to synthesize information from multiple documents and provide comprehensive answers. This leads to more complete and well-rounded responses that draw from all available relevant information.
+
+</Step>
+
+<Step title="Context Preservation">
+
+```python
+# Basic (document_store_basic.py)
+def _load_custom_documents(self, documents_path: str, chunk_size: int):
+    # Simple chunking by paragraphs
+    paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
+
+# Enhanced (document_store.py)
+def _chunk_text(self, text: str, chunk_size: int) -> List[str]:
+    # Context-aware chunking
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+```
+
+The basic implementation uses a simple paragraph-based chunking approach that can lead to loss of context, especially with larger chunks. The improved implementation, on the other hand, uses a more sophisticated context-aware chunking strategy that maintains sentence relationships and semantic coherence. This results in better preservation of context and more coherent information retrieval.
+
+</Step>
+
+<Step title="Answer Quality">
+
+```python
+# Basic (ensure-completeness-basic.py)
+class Prompts:
+    BASIC = """Question: {query}
+    Document: {documents}
+    Please provide an answer based on the document above."""
+
+# Enhanced (ensure-completeness-enhanced.py)
+class Prompts:
+    ENHANCED = """Question: {query}
+    Documents: {documents}
+    IMPORTANT: Your response must:
+    1. Use ALL relevant information from the documents above
+    2. Cite specific document numbers for each fact
+    3. Synthesize information from multiple documents..."""
+```
+
+The basic implementation's prompting strategy often results in answers that miss key details and lack proper context. The improved implementation, with its comprehensive prompting strategy, produces answers that are more thorough, properly cited, and effectively synthesize information from multiple sources. This leads to higher quality, more complete answers that better serve the user's needs.
+
+</Step>
+</Steps>
+
+## Measuring Success with Galileo
+
+The Galileo completeness metric provides a quantitative way to evaluate the effectiveness of RAG systems by assessing several key aspects. It measures the coverage of relevant information, evaluating how well the system incorporates all necessary details from the source documents. The metric also assesses the synthesis of multiple sources, ensuring that information from different documents is properly combined and presented coherently. Additionally, it evaluates the citation of sources, checking that all information is properly attributed. The metric also considers context preservation, ensuring that the meaning and relationships between pieces of information are maintained. Finally, it provides an overall assessment of answer thoroughness.
+
+The improved implementation consistently achieves higher completeness scores by addressing the limitations of the basic approach through better document retrieval, processing, and prompting strategies.
+
+## Practical Example: Penicillin Discovery
+
+To illustrate the difference between the basic and improved implementations, let's examine how they handle a query about the discovery of penicillin. This example is particularly interesting because penicillin's discovery is well-known open domain knowledge that the LLM already has access to. The completeness metric evaluates how well the system uses the retrieved documents compared to this baseline knowledge.
+
+<Steps>
+<Step title="Basic Implementation (75% Completeness)">
+
+<CodeGroup>
+```python
+# Basic implementation response
+response = "Penicillin was discovered by Fleming. The development process involved collaboration between many scientists and institutions."
+```
+
+<Note type="info">
+**Galileo Analysis (75%):**
+
+The basic implementation's response covers the essential facts but lacks depth and detail. While it correctly identifies Fleming as the discoverer and mentions the collaborative nature of development, it fails to provide specific details about the roles of different scientists and institutions involved. The response misses opportunities to elaborate on the collaborative process and the specific contributions of key figures like Howard Florey and Ernst Chain.
+
+**Key Limitations:**
+
+- Identifies main discoverer (Fleming)
+- Mentions collaboration but lacks specifics
+- Omits important details about development process
+- Fails to cite specific sources
+- Misses historical context (Nobel Prize)
+- Relies too heavily on general knowledge rather than retrieved documents
+
+</Note>
+</CodeGroup>
+
+</Step>
+
+<Step title="improved implementation (100% Completeness)">
+
+<CodeGroup>
+```python
+# improved implementation response
+response = """Penicillin's discovery and development was a collaborative effort spanning several years.
+Alexander Fleming made the initial discovery of penicillin in 1928 (Document 2).
+The development into a practical antibiotic was led by Howard Florey and Ernst Chain at Oxford University (Document 3),
+who developed methods to produce penicillin in large quantities.
+This collaborative achievement was recognized with the 1945 Nobel Prize awarded to Fleming, Florey, and Chain (Document 2)."""
+```
+
+<Note type="success">
+**Galileo Analysis (100%):**
+
+The improved implementation provides a comprehensive response that effectively synthesizes information from multiple sources. It correctly attributes the initial discovery to Fleming, details the development work by Florey and Chain, and includes the historical recognition through the Nobel Prize. The response maintains proper source attribution and presents the information in a coherent narrative that captures the full context of penicillin's development.
+
+**Key Strengths:**
+
+- Complete coverage of all key figures
+- Proper source attribution
+- Historical context included
+- Clear explanation of roles and contributions
+- Effective synthesis of multiple sources
+- Heavy reliance on retrieved documents rather than general knowledge
+
+</Note>
+</CodeGroup>
+
+</Step>
+</Steps>
+
+This example clearly demonstrates how the improved implementation achieves higher completeness by:
+
+1. Retrieving and utilizing multiple relevant documents
+2. Properly attributing information to specific sources
+3. Synthesizing information across documents
+4. Including all significant details and context
+5. Presenting information in a coherent narrative
+6. Prioritizing retrieved document content over general knowledge
+
+The difference in completeness scores (75% vs 100%) reflects the improved implementation's ability to provide more thorough, well-sourced, and contextually rich answers that effectively utilize the provided documents rather than falling back on general knowledge.
+
+## Best Practices for Ensuring Completeness
+
+<Steps>
+<Step title="Document Retrieval">
+
+```python
+# improved approach
+store = DocumentStore(
+    num_docs=10,
+    use_reranking=True,
+    reranking_threshold=0.6
+)
+```
+
+Effective document retrieval is crucial for ensuring complete answers. The improved approach retrieves multiple relevant documents (typically 10 or more) to ensure comprehensive coverage of the topic. It uses semantic similarity search to find conceptually related content, rather than just keyword matches. The implementation of reranking with a threshold of 0.6 helps refine and prioritize the most relevant results. The system also uses appropriate chunk sizes to ensure that the retrieved information is precise and focused.
+
+</Step>
+
+<Step title="Document Processing">
+
+```python
+# improved approach
+def _chunk_text(self, text: str, chunk_size: int) -> List[str]:
+    # Context-aware chunking
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    chunks = []
+    current_chunk = []
+    current_length = 0
+```
+
+Sophisticated document processing is essential for maintaining context and relationships between pieces of information. The improved approach uses context-aware chunking that preserves sentence relationships and semantic coherence. Each chunk is enriched with relevant metadata, including source tracking and relevance indicators. The system also implements dynamic chunking that adapts to the content structure, ensuring better context preservation and more coherent information retrieval.
+
+</Step>
+
+<Step title="Prompting">
+
+```python
+# improved approach
+SYSTEM_PROMPT = """You are a knowledgeable science historian...
+IMPORTANT INSTRUCTIONS:
+1. You MUST use ALL relevant information...
+2. For each key fact or detail you mention...
+3. If multiple documents contain related information..."""
+```
+
+Effective prompting is crucial for guiding the model to produce complete and well-structured answers. The improved approach uses a comprehensive system prompt that provides clear instructions for ensuring completeness. It requires proper citation of sources and encourages synthesis of information across multiple documents. The prompt also specifies thoroughness requirements and provides a clear role for the model, helping it understand the expectations for the quality and completeness of its responses.
+
+</Step>
+</Steps>
+
+By implementing these best practices, RAG systems can achieve higher completeness scores and provide more comprehensive, accurate answers to user queries.

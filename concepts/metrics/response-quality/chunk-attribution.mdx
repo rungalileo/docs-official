@@ -3,8 +3,8 @@ title: Chunk Attribution
 description: Understand how to measure and optimize the impact of retrieved chunks in your RAG pipeline
 ---
 
-import { Pill } from '/snippets/components/pill.mdx';
-import { DefinitionCard } from '/snippets/components/definition-card.mdx';
+import { Pill } from "/snippets/components/pill.mdx";
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 
 <DefinitionCard>
   <strong>Chunk Attribution</strong> measures whether or not each chunk retrieved in a RAG pipeline had an effect on the model's response.
@@ -13,6 +13,7 @@ import { DefinitionCard } from '/snippets/components/definition-card.mdx';
 Chunk Attribution is a binary metric: each chunk is either <Pill label="Attributed" /> or <Pill label="Not Attributed" />.
 
 A chunk is considered <Pill label="Attributed" /> when:
+
 - The model incorporated information from the chunk into its response
 - The chunk influenced the model's reasoning or conclusions
 - The chunk provided context that shaped the response in some way
@@ -20,7 +21,8 @@ A chunk is considered <Pill label="Attributed" /> when:
 Chunks that are retrieved but have no discernible impact on the model's output are marked as <Pill label="Not Attributed" />.
 
 <Callout type="info">
-  Chunk Attribution is closely related to [Chunk Utilization](/concepts/metrics/response-quality/chunk-utilization): Attribution measures whether or not a chunk affected the response, while Utilization measures how much of the chunk text was involved in the effect. Only chunks that were Attributed can have Utilization scores greater than zero.
+  Chunk Attribution is closely related to [Chunk Utilization](/concepts/metrics/response-quality/chunk-utilization): Attribution measures whether or not a chunk affected the response, while Utilization measures how much of the chunk text
+  was involved in the effect. Only chunks that were Attributed can have Utilization scores greater than zero.
 </Callout>
 
 ## Understanding Attribution
@@ -35,29 +37,31 @@ Chunks that are retrieved but have no discernible impact on the model's output a
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Example Scenario</h3>
   </div>
-  
-  Consider this simple example that illustrates chunk attribution:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>User query:</strong> "What are the health benefits of green tea?"
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Retrieved chunks:</strong>
-    <ul style={{marginTop: '0.5rem'}}>
-      <li>Chunk 1: "Green tea contains antioxidants that may reduce the risk of heart disease."</li>
-      <li>Chunk 2: "Black tea is produced by oxidizing tea leaves after they are harvested."</li>
-      <li>Chunk 3: "Studies suggest green tea may help with weight loss and metabolism."</li>
-    </ul>
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Model response:</strong> "Green tea offers several health benefits, including antioxidants that may reduce heart disease risk and potential effects on weight loss and metabolism."
-  </div>
-  
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Attribution analysis:</strong> Chunks 1 and 3 would be <Pill label="Attributed" /> because information from them appears in the response. Chunk 2 would be <Pill label="Not Attributed" /> because it contains information about black tea, which wasn't included in the response.
-  </div>
+
+Consider this simple example that illustrates chunk attribution:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>User query:</strong> "What are the health benefits of green tea?"
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Retrieved chunks:</strong>
+  <ul style={{ marginTop: "0.5rem" }}>
+    <li>Chunk 1: "Green tea contains antioxidants that may reduce the risk of heart disease."</li>
+    <li>Chunk 2: "Black tea is produced by oxidizing tea leaves after they are harvested."</li>
+    <li>Chunk 3: "Studies suggest green tea may help with weight loss and metabolism."</li>
+  </ul>
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Model response:</strong> "Green tea offers several health benefits, including antioxidants that may reduce heart disease risk and potential effects on weight loss and metabolism."
+</div>
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Attribution analysis:</strong> Chunks 1 and 3 would be <Pill label="Attributed" /> because information from them appears in the response. Chunk 2 would be <Pill label="Not Attributed" /> because it contains information about black
+  tea, which wasn't included in the response.
+</div>
+
 </Card>
 
 ## Optimizing Your RAG Pipeline
@@ -71,20 +75,21 @@ Chunks that are retrieved but have no discernible impact on the model's output a
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Recommended Strategies</h3>
   </div>
-  
-  When analyzing Chunk Attribution in your RAG system, consider these key optimization strategies:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Tune retrieved chunk count:</strong> If many chunks are <Pill label="Not Attributed" />, reduce the number of chunks retrieved to improve efficiency without impacting quality.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Debug problematic responses:</strong> When responses are unsatisfactory, examine which chunks were attributed to identify the source of issues.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Improve retrieval quality:</strong> Use attribution data to refine your retrieval algorithms and embedding models.
-  </div>
+
+When analyzing Chunk Attribution in your RAG system, consider these key optimization strategies:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Tune retrieved chunk count:</strong> If many chunks are <Pill label="Not Attributed" />, reduce the number of chunks retrieved to improve efficiency without impacting quality.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Debug problematic responses:</strong> When responses are unsatisfactory, examine which chunks were attributed to identify the source of issues.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Improve retrieval quality:</strong> Use attribution data to refine your retrieval algorithms and embedding models.
+</div>
+
 </Card>
 
 ## Best Practices
@@ -92,18 +97,23 @@ Chunks that are retrieved but have no discernible impact on the model's output a
 <CardGroup cols={2}>
   <Card title="Monitor Attribution Rates" icon="chart-line">
     Track the percentage of chunks that are attributed over time to identify trends and potential issues in your retrieval system.
-  </Card>
+
+</Card>
   <Card title="Balance with Other Metrics" icon="scale-balanced">
     Use Chunk Attribution alongside [Chunk Relevance](/concepts/metrics/response-quality/chunk-relevance) and [Chunk Utilization](/concepts/metrics/response-quality/chunk-utilization) for a complete picture of retrieval effectiveness.
-  </Card>
+
+</Card>
   <Card title="Optimize Chunk Size" icon="crop">
     Experiment with different chunk sizes to find the optimal balance between attribution rates and information density.
-  </Card>
+
+</Card>
   <Card title="Improve Retrieval Quality" icon="filter">
     Use attribution data to refine your retrieval algorithms and embedding models.
-  </Card>
+
+</Card>
 </CardGroup>
 
 <Note>
 When optimizing for Chunk Attribution, be careful not to reduce the number of chunks too aggressively, as this may limit the model's access to potentially useful information in edge cases.
+
 </Note>

@@ -2,8 +2,9 @@
 title: Ground Truth Adherence
 description: Measure semantic equivalence between model outputs and reference answers using Galileo's Guardrail Metrics to ensure alignment with expected responses.
 ---
-import { Scale } from '/snippets/components/scale.mdx';
-import { DefinitionCard } from '/snippets/components/definition-card.mdx';
+
+import { Scale } from "/snippets/components/scale.mdx";
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 
 <DefinitionCard>
   <strong>Ground Truth Adherence</strong> measures whether a model's response is semantically equivalent to your reference answer (Ground Truth).
@@ -11,47 +12,58 @@ import { DefinitionCard } from '/snippets/components/definition-card.mdx';
 
 Ground Truth Adherence is a continuous metric ranging from 0 to 1:
 
-<Scale 
-  low="0" lowLabel="Low Adherence" 
-  high="1" highLabel="High Adherence" 
-  lowDescription="The model's response is semantically different from the Ground Truth" 
+<Scale
+  low="0"
+  lowLabel="Low Adherence"
+  high="1"
+  highLabel="High Adherence"
+  lowDescription="The model's response is semantically different from the Ground Truth"
   highDescription="The model's response is semantically equivalent to the Ground Truth"
 />
 
 This metric helps evaluate how closely your model's outputs match expected or ideal responses, which is particularly valuable for:
+
 - Evaluating model performance against a benchmark dataset
 - Ensuring consistency in critical applications
 - Measuring the impact of model or prompt changes
 
 <Note>
-This metric requires a Ground Truth to be set. Check out [this page](#) to learn how to add a Ground Truth to your runs.
+This metric requires a Ground Truth to be set. Check out [this page](/getting-started/experiments/running-experiments-in-console) to learn how to add a Ground Truth to your runs.
+
 </Note>
 
 ### Calculation Method
 
 Ground Truth Adherence is computed through a multi-step process:
+
 <Steps>
   <Step title="Model Request">
     Additional evaluation requests are sent to OpenAI's GPT4o model to analyze the semantic relationship between responses.
-  </Step>
+
+</Step>
   <Step title="Prompt Engineering">
     A carefully engineered chain-of-thought prompt asks the model to evaluate whether the response and Ground Truth convey the same meaning.
-  </Step>
+
+</Step>
   <Step title="Multiple Evaluations">
     The system requests multiple distinct responses to this prompt to ensure robust evaluation through consensus.
-  </Step>
+
+</Step>
   <Step title="Result Analysis">
     Each evaluation generates both an explanation of the reasoning and a binary judgment (yes/no) on semantic equivalence.
-  </Step>
+
+</Step>
   <Step title="Score Calculation">
     The final Ground Truth Adherence score is computed as the ratio of 'yes' responses to the total number of evaluation responses.
-  </Step>
+
+</Step>
 </Steps>
 
 We also surface one of the generated explanations, always choosing one that aligns with the majority judgment among the responses.
 
 <Note>
 This metric is computed by prompting an LLM multiple times, and thus requires additional LLM calls to compute, which may impact usage and billing.
+
 </Note>
 
 ## Understanding Ground Truth Adherence
@@ -66,20 +78,21 @@ This metric is computed by prompting an LLM multiple times, and thus requires ad
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Differentiating from Other Metrics</h3>
   </div>
-  
-  It's important to understand how Ground Truth Adherence differs from related metrics:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Ground Truth Adherence:</strong> Measures semantic equivalence to a reference answer.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Correctness:</strong> Measures factual accuracy regardless of any reference answer.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Context Adherence:</strong> Measures alignment with provided context, not a reference answer.
-  </div>
+
+It's important to understand how Ground Truth Adherence differs from related metrics:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Ground Truth Adherence:</strong> Measures semantic equivalence to a reference answer.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Correctness:</strong> Measures factual accuracy regardless of any reference answer.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Context Adherence:</strong> Measures alignment with provided context, not a reference answer.
+</div>
+
 </Card>
 
 ## Optimizing Your AI System
@@ -93,24 +106,25 @@ This metric is computed by prompting an LLM multiple times, and thus requires ad
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing Low Ground Truth Adherence</h3>
   </div>
-  
-  When responses have low Ground Truth Adherence scores, your model is generating outputs that differ semantically from your reference answers. To improve your system:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Analyze divergence patterns:</strong> Identify common ways in which responses differ from ground truth.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Refine your prompts:</strong> Adjust instructions to guide the model toward your expected output format and content.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Consider few-shot examples:</strong> Provide examples in your prompt that demonstrate the desired response pattern.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Evaluate ground truth quality:</strong> Ensure your reference answers are clear, consistent, and representative of ideal responses.
-  </div>
+
+When responses have low Ground Truth Adherence scores, your model is generating outputs that differ semantically from your reference answers. To improve your system:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Analyze divergence patterns:</strong> Identify common ways in which responses differ from ground truth.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Refine your prompts:</strong> Adjust instructions to guide the model toward your expected output format and content.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Consider few-shot examples:</strong> Provide examples in your prompt that demonstrate the desired response pattern.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Evaluate ground truth quality:</strong> Ensure your reference answers are clear, consistent, and representative of ideal responses.
+</div>
+
 </Card>
 
 ## Best Practices
@@ -118,18 +132,23 @@ This metric is computed by prompting an LLM multiple times, and thus requires ad
 <CardGroup cols={2}>
   <Card title="Maintain Diverse Ground Truths" icon="layer-group">
     Create a varied set of reference answers that cover different response styles and edge cases.
-  </Card>
+
+</Card>
   <Card title="Set Clear Evaluation Criteria" icon="list-check">
     Define what constitutes semantic equivalence for your specific use case and domain.
-  </Card>
+
+</Card>
   <Card title="Monitor Across Model Versions" icon="chart-line">
     Track Ground Truth Adherence when upgrading models to ensure consistent performance.
-  </Card>
+
+</Card>
   <Card title="Balance with Other Metrics" icon="scale-balanced">
     Use Ground Truth Adherence alongside metrics like Correctness and Instruction Adherence for a complete evaluation.
-  </Card>
+
+</Card>
 </CardGroup>
 
 <Note>
 When optimizing for Ground Truth Adherence, remember that there may be multiple valid ways to express the same information. Consider whether strict adherence to specific wording is necessary, or if semantic equivalence is sufficient for your use case.
+
 </Note>

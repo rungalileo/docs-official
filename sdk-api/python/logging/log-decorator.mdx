@@ -114,9 +114,22 @@ The `@log` decorator accepts several optional parameters to customize the loggin
     name="Custom Name",    # A custom name for the span
     project="my-project",  # The project to log to
     log_stream="my-log-stream",  # The log stream to log to
-    params={"key": "value"}  # Additional parameters to include in the span
+    params={"key": "value"}  # Additional parameters for the span
 )
 def my_function(input):
+    return result
+```
+
+Use the `params` parameter to add or overwrite the span's fields' values. Every span type has the fields `name`, `input`, `metadata` and `tags`, and in addition:
+
+- llm spans have the extra fields `model`, `temperature` and `tools`.
+- tool spans has the extra field `tool_call_id`.
+
+Here is an example on how to add metadata and tags to an llm span:
+
+```python
+@log(span_type="llm", params={"metadata": "meta", "tags": "tag"})
+def my_function(input: str, meta: dict, tag: list):
     return result
 ```
 

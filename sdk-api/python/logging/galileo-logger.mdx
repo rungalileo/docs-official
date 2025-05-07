@@ -1,6 +1,6 @@
 ---
-title: 'GalileoLogger'
-description: 'Manual control over logging with the GalileoLogger class'
+title: "GalileoLogger"
+description: "Manual control over logging with the GalileoLogger class"
 ---
 
 The `GalileoLogger` class provides the most granular control over logging in Galileo. While the [wrappers](/sdk-api/python/wrappers/wrappers-overview) and [@log decorator](/sdk-api/python/logging/log-decorator) are recommended for most use cases, the `GalileoLogger` gives you complete flexibility when you need it.
@@ -8,6 +8,7 @@ The `GalileoLogger` class provides the most granular control over logging in Gal
 ## Overview
 
 The `GalileoLogger` class allows you to:
+
 - Manually create and manage traces
 - Add spans of different types to your traces
 - Control exactly what data gets logged
@@ -123,8 +124,8 @@ logger.add_retriever_span(
 
 ```python
 logger.add_tool_span(
-    input={"operation": "add", "numbers": [1, 2, 3]},
-    output={"result": 6},
+    input=json.dumps({"operation": "add", "numbers": [1, 2, 3]}),
+    output=json.dumps({"result": 6}),
     name="Calculator",  # Optional
     duration_ns=100000,  # Optional
     metadata={"tool_version": "1.0"},  # Optional
@@ -248,5 +249,5 @@ logger.flush()
 - [@log Decorator](/sdk-api/python/logging/log-decorator) - For a simpler way to log function calls
 - [OpenAI Wrapper](/sdk-api/python/wrappers/openai) - For automatic logging of OpenAI calls
 - [Langchain Integration](/sdk-api/python/wrappers/langchain) - For logging Langchain workflows
-- [galileo_context()](/sdk-api/python/logging/galileo-context) - For managing trace context and automatic flushing 
+- [galileo_context()](/sdk-api/python/logging/galileo-context) - For managing trace context and automatic flushing
 - [OpenTelemetry logging](/guides/logs/otel) - Using OpenTelemetry for logging traces in Python

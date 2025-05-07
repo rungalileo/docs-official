@@ -6,6 +6,7 @@ description: Learn how to boost your AI model's performance by fully leveraging 
 Imagine you've built a retrieval-augmented generation (RAG) system that does a decent job finding relevant texts, yet the final answers often remain disappointingly shallow. The system might pick up on a simple definition but ignore deeper nuances, skip over chunks that are clearly relevant, or fail to combine ideas from multiple sources. All that potential remains untapped.
 
 Under the hood, three main deficiencies hold most RAG pipelines back:
+
 1. **Importance Ranking**: Traditional pipelines retrieve documents, but don't weigh or highlight which pieces of information truly matter.
 2. **Cross-Chunk Integration**: Often, these systems overlook how chunks relate to each other, even though combining them yields richer answers.
 3. **Relevance Signaling**: The model rarely receives clear cues about which sections are absolutely crucial to the user's query.
@@ -28,15 +29,16 @@ Let's look at how these problems manifest through two key concepts:
 
 Here's an example that demonstrates these issues:
 
-| Component | Content |
-|-----------|---------|
-| **User Query** | "What are the fundamental concepts and operations in arithmetic, and how are they used in mathematics?" |
+| Component             | Content                                                                                                                                                                                                                                                                                                                                                               |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **User Query**        | "What are the fundamental concepts and operations in arithmetic, and how are they used in mathematics?"                                                                                                                                                                                                                                                               |
 | **Retrieved Chunk 1** | "In mathematics, arithmetic is the basic study of numbers. The four basic arithmetic operations are addition, subtraction, multiplication, and division, although other operations such as exponentiation and extraction of roots are also studied in arithmetic. Other arithmetic topics includes working with signed numbers, fractions, decimals and percentages." |
-| **Retrieved Chunk 2** | "Mathematics includes the study of numbers, shapes and patterns. Structure: how things are organized. This subfield is usually called algebra. Place: where things are and their arrangement. This subfield is usually called geometry. Change: how things become different. This subfield is usually called analysis." |
-| **Retrieved Chunk 3** | "Multiplication is an arithmetic operation for finding the product of two numbers. With natural numbers, multiplication gives the number of tiles in a rectangle. Multiplication between numbers is said to be commutative—when the order of the numbers does not influence the value of the product." |
-| **Model Response** | "Arithmetic is the basic study of numbers in mathematics. The main operations are addition, subtraction, multiplication, and division. These operations are used to work with numbers in mathematics." |
+| **Retrieved Chunk 2** | "Mathematics includes the study of numbers, shapes and patterns. Structure: how things are organized. This subfield is usually called algebra. Place: where things are and their arrangement. This subfield is usually called geometry. Change: how things become different. This subfield is usually called analysis."                                               |
+| **Retrieved Chunk 3** | "Multiplication is an arithmetic operation for finding the product of two numbers. With natural numbers, multiplication gives the number of tiles in a rectangle. Multiplication between numbers is said to be commutative—when the order of the numbers does not influence the value of the product."                                                                |
+| **Model Response**    | "Arithmetic is the basic study of numbers in mathematics. The main operations are addition, subtraction, multiplication, and division. These operations are used to work with numbers in mathematics."                                                                                                                                                                |
 
 The response uses only basic definitional information despite having access to rich details about properties, applications, and relationships. This happens because our basic implementation lacks the mechanisms needed to:
+
 - Identify which parts of each chunk are most relevant to the query
 - Understand how information across chunks relates to each other
 - Determine the relative importance of different pieces of information
@@ -63,31 +65,32 @@ Vector similarity alone treats the query and the document as two separate embedd
 def _rerank_documents(self, docs: List[Dict], query: str) -> List[Dict]:
     # Create pairs for the cross-encoder to evaluate
     pairs = [(query, doc['text']) for doc in docs]
-    
+
     # Get relevance scores from the cross-encoder
     cross_scores = self.cross_encoder.predict(pairs)
-    
+
     # Convert scores to 0-1 range
     min_score = min(cross_scores)
     max_score = max(cross_scores)
     score_range = max_score - min_score
-    
+
     reranked_docs = []
     for doc, score in zip(docs, cross_scores):
         normalized_score = (score - min_score) / score_range if score_range > 0 else 0.5
-        
+
         if normalized_score >= self.reranking_threshold:
             doc['metadata']['combined_score'] = normalized_score
             doc['metadata']['relevance'] = 'high' if normalized_score > 0.8 else \
                                          'medium' if normalized_score > 0.6 else 'low'
             reranked_docs.append(doc)
-    
+
     # Sort and return top k documents
     reranked_docs.sort(key=lambda x: x['metadata']['combined_score'], reverse=True)
     return reranked_docs[:self.k]
 ```
 
 The reranking code adds extra metadata, like `combined_score` and `relevance`, which become invaluable signals later on. This process:
+
 1. Takes the query and each document and creates pairs for evaluation
 2. Passes these pairs through a cross-encoder model that evaluates them together
 3. Normalizes the scores to be between 0 and 1 for easier comparison
@@ -113,6 +116,7 @@ IMPORTANT INSTRUCTIONS:
 ```
 
 This system prompt:
+
 1. Sets clear expectations for how to handle multiple documents
 2. Requires explicit citation of sources
 3. Emphasizes the importance of connecting related information
@@ -137,6 +141,7 @@ def format_documents_enhanced(documents: list) -> str:
 ```
 
 This enhanced formatting:
+
 1. Numbers each document for easy reference
 2. Shows the source of the information
 3. Includes the relevance category (high/medium/low)
@@ -155,7 +160,7 @@ def query(question: str):
         api_key=os.getenv("OPENAI_API_KEY"),
         base_url=os.getenv("OPENAI_BASE_URL")
     )
-    
+
     # Get and rerank documents
     docs = DocumentStore(
         num_docs=500,
@@ -163,7 +168,7 @@ def query(question: str):
         use_reranking=True,
         reranking_threshold=0.6
     ).search(question)
-    
+
     # Format with enhanced metadata
     prompt = Prompts.ENHANCED.format(
         query=question,
@@ -178,11 +183,12 @@ def query(question: str):
             {"role": "user", "content": prompt}
         ]
     )
-    
+
     return response.choices[0].message.content.strip()
 ```
 
 The complete workflow:
+
 1. When a question comes in, we first retrieve potentially relevant documents using vector search
 2. These documents go through the reranking process to evaluate their actual relevance to the query
 3. The documents are formatted with clear structure and metadata highlighting their importance
@@ -193,13 +199,14 @@ The complete workflow:
 
 The enhanced implementation delivers significant improvements across key metrics:
 
-| Metric | Basic Implementation | Enhanced Implementation |
-|--------|---------------------|------------------------|
+| Metric                | Basic Implementation         | Enhanced Implementation        |
+| --------------------- | ---------------------------- | ------------------------------ |
 | **Chunk Utilization** | 38% of relevant content used | ~100% of relevant content used |
 | **Chunk Attribution** | 2 out of 5 chunks referenced | All relevant chunks referenced |
-| **Completeness** | 73% of essential information | 100% of essential information |
+| **Completeness**      | 73% of essential information | 100% of essential information  |
 
 These improvements transform our RAG system from a basic fact-finder into a true knowledge synthesizer. Instead of just retrieving information, the system now:
+
 - Prioritizes the most relevant documents
 - Guides the model to use more of the available information
 - Encourages connections between related concepts
@@ -233,20 +240,20 @@ class DocumentStore:
     def __init__(self, num_docs=1000, k=3, chunk_size=512):
         # Load Wikipedia dataset with configurable parameters
         print(f"Loading {num_docs} Wikipedia articles...")
-        dataset = load_dataset("wikipedia", "20220301.simple", 
-                             split=f"train[:{num_docs}]", 
+        dataset = load_dataset("wikipedia", "20220301.simple",
+                             split=f"train[:{num_docs}]",
                              trust_remote_code=True)
-        
+
         # Process and store documents with chunking
         self.documents = []
         for item in dataset:
             # Skip empty or very short articles
             if not item["text"] or len(item["text"]) < 100:
                 continue
-            
+
             # Split text into chunks
             chunks = self._chunk_text(item["text"], chunk_size)
-            
+
             for i, chunk in enumerate(chunks):
                 self.documents.append({
                     "text": chunk,
@@ -260,9 +267,9 @@ class DocumentStore:
                         "original_length": len(item["text"])
                     }
                 })
-        
+
         print(f"Processed {len(self.documents)} chunks from valid documents")
-        
+
         self.encoder = SentenceTransformer('all-MiniLM-L6-v2')
         self.k = k
         self._build_index()
@@ -273,6 +280,7 @@ This initialization code handles several important tasks:
 1. **Dataset Loading**: We use the HuggingFace datasets library to load Wikipedia articles. The `num_docs` parameter controls how many articles to load, making it easy to start small for testing.
 
 2. **Document Processing**:
+
    - Each article is split into chunks using the `_chunk_text` method
    - Empty or very short articles (< 100 characters) are skipped to maintain quality
    - Each chunk gets comprehensive metadata including its source, position in the original document, and length
@@ -293,15 +301,15 @@ def _chunk_text(self, text: str, chunk_size: int) -> List[str]:
     """
     # First split into sentences
     sentences = re.split(r'(?<=[.!?])\s+', text)
-    
+
     chunks = []
     current_chunk = []
     current_length = 0
-    
+
     for sentence in sentences:
         # Rough estimation of tokens (words + punctuation)
         sentence_length = len(sentence.split())
-        
+
         if current_length + sentence_length > chunk_size and current_chunk:
             # If adding this sentence would exceed chunk_size, save current chunk
             chunks.append(' '.join(current_chunk))
@@ -311,22 +319,24 @@ def _chunk_text(self, text: str, chunk_size: int) -> List[str]:
             # Add sentence to current chunk
             current_chunk.append(sentence)
             current_length += sentence_length
-    
+
     # Add the last chunk if it exists
     if current_chunk:
         chunks.append(' '.join(current_chunk))
-    
+
     return chunks
 ```
 
 This chunking implementation has several key features:
 
-1. **Sentence-Aware Splitting**: 
+1. **Sentence-Aware Splitting**:
+
    - Uses regex `(?<=[.!?])\s+` to split on sentence boundaries
    - Preserves sentence integrity instead of breaking mid-sentence
    - Maintains natural language flow and context
 
 2. **Dynamic Chunk Size**:
+
    - Tracks chunk size using word count as a proxy for tokens
    - Tries to keep chunks close to the target size while respecting sentence boundaries
    - Prevents chunks from growing too large while keeping related content together
@@ -346,10 +356,10 @@ def _build_index(self):
     texts = [doc["text"] for doc in self.documents]
     self.embeddings = self.encoder.encode(texts)
     dimension = self.embeddings.shape[1]
-    
+
     # Use L2 normalization for better similarity search
     faiss.normalize_L2(self.embeddings)
-    
+
     # Create an index that's optimized for cosine similarity
     self.index = faiss.IndexFlatIP(dimension)
     self.index.add(self.embeddings.astype('float32'))
@@ -359,11 +369,13 @@ def _build_index(self):
 The indexing process involves several important steps:
 
 1. **Embedding Generation**:
+
    - Uses SentenceTransformer to create dense vector representations
    - Processes all documents in batch for efficiency
    - Creates fixed-dimension embeddings for each chunk
 
 2. **Vector Normalization**:
+
    - Applies L2 normalization to standardize vector lengths
    - Ensures cosine similarity calculations are accurate
    - Improves search quality by making magnitudes comparable
@@ -386,7 +398,7 @@ def search(self, query: str) -> list:
 
     # Search for similar documents
     scores, indices = self.index.search(query_vector.astype('float32'), self.k)
-    
+
     # Process results
     results = []
     for score, idx in zip(scores[0], indices[0]):
@@ -403,11 +415,13 @@ def search(self, query: str) -> list:
 The search implementation includes several sophisticated features:
 
 1. **Query Processing**:
+
    - Converts the query text to a vector using the same encoder
    - Normalizes the query vector for consistent similarity calculations
    - Reshapes the vector to match FAISS requirements
 
 2. **Similarity Search**:
+
    - Uses FAISS to find the k nearest neighbors
    - Returns both similarity scores and document indices
    - Performs search in sub-linear time thanks to FAISS optimization

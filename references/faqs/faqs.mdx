@@ -1,5 +1,298 @@
 ---
-title: FAQs
+title: FAQ
 ---
 
-Content for general
+import SnippetFAQ1 from "/snippets/code/multilingual/faqs/faqs-1.mdx";
+import SnippetFAQ2 from "/snippets/code/multilingual/faqs/faqs-2.mdx";
+import SnippetFAQ3 from "/snippets/code/multilingual/faqs/faqs-3.mdx";
+import SnippetFAQ4 from "/snippets/code/multilingual/faqs/faqs-4.mdx";
+
+## General & Core Concepts
+
+### Q: What is Galileo?
+
+**Galileo** is an end-to-end platform for evaluating and improving the performance of generative AI models. It provides tools to help teams deeply understand model behavior across tasks like text generation, summarization, classification, and more. Galileo integrates seamlessly into your LLM pipeline and supports evaluation with both human feedback and automated metrics.
+
+[View the Galileo platform overview →](/what-is-galileo)
+
+### Q: How does Galileo help with generative AI evaluation?
+
+Galileo enables teams to evaluate generative models through:
+
+- **Automatic and custom metrics**: Evaluate and track instruction adherence, correctness, safety & compliance, chunk utilization, and more.
+- **Human feedback integration**: Annotate and label logs through the UI or SDK.
+- **Fine-grained error analysis**: Detect generation quality and systematically log responses as CLLF, ILLF, IHFA, etc.
+- **Multi-model comparison**: Evaluate different model outputs side by side.
+
+This helps identify where your model is strong or weak and speeds up iteration cycles.
+
+[Learn more about how Galileo helps →](/what-is-galileo)
+
+### Q: How is evaluating generative AI models different from traditional ML evaluation?
+
+Unlike traditional ML, where outputs are often single values or labels, generative AI outputs are open-ended and nuanced (e.g. full text). This creates challenges like:
+
+- **Subjectivity**: There's often no single correct answer.
+- **Evaluation complexity**: Metrics must handle variation, style, relevance, and factual accuracy.
+- **Human oversight**: Required to understand intent and impact of generations.
+
+Galileo addresses these differences with custom workflows tailored to generative AI.
+
+[Learn more about Galileo’s evaluation approach →](/concepts/metrics/overview)
+
+### Q: How do I get started with Galileo to evaluate my AI models?
+
+Visit the [Getting Started](/getting-started/quickstart) guide and follow along to create your first **Galileo** application.
+
+Then, you can start incorporating Galileo into your AI project pipeline.
+
+[Getting Started guide →](/getting-started/quickstart)
+
+### Q: How does Galileo fit into the generative AI development lifecycle?
+
+Galileo supports every stage of generative AI development:
+
+- **Prompt & data experimentation**: Evaluate prompt effectiveness.
+- **Model comparison**: Choose the best model or fine-tuned variant.
+- **Fine-tuning oversight**: Identify when training introduces regressions.
+- **Pre-deployment checks**: Surface edge cases, hallucinations, or bias.
+- **Post-deployment monitoring**: Continuously analyze performance and drift.
+
+It becomes your team's co-pilot in delivering high-quality AI products.
+
+[See Galileo in the AI workflow →](/how-to-guides/overview)
+
+---
+
+## SDK Usage FAQ
+
+### Q: What SDKs does Galileo provide?
+
+Galileo provides Python and TypeScript SDKs designed to integrate with your generative AI pipelines. They allow you to log prompts, model generations, evaluation metrics, and feedback directly from your application.
+
+Install the Galileo SDK using the following terminal command:
+
+<CodeGroup>
+  <SnippetFAQ1 />
+</CodeGroup>
+
+[Python SDK installation instructions →](/sdk-api/python/overview)
+
+[TypeScript SDK installation instructions →](/sdk-api/typescript/overview)
+
+### Q: How do I log prompt and response data using the SDK?
+
+You can log AI prompt and response data by recording logs to a Log Stream using the **Galileo Logger**.
+
+By initializing a new [Trace](/concepts/traces), the AI activity executed in the subsequent code is recorded to the selected Project's Log Stream.
+
+<CodeGroup>
+  <SnippetFAQ2 />
+</CodeGroup>
+
+The logged data is viewable in the [Galileo Console](https://app.galileo.ai/) UI for further evaluation.
+
+[More on logging data →](/getting-started/logging)
+
+### Q: Can I log custom metrics with the SDK?
+
+Yes, you can create custom metrics in the [Galileo Console](https://app.galileo.ai/) UI, and then use them with the SDK.
+
+1. Log in to the [Galileo Console](https://app.galileo.ai/)
+2. Select your Project in the top-left corner of the Console
+3. Click "Log Streams" in the top menu bar
+4. Click the "Configure Metrics" button in the top-right corner
+
+[Custom metric logging guide →](/concepts/metrics/overview)
+
+### Q: How can I annotate or categorize different experiments in my logs?
+
+Use the 'tags' and `metadata` fields to attach filterable labels to your logged Traces and Spans. This allows you organize and view the logged data in the [Galileo Console](https://app.galileo.ai/), and add annotation-based logic to your AI application.
+
+Annotations can be used to track things like relevant topics, version numbers, experiment IDs, and beyond.
+
+<CodeGroup>
+  <SnippetFAQ3 />
+</CodeGroup>
+
+[Get started annotating logs →](/concepts/annotations)
+
+### Q: How do I handle logging sensitive data like PII?
+
+If your prompts or generations may contain personally identifiable information (PII), ensure that you mask, anonymize, or exclude that data before logging.
+
+Use annotations like tags and metadata to mark sensitive content without logging it directly.
+
+<CodeGroup>
+  <SnippetFAQ4 />
+</CodeGroup>
+
+[Security best practices →](/concepts/metrics/safety-and-compliance/pii)
+
+---
+
+## API Integration FAQs
+
+### Q: How do I authenticate with the Galileo API?
+
+You must include an `Authorization` header with a valid bearer token in every request:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+You can find or generate your API key in the [Galileo Console](https://app.galileo.ai/) under your account settings.
+
+[Get your API key →](https://app.galileo.ai/settings/api-keys)
+
+### Q: How do I log a sample via the API?
+
+Send a `POST` request to the `/samples` endpoint with a JSON payload:
+
+```json
+{
+  "task_type": "text-generation",
+  "input": "Prompt for the model...",
+  "output": "Response from the model...",
+  "metadata": {
+    "experiment_version": "1.2.1"
+  }
+}
+```
+
+[Logging via API →](/getting-started/logging)
+
+### Q: What’s the best way to handle errors and retries with the API?
+
+Unlike the SDK, the API does not automatically retry failed requests. You’ll need to:
+
+- Check for `4XX` and `5XX` status codes
+- Parse error messages in the response body
+- Implement retry logic using exponential backoff
+
+This is especially important when logging data from production pipelines.
+
+[Error handling →](/references/faqs/errors)
+
+### Q: Can I update a previously logged data using the API?
+
+Yes, you can update logged data by including the `trace_id` or `span_id` created when initially logging. View Trace IDs and Span IDs in the [Galileo Console](https://app.galileo.ai/) in your Project's Log Streams.
+
+This is useful for streaming or progressive generation workflows.
+
+```json
+{
+  "trace_id": trace_id,
+  "input": "NEW Prompt for the model...",
+  "output": "NEW Response from the model...",
+  "metadata": {
+    "experiment_version": "1.2.11"
+  }
+}
+```
+
+[Learn more about logging Traces →](/concepts/traces)
+
+### Q: How do I retrieve data I’ve previously logged to Galileo via the API?
+
+The API includes endpoints for retrieving logs, metrics, and datasets.
+
+To fetch a Log Stream, use the following terminal command with:
+
+- Your **project ID** and **log stream ID** in place of `PROJECT_ID` and `LOG_STREAM_ID`
+- Your **Galileo API key** in place of `GALILEO_API_KEY`
+
+```bash
+curl -X GET https://api.galileo.ai/v1/projects/PROJECT_ID/logstreams/LOG_STREAM_ID/logs \
+  -H "Authorization: Bearer GALILEO_API_KEY"
+```
+
+[Learn more about Log Streams →](/concepts/logstreams)
+
+### Q: How do I structure metadata for complex use cases (e.g. nested values)?
+
+Metadata must be a flat key-value object. Nested or deeply structured metadata (e.g. JSON objects within JSON) should be flattened.
+
+Metadata keys and values must be strings.
+
+```json
+"metadata": {
+  "dataset": "test_a",
+  "experiment_version": "1.2.11",
+  "group": "control"
+}
+```
+
+---
+
+## Integration and Compatibility
+
+### Q: Which LLM providers, models, and frameworks does Galileo support out of the box?
+
+Galileo is model agnostic, and supports leading LLM providers including OpenAI, Azure OpenAI, Anthropic, and LLaMA.
+
+Galileo’s flexible SDK and API allow it to work with any model or provider.
+
+[View supported integrations in the Galileo Console →](https://app.galileo.ai/)
+
+### Q: Does Galileo integrate with LlamaIndex or other retrieval frameworks for RAG pipelines?
+
+Yes, Galileo works with LlamaIndex (formerly GPT Index) and other retrieval-augmented generation frameworks.
+
+You can log RAG context, query, and generation data as part of a single sample or as separate, chained samples. This makes it easier to analyze the quality of both retrieved context and final generations.
+
+[RAG pipeline logging →](/how-to-guides/rag/basic-example)
+
+### Q: Does Galileo support multilingual evaluation?
+
+Yes, Galileo can be used to evaluate generations in any language.
+
+Built-in metrics like BLEU or ROUGE work best when reference outputs are provided in the same language. You can also log custom metrics specific to a language or region to reflect accuracy or appropriateness.
+
+[BLEU and ROUGE →](/concepts/metrics/expression-and-readability/bleu-and-rouge)
+
+---
+
+## Troubleshooting & Best Practices
+
+### Q: What should I do if the Galileo SDK fails to install or initialize?
+
+If you are experiencing errors when installing or initializing the Galileo SDK, follow these diagnostic steps:
+
+1. Reinstall the SDK by running `pip install galileo` (Python) or `npm install galileo` (TypeScript).
+2. Inspect browser/network logs for failed requests to Galileo endpoints, using the Network tab in browser dev tools.
+3. Ensure environment variables (API Key, environment, etc.) are correctly set and loaded by printing them in your app initialization script.
+
+### Q: What should I do if Galileo is not logging any data from my application?
+
+If your application is running, but doesn't appear to be creating logs, try these diagnostic steps:
+
+1. Ensure you are checking the same Project and Log Stream that is being logged to in your application. They are case-sensitive.
+2. Use `galileo_context` or create a new [Trace](/concepts/traces) in your application.
+3. Include `logger.flush()` in your application after all of the data to be logged has been created.
+
+[Troubleshooting logging issues →](/references/faqs/errors)
+
+### Q: How do I troubleshoot unexpected evaluation results or scores in Galileo?
+
+Start by reviewing the evaluation Metrics configuration, including which metrics are being applied and how they are calculated.
+
+If you are using custom metrics, verify that they are computed correctly and that the input and reference values are accurate. Use Galileo’s error slices and segmentation tools to identify patterns in where scores drop.
+
+It’s also helpful to manually inspect low-scoring examples to rule out model or data issues.
+
+[Evaluating Metrics →](/concepts/metrics/response-quality/instruction-adherence)
+
+### Q: How can I ensure my evaluation metrics align with real user needs or product goals?
+
+Start by understanding the key outcomes your product is driving—accuracy, clarity, helpfulness, safety, etc.
+
+Choose evaluation metrics that reflect those priorities. Galileo supports custom metric logging, so you can track user satisfaction scores, pass/fail labels, or scenario-specific metrics alongside standard ones.
+
+Regularly review evaluation slices with your team to validate alignment with business outcomes.
+
+[Metrics overview →](/concepts/metrics/overview)
+
+---
+
+If issues persist, contact support at [support@rungalileo.io](mailto:support@rungalileo.io) with your request payload and full error message.

@@ -1,0 +1,70 @@
+```typescript Typescript
+// Install dependencies
+yarn add galileo openai-agents dotenv
+
+// DEPENDENCIES
+// yarn add galileo openai-agents dotenv
+
+import { GalileoTracingProcessor } from 'galileo/handlers/openai_agents';
+import { setTraceProcessors, Agent, GuardrailFunctionOutput, InputGuardrail, InputGuardrailTripwireTriggered, Runner } from 'agents';
+import * as dotenv from 'dotenv';
+import * as os from 'os';
+
+dotenv.config();
+
+// Create a TypeScript interface to validate output types
+interface HomeworkOutput {
+    is_homework: boolean;
+    reasoning: string;
+}
+
+// Create math tutor agent to answer math questions
+const mathTutorAgent = new Agent({
+    name: "Math Tutor",
+    handoffDescription: "Specialist agent for math questions",
+    instructions: "You provide help with math problems. Explain your reasoning at each step and include examples",
+});
+
+// Create history tutor agent to answer history questions
+const historyTutorAgent = new Agent({
+    name: "History Tutor",
+    handoffDescription: "Specialist agent for historical questions",
+    instructions: "You provide assistance with historical queries. Explain important events and context clearly.",
+});
+
+// Create Guardrail agent to determine if input question is homework-related
+const guardrailAgent = new Agent({
+    name: "Guardrail check",
+    instructions: "Check if the user is asking about homework.",
+    outputType: {} as HomeworkOutput,
+});
+
+// Set tripwire to filter out non-homework questions with Guardrail agent
+async function homeworkGuardrail(ctx: any, agent: any, inputData: string) {
+    const result = await Runner.run(guardrailAgent, inputData, { context: ctx.context });
+    const finalOutput = result.finalOutput as HomeworkOutput;
+    return new GuardrailFunctionOutput({
+        outputInfo: finalOutput,
+        tripwireTriggered: !finalOutput.is_homework,
+    });
+}
+
+// Create Triage agent to determine which tutor agent to use
+const triageAgent = new Agent({
+    name: "Triage Agent",
+    instructions: "You determine which agent to use based on the user's homework question",
+    handoffs: [historyTutorAgent, mathTutorAgent],
+    inputGuardrails: [new InputGuardrail({ guardrailFunction: homeworkGuardrail })],
+});
+
+// Use the Runner to run the agents and get the answers
+async function main() {
+    let result = await Runner.run(triageAgent, "who was the first president of the united states?");
+    console.log(result.finalOutput);
+
+    result = await Runner.run(triageAgent, "what is life?");
+    console.log(result.finalOutput);
+}
+
+main();
+```
