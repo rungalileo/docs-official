@@ -5,10 +5,10 @@ import { OpenAI } from 'openai';
 async function runDatasetExperiment() {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-  const runner = async (data) => {
+  const runner = async (input) => {
     const result = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [{ content: `Which continent is ${data['input']} in?`, role: 'user' }]
+      model: 'gpt-4o',
+      messages: [{ content: `Which continent does the following country belong to ${input['input']}!`, role: 'user' }]
     });
     return result;
   };

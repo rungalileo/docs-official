@@ -1,5 +1,6 @@
 ---
 title: Overview
+description: An overview of the Galileo Python SDK. 
 ---
 
 import SnippetSdkOpenAIBasic from '/snippets/code/python/sdk/wrappers/openai-basic.mdx';
@@ -9,14 +10,20 @@ import SnippetSdkTool from '/snippets/code/python/sdk/decorators/tool.mdx';
 import SnippetSdkGalileoLogger from '/snippets/code/python/sdk/manual/galileo-logger.mdx';
 import SnippetSdkContextBasic from '/snippets/code/python/sdk/context/basic.mdx';
 import SnippetSdkContextExplicitFlush from '/snippets/code/python/sdk/context/explicit-flush.mdx';
+import { InfoNote } from '/snippets/components/info-note.mdx';
 
-The [Galileo Python SDK](https://github.com/rungalileo/galileo-python/tree/main) ([latest release](https://github.com/rungalileo/galileo-python/releases/latest)) allows you to log all prompts, responses, and statistics around your LLM usage. There are three main ways to log your application:
+
+The [Galileo Python SDK](https://github.com/rungalileo/galileo-python/) ([latest release](https://github.com/rungalileo/galileo-python/releases/latest)) allows you to log all prompts, responses, and statistics around your LLM usage. There are three main ways to log your application:
 
 1. **[Using a wrapper (Recommended)](#wrapper-method)** - Instead of importing common LLMs like `openai`, use Galileo's wrapper which automatically logs everything, no other code changes required!
 2. **[Using a decorator](#decorator-method)** - By decorating a function that calls an LLM with the `@log` decorator, the Galileo SDK logs all AI prompts within.
 3. **[Directly using the `GalileoLogger` class (Manual)](#manual-method)** - As a last resort, you can directly use the base class, but this requires calling multiple methods per LLM call.
 
 Regardless of how you go about logging your AI application, you will still need to initialize your API keys and install the Galileo SDK by following the steps below.
+
+<InfoNote>
+Visit the [Galileo PyPI package page](https://pypi.org/project/galileo/) for more installation options and version information.
+</InfoNote>
 
 ## Installation
 
@@ -53,7 +60,7 @@ The simplest way to get started is to use our OpenAI client wrapper. This exampl
 <a id="decorator-method"></a>
 ### Using the `@log` Decorator
 
-The `@log` decorator is used to capture the inputs and outputs of a function as a span. By default, a workflow span is created when span_type isn't specified. Here are the different span types:
+The `@log` decorator is used to capture the inputs and outputs of a function as a span. By default, a workflow span is created when `span_type` isn't specified. Here are the different span types:
 
 - **Workflow**: A span that can have child spans, useful for nesting several child spans to denote a thread within a trace. If you add the `@log` decorator to a parent method, calls that are made within that scope are automatically logged in the same trace.
 - **LLM**: Captures the input, output, and settings of an LLM call. This span gets automatically created when our OpenAI client library wrapper is used. Cannot have nested children.

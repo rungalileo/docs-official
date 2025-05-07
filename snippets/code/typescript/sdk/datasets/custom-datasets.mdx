@@ -6,14 +6,20 @@ async function runCustomDatasetExperiment() {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   const dataset = [
-    { input: "Which continent is Spain in?", output: "Europe" },
-    { input: "Which continent is Japan in?", output: "Asia" },
+    {
+        "input": "Spain",
+        "output": "Europe",
+    },
+    {
+        "input": "Japan",
+        "output": "Asia",
+    },
   ];
 
-  const runner = async (data) => {
+  const runner = async (input) => {
     const result = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [{ content: `Which continent is ${data['input']} in?`, role: 'user' }]
+      model: 'gpt-4o',
+      messages: [{ content: `Which continent does the following country belong to ${input['input']}!`, role: 'user' }]
     });
     return result;
   };
@@ -22,7 +28,7 @@ async function runCustomDatasetExperiment() {
     name: `Test Experiment`,
     dataset: dataset,
     function: runner,
-    metrics: ['correctness'],
+    metrics: ['tox'],
     projectName: 'my-project'
   });
 }

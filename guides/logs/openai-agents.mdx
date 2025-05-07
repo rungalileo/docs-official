@@ -1,0 +1,60 @@
+---
+title: "Logging OpenAI Agents with Galileo"
+description: "Integrate the Galileo tracing processor with the OpenAI Agents SDK to track and monitor your agent workflows in Galileo."
+icon: "python"
+---
+
+import SnippetAgents1Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agents/openai-agents-py-1.mdx';
+import SnippetAgents2Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agents/openai-agents-py-2.mdx';
+import SnippetAgents3Python from '/snippets/code/python/how-to-guides/agentic-ai/openai-agents/openai-agents-py-3.mdx';
+
+The OpenAI Agents Python SDK provides a framework for building multi-agent workflows. Galileo provides a GalileoTracingProcessor, allowing you to send detailed trace information to Galileo for monitoring, analysis, and debugging.
+
+
+## Installation
+
+Ensure you have both the openai-agents library and the Galileo SDK installed:
+
+`pip install galileo openai-agents`
+
+## Authentication and project setup
+
+First create an [API key](/galileo/gen-ai-studio-products/galileo-evaluate/quickstart#getting-an-api-key) to authenticate.
+Copy your project name and log stream name and set the environment variables.
+
+<CodeGroup>
+<SnippetAgents1Python />
+</CodeGroup>
+
+
+## Python setup: Adding the Galileo processor
+
+The integration is two lines of code adding the GalileoTracingProcessor to the list of trace processors used by the openai-agents SDK.
+
+<CodeGroup>
+<SnippetAgents2Python />
+</CodeGroup>
+
+
+## Example Usage
+Here's a complete example demonstrating how to set up agents and run them with Galileo tracing enabled:
+
+<CodeGroup>
+<SnippetAgents3Python />
+</CodeGroup>
+
+## Summary
+
+1. Set the environment variables with the API key, project name and log stream name.
+2. Initialize and set the Galileo processor.
+3. Start logging with Galileo.
+
+
+## FAQ
+
+### How do I setup a project?
+
+Log into your console and create a new logging project. Copy the project name and log stream name after setup
+
+### Can I use this alongside other trace processors?
+Yes. The `set_trace_processors` function accepts a list, so you can include GalileoTracingProcessor alongside other processors if needed: `set_trace_processors([GalileoTracingProcessor(), OtherProcessor()])`.

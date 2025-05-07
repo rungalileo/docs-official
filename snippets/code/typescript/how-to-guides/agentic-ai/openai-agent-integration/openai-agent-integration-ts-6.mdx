@@ -1,0 +1,11 @@
+```typescript TypeScript
+// Set tripwire to filter out non-homework questions with Guardrail agent
+async function homeworkGuardrail(ctx: any, agent: any, inputData: string) {
+    const result = await Runner.run(guardrailAgent, inputData, { context: ctx.context });
+    const finalOutput = result.finalOutput as HomeworkOutput;
+    return new GuardrailFunctionOutput({
+        outputInfo: finalOutput,
+        tripwireTriggered: !finalOutput.is_homework,
+    });
+}
+```
