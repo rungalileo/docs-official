@@ -83,4 +83,4 @@ The improved prompt includes several key elements to reduce hallucinations:
 4. Explicitly states when a subjective opinion is given
 5. Maintains succinctness in the response
 
-These improvements help prevent the model from presenting subjective opinions as factual statements, which is a common cause of hallucinations and factual errors. 
+These improvements help prevent the model from presenting subjective opinions as factual statements, which is a common cause of hallucinations and factual errors.

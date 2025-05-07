@@ -3,8 +3,8 @@ title: Tool Error
 description: Detect and analyze tool execution errors in AI agents using Galileo Guardrail Metrics to ensure reliable tool usage in agentic workflows.
 ---
 
-import { Scale } from '/snippets/components/scale.mdx';
-import { DefinitionCard } from '/snippets/components/definition-card.mdx';
+import { Scale } from "/snippets/components/scale.mdx";
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 
 <DefinitionCard>
   <strong>Tool Error</strong> detects errors or failures during the execution of Tools.
@@ -14,33 +14,48 @@ This metric is particularly valuable for monitoring agentic AI systems where the
 
 Here's a scale that shows the relationship between Tool Error detection and the potential impact on your AI system:
 
-<Scale low="0" lowLabel="High Error Rate" high="1" highLabel="Low Error Rate" lowDescription="Many tools failed during execution, causing incomplete or incorrect responses." midDescription="Some tools executed correctly while others encountered errors." highDescription="All tools executed correctly without errors."/>
+<Scale
+  low="0"
+  lowLabel="High Error Rate"
+  high="1"
+  highLabel="Low Error Rate"
+  lowDescription="Many tools failed during execution, causing incomplete or incorrect responses."
+  midDescription="Some tools executed correctly while others encountered errors."
+  highDescription="All tools executed correctly without errors."
+/>
 
 ### Calculation Method
+
 Tool Error detection is computed through a multi-step process:
 
 <Steps>
   <Step title="Model Request">
     Additional evaluation requests are sent to an LLM evaluator (e.g., OpenAI's GPT4o-mini) to analyze tool execution outcomes.
-  </Step>
+
+</Step>
   <Step title="Prompt Engineering">
     A carefully engineered chain-of-thought prompt guides the model to evaluate whether each tool executed successfully without errors.
-  </Step>
+
+</Step>
   <Step title="Log Analysis">
     The system performs a detailed analysis of execution logs and outputs from each tool call to identify potential issues.
-  </Step>
+
+</Step>
   <Step title="Error Detection">
     The evaluation process identifies specific errors, exceptions, and unexpected behaviors that occurred during tool execution.
-  </Step>
+
+</Step>
   <Step title="Impact Assessment">
     A detailed explanation is generated describing the detected errors and their potential impact on the system's functionality.
-  </Step>
+
+</Step>
 </Steps>
 
 We also surface a generated explanation that helps understand the nature of the error and its potential causes.
 
 <Note>
 This metric is computed by prompting an LLM, which requires additional LLM calls to compute, potentially impacting usage and billing.
+
 </Note>
 
 ## Understanding Tool Error
@@ -55,24 +70,25 @@ This metric is computed by prompting an LLM, which requires additional LLM calls
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Common Types of Tool Errors</h3>
   </div>
-  
-  Tool Error detection identifies various failure modes:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>API Failures:</strong> External services or APIs that tools depend on may be unavailable or return errors.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Parameter Errors:</strong> Tools may receive invalid parameters that cause execution failures.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Timeout Issues:</strong> Tools may take too long to execute and exceed allocated time limits.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Permission Errors:</strong> Tools may lack necessary permissions to access required resources.
-  </div>
+
+Tool Error detection identifies various failure modes:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>API Failures:</strong> External services or APIs that tools depend on may be unavailable or return errors.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Parameter Errors:</strong> Tools may receive invalid parameters that cause execution failures.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Timeout Issues:</strong> Tools may take too long to execute and exceed allocated time limits.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Permission Errors:</strong> Tools may lack necessary permissions to access required resources.
+</div>
+
 </Card>
 
 ## Optimizing Your AI System
@@ -86,24 +102,25 @@ This metric is computed by prompting an LLM, which requires additional LLM calls
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing Tool Errors</h3>
   </div>
-  
-  When your system experiences tool execution errors, consider these improvements:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Implement robust error handling:</strong> Ensure tools can gracefully handle exceptions and provide meaningful error messages.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Add parameter validation:</strong> Validate input parameters before tool execution to prevent runtime errors.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Monitor external dependencies:</strong> Set up monitoring for external services that your tools depend on.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Implement fallback mechanisms:</strong> Design tools with fallback options when primary execution paths fail.
-  </div>
+
+When your system experiences tool execution errors, consider these improvements:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Implement robust error handling:</strong> Ensure tools can gracefully handle exceptions and provide meaningful error messages.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Add parameter validation:</strong> Validate input parameters before tool execution to prevent runtime errors.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Monitor external dependencies:</strong> Set up monitoring for external services that your tools depend on.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Implement fallback mechanisms:</strong> Design tools with fallback options when primary execution paths fail.
+</div>
+
 </Card>
 
 ## Best Practices
@@ -111,18 +128,23 @@ This metric is computed by prompting an LLM, which requires additional LLM calls
 <CardGroup cols={2}>
   <Card title="Comprehensive Logging" icon="file-lines">
     Implement detailed logging for all tool executions to facilitate debugging and error analysis.
-  </Card>
+
+</Card>
   <Card title="Graceful Degradation" icon="life-ring">
     Design tools to provide partial results or alternative responses when they encounter errors.
-  </Card>
+
+</Card>
   <Card title="Error Categorization" icon="tags">
     Categorize different types of errors to identify patterns and prioritize fixes based on frequency and impact.
-  </Card>
+
+</Card>
   <Card title="User-Friendly Error Messages" icon="comment">
     Translate technical errors into user-friendly messages that help users understand what went wrong.
-  </Card>
+
+</Card>
 </CardGroup>
 
 <Note>
 This metric helps you detect whether your tools executed correctly. It's most useful in Agentic Workflows where many Tools get called. It helps you detect and understand patterns in your Tool failures, allowing you to improve reliability over time.
+
 </Note>

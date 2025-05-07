@@ -73,4 +73,4 @@ The Galileo OpenAI wrapper provides several key features:
 2. **Span Creation**: Each API call creates a span with detailed information about the request and response
 3. **Metrics Collection**: Metrics are automatically collected for each API call, such as latency and token usage
 
-These features make it easy to monitor and analyze your OpenAI API usage without having to add any additional instrumentation code. 
+These features make it easy to monitor and analyze your OpenAI API usage without having to add any additional instrumentation code.

@@ -11,17 +11,20 @@ This directory contains examples and tests for using the Galileo context manager
 ## Setup
 
 1. Create a virtual environment (recommended):
+
    ```bash
    python -m venv .venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
 2. Install the required dependencies:
+
    ```bash
    pip install galileo openai python-dotenv rich
    ```
 
 3. Create a `.env` file in this directory with the following variables:
+
    ```
    GALILEO_CONSOLE_URL=https://console.galileo.io
    GALILEO_API_KEY=your_galileo_api_key
@@ -31,6 +34,7 @@ This directory contains examples and tests for using the Galileo context manager
    ```
 
    You can copy the `.env.example` file and fill in your values:
+
    ```bash
    cp .env.example .env
    ```
@@ -61,6 +65,7 @@ python test.py
 ```
 
 This script will:
+
 1. Run the app.py example
 2. Check for new traces in your Galileo project
 3. Verify that the traces contain spans related to OpenAI API calls
@@ -79,7 +84,7 @@ client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 # This will log to the specified project and log stream
 with galileo_context(project="my-project", log_stream="my-log-stream"):
     chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Your prompt here"}], 
+        messages=[{"role": "user", "content": "Your prompt here"}],
         model="gpt-4o"
     )
 ```
@@ -95,4 +100,4 @@ If you encounter issues:
 3. Verify that you have installed all required dependencies
 4. Check the Galileo console to see if traces are being created
 
-For more information, visit the [Galileo documentation](https://docs.galileo.io). 
+For more information, visit the [Galileo documentation](https://docs.galileo.io).

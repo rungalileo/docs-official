@@ -4,19 +4,22 @@ import { MessageRole } from "galileo/dist/types/message.types";
 
 async function runPromptTemplateExperiment() {
   const projectName = "my-project";
-  
-  const dataset = await createDataset([
-    { input: "Which continent is Spain in?", output: "Europe" },
-    { input: "Which continent is Japan in?", output: "Asia" }
-  ], "geography-dataset");
+
+  const dataset = await createDataset(
+    [
+      { input: "Which continent is Spain in?", output: "Europe" },
+      { input: "Which continent is Japan in?", output: "Asia" },
+    ],
+    "geography-dataset",
+  );
 
   const template = await createPromptTemplate({
     template: [
       { role: MessageRole.system, content: "You are a geography expert. Respond with only the continent name." },
-      { role: MessageRole.user, content: "{{input}}" }
+      { role: MessageRole.user, content: "{{input}}" },
     ],
     projectName: projectName,
-    name: "geography-prompt"
+    name: "geography-prompt",
   });
 
   await runExperiment({
@@ -26,10 +29,10 @@ async function runPromptTemplateExperiment() {
     promptSettings: {
       max_tokens: 256,
       model_alias: "GPT-4o",
-      temperature: 0.8
+      temperature: 0.8,
     },
     metrics: ["correctness"],
-    projectName: projectName
+    projectName: projectName,
   });
 }
 

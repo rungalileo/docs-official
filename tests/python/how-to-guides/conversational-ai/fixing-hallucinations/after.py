@@ -22,7 +22,7 @@ load_dotenv()
 def run_improved_prompt(client):
     """Run the improved prompt that reduces hallucinations"""
     prompt = """
-    Which are better: Sharks or Tigers? 
+    Which are better: Sharks or Tigers?
 
     Important instructions:
     1. Acknowledge that this is a subjective question without a factually correct answer

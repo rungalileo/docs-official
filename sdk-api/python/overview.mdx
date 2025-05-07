@@ -1,17 +1,16 @@
 ---
 title: Overview
-description: An overview of the Galileo Python SDK. 
+description: An overview of the Galileo Python SDK.
 ---
 
-import SnippetSdkOpenAIBasic from '/snippets/code/python/sdk/wrappers/openai-basic.mdx';
-import SnippetSdkWorkflow from '/snippets/code/python/sdk/decorators/workflow.mdx';
-import SnippetSdkRetriever from '/snippets/code/python/sdk/decorators/retriever.mdx';
-import SnippetSdkTool from '/snippets/code/python/sdk/decorators/tool.mdx';
-import SnippetSdkGalileoLogger from '/snippets/code/python/sdk/manual/galileo-logger.mdx';
-import SnippetSdkContextBasic from '/snippets/code/python/sdk/context/basic.mdx';
-import SnippetSdkContextExplicitFlush from '/snippets/code/python/sdk/context/explicit-flush.mdx';
-import { InfoNote } from '/snippets/components/info-note.mdx';
-
+import SnippetSdkOpenAIBasic from "/snippets/code/python/sdk/wrappers/openai-basic.mdx";
+import SnippetSdkWorkflow from "/snippets/code/python/sdk/decorators/workflow.mdx";
+import SnippetSdkRetriever from "/snippets/code/python/sdk/decorators/retriever.mdx";
+import SnippetSdkTool from "/snippets/code/python/sdk/decorators/tool.mdx";
+import SnippetSdkGalileoLogger from "/snippets/code/python/sdk/manual/galileo-logger.mdx";
+import SnippetSdkContextBasic from "/snippets/code/python/sdk/context/basic.mdx";
+import SnippetSdkContextExplicitFlush from "/snippets/code/python/sdk/context/explicit-flush.mdx";
+import { InfoNote } from "/snippets/components/info-note.mdx";
 
 The [Galileo Python SDK](https://github.com/rungalileo/galileo-python/) ([latest release](https://github.com/rungalileo/galileo-python/releases/latest)) allows you to log all prompts, responses, and statistics around your LLM usage. There are three main ways to log your application:
 
@@ -21,13 +20,12 @@ The [Galileo Python SDK](https://github.com/rungalileo/galileo-python/) ([latest
 
 Regardless of how you go about logging your AI application, you will still need to initialize your API keys and install the Galileo SDK by following the steps below.
 
-<InfoNote>
-Visit the [Galileo PyPI package page](https://pypi.org/project/galileo/) for more installation options and version information.
-</InfoNote>
+<InfoNote>Visit the [Galileo PyPI package page](https://pypi.org/project/galileo/) for more installation options and version information.</InfoNote>
 
 ## Installation
 
 Install Galileo's Python SDK to your project by running:
+
 ```bash
 pip install galileo
 ```
@@ -54,7 +52,7 @@ GALILEO_LOG_STREAM=...
 The simplest way to get started is to use our OpenAI client wrapper. This example will automatically produce a single-span trace in the Logstream UI:
 
 <CodeGroup>
-<SnippetSdkOpenAIBasic />
+  <SnippetSdkOpenAIBasic />
 </CodeGroup>
 
 <a id="decorator-method"></a>
@@ -70,34 +68,35 @@ The `@log` decorator is used to capture the inputs and outputs of a function as 
 This example will create a trace with a workflow span and two nested LLM spans:
 
 <CodeGroup>
-<SnippetSdkWorkflow />
+  <SnippetSdkWorkflow />
 </CodeGroup>
 
 Here's how to create a retriever span using the decorator:
 
 <CodeGroup>
-<SnippetSdkRetriever />
+  <SnippetSdkRetriever />
 </CodeGroup>
 
 Here's how to create a tool span using the decorator:
 
 <CodeGroup>
-<SnippetSdkTool />
+  <SnippetSdkTool />
 </CodeGroup>
 
 For more detailed information and examples, see the [@log Decorator documentation](./logging/log-decorator).
 
 <a id="manual-method"></a>
-### Pure invocation using the `GalileoLogger`
-This is the most verbose way to log your application. It requires manually calling the `GalileoLogger` class and adding spans to the trace. We recommend using the other two methods whenever possible.
+### Pure invocation using the `GalileoLogger` This is the most verbose way to log your application. It requires manually calling the `GalileoLogger` class and adding spans to the trace. We recommend using the other two methods whenever
+possible.
 
 <CodeGroup>
-<SnippetSdkGalileoLogger />
+  <SnippetSdkGalileoLogger />
 </CodeGroup>
 
 ### Grouping and Uploading Logs Faster: `galileo_context()`
 
 Regardless of the method you use to add logs, the Galileo context manager can be useful for a few things:
+
 - Automatically starting a trace and ensuring anything that happens in its scope is logged as a span within the trace.
 - For long running app runtimes like Streamlit, the request never terminates. You can use the context manager to start a trace and ensure that traces are flushed when the manager exits.
 - You might want to route a part of your app to a different Project or Log Stream. You can use the context manager to set the trace scope.
@@ -105,13 +104,13 @@ Regardless of the method you use to add logs, the Galileo context manager can be
 Using the context manager to create a trace with a nested LLM span (which is automatically flushed when the manager exits):
 
 <CodeGroup>
-<SnippetSdkContextBasic />
+  <SnippetSdkContextBasic />
 </CodeGroup>
 
 In some cases (like long-running processes), it may be necessary to explicitly flush the trace to upload it to Galileo:
 
 <CodeGroup>
-<SnippetSdkContextExplicitFlush />
+  <SnippetSdkContextExplicitFlush />
 </CodeGroup>
 
 ## Additional Documentation
@@ -123,4 +122,3 @@ For more detailed information on specific topics, please refer to the following 
 - [Prompts](./prompts) - Creating and using prompt templates
 - [Experimentation](/getting-started/experiments/overview) - Running experiments and evaluations
 - [Datasets](/getting-started/experiments/datasets) - Working with datasets in Galileo
-

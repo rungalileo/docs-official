@@ -14,6 +14,7 @@ Answer completeness refers to how thoroughly and comprehensively a RAG system an
 - The evaluation helps ensure responses are complete relative to what is generally known about a topic
 
 A complete answer should:
+
 - Cover all relevant aspects of the question
 - Include all significant details from the source documents
 - Synthesize information from multiple sources when relevant
@@ -40,6 +41,7 @@ store = DocumentStoreBasic(
 ```
 
 The basic implementation suffers from several critical limitations in document retrieval. It's designed to return only a single document, which significantly limits the breadth of information available for answering questions. The search mechanism relies on basic L2 distance for similarity matching, which is less effective for semantic search compared to more sophisticated approaches. Additionally, the system lacks any form of reranking or relevance scoring, meaning it can't refine its results based on deeper semantic understanding. The chunk size is also quite large at 1000 characters, which can lead to less precise and potentially less relevant information being included in each chunk.
+
 </Step>
 
 <Step title="Simple Document Processing">
@@ -54,6 +56,7 @@ def _load_custom_documents(self, documents_path: str, chunk_size: int):
 ```
 
 The document processing in the basic implementation is quite rudimentary. It uses a simple paragraph-based splitting approach followed by basic sentence-based chunking. This method doesn't preserve context effectively, as it doesn't maintain relationships between chunks or consider the semantic coherence of the text. The metadata stored with each chunk is minimal, containing only basic information like source and chunk ID, without any sophisticated enrichment or relationship tracking. The chunking strategy is also fixed, applying the same approach regardless of the content type or structure.
+
 </Step>
 
 <Step title="Basic Prompting">
@@ -72,6 +75,7 @@ Please provide an answer based on the document above."""
 ```
 
 The prompting strategy in the basic implementation is minimal and lacks specific guidance for ensuring complete answers. The system prompt is very simple, providing no explicit instructions about completeness or how to handle multiple sources of information. There are no requirements for document synthesis or citation, which can lead to answers that don't fully utilize the available information or properly attribute their sources.
+
 </Step>
 </Steps>
 
@@ -96,6 +100,7 @@ store = DocumentStore(
 ```
 
 The improved implementation significantly improves document retrieval by returning multiple relevant documents (10 or more) instead of just one. It uses cosine similarity for semantic matching, which provides better results for finding conceptually related content. The system implements sophisticated reranking with a threshold of 0.6, allowing it to refine and prioritize the most relevant results. The chunk size is also reduced to 512 characters, making the chunks more precise and focused.
+
 </Step>
 
 <Step title="Sophisticated Document Processing">
@@ -112,6 +117,7 @@ def _chunk_text(self, text: str, chunk_size: int) -> List[str]:
 ```
 
 The document processing in the improved implementation is much more sophisticated. It uses context-aware chunking that preserves sentence relationships and maintains semantic coherence. Each chunk is enriched with rich metadata including relevance scores, source tracking, and detailed formatting with relevance indicators. The system also implements dynamic chunking that adapts to the content structure, ensuring better context preservation.
+
 </Step>
 
 <Step title="Improved Prompting">
@@ -128,6 +134,7 @@ IMPORTANT INSTRUCTIONS:
 ```
 
 The improved implementation uses a comprehensive system prompt that provides clear guidance for ensuring complete answers. It explicitly instructs the model to use all relevant information from the retrieved documents, requires proper citation of sources, and encourages synthesis of information across multiple documents. The prompt also specifies thoroughness requirements and provides a clear role for the model as a knowledgeable science historian.
+
 </Step>
 </Steps>
 
@@ -154,6 +161,7 @@ def search(self, query: str) -> list:
 ```
 
 The basic implementation's search functionality is quite limited, returning only a single document which can lead to missing key information. In contrast, the improved implementation uses a more sophisticated approach that retrieves multiple documents and implements reranking to ensure comprehensive coverage of the topic. The enhanced version also uses a multiplier for initial results when reranking is enabled, allowing for better selection of the most relevant content.
+
 </Step>
 
 <Step title="Information Synthesis">
@@ -167,6 +175,7 @@ SYSTEM_PROMPT = """You are a knowledgeable science historian..."""
 ```
 
 The basic implementation's prompting strategy is minimal and doesn't encourage synthesis of information across multiple sources. The improved implementation, however, uses a more sophisticated prompt that explicitly requires the model to synthesize information from multiple documents and provide comprehensive answers. This leads to more complete and well-rounded responses that draw from all available relevant information.
+
 </Step>
 
 <Step title="Context Preservation">
@@ -184,6 +193,7 @@ def _chunk_text(self, text: str, chunk_size: int) -> List[str]:
 ```
 
 The basic implementation uses a simple paragraph-based chunking approach that can lead to loss of context, especially with larger chunks. The improved implementation, on the other hand, uses a more sophisticated context-aware chunking strategy that maintains sentence relationships and semantic coherence. This results in better preservation of context and more coherent information retrieval.
+
 </Step>
 
 <Step title="Answer Quality">
@@ -206,6 +216,7 @@ class Prompts:
 ```
 
 The basic implementation's prompting strategy often results in answers that miss key details and lack proper context. The improved implementation, with its comprehensive prompting strategy, produces answers that are more thorough, properly cited, and effectively synthesize information from multiple sources. This leads to higher quality, more complete answers that better serve the user's needs.
+
 </Step>
 </Steps>
 
@@ -234,14 +245,17 @@ response = "Penicillin was discovered by Fleming. The development process involv
 The basic implementation's response covers the essential facts but lacks depth and detail. While it correctly identifies Fleming as the discoverer and mentions the collaborative nature of development, it fails to provide specific details about the roles of different scientists and institutions involved. The response misses opportunities to elaborate on the collaborative process and the specific contributions of key figures like Howard Florey and Ernst Chain.
 
 **Key Limitations:**
+
 - Identifies main discoverer (Fleming)
 - Mentions collaboration but lacks specifics
 - Omits important details about development process
 - Fails to cite specific sources
 - Misses historical context (Nobel Prize)
 - Relies too heavily on general knowledge rather than retrieved documents
+
 </Note>
 </CodeGroup>
+
 </Step>
 
 <Step title="improved implementation (100% Completeness)">
@@ -249,10 +263,10 @@ The basic implementation's response covers the essential facts but lacks depth a
 <CodeGroup>
 ```python
 # improved implementation response
-response = """Penicillin's discovery and development was a collaborative effort spanning several years. 
-Alexander Fleming made the initial discovery of penicillin in 1928 (Document 2). 
-The development into a practical antibiotic was led by Howard Florey and Ernst Chain at Oxford University (Document 3), 
-who developed methods to produce penicillin in large quantities. 
+response = """Penicillin's discovery and development was a collaborative effort spanning several years.
+Alexander Fleming made the initial discovery of penicillin in 1928 (Document 2).
+The development into a practical antibiotic was led by Howard Florey and Ernst Chain at Oxford University (Document 3),
+who developed methods to produce penicillin in large quantities.
 This collaborative achievement was recognized with the 1945 Nobel Prize awarded to Fleming, Florey, and Chain (Document 2)."""
 ```
 
@@ -262,18 +276,22 @@ This collaborative achievement was recognized with the 1945 Nobel Prize awarded 
 The improved implementation provides a comprehensive response that effectively synthesizes information from multiple sources. It correctly attributes the initial discovery to Fleming, details the development work by Florey and Chain, and includes the historical recognition through the Nobel Prize. The response maintains proper source attribution and presents the information in a coherent narrative that captures the full context of penicillin's development.
 
 **Key Strengths:**
+
 - Complete coverage of all key figures
 - Proper source attribution
 - Historical context included
 - Clear explanation of roles and contributions
 - Effective synthesis of multiple sources
 - Heavy reliance on retrieved documents rather than general knowledge
+
 </Note>
 </CodeGroup>
+
 </Step>
 </Steps>
 
 This example clearly demonstrates how the improved implementation achieves higher completeness by:
+
 1. Retrieving and utilizing multiple relevant documents
 2. Properly attributing information to specific sources
 3. Synthesizing information across documents
@@ -298,6 +316,7 @@ store = DocumentStore(
 ```
 
 Effective document retrieval is crucial for ensuring complete answers. The improved approach retrieves multiple relevant documents (typically 10 or more) to ensure comprehensive coverage of the topic. It uses semantic similarity search to find conceptually related content, rather than just keyword matches. The implementation of reranking with a threshold of 0.6 helps refine and prioritize the most relevant results. The system also uses appropriate chunk sizes to ensure that the retrieved information is precise and focused.
+
 </Step>
 
 <Step title="Document Processing">
@@ -313,6 +332,7 @@ def _chunk_text(self, text: str, chunk_size: int) -> List[str]:
 ```
 
 Sophisticated document processing is essential for maintaining context and relationships between pieces of information. The improved approach uses context-aware chunking that preserves sentence relationships and semantic coherence. Each chunk is enriched with relevant metadata, including source tracking and relevance indicators. The system also implements dynamic chunking that adapts to the content structure, ensuring better context preservation and more coherent information retrieval.
+
 </Step>
 
 <Step title="Prompting">
@@ -327,6 +347,7 @@ IMPORTANT INSTRUCTIONS:
 ```
 
 Effective prompting is crucial for guiding the model to produce complete and well-structured answers. The improved approach uses a comprehensive system prompt that provides clear instructions for ensuring completeness. It requires proper citation of sources and encourages synthesis of information across multiple documents. The prompt also specifies thoroughness requirements and provides a clear role for the model, helping it understand the expectations for the quality and completeness of its responses.
+
 </Step>
 </Steps>
 

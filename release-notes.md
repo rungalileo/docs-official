@@ -4,13 +4,13 @@ This page provides information about the latest updates and enhancements to Gali
 
 ### Key New Features
 
-1. **Metrics on experiments UI:** You can now compute additional metrics for logged experiments directly within the experiments UI. Until now, users didn’t have a way to compute more metrics for logged experiments from the UI or SDK.    
+1. **Metrics on experiments UI:** You can now compute additional metrics for logged experiments directly within the experiments UI. Until now, users didn’t have a way to compute more metrics for logged experiments from the UI or SDK.
 
 ![Metrics on experiments UI](images/AddingMetricstoExperimentsinUI-ezgif.com-optimize.gif)
 
 2. **Public APIs:** Released public APIs to allow developers to manage logstreams, experiments, and trace data programmatically. While these can already be managed through the TypeScript and Python SDK, public APIs allow users to programmatically interact with these components in any language. Sample use cases include logging data from a production AI app, running experiments, and retrieving evaluation result
 
-3. **Aggregate metrics and ranking criteria for Experiments:** Added to All Experiments page. Aggregate metrics compile the metric values from individual traces in an experiment to show a combined value for each metric on the all experiments page. This enables you to quickly assess the performance of the underlying traces in an experiment. Ranking criteria allow you to determine which experiments were most successful by specifying a weighted average of the underlying metrics for each experiment. 
+3. **Aggregate metrics and ranking criteria for Experiments:** Added to All Experiments page. Aggregate metrics compile the metric values from individual traces in an experiment to show a combined value for each metric on the all experiments page. This enables you to quickly assess the performance of the underlying traces in an experiment. Ranking criteria allow you to determine which experiments were most successful by specifying a weighted average of the underlying metrics for each experiment.
 
 ![Ranking Criteria Interface](images/Added-aggregate-metrics.png)
 
@@ -24,13 +24,13 @@ This page provides information about the latest updates and enhancements to Gali
 
 ![Enhanced Playground Inputs](images/playground-enhanced-inputs.png)
 
-6. **Flatten to text in dataset upload:** When uploading datasets from a CSV or JSON file, the contents of a column are automatically flattened to text instead of being stored as JSON when there’s only one file column mapped to an input, output or dataset column. 
+6. **Flatten to text in dataset upload:** When uploading datasets from a CSV or JSON file, the contents of a column are automatically flattened to text instead of being stored as JSON when there’s only one file column mapped to an input, output or dataset column.
 
 ![Flatten to Text Dataset Upload](images/flatten-to-text-dataset-upload.png)
 
 7. **New Model in Playground and Metrics:** Added Support for new GPT 4.1 model in playground and metrics.
 
-### SDK 
+### SDK
 
 8. **G2.0 Typescript SDK improvements:** Supporting Export types at the top-level (galileo/types), added a method to access the singleton logger.
 

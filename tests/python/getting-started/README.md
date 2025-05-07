@@ -58,6 +58,7 @@ python quickstart_testbed.py
 ```
 
 The testbed will:
+
 1. Run both the original and improved prompts
 2. Wait for metrics to be available (up to 2 minutes)
 3. Display the metrics for each prompt
@@ -71,6 +72,7 @@ The key metric to observe is `instruction_adherence`, which measures how well th
 ## Example Prompts
 
 1. **Original Prompt** (before.py):
+
    ```
    Explain the following topic succinctly: Newton's First Law
    ```
@@ -86,4 +88,4 @@ The improved prompt adds a specific, measurable constraint (15 words or less) th
 
 - If metrics aren't appearing, ensure that metrics are enabled for your project in the Galileo console
 - If authentication fails, verify your API keys and ensure they have the necessary permissions
-- If you encounter any other issues, check the Galileo documentation or contact support 
+- If you encounter any other issues, check the Galileo documentation or contact support

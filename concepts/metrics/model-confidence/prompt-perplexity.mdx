@@ -2,8 +2,9 @@
 title: Prompt Perplexity
 description: Measure and optimize prompt quality using Galileo's Prompt Perplexity Metric to improve model performance and response generation.
 ---
-import { Scale } from '/snippets/components/scale.mdx';
-import { DefinitionCard } from '/snippets/components/definition-card.mdx';
+
+import { Scale } from "/snippets/components/scale.mdx";
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 
 <DefinitionCard>
   <strong>Prompt Perplexity</strong> measures how predictable or familiar a prompt is to a language model, using the log probabilities provided by the model.
@@ -13,10 +14,12 @@ import { DefinitionCard } from '/snippets/components/definition-card.mdx';
 
 Prompt Perplexity is a continuous metric ranging from 0 to infinity:
 
-<Scale 
-  low="0" lowLabel="Low Perplexity" 
-  high="∞" highLabel="High Perplexity" 
-  lowDescription="The model is highly certain about predicting tokens in the prompt" 
+<Scale
+  low="0"
+  lowLabel="Low Perplexity"
+  high="∞"
+  highLabel="High Perplexity"
+  lowDescription="The model is highly certain about predicting tokens in the prompt"
   midDescription="The model has moderate certainty about predicting tokens"
   highDescription="The model finds the prompt less predictable"
 />
@@ -32,20 +35,24 @@ Prompt Perplexity is computed through a specific mathematical process that measu
     1. The model processes the prompt token by token
     2. For each position, it computes the probability distribution over the next token
     3. We extract the log probability of the actual next token that appears in the prompt
-  </Step>
+
+</Step>
   <Step title="Average Log Probabilities" description="Combine the token-level information:">
     1. Sum all the log probabilities across the entire prompt
     2. Divide by the total number of tokens to get the average
     3. This gives us the average log probability per token
-  </Step>
+
+</Step>
   <Step title="Apply Exponential" description="Transform to final perplexity score:">
     1. Take the negative of the average log probability
     2. Apply the exponential function to this value
     3. This converts log probabilities to a more interpretable perplexity score
-  </Step>
+
+</Step>
   <Step title="Final Formula" description="The complete calculation:">
     Perplexity = exp(-average(log_probabilities))
-  </Step>
+
+</Step>
 </Steps>
 
 <Card>
@@ -58,20 +65,21 @@ Prompt Perplexity is computed through a specific mathematical process that measu
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Key Properties</h3>
   </div>
-  
-  Understanding the mathematical properties of perplexity:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Range:</strong> Always positive, with lower values indicating better predictability
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Scale:</strong> Exponential scale means small changes in log probabilities can lead to large perplexity differences
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Length independence:</strong> Using the average makes the metric comparable across prompts of different lengths
-  </div>
+
+Understanding the mathematical properties of perplexity:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Range:</strong> Always positive, with lower values indicating better predictability
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Scale:</strong> Exponential scale means small changes in log probabilities can lead to large perplexity differences
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Length independence:</strong> Using the average makes the metric comparable across prompts of different lengths
+</div>
+
 </Card>
 
 <Warning>
@@ -79,18 +87,22 @@ Prompt Perplexity is computed through a specific mathematical process that measu
 Prompt Perplexity can only be calculated with LLM integrations that provide log probabilities:
 
 ### _OpenAI_
+
 - Any Evaluate runs created from the Galileo Playground or with `pq.run(...)`, using the chosen model
 - Any Evaluate workflow runs using `davinci-001`
 - Any Observe workflows using `davinci-001`
 
 ### _Azure OpenAI_
+
 - Any Evaluate runs created from the Galileo Playground or with `pq.run(...)`, using the chosen model
 - Any Evaluate workflow runs using `text-davinci-003` or `text-curie-001`, if available in your Azure deployment
 - Any Observe workflows using `text-davinci-003` or `text-curie-001`, if available in your Azure deployment
+
 </Warning>
 
 <Note>
 To calculate the Prompt Perplexity metric, we require models that provide log probabilities. This typically includes older models like `davinci-001`, `text-davinci-003`, or `text-curie-001`.
+
 </Note>
 
 ## Understanding Perplexity
@@ -105,20 +117,21 @@ To calculate the Prompt Perplexity metric, we require models that provide log pr
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Interpreting Perplexity Scores</h3>
   </div>
-  
-  Lower Prompt Perplexity scores generally indicate better prompt quality:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Lower perplexity:</strong> Suggests your model is better tuned toward your data, as it can better predict the next token.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Research findings:</strong> The paper "Demystifying Prompts in Language Models via Perplexity Estimation" has shown that lower perplexity values in prompts lead to better outcomes in the generated responses.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Monitoring value:</strong> Tracking perplexity can help you iteratively improve your prompts.
-  </div>
+
+Lower Prompt Perplexity scores generally indicate better prompt quality:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Lower perplexity:</strong> Suggests your model is better tuned toward your data, as it can better predict the next token.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Research findings:</strong> The paper "Demystifying Prompts in Language Models via Perplexity Estimation" has shown that lower perplexity values in prompts lead to better outcomes in the generated responses.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Monitoring value:</strong> Tracking perplexity can help you iteratively improve your prompts.
+</div>
+
 </Card>
 
 ## Optimizing Your AI System
@@ -126,18 +139,23 @@ To calculate the Prompt Perplexity metric, we require models that provide log pr
 <CardGroup cols={2}>
   <Card title="Use Familiar Language" icon="language">
     Phrase prompts using language patterns similar to the model's training data to reduce perplexity.
-  </Card>
+
+</Card>
   <Card title="Provide Clear Context" icon="circle-info">
     Include sufficient context that helps the model predict what comes next in the prompt.
-  </Card>
+
+</Card>
   <Card title="Avoid Unusual Formatting" icon="text-slash">
     Use standard formatting and avoid unusual syntax that might confuse the model.
-  </Card>
+
+</Card>
   <Card title="Test Variations" icon="vials">
     Experiment with different phrasings of the same prompt to find lower perplexity versions.
-  </Card>
+
+</Card>
 </CardGroup>
 
 <Note>
 When optimizing for Prompt Perplexity, remember that the goal isn't always to minimize perplexity at all costs. Sometimes a slightly higher perplexity prompt might be necessary to communicate specific or technical requirements. The key is finding the right balance for your use case.
+
 </Note>

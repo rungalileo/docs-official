@@ -100,8 +100,10 @@ You can also create Log Streams programmatically using the Galileo SDK:
 from galileo import GalileoLogger
 
 # Initialize with a new log stream (will be created if it doesn't exist)
+
 logger = GalileoLogger(project="my-project", log_stream="new-log-stream")
-```
+
+````
 
 ```typescript create_logstream.ts
 import { withGalileo } from "galileo";
@@ -110,7 +112,8 @@ import { withGalileo } from "galileo";
 withGalileo({ project: "my-project", logStream: "new-log-stream" }, async () => {
   // Your code here
 });
-```
+````
+
 </CodeGroup>
 #### Using Environment Variables
 
@@ -244,14 +247,17 @@ from galileo import GalileoLogger
 from galileo.openai import openai
 
 # Initialize with a specific log stream
+
 logger = GalileoLogger(project="my-project", log_stream="production-app")
 
 # Any logs created will go to the specified log stream
+
 response = openai.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role": "user", "content": "Tell me about AI"}]
+model="gpt-4o",
+messages=[{"role": "user", "content": "Tell me about AI"}]
 )
-```
+
+````
 
 ```typescript create_logstream.ts
 import { OpenAI } from "openai";
@@ -268,7 +274,8 @@ withGalileo({ project: "my-project", logStream: "production-app" }, async () => 
   });
   return response.choices[0].message.content;
 });
-```
+````
+
 </CodeGroup>
 ### Multi-Environment LogStream Management
 
@@ -300,14 +307,15 @@ You can use tags and metadata to further organize logs within a LogStream:
 from galileo import GalileoLogger, galileo_context
 
 # Initialize the base logger
+
 logger = GalileoLogger(project="my-project", log_stream="production")
 
 # Use context to add tags for a specific feature
-with galileo_context(tags=["recommendation-engine", "v2.3"]):
-    # All logs in this context will have the specified tags
-    # making them easier to filter within the log stream
-    result = recommendation_engine.get_recommendations(user_id)
-```
+
+with galileo_context(tags=["recommendation-engine", "v2.3"]): # All logs in this context will have the specified tags # making them easier to filter within the log stream
+result = recommendation_engine.get_recommendations(user_id)
+
+````
 
 ```typescript custom_tagging.ts
 import { withGalileo } from "galileo";
@@ -318,7 +326,8 @@ withGalileo({ project: "my-project", logStream: "production" }, async () => {
     // making them easier to filter within the log stream
     result = recommendation_engine.get_recommendations(user_id)
 });
-```
+````
+
 </CodeGroup>
 
 After understanding Log Streams, you can explore these related Galileo features:
@@ -344,5 +353,3 @@ After understanding Log Streams, you can explore these related Galileo features:
 - [Spans](/concepts/spans) - Understand the different types of spans in Galileo
 - [Metrics](/concepts/metrics) - Discover how to measure key aspects of your AI application
 - [Experiments](/concepts/experiments) - Learn how to compare different approaches
-
-
