@@ -1,21 +1,20 @@
-
 ```typescript TypeScript
 import { OpenAI } from "openai";
 import { init, flush, wrapOpenAI } from "galileo";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
 // Initialize Galileo
 init({
   projectName: "my-project",
-  logStreamName: "development"
+  logStreamName: "development",
 });
 
 const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 const prompt = "Explain the following topic succinctly: Newton's First Law";
 await openai.chat.completions.create({
- model: "gpt-4o",
- messages: [{ content: prompt, role: "user" }],
+  model: "gpt-4o",
+  messages: [{ content: prompt, role: "user" }],
 });
 
 // Flush logs before exiting

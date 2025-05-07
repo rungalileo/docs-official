@@ -5,10 +5,12 @@ from galileo.openai import openai # The Galileo OpenAI client wrapper
 from dotenv import load_dotenv
 load_dotenv()
 
-# Initialize the OpenAI client using the Galileo wrapper and your OpenAI API key
+# Initialize the OpenAI client using the Galileo wrapper and your
+# OpenAI API key
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-# The Galileo context manager will automatically create a trace and flush the logs when exiting
+# The Galileo context manager will automatically create a trace and flush
+# the logs when exiting
 with galileo_context():
     prompt = f"Explain the following topic succinctly: Newton's First Law"
     response = client.chat.completions.create(

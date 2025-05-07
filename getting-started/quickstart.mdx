@@ -1,65 +1,36 @@
 ---
-title: "Getting Started with Galileo"
+title: "Get Started with Galileo"
 icon: "code"
 syncTabs: true
 ---
-import { Screenshot } from '/snippets/Screenshot.mdx';
-import SnippetGettingStarted1Python from '/snippets/code/python/getting-started/getting-started-1.mdx';
-import SnippetGettingStarted1Typescript from '/snippets/code/typescript/getting-started/getting-started-1.mdx';
+
+import { Screenshot } from "/snippets/Screenshot.mdx";
+import SnippetGettingStarted1Python from "/snippets/code/python/getting-started/getting-started-1.mdx";
+import SnippetGettingStarted1Typescript from "/snippets/code/typescript/getting-started/getting-started-1.mdx";
 
 Welcome to Galileo! This quickstart guide will walk you through setting up your first **AI evaluation** in minutes. You'll learn how to identify and fix common issues in AI responses using Galileo's powerful metrics and insights.
 
-### **What You'll Learn**
-* Set up and run an AI evaluation with Galileo in less than 5 minutes
-* Interpret key metrics to identify response quality issues
-* Apply prompt engineering techniques to fix common AI response problems
-* Understand how Galileo helps you build more reliable AI applications
+<Note>
+This example uses OpenAI as the LLM being evaluated, and for generating metrics.
 
+Galileo is model agnostic, and supports leading LLM providers including OpenAI, Azure OpenAI, Anthropic, and LLaMA.
+</Note>
 
+## What You'll Learn
 
+- Set up and run an AI evaluation with Galileo in less than 5 minutes
+- Interpret key metrics to identify response quality issues
+- Apply prompt engineering techniques to fix common AI response problems
+- Understand how Galileo helps you build more reliable AI applications
+
+## Create your AI application
 
 <Steps>
-{/* <Step title="Set Up a Project">
-
-Create a project in the Galileo console.
-
-<Screenshot
-  alt="Project creation"
-  placeholder="Add screenshot of project creation"
-  caption="Project creation"  
-/>
-
-</Step>
-<Step title="Create a Log Stream">
-
-Create a log stream in the Galileo console.
-
-<Screenshot
-  alt="Log stream creation"
-  placeholder="Add screenshot of log stream creation"
-  caption="Log stream creation"
-/>
-
-</Step>
-
-<Step title="Set up metrics">
-
-Set up metrics in the Galileo console.
-
-<Screenshot
-  alt="Metric creation"
-  placeholder="Add screenshot of metric creation"
-  caption="Metric creation"
-/>
-
-![Select metric](/images/metrics-configuration.png)
-
-
-</Step> */}
 
 <Step title="Create Project Folder">
 
 Create a new project folder and navigate to it in your terminal:
+
 <CodeGroup>
 ```bash Python
 mkdir first-AI-evaluation
@@ -70,6 +41,7 @@ cd first-AI-evaluation
 mkdir first-AI-evaluation
 cd first-AI-evaluation
 ```
+
 </CodeGroup>
 </Step>
 
@@ -85,14 +57,14 @@ pip install "galileo[openai]" python-dotenv
 ```bash TypeScript
 npm install galileo dotenv --save
 ```
+
 </CodeGroup>
 </Step>
-
-
 
 <Step title="Create Project Files">
 
 In your project folder, create a new blank application file and `.env` file:
+
 <CodeGroup>
 ```python Python
 first-AI-evaluation/
@@ -105,33 +77,32 @@ first-AI-evaluation/
 │── app.ts
 │── .env
 ```
+
 </CodeGroup>
 </Step>
-
-
 
 <Step title="Set Up Environment Variables">
 
 In the `.env` file, add the following credentials:
+
 ```text
 GALILEO_PROJECT="my-project"
 GALILEO_LOG_STREAM="my-log-stream"
 GALILEO_API_KEY="your-Galileo-api-key-here"
 OPENAI_API_KEY="your-OpenAI-api-key-here"
 ```
+
 </Step>
-
-
 
 <Step title="Fill in Environment Variables">
 
 In the `.env` file, fill in the API key values:
-* `OPENAI_API_KEY` : Obtain your OpenAI API key by logging in to your OpenAI account on [their website](https://platform.openai.com/settings/organization/api-keys).
-* `GALILEO_API_KEY` : Obtain your Galileo API key by logging in to your Galileo account on [Galileo.ai](https://app.galileo.ai/settings/api-keys). Open "Settings & Users" from the drop down menu in the top-right corner. Then, click "API Keys" in the left column, and generate your API key by clicking "+ Create new key".
-![Create API Key](/images/create-api-key.png)
+
+- `OPENAI_API_KEY` : Obtain your OpenAI API key by logging in to your OpenAI account on [their website](https://platform.openai.com/settings/organization/api-keys).
+- `GALILEO_API_KEY` : Obtain your Galileo API key by logging in to your Galileo account on [Galileo.ai](https://app.galileo.ai/settings/api-keys). Open "Settings & Users" from the drop down menu in the top-right corner. Then, click "API Keys" in the left column, and generate your API key by clicking "+ Create new key".
+  ![Create API Key](/images/create-api-key.png)
+
 </Step>
-
-
 
 <Step title="Application Code">
 Copy the code below into your application file:
@@ -145,15 +116,18 @@ Copy the code below into your application file:
 <Step title="Run the Application">
 
 To run this simple application, simply run the following:
+
 <CodeGroup>
-```bash Python
+
+```python Python
 python app.py
 ```
 
-```bash TypeScript
+```typescript TypeScript
 npm install tsx
 npx tsx app.ts
 ```
+
 </CodeGroup>
 </Step>
 
@@ -165,58 +139,70 @@ Check your terminal for the output or head over to the Galileo console to review
 
 <Card>
 <ResponseField name="The Model's Response">
-`Newton's First Law, often referred to as the Law of Inertia, states that an object will remain at rest, or in uniform motion in a straight line, unless acted upon by a net external force. This means that if an object is not influenced by any external forces, it will maintain its current state of motion. Essentially, this law emphasizes the concept of inertia, which is the natural tendency of objects to resist changes in their motion. It forms the foundation for classical mechanics, outlining the behavior of objects when forces are not in play.`
+Newton's First Law, often referred to as the Law of Inertia, states that an object will remain at rest, or in uniform motion in a straight line, unless acted upon by a net external force. This means that if an object is not influenced by any external forces, it will maintain its current state of motion. Essentially, this law emphasizes the concept of inertia, which is the natural tendency of objects to resist changes in their motion. It forms the foundation for classical mechanics, outlining the behavior of objects when forces are not in play.
 </ResponseField>
 </Card>
 </Step>
 
-
 </Steps>
 <Note>Your application is now connected to Galileo 🎉! You can continue to explore on your own or read more about improving the prompt.</Note>
 
-### **Fixing prompt issues**
+# Fix prompt issues
 
 If you examine the results we got for our first run, you'll see that the model's response is not exactly what we asked for. We're using **<Tooltip tip="Measures whether a model followed or adhered to the system or prompt instructions when generating a response. Instruction Adherence is a good way to uncover hallucinations where the model is ignoring instructions.">instruction adherence</Tooltip>** to check how well our model follows directions.
 
-#### **What Happened?**
-* We asked for a **succinct** explanation.
-* The model gave a **detailed** answer instead. 😢
-* Our **instruction adherence metric was 0.6667%**, meaning we need to tweak our prompt. 
+### What Happened?
+
+- We asked for a **succinct** explanation.
+- The model gave a **detailed** answer instead. 😢
+- Our **instruction adherence metric was 0.6667%**, meaning we need to tweak our prompt.
 
 To understand **why** our instruction adherence metric was so low we can look at the **metric explanation**. You can find this explanation when hovering over the LLM span in your trace.
 
 ![Metric Explanation](/images/g2/chatbot-low-instruction-adherence-metric-explanation.png)
 
 <Card>
-<ResponseField name="Metric Explanation">
-`The instruction provided was to 'Explain the following topic succinctly: Newton's first law'.   
-The response begins by defining Newton's First Law and provides a clear explanation of the concept of inertia. However, the response is lengthy and provides more detail than the word 'succinctly' implies. While it does effectively cover the essence of the topic, it could be more concise to align better with the instruction.  Thus, while informative, the response does not fully adhere to the request for a succinct explanation.`
-</ResponseField>
+  <ResponseField name="Metric Explanation">
+    The instruction provided was to 'Explain the following topic succinctly:
+    Newton's first law'. The response begins by defining Newton's First Law and
+    provides a clear explanation of the concept of inertia. However, the
+    response is lengthy and provides more detail than the word 'succinctly'
+    implies. While it does effectively cover the essence of the topic, it could
+    be more concise to align better with the instruction. Thus, while
+    informative, the response does not fully adhere to the request for a
+    succinct explanation.
+  </ResponseField>
 </Card>
 
-This explanation correctly points out that the answer we got wasn't exactly succinct. So, let's modify our prompt to fix this. We'll make sure to explain *what succinctness means for us*.
+This explanation correctly points out that the answer we got wasn't exactly succinct. So, let's modify our prompt to fix this. We'll make sure to explain _what succinctness means for us_.
 
 To do this, replace the prompt in your application file with a new prompt:
+
 <CodeGroup>
 ```python Python
 # app.py
 
 prompt = """
-	1.	Explain Newton's First Law in one sentence of no more than fifteen (15) words.
-	2.	Do not add any additional sentences, examples, parentheses, bullet points, or further clarifications.
-	3.	Your answer must be exactly one sentence and must not exceed 15 words.
-"""
+  1. Explain Newton's First Law in one sentence of no more than fifteen (15)
+     words.
+  2. Do not add any additional sentences, examples, parentheses, bullet
+     points, or further clarifications.
+  3. Your answer must be exactly one sentence and must not exceed 15 words.
+  """
 ```
 
 ```typescript TypeScript
 // app.ts
 
 const prompt = `
-	1.	Explain Newton's First Law in one sentence of no more than fifteen (15) words.
-	2.	Do not add any additional sentences, examples, parentheses, bullet points, or further clarifications.
-	3.	Your answer must be exactly one sentence and must not exceed 15 words.
+1.	Explain Newton's First Law in one sentence of no more than fifteen (15)
+    words.
+2.	Do not add any additional sentences, examples, parentheses, bullet points,
+    or further clarifications.
+3.	Your answer must be exactly one sentence and must not exceed 15 words.
 `;
 ```
+
 </CodeGroup>
 
 Running this again, our results will look much more concise:
@@ -225,13 +211,12 @@ Now, our **instruction adherence metric jumps to 1**! 🎉
 
 ![Trace improvement](/images/g2/chatbot-trace-improvement.png)
 
-## **What's Next**
+## What's Next
 
 Now that you've completed your first evaluation, explore these resources to build better AI applications:
 
-
-* **SDKs**: Integrate Galileo with [Python](/sdk-api/python/reference) or [TypeScript](/sdk-api/typescript/reference)
-* **Application Guides**: Optimize [Conversational AI](/how-to-guides/conversational-ai/instruction-adherence), [RAG Systems](/how-to-guides/rag/preventing-out-of-context-information), or [AI Agents](/how-to-guides/agentic-ai/optimizing-multi-step-task-execution)
-* **Advanced Features**: Run [Experiments](/cookbooks/features/experimentation/creating-experiments), create [Custom Metrics](/cookbooks/features/insights/custom-metric-creation), and detect [Failure Modes](/cookbooks/features/insights/failure-mode-detection)
+- **SDKs**: Integrate Galileo with [Python](/sdk-api/python/reference) or [TypeScript](/sdk-api/typescript/reference)
+- **Application Guides**: Optimize [Conversational AI](/how-to-guides/conversational-ai/instruction-adherence), [RAG Systems](/how-to-guides/rag/preventing-out-of-context-information), or [AI Agents](/how-to-guides/agentic-ai/optimizing-multi-step-task-execution)
+- **Advanced Features**: Run [Experiments](/cookbooks/features/experimentation/creating-experiments), create [Custom Metrics](/cookbooks/features/insights/custom-metric-creation), and detect [Failure Modes](/cookbooks/features/insights/failure-mode-detection)
 
 Continue your journey with our comprehensive [How-to Guides](/how-to-guides/overview).
