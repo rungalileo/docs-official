@@ -1,0 +1,19 @@
+---
+title: Rollback Dataset Content
+openapi: put /datasets/{dataset_id}/content
+---
+
+This endpoint allows you to revert a dataset's content to a previous version. This is useful for undoing changes or recovering from errors in dataset modifications.
+
+## Response
+
+A successful rollback returns an empty JSON object.
+
+## Notes
+
+- This operation creates a new version of the dataset with the content from the specified previous version
+- The rollback itself is recorded as a new version in the dataset's history
+- You must have update permission for the dataset to perform this operation
+- To find available version numbers, use the Query Dataset Versions endpoint
+- If the specified version doesn't exist or the user doesn't have permission to update the dataset, a 404 error will be returned
+- This operation cannot be undone, but you can rollback to a more recent version if needed

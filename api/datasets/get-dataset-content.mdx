@@ -1,0 +1,24 @@
+---
+title: Get Dataset Content
+openapi: get /datasets/{dataset_id}/content
+---
+
+This endpoint retrieves the actual content (rows and values) of a dataset. The results are paginated to handle large datasets efficiently.
+
+## Response
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `starting_token` | integer | The starting token used for this request |
+| `limit` | integer | The limit used for this request |
+| `paginated` | boolean | Whether the results are paginated |
+| `next_starting_token` | integer or null | Token to use for the next page of results, or null if no more results |
+| `column_names` | array of strings | Names of columns in the dataset |
+| `rows` | array of objects | List of dataset row objects |
+
+## Notes
+
+- Use pagination parameters to efficiently retrieve large datasets
+- The column_names array provides the names of columns in the same order as the values in each row
+- For more complex filtering or querying of dataset content, use the Query Dataset Content endpoint
+- If the dataset doesn't exist or the user doesn't have permission to access it, a 404 error will be returned

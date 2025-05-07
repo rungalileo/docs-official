@@ -1,0 +1,126 @@
+---
+title: List Scorers with Filters
+openapi: post /scorers/list
+---
+
+This endpoint retrieves a list of scorers in your Galileo account with powerful filtering capabilities. It allows you to search, sort, and filter scorers based on various criteria, making it easy to find specific scorers or groups of scorers that match your requirements.
+
+### Example Request
+
+```json
+{
+  "filters": [
+    {
+      "field": "name",
+      "operator": "contains",
+      "value": "customer"
+    },
+    {
+      "field": "created_at",
+      "operator": "gte",
+      "value": "2023-01-01T00:00:00Z"
+    }
+  ],
+  "sort_by": {
+    "field": "created_at",
+    "direction": "desc"
+  },
+  "page": 1,
+  "page_size": 20,
+  "include_versions": true,
+  "tags": ["production", "customer-support"],
+  "scorer_types": ["llm", "preset"]
+}
+```
+
+## Response
+
+The response contains a list of scorers that match the specified filters.
+
+### Example Response
+
+```json
+{
+  "scorers": [
+    {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "name": "Customer Support Quality Evaluator",
+      "description": "Evaluates customer support responses for accuracy, completeness, and tone",
+      "scorer_type": "llm",
+      "defaults": {
+        "model_name": "gpt-4",
+        "num_judges": 3
+      },
+      "latest_version": {
+        "id": "4fa85f64-5717-4562-b3fc-2c963f66afa7",
+        "version": "1.2.0",
+        "created_at": "2023-04-15T09:30:00Z"
+      },
+      "versions": [
+        {
+          "id": "4fa85f64-5717-4562-b3fc-2c963f66afa7",
+          "version": "1.2.0",
+          "created_at": "2023-04-15T09:30:00Z",
+          "is_latest": true
+        },
+        {
+          "id": "5fa85f64-5717-4562-b3fc-2c963f66afa8",
+          "version": "1.1.0",
+          "created_at": "2023-03-10T14:20:00Z",
+          "is_latest": false
+        }
+      ],
+      "tags": ["customer-support", "quality", "production"],
+      "created_at": "2023-02-05T11:45:00Z",
+      "updated_at": "2023-04-15T09:30:00Z"
+    },
+    {
+      "id": "7fa85f64-5717-4562-b3fc-2c963f66afa0",
+      "name": "Customer Satisfaction Evaluator",
+      "description": "Measures customer satisfaction based on response content",
+      "scorer_type": "preset",
+      "defaults": {
+        "preset_type": "satisfaction"
+      },
+      "latest_version": {
+        "id": "8fa85f64-5717-4562-b3fc-2c963f66afa1",
+        "version": "1.0.0",
+        "created_at": "2023-03-20T13:15:00Z"
+      },
+      "versions": [
+        {
+          "id": "8fa85f64-5717-4562-b3fc-2c963f66afa1",
+          "version": "1.0.0",
+          "created_at": "2023-03-20T13:15:00Z",
+          "is_latest": true
+        }
+      ],
+      "tags": ["customer-support", "satisfaction", "production"],
+      "created_at": "2023-03-20T13:15:00Z",
+      "updated_at": "2023-03-20T13:15:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "page_size": 20,
+    "total_items": 2,
+    "total_pages": 1
+  }
+}
+```
+
+## Error Responses
+
+| Status Code | Description |
+| ----------- | ----------- |
+| `403` | Insufficient permissions to list scorers |
+| `400` | Invalid request body or parameters |
+
+## Notes
+
+- Use the `filters` parameter to narrow down the list of scorers based on specific criteria
+- The `tags` parameter provides a convenient way to filter scorers by their associated tags
+- The `scorer_types` parameter allows you to focus on specific types of scorers
+- Setting `include_versions` to true provides version history for each scorer, which can be useful for tracking changes
+- For large numbers of scorers, use pagination to manage response size and loading times
+- The response structure is similar to the Get Scorer endpoint, but with multiple scorers and pagination information

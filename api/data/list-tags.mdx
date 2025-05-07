@@ -1,0 +1,76 @@
+---
+title: List Scorer Tags
+openapi: get /scorers/tags
+---
+
+This endpoint retrieves a list of all tags used across scorers in your Galileo account. Tags are labels that help categorize and organize scorers, making them easier to find and manage. This endpoint is particularly useful for discovering available tags for filtering scorers or maintaining consistent tagging conventions.
+
+## Response
+
+The response contains a list of unique tags used across all scorers.
+
+### Example Response
+
+```json
+{
+  "tags": [
+    {
+      "name": "production",
+      "count": 15
+    },
+    {
+      "name": "customer-support",
+      "count": 8
+    },
+    {
+      "name": "quality",
+      "count": 12
+    },
+    {
+      "name": "satisfaction",
+      "count": 5
+    },
+    {
+      "name": "factual-accuracy",
+      "count": 7
+    },
+    {
+      "name": "tone",
+      "count": 6
+    },
+    {
+      "name": "completeness",
+      "count": 9
+    },
+    {
+      "name": "development",
+      "count": 10
+    },
+    {
+      "name": "testing",
+      "count": 11
+    },
+    {
+      "name": "deprecated",
+      "count": 3
+    }
+  ],
+  "total_count": 10
+}
+```
+
+## Error Responses
+
+| Status Code | Description |
+| ----------- | ----------- |
+| `403` | Insufficient permissions to list tags |
+| `400` | Invalid query parameters |
+
+## Notes
+
+- The `count` field indicates how many scorers are using each tag
+- Use the `prefix` parameter to search for tags that match a specific naming convention
+- Tags are case-sensitive, so "Production" and "production" would be considered different tags
+- This endpoint is useful for discovering available tags when filtering scorers with the List Scorers with Filters endpoint
+- Tags can help establish a consistent taxonomy for organizing and categorizing scorers
+- Consider using a standardized tagging convention to make scorers more discoverable and manageable

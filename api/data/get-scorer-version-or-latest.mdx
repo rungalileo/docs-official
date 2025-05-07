@@ -1,0 +1,62 @@
+---
+title: Get Scorer Version or Latest
+openapi: get /scorers/{scorer_id}/version
+---
+
+This endpoint retrieves detailed information about a specific version of a scorer or its latest version if no version is specified. It provides comprehensive details about the scorer version's configuration, parameters, and metadata, which is essential for understanding how the scorer evaluates responses.
+
+## Response
+
+The response contains detailed information about the requested scorer version.
+
+### Example Response
+
+```json
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "scorer_id": "4fa85f64-5717-4562-b3fc-2c963f66afa7",
+  "version": "1.2.0",
+  "scorer_type": "llm",
+  "configuration": {
+    "model_name": "gpt-4",
+    "num_judges": 3,
+    "evaluation_criteria": "Evaluate the response based on accuracy, completeness, and clarity. Score from 0-10.",
+    "rubric": {
+      "accuracy": "Does the response contain factually correct information?",
+      "completeness": "Does the response address all aspects of the query?",
+      "clarity": "Is the response clear, concise, and well-structured?"
+    },
+    "aggregation_method": "average"
+  },
+  "created_at": "2023-04-15T09:30:00Z",
+  "created_by": "user_12345",
+  "is_latest": true,
+  "metrics": [
+    "accuracy_score",
+    "completeness_score",
+    "clarity_score",
+    "overall_score"
+  ],
+  "tags": [
+    "production",
+    "customer-support"
+  ]
+}
+```
+
+## Error Responses
+
+| Status Code | Description |
+| ----------- | ----------- |
+| `404` | Scorer or version not found |
+| `403` | Insufficient permissions to access the scorer |
+| `400` | Invalid query parameters |
+
+## Notes
+
+- The response structure varies based on the scorer type (llm, code, or preset)
+- For LLM scorers, the configuration includes details about the model, number of judges, and evaluation criteria
+- For code scorers, the configuration includes references to the code implementation (use the Get Scorer Version Code endpoint to retrieve the actual code)
+- For preset scorers, the configuration includes the preset type and any customization parameters
+- The `is_latest` field indicates whether the returned version is the most recent version of the scorer
+- Use the `metrics` field to understand what evaluation metrics this scorer version produces

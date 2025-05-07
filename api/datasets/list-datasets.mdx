@@ -1,0 +1,35 @@
+---
+title: List Datasets
+openapi: get /datasets
+---
+
+This endpoint retrieves a paginated list of all datasets that the authenticated user has access to. The results can be filtered and paginated for efficient retrieval.
+
+## Response
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `starting_token` | integer | The starting token used for this request |
+| `limit` | integer | The limit used for this request |
+| `paginated` | boolean | Whether the results are paginated |
+| `next_starting_token` | integer or null | Token to use for the next page of results, or null if no more results |
+| `datasets` | array of objects | List of dataset objects |
+
+### Dataset Object
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `id` | string (UUID) | Unique identifier for the dataset |
+| `name` | string | Name of the dataset |
+| `created_at` | string (date-time) | Creation timestamp |
+| `updated_at` | string (date-time) | Last update timestamp |
+| `project_count` | integer | Number of projects using this dataset |
+| `num_rows` | integer | Number of rows in the dataset |
+| `column_names` | array of strings | Names of columns in the dataset |
+| `permissions` | array of objects | Permissions associated with the dataset |
+
+## Notes
+
+- Use pagination parameters to efficiently retrieve large lists of datasets
+- The response includes permissions that indicate what actions the current user can perform on each dataset
+- For more detailed information about a specific dataset, use the Get Dataset endpoint
