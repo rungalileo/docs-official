@@ -11,7 +11,7 @@ init({
 const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 // This will automatically create an llm span since we're using the `wrapOpenAI` wrapper
-const callOpenAI = async (input) => {
+const callOpenAI = async (input: any) => {
   const result = await openai.chat.completions.create({
     model: "gpt-4o",
     messages: [{ content: input, role: "user" }],

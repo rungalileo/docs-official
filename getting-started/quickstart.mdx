@@ -4,13 +4,12 @@ icon: "code"
 syncTabs: true
 ---
 
-import { Screenshot } from "/snippets/Screenshot.mdx";
 import SnippetGettingStarted1Python from "/snippets/code/python/getting-started/getting-started-1.mdx";
 import SnippetGettingStarted1Typescript from "/snippets/code/typescript/getting-started/getting-started-1.mdx";
 
 Welcome to Galileo! This quickstart guide will walk you through setting up **your first AI evaluation in minutes**. You'll learn how to identify and fix common issues in AI responses using Galileo's powerful metrics and insights.
 
-### **What You'll Learn**
+## What You'll Learn
 
 - Set up and run an AI evaluation with Galileo in less than 5 minutes
 - Use the Galileo SDK together with the Galileo Console UI
@@ -18,7 +17,21 @@ Welcome to Galileo! This quickstart guide will walk you through setting up **you
 - Apply prompt engineering techniques to fix common AI response problems
 - Understand how Galileo helps you build more reliable AI applications
 
-### Get Started with Galileo
+## Prerequisites
+
+- A free [Galileo account](https://app.galileo.ai)
+- An [OpenAI API key](https://platform.openai.com/settings/organization/api-keys)
+- Either:
+  - Python installed (3.9 or higher), or
+  - Node/npm installed
+
+<Note>
+This example uses OpenAI as the LLM being evaluated, and for generating metrics. Running the entire quickstart, including generating a metric should use approximately 1,500 tokens.
+
+Galileo is model-agnostic, and supports leading LLM providers including OpenAI, Azure OpenAI, Anthropic, and LLaMA.
+</Note>
+
+## Get Started with Galileo
 
 Throughout this guide, you will use the **Galileo SDK** to create your own application, and the **Galileo Console** to access logs and settings.
 
@@ -88,10 +101,10 @@ first-AI-evaluation/
 In your `.env` file, add the following credentials:
 
 ```text
-GALILEO_API_KEY="your-Galileo-api-key-here"
-OPENAI_API_KEY="your-OpenAI-api-key-here"
-GALILEO_PROJECT="My first project"
-GALILEO_LOG_STREAM="physics-questions"
+GALILEO_API_KEY=your-Galileo-api-key-here
+OPENAI_API_KEY=your-OpenAI-api-key-here
+GALILEO_PROJECT=My first project
+GALILEO_LOG_STREAM=physics-questions
 ```
 
 </Step>
@@ -122,7 +135,17 @@ Copy the code below into your application file:
   <SnippetGettingStarted1Typescript />
 </CodeGroup>
 
+If you are using TypeScript, you will also need to configure your code to use ESM. Add the following to your `package.json` file:
+
+```json
+{
+  "type": "module",
+  ... // Existing contents
+}
+```
+
 </Step>
+
 
 <Step title="Run the Application">
 
@@ -150,7 +173,7 @@ You can see the model's output in your terminal. Next, you'll use the [Galileo C
 
 <Card>
 <ResponseField name="The Model's Response">
-`Newton's First Law, often referred to as the Law of Inertia, states that an object will remain at rest, or in uniform motion in a straight line, unless acted upon by a net external force. This means that if an object is not influenced by any external forces, it will maintain its current state of motion. Essentially, this law emphasizes the concept of inertia, which is the natural tendency of objects to resist changes in their motion. It forms the foundation for classical mechanics, outlining the behavior of objects when forces are not in play.`
+Newton's First Law, often referred to as the Law of Inertia, states that an object will remain at rest, or in uniform motion in a straight line, unless acted upon by a net external force. This means that if an object is not influenced by any external forces, it will maintain its current state of motion. Essentially, this law emphasizes the concept of inertia, which is the natural tendency of objects to resist changes in their motion. It forms the foundation for classical mechanics, outlining the behavior of objects when forces are not in play.
 </ResponseField>
 
 </Card>
@@ -181,12 +204,18 @@ Click "Log Streams" in the top menu to open your project's **Log Streams**.
 
 The first row in your Log Stream is the run Trace from running your application. Click it to view more details.
 
-In the Trace, you can see the prompt and the model's response. However, there is **no data about the model's performance**. To more accurately measure our model's performance, you can add the **<Tooltip tip="Measures whether a model followed or adhered to the system or prompt instructions when generating a response. Instruction adherence is a good way to uncover hallucinations where the model is ignoring instructions.">instruction adherence</Tooltip>** Metric to your logged Traces in the following steps.
+In the Trace, you can see the prompt and the model's response. However, there is **no data about the model's performance**. In the next section we will add a metric to measure how well the model followed our instructions.
 
 ![View Results in Console](/images/g2/chatbot-trace.png)
 
 </Step>
+</Steps>
 
+## Measure instruction adherence
+
+To more accurately measure our model's performance, you can add the **<Tooltip tip="Measures whether a model followed or adhered to the system or prompt instructions when generating a response. Instruction adherence is a good way to uncover hallucinations where the model is ignoring instructions.">instruction adherence</Tooltip>** Metric to your logged Traces. This metric measures whether a model followed or adhered to the system or prompt instructions when generating a response. You can read more about this metric in our [instruction adherence metric documentation](/concepts/metrics/response-quality/instruction-adherence).
+
+<Steps>
 <Step title="Configure Metrics">
 
 Click "Configure Metrics" on the right to open the menu of built-in **Metrics**.
@@ -199,11 +228,13 @@ Click "Configure Metrics" on the right to open the menu of built-in **Metrics**.
 
 <Step title="Add OpenAI Key to Console">
 
-Using the instruction adherence Metric **requires an API key**.
+Metrics are evaluated using an LLM evaluator, so you will need to configure an LLM to evaluate the instruction adherence.
 
 Click the "OpenAI" link, add your OpenAI API key, and save.
 
 ![Add OpenAI Key to Console](/images/console-ui/metrics-select-api-missing.png)
+
+You can also connect to any supported LLM using the [integrations page](https://app.galileo.ai/settings/integrations) in the Galileo console.
 
 </Step>
 
@@ -219,7 +250,7 @@ The [instruction adherence](/concepts/metrics/response-quality/instruction-adher
 
 <Step title="Re-run the Application">
 
-With the instruction adherence Metric set to be logged, run your application again with the same command as before.
+With the Instruction Adherence Metric set to be logged, run your application again with the same command as before.
 
 <CodeGroup>
 ```bash Python
@@ -247,11 +278,11 @@ You can see the instruction adherence measurement in the top-right corner of the
 </Steps>
 <Note>Your application is now connected to Galileo with Metrics 🎉! You can continue to explore on your own or read more about improving the prompt.</Note>
 
-### **Fixing Prompt Issues**
+## Fix Prompt Issues
 
 If you examine the results we got for our first run, you'll see that the model's response is not exactly what we asked for.
 
-#### **What Happened?**
+### What Happened?
 
 - We asked for a **succinct** explanation.
 - The model gave a **detailed** answer instead. 😢
@@ -262,11 +293,16 @@ To understand **why** our instruction adherence metric was so low, we can look a
 ![Metric Explanation](/images/console-ui/instruction-adherence-explanation.png)
 
 <Card>
-<ResponseField name="Metric Explanation">
-`The instruction provided was to 'Explain the following topic succinctly: Newton's first law'.
-The response begins by defining Newton's First Law and provides a clear explanation of the concept of inertia. However, the response is lengthy and provides more detail than the word 'succinctly' implies. While it does effectively cover the essence of the topic, it could be more concise to align better with the instruction.  Thus, while informative, the response does not fully adhere to the request for a succinct explanation.`
-</ResponseField>
-
+  <ResponseField name="Metric Explanation">
+    The instruction provided was to 'Explain the following topic succinctly:
+    Newton's first law'. The response begins by defining Newton's First Law and
+    provides a clear explanation of the concept of inertia. However, the
+    response is lengthy and provides more detail than the word 'succinctly'
+    implies. While it does effectively cover the essence of the topic, it could
+    be more concise to align better with the instruction. Thus, while
+    informative, the response does not fully adhere to the request for a
+    succinct explanation.
+  </ResponseField>
 </Card>
 
 This explanation correctly points out that the answer we got wasn't exactly succinct. So, let's modify our prompt to fix this. We'll make sure to explain _what succinctness means for us_.
@@ -277,20 +313,25 @@ To do this, replace the prompt in your application file with a new prompt:
 ```python Python
 # app.py
 
-prompt = """ 1. Explain Newton's First Law in one sentence of no more than fifteen (15) words. 2. Do not add any additional sentences, examples, parentheses, bullet points, or further clarifications. 3. Your answer must be exactly one sentence and must not exceed 15 words.
+prompt = """
+1. Explain Newton's First Law in one sentence of no more than fifteen (15) words.
+2. Do not add any additional sentences, examples, parentheses, bullet points, or
+    further clarifications.
+3. Your answer must be exactly one sentence and must not exceed 15 words.
 """
 
-````
+```
 
 ```typescript TypeScript
 // app.ts
 
 const prompt = `
-	1.	Explain Newton's First Law in one sentence of no more than fifteen (15) words.
-	2.	Do not add any additional sentences, examples, parentheses, bullet points, or further clarifications.
-	3.	Your answer must be exactly one sentence and must not exceed 15 words.
+  1. Explain Newton's First Law in one sentence of no more than fifteen (15) words.
+  2. Do not add any additional sentences, examples, parentheses, bullet points,
+     or further clarifications.
+  3. Your answer must be exactly one sentence and must not exceed 15 words.
 `;
-````
+```
 
 </CodeGroup>
 
@@ -300,7 +341,7 @@ Now, our **instruction adherence metric jumps to 1**! 🎉
 
 ![Trace improvement](/images/g2/chatbot-trace-improvement.png)
 
-## **What's Next**
+## What's Next
 
 Now that you've completed your first evaluation, explore these resources to build better AI applications:
 

@@ -4,7 +4,6 @@ icon: "code"
 syncTabs: true
 ---
 
-import { Screenshot } from "/snippets/Screenshot.mdx";
 import SnippetExperimentsPromptPython from "/snippets/code/python/experiments/prompt.mdx";
 import SnippetExperimentsPromptTypescript from "/snippets/code/typescript/experiments/prompt.mdx";
 import SnippetExperimentsExistingDatasetPython from "/snippets/code/python/experiments/existing-dataset.mdx";
@@ -14,7 +13,11 @@ import SnippetExperimentsCustomDatasetTypescript from "/snippets/code/typescript
 import SnippetExperimentsCustomMetricsPython from "/snippets/code/python/experiments/custom-metrics.mdx";
 import SnippetExperimentsCustomMetricsTypescript from "/snippets/code/typescript/experiments/custom-metrics.mdx";
 
-As you progress from initial testing to systematic evaluation, you'll want to run experiments to validate your application's performance and behavior. Here are several ways to structure your experiments, starting from the simplest approaches and moving to more sophisticated implementations:
+As you progress from initial testing to systematic evaluation, you'll want to run experiments to validate your application's performance and behavior. Here are several ways to structure your experiments, starting from the simplest approaches and moving to more sophisticated implementations.
+
+## Configure an LLM Integration
+
+To calculate metrics, you will need to configure an integration with an LLM. Visit the relevant API platform to obtain an API key, then add it using the [integrations page](https://app.galileo.ai/settings/integrations) in the Galileo console.
 
 ## Working with Prompts
 
@@ -28,6 +31,12 @@ The simplest way to get started with experimentation is by evaluating prompts di
 ## Running Experiments with Custom Functions
 
 Once you're comfortable with basic prompt testing, you might want to evaluate more complex parts of your app using your datasets. This approach is particularly useful when you have a generation function in your app that takes a set of inputs, which you can model with a dataset:
+
+<Note>
+This example uses OpenAI as the LLM being evaluated, and for generating metrics.
+
+Galileo is model-agnostic, and supports leading LLM providers including OpenAI, Azure OpenAI, Anthropic, and LLaMA.
+</Note>
 
 <CodeGroup>
   <SnippetExperimentsExistingDatasetPython />
