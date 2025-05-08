@@ -1,23 +1,21 @@
 ```typescript TypeScript
-import { log, init, flush } from 'galileo';
+import { log, init, flush } from "galileo";
 
 // Optional initialization
 await init({
-  projectName: 'my-project',
-  logStreamName: 'my-log-stream'
+  projectName: "my-project",
+  logStreamName: "my-log-stream",
 });
 
-const processQuery = log(
-  { name: 'workflow span', spanType: 'workflow' },
-  (query) => {
-    // Your processing logic here
-    return `Processed: ${query}`;
-  }
-);
+const processQuery = log({ name: "workflow span", spanType: "workflow" }, (query) => {
+  // Your processing logic here
+  return `Processed: ${query}`;
+});
 
 // This will create a trace for the function call
 const result = processQuery("What is the capital of France?");
 console.log(result);
 
 // Always flush logs before exiting
-await flush(); 
+await flush();
+```

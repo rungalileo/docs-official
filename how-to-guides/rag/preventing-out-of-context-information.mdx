@@ -8,7 +8,7 @@ description: Learn how to prevent out of context information from being generate
 Picture this scenario: You've built a RAG system to answer questions about famous landmarks using your carefully curated knowledge base. A user asks, "When was the Eiffel Tower completed?" Your system retrieves a relevant document:
 
 ```
-The Eiffel Tower is an iron lattice tower located in Paris, France. 
+The Eiffel Tower is an iron lattice tower located in Paris, France.
 It was designed by Gustave Eiffel.
 ```
 
@@ -25,16 +25,19 @@ This is the out-of-context problem in RAG systems – when a language model gene
 ## Understanding the Challenge
 
 The root of this problem lies in how modern language models work. These models are trained on vast amounts of data and retain this knowledge. When asked a question, they naturally try to be helpful by combining:
+
 - Information from the provided context
 - Their pre-existing knowledge
 - Patterns they've learned from similar questions
 
 In our Eiffel Tower example, the model:
+
 - Used the context correctly (location and designer)
 - Added the completion date (1889) from its training data
 - Included visitor statistics it "knew" from pre-training
 
 While this additional information might be factually correct, it creates several problems:
+
 - Users can't verify the source of this information
 - The response mixes verified knowledge base facts with external information
 - There's no distinction between what came from our documents and what didn't
@@ -52,10 +55,10 @@ First, here's how we typically implement a RAG system with minimal constraints:
 def rag_with_hallucination(query: str):
     documents = retrieve_documents(query)
     formatted_docs = format_documents(documents)
-    
+
     weak_prompt = f"""
     Answer the following question based on the context provided.
-    
+
     Question: {query}
     Context: {formatted_docs}
     """
@@ -69,6 +72,7 @@ def rag_with_hallucination(query: str):
 ```
 
 This implementation has several weaknesses:
+
 - The system message is too general
 - The prompt doesn't explicitly restrict external knowledge
 - There's no guidance on handling missing information
@@ -80,14 +84,14 @@ Here's how we can strengthen our implementation:
 def rag_with_constraint(query: str):
     documents = retrieve_documents(query)
     formatted_docs = format_documents(documents)
-    
+
     strong_prompt = f"""
-    Answer the following question based STRICTLY on the context provided. 
-    If the information needed to answer the question is not explicitly contained in the context, 
+    Answer the following question based STRICTLY on the context provided.
+    If the information needed to answer the question is not explicitly contained in the context,
     respond with: "I don't have enough information in the provided context to answer this question."
-    
+
     DO NOT use any knowledge outside of the provided context.
-    
+
     Question: {query}
     Context: {formatted_docs}
     """
@@ -103,12 +107,13 @@ def rag_with_constraint(query: str):
 Now, when we ask about the Eiffel Tower's completion date, we get a different response:
 
 ```
-I don't have enough information in the provided context to answer this question. 
-The context only mentions that the Eiffel Tower is an iron lattice tower in Paris 
+I don't have enough information in the provided context to answer this question.
+The context only mentions that the Eiffel Tower is an iron lattice tower in Paris
 and was designed by Gustave Eiffel.
 ```
 
 This response might seem less helpful at first, but it's actually much better because:
+
 - It's honest about what information is available
 - It clearly indicates what the source documents tell us
 - It maintains the integrity of our knowledge base
@@ -147,9 +152,11 @@ client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 ```
 
 This setup includes:
-* Loading environment variables for API keys
-* Setting up Galileo logging for tracking operations
-* Creating an OpenAI client for model interactions
+
+- Loading environment variables for API keys
+- Setting up Galileo logging for tracking operations
+- Creating an OpenAI client for model interactions
+
 </Step>
 
 <Step title="Understanding the Document Retriever">
@@ -220,7 +227,7 @@ def retrieve_documents(query: str):
             }
         ]
     }
-    
+
     # Default case for queries not in our predefined list
     default_docs = [
         {
@@ -233,19 +240,21 @@ def retrieve_documents(query: str):
             }
         }
     ]
-    
+
     # Find the most relevant predefined query
     for key in incomplete_contexts:
         if key in query.lower():
             return incomplete_contexts[key]
-    
+
     return default_docs
 ```
 
 Key points about the retriever:
-* It simulates real-world document retrieval with intentionally incomplete information
-* Uses predefined contexts to demonstrate the out-of-context problem
-* Includes metadata for tracking document sources and relevance
+
+- It simulates real-world document retrieval with intentionally incomplete information
+- Uses predefined contexts to demonstrate the out-of-context problem
+- Includes metadata for tracking document sources and relevance
+
 </Step>
 
 <Step title="Demonstrating the Problem">
@@ -259,7 +268,7 @@ def rag_with_hallucination(query: str):
     a system prompt that doesn't properly constrain the model.
     """
     documents = retrieve_documents(query)
-    
+
     # Format documents for better readability in the prompt
     formatted_docs = ""
     for i, doc in enumerate(documents):
@@ -268,7 +277,7 @@ def rag_with_hallucination(query: str):
     # This prompt doesn't strongly constrain the model
     weak_prompt = f"""
     Answer the following question based on the context provided.
-    
+
     Question: {query}
 
     Context:
@@ -290,9 +299,11 @@ def rag_with_hallucination(query: str):
 ```
 
 Problems with this approach:
-* The weak prompt doesn't explicitly constrain the model
-* The system message is too generic
-* No explicit instruction to avoid using external knowledge
+
+- The weak prompt doesn't explicitly constrain the model
+- The system message is too generic
+- No explicit instruction to avoid using external knowledge
+
 </Step>
 
 <Step title="Implementing the Solution">
@@ -306,7 +317,7 @@ def rag_with_constraint(query: str):
     by using a stronger system prompt and explicit instructions.
     """
     documents = retrieve_documents(query)
-    
+
     # Format documents for better readability in the prompt
     formatted_docs = ""
     for i, doc in enumerate(documents):
@@ -314,12 +325,12 @@ def rag_with_constraint(query: str):
 
     # This prompt strongly constrains the model
     strong_prompt = f"""
-    Answer the following question based STRICTLY on the context provided. 
-    If the information needed to answer the question is not explicitly contained in the context, 
+    Answer the following question based STRICTLY on the context provided.
+    If the information needed to answer the question is not explicitly contained in the context,
     respond with: "I don't have enough information in the provided context to answer this question."
-    
+
     DO NOT use any knowledge outside of the provided context.
-    
+
     Question: {query}
 
     Context:
@@ -341,9 +352,11 @@ def rag_with_constraint(query: str):
 ```
 
 Key improvements:
-* Explicit instruction to use only provided context
-* Clear directive to acknowledge when information is missing
-* Stronger system message that reinforces context adherence
+
+- Explicit instruction to use only provided context
+- Clear directive to acknowledge when information is missing
+- Stronger system message that reinforces context adherence
+
 </Step>
 
 <Step title="Running the Interactive Demo">
@@ -354,18 +367,18 @@ The main function provides an interactive way to test and compare both approache
 def main():
     print("Out-of-Context RAG Demo")
     print("This demo shows how RAG systems can generate out-of-context information and how to prevent it.")
-    
+
     # Check environment setup
     if logging_enabled:
         print("Galileo logging is enabled")
     else:
         print("Galileo logging is disabled")
-    
+
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         print("OpenAI API Key is missing")
         return
-    
+
     # Example queries that demonstrate the problem
     suggested_queries = [
         "When was the Eiffel Tower completed?",
@@ -374,11 +387,11 @@ def main():
         "When was artificial intelligence first developed?",
         "How many qubits are in the most powerful quantum computer?"
     ]
-    
+
     print("\nSuggested queries (these will demonstrate the problem):")
     for i, q in enumerate(suggested_queries):
         print(f"{i+1}. {q}")
-    
+
     # Main interaction loop
     while True:
         try:
@@ -387,35 +400,35 @@ def main():
                 "Enter your question (or type a number 1-5 to use a suggested query):",
                 validate=lambda text: len(text) > 0
             ).ask()
-            
+
             if query.lower() in ['exit', 'quit', 'q']:
                 break
-                
+
             # Check if user entered a number for suggested queries
             if query.isdigit() and 1 <= int(query) <= len(suggested_queries):
                 query = suggested_queries[int(query)-1]
                 print(f"Using query: {query}")
-            
+
             # Generate both types of responses
             hallucinated_result = rag_with_hallucination(query)
             constrained_result = rag_with_constraint(query)
-            
+
             # Display the responses
             print("\nUnconstrained Response (Prone to Out-of-Context Information):")
             print(hallucinated_result)
-            
+
             print("\nConstrained Response (Limited to Context):")
             print(constrained_result)
-            
+
             # Ask if user wants to continue
             continue_session = questionary.confirm(
                 "Do you want to ask another question?",
                 default=True
             ).ask()
-            
+
             if not continue_session:
                 break
-                
+
         except Exception as e:
             print(f"Error: {str(e)}")
 
@@ -429,58 +442,67 @@ if __name__ == "__main__":
 ```
 
 Using this code, you can:
-* Test predefined queries that highlight the problem
-* Compare responses from both approaches
-* See the effectiveness of context constraints
+
+- Test predefined queries that highlight the problem
+- Compare responses from both approaches
+- See the effectiveness of context constraints
+
 </Step>
 
 <Step title="Analyzing the Results">
 When running the demo, you'll notice:
 
-* **Unconstrained Responses**: May include information not present in the context
-* **Constrained Responses**: Strictly adhere to provided information
-* **Completeness vs. Accuracy**: Trade-off between complete answers and factual accuracy
+- **Unconstrained Responses**: May include information not present in the context
+- **Constrained Responses**: Strictly adhere to provided information
+- **Completeness vs. Accuracy**: Trade-off between complete answers and factual accuracy
 
 Here's an example comparison:
 
 Query: "When was the Eiffel Tower completed?"
 
 Unconstrained Response:
+
 ```
 The Eiffel Tower was completed in 1889 for the World's Fair in Paris.
 ```
 
 Constrained Response:
+
 ```
-I don't have enough information in the provided context to answer this question. 
-The context only mentions that the Eiffel Tower is an iron lattice tower in Paris 
+I don't have enough information in the provided context to answer this question.
+The context only mentions that the Eiffel Tower is an iron lattice tower in Paris
 and was designed by Gustave Eiffel.
 ```
 
 The constrained response demonstrates better adherence to the available context, even though it provides less information.
+
 </Step>
 
 <Step title="Best Practices and Recommendations">
 To prevent out-of-context information in your RAG system:
 
 1. **Strong Prompting**:
-   * Be explicit about using only provided context
-   * Include clear instructions for handling missing information
-   * Use system messages that reinforce context adherence
+
+   - Be explicit about using only provided context
+   - Include clear instructions for handling missing information
+   - Use system messages that reinforce context adherence
 
 2. **Context Management**:
-   * Ensure retrieved documents are relevant and complete
-   * Include metadata for tracking document sources
-   * Monitor and log context utilization
+
+   - Ensure retrieved documents are relevant and complete
+   - Include metadata for tracking document sources
+   - Monitor and log context utilization
 
 3. **Response Validation**:
-   * Compare responses against provided context
-   * Track and measure context adherence
-   * Use Galileo metrics to monitor performance
+
+   - Compare responses against provided context
+   - Track and measure context adherence
+   - Use Galileo metrics to monitor performance
 
 4. **User Experience**:
-   * Clearly communicate when information is limited
-   * Provide transparent source attribution
-   * Balance completeness with accuracy
+   - Clearly communicate when information is limited
+   - Provide transparent source attribution
+   - Balance completeness with accuracy
+
 </Step>
 </Steps>

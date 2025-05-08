@@ -3,8 +3,8 @@ title: Action Advancement
 description: Understand how to measure and optimize the effectiveness of your AI agent's actions
 ---
 
-import { Scale } from '/snippets/components/scale.mdx';
-import { DefinitionCard } from '/snippets/components/definition-card.mdx';
+import { Scale } from "/snippets/components/scale.mdx";
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 
 <DefinitionCard>
   <strong>Action Advancement</strong> measures whether an assistant successfully accomplishes or makes progress toward at least one user goal in a conversation.
@@ -17,6 +17,7 @@ An assistant successfully advances a user's goal when it:
 3. Confirms that a requested action has been successfully completed
 
 For an interaction to count as advancing the user's goal, the assistant's response must be:
+
 - Factually accurate
 - Directly addressing the user's request
 - Consistent with any tool outputs used
@@ -26,25 +27,31 @@ For an interaction to count as advancing the user's goal, the assistant's respon
 If the Action Advancement score is less than 100%, it means at least one evaluator determined the assistant failed to make progress on any user goal.
 
 Action Advancement is calculated by:
+
 <Steps>
   <Step title="Model Request">
     Multiple evaluation requests are sent to an LLM evaluator (e.g., OpenAI's GPT4o-mini) to analyze the assistant's progress toward user goals.
-  </Step>
+
+</Step>
   <Step title="Prompt Engineering">
     A specialized chain-of-thought prompt guides the model to evaluate whether the assistant made progress on user goals based on the metric's definition.
-  </Step>
+
+</Step>
   <Step title="Evaluation Process">
     Each evaluation analyzes the interaction and produces both a detailed explanation and a binary judgment (yes/no) on goal advancement.
-  </Step>
+
+</Step>
   <Step title="Score Calculation">
     The final Action Advancement score is computed as the percentage of positive ('yes') responses out of all evaluation responses.
-  </Step>
+
+</Step>
 </Steps>
 
 We display one of the generated explanations alongside the score, always choosing one that aligns with the majority judgment.
 
 <Note>
 This metric requires multiple LLM calls to compute, which may impact usage and billing.
+
 </Note>
 
 ## Understanding Action Advancement
@@ -59,24 +66,25 @@ This metric requires multiple LLM calls to compute, which may impact usage and b
     </div>
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>When to Use This Metric</h3>
   </div>
-  
-  Action Advancement is particularly valuable for evaluating:
-      
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Agentic Workflows:</strong> When an AI agent must decide on actions and select appropriate tools.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Multi-step Tasks:</strong> When completing a user's request requires multiple steps or decisions.
-  </div>
-  
-  <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    <strong>Tool-using Assistants:</strong> When evaluating if the assistant used available tools effectively.
-  </div>
-  
-  <div style={{marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(209, 213, 219, 0.33)'}}>
-    This metric helps you determine whether the assistant chose appropriate actions and made meaningful progress toward fulfilling the user's request.
-  </div>
+
+Action Advancement is particularly valuable for evaluating:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Agentic Workflows:</strong> When an AI agent must decide on actions and select appropriate tools.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Multi-step Tasks:</strong> When completing a user's request requires multiple steps or decisions.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Tool-using Assistants:</strong> When evaluating if the assistant used available tools effectively.
+</div>
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  This metric helps you determine whether the assistant chose appropriate actions and made meaningful progress toward fulfilling the user's request.
+</div>
+
 </Card>
 
 ## Best Practices
@@ -84,18 +92,23 @@ This metric requires multiple LLM calls to compute, which may impact usage and b
 <CardGroup cols={2}>
   <Card title="Track Progress Over Time" icon="chart-line">
     Monitor Action Advancement scores across different versions of your agent to ensure improvements in task completion capabilities.
-  </Card>
+
+</Card>
   <Card title="Analyze Failure Patterns" icon="magnifying-glass">
     When Action Advancement scores are low, examine the specific steps where agents fail to make progress to identify systematic issues.
-  </Card>
+
+</Card>
   <Card title="Combine with Other Metrics" icon="scale-balanced">
     Use Action Advancement alongside other agentic metrics to get a comprehensive view of your assistant's effectiveness.
-  </Card>
+
+</Card>
   <Card title="Test Edge Cases" icon="code-branch">
     Create evaluation datasets that include complex, multi-step tasks to thoroughly assess your agent's ability to advance user goals.
-  </Card>
+
+</Card>
 </CardGroup>
 
 <Note>
 When optimizing for Action Advancement, ensure you're not sacrificing other important aspects like safety, factual accuracy, or user experience in pursuit of task completion.
+
 </Note>

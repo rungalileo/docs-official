@@ -1,25 +1,25 @@
 ```typescript TypeScript
-import { runExperiment } from 'galileo';
-import { OpenAI } from 'openai';
+import { runExperiment } from "galileo";
+import { OpenAI } from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const runner = async (input) => {
+const runner = async (input: any) => {
   const result = await openai.chat.completions.create({
-    model: 'gpt-4',
+    model: "gpt-4",
     messages: [
-      { role: 'system', content: 'You are a great storyteller.' },
-      { role: 'user', content: `Write a story about ${input.input}` }
-    ]
+      { role: "system", content: "You are a great storyteller." },
+      { role: "user", content: `Write a story about ${input.input}` },
+    ],
   });
   return result;
 };
 
 await runExperiment({
-  name: 'story-function-experiment',
-  datasetName: 'storyteller-dataset',
+  name: "story-function-experiment",
+  datasetName: "storyteller-dataset",
   function: runner,
-  metrics: ['correctness'],
-  projectName: 'my-project'
-}); 
+  metrics: ["correctness"],
+  projectName: "my-project",
+});
 ```

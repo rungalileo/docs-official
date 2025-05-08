@@ -5,28 +5,28 @@ import { log, init, flush, wrapOpenAI } from "galileo";
 // Initialize Galileo
 init({
   projectName: "my-project",
-  logStreamName: "development"
+  logStreamName: "development",
 });
 
 const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 // This will automatically create an llm span since we're using the `wrapOpenAI` wrapper
-const callOpenAI = async (input) => {
+const callOpenAI = async (input: any) => {
   const result = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [{ content: input, role: 'user' }]
+    model: "gpt-4o",
+    messages: [{ content: input, role: "user" }],
   });
   return result;
 };
 
 async function runWorkflow() {
-  const wrappedFunc = await log({ name: 'capitals workflow' }, async () => {
+  const wrappedFunc = await log({ name: "capitals workflow" }, async () => {
     const franceResult = await callOpenAI("What is the capital of France?");
     const germanyResult = await callOpenAI("What is the capital of Germany?");
-    
+
     return {
       france: franceResult.choices[0].message.content,
-      germany: germanyResult.choices[0].message.content
+      germany: germanyResult.choices[0].message.content,
     };
   });
 
@@ -35,10 +35,10 @@ async function runWorkflow() {
 
   // Flush logs before exiting
   await flush();
-  
+
   return result;
 }
 
 // Run the workflow
-runWorkflow(); 
+runWorkflow();
 ```

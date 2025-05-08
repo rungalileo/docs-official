@@ -7,7 +7,7 @@ async function runCustomDatasetExperiment() {
 
   const dataset = [{ input: "Spain", output: "Europe" }];
 
-  const runner = async (input) => {
+  const runner = async (input: any) => {
     const result = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
@@ -18,7 +18,7 @@ async function runCustomDatasetExperiment() {
         },
       ],
     });
-    return [result.choices[0].message.content];;
+    return [result.choices[0].message.content];
   };
 
   await runExperiment({
