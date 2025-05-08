@@ -9,9 +9,11 @@ When a model ignores instructions, it generates responses that deviate from the 
 
 In this example, we'll use the `gpt-4o` model to generate a response to for a simple prompt. We'll enable the `instruction_adherence` metric to monitor the model's adherence to the prompt.
 
+To calculate metrics, you will need to configure an integration with an LLM. Visit the relevant API platform to obtain an API key, then add it using the [integrations page](https://app.galileo.ai/settings/integrations) in the Galileo console.
+
 ```python
 import os
-from galileo.openai import openai # The Galileo OpenAI client wrapper is all you need!
+from galileo.openai import openai
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -62,17 +64,21 @@ In order to fix this, we can modify the prompt to provide more specific instruct
 <CodeGroup>
 ```python Python
 prompt = """
-	1.	Explain Newton's First Law in one sentence of no more than fifteen (15) words.
-	2.	Do not add any additional sentences, examples, parentheses, bullet points, or further clarifications.
-	3.	Your answer must be exactly one sentence and must not exceed 15 words.
+  1. Explain Newton's First Law in one sentence of no more than fifteen (15)
+     words.
+  2. Do not add any additional sentences, examples, parentheses, bullet points,
+     or further clarifications.
+  3. Your answer must be exactly one sentence and must not exceed 15 words.
 """
 ```
 
 ```typescript TypeScript
 const prompt = `
-	1.	Explain Newton's First Law in one sentence of no more than fifteen (15) words.
-	2.	Do not add any additional sentences, examples, parentheses, bullet points, or further clarifications.
-	3.	Your answer must be exactly one sentence and must not exceed 15 words.
+  1. Explain Newton's First Law in one sentence of no more than fifteen (15)
+     words.
+  2. Do not add any additional sentences, examples, parentheses, bullet points,
+     or further clarifications.
+  3. Your answer must be exactly one sentence and must not exceed 15 words.
 `;
 ```
 
@@ -83,7 +89,8 @@ In this updated prompt, we gave the model more specific instructions about what 
 If we run the application again, we see that the model now follows the instructions more closely:
 
 ```
-An object remains at rest or in uniform motion unless acted upon by a net force.
+An object remains at rest or in uniform motion unless acted upon by a
+net force.
 ```
 
 Now, our instruction adherence metric jumps to 100.00%!
