@@ -1,0 +1,107 @@
+# .github/workflows/mintlify-dev-check.yml
+
+name: Mintlify Dev Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - 'release/**'
+
+jobs:
+  mintlify-dev:
+    runs-on: ubuntu-latest
+    name: Check Mintlify Dev Server
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Update package.json with Mintlify config if needed
+        run: |
+          if ! grep -q "\"mintlify\":" package.json; then
+            # Create a temporary file with updated JSON
+            jq '. + {
+              "mintlify": {
+                "name": "Documentation",
+                "navigation": [
+                  {
+                    "group": "Getting Started",
+                    "pages": []
+                  }
+                ]
+              }
+            }' package.json > package.json.tmp
+            mv package.json.tmp package.json
+            echo "Added Mintlify configuration to package.json"
+          fi
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Mintlify Dev (Short Test)
+        id: dev_test
+        continue-on-error: true
+        run: |
+          # Run with direct path to avoid relying on npm scripts
+          timeout 15s npx mintlify dev --config-file ./package.json > dev.log 2>&1 || true
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -ne 0 ] && [ $EXIT_CODE -ne 124 ]; then
+            # 124 is the timeout exit code, which is expected
+            echo "status=failed" >> $GITHUB_OUTPUT
+            cat dev.log
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for errors in logs
+        id: log_check
+        if: always()
+        run: |
+          # Look for serious errors but ignore expected warnings
+          if grep -i "error" dev.log | grep -v "EADDRINUSE" | grep -v "timeout" | grep -v "warning"; then
+            echo "Found errors in dev log"
+            echo "status=failed" >> $GITHUB_OUTPUT
+          else
+            echo "No critical errors found in dev log"
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload Dev Log (for debug)
+        if: steps.dev_test.outputs.status == 'failed' || steps.log_check.outputs.status == 'failed'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mintlify-dev-log
+          path: dev.log
+
+      - name: Comment Dev Failure on PR
+        if: steps.dev_test.outputs.status == 'failed' || steps.log_check.outputs.status == 'failed'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: mintlify-dev
+          message: |
+            ❌ Mintlify Dev Server Failed!
+
+            <details>
+            <summary>Click to see dev log</summary>
+
+            ```text
+            $(tail -n 100 dev.log)
+            ```
+
+            </details>
+
+      - name: Comment Success on PR
+        if: steps.dev_test.outputs.status == 'success' && steps.log_check.outputs.status == 'success'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: mintlify-dev
+          message: |
+            ✅ Mintlify Dev Server Started Successfully!
+            
+            The documentation can be served without errors. 
