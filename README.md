@@ -10,7 +10,7 @@ This repo is the source for [Galileo's docs](https://v2docs.galileo.ai/). We use
 4. Make edits. This is a [good guide](https://docs.google.com/document/d/1NdxuFY4kzF-gSuco0HDuk0Qydct0Y0YrhJrjz6Itcvg/edit) to follow as you're making these changes.
 5. Create a PR.
 6. Merge PR after it is approved.
-7. See ✨ on https://docs.rungalileo.io/.
+7. See ✨ on [https://v2docs.galileo.ai/](https://v2docs.galileo.ai/what-is-galileo).
 
 ## Local Development
 
@@ -28,7 +28,7 @@ It'll watch for updates and keep auto-refreshing as long as the command is runni
 - New page not showing in directory: Add the page to `mint.json`.
 - `prettier` pre-commit check can fail sometimes repeatedly. This can happen because `prettier` [doesn't yet know how to handle MDX3](https://github.com/prettier/prettier/issues/12209) format. Workaround is to ensure we add an extra line before close tags.
 
-```
+```mdx
 # If your DOM looks like this
 <Steps>
 <Step>
