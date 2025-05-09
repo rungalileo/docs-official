@@ -99,6 +99,13 @@ You can combine the OpenAI wrapper with the `@log` decorator to create more comp
 - **Automatic tracing**: Creates spans and traces without manual setup
 - **Streaming support**: Works with both regular and streaming responses
 
+
+<Note>
+### Asynchronous OpenAI Calls with Galileo
+Galileo's Python SDK includes an OpenAI wrapper that currently supports only synchronous calls through the OpenAI client. It currently doesn’t not include built-in support for the `AsyncOpenAI` class from the official OpenAI Python library. As a result, asynchronous calls made via `galileo.openai` wrapper won't automatically generate LLM spans or upload telemetry to Galileo. 
+
+You can still track async interactions by manually using the low-level `GalileoLogger` API. This requires importing and awaiting the OpenAI `AsyncOpenAI` client, wrapping each call with [`add_llm_span`](/sdk-api/python/logging/galileo-logger#llm-spans) (or using `start_trace`/ `conclude`), and flushing the logger to send your traces. 
+</Note>
 ## Related Resources
 
 - [@log Decorator](/sdk-api/python/logging/log-decorator) - For decorating functions with logging

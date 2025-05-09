@@ -1,0 +1,208 @@
+---
+title: 🔎 Monitoring LangChain Agents with Galileo
+description: Learn how to build and monitor a LangChain AI Agent using Galileo for tracing and observability.
+---
+
+## Overview
+
+### What you'll build:
+
+A simple LangChain-powered AI Agent that uses OpenAI's language models and a custom tool, with all agent activities logged and monitored in Galileo.
+
+### What you'll learn:
+
+- How to configure a LangChain Agent
+- How to integrate Galileo for observability and monitoring
+- How to structure tools and environment for scalable development
+
+👀 Check out the full [SDK Examples repository on GitHub](https://github.com/rungalileo/SDK-Examples)!
+
+### Requirements
+
+- Python package manager + some familiarity with Python (for the sake of this cookbook, we'll use [UV](https://docs.astral.sh/uv/))
+- A free [Galileo Developer Account](https://app.galileo.ai)
+- OpenAI Key to assist [get one here](https://platform.openai.com/api-keys)
+
+## Environment Setup
+
+### Ingredients:
+
+- git
+- Python environment tools
+- Package manager (pip or uv)
+
+### Steps:
+
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/rungalileo/sdk-examples.git
+   cd sdk-examples/python/agent/langchain-agent
+   ```
+
+2. **Create a virtual environment:**
+   **on Windows**
+
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate
+   ```
+
+   **on Mac**
+   Using a standard virtual environment
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   ```
+
+   Or using uv (faster)
+
+   ```bash
+   uv venv venv
+   source venv/bin/activate
+   ```
+
+2. **Install dependencies:**
+  Using pip
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+   OR using uv
+
+   ```bash
+   uv pip install -r requirements.txt
+   ```
+
+3. **Set up your environment variables:**
+   Copy the existing `.env.example` file, and rename it to `.env` in your project directory. 
+
+   ```
+   OPENAI_API_KEY=your-openai-api-key
+   GALILEO_API_KEY=your-galileo-api-key
+   ```
+
+- Replace `your-openai-api-key` and `your-galileo-api-key` with your actual keys.
+- This keeps your credentials secure and out of your code.
+## Understanding the Agent Architecture
+
+### 🧠 Agent Core (`main.py`)
+
+A single script defines:
+
+- Loading of secrets
+- Tool declaration
+- Agent instantiation
+- Galileo observability
+
+### 🛠️ Tools
+
+Simple `@tool` functions that the agent can call, such as:
+
+```python
+@tool
+def greet(name: str) -> str:
+    """Say hello to someone."""
+    return f"Hello, {name}! 👋"
+```
+
+### 🔍 Instrumentation (`galileo_context` + `GalileoCallback`)
+
+The `galileo_context` tags all logs under a project and stream.
+
+The `GalileoCallback` automatically traces agent behavior in Galileo.
+
+## Main Agent Workflow
+
+### Key Ingredients:
+
+- LangChain agent
+- OpenAI model
+- Galileo integration
+
+### How it works:
+
+1. Load `.env` variables.
+2. Declare tools.
+3. Wrap agent execution in `galileo_context`.
+4. Use `GalileoCallback` to trace the run.
+5. Print the agent's response.
+
+## Running the Agent
+
+Run your script using:
+
+```bash
+python main.py
+```
+
+### Expected Output:
+
+```
+Agent Response:
+Hello, Erin! 👋
+```
+
+## Viewing Traces in Galileo
+
+### Steps:
+
+1. Log into [Galileo](https://app.galileo.ai).
+2. Open the `langchain-docs` project and `my_log_stream`.
+3. Inspect:
+
+   - Prompts
+   - Reasoning steps
+   - Tool invocations
+   - Outputs
+
+## Extending the Agent
+
+### Add New Tools
+
+Define more `@tool`-decorated functions and include them in the agent.
+
+### Change Models
+
+Swap out `gpt-4` for another supported OpenAI model in `ChatOpenAI`.
+
+### Update Context
+
+Change the `project` and `log_stream` in `galileo_context` for better trace organization.
+
+## Conclusion
+
+### Key Takeaways:
+
+- LangChain + Galileo makes AI agents traceable and observable
+- Using tools and context managers helps modularize and organize agent behavior
+- Monitoring enables better debugging and optimization
+
+### Next Steps:
+- Check out the [Galileo YouTube Channel](https://www.youtube.com/@rungalileo) to see what you can build!
+- Star the [Galileo SDK-examples repo](https://github.com/rungalileo/sdk-examples)to bookmark more ways to get started with the Galileo SDK.
+- Follow [Galileo on LinkedIn](https://www.linkedin.com/company/galileo-ai/) to stay in touch with the latest news and resources.
+
+Happy building! 🚀
+
+## Common Issues and Solutions
+
+### API Key Issues
+
+**Problem:** "Invalid API key" errors
+
+**Solution:**
+- Double-check your `.env` file
+
+### Galileo Connection Issues
+
+**Problem:** Traces aren't showing up in Galileo
+
+**Solution:**
+- Confirm your API key is valid
+- Check internet connectivity
+- Ensure `flush()` is being called at the end of execution
+
