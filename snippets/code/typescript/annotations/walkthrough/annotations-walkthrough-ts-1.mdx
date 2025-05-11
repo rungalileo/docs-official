@@ -1,0 +1,21 @@
+```typescript TypeScript
+import { OpenAI } from "openai";
+import { init, flush, wrapOpenAI } from "galileo";
+import dotenv from 'dotenv';
+dotenv.config();
+
+// Initialize the OpenAI client using the Galileo wrapper and your OpenAI API key
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+
+// The Galileo context manager will automatically create a trace and flush the logs when exiting
+init({
+    project: "Science Exploration",
+    logStream: "laws-of-science"
+});
+
+const prompt = "Explain the following topic succinctly: Newton's First Law";
+const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{ content: prompt, role: "system" }],
+});
+```
