@@ -9,14 +9,14 @@ const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 
 // The Galileo context manager will automatically create a trace and flush the logs when exiting
 init({
-  project: "Science Exploration",
-  logStream: "laws-of-science"
+    project: "Science Exploration",
+    logStream: "laws-of-science"
 });
 
 const prompt = "Explain the following topic succinctly: Newton's First Law";
 const response = await openai.chat.completions.create({
- model: "gpt-4o",
- messages: [{ content: prompt, role: "system" }],
+    model: "gpt-4o",
+    messages: [{ content: prompt, role: "system" }],
 });
 
 const answer: string = response.choices[0].message.content.trim();
@@ -24,31 +24,31 @@ const answer: string = response.choices[0].message.content.trim();
 // Define tags and metadata
 const tags = ["newton", "test", "new-version"];
 const metadata = {
-  experimentNumber: "1",
-  promptVersion: "0.0.1",
-  field: "physics"
+    experimentNumber: "1",
+    promptVersion: "0.0.1",
+    field: "physics"
 };
 
 // Initialize logger and select project and log stream
 const logger = new GalileoLogger({
-  project: "Science Exploration",
-  logStream: "laws-of-science"
+    project: "Science Exploration",
+    logStream: "laws-of-science"
 });
 
 // Initialize a new Trace and start listening for logs to add to it
 const trace = logger.startTrace({
-  input: prompt,
-  tags: tags,
-  metadata: metadata
+    input: prompt,
+    tags: tags,
+    metadata: metadata
 });
 
 // Create a span to log LLM outputs. This is captured by the Trace
 logger.addLlmSpan({
-  input: [{ role: "system", content: prompt }],
-  output: response.choices[0].message.content,
-  model: "gpt-4o",
-  tags: tags,
-  metadata: metadata
+    input: [{ role: "system", content: prompt }],
+    output: response.choices[0].message.content,
+    model: "gpt-4o",
+    tags: tags,
+    metadata: metadata
 });
 
 // Close the Trace and push captured logs to it
