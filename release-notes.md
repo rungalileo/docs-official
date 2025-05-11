@@ -8,7 +8,7 @@ This page provides information about the latest updates and enhancements to Gali
 
 ![Metrics on experiments UI](images/AddingMetricstoExperimentsinUI-ezgif.com-optimize.gif)
 
-2. **Public APIs:** Released public APIs to allow developers to manage logstreams, experiments, and trace data programmatically. While these can already be managed through the TypeScript and Python SDK, public APIs allow users to programmatically interact with these components in any language. Sample use cases include logging data from a production AI app, running experiments, and retrieving evaluation result
+2. **Public APIs:** Released [public APIs](https://v2docs.galileo.ai/api-reference/) to allow developers to manage logstreams, experiments, and trace data programmatically. While these can already be managed through the TypeScript and Python SDK, public APIs allow users to programmatically interact with these components in any language. Sample use cases include logging data from a production AI app, running experiments, and retrieving evaluation result
 
 3. **Aggregate metrics and ranking criteria for Experiments:** Added to All Experiments page. Aggregate metrics compile the metric values from individual traces in an experiment to show a combined value for each metric on the all experiments page. This enables you to quickly assess the performance of the underlying traces in an experiment. Ranking criteria allow you to determine which experiments were most successful by specifying a weighted average of the underlying metrics for each experiment.
 
