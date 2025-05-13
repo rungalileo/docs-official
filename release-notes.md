@@ -34,6 +34,8 @@ This page provides information about the latest updates and enhancements to Gali
 
 1. **Playground improvements:** The playground now has an updated layout and shows a preview of the input prompt that will be run when using variable slots in your prompt template which are filled in by manually entering variables or getting them from a dataset.
 
+    ![The new playground layout](/images/release-notes/2025-5-13/playground.png)
+
 ## May 2nd, 2025
 
 ### Key New Features
