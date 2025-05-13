@@ -25,6 +25,16 @@ This page provides information about the latest updates and enhancements to Gali
 
     This process has shown to increase accuracy of metrics by 20-30%.
 
+    <iframe
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/Rl8YLFCyoiw"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+    ></iframe>
+
 1. **Playground improvements**
 
     The playground now has an updated layout and shows a preview of the input prompt that will be run when using variable slots in your prompt template which are filled in by manually entering variables or getting them from a dataset.
