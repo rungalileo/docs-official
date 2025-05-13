@@ -10,7 +10,8 @@ This page provides information about the latest updates and enhancements to Gali
 
 1. **Sessions:** The free version of Galileo now has support for Sessions. Sessions provide users a coherent view of multi-turn interactions. The traces from each turn of the conversation can be viewed under the session.
 
-    To create a session, developers can use the Galileo Logger, use the `start_session` method in Python and the `startSession` method in TypeScript.
+    To create a session, developers can use the Galileo Logger, using the `start_session` method in Python ot the `startSession` method in TypeScript.
+
     Here is a multi-turn conversation about state capitals of the US:
 
     ![A multi turn conversation about state capitals](/images/release-notes/2025-5-13/sessions.png)
