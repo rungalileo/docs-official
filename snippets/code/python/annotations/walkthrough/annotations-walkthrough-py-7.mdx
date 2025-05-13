@@ -1,50 +1,47 @@
 ```python Python
-import os
-from galileo import galileo_context, GalileoLogger # The Galileo context manager
-from galileo.openai import openai # The Galileo OpenAI client wrapper
+from galileo import GalileoLogger
+import openai
 from dotenv import load_dotenv
 load_dotenv()
 
-# Initialize the OpenAI client using the Galileo wrapper and your OpenAI API key
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# Initialize the OpenAI client
+client = openai.OpenAI()
 
-# The Galileo context manager will automatically create a Trace and flush the logs when exiting
-with galileo_context():
-    prompt = f"Explain the following topic succinctly: Newton's First Law"
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "system", "content": prompt}],
-    )
-    print(response.choices[0].message.content.strip())
+prompt = f"Explain the following topic succinctly: Newton's First Law"
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "system", "content": prompt}],
+)
+print(response.choices[0].message.content.strip())
 
-    answer = response.choices[0].message.content.strip()
-    
-    # Define tags and metadata
-    tags = ["newton", "test", "new-version"]
-    metadata = {"experimentNumber": "1",
-                "promptVersion": "0.0.1",
-                "field": "physics"}
+answer = response.choices[0].message.content.strip()
 
-    # Initialize logger and select project and log stream
-    logger = GalileoLogger(project="Science Exploration", log_stream="laws-of-science")
+# Define tags and metadata
+tags = ["newton", "test", "new-version"]
+metadata = {"experimentNumber": "1",
+            "promptVersion": "0.0.1",
+            "field": "physics"}
 
-    # Initialize a new Trace and start listening for logs to add to it
-    trace = logger.start_trace(
-        input=prompt,
-        tags=tags,
-        metadata=metadata
-    )
+# Initialize logger
+logger = GalileoLogger()
 
-    # Create a span to log LLM outputs. This is captured by the Trace
-    logger.add_llm_span(
-        input=[{"role": "system", "content": prompt}],
-        output=response.choices[0].message.content,
-        model="gpt-4o",
-        tags=tags,
-        metadata=metadata
-    )
+# Initialize a new Trace and start listening for logs to add to it
+trace = logger.start_trace(
+    input=prompt,
+    tags=tags,
+    metadata=metadata
+)
 
-    # Close the Trace and push captured logs to it
-    logger.conclude(answer)
-    logger.flush()
+# Create a span to log LLM outputs. This is captured by the Trace
+logger.add_llm_span(
+    input=[{"role": "system", "content": prompt}],
+    output=response.choices[0].message.content,
+    model="gpt-4o",
+    tags=tags,
+    metadata=metadata
+)
+
+# Close the Trace and push captured logs to it
+logger.conclude(answer)
+logger.flush()
 ```
