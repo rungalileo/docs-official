@@ -1,0 +1,15 @@
+```python Python
+import openai
+from dotenv import load_dotenv
+load_dotenv()
+
+# Initialize the OpenAI client
+client = openai.OpenAI()
+
+prompt = f"Explain the following topic succinctly: Newton's First Law"
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "system", "content": prompt}],
+)
+print(response.choices[0].message.content.strip())
+```
