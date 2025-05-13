@@ -8,18 +8,14 @@ This page provides information about the latest updates and enhancements to Gali
 
 ### Key New Features
 
-1. **Sessions**
-
-    The free version of Galileo now has support for Sessions. Sessions provide users a coherent view of multi-turn interactions. The traces from each turn of the conversation can be viewed under the session.
+1. **Sessions:** The free version of Galileo now has support for Sessions. Sessions provide users a coherent view of multi-turn interactions. The traces from each turn of the conversation can be viewed under the session.
 
     To create a session, developers can use the Galileo Logger, use the `start_session` method in Python and the `startSession` method in TypeScript.
     Here is a multi-turn conversation about state capitals of the US:
 
     ![A multi turn conversation about state capitals](/images/release-notes/2025-5-13/sessions.png)
 
-1. **Adapting LLM metrics with CLHF**
-
-    The free Galileo offering now supports **Continuous Learning for Human Feedback** (CLHF) which helps users easily adapt LLM metrics for their app by providing human feedback.  As you start using Galileo Preset LLM-powered metrics (e.g. Context Adherence or Instruction Adherence), or start creating your own LLM-powered metrics, you might not always agree with the results. This capability helps you solve this problem.
+1. **Adapting LLM metrics with CLHF:** The free Galileo offering now supports **Continuous Learning for Human Feedback** (CLHF) which helps users easily adapt LLM metrics for their app by providing human feedback.  As you start using Galileo Preset LLM-powered metrics (e.g. Context Adherence or Instruction Adherence), or start creating your own LLM-powered metrics, you might not always agree with the results. This capability helps you solve this problem.
 
     As you identify mistakes in your metrics, you can provide ‘feedback’ to ‘auto-improve’ your metrics. Your feedback gets translated (by LLMs) into few-shot examples that are appended to the Metric’s prompt.
 
@@ -35,9 +31,7 @@ This page provides information about the latest updates and enhancements to Gali
     allowfullscreen
     ></iframe>
 
-1. **Playground improvements**
-
-    The playground now has an updated layout and shows a preview of the input prompt that will be run when using variable slots in your prompt template which are filled in by manually entering variables or getting them from a dataset.
+1. **Playground improvements:** The playground now has an updated layout and shows a preview of the input prompt that will be run when using variable slots in your prompt template which are filled in by manually entering variables or getting them from a dataset.
 
 ## May 2nd, 2025
 
