@@ -1,0 +1,92 @@
+---
+title: Annotations Overview
+---
+
+import SnippetAnnotationsOverviewPython1 from '/snippets/code/python/annotations/overview/overview-py-1.mdx';
+import SnippetAnnotationsOverviewPython2 from '/snippets/code/python/annotations/overview/overview-py-2.mdx';
+import SnippetAnnotationsOverviewTypeScript1 from '/snippets/code/typescript/annotations/overview/overview-ts-1.mdx';
+import SnippetAnnotationsOverviewTypeScript2 from '/snippets/code/typescript/annotations/overview/overview-ts-2.mdx';
+
+Galileo's **Annotations** feature helps teams label, categorize, and analyze model outputs more effectively. Annotations provide a structured way to add human-in-the-loop feedback, highlight model behavior patterns, and guide future improvements to datasets and models.
+
+## Overview: What Are Annotations?
+
+**Annotations** are tags and metadata that can be used to label predictions, inputs, or other artifacts during model development and evaluation. They help **organize, classify, and track model behavior** during experimentation and production.
+
+You can see the tags and metadata in the [Log Streams](/concepts/logstreams) section of the [Galileo Console](https://app.galileo.ai/).
+
+These labels can represent:
+
+- Model issues (e.g., `label_mismatch`, `low_confidence`)
+- Observations from human reviewers (e.g., `grammar_error`, `ambiguous_input`)
+- Dataset quality notes (e.g., `duplicate_sample`, `out_of_distribution`)
+- Business-specific labels (e.g., `escalation_required`, `VIP_customer`)
+
+## Why Use Annotations?
+
+Annotations are particularly useful for:
+
+- **Team collaboration**: Share insights across teams with consistent tagging systems.
+- **Tracking model behavior**: Label samples where the model fails or performs below expectations.
+- **Data quality analysis**: Flag problematic or noisy inputs for later review or exclusion.
+- **Model evaluation**: Filter and analyze annotated data to evaluate model performance on specific slices.
+- **Automated improvement**: Create feedback loops between model outputs and annotation-guided dataset refinement.
+
+## Tags & Metadata
+
+Annotations are added to logged Traces and Spans in the form of **tags** and **metadata**.
+
+**Tags** - short, flat labels (strings) you assign to a trace or span to make them easy to group and filter.
+* Unlimited number of tags per trace/span (practical limit ≈ 50)
+* Case‑sensitive strings ≤ 50 chars each
+* Ideal for boolean‑style filters (e.g., “show me all traces tagged physics”)
+
+**Metadata** - key‑value dictionaries that travel with a trace or a span, perfect for structured information like user IDs, experiment hashes, timestamps, or numeric metrics.
+* Keys and values are strings ≤ 256 chars
+* Appears in Log Streams as new columns
+* Ideal for structured attributes you can filter, group, and aggregate
+
+
+## Adding Annotations to Traces
+
+To add annotations to your [Traces](/concepts/traces), initialize the Galileo Logger, and then include tags and metadata when you start your Trace.
+
+<CodeGroup>
+<SnippetAnnotationsOverviewPython1 />
+<SnippetAnnotationsOverviewTypeScript1 />
+</CodeGroup>
+
+
+## Adding Annotations to Spans
+
+Attach annotations to your [Spans](/concepts/spans) by including tags and metadata when you add your Span.
+
+<CodeGroup>
+<SnippetAnnotationsOverviewPython2 />
+<SnippetAnnotationsOverviewTypeScript2 />
+</CodeGroup>
+
+
+## Annotations in the Galileo Console
+
+Tags and metadata appear within the selected Project and Log Stream in the [Galileo Console](https://app.galileo.ai/).
+
+You can view the tags and metadata attached to Traces and Spans in their **"Parameters"** section.
+
+![Annotated Log Stream](/images/console-ui/annotations-and-parameters-in-trace.png)
+
+Additionally, metadata appears as **new columns in the Log Stream**.
+
+![Annotations in Parameters](/images/console-ui/annotated-log-stream.png)
+
+## Best Practices
+
+* Tag early. Start the trace yourself and pass tags before the first LLM call; otherwise auto‑spans may end up in an untagged trace.
+* Keep tags coarse‑grained. A handful of well‑chosen tags beat hundreds of one‑offs.
+* Standardise metadata keys. Stick to a naming convention (experiment, user_id, etc.) so dashboards stay tidy.
+* Avoid sensitive data. Never put PII or keys in either tags or metadata; they become queryable in the UI.
+
+
+## Next Steps:
+
+Get started using **Annotations** with the [Adding Annotations](/concepts/annotations/annotations-walkthrough) step-by-step guide.
