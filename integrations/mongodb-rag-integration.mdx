@@ -1,0 +1,66 @@
+---
+title: "MongoDB Atlas Integration for Retrieval-Augmented Generation (RAG)"
+description: "Guide to using MongoDB Atlas Vector Search with LangGraph agents logging to Galileo."
+---
+
+## MongoDB + RAG + Galileo Overview
+
+MongoDB Atlas Vector Search lets you keep your knowledge base *inside* MongoDB while enjoying hybrid search and AI-ready workloads.  
+In this guide you’ll:
+
+1. Embed and store vectors in Atlas  
+2. Setup Galileo
+3. Stream LangGraph traces to **Galileo** for end-to-end observability  
+
+## Set up MongoDB
+
+Sign up to MongoDB Atlas and set up your credentials. You can setup the vector store as follows:
+
+```python
+from langchain_mongodb import MongoDBAtlasVectorSearch
+from langchain_openai import OpenAIEmbeddings
+from pymongo import MongoClient
+
+client          = MongoClient(MONGODB_URI)
+DB_NAME         = "rag_demo"
+COLLECTION_NAME = "blog_vectors"
+
+collection = client[DB_NAME][COLLECTION_NAME]
+embeddings = OpenAIEmbeddings()
+
+vector_store = MongoDBAtlasVectorSearch(
+    collection    = collection,
+    embedding     = embeddings,
+    index_name    = "rag-index",
+    relevance_score_fn = "cosine"
+)
+```
+
+## Use Galileo for logging
+
+```python
+import os
+from galileo.handlers.langchain import GalileoCallback
+
+# --- Galileo ---
+os.environ["GALILEO_API_KEY"] = "<galileo-key>"
+os.environ["GALILEO_PROJECT"] = "<galileo-project>"
+os.environ["GALILEO_LOG_STREAM"] = "mongo_rag_demo"
+
+galileo_handler = GalileoCallback() 
+```
+
+Once the callback is created we can add it to the agent.
+
+```python
+query = "What types of agent memory does Lilian Weng describe?"
+inputs = {"messages": [HumanMessage(content=query)]}
+
+result = graph.invoke(
+    inputs,
+    config={"recursion_limit": 5, "callbacks": [galileo_handler]}
+)
+```
+
+
+Find the full notebook [here](https://github.com/rungalileo/examples/blob/2d39d2d9dafdcf6b6dcb0b7ecb3e51a7546ce9ce/examples/RAG/logstreams/Galileo_LangGraph_Agent_with_MongoDB_Atlas_Vector_Search_for_RAG.ipynb)
