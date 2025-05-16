@@ -1,0 +1,48 @@
+```typescript TypeScript
+import { OpenAI } from "openai";
+import { GalileoLogger } from "galileo";
+import dotenv from 'dotenv';
+dotenv.config();
+
+// Initialize the OpenAI client
+const openai = new OpenAI();
+
+const prompt = "Explain the following topic succinctly: Newton's First Law";
+const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{ content: prompt, role: "system" }],
+});
+
+const answer: string = response.choices[0].message.content.trim();
+
+// Define tags and metadata
+const tags = ["newton", "test", "new-version"];
+const metadata = {
+    experimentNumber: "1",
+    promptVersion: "0.0.1",
+    field: "physics"
+};
+
+// Initialize logger
+const logger = new GalileoLogger();
+
+// Initialize a new Trace and start listening for logs to add to it
+const trace = logger.startTrace({
+    input: prompt,
+    tags: tags,
+    metadata: metadata
+});
+
+// Create a span to log LLM outputs. This is captured by the Trace
+logger.addLlmSpan({
+    input: [{ role: "system", content: prompt }],
+    output: response.choices[0].message.content,
+    model: "gpt-4o",
+    tags: tags,
+    metadata: metadata
+});
+
+// Close the Trace and push captured logs to it
+logger.conclude({output: answer});
+logger.flush();
+```
