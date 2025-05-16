@@ -1,0 +1,47 @@
+```python Python
+from galileo import GalileoLogger
+import openai
+from dotenv import load_dotenv
+load_dotenv()
+
+# Initialize the OpenAI client
+client = openai.OpenAI()
+
+prompt = f"Explain the following topic succinctly: Newton's First Law"
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "system", "content": prompt}],
+)
+print(response.choices[0].message.content.strip())
+
+answer = response.choices[0].message.content.strip()
+
+# Define tags and metadata
+tags = ["newton", "test", "new-version"]
+metadata = {"experimentNumber": "1",
+            "promptVersion": "0.0.1",
+            "field": "physics"}
+
+# Initialize logger
+logger = GalileoLogger()
+
+# Initialize a new Trace and start listening for logs to add to it
+trace = logger.start_trace(
+    input=prompt,
+    tags=tags,
+    metadata=metadata
+)
+
+# Create a span to log LLM outputs. This is captured by the Trace
+logger.add_llm_span(
+    input=[{"role": "system", "content": prompt}],
+    output=response.choices[0].message.content,
+    model="gpt-4o",
+    tags=tags,
+    metadata=metadata
+)
+
+# Close the Trace and push captured logs to it
+logger.conclude(answer)
+logger.flush()
+```
