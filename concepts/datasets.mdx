@@ -69,7 +69,7 @@ After we add a new sample to the dataset, we can see the version history by clic
 
 ### Creating and Growing Your Dataset
 
-When building your test suite programmatically, you can create datasets using the Galileo SDK. 
+When building your test suite programmatically, you can create datasets using the Galileo SDK.
 
 <CodeGroup>
   <SnippetPythonCreateDataset />
@@ -93,10 +93,12 @@ One of the benefits of Galileo's dataset management is automatic versioning. Aut
 </CodeGroup>
 
 ## Accessing Dataset Variables in Prompt Templates
-When you use datasets in Galileo, each sample in your dataset is made available to your prompt template as the `input` object.  This allows you to create dynamic prompts that adapt to the data in each sample.
+
+When you use datasets in Galileo, each sample in your dataset is made available to your prompt template as the `input` object. This allows you to create dynamic prompts that adapt to the data in each sample.
 
 ### Example Dataset
-Suppose you have the following dataset: 
+
+Suppose you have the following dataset:
 
 ```
 test_data = [
@@ -105,6 +107,7 @@ test_data = [
 ```
 
 ### Example Prompt Template
+
 To reference fields from your dataset in your prompt, use double curly braces and the `input` object:
 
 ```
@@ -112,13 +115,14 @@ Plan a {{ input.metadata.days }}-day travel itinerary for a trip to {{ input.cit
 Include daily sightseeing activities, dining suggestions, and local experiences.
 ```
 
-- `{{ input.city }}` will be replaced with the value of the `city` field from each sample. 
-- `{{ input.metadata.days }}` will be replaced with the value of the `days` field inside the `metadata` dictionary. 
+- `{{ input.city }}` will be replaced with the value of the `city` field from each sample.
+- `{{ input.metadata.days }}` will be replaced with the value of the `days` field inside the `metadata` dictionary.
 
-### How It works 
-For each sample in your dataset, Galileo will render the prompt template, replacing the variables with the corresponding values from the sample. 
+### How It works
 
-If a field is missing in a sample, the variable will be empty or may cause an error, so ensure your dataset is consistent. 
+For each sample in your dataset, Galileo will render the prompt template, replacing the variables with the corresponding values from the sample.
+
+If a field is missing in a sample, the variable will be empty or may cause an error, so ensure your dataset is consistent.
 
 ## Creating Focus Sets
 
@@ -132,44 +136,68 @@ When you find problems, you can create focused subsets of data:
 This can be done either through the UI or programmatically, depending on your workflow.
 
 ## Best Practices for Dataset Management
+
 When working with datasets consider these tips:
 
 1. **Start Small and Representative**
-  - **Why**: Beginning with a core set of representative test cases helps you quickly validate your workflow and catch obvious issues before scaling up.
-  - **How**: Select a handful of diverse, meaningful examples that reflect the range of inputs your model will see.
+
+- **Why**: Beginning with a core set of representative test cases helps you quickly validate your workflow and catch obvious issues before scaling up.
+- **How**: Select a handful of diverse, meaningful examples that reflect the range of inputs your model will see.
+
 2. **Grow Incrementally**
-  - **Why**: Add new test cases as you discover edge cases or failure modes. This ensures your dataset evolves alongside your understanding of the problem.
-  - **How**: Whenever you encounter a new bug, edge case, or user scenario, add it to your dataset.
+
+- **Why**: Add new test cases as you discover edge cases or failure modes. This ensures your dataset evolves alongside your understanding of the problem.
+- **How**: Whenever you encounter a new bug, edge case, or user scenario, add it to your dataset.
+
 3. **Version Thoughtfully**
-  - **Why**: Versioning lets you track major changes, reproduce past experiments, and understand how your test suite evolves.
-  - **How**: Create a new version when you make significant changes, and use version history to compare results over time.
+
+- **Why**: Versioning lets you track major changes, reproduce past experiments, and understand how your test suite evolves.
+- **How**: Create a new version when you make significant changes, and use version history to compare results over time.
+
 4. **Document Changes**
-  - **Why**: Keeping a record of why you added certain test cases or created new versions helps future you (and your teammates) understand the reasoning behind your dataset’s evolution.
-  - **How**: Use comments, changelogs, or dataset descriptions to note the purpose of additions or modifications.
+
+- **Why**: Keeping a record of why you added certain test cases or created new versions helps future you (and your teammates) understand the reasoning behind your dataset’s evolution.
+- **How**: Use comments, changelogs, or dataset descriptions to note the purpose of additions or modifications.
+
 5. **Organize by Purpose**
-  - **Why**: Separate datasets for different types of tests (e.g., basic functionality, edge cases, regression tests) make it easier to target specific goals and analyze results.
-  - **How**: Create and name datasets according to their intended use.
+
+- **Why**: Separate datasets for different types of tests (e.g., basic functionality, edge cases, regression tests) make it easier to target specific goals and analyze results.
+- **How**: Create and name datasets according to their intended use.
+
 6. **Choose the Right Approach**
-  - **Why**: The UI is great for quick edits and visual exploration, while code is better for automation and bulk operations.
--  **How**: Use both as needed—UI for ad hoc changes, SDK for systematic or large-scale updates.  
+
+- **Why**: The UI is great for quick edits and visual exploration, while code is better for automation and bulk operations.
+- **How**: Use both as needed—UI for ad hoc changes, SDK for systematic or large-scale updates.
+
 7. **Track Progress**
-  - **Why**: Monitoring how changes affect both specific issues and overall performance helps you measure improvement and catch regressions.
-  - **How**: Use metrics, dashboards, or manual review to assess the impact of dataset and prompt changes.
+
+- **Why**: Monitoring how changes affect both specific issues and overall performance helps you measure improvement and catch regressions.
+- **How**: Use metrics, dashboards, or manual review to assess the impact of dataset and prompt changes.
+
 8. **Keep History**
-  - **Why**: Saving problematic inputs and maintaining version history prevents regressions and helps you understand past issues.
-  - **How**: Never delete old test cases—archive or version them instead.
+
+- **Why**: Saving problematic inputs and maintaining version history prevents regressions and helps you understand past issues.
+- **How**: Never delete old test cases—archive or version them instead.
+
 9. **Keep Your Dataset Schema Consistent**
-  - **Why**: Inconsistent schemas (e.g., missing fields) can cause prompt rendering errors or unexpected results.
-  - **How**: Ensure every sample contains all fields referenced in your prompt templates.
+
+- **Why**: Inconsistent schemas (e.g., missing fields) can cause prompt rendering errors or unexpected results.
+- **How**: Ensure every sample contains all fields referenced in your prompt templates.
+
 10. **Use Nested Access for Dictionaries**
-  - **Why**: Many real-world datasets have nested structures. Dot notation (e.g., `input.metadata.days`) lets you access these fields cleanly in your prompt templates.
-  - **How**: Reference nested fields using dot notation in your prompt templates.
+
+- **Why**: Many real-world datasets have nested structures. Dot notation (e.g., `input.metadata.days`) lets you access these fields cleanly in your prompt templates.
+- **How**: Reference nested fields using dot notation in your prompt templates.
+
 11. **Test Your Prompt Templates**
-  - **Why**: Testing ensures that variables are replaced as expected and helps catch typos or missing fields before running large experiments.
-  - **How**: Render your prompt with a sample input to verify correct variable substitution.
+
+- **Why**: Testing ensures that variables are replaced as expected and helps catch typos or missing fields before running large experiments.
+- **How**: Render your prompt with a sample input to verify correct variable substitution.
+
 12. **Document Your Prompt Templates**
-  - **Why**: Clear documentation of which fields are used in your prompt templates helps maintainers and collaborators understand dependencies between your data and prompts.
-  - **How**: Add comments or documentation near your prompt templates explaining expected input fields.
+
+- **Why**: Clear documentation of which fields are used in your prompt templates helps maintainers and collaborators understand dependencies between your data and prompts.
+- **How**: Add comments or documentation near your prompt templates explaining expected input fields.
 
 By following these practices and using Galileo's dataset management features, you can build a robust and maintainable test suite that grows with your application's needs.
 

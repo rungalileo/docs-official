@@ -7,12 +7,14 @@ dotenv.config();
 // Initialize Galileo
 init({
   projectName: process.env.GALILEO_PROJECT,
-  logStreamName: process.env.GALILEO_LOG_STREAM
+  logStreamName: process.env.GALILEO_LOG_STREAM,
 });
 
-const openai = wrapOpenAI(new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
-}));
+const openai = wrapOpenAI(
+  new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  }),
+);
 const prompt = "Explain the following topic succinctly: Newton's First Law";
 await openai.chat.completions.create({
   model: "gpt-4o",
