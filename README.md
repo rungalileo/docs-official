@@ -30,15 +30,14 @@ It'll watch for updates and keep auto-refreshing as long as the command is runni
 
 ```mdx
 # If your DOM looks like this
+
 <Steps>
-<Step>
-Step 1
-</Step>
-<Step>
-</Step>
+  <Step>Step 1</Step>
+  <Step></Step>
 </Steps>
 
 # Structure it with an extra empty line before end tags instead.
+
 <Steps>
 <Step>
 Step 1

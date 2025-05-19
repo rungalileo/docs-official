@@ -2,10 +2,10 @@
 title: Annotations Overview
 ---
 
-import SnippetAnnotationsOverviewPython1 from '/snippets/code/python/annotations/overview/overview-py-1.mdx';
-import SnippetAnnotationsOverviewPython2 from '/snippets/code/python/annotations/overview/overview-py-2.mdx';
-import SnippetAnnotationsOverviewTypeScript1 from '/snippets/code/typescript/annotations/overview/overview-ts-1.mdx';
-import SnippetAnnotationsOverviewTypeScript2 from '/snippets/code/typescript/annotations/overview/overview-ts-2.mdx';
+import SnippetAnnotationsOverviewPython1 from "/snippets/code/python/annotations/overview/overview-py-1.mdx";
+import SnippetAnnotationsOverviewPython2 from "/snippets/code/python/annotations/overview/overview-py-2.mdx";
+import SnippetAnnotationsOverviewTypeScript1 from "/snippets/code/typescript/annotations/overview/overview-ts-1.mdx";
+import SnippetAnnotationsOverviewTypeScript2 from "/snippets/code/typescript/annotations/overview/overview-ts-2.mdx";
 
 Galileo's **Annotations** feature helps teams label, categorize, and analyze model outputs more effectively. Annotations provide a structured way to add human-in-the-loop feedback, highlight model behavior patterns, and guide future improvements to datasets and models.
 
@@ -37,35 +37,34 @@ Annotations are particularly useful for:
 Annotations are added to logged Traces and Spans in the form of **tags** and **metadata**.
 
 **Tags** - short, flat labels (strings) you assign to a trace or span to make them easy to group and filter.
-* Unlimited number of tags per trace/span (practical limit ≈ 50)
-* Case‑sensitive strings ≤ 50 chars each
-* Ideal for boolean‑style filters (e.g., “show me all traces tagged physics”)
+
+- Unlimited number of tags per trace/span (practical limit ≈ 50)
+- Case‑sensitive strings ≤ 50 chars each
+- Ideal for boolean‑style filters (e.g., “show me all traces tagged physics”)
 
 **Metadata** - key‑value dictionaries that travel with a trace or a span, perfect for structured information like user IDs, experiment hashes, timestamps, or numeric metrics.
-* Keys and values are strings ≤ 256 chars
-* Appears in Log Streams as new columns
-* Ideal for structured attributes you can filter, group, and aggregate
 
+- Keys and values are strings ≤ 256 chars
+- Appears in Log Streams as new columns
+- Ideal for structured attributes you can filter, group, and aggregate
 
 ## Adding Annotations to Traces
 
 To add annotations to your [Traces](/concepts/logging/traces), initialize the Galileo Logger, and then include tags and metadata when you start your Trace.
 
 <CodeGroup>
-<SnippetAnnotationsOverviewPython1 />
-<SnippetAnnotationsOverviewTypeScript1 />
+  <SnippetAnnotationsOverviewPython1 />
+  <SnippetAnnotationsOverviewTypeScript1 />
 </CodeGroup>
-
 
 ## Adding Annotations to Spans
 
 Attach annotations to your [Spans](/concepts/logging/spans) by including tags and metadata when you add your Span.
 
 <CodeGroup>
-<SnippetAnnotationsOverviewPython2 />
-<SnippetAnnotationsOverviewTypeScript2 />
+  <SnippetAnnotationsOverviewPython2 />
+  <SnippetAnnotationsOverviewTypeScript2 />
 </CodeGroup>
-
 
 ## Annotations in the Galileo Console
 
@@ -81,11 +80,10 @@ Additionally, metadata appears as **new columns in the Log Stream**.
 
 ## Best Practices
 
-* Tag early. Start the trace yourself and pass tags before the first LLM call; otherwise auto‑spans may end up in an untagged trace.
-* Keep tags coarse‑grained. A handful of well‑chosen tags beat hundreds of one‑offs.
-* Standardise metadata keys. Stick to a naming convention (experiment, user_id, etc.) so dashboards stay tidy.
-* Avoid sensitive data. Never put PII or keys in either tags or metadata; they become queryable in the UI.
-
+- Tag early. Start the trace yourself and pass tags before the first LLM call; otherwise auto‑spans may end up in an untagged trace.
+- Keep tags coarse‑grained. A handful of well‑chosen tags beat hundreds of one‑offs.
+- Standardise metadata keys. Stick to a naming convention (experiment, user_id, etc.) so dashboards stay tidy.
+- Avoid sensitive data. Never put PII or keys in either tags or metadata; they become queryable in the UI.
 
 ## Next Steps:
 
