@@ -40,3 +40,19 @@ You can make multiple LLM calls within a workflow span:
 <CodeGroup>
   <SnippetOpenAIMultipleCalls />
 </CodeGroup>
+
+## Benefits of Using the Wrapper
+
+- **Zero-config logging**: No need to add logging code throughout your application
+- **Complete visibility**: All prompts and responses are automatically captured
+- **Minimal code changes**: Simply change your import statement
+- **Automatic tracing**: Creates spans and traces without manual setup
+- **Streaming support**: Works with both regular and streaming responses
+
+
+<Note>
+### Asynchronous OpenAI Calls with Galileo
+Galileo's Typescript SDK includes an OpenAI wrapper that currently supports only synchronous calls through the OpenAI client. It currently doesn’t not include built-in support for the `AsyncOpenAI` class from the official OpenAI Typescript library. As a result, asynchronous calls made via `galileo.openai` wrapper won't automatically generate LLM spans or upload telemetry to Galileo. 
+
+You can still track async interactions by manually using the low-level `GalileoLogger` API. This requires importing and awaiting the OpenAI `AsyncOpenAI` client, wrapping each call with [`add_llm_span`](/sdk-api/typescript/logging/galileo-logger#llm-spans) (or using `start_trace`/ `conclude`), and flushing the logger to send your traces. 
+</Note>

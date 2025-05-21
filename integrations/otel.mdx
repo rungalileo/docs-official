@@ -1,35 +1,51 @@
 ---
-title: "Logging using OpenTelemetry to Galileo with OpenInference in Python"
-description: "Logging via OpenTelemetry to Galileo's Observe platform; Simply modify the endpoint and headers to be up and running."
+title: "Logging to Galileo using OpenTelemetry and OpenInference (Python)"
+description: "This guide explains how to send OpenTelemetry (OTEL) traces to Galileo using OpenInference. Configure the endpoint and headers to get started quickly."
+icon: "python"
 ---
 
 ## Installation
 
-To integrate OpenTelemetry (OTEL) tracing with Galileo you need the following dependencies:
+Install the required OpenTelemetry and OpenInference dependencies:
 
-`pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation`
+```bash
+pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation
+```
+
+> _Tested with:_
+>
+> - `opentelemetry-api==1.23.0`
+> - `opentelemetry-sdk==1.23.0`
+> - `openinference-instrumentation-langchain==0.3.1`
+
+---
 
 ## Authentication
 
-First create an [API key](https://app.galileo.ai/settings/api-keys) to authenticate.
-Copy your project name and log stream name
+1. [Generate an API key](https://app.galileo.ai/settings/api-keys) from your Galileo account.
+2. Copy your **project name** and **log stream name** from the Galileo console.
+
+Set the authentication headers in your environment:
 
 ```python
 import os
+
 headers = {
-    "Galileo-API-Key": "7UKL4Qow2w9qTiYEH2HGR9f7MHVlZyTxDmAhxWE5i94",
-    "project_name": MY_PROJECT_NAME,
-    "log_stream_name": MY_RUN_NAME,  # Matches Galileo's run_name
+    "Galileo-API-Key": "<YOUR_API_KEY>",           # Replace with your actual API key
+    "project": "<YOUR_PROJECT_NAME>",         # Replace with your project name
+    "logstream": "<YOUR_RUN_NAME>",          # Must match the log stream name in Galileo
 }
+
+# Format headers as a comma-separated key=value string
+# Example: Galileo-API-Key=abc123,project=my_project,logstream=my_run
 os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS'] = ",".join([f"{k}={v}" for k, v in headers.items()])
 ```
 
-Once the headers are set, we can initialize the OTEL logging.
+---
 
-## Python setup
+## OpenTelemetry Setup
 
-Finally we can setup the OTEL logging to send traces to Galileo.
-For this we need to set the endpoint and the
+Place this setup at the top of your script, before initializing your LLM or pipeline framework:
 
 ```python
 from opentelemetry.sdk import trace as trace_sdk
@@ -39,112 +55,193 @@ from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExport
 from opentelemetry.sdk.trace.export import ConsoleSpanExporter
 from openinference.instrumentation.langchain import LangChainInstrumentor
 
-# OTEL tracing setup
-endpoint = "http://api.galileo.ai/otel/traces" # Make sure to replace with the correct endpoint
+# OTEL exporter endpoint
+endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
+
+# Configure OTEL tracer provider
 tracer_provider = trace_sdk.TracerProvider()
+
+# Sends traces to Galileo
 tracer_provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint)))
+
+# Optional: Prints traces to console for local debugging
 tracer_provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
+
 trace_api.set_tracer_provider(tracer_provider=tracer_provider)
+
+# Instrument LangChain (or replace with your framework's instrumentor)
 LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
 ```
 
+> **Note:** Apply instrumentation **before** importing or initializing your framework (e.g., LangChain, OpenAI).
+
+---
+
+## Full Working Example
+
+Check out a complete working example on Colab:
+🔗 [OpenTelemetry + Galileo Integration Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_LangChain_Notebook.ipynb)
+
+---
+
 ## Summary
 
-1. Set the headers with the API key, project name and log stream name.
-2. Initialize the OTEL logging with the correct endpoint.
-3. Instrument the needed instrumentors.
-4. Start logging with OTEL.
+To enable OTEL logging with Galileo:
 
-Supported Instrumentors are:
+1. Set the OTEL headers using your API key, project name, and log stream name.
+2. Set the exporter endpoint: `https://app.galileo.ai/api/galileo/otel/traces`
+3. Register your tracer provider and processors.
+4. Import and apply the OpenInference instrumentor(s) before initializing your application.
 
-- [OpenAI: openinference-instrumentation-openai](https://pypi.org/project/openinference-instrumentation-openai/)
-- [LLama Index: openinference-instrumentation-llama-index](https://pypi.org/project/openinference-instrumentation-llama-index/)
-- [DSPy: openinference-instrumentation-dspy](https://pypi.org/project/openinference-instrumentation-dspy/)
-- [Bedrock: openinference-instrumentation-bedrock](https://pypi.org/project/openinference-instrumentation-bedrock/)
-- [Langchain: openinference-instrumentation-langchain](https://pypi.org/project/openinference-instrumentation-langchain/)
-- [Mistral: openinference-instrumentation-mistralai](https://pypi.org/project/openinference-instrumentation-mistralai/)
-- [Guardrails: openinference-instrumentation-guardrails](https://pypi.org/project/openinference-instrumentation-guardrails/)
-- [Vertex AI: openinference-instrumentation-vertexai](https://pypi.org/project/openinference-instrumentation-vertexai/)
-- [CrewAI: openinference-instrumentation-crewai](https://pypi.org/project/openinference-instrumentation-crewai/)
-- [Haystack: openinference-instrumentation-haystack](https://pypi.org/project/openinference-instrumentation-haystack/)
-- [LiteLLM: openinference-instrumentation-litellm](https://pypi.org/project/openinference-instrumentation-litellm/)
-- [Groq: openinference-instrumentation-groq](https://pypi.org/project/openinference-instrumentation-groq/)
-- [Instructor:openinference-instrumentation-instructor](https://pypi.org/project/openinference-instrumentation-instructor/)
-- [Anthropic: openinference-instrumentation-anthropic](https://pypi.org/project/openinference-instrumentation-anthropic/)
+---
+
+## Supported Instrumentors
+
+These can be used individually or in combination, depending on your framework:
+
+- [OpenAI](https://pypi.org/project/openinference-instrumentation-openai/)
+- [LLama Index](https://pypi.org/project/openinference-instrumentation-llama-index/)
+- [DSPy](https://pypi.org/project/openinference-instrumentation-dspy/)
+- [Bedrock](https://pypi.org/project/openinference-instrumentation-bedrock/)
+- [Langchain](https://pypi.org/project/openinference-instrumentation-langchain/)
+- [Mistral](https://pypi.org/project/openinference-instrumentation-mistralai/)
+- [Guardrails](https://pypi.org/project/openinference-instrumentation-guardrails/)
+- [Vertex AI](https://pypi.org/project/openinference-instrumentation-vertexai/)
+- [CrewAI](https://pypi.org/project/openinference-instrumentation-crewai/)
+- [Haystack](https://pypi.org/project/openinference-instrumentation-haystack/)
+- [LiteLLM](https://pypi.org/project/openinference-instrumentation-litellm/)
+- [Groq](https://pypi.org/project/openinference-instrumentation-groq/)
+- [Instructor](https://pypi.org/project/openinference-instrumentation-instructor/)
+- [Anthropic](https://pypi.org/project/openinference-instrumentation-anthropic/)
+
+---
 
 ## FAQ
 
-### How do I setup a project?
+### How do I create a project?
 
-Log into your console and create a new logging project. Copy the project name and log stream name after setup
+Log in to the Galileo console and create a new logging project. After creation, copy the **project name** and **log stream name** from the interface.
 
-### Which Instrumentors do i need to import?
+---
 
-For these frameworks you need to import the following instrumentors:
+### Which instrumentors should I import?
 
-- *OpenAI*
-    ```python
-    from openinference.instrumentation.openai import OpenAIInstrumentor
-    ```
-- *LLama Index*
-    ```python
-    from openinference.instrumentation.llama- *index import LlamaIndexInstrumentor
-    ```
-- *DSPy*
-    ```python
-    from openinference.instrumentation.dspy import DSPyInstrumentor
-    ```
-- *Bedrock*
-    ```python
-    from openinference.instrumentation.bedrock import BedrockInstrumentor
-    ```
-- *Langchain*
-    ```python
-    from openinference.instrumentation.langchain import LangChainInstrumentor
-    ```
-- *Mistral*
-    ```python
-    from openinference.instrumentation.mistralai import MistralAIInstrumentor
-    ```
-- *Guardrails*
-    ```python
-    from openinference.instrumentation.guardrails import GuardrailsInstrumentor
-    ```
-- *Vertex AI*
-    ```python
-    from openinference.instrumentation.vertexai import VertexAIInstrumentor
-    ```
-- *CrewAI*
-    ```python
-    from openinference.instrumentation.crewai import CrewAIInstrumentor
-    from openinference.instrumentation.langchain import LangChainInstrumentor
-    ```
-- *Haystack*
-    ```python
-    from openinference.instrumentation.haystack import HaystackInstrumentor
-    ```
-- *LiteLLM*
-    ```python
-    from openinference.instrumentation.litellm import LiteLLMInstrumentor
-    ```
-- *Groq*
-    ```python
-    from openinference.instrumentation.groq import GroqInstrumentor
-    ```
-- *Instructor*
-    ```python
-    from openinference.instrumentation.instructor import InstructorInstrumentor
-    from openinference.instrumentation.openai import OpenAIInstrumentor
-    from openai import OpenAI
+Choose the instrumentor(s) matching your framework:
 
-    # Add the needed client so it's using the correct instrumentor
-    client = instructor.from_openai(OpenAI())
-    ```
+```python
+# OpenAI
+from openinference.instrumentation.openai import OpenAIInstrumentor
 
-_Anthropic:_
-`from openinference.instrumentation.anthropic import AnthropicInstrumentor`
+# LlamaIndex
+from openinference.instrumentation.llama_index import LlamaIndexInstrumentor
 
-### How do I get the correct endpoint?
+# DSPy
+from openinference.instrumentation.dspy import DSPyInstrumentor
 
-The endpoint is the console URL but instead of `console` you replace it with `api`
-and the path is `/otel/traces`
+# Bedrock
+from openinference.instrumentation.bedrock import BedrockInstrumentor
+
+# LangChain
+from openinference.instrumentation.langchain import LangChainInstrumentor
+
+# Mistral AI
+from openinference.instrumentation.mistralai import MistralAIInstrumentor
+
+# Guardrails
+from openinference.instrumentation.guardrails import GuardrailsInstrumentor
+
+# Vertex AI
+from openinference.instrumentation.vertexai import VertexAIInstrumentor
+
+# CrewAI
+from openinference.instrumentation.crewai import CrewAIInstrumentor
+from openinference.instrumentation.litellm import LiteLLMInstrumentor
+
+# Haystack
+from openinference.instrumentation.haystack import HaystackInstrumentor
+
+# LiteLLM
+from openinference.instrumentation.litellm import LiteLLMInstrumentor
+
+# Groq
+from openinference.instrumentation.groq import GroqInstrumentor
+
+# Instructor
+from openinference.instrumentation.instructor import InstructorInstrumentor
+
+# Anthropic
+from openinference.instrumentation.anthropic import AnthropicInstrumentor
+```
+
+#### Instructor Example with Client:
+
+```python
+from openinference.instrumentation.instructor import InstructorInstrumentor
+from openinference.instrumentation.openai import OpenAIInstrumentor
+from openai import OpenAI
+import instructor
+
+client = instructor.from_openai(OpenAI())
+```
+
+---
+
+### What is the correct OTEL endpoint?
+
+Use the Galileo API base URL with the `/otel/traces` path:
+
+```
+https://app.galileo.ai/api/galileo/otel/traces
+or cluster your custom cluster
+http://api.YOUR_CLUSTER_URL/otel/traces
+```
+
+If your console URL is `https://console.your_cluster_url.com`, the endpoint becomes `http://api.your_cluster_url.com/otel/traces`.
+
+---
+
+### How do I verify it’s working?
+
+- Use `ConsoleSpanExporter` to see local trace output.
+- Check the Galileo dashboard for incoming traces.
+- Add a test span like this:
+
+```python
+from opentelemetry import trace
+
+tracer = trace.get_tracer(__name__)
+with tracer.start_as_current_span("test-span"):
+    print("Tracing is active")
+```
+
+---
+
+### Troubleshooting
+
+- ✅ Confirm your API key, project name, and log stream name are correct.
+- ✅ Make sure the environment variable is correctly formatted.
+- ✅ Ensure the endpoint is accessible from your environment.
+- ✅ Instrument your framework before using it.
+- ✅ Restart environment after changing environment variables.
+- ✅ Use `print(os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS'])` to debug your header string.
+- ✅ Make sure to use **BatchSpanProcessor(OTLPSpanExporter(endpoint))** not ~~SingleSpanProcessor~~
+
+---
+
+## Resources
+
+- [OpenTelemetry Python Documentation](https://opentelemetry.io/docs/instrumentation/python/)
+- [OpenInference GitHub Repository](https://github.com/braintrustdata/openinference)
+
+## Notebooks
+
+🔗 [Anthropic + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Anthropic_Notebook.ipynb)
+🔗 [Crew AI + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Crew_AI_Notebook.ipynb)
+🔗 [DSPY + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_DSPY_Notebook.ipynb)
+🔗 [Groq + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_GROQ_Notebook.ipynb)
+🔗 [LLamaIndex + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_LLama_Index_Notebook.ipynb)
+🔗 [LangChain + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_LangChain_Notebook.ipynb)
+🔗 [LiteLLM + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_LiteLLM_Notebook.ipynb)
+🔗 [Mistral + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Mistral_Notebook.ipynb)
+🔗 [OpenAI + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_OpenAI_Notebook.ipynb)
+🔗 [Vertexai + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Vertexai_Notebook.ipynb)
