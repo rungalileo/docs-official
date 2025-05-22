@@ -1,5 +1,6 @@
 ---
 title: Overview
+description: An overview of the Galileo TypeScript SDK.
 ---
 
 import SnippetInstallationNpm from "/snippets/code/typescript/sdk/installation/npm.mdx";
@@ -13,15 +14,12 @@ The [Galileo TypeScript SDK](https://github.com/rungalileo/galileo-js) ([latest 
 
 <InfoNote>Visit the [Galileo NPM package page](https://www.npmjs.com/package/galileo) for more installation options and version information.</InfoNote>
 
-## Logging Methods
+## Key Features
 
-The TypeScript SDK allows you to log all prompts, responses, and statistics around your LLM usage. There are three main ways to log your application:
-
-1. **[Using a wrapper (Recommended)](/sdk-api/typescript/wrappers/wrappers-overview)** - Instead of importing LLM clients directly like `openai`, use Galileo's wrapper which automatically logs everything with no other code changes required!
-2. **[Using the log function wrapper](/sdk-api/typescript/logging/log-function-wrapper)** - By wrapping a function that calls an LLM with the `log` function wrapper, you can create workflow spans with nested LLM calls and tool spans.
-3. **[Directly using the GalileoLogger class (Manual)](/sdk-api/typescript/logging/galileo-logger)** - For more advanced use cases, you can use the GalileoLogger directly to have full control over the logging process.
-
-Regardless of which logging method you choose, you will need to initialize your API keys and install the Galileo SDK by following the steps below.
+- **Logging**: Capture LLM interactions, tool usage, and workflow execution
+- **Experimentation**: Run experiments to evaluate and improve your LLM applications
+- **Datasets**: Create and manage datasets for testing and evaluation
+- **Prompts**: Create, version, and test prompt templates
 
 ## Installation
 
@@ -31,12 +29,15 @@ Regardless of which logging method you choose, you will need to initialize your 
   <SnippetInstallationPnpm />
 </CodeGroup>
 
-## Key Features
+## Initialization and Authentication
 
-- **Logging**: Capture LLM interactions, tool usage, and workflow execution
-- **Experimentation**: Run experiments to evaluate and improve your LLM applications
-- **Datasets**: Create and manage datasets for testing and evaluation
-- **Prompts**: Create, version, and test prompt templates
+Make sure you have a Galileo API key and configure Galileo using environment variables:
+
+<CodeGroup>
+  <SnippetEnvSetup />
+</CodeGroup>
+
+<Note>The SDK automatically targets the [production console](https://app.galileo.ai). If you are using a deployment of Galileo on premises or in the cloud, point `GALILEO_CONSOLE_URL` to your own installation.</Note>
 
 ## Getting Started
 
@@ -46,22 +47,23 @@ The simplest way to get started is to use our OpenAI client wrapper:
   <SnippetOpenAIBasic />
 </CodeGroup>
 
-## Authentication
+## Logging Methods
 
-Make sure you have a Galileo API key and configure Galileo using environment variables:
+The TypeScript SDK allows you to log all prompts, responses, and statistics around your LLM usage. There are three main ways to log your application:
 
-<CodeGroup>
-  <SnippetEnvSetup />
-</CodeGroup>
+1. **[Using a wrapper (Recommended)](/sdk-api/typescript/wrappers/wrappers-overview)** - Instead of importing LLM clients directly like `openai`, use Galileo's wrapper which automatically logs everything with no other code changes required!
+2. **[Using the log function wrapper](/sdk-api/typescript/logging/log-function-wrapper)** - By wrapping a function that calls an LLM with the `log` function wrapper, you can create workflow spans with nested LLM calls and tool spans.
+3. **[Directly using the `GalileoLogger` class (Manual)](/sdk-api/typescript/logging/galileo-logger)** - For more advanced use cases, you can use the GalileoLogger directly to have full control over the logging process.
 
-## SDK Components
+Regardless of which logging method you choose, you will need to initialize your API keys and install the Galileo SDK by following the steps below.
 
-The Galileo TypeScript SDK consists of several components:
+## Additional Documentation
 
-- **Wrappers**: Easily integrate with popular LLM providers like OpenAI
-- **Core Logging**: Log LLM interactions, tool usage, and workflow execution
-- **Experiments**: Run experiments to evaluate and improve your LLM applications
-- **Datasets**: Create and manage datasets for testing and evaluation
-- **Prompts**: Create, version, and test prompt templates
+The Galileo TypeScript SDK consists of several components: Check out the individual component documentation for more details.
 
-Check out the individual component documentation for more details.
+- [**Wrappers**](/sdk-api/typescript/wrappers/wrappers-overview): Easily integrate with popular LLM providers like OpenAI
+- [**Core Logging**](/sdk-api/typescript/logging/galileo-logger): Log LLM interactions, tool usage, and workflow execution
+- [**Experiments**](/sdk-api/typescript/experiments): Run experiments to evaluate and improve your LLM applications
+- [**Datasets**](/sdk-api/typescript/datasets): Create and manage datasets for testing and evaluation
+- [**Prompts**](/sdk-api/typescript/prompts): Create, version, and test prompt templates
+
