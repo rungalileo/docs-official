@@ -12,13 +12,7 @@ import SnippetSdkContextBasic from "/snippets/code/python/sdk/context/basic.mdx"
 import SnippetSdkContextExplicitFlush from "/snippets/code/python/sdk/context/explicit-flush.mdx";
 import { InfoNote } from "/snippets/components/info-note.mdx";
 
-The [Galileo Python SDK](https://github.com/rungalileo/galileo-python/) ([latest release](https://github.com/rungalileo/galileo-python/releases/latest)) allows you to log all prompts, responses, and statistics around your LLM usage. There are three main ways to log your application:
-
-1. **[Using a wrapper (Recommended)](#wrapper-method)** - Instead of importing common LLMs like `openai`, use Galileo's wrapper which automatically logs everything, no other code changes required!
-2. **[Using a decorator](#decorator-method)** - By decorating a function that calls an LLM with the `@log` decorator, the Galileo SDK logs all AI prompts within.
-3. **[Directly using the `GalileoLogger` class (Manual)](#manual-method)** - As a last resort, you can directly use the base class, but this requires calling multiple methods per LLM call.
-
-Regardless of how you go about logging your AI application, you will still need to initialize your API keys and install the Galileo SDK by following the steps below.
+The [Galileo Python SDK](https://github.com/rungalileo/galileo-python/) ([latest release](https://github.com/rungalileo/galileo-python/releases/latest)) provides a comprehensive set of tools for logging, evaluating, and experimenting with LLM applications. Regardless of how you go about logging your AI application, you will still need to install the Galileo SDK and initialize your API keys by following the steps below.
 
 <InfoNote>Visit the [Galileo PyPI package page](https://pypi.org/project/galileo/) for more installation options and version information.</InfoNote>
 
@@ -30,22 +24,35 @@ Install Galileo's Python SDK to your project by running:
 pip install galileo
 ```
 
-## Initialization/Authentication
+## Initialization and Authentication
 
 Create or update a `.env` file with the following values:
 
-```env
+```env ENV
 # Scoped to an Organization
 GALILEO_API_KEY=...
 
-# Optional, set a default Project
+# (Optional) set a default Project
 GALILEO_PROJECT=...
-# Optional, set a default Log Stream
+
+# (Optional) set a default Log Stream
 GALILEO_LOG_STREAM=...
+
+# (Optional) set a path to your custom Galileo console deployment
+GALILEO_CONSOLE_URL=...
 ```
+
+<Note>The SDK automatically targets the [hosted Galileo console](https://app.galileo.ai). If you are using a deployment of Galileo on premises or in the cloud, point `GALILEO_CONSOLE_URL` to your own installation.</Note>
 
 <a id="wrapper-method"></a>
 ## Logging
+
+
+The Galileo Python SDK allows you to log all prompts, responses, and statistics around your LLM usage. There are three main ways to log your application:
+
+1. **[Using a wrapper (Recommended)](#wrapper-method)** - Instead of importing common LLMs like `openai`, use Galileo's wrapper which automatically logs everything, no other code changes required!
+2. **[Using a decorator](#decorator-method)** - By decorating a function that calls an LLM with the `@log` decorator, the Galileo SDK logs all AI prompts within.
+3. **[Directly using the `GalileoLogger` class (Manual)](#manual-method)** - As a last resort, you can directly use the base class, but this requires calling multiple methods per LLM call.
 
 ### Using LLM Wrappers
 
@@ -86,8 +93,8 @@ Here's how to create a tool span using the decorator:
 For more detailed information and examples, see the [@log Decorator documentation](./logging/log-decorator).
 
 <a id="manual-method"></a>
-### Pure invocation using the `GalileoLogger` This is the most verbose way to log your application. It requires manually calling the `GalileoLogger` class and adding spans to the trace. We recommend using the other two methods whenever
-possible.
+### Pure invocation using the `GalileoLogger` 
+This is the most verbose way to log your application. It requires manually calling the `GalileoLogger` class and adding spans to the trace. We recommend using the other two methods whenever possible.
 
 <CodeGroup>
   <SnippetSdkGalileoLogger />
