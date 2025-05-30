@@ -7,43 +7,43 @@ import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 
 <DefinitionCard>
-  <strong>Action Completion</strong> measures whether an assistant successfully accomplishes or makes progress toward at least one user goal in a conversation.
+  <strong>Action Completion</strong> determines whether the assistant successfully accomplished all of the user's goals.
 </DefinitionCard>
 
-An assistant successfully advances a user's goal when it:
+To accomplish a user’s goal, the assistant must:
 
-1. Provides a complete or partial answer to the user's question
-2. Requests clarification or additional information to better understand the user's needs
-3. Confirms that a requested action has been successfully completed
+- Provide a complete answer in the case of a question.
+- Provide a confirmation of successful action in the case of a request.
 
-For an interaction to count as advancing the user's goal, the assistant's response must be:
-
-- Factually accurate
-- Directly addressing the user's request
-- Consistent with any tool outputs used
+Additionally, the response must:
+- Be coherent and factually accurate.
+- Comprehensively address every aspect of the user’s request.
+- Avoid contradicting tool outputs.
+- Summarize all relevant parts returned by tools.
 
 ## Calculation Method
 
-If the Action Advancement score is less than 100%, it means at least one evaluator determined the assistant failed to make progress on any user goal.
+If the response does not achieve an Action Completion score of 100%, it indicates that at least one judge considered the model to have failed in accomplishing every user goal.
 
-Action Advancement is calculated by:
+Action Completion is calculated by:
 
 <Steps>
-  <Step title="Model Request">
-    Multiple evaluation requests are sent to an LLM evaluator (e.g., OpenAI's GPT4o-mini) to analyze the assistant's progress toward user goals.
+  <Step title="Additional Requests">
+    Multiple requests are sent to an LLM (e.g., OpenAI’s GPT4o) using a carefully designed chain-of-thought prompt that adheres to the definition above.
 
 </Step>
-  <Step title="Prompt Engineering">
-    A specialized chain-of-thought prompt guides the model to evaluate whether the assistant made progress on user goals based on the metric's definition.
+  <Step title="Judgment Responses">
+    The LLM generates multiple distinct responses, each containing:
+    - An explanation.
+    A final judgment: "Yes" (goal accomplished) or "No" (goal not accomplished).
 
 </Step>
-  <Step title="Evaluation Process">
-    Each evaluation analyzes the interaction and produces both a detailed explanation and a binary judgment (yes/no) on goal advancement.
+  <Step title="Score Computation">
+    The final score is calculated as: [ \text{Action Completion Score} = \frac{\text{Number of "Yes" Responses}}{\text{Total Number of Responses}} ]
 
 </Step>
-  <Step title="Score Calculation">
-    The final Action Advancement score is computed as the percentage of positive ('yes') responses out of all evaluation responses.
-
+  <Step title="Explanation Surfacing">
+    One explanation is surfaced, chosen to align with the majority judgment among the responses.
 </Step>
 </Steps>
 
@@ -51,10 +51,9 @@ We display one of the generated explanations alongside the score, always choosin
 
 <Note>
 This metric requires multiple LLM calls to compute, which may impact usage and billing.
-
 </Note>
 
-## Understanding Action Advancement
+## Understanding Action Completion
 
 <Card>
   <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
@@ -67,48 +66,34 @@ This metric requires multiple LLM calls to compute, which may impact usage and b
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>When to Use This Metric</h3>
   </div>
 
-Action Advancement is particularly valuable for evaluating:
+The **Action Completion** metric is particularly valuable in the following scenarios:
 
-<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Agentic Workflows:</strong> When an AI agent must decide on actions and select appropriate tools.
-</div>
+- **Agentic Workflows**: When an AI agent must decide on a course of action and select tools to accomplish tasks.
+- **Multi-step Tasks**: When completing a user's request requires multiple steps or decisions.
+- **Tool-using Assistants**: When evaluating if the assistant used available tools effectively.
 
-<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Multi-step Tasks:</strong> When completing a user's request requires multiple steps or decisions.
-</div>
-
-<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Tool-using Assistants:</strong> When evaluating if the assistant used available tools effectively.
-</div>
-
-<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  This metric helps you determine whether the assistant chose appropriate actions and made meaningful progress toward fulfilling the user's request.
-</div>
-
+This metric helps determine whether the assistant chose appropriate actions and made meaningful progress toward fulfilling the user's request.
 </Card>
 
 ## Best Practices
 
+To optimize your assistant's performance and ensure high Action Completion scores, consider the following best practices:
+
 <CardGroup cols={2}>
   <Card title="Track Progress Over Time" icon="chart-line">
-    Monitor Action Advancement scores across different versions of your agent to ensure improvements in task completion capabilities.
-
-</Card>
+    Monitor Action Completion scores across different versions of your agent to identify trends and ensure continuous improvements in task completion capabilities.
+  </Card>
   <Card title="Analyze Failure Patterns" icon="magnifying-glass">
-    When Action Advancement scores are low, examine the specific steps where agents fail to make progress to identify systematic issues.
-
-</Card>
+    When Action Completion scores are low, examine specific steps or scenarios where agents fail to meet user goals. Use this analysis to identify and address systematic issues.
+  </Card>
   <Card title="Combine with Other Metrics" icon="scale-balanced">
-    Use Action Advancement alongside other agentic metrics to get a comprehensive view of your assistant's effectiveness.
-
-</Card>
+    Use Action Completion alongside other agentic metrics, such as Action Advancement, to get a comprehensive view of your assistant's effectiveness and identify areas for improvement.
+  </Card>
   <Card title="Test Edge Cases" icon="code-branch">
-    Create evaluation datasets that include complex, multi-step tasks to thoroughly assess your agent's ability to advance user goals.
-
-</Card>
+    Create evaluation datasets that include complex, multi-step tasks to thoroughly assess your agent's ability to handle challenging scenarios and advance user goals effectively.
+  </Card>
 </CardGroup>
 
 <Note>
-When optimizing for Action Advancement, ensure you're not sacrificing other important aspects like safety, factual accuracy, or user experience in pursuit of task completion.
-
+When optimizing for Action Completion, ensure you're not sacrificing other important aspects like safety, factual accuracy, or user experience in pursuit of task completion.
 </Note>
