@@ -5,19 +5,23 @@ description: Understand how to measure and optimize the effectiveness of your AI
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { Steps, Step } from "/snippets/components/steps.mdx";
+import { Card } from "/snippets/components/card.mdx";
+import { CardGroup } from "/snippets/components/card-group.mdx";
+import { Note } from "/snippets/components/note.mdx";
 
 <DefinitionCard>
   <strong>Action Completion</strong> determines whether the assistant successfully accomplished all of the user's goals.
 </DefinitionCard>
 
-To accomplish a user’s goal, the assistant must:
+To accomplish a user's goal, the assistant must:
 
 - Provide a complete answer in the case of a question.
 - Provide a confirmation of successful action in the case of a request.
 
 Additionally, the response must:
 - Be coherent and factually accurate.
-- Comprehensively address every aspect of the user’s request.
+- Comprehensively address every aspect of the user's request.
 - Avoid contradicting tool outputs.
 - Summarize all relevant parts returned by tools.
 
@@ -29,7 +33,7 @@ Action Completion is calculated by:
 
 <Steps>
   <Step title="Additional Requests">
-    Multiple requests are sent to an LLM (e.g., OpenAI’s GPT4o) using a carefully designed chain-of-thought prompt that adheres to the definition above.
+    Multiple requests are sent to an LLM (e.g., OpenAI's GPT4o) using a carefully designed chain-of-thought prompt that adheres to the definition above.
 
 </Step>
   <Step title="Judgment Responses">
@@ -39,7 +43,7 @@ Action Completion is calculated by:
 
 </Step>
   <Step title="Score Computation">
-    The final score is calculated as: [ \text{Action Completion Score} = \frac{\text{Number of "Yes" Responses}}{\text{Total Number of Responses}} ]
+    Action Completion Score = (Number of "Yes" Responses) / (Total Number of Responses)
 
 </Step>
   <Step title="Explanation Surfacing">
