@@ -10,7 +10,7 @@ In this tutorial, you'll learn how to add evaluations with Galileo to an existin
 
 * Python
 * LangGraph
-* The basics of [setting up a project and metrics in Galileo](/getting-started/quickstart)
+* [Setting up a project and metrics in Galileo](/getting-started/quickstart)
 
 By the end of this tutorial, you'll be able to:
 
@@ -19,7 +19,7 @@ By the end of this tutorial, you'll be able to:
 
 ## Background
 
-This tutorial uses an existing Banking chatbot app powered by Chainlit and LangGraph. This is a very simplistic example of a chatbot for a fictitious bank. It is a multi-agent app, with a supervisor agent, and a single additional agent that can be used to answer questions on the credit cards offered by the bank. This agent uses some dummy credit card documents stored in a Pinecone vector database.
+This tutorial uses an existing banking chatbot app powered by Chainlit and LangGraph. This is a very simplistic example of a chatbot for a fictitious bank. It is a multi-agent app, with a supervisor agent, and a single additional agent that can be used to answer questions on the credit cards offered by the bank. This agent uses some dummy credit card documents stored in a Pinecone vector database.
 
 For example, you can ask questions like "What credit cards do you offer?" or "Which card has the lowest annual fee?"
 
@@ -74,7 +74,7 @@ Chainlit provides a web front end for a chatbot, managing user interaction and c
 
 - `app.py` - This contains the main application logic for a Chainlit app. It has an `on_chat_start` function that is called whenever a new chat is started, and a `main` function that is called whenever a message is sent.
 - `src/galileo_langgraph_fsi_agent/agents/supervisor_agent.py` - This is a LangGraph supervisor agent that manages the other agents, routing messages where needed. This is configured to use GPT-4.1-mini.
-- `src/galileo_langgraph_fsi_agent/agents/credit_card_information_agent.py` - This is a LangGraph agent that uses a tool to extract information about the available credit cards from Pinecone.
+- `src/galileo_langgraph_fsi_agent/agents/credit_card_information_agent.py` - This is a LangGraph agent that uses a tool to extract information about the available credit cards from Pinecone. This is also configured to use GPT-4.1-mini.
 - `src/galileo_langgraph_fsi_agent/tools/pinecone_retrieval_tool.py` - This is a LangGraph tool that interacts with the Pinecone vector database. It is called by the `credit_card_information_agent`.
 
 ## Before you start
@@ -175,6 +175,10 @@ To send data to Galileo, you need to use the Galileo Python package.
 
 Next you need to add code to log to Galileo. Galileo has a LangGraph callback handler that can be passed into the agent to automatically log traces for every step in the chain, including agent calls, tool calls, and LLM calls.
 
+<Note>
+You can find a complete version of this code with all the code added in the `sdk-examples/python/agent/langgraph-fsi-agent/after` folder in the cloned repo.
+</Note>
+
 ### Add the logging code
 
 1. Add include directives for the Galileo components to the top of the `app.py` file:
@@ -259,11 +263,11 @@ Next you need to add code to log to Galileo. Galileo has a LangGraph callback ha
 
 ### Add more traces to the session
 
-Sessions contain multiple traces. For example, a single user conversation with your bot would be a single session, containing multiple traces for the different questions you ask the bot.
+Sessions can contain multiple traces. For example, a single user conversation with your bot would be a single session, containing multiple traces for the different questions you ask the bot.
 
-1. Ask the bot a follow up question, such as "Which card has no annual fee?"
+1. Ask the bot a follow up question related to credit cards, such as "Which card has no annual fee?"
 
-1. Follow this up with a question that does not involve specific information about the credit cards, such as "What does APR stand for?"
+1. Follow this up with a third question that does not involve specific information about the credit cards, such as "What does APR stand for?"
 
 1. View the session in the Galileo console.
 
