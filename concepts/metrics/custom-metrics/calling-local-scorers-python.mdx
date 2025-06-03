@@ -3,6 +3,8 @@ title: Local Metrics
 description: "Learn how to create and use local scorers with Galileo's Python SDK"
 ---
 
+import SnippetExperimentsCustomMetrics from "/snippets/code/python/concepts/experiments/custom-metrics.mdx";
+
 ## Overview
 
 A **Local Metric** (or *Local scorer*) is a [custom metric](/concepts/metrics/custom-metrics/custom-metrics-ui-code#custom-scorers) that you can attach to an experiment—just like a Galileo preset metric. The key difference is that a Local Metric lives in code on your machine, so you share it by sharing your code. Local Metrics are ideal for running isolated tests and refining outcomes when you need more control than built-in metrics offer. This guide explains what Local Metrics are, how to create one, and where to view results.
@@ -120,71 +122,9 @@ def llm_call(input):
 
 The snippet below brings all the preceding code samples together into a single file. Now we can combine everything (dataset, LLM-call, and our custom metric) by calling `run_experiment`. After it runs, you'll see a URL in your terminal that directs you to the experiment results in the Galileo console:
 
-```python
-from galileo import Trace, Span
-from galileo.experiments import run_experiment
-from galileo.openai import openai
-from galileo.schema.metrics import LocalMetricConfig
-
-# 1. Scorer Function
-def brevity_rank(step: Span | Trace) -> str:
-    """Rank response brevity based on word count."""
-    word_count = len(step.output.content.split(" "))
-    if word_count <= 3:
-        return "Terse"
-    if word_count <= 5:
-        return "Temperate"
-    return "Talkative"
-
-# 2. Aggregator Function
-def brevity_aggregator(ranks: list[str]) -> str:
-    """Extract the single rank and adjust if it's 'Talkative'."""
-    return "Terrible" if ranks[0] == "Talkative" else ranks[0]
-
-# 3. Configure the Local Metric
-terseness = LocalMetricConfig[str](
-    name="Terseness",
-    scorer_fn=brevity_rank,
-    aggregator_fn=brevity_aggregator,
-)
-
-# 4. Dataset
-countries_dataset = [
-    {"input": "Indonesia"},
-    {"input": "New Zealand"},
-    {"input": "Greenland"},
-    {"input": "China"},
-]
-
-# 5. LLM-Call Function
-def llm_call(input):
-    return (
-        openai.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {
-                    "role": "system", 
-                    "content": "You are a geography expert. Always answer as succinctly as possible."
-                },
-                {
-                    "role": "user", 
-                    "content": f"Which continent does the following country belong to: {input}"
-                },
-            ],
-        )
-        .choices[0]
-        .message.content
-    )
-
-# 6. Run the Experiment!
-results = run_experiment(
-    "terseness-custom-metric",
-    dataset=countries_dataset,
-    function=llm_call,
-    metrics=[terseness],  # You can add multiple custom metrics here
-    project="My first project",
-)
-```
+<CodeGroup>
+    <SnippetExperimentsCustomMetrics />
+</CodeGroup>
 
 ### View the Results
 
