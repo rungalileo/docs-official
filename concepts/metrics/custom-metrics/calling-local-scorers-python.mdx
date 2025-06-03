@@ -40,7 +40,7 @@ Below is a step-by-step implementation of a Local Metric that rates the brevity 
     <Step title="Create a Scorer Function">
         The Scorer Function assigns one of three ranks—`"Terse"`, `"Temperate"`, or `"Talkative"`—depending on how many words the model outputs:
         
-```python
+```python Python
 from galileo import Trace, Span
 
 def brevity_rank(step: Span | Trace) -> str:
@@ -57,7 +57,7 @@ def brevity_rank(step: Span | Trace) -> str:
     <Step title="Create an Aggregator Function">
         Since our Scorer returns a single rank per record, the Aggregator simply examines that rank and returns it—modifying it to flag overly long responses as `"Terrible"`:
         
-```python
+```python Python
 def brevity_aggregator(ranks: list[str]) -> str:
     """Extract the single rank and adjust if it's 'Talkative'."""
     # `ranks` has exactly one element, because brevity_rank outputs one value per record.
@@ -68,7 +68,7 @@ def brevity_aggregator(ranks: list[str]) -> str:
     <Step title="Create the Local Metric Configuration">
         Here, we tell Galileo that our custom metric returns a `str`. We give it a name ("Terseness"), assign the Scorer and Aggregator, and voilà—our Local Metric is ready:
     
-```python
+```python Python
 from galileo.schema.metrics import LocalMetricConfig
 
 terseness = LocalMetricConfig[str](
@@ -86,7 +86,7 @@ The metric has been created. Next, we can use it in an experiment.
 
 For this example, we'll ask the LLM to specify the continent of four countries, encouraging it to be succinct:
 
-```python
+```python Python
 from galileo.openai import openai
 
 # Simple dataset with four countries:
