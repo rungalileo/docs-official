@@ -1,19 +1,24 @@
 ```typescript TypeScript
-import { createDataset, createPromptTemplate, runExperiment, getDataset } from "galileo";
-import { MessageRole } from "galileo/dist/types/message.types";
+import { createPromptTemplate, runExperiment } from "galileo";
+import { MessageRole } from "galileo/types";
 
 async function runPromptTemplateExperiment() {
   const projectName = "my-project";
 
+  // 1a. If the prompt template does not exist, create it:
   const template = await createPromptTemplate({
+    name: "geography-prompt",
+    projectName: projectName,
     template: [
       { role: MessageRole.system, content: "You are a geography expert. Respond with only the continent name." },
-      { role: MessageRole.user, content: "{{input}}" },
-    ],
-    projectName: projectName,
-    name: "geography-prompt",
+      { role: MessageRole.user, content: "{{input}}" }
+    ]
   });
 
+  // 1b. (OPTIONAL) If the prompt template already exists, fetch it:
+  // const template = await getPromptTemplate({ name: "geography-prompt", projectName })
+
+  // 2. Run the experiment with your prompt template
   await runExperiment({
     name: "geography-experiment",
     datasetName: "geography-dataset", // Make sure you have a dataset created first
@@ -21,13 +26,14 @@ async function runPromptTemplateExperiment() {
     promptSettings: {
       max_tokens: 256,
       model_alias: "GPT-4o",
-      temperature: 0.8,
+      temperature: 0.8
     },
     metrics: ["correctness"],
-    projectName: projectName,
+    projectName: projectName
   });
 }
 
 // Run the experiment
 runPromptTemplateExperiment();
+
 ```
