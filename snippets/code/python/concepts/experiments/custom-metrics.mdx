@@ -1,33 +1,65 @@
 ```python Python
+from galileo import Trace, Span
 from galileo.experiments import run_experiment
-from galileo.datasets import get_dataset
 from galileo.openai import openai
+from galileo.schema.metrics import LocalMetricConfig
 
-dataset = [
-  {
-    "input": "Spain"
-	}
+# 1. Scorer Function
+def brevity_rank(step: Span | Trace) -> str:
+    """Rank response brevity based on word count."""
+    word_count = len(step.output.content.split(" "))
+    if word_count <= 3:
+        return "Terse"
+    if word_count <= 5:
+        return "Temperate"
+    return "Talkative"
+
+# 2. Aggregator Function
+def brevity_aggregator(ranks: list[str]) -> str:
+    """Extract the single rank and adjust if it's 'Talkative'."""
+    return "Terrible" if ranks[0] == "Talkative" else ranks[0]
+
+# 3. Configure the Local Metric
+terseness = LocalMetricConfig[str](
+    name="Terseness",
+    scorer_fn=brevity_rank,
+    aggregator_fn=brevity_aggregator,
+)
+
+# 4. Dataset
+countries_dataset = [
+    {"input": "Indonesia"},
+    {"input": "New Zealand"},
+    {"input": "Greenland"},
+    {"input": "China"},
 ]
 
+# 5. LLM-Call Function
 def llm_call(input):
-	return openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-          {"role": "system", "content": "You are a geography expert."},
-          {"role": "user", "content": f"Which continent does the following country belong to: {input['input']}"}
-        ],
-    ).choices[0].message.content
+    return (
+        openai.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system", 
+                    "content": "You are a geography expert. Always answer as succinctly as possible."
+                },
+                {
+                    "role": "user", 
+                    "content": f"Which continent does the following country belong to: {input}"
+                },
+            ],
+        )
+        .choices[0]
+        .message.content
+    )
 
-def check_for_delve(input, output, expected) -> int:
-	return 1 if "delve" not in input else 0
-
-dataset = get_dataset(name="storyteller-dataset")
-
+# 6. Run the Experiment!
 results = run_experiment(
-	"geography-experiment",
-	dataset=dataset,
-	function=llm_call,
-	metrics=[check_for_delve],
-	project="my-project"
+    "terseness-custom-metric",
+    dataset=countries_dataset,
+    function=llm_call,
+    metrics=[terseness],  # You can add multiple custom metrics here
+    project="My first project",
 )
 ```
