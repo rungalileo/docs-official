@@ -1,0 +1,213 @@
+---
+title: Metrics SDK Reference
+description: A quick lookup for integrating and interpreting metrics in your workflows.
+---
+
+import MetricsReferenceTable from "/snippets/content/metrics-reference-table.mdx"
+import SnippetExperimentsCustomMetricsPython from "/snippets/code/python/concepts/experiments/custom-metrics.mdx";
+import SnippetExperimentsCustomMetricsTypescript from "/snippets/code/typescript/concepts/experiments/custom-metrics.mdx";
+
+
+Galileo AI provides a set of built-in, preset metrics designed to evaluate various aspects of LLM, agent, and retrieval-based workflows. This guide provides a reference for Galileo AI's preset metrics, including and SDK slugs.
+
+
+---
+
+<MetricsReferenceTable />
+
+
+## How do I use metrics in the SDK?
+
+The `run experiment` function ([Python](/sdk-api/python/reference#galileo-experiments), [TypeScript](/sdk-api/typescript/reference#galileo-experiments)) takes a list of metrics as part of its arguments. 
+
+### Preset metrics
+
+Supply a list of one or more metric names into the `run_experiment` function as shown below:
+
+<CodeGroup>
+```python Python
+from galileo.experiments import run_experiment
+from galileo.datasets import get_dataset
+from galileo.openai import openai
+
+dataset = get_dataset(name="fictional_character_names")
+
+# Define a custom "runner" function for your experiment. 
+def my_custom_llm_runner(input):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          { "role": "system", "content": "You are a great storyteller." },
+          { "role": "user", "content": f"Write a story about {input["topic"]}" },
+        ],
+    ).choices[0].message.content
+
+# Run the experiment!
+results = run_experiment(
+	"test-experiment",
+	project="my-test-project-1",
+	dataset=dataset,
+	function=my_custom_llm_runner,
+	metrics=[ 
+        # List metrics here
+        "agentic_workflow_success",
+        "completeness_gpt",
+        "instruction_adherence"
+    ], 
+)
+```
+
+```typescript TypeScript
+import { runExperiment } from "galileo";
+
+async function runFunctionExperiment() {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  // Define a custom "runner" function for your experiment.
+  const myCustomLLMRunner = async (input: any) => {
+    const result = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: "You are a great storyteller." },
+        { role: "user", content: `Write a story about ${input["topic"]}` }
+      ]
+    });
+
+    return [result.choices[0].message.content];
+  };
+
+  // Run the experiment!
+  await runExperiment({
+    name: `Test Experiment`,
+    projectName: "my-test-project-1",
+    datasetName: "fictional_character_names",
+    function: myCustomLLMRunner,
+    metrics: [
+      // List metrics here
+      "agentic_workflow_success",
+      "completeness_gpt",
+      "instruction_adherence"
+    ]
+  });
+}
+
+runFunctionExperiment();
+
+```
+</CodeGroup>
+
+For more information, read about running experiments with the [Python](/sdk-api/python/experiments) or the [TypeScript](/sdk-api/typescript/experiments) SDK.
+
+
+### Custom metrics
+
+You can use [custom metrics](/cookbooks/features/metrics/custom-metrics-ui-code) in the same way as Galileo's preset metrics. At a high level, this involves the following steps:
+
+1. Create your metric in the [Galileo console](https://app.galileo.ai) (or in [code](/cookbooks/features/metrics/custom-metrics-ui-code#custom-scorers)). Your custom metric will return a numerical score based on its input.
+2. Pass the name of your new metric into the `run experiment`, like in the example below. 
+
+In this example, we reference a custom metric that was saved in the console with the name `My custom metric`.
+
+<img src="/images/g2/custom-metric-name-example.png" width="400" />
+
+
+<CodeGroup>
+```python Python
+from galileo.experiments import run_experiment
+from galileo.datasets import get_dataset
+from galileo.openai import openai
+
+dataset = get_dataset(name="fictional_character_names")
+
+# Define a custom "runner" function for your experiment. 
+def my_custom_llm_runner(input):
+	return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+          { "role": "system", "content": "You are a great storyteller." },
+          { "role": "user", "content": f"Write a story about {input["topic"]}" },
+        ],
+    ).choices[0].message.content
+
+# Run the experiment!
+results = run_experiment(
+	"test-experiment",
+	project="my-test-project-1",
+	dataset=dataset,
+	function=my_custom_llm_runner,
+	metrics=[ 
+        "My custom metric" # List your custom metrics by name here
+    ], 
+)
+```
+
+```typescript TypeScript
+import { runExperiment } from "galileo";
+
+async function runFunctionExperiment() {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  // Define a custom "runner" function for your experiment.
+  const myCustomLLMRunner = async (input: any) => {
+    const result = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: "You are a great storyteller." },
+        { role: "user", content: `Write a story about ${input["topic"]}` }
+      ]
+    });
+    return [result.choices[0].message.content];
+  };
+
+  // Run the experiment!
+  await runExperiment({
+    name: `Test Experiment`,
+    projectName: "my-test-project-1",
+    datasetName: "fictional_character_names",
+    function: myCustomLLMRunner,
+    metrics: [
+      "My custom metric" // List your custom metrics by name here
+    ]
+  });
+}
+
+runFunctionExperiment();
+```
+</CodeGroup>
+
+Custom metrics provide the flexibility to define precisely what you want to measure, enabling deep analysis and targeted improvement. For a detailed walkthrough on creating them, see [Custom Metrics](/cookbooks/features/metrics/custom-metrics-ui-code).
+
+
+---
+
+## Which metrics require ground truth data?
+
+**Ground truth** is the authoritative, validated answer or label used to benchmark model performance. For LLM metrics, this often means a gold-standard answer, fact, or supporting evidence against which outputs are compared.
+
+The following metrics require ground truth data to compute their scores, as they involve direct comparison to a reference answer, label, or fact:
+
+- `agentic_session_success` (Action Completion)
+- `chunk_attribution_utilization_gpt` ([Chunk Attribution](/concepts/metrics/response-quality/chunk-attribution), [Chunk Utilization](/concepts/metrics/response-quality/chunk-utilization))
+- `completeness_gpt` ([Completeness](/concepts/metrics/response-quality/completeness))
+- `correctness` ([Correctness (factuality)](/concepts/metrics/response-quality/correctness))
+- `ground_truth_adherence` ([Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence))
+- `tool_selection_quality` ([Tool Selection Quality](/concepts/metrics/agentic/tool-selection-quality))
+
+---
+
+## Are metrics LLM-agnostic?
+
+Yes, all metrics are designed to work across any LLM integrated with Galileo.
+
+
+---
+
+## References
+
+### Concepts
+- [Metrics Overview](/concepts/metrics/overview)
+- [Experiments Overview](/concepts/experiments/overview)
+
+### Guides
+- [Running Experiments in code](/concepts/experiments/running-experiments)
+- [Using Custom Metrics](/concepts/experiments/running-experiments#custom-metrics-for-deep-analysis)
