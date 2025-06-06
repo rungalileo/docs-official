@@ -1,0 +1,103 @@
+---
+title: Action Completion
+description: Understand how to measure and optimize the effectiveness of your AI agent's actions
+---
+
+import { Scale } from "/snippets/components/scale.mdx";
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { Steps, Step } from "/snippets/components/steps.mdx";
+import { Card } from "/snippets/components/card.mdx";
+import { CardGroup } from "/snippets/components/card-group.mdx";
+import { Note } from "/snippets/components/note.mdx";
+
+<DefinitionCard>
+  <strong>Action Completion</strong> determines whether the assistant successfully accomplished all of the user's goals.
+</DefinitionCard>
+
+To accomplish a user's goal, the assistant must:
+
+- Provide a complete answer in the case of a question.
+- Provide a confirmation of successful action in the case of a request.
+
+Additionally, the response must:
+- Be coherent and factually accurate.
+- Comprehensively address every aspect of the user's request.
+- Avoid contradicting tool outputs.
+- Summarize all relevant parts returned by tools.
+
+## Calculation Method
+
+If the response does not achieve an Action Completion score of 100%, it indicates that at least one judge considered the model to have failed in accomplishing every user goal.
+
+Action Completion is calculated by:
+
+<Steps>
+  <Step title="Additional Requests">
+    Multiple requests are sent to an LLM (e.g., OpenAI's GPT4o) using a carefully designed chain-of-thought prompt that adheres to the definition above.
+
+</Step>
+  <Step title="Judgment Responses">
+    The LLM generates multiple distinct responses, each containing:
+    - An explanation.
+    A final judgment: "Yes" (goal accomplished) or "No" (goal not accomplished).
+
+</Step>
+  <Step title="Score Computation">
+    Action Completion Score = (Number of "Yes" Responses) / (Total Number of Responses)
+
+</Step>
+  <Step title="Explanation Surfacing">
+    One explanation is surfaced, chosen to align with the majority judgment among the responses.
+</Step>
+</Steps>
+
+We display one of the generated explanations alongside the score, always choosing one that aligns with the majority judgment.
+
+<Note>
+This metric requires multiple LLM calls to compute, which may impact usage and billing.
+</Note>
+
+## Understanding Action Completion
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>When to Use This Metric</h3>
+  </div>
+
+The **Action Completion** metric is particularly valuable in the following scenarios:
+
+- **Agentic Workflows**: When an AI agent must decide on a course of action and select tools to accomplish tasks.
+- **Multi-step Tasks**: When completing a user's request requires multiple steps or decisions.
+- **Tool-using Assistants**: When evaluating if the assistant used available tools effectively.
+
+This metric helps determine whether the assistant chose appropriate actions and made meaningful progress toward fulfilling the user's request.
+</Card>
+
+## Best Practices
+
+To optimize your assistant's performance and ensure high Action Completion scores, consider the following best practices:
+
+<CardGroup cols={2}>
+  <Card title="Track Progress Over Time" icon="chart-line">
+    Monitor Action Completion scores across different versions of your agent to identify trends and ensure continuous improvements in task completion capabilities.
+  </Card>
+  <Card title="Analyze Failure Patterns" icon="magnifying-glass">
+    When Action Completion scores are low, examine specific steps or scenarios where agents fail to meet user goals. Use this analysis to identify and address systematic issues.
+  </Card>
+  <Card title="Combine with Other Metrics" icon="scale-balanced">
+    Use Action Completion alongside other agentic metrics, such as Action Advancement, to get a comprehensive view of your assistant's effectiveness and identify areas for improvement.
+  </Card>
+  <Card title="Test Edge Cases" icon="code-branch">
+    Create evaluation datasets that include complex, multi-step tasks to thoroughly assess your agent's ability to handle challenging scenarios and advance user goals effectively.
+  </Card>
+</CardGroup>
+
+<Note>
+When optimizing for Action Completion, ensure you're not sacrificing other important aspects like safety, factual accuracy, or user experience in pursuit of task completion.
+</Note>
