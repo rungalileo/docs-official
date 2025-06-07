@@ -10,7 +10,7 @@ In this tutorial, you'll learn how to build a **Retrieval-Augmented Generation (
 
 - **Elasticsearch** for document storage and semantic search using the ELSER model
 - **LangGraph** for building conversational agents
-- **Galileo** for end-to-end observability and logging
+- **Galileo** for end-to-end observability and logging (optional)
 
 This tutorial is intended for Python developers who want to build production-ready RAG applications. By the end, you'll have a working chatbot that can answer questions about your documents with full observability.
 
@@ -18,10 +18,11 @@ This tutorial is intended for Python developers who want to build production-rea
 
 You'll create a RAG chatbot that:
 
-1. Stores documents in Elasticsearch with semantic search capabilities
-2. Uses LangGraph to orchestrate retrieval and generation steps
-3. Logs all interactions to Galileo for monitoring and evaluation
+1. Automatically deploys the ELSER model for semantic search
+2. Stores sample documents in Elasticsearch
+3. Uses LangGraph to orchestrate retrieval and generation steps
 4. Maintains conversation history for context-aware responses
+5. Provides a complete working example in a single file
 
 ## Prerequisites
 
@@ -58,7 +59,7 @@ ELSER (Elastic Learned Sparse EncodeR) provides semantic search capabilities:
 1. In your Elasticsearch project, go to **Relevance** → **Inference Endpoints**
 2. If **ELSER** doese not exist, click **Create endpoint**
 3. Follow [the ELSER docs](https://www.elastic.co/docs/explore-analyze/machine-learning/nlp/ml-nlp-elser#download-deploy-elser) or [ Elastic guide](https://www.elastic.co/getting-started/enterprise-search/vector-search)
-4. Note the model ID (typically `.elser_model_2`)
+4. Note the model ID (typically `.elser_model_2_linux-x86_64`)
 
 ## Step 2: Set up your Python environment
 
@@ -72,21 +73,20 @@ pip install \
     langchain-openai \
     langgraph \
     galileo \
-    openai \
-    python-dotenv
+    openai
 ```
 
-### Configure environment variables
+## Step 3: Configure environment variables
 
-Create a `.env` file with your credentials:
+Create a `.env` file or set these environment variables:
 
 ```bash
 # Elasticsearch
-ES_CLOUD_ID="your-cloud-id-here"
-ES_API_KEY="your-api-key-here"
-ES_INDEX="workplace-app-docs"
-ES_INDEX_CHAT_HISTORY="workplace-app-docs-chat-history"
-ELSER_MODEL=.elser_model_2
+ES_HOST="your-elasticsearch-host-here"  # e.g., "https://your-cluster.es.us-central1.gcp.cloud.es.io:443"
+ES_API_KEY="your-api-key-here" 
+ES_INDEX="demo"
+ES_INDEX_CHAT_HISTORY="chat-history"
+ELSER_MODEL=".elser_model_2_linux-x86_64"  # Adjust for your platform
 
 # OpenAI
 OPENAI_API_KEY="your-openai-api-key-here"
@@ -97,252 +97,223 @@ GALILEO_PROJECT="elasticsearch-rag-demo" # YOUR PROJECT NAME
 GALILEO_LOG_STREAM="elastic_rag_stream"
 ```
 
-## Step 3: Create the Elasticsearch client
+**Note**: The ELSER model name varies by platform:
+- Linux x86_64: `.elser_model_2_linux-x86_64`
+- macOS: `.elser_model_2_macos`
+- Check your Elasticsearch ML models for the exact name
 
-Create `elasticsearch_client.py`:
+## Step 3: Create the complete RAG application
 
-```python
-import os
-from elasticsearch import Elasticsearch
-from langchain_community.chat_message_histories import ElasticsearchChatMessageHistory
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# Initialize Elasticsearch client
-elasticsearch_client = Elasticsearch(
-    cloud_id=os.getenv("ES_CLOUD_ID"),
-    api_key=os.getenv("ES_API_KEY")
-)
-
-def get_elasticsearch_chat_message_history(index_name: str, session_id: str):
-    """Get chat message history for a session."""
-    return ElasticsearchChatMessageHistory(
-        es_connection=elasticsearch_client,
-        index=index_name,
-        session_id=session_id
-    )
-```
-
-## Step 4: Set up Galileo logging
-
-Create `observe.py`. This file handles the setup for Galileo logging.
+Create `demo.py` with the following complete implementation:
 
 ```python
 import os
-from galileo.handlers.langchain import GalileoCallback
-from dotenv import load_dotenv
-
-# Load environment variables from your .env file
-load_dotenv()
-
-# The GalileoCallback handler automatically reads API key, project name,
-# and stream name from your environment variables.
-# Ensure GALILEO_API_KEY, GALILEO_PROJECT, and GALILEO_LOG_STREAM are set.
-galileo_handler = GalileoCallback()
-```
-
-This simplified code relies on `dotenv` to load your environment variables. The `GalileoCallback` is smart enough to find the keys it needs (`GALILEO_API_KEY`, etc.) from the environment, so you don't need to set them manually in the code.
-
-## Step 5: Create the RAG application
-
-Now, let's create the core of our application, `rag_app.py`. This file defines and builds a conversational agent using LangGraph. The agent can use the Elasticsearch retriever as a tool to answer questions about your documents.
-
-This agentic approach provides a clear separation between the agent's decision-making process (choosing tools) and the execution of those tools.
-
-Create `rag_app.py`:
-
-```python
-import os
+import time
 from typing import Annotated, Sequence
 
-from dotenv import load_dotenv
+from elasticsearch import Elasticsearch, NotFoundError
 from langchain.tools.retriever import create_retriever_tool
 from langchain_core.messages import BaseMessage, HumanMessage
+from langchain_core.documents import Document
 from langchain_elasticsearch import ElasticsearchStore, SparseVectorStrategy
+from langchain_elasticsearch import ElasticsearchChatMessageHistory
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, StateGraph, START
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from typing_extensions import TypedDict
 
-from elasticsearch_client import elasticsearch_client, get_elasticsearch_chat_message_history
-from observe import galileo_handler
+# --- 1. Configuration ---
+# Set up your connection details and index names.
+# It's recommended to use environment variables for sensitive data.
+ES_HOST = os.getenv("ES_HOST")
+ES_API_KEY = os.getenv("ES_API_KEY")
+ES_INDEX = os.getenv("ES_INDEX", "demo")
+ES_INDEX_CHAT_HISTORY = os.getenv("ES_INDEX_CHAT_HISTORY", "chat-history")
+ELSER_MODEL = os.getenv("ELSER_MODEL", ".elser_model_2_linux-x86_64")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") # Ensure your OpenAI key is set
 
-load_dotenv()
+# --- 2. Elasticsearch Setup ---
+# Connect to Elasticsearch ensure your IP is unblocked
+print("Connecting to Elasticsearch...")
+elasticsearch_client = Elasticsearch(hosts=[ES_HOST], api_key=ES_API_KEY)
+print(elasticsearch_client.info())
 
-# Configuration
-INDEX = os.getenv("ES_INDEX", "workplace-app-docs")
-INDEX_CHAT_HISTORY = os.getenv("ES_INDEX_CHAT_HISTORY", "workplace-app-docs-chat-history")
-ELSER_MODEL = os.getenv("ELSER_MODEL", ".elser_model_2")
+def setup_elasticsearch():
+    """
+    Ensures the ELSER model is deployed and sample documents are indexed.
+    """
+    # 2a. Deploy ELSER Model (Elastic's NLP model for semantic search)
+    try:
+        elasticsearch_client.ml.get_trained_models(model_id=ELSER_MODEL)
+        print(f'ELSER model "{ELSER_MODEL}" is already available.')
+    except NotFoundError:
+        print(f'ELSER model "{ELSER_MODEL}" not found, starting deployment...')
+        elasticsearch_client.ml.put_trained_model(
+            model_id=ELSER_MODEL, input={"field_names": ["text_field"]}
+        )
+        while True:
+            status = elasticsearch_client.ml.get_trained_models(model_id=ELSER_MODEL, include="definition_status")
+            if status["trained_model_configs"][0]["fully_defined"]:
+                break
+            time.sleep(1)
+        elasticsearch_client.ml.start_trained_model_deployment(
+            model_id=ELSER_MODEL, wait_for="fully_allocated"
+        )
+        print(f'ELSER model "{ELSER_MODEL}" deployed successfully.')
 
-# 1. Define agent state
+    store = ElasticsearchStore(
+        es_connection=elasticsearch_client,
+        index_name=ES_INDEX,
+        strategy=SparseVectorStrategy(model_id=ELSER_MODEL),
+    )
+    sample_docs = [
+        Document(page_content="Our company offers comprehensive health insurance including medical, dental, and vision coverage.", metadata={"source": "employee_handbook"}),
+        Document(page_content="Remote work policy allows employees to work from home up to 3 days per week.", metadata={"source": "employee_handbook"}),
+        Document(page_content="The company's vacation policy provides 15 days of paid time off for new employees, increasing to 20 days after 3 years of service.", metadata={"source": "employee_handbook"}),
+    ]
+    store.add_documents(sample_docs)
+    time.sleep(2) # Give time for indexing
+    print(f"{len(sample_docs)} documents indexed successfully.")
+    return store
+
+# --- 3. Agent Definition ---
+# Define the state, tools, and the graph that powers the agent.
+
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
 
-# 2. Set up the retriever tool
-store = ElasticsearchStore(
-    es_connection=elasticsearch_client,
-    index_name=INDEX,
-    strategy=SparseVectorStrategy(model_id=ELSER_MODEL),
-)
-retriever = store.as_retriever()
-
-retriever_tool = create_retriever_tool(
-    retriever,
-    "retrieve_workplace_documents",
-    "Search and return information about company policies, benefits, and processes.",
-)
-tools = [retriever_tool]
-
-# 3. Define the agent
-# Use a model that is good at tool use
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
-agent_runnable = llm.bind_tools(tools)
-
-def run_agent(state: AgentState):
+# The retriever tool searches Elasticsearch for relevant documents.
+def setup_agent_and_graph(store: ElasticsearchStore):
     """
-    Invokes the agent model to generate a response based on the current state.
-    The agent decides whether to use a tool or respond directly.
+    Sets up the agent, tools, and the LangGraph workflow.
     """
-    print("--- CALLING AGENT ---")
-    messages = state["messages"]
-    response = agent_runnable.invoke(messages)
-    return {"messages": [response]}
-
-# 4. Define the graph
-tool_node = ToolNode(tools)
-
-workflow = StateGraph(AgentState)
-workflow.add_node("agent", run_agent)
-workflow.add_node("tools", tool_node)
-
-workflow.add_edge(START, "agent")
-
-workflow.add_conditional_edges(
-    "agent",
-    tools_condition,
-    {
-        "tools": "tools",
-        END: END,
-    },
-)
-
-workflow.add_edge("tools", "agent")
-
-graph = workflow.compile()
-print("LangGraph agent compiled.")
-
-# 5. Main interaction function
-def ask_question(question: str, session_id: str = "default"):
-    """Ask a question and get an answer from the agent."""
-    chat_history = get_elasticsearch_chat_message_history(INDEX_CHAT_HISTORY, session_id)
-    
-    messages = chat_history.messages
-    messages.append(HumanMessage(content=question))
-    
-    inputs = {"messages": messages}
-    
-    # Invoke the agent with Galileo logging
-    final_state = graph.invoke(inputs, config={"recursion_limit": 5, "callbacks": [galileo_handler]})
-    
-    # The final AI response is the last message in the state
-    response_message = final_state["messages"][-1]
-    
-    # Save the interaction to chat history
-    chat_history.add_user_message(question)
-    chat_history.add_ai_message(response_message.content)
-    
-    return response_message.content
-
-if __name__ == "__main__":
-    print("Elasticsearch RAG Agent")
-    print("Type 'quit' to exit\n")
-    
-    session_id = "demo-agent-session"
-    
-    while True:
-        question = input("You: ")
-        if question.lower() == 'quit':
-            break
-        
-        answer = ask_question(question, session_id)
-        print(f"Bot: {answer}\n")
-```
-
-## Step 6: Add sample documents
-
-Create `add_documents.py` to populate your Elasticsearch index:
-
-```python
-from langchain_core.documents import Document
-from langchain_elasticsearch import ElasticsearchStore, SparseVectorStrategy
-from elasticsearch_client import elasticsearch_client
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-INDEX = os.getenv("ES_INDEX", "workplace-app-docs")
-ELSER_MODEL = os.getenv("ELSER_MODEL", ".elser_model_2")
-
-# Sample documents
-sample_docs = [
-    Document(
-        page_content="Our company offers comprehensive health insurance including medical, dental, and vision coverage. Employees can choose from three different plans with varying deductibles and coverage levels.",
-        metadata={"source": "employee_handbook", "section": "benefits", "page": 1}
-    ),
-    Document(
-        page_content="Remote work policy allows employees to work from home up to 3 days per week. All remote work must be approved by your direct manager and requires a dedicated workspace.",
-        metadata={"source": "employee_handbook", "section": "policies", "page": 15}
-    ),
-    Document(
-        page_content="Annual performance reviews are conducted in Q4 of each year. Employees should prepare a self-assessment and gather feedback from colleagues and clients.",
-        metadata={"source": "hr_processes", "section": "performance", "page": 3}
-    ),
-    Document(
-        page_content="The company's vacation policy provides 15 days of paid time off for new employees, increasing to 20 days after 3 years of service.",
-        metadata={"source": "employee_handbook", "section": "time_off", "page": 8}
+    retriever = store.as_retriever()
+    retriever_tool = create_retriever_tool(
+        retriever,
+        "retrieve_workplace_documents",
+        "Search and return information about company policies, benefits, and processes.",
     )
-]
+    tools = [retriever_tool]
 
-def add_sample_documents():
-    """Add sample documents to Elasticsearch."""
-    print("Adding sample documents to Elasticsearch...")
-    
-    # Initialize store
-    store = ElasticsearchStore(
+    # Use a model that is good at tool use
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, streaming=True, api_key=OPENAI_API_KEY)
+    agent_runnable = llm.bind_tools(tools)
+
+    # 3c. Define the Graph
+    # The graph defines the flow of control for the agent.
+    def run_agent(state: AgentState):
+        """Invokes the agent to decide on the next action."""
+        return {"messages": [agent_runnable.invoke(state["messages"])]}
+
+    tool_node = ToolNode(tools)
+    workflow = StateGraph(AgentState)
+    workflow.add_node("agent", run_agent)
+    workflow.add_node("tools", tool_node)
+    workflow.add_edge(START, "agent")
+    workflow.add_conditional_edges("agent", tools_condition)
+    workflow.add_edge("tools", "agent")
+
+    graph = workflow.compile()
+    return graph
+
+# --- 4. Run the Agent ---
+# Now, we can ask questions and get answers.
+def ask_question(graph, question: str, session_id: str):
+    """
+    Asks a question to the RAG agent and returns the answer.
+    """
+    chat_history = ElasticsearchChatMessageHistory(
         es_connection=elasticsearch_client,
-        index_name=INDEX,
-        strategy=SparseVectorStrategy(model_id=ELSER_MODEL),
+        index=ES_INDEX_CHAT_HISTORY,
+        session_id=session_id
     )
-    
-    # Add documents
-    store.add_documents(sample_docs)
-    print(f"Added {len(sample_docs)} documents to index '{INDEX}'")
 
-if __name__ == "__main__":
-    add_sample_documents()
+    inputs = {"messages": [HumanMessage(content=question)]}
+    final_state = graph.invoke(inputs, config={"recursion_limit": 5})
+    response = final_state["messages"][-1].content
+
+    # Save conversation history
+    chat_history.add_user_message(question)
+    chat_history.add_ai_message(response)
+    return response
+
+# Step 1: Set up Elasticsearch index and data
+document_store = setup_elasticsearch()
+
+# Step 2: Compile the agent and its workflow
+rag_agent_graph = setup_agent_and_graph(document_store)
+
+# Step 3: Start a Q&A session
+print("\n--- Starting Q&A Session ---")
+session_id = f"session-{int(time.time())}"
+
+# Ask the first question
+question1 = "How many vacation days do new hires get?"
+print(f"\n❓ Question: {question1}")
+answer1 = ask_question(rag_agent_graph, question1, session_id)
+print(f"✅ Answer: {answer1}")
+
+# Ask a follow-up question
+question2 = "What about health insurance?"
+print(f"\n❓ Question: {question2}")
+answer2 = ask_question(rag_agent_graph, question2, session_id)
+print(f"✅ Answer: {answer2}")
 ```
 
-## Step 7: Run your RAG application
+## Step 4: Run your RAG application
 
-1. **Add sample documents:**
-   ```bash
-   python add_documents.py
-   ```
+Simply run the demo:
 
-2. **Run the chatbot:**
-   ```bash
-   python rag_app.py
-   ```
+```bash
+python demo.py
+```
 
-3. **Try asking questions:**
-   - "What health insurance options do we have?"
-   - "How many vacation days do I get?"
-   - "What's the remote work policy?"
+The script will:
 
-## Step 8: View traces in Galileo
+1. **Connect to Elasticsearch** and verify the connection
+2. **Deploy the ELSER model** (if not already available)
+3. **Index sample documents** about company policies
+4. **Create the RAG agent** with LangGraph workflow
+5. **Run sample questions** and display answers
+
+Expected output:
+```
+Connecting to Elasticsearch...
+{'name': 'your-cluster', 'cluster_name': '...', ...}
+ELSER model ".elser_model_2_linux-x86_64" is already available.
+3 documents indexed successfully.
+
+--- Starting Q&A Session ---
+
+❓ Question: How many vacation days do new hires get?
+✅ Answer: New hires get 15 days of paid time off, which increases to 20 days after 3 years of service.
+
+❓ Question: What about health insurance?
+✅ Answer: The company offers comprehensive health insurance including medical, dental, and vision coverage.
+```
+
+## Understanding the application flow
+
+### 1. Elasticsearch Setup
+The script automatically:
+- Connects to your Elasticsearch instance
+- Deploys the ELSER model for semantic search
+- Creates an index and stores sample documents
+
+### 2. Agent Architecture
+- **State Management**: Uses `AgentState` to track conversation messages
+- **Tool Integration**: Creates a retriever tool that searches Elasticsearch
+- **LangGraph Workflow**: Defines the flow between agent reasoning and tool usage
+
+### 3. Conversation Flow
+1. User asks a question
+2. Agent decides whether to use the retriever tool
+3. If needed, searches Elasticsearch for relevant documents
+4. Generates a response based on retrieved context
+5. Saves the conversation to chat history
+
+## Adding Galileo observability
 
 1. Open your [Galileo Console](https://console.rungalileo.ai/)
 2. Navigate to your project (`elasticsearch-rag-demo`)
@@ -352,88 +323,23 @@ if __name__ == "__main__":
    - Full conversation context
    - Performance metrics
 
-## Advanced usage
-
-### Streaming responses
-
-For real-time responses, you can stream the agent's final answer. First, modify your `ChatOpenAI` instance in `rag_app.py` to enable streaming:
-
-```python
-# In rag_app.py
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, streaming=True)
-agent_runnable = llm.bind_tools(tools)
-```
-
-Then, you can use `graph.stream` to process the response chunks. You could replace the `ask_question` function or add a new one for streaming:
-
-```python
-from langchain_core.messages import AIMessageChunk
-
-def stream_agent_response(question: str, session_id: str = "default"):
-    """Stream the agent's response for a real-time UI."""
-    chat_history = get_elasticsearch_chat_message_history(INDEX_CHAT_HISTORY, session_id)
-    
-    messages = chat_history.messages
-    messages.append(HumanMessage(content=question))
-    
-    inputs = {"messages": messages}
-    
-    full_response = ""
-    print("Bot: ", end="", flush=True)
-    # The graph will stream AIMessageChunk objects from the agent node
-    for chunk in graph.stream(inputs, config={"recursion_limit": 5, "callbacks": [galileo_handler]}):
-        if "agent" in chunk:
-            agent_messages = chunk["agent"]["messages"]
-            for msg in agent_messages:
-                # msg can be a ToolCall or an AIMessageChunk
-                if isinstance(msg, AIMessageChunk) and msg.content:
-                    print(msg.content, end="", flush=True)  # Or yield for web frameworks
-                    full_response += msg.content
-
-    print() # Newline after streaming
-    
-    # Save the full interaction to history after the stream is complete
-    if full_response:
-        chat_history.add_user_message(question)
-        chat_history.add_ai_message(full_response)
-```
-
-### Custom document processing
-
-To add your own documents with custom processing:
-
-```python
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-
-def process_and_add_documents(file_paths: List[str]):
-    """Process and add documents with proper chunking."""
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200
-    )
-    
-    documents = []
-    for file_path in file_paths:
-        # Load your documents here
-        # Split into chunks
-        chunks = text_splitter.split_documents(raw_docs)
-        documents.extend(chunks)
-    
-    # Add to Elasticsearch
-    store.add_documents(documents)
-```
 
 ## Troubleshooting
 
 ### Connection issues
-- Verify your Elasticsearch credentials in `.env`
-- Check that your Elastic Cloud instance is running and if hosted your ip is whitelisted
-- Ensure the ELSER model is deployed
+- Verify your Elasticsearch host URL and API key
+- Ensure your IP is whitelisted if using Elastic Cloud if not using serverless
+- Check that Elasticsearch is running and accessible
 
-### Galileo logging issues
-- Verify your Galileo API key is correct
-- Check the project name exists in your Galileo account
-- Ensure the galileo callback is properly initialized
+### ELSER model issues
+- Verify the model name matches your platform
+- Ensure machine learning features are enabled
+- Check that you have sufficient resources for model deployment
+
+### Missing documents in search
+- Wait a few seconds after indexing for documents to be available
+- Verify the index name matches your configuration
+- Check Elasticsearch logs for indexing errors
 
 ## Next steps
 
