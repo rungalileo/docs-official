@@ -92,33 +92,35 @@ One of the benefits of Galileo's dataset management is automatic versioning. Aut
   <SnippetTSGetDataset />
 </CodeGroup>
 
-## Accessing Dataset Variables in Prompt Templates
-When you use datasets in Galileo, each sample in your dataset is made available to your prompt template as the `input` object.  This allows you to create dynamic prompts that adapt to the data in each sample.
+## Accessing Dataset Variables in Prompts
+When you use datasets in Galileo, the attributes stored in the input in your dataset are made available to your prompts using mustache templating.  This allows you to create dynamic prompts that adapt to the data in each sample.
 
 ### Example Dataset
 Suppose you have the following dataset: 
 
 ```
+
 test_data = [
-    {"city": "Rome, Italy", "metadata": {"days": 5}},
-    {"city": "Tokyo, Japan", "metadata": {"days": 3}},
+    { "input": { "city": "Rome, Italy", "days": "5" } },
+    { "input": { "city": "Paris, France", "days": "3" } },
+]
 ```
 
 ### Example Prompt Template
-To reference fields from your dataset in your prompt, use double curly braces and the `input` object:
+To reference fields from your dataset in your prompt, use double curly braces:
 
 ```
-Plan a {{ input.metadata.days }}-day travel itinerary for a trip to {{ input.city }}.
+Plan a {{ days }}-day travel itinerary for a trip to {{ city }}.
 Include daily sightseeing activities, dining suggestions, and local experiences.
 ```
 
-- `{{ input.city }}` will be replaced with the value of the `city` field from each sample. 
-- `{{ input.metadata.days }}` will be replaced with the value of the `days` field inside the `metadata` dictionary. 
+- `{{ city }}` will be replaced with the value of the `city` field inside the `input` dictionary. 
+- `{{ days }}` will be replaced with the value of the `days` field inside the `input` dictionary. 
 
 ### How It works 
 For each sample in your dataset, Galileo will render the prompt template, replacing the variables with the corresponding values from the sample. 
 
-If a field is missing in a sample, the variable will be empty or may cause an error, so ensure your dataset is consistent. 
+If a field is missing in a sample, the variable will be empty, so ensure your dataset is consistent. 
 
 ## Creating Focus Sets
 
