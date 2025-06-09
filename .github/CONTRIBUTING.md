@@ -14,7 +14,7 @@ This guide is to help you get started making contributions to our documentation.
 
 ## Process
 
-For small changes, such as spelling mistakes, minor formatting issues etc., please raise a [PR](https://github.com/rungalileo/docs-official/pulls). There is no need to create an issue
+For small changes, such as spelling mistakes, minor formatting issues etc., please raise a [PR](https://github.com/rungalileo/docs-official/pulls). There is no need to create an issue.
 
 For larger changes, including re-writing parts of a page, adding new pages, contributing cookbooks etc. please do the following:
 
@@ -37,35 +37,44 @@ When you raise a pull request, there is a template to fill in. Add the following
 - Work through the checklist, and tick off every step as you verify it. This is not a box ticking exercise, it is meant to ensure everyone methodically verifies their PR and reduces time spent by the reviewers catching silly errors that should have been caught by the submitter.
 
   - **Is this ready for review? If not, raise as a draft PR**
+
     If this PR is ready to be reviewed, check this box. If no, please mark the PR as draft until it is ready for review.
 
   - **This deployed to a staging environment correctly**
+
     Mintlify will deploy all PRs to a staging environment. Once done, the PR will be updated to show this, including a button to view the deployment. Check this box when your final changes have been deployed successfully.
 
     ![The deploy button](./images/deploy-button.webp)
 
   - **I have reviewed my changes**
+
     Please review all your changes thoroughly, and check this when you are happy with them.
 
   - **I have reviewed the deployed version of my changes**
+
     Once the deploy is finished, review the final deployed version, checking things like:
     - If this is a new page, it is in the navigation bar and loads correctly
     - Code is readable
     - Images are showing
 
   - **I have tested any code that is added or updated**
+
     If you are adding any code snippets, ensure that the code works and you have tested it in the context of the page it is on.
 
   - **I have verified all images and videos are clear, with appropriate zoom**
+
     Images and videos need to be clear with readable text for all users. Make sure that on the deployed site with the available page width all text is readable and the image or video shows the correct amount of detail.
 
   - **I have reviewed any spelling mistakes highlighted by the checks**
+
     There is a mintlify spell checker. It can be very overzealous with technical terms, but it is helpful to catch spelling mistakes in your changes. You can see these highlighted against your changes in the **Files Changed** tab of the PR
 
   - **I have reviewed broken links either from the checks, or by running `mint broken-links` and I haven't introduced any new broken links**
+
     Ensure there are no broken links by either running `mint broken-links` on your PR, or checking the output of the checks run by mintlify. Note that there will always be a few with links to API docs that are generated on deploy, so validate you haven't added any new broken links.
 
   - **This references a feature that is public. If not, add a note and we can schedule the merge for after the feature release**
+
     For Galileo employees, if you are documenting an upcoming feature, add a note on this with the release information. That way we can hold off on merging the docs until the feature is released.
 
 If this template is not completed, the PR will not be reviewed. If a PR stays open for too long with an incomplete template, it will be closed.
@@ -106,6 +115,8 @@ tag: "Python"
 ---
 ```
 
+When creating a cookbook, all associated code resources will live in the [SDK Examples repo](https://github.com/rungalileo/sdk-examples). When raising a cookbook PR, add a link to the relevant PR in that repo so they can both be reviewed and merged together.
+
 #### How-to guides
 
 How-to guides are instructional guides focused on solving a specific problem or performing a specific task. These are grouped by action, rather than product area, to make it easier for users to find the guide they need based on the action they are trying to take.
@@ -126,7 +137,7 @@ Unless a how-to guide is specific to a single programming language, it should in
 
 #### Explanations
 
-Explanations provide context and background information. These explain the why of the product. These are grouped by product area. These can include concept guides, details on integrations, overviews and
+Explanations provide context and background information. These explain the why of the product. These are grouped by product area. These can include concept guides, and overviews of Galileo.
 
 **Audience** - someone who wants a better understanding of the product, such as use cases, or the reasoning behind features.
 
@@ -149,7 +160,7 @@ Reference documentation provides raw information to the user, such as API or SDK
 
 Reference documentation is in 2 parts of our documentation:
 
-- [API Reference](https://v2docs.galileo.ai/api-reference/)
+- [SDK/API Reference](https://v2docs.galileo.ai/sdk-api/)
 - [References](https://v2docs.galileo.ai/references/)
 
 ### Templates
@@ -246,3 +257,6 @@ When creating new pages, do the following:
   - Use code snippets instead of code screenshots
 - When numbering lists, use `1.` for all list items. Markdown renderers will render this correctly as a numbered list, and it makes it easier to add items in the middle without renumbering.
 - When creating code blocks, use the correct type (e.g. `python`, `typescript`, `bash`, `json`). If this is code or a terminal command, ensure that it can be copied and run, and contains no extra output or terminal indicators.
+- When using code blocks, mintlify has space for about 85 columns before it scrolls. Keep lines below this to make all the text visible on screen without the reader having to continuously scroll.
+- Always use links to the root of the repo, never using the docs URL. Although relative links do work, the broken link detector will flag them.
+
