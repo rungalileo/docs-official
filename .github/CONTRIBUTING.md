@@ -67,11 +67,11 @@ When you raise a pull request, there is a template to fill in. Add the following
 
   - **I have reviewed any spelling mistakes highlighted by the checks**
 
-    There is a mintlify spell checker. It can be very overzealous with technical terms, but it is helpful to catch spelling mistakes in your changes. You can see these highlighted against your changes in the **Files Changed** tab of the PR
+    There is a Mintlify spell checker. It can be very overzealous with technical terms, but it is helpful to catch spelling mistakes in your changes. You can see these highlighted against your changes in the **Files Changed** tab of the PR
 
   - **I have reviewed broken links either from the checks, or by running `mint broken-links` and I haven't introduced any new broken links**
 
-    Ensure there are no broken links by either running `mint broken-links` on your PR, or checking the output of the checks run by mintlify. Note that there will always be a few with links to API docs that are generated on deploy, so validate you haven't added any new broken links.
+    Ensure there are no broken links by either running `mint broken-links` on your PR, or checking the output of the checks run by Mintlify. Note that there will always be a few with links to API docs that are generated on deploy, so validate you haven't added any new broken links.
 
   - **This references a feature that is public. If not, add a note and we can schedule the merge for after the feature release**
 
@@ -243,9 +243,10 @@ Any code samples included in documentation should exist as snippets in the [`sni
 When creating new pages, do the following:
 
 1. Where relevant, use the right template
-1. Use front matter to add a title, and a description, along with tags for cookbooks. Make sure the titles are clear and concise, and don't use emojis. The descriptions are used for SEO as well as on the top of the page, so these should also be clear and descriptive.
+1. Use [front matter](https://mintlify.com/docs/pages#basics) to add a title, and a description, along with tags for cookbooks. Make sure the titles are clear and concise, and don't use emojis. The descriptions are used for SEO as well as on the top of the page, so these should also be clear and descriptive.
 1. If your document needs code, create this as snippets in the [`snippets`](/snippets/) folder. For how-to guides and explanations, create these for all languages required.
 1. If your document uses images, instead of placing all images in an images folder where they can be hard to find, create a folder for your document and have the images stored in that folder.
+1. Check the [Mintlify documentation](https://mintlify.com/docs/) for guides on using components to structure your page.
 
 ### Style and formatting best practices
 
@@ -257,6 +258,6 @@ When creating new pages, do the following:
   - Use code snippets instead of code screenshots
 - When numbering lists, use `1.` for all list items. Markdown renderers will render this correctly as a numbered list, and it makes it easier to add items in the middle without renumbering.
 - When creating code blocks, use the correct type (e.g. `python`, `typescript`, `bash`, `json`). If this is code or a terminal command, ensure that it can be copied and run, and contains no extra output or terminal indicators.
-- When using code blocks, mintlify has space for about 85 columns before it scrolls. Keep lines below this to make all the text visible on screen without the reader having to continuously scroll.
+- When using code blocks, Mintlify has space for about 85 columns before it scrolls. Keep lines below this to make all the text visible on screen without the reader having to continuously scroll.
 - Always use links to the root of the repo, never using the docs URL. Although relative links do work, the broken link detector will flag them.
 
