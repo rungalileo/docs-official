@@ -2,9 +2,15 @@
 
 Thank you for wanting to contribute to the Galileo documentation!
 
-This guide is to help you get started making contributions to our documentation. It covers some basic process, as well as our documentation structure and best practices.
+This guide is to help you get started making contributions to our documentation. It covers some basic process, as well as our documentation structure and best practices. Please read this guide thoroughly before you make a contribution.
 
-All contributions should make our documentation better for our users. Please do not contribute frivolous or meaningless changes.
+> All contributions should make our documentation better for our users. Please do not contribute frivolous or meaningless changes.
+
+## Contents
+
+- [Process](#process)
+- [Pull request template](#pull-request-template)
+- [Docs authoring guide](#docs-authoring-guide)
 
 ## Process
 
@@ -64,3 +70,179 @@ When you raise a pull request, there is a template to fill in. Add the following
 
 If this template is not completed, the PR will not be reviewed. If a PR stays open for too long with an incomplete template, it will be closed.
 
+## Docs authoring guide
+
+This section covers some best practices for authoring docs that we follow.
+
+> These best practices are a recent addition, and our existing documentation may not completely align with them. If you are editing an existing doc that doesn't follow these best practices, think about if it is the right time to align to these.
+
+### The Diátaxis framework
+
+For all our documentation, we follow the [Diátaxis framework](https://diataxis.fr).
+
+> Diátaxis identifies four distinct needs, and four corresponding forms of documentation - tutorials, how-to guides, technical reference and explanation. It places them in a systematic relationship, and proposes that documentation should itself be organized around the structures of those needs.
+
+![The diataxis framework](https://diataxis.fr/_images/diataxis.png)
+
+#### Tutorials/Cookbooks
+
+Tutorials (referred to as **cookbooks** in our docs) are hands-on, practical lessons that guide the user through a learning experience. This teaches users an end-to-end lesson that they can then apply to their scenarios later. These should reflect real-world scenarios, and have a good balance of simplicity with a real outcome.
+
+**Audience** - someone seeking a deeper understanding of the product. Can be beginner to experienced.
+
+**Examples** - build a weather app to learn the basics of agent evaluations, a tutorial using a Python notebook for experiments targeted at data scientists, or a tutorial adding evals to an agentic app using LangGraph for an AI engineer.
+
+When creating a cookbook, use the [Tutorials template](#tutorial-template) described later in this guide.
+
+Cookbooks are all grouped in the [Cookbooks](https://v2docs.galileo.ai/cookbooks/cookbooks/overview) section of our documentation. These are grouped by functional area of the type of application you are building.
+
+Cookbooks can be for only one programming language, as they are usually dependent on integrations with third-party components, such as LangGraph, or MongoDB. When you create a cookbook, tag it with the relevant programming language in the front matter:
+
+```text
+---
+title: ...
+description: ...
+tag: "Python"
+---
+```
+
+#### How-to guides
+
+How-to guides are instructional guides focused on solving a specific problem or performing a specific task. These are grouped by action, rather than product area, to make it easier for users to find the guide they need based on the action they are trying to take.
+
+**Audience** - someone who has a specific need, building upon knowledge that they already have.
+
+**Examples** - How to use Galileo with OpenAI, how to deploy Galileo to AWS, how to compare multiple evaluations.
+
+When creating a how-to guide, use the [How-To guide template](#how-to-guide-template) described later in this guide.
+
+How-to guides are in multiple areas where relevant:
+
+- [Getting started guides](https://v2docs.galileo.ai/getting-started/quickstart)
+- [How-to Guides](https://v2docs.galileo.ai/how-to-guides/overview)
+- [Integrations](https://v2docs.galileo.ai/integrations)
+
+Unless a how-to guide is specific to a single programming language, it should include all supported programming languages.
+
+#### Explanations
+
+Explanations provide context and background information. These explain the why of the product. These are grouped by product area. These can include concept guides, details on integrations, overviews and
+
+**Audience** - someone who wants a better understanding of the product, such as use cases, or the reasoning behind features.
+
+**Example** - An overview of experiments showing why you would use them, a discussion of what scenarios to use certain metrics for.
+
+Explanations are in multiple parts of our documentation, as they cover a range of areas. These are:
+
+- [Overview](https://v2docs.galileo.ai/what-is-galileo)
+- [Concepts](https://v2docs.galileo.ai/concepts/)
+
+Unless an explanation is specific to a single programming language, it should include all supported programming languages.
+
+#### Reference
+
+Reference documentation provides raw information to the user, such as API or SDK information. This contains no details about how to use this information; it is there for a user who knows enough to dig in further.
+
+**Audience** - someone who needs the finer details of our product to complete a task.
+
+**Example** - SDK documentation defining the details of a method call with its parameters, a list of available metrics.
+
+Reference documentation is in 2 parts of our documentation:
+
+- [API Reference](https://v2docs.galileo.ai/api-reference/)
+- [References](https://v2docs.galileo.ai/references/)
+
+### Templates
+
+To make it easier to create consistent documentation, we use templates from [The Good Docs Project](https://www.thegooddocsproject.dev).
+
+#### Tutorial template
+
+When creating a cookbook, follow [this guide](https://www.thegooddocsproject.dev/template/tutorial). This gives details on best practices for creating a tutorial. The actual template is available in [the templates repo](https://gitlab.com/tgdp/templates/-/tree/main/tutorial).
+
+Tutorials should also include a video walkthrough, for those who prefer videos to learn.
+
+#### How-to guide template
+
+There are two types of how-to guides we have - quickstarts, and specific how-to guides. How-to guides should also include a short video, for those who prefer videos to learn.
+
+##### Quickstarts
+
+Quickstarts are designed to get a user quickly started with Galileo, and focus on on-boarding for a new user, getting them to a successful onboarding as fast as possible with little additional information.
+
+When creating a quickstart, follow [this guide](https://www.thegooddocsproject.dev/template/quickstart). This gives details on best practices for creating a quickstart. The actual template is available in [the templates repo](https://gitlab.com/tgdp/templates/-/tree/main/quickstart).
+
+##### How-tos
+
+How-to guides are task oriented, and show a user how to solve a particular problem, or do a specific task.
+
+When creating a how-to guide, follow [this guide](https://www.thegooddocsproject.dev/template/how-to). This gives details on best practices for creating a how-to guide. The actual template is available in [the templates repo](https://gitlab.com/tgdp/templates/-/tree/main/how-to).
+
+### Structure of our docs
+
+#### Structure of the public facing docs pages
+
+Our docs are structured in the following way:
+
+```tree
+├── Overview - Top level overview of Galileo, release notes etc.
+│
+├── Get Started - quickstarts to get a user going with Galileo in the shortest amount of time
+│
+├── How-to Guides - guides to performing specific tasks or solving specific problems
+│
+├── Cookbooks - tutorials
+│
+├── Integrations - how-to guides for integrating Galileo with other products
+│
+├── Concepts - Explanations for Galileo concepts
+│
+├── SDK/API - API and SDK reference. Mix of autogenerated reference material, and some concept/how-to guides to get started.
+│   ├── Python SDK Reference
+│   ├── TypeScript SDK Reference
+│   └── API Reference
+│
+└── References - Other reference guides
+```
+
+The cookbooks and how-to sections have overview pages. If you add a new item to these sections, also add links to the overview pages.
+
+> If you move any pages in a way that changes the URL, you **must** add a redirect to the `docs.json`:
+>
+> ```json
+> "redirects": [
+>   {
+>     "source": "/how-to-guides/conversational-ai/fixing-hallucinations-and-facutal-erros",
+>     "destination": "/how-to-guides/conversational-ai/fixing-hallucinations-and-factual-errors"
+>   },
+>   ...
+> ],
+> ```
+
+This reduces SEO issues with broken links, or problems with eternal links such as shared on social media, in presentations etc.
+
+#### Structure of this repo
+
+The `docs.json` file maps the files in this repo to the navigational structure of our documentation site. In addition to the raw markdown pages, this repo also contains code snippets, images, and framework items, such as the `docs.json` file, or icons.
+
+Any code samples included in documentation should exist as snippets in the [`snippets`](/snippets/) folder (with the exception of small blocks of code, such as inline code, or one or two liners where a whole file is not appropriate). These are grouped by programming language and the docs area they are used from.
+
+### Creating new pages
+
+When creating new pages, do the following:
+
+1. Where relevant, use the right template
+1. Use front matter to add a title, and a description, along with tags for cookbooks. Make sure the titles are clear and concise, and don't use emojis. The descriptions are used for SEO as well as on the top of the page, so these should also be clear and descriptive.
+1. If your document needs code, create this as snippets in the [`snippets`](/snippets/) folder. For how-to guides and explanations, create these for all languages required.
+1. If your document uses images, instead of placing all images in an images folder where they can be hard to find, create a folder for your document and have the images stored in that folder.
+
+### Style and formatting best practices
+
+- Use the active, instructional voice (e.g. "Create a new page" instead of "Creating a new page", "Galileo stores traces" instead of "the traces are stored by Galileo")
+- Use gender neutral and inclusive terms
+- Make sure your content is accessible:
+  - Have descriptive alt text for all images.
+  - For complicated images, make sure instead there is enough description in the documentation that the image doesn't need complicated alt text
+  - Use code snippets instead of code screenshots
+- When numbering lists, use `1.` for all list items. Markdown renderers will render this correctly as a numbered list, and it makes it easier to add items in the middle without renumbering.
+- When creating code blocks, use the correct type (e.g. `python`, `typescript`, `bash`, `json`). If this is code or a terminal command, ensure that it can be copied and run, and contains no extra output or terminal indicators.
