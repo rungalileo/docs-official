@@ -117,24 +117,39 @@ First, we import the necessary libraries and configure our environment variables
 
 <SnippetElasticRag1 />
 
-### Elasticsearch Setup
-
-Next, we define the `setup_elasticsearch` function. This function connects to your Elasticsearch instance, deploys the ELSER model if it's not already available, and indexes some sample documents. This ensures that your RAG application has data to retrieve.
-
+### 1. Elasticsearch Setup
 <SnippetElasticRag2 />
+The code automatically:
+- Connects to your Elasticsearch instance
+- Connects to the ELSER model for semantic search
+- Creates an index and stores sample documents
 
-### Agent Definition
 
-Here, we define the core logic of our RAG agent using LangGraph. We define the agent's state, create a retriever tool to search for documents in Elasticsearch, and build a graph that orchestrates the conversation flow.
-
+### 2. Agent Architecture
 <SnippetElasticRag3 />
+- **State Management**: Uses `AgentState` to track conversation messages
+- **Tool Integration**: Creates a retriever tool that searches Elasticsearch
+- **LangGraph Workflow**: Defines the flow between agent reasoning and tool usage
 
-### Running the Agent
 
-The `ask_question` function is responsible for interacting with the agent. It takes a question and a session ID, sends it to the LangGraph agent, and returns the response. It also manages the conversation history, allowing the agent to have context-aware conversations.
-
+### 3. Conversation Flow
 <SnippetElasticRag4 />
+1. User asks a question
+2. Agent decides whether to use the retriever tool
+3. If needed, searches Elasticsearch for relevant documents
+4. Generates a response based on retrieved context
+5. Saves the conversation to chat history
 
+
+### 4. Adding Galileo observability
+
+1. Open your [Galileo Console](https://app.galileo.ai/)
+2. Navigate to your project (f.e. `elasticsearch-rag-demo`)
+3. You'll see traces for each question, showing:
+   - Document retrieval steps
+   - LLM generation
+   - Full conversation context
+   - Performance metrics
 
 Finally, we put everything together. This block of code initializes the Elasticsearch setup, compiles the agent, and starts a Q&A session. You can see how to call the `ask_question` function with a sample query.
 
@@ -175,33 +190,13 @@ ELSER model ".elser_model_2_linux-x86_64" is already available.
 
 ## Understanding the application flow
 
-### 1. Elasticsearch Setup
-The script automatically:
-- Connects to your Elasticsearch instance
-- Deploys the ELSER model for semantic search
-- Creates an index and stores sample documents
 
-### 2. Agent Architecture
-- **State Management**: Uses `AgentState` to track conversation messages
-- **Tool Integration**: Creates a retriever tool that searches Elasticsearch
-- **LangGraph Workflow**: Defines the flow between agent reasoning and tool usage
 
-### 3. Conversation Flow
-1. User asks a question
-2. Agent decides whether to use the retriever tool
-3. If needed, searches Elasticsearch for relevant documents
-4. Generates a response based on retrieved context
-5. Saves the conversation to chat history
 
-## Adding Galileo observability
 
-1. Open your [Galileo Console](https://console.rungalileo.ai/)
-2. Navigate to your project (`elasticsearch-rag-demo`)
-3. You'll see traces for each question, showing:
-   - Document retrieval steps
-   - LLM generation
-   - Full conversation context
-   - Performance metrics
+
+
+
 
 
 ## Troubleshooting
