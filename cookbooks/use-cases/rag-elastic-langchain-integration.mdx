@@ -16,7 +16,7 @@ In this tutorial, you'll learn how to build a **Retrieval-Augmented Generation (
 
 - **Elasticsearch** for document storage and semantic search using the ELSER model
 - **LangGraph** for building conversational agents
-- **Galileo** for end-to-end observability and logging (optional)
+- **Galileo** for end-to-end observability and logging
 
 This tutorial is intended for Python developers who want to build production-ready RAG applications. By the end, you'll have a working chatbot that can answer questions about your documents with full observability.
 
@@ -62,13 +62,13 @@ First, let's set up your Elasticsearch instance for document storage and retriev
 ELSER (Elastic Learned Sparse EncodeR) provides semantic search capabilities:
 
 1. In your Elasticsearch project, go to **Relevance** → **Inference Endpoints**
-2. If **ELSER** doese not exist, click **Create endpoint**
+2. If **ELSER** does not exist, click **Create endpoint**
 3. Follow [the ELSER docs](https://www.elastic.co/docs/explore-analyze/machine-learning/nlp/ml-nlp-elser#download-deploy-elser) or [ Elastic guide](https://www.elastic.co/getting-started/enterprise-search/vector-search)
 4. Note the model ID (typically `.elser_model_2_linux-x86_64`)
 
 ## Step 2: Set up your Python environment
 
-Create a new project and install the required dependencies:
+Create a new project and install the required dependencies in a virtual environment:
 
 ```bash
 # Install dependencies
@@ -141,7 +141,19 @@ The code automatically:
 5. Saves the conversation to chat history
 
 
-### 4. Adding Galileo observability
+Finally, we put everything together. This block of code initializes the Elasticsearch setup, compiles the agent, and starts a Q&A session. You can see how to call the `ask_question` function with a sample query.
+
+<SnippetElasticRag5 />
+
+## Step 4: Run the Application
+
+To run your RAG application, save all the code into a single `demo.py` file and execute it from your terminal:
+
+```bash
+python demo.py
+```
+
+### 5. Adding Galileo observability
 
 1. Open your [Galileo Console](https://app.galileo.ai/)
 2. Navigate to your project (f.e. `elasticsearch-rag-demo`)
@@ -150,18 +162,6 @@ The code automatically:
    - LLM generation
    - Full conversation context
    - Performance metrics
-
-Finally, we put everything together. This block of code initializes the Elasticsearch setup, compiles the agent, and starts a Q&A session. You can see how to call the `ask_question` function with a sample query.
-
-<SnippetElasticRag5 />
-
-## Step 5: Run the Application
-
-To run your RAG application, save all the code into a single `demo.py` file and execute it from your terminal:
-
-```bash
-python demo.py
-```
 
 
 The script will:
