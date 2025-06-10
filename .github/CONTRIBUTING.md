@@ -95,7 +95,14 @@ If this template is not completed, the PR will not be reviewed. If a PR stays op
 
 This section covers some best practices for authoring docs that we follow.
 
-> These best practices are a recent addition, and our existing documentation may not completely align with them. If you are editing an existing doc that doesn't follow these best practices, think about if it is the right time to align to these.
+These best practices are a recent addition, and our existing documentation may not completely align with them. If you are editing an existing doc that doesn't follow these best practices, use the following framework to decide a course of action:
+
+1. Can the document be aligned with relatively minor changes, such as adding or changing section titles, or re-wording paragraphs to focus their intent on (Tutorials/How-To/Reference/Explanation)? 
+  - If YES, make the changes and note them in your PR
+1. Does alignment require more work, like shifting some content into a separate page?
+  - If YES, create a ( Shortcut Task or Github Issue, as required ) and notify the Galileo team of the need
+1. Does the lack of alignment _block_ your ability to edit or link to [ an unaligned document ]? 
+  - if YES, create a ( Shortcut Task or Github Issue ), _**note that it is a blocker**_, and notify the Galileo Team.
 
 ### The Diátaxis framework
 
