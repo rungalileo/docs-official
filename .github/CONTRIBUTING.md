@@ -105,7 +105,7 @@ When creating a cookbook, use the [Tutorials template](#tutorial-template) descr
 
 Cookbooks are all grouped in the [Cookbooks](https://v2docs.galileo.ai/cookbooks/cookbooks/overview) section of our documentation. These are grouped by functional area of the type of application you are building.
 
-Cookbooks can be for only one programming language, as they are usually dependent on integrations with third-party components, such as LangGraph, or MongoDB. When you create a cookbook, tag it with the relevant programming language in the front matter:
+Cookbooks can be for only one programming language, as they are usually dependent on integrations with third-party components, such as [LangGraph](https://v2docs.galileo.ai/cookbooks/use-cases/multi-agent-langgraph/multi-agent-langgraph), or [MongoDB](https://v2docs.galileo.ai/cookbooks/use-cases/rag-mongodb-langchain-integration). When you create a cookbook, tag it with the relevant programming language in the front matter:
 
 ```text
 ---
