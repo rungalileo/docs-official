@@ -49,6 +49,8 @@ When you raise a pull request, there is a template to fill in. Add the following
   - **I have reviewed my changes**
 
     Please review all your changes thoroughly, and check this when you are happy with them.
+    
+    For cookbooks or how-to guides, make sure you have followed the guide thoroughly and accurately in a clean environment, only following the steps in the guide and nothing else. This ensures users will be able to be successful in following your steps.
 
   - **I have reviewed the deployed version of my changes**
 
