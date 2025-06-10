@@ -2,6 +2,7 @@
 # --- 3. Agent Definition ---
 # Define the state, tools, and the graph that powers the agent.
 
+
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
 
@@ -19,7 +20,7 @@ def setup_agent_and_graph(store: ElasticsearchStore):
     tools = [retriever_tool]
 
     # Use a model that is good at tool use
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, streaming=True, api_key=OPENAI_API_KEY)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, streaming=True, api_key=os.environ["OPENAI_API_KEY"])
     agent_runnable = llm.bind_tools(tools)
 
     # 3c. Define the Graph
@@ -37,5 +38,5 @@ def setup_agent_and_graph(store: ElasticsearchStore):
     workflow.add_edge("tools", "agent")
 
     graph = workflow.compile()
-    return graph 
+    return graph
 ```
