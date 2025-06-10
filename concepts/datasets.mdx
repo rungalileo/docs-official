@@ -12,6 +12,9 @@ import SnippetTSGetDataset from "/snippets/code/typescript/concepts/datasets/get
 
 **Datasets** are a fundamental building block in Galileo's experimentation workflow. They provide a structured way to **organize, version, and manage** your test cases. Whether you're evaluating prompts, testing application functionality, or analyzing model behavior, having well-organized datasets is crucial for systematic testing and continuous improvement.
 
+
+
+
 ## Working with Datasets
 
 Datasets can be used in two ways:
@@ -29,7 +32,11 @@ Datasets can be used in two ways:
 
 Choose the approach that best fits your workflow and team's needs. Many users combine both approaches, using code for bulk operations and the UI for visualization and quick edits.
 
-For detailed information about dataset management, see our [Datasets Documentation](/sdk-api/python/experimentation/datasets).
+Each record in a Galileo dataset can have three top-level fields: 
+
+1. **Input** - Input variables that can be passed to your application to recreate a test case.
+2. **Output** - Reference outputs to evaluate your application. These can also be expected outputs or ground truth.
+3. **Metadata** - Additional data you can use to filter or group your dataset.
 
 ## Path 1: Creating and Managing Datasets via UI
 
@@ -92,33 +99,35 @@ One of the benefits of Galileo's dataset management is automatic versioning. Aut
   <SnippetTSGetDataset />
 </CodeGroup>
 
-## Accessing Dataset Variables in Prompt Templates
-When you use datasets in Galileo, each sample in your dataset is made available to your prompt template as the `input` object.  This allows you to create dynamic prompts that adapt to the data in each sample.
+## Accessing Dataset Variables in Prompts
+When you use datasets in Galileo, the attributes stored in the input in your dataset are made available to your prompts using mustache templating.  This allows you to create dynamic prompts that adapt to the data in each sample.
 
 ### Example Dataset
 Suppose you have the following dataset: 
 
 ```
+
 test_data = [
-    {"city": "Rome, Italy", "metadata": {"days": 5}},
-    {"city": "Tokyo, Japan", "metadata": {"days": 3}},
+    { "input": { "city": "Rome, Italy", "days": "5" } },
+    { "input": { "city": "Paris, France", "days": "3" } },
+]
 ```
 
 ### Example Prompt Template
-To reference fields from your dataset in your prompt, use double curly braces and the `input` object:
+To reference fields from your dataset in your prompt, use double curly braces:
 
 ```
-Plan a {{ input.metadata.days }}-day travel itinerary for a trip to {{ input.city }}.
+Plan a {{ days }}-day travel itinerary for a trip to {{ city }}.
 Include daily sightseeing activities, dining suggestions, and local experiences.
 ```
 
-- `{{ input.city }}` will be replaced with the value of the `city` field from each sample. 
-- `{{ input.metadata.days }}` will be replaced with the value of the `days` field inside the `metadata` dictionary. 
+- `{{ city }}` will be replaced with the value of the `city` field inside the `input` dictionary. 
+- `{{ days }}` will be replaced with the value of the `days` field inside the `input` dictionary. 
 
 ### How It works 
 For each sample in your dataset, Galileo will render the prompt template, replacing the variables with the corresponding values from the sample. 
 
-If a field is missing in a sample, the variable will be empty or may cause an error, so ensure your dataset is consistent. 
+If a field is missing in a sample, the variable will be empty, so ensure your dataset is consistent. 
 
 ## Creating Focus Sets
 
