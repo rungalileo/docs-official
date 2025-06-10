@@ -34,7 +34,7 @@ When you raise a pull request, there is a template to fill in. Add the following
   - For everyone else, add a link to the issue number using `#number`, and GitHub will create the link
   - If this is a small change such as a spelling mistake without a ticket, add a note about this, such as "Minor spelling fix, no ticket"
 
-- Work through the checklist, and tick off every step as you verify it. This is not a box ticking exercise, it is meant to ensure everyone methodically verifies their PR and reduces time spent by the reviewers catching silly errors that should have been caught by the submitter.
+- Work through the checklist, and tick off every step as you verify it. **This is not a box ticking exercise**, it is meant to ensure everyone methodically verifies their PR and reduces time spent by the reviewers catching silly errors that should have been caught by the submitter.
 
   - **Is this ready for review? If not, raise as a draft PR**
 
