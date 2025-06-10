@@ -32,7 +32,7 @@ When you raise a pull request, there is a template to fill in. Add the following
 
   - For Galileo employees, add a link to the Shortcut ticked in the form `[SC-xxx]()`, where the test is `SC-` followed by the ticket number, linking to the ticket. For example, `[SC-27352](https://app.shortcut.com/galileo/story/27352)`. This is the correct format for Shortcut to pick up and attach the PR to the ticket
   - For everyone else, add a link to the issue number using `#number`, and GitHub will create the link
-  - If this is a small change such as a spelling mistake without a ticket, add a note about this
+  - If this is a small change such as a spelling mistake without a ticket, add a note about this, such as "Minor spelling fix, no ticket"
 
 - Work through the checklist, and tick off every step as you verify it. This is not a box ticking exercise, it is meant to ensure everyone methodically verifies their PR and reduces time spent by the reviewers catching silly errors that should have been caught by the submitter.
 
