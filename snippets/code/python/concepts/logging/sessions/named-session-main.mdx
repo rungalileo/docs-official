@@ -1,0 +1,19 @@
+```python main.py 
+def main():
+    """ Application Lifecycle Logic """
+
+    # Start our session (as shown in Step 1)
+    galileo_context.start_session(name="My Session Name")
+
+    # Here's what we will ask the LLM: you can handle this area however you like
+    prompt = "Hello, Assistant! What is the capital of Norway?"
+    
+    # Here, we invoke the LLM with our question. 
+    response = simple_assistant.invoke(
+        input={"messages": [{"role": "user", "content": prompt}]},
+        config=agent_config,
+    )
+
+    # Print out the LLM's response to confirm that this code block ran:
+    print("Model response:", response.choices[0].message.content.strip())
+```

@@ -5,6 +5,13 @@ description: Learn to create and use Sessions in Galileo
 
 import { InfoNote } from "/snippets/components/info-note.mdx";
 import EnvironmentSnippet from "/snippets/code/python/sdk/env-setup.mdx"
+import SimpleAgentSnippet from "/snippets/code/python/concepts/logging/sessions/simple-agent-snippet.mdx"
+import SimpleAgentFull from "/snippets/code/python/concepts/logging/sessions/simple-agent-full.mdx"
+import WithGalileoSnippet from "/snippets/code/python/concepts/logging/sessions/galileo-context-snippet.mdx"
+import NamedSessionSnippet from "/snippets/code/python/concepts/logging/sessions/named-session-snippet.mdx"
+import NamedSessionMain from "/snippets/code/python/concepts/logging/sessions/named-session-main.mdx"
+import NamedSessionFull from "/snippets/code/python/concepts/logging/sessions/named-session-full.mdx"
+
 
 ## Overview
 
@@ -98,65 +105,16 @@ Let's start with a minimal chat-like application where Galileo automatically cre
 This example is a quick way to introduce you to session logging. If you're in a hurry, you can see the [full code sample here](#automatic-sessions-code-sample).
 
 <Steps>
-    <Step title="Import dependencies">
+    <Step title="Create a simple agent">
         In your main script, import the following dependencies. We'll see `galileo_context` and `GalileoCallback` in action soon; for now, let's create a very simple agent:
 
-        ```python main.py
-        import os
-        from dotenv import load_dotenv
-        
-        # Galileo dependencies
-        from galileo import galileo_context
-        from galileo.handlers.langchain import GalileoCallback
-
-        # LangChain and LangGraph dependencies
-        from langgraph.prebuilt import create_react_agent
-        from langchain.chat_models import init_chat_model
-        from langgraph.prebuilt import create_react_agent
-
-        # Load `.env` variables
-        load_dotenv()
-
-        # For more complex apps, you can define your assistant elsewhere and import it here.
-        # You can also provide tools! Galileo will add Spans for tool calls into your session.
-        simple_assistant = create_react_agent(
-            name="simple_assistant",
-            model="openai:o3-mini",  # you can choose any OpenAI model here
-            prompt="You are a friendly assistant that answers the user's questions",
-            tools=[] 
-        )
-        ```
+        <SimpleAgentSnippet />
     </Step>
 
-    <Step title="Use Galileo Context">
+    <Step title="Use Galileo Context Manager">
         Our very simple application will hard-code a question for the LLM, and then conclude. We will give the invocation a callback handler, which will run after the LLM has been invoked. Galileo SDK will do all the heavy lifting:
 
-        ```python main.py
-        def main():
-            """ Main Application Logic """
-
-            # Let's setup a LangChain Runnable config object to hold the callback for LangGraph:
-            agent_config = RunnableConfig(callbacks=[GalileoCallback()])
-
-            # Next, call "with galileo_context()" to set up a session for all subsequent Traces.
-            with galileo_context():
-
-                # Here's what we will ask the LLM:
-                prompt = "Hello, Assistant! How many minutes are in a year?"
-                
-                # Here, we invoke the LLM with our question. 
-                response = simple_assistant.invoke(
-                    input={"messages": [{"role": "user", "content": prompt}]},
-                    config=agent_config, # pass the RunnableConfig here
-                )
-
-                # Print out the LLM's response to confirm that this code block ran:
-                print("Model response:", response.choices[0].message.content.strip())
-
-
-        if __name__ == "__main__":
-            main()
-        ```
+        <WithGalileoSnippet />
 
         The important thing to note here is that **wrapping your chat app logic in `with galileo_context()` will generate a session for you, and flush it when the code block has concluded**.
 
@@ -185,56 +143,7 @@ This example is a quick way to introduce you to session logging. If you're in a 
 
 #### Automatic Sessions Code Sample
 <Accordion title="Full code sample (click to expand)">
-```python main.py
-import os
-from dotenv import load_dotenv
-
-# Galileo dependencies
-from galileo import galileo_context
-from galileo.handlers.langchain import GalileoCallback
-
-# LangChain and LangGraph dependencies
-from langgraph.prebuilt import create_react_agent
-from langchain.chat_models import init_chat_model
-from langgraph.prebuilt import create_react_agent
-
-# Load `.env` variables
-load_dotenv()
-
-# Create a simple assistant for our test (or import one). You can also provide
-# your agent with tools: the session will log their usage
-simple_assistant = create_react_agent(
-    name="simple_assistant",
-    model="openai:o3-mini",  # you can choose any OpenAI model here
-    prompt="You are a friendly assistant that answers the user's questions",
-    tools=[] # (OPTIONAL) provide tools to your agent
-)
-
-def main():
-    """ Main Application Logic """
-
-    # Create a LangChain Runnable config object with a LangGraph callback handler:
-    agent_config = RunnableConfig(callbacks=[GalileoCallback()])
-
-    # call "with galileo_context()" to set up a session for all subsequent Traces.
-    with galileo_context():
-
-        # Here's what we will ask the LLM:
-        prompt = "Hello, Assistant! How many minutes are in a year?"
-        
-        # Invoke the LLM with our question:
-        response = simple_assistant.invoke(
-            input={"messages": [{"role": "user", "content": prompt}]},
-            config=agent_config, # pass the RunnableConfig here
-        )
-
-        # Print out the LLM's response to confirm that this code block ran:
-        print("Model response:", response.choices[0].message.content.strip())
-
-
-if __name__ == "__main__":
-    main()
-```
+    <SimpleAgentFull />
 </Accordion>
 
 
@@ -251,15 +160,7 @@ Let's make a few small changes to the script from [Automatic Sessions](#use-gali
     <Steps title="Create a named session">
         You can create a session by calling `galileo_context.start_session`. This replaces the `with galileo_context()` call from above.
 
-        ```python main.py
-
-        # Our LangChain Runnable config is the same as before:
-        agent_config = RunnableConfig(callbacks=[GalileoCallback()])
-
-        # Here's where we make the first change. This will start the session and log our
-        # Traces and Spans. 'start_session' also takes a few optional args, show below:
-        galileo_context.start_session()
-        ```
+        <NamedSessionSnippet />
 
         <Accordion title="Optional arguments for start_session">
             - `name`: a unique name for the session, so you can identify it more easily in the Galileo Console.
@@ -273,25 +174,7 @@ Let's make a few small changes to the script from [Automatic Sessions](#use-gali
 
         Regardless of what you choose, `start_session()` will begin logging Traces for any code that runs after it. Note that your code should be in the same scope as `start_session` (i.e. not indented):
 
-        ```python main.py 
-        def main():
-            """ Application Lifecycle Logic """
-
-            # Start our session (as shown in Step 1)
-            galileo_context.start_session()
-
-            # Here's what we will ask the LLM: you can handle this area however you like
-            prompt = "Hello, Assistant! What is the capital of Norway?"
-            
-            # Here, we invoke the LLM with our question. 
-            response = simple_assistant.invoke(
-                input={"messages": [{"role": "user", "content": prompt}]},
-                config=agent_config,
-            )
-
-            # Print out the LLM's response to confirm that this code block ran:
-            print("Model response:", response.choices[0].message.content.strip())
-        ```
+        <NamedSessionMain />
     </Step>
 
     <Step title="Flush the context">
@@ -300,10 +183,7 @@ Let's make a few small changes to the script from [Automatic Sessions](#use-gali
         For our simple app, we will flush the context after printing the Model response. For your app, you can call this whenever you are done capturing logs (e.g. in a lifecycle shutdown).
 
         ```python main.py 
-        # Print out the LLM's response to confirm that this code block ran:
-        print("Model response:", response.choices[0].message.content.strip())
-
-        # Flush the session context:
+        # Flush the session context at the end of your logic:
         galileo_context.flush()
         ```
 
@@ -332,60 +212,7 @@ Let's make a few small changes to the script from [Automatic Sessions](#use-gali
 
 #### Manual Sessions Code Sample
 <Accordion title="Full code sample (click to expand)">
-```python main.py 
-
-import os
-from dotenv import load_dotenv
-
-# Galileo dependencies
-from galileo import galileo_context
-from galileo.handlers.langchain import GalileoCallback
-
-# LangChain and LangGraph dependencies
-from langgraph.prebuilt import create_react_agent
-from langchain.chat_models import init_chat_model
-from langgraph.prebuilt import create_react_agent
-
-# Load `.env` variables
-load_dotenv()
-
-# Create a simple assistant for our test (or import one). You can also provide
-# your agent with tools: the session will log their usage
-simple_assistant = create_react_agent(
-    name="simple_assistant",
-    model="openai:o3-mini",  # you can choose any OpenAI model here
-    prompt="You are a friendly assistant that answers the user's questions",
-    tools=[] # (OPTIONAL) provide tools to your agent
-)
-
-def main():
-    """ Main Application Logic """
-
-    # Create a LangChain Runnable config object with a LangGraph callback handler:
-    agent_config = RunnableConfig(callbacks=[GalileoCallback()])
-
-    # call "galileo_context.start_session()" to set up a session for all subsequent Traces.
-    galileo_context.start_session():
-
-    # Here's what we will ask the LLM:
-    prompt = "Hello, Assistant! How many minutes are in a year?"
-    
-    # Invoke the LLM with our question:
-    response = simple_assistant.invoke(
-        input={"messages": [{"role": "user", "content": prompt}]},
-        config=agent_config, # pass the RunnableConfig here
-    )
-
-    # Print out the LLM's response to confirm that this code block ran:
-    print("Model response:", response.choices[0].message.content.strip())
-
-    # Flush the session context:
-    galileo_context.flush()
-
-
-if __name__ == "__main__":
-    main()
-```
+    <NamedSessionFull />
 </Accordion>
 
 
