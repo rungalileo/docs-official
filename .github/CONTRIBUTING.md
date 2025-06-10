@@ -63,7 +63,17 @@ When you raise a pull request, there is a template to fill in. Add the following
 
   - **I have verified all images and videos are clear, with appropriate zoom**
 
-    Images and videos need to be clear with readable text for all users. Make sure that on the deployed site with the available page width all text is readable and the image or video shows the correct amount of detail.
+    Images and videos need to be clear with readable text for all users. Make sure that on the deployed site with the available page width all text is readable and the image or video shows the correct amount of detail. Use highlights or outlines to indicate relevant features.
+
+    Here is an example of a good image:
+
+    ![An image showing the API keys section in Galileo. The text is clear, with a red highlight around the create new key button](./images/create-api-key.png)
+
+    Here's an example of a less good image:
+
+    ![An image of a table of traces. There are a lof of rows and columns and this is hard to read](./images/bad-image-example.webp)
+
+    Make sure your images or videos are appropriately sized. Prefer `jpg` or `webp` formats over `png` to reduce the file size. For animated GIFs, use as low a size and frame rate as possible. For larger videos, host these on YouTube and embed.
 
   - **I have reviewed any spelling mistakes highlighted by the checks**
 
