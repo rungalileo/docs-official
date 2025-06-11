@@ -1,0 +1,228 @@
+---
+title: "Build a RAG Application with Elasticsearch, LangGraph, and Galileo"
+description: "Guide to using Elasticsearch with LangGraph for the Chatbot RAG app, logging to Galileo."
+tag: "Python"
+---
+
+import SnippetElasticRag1 from '/snippets/code/python/use-cases/rag-elastic-langchain-integration/elastic-rag-langgraph-py-1.mdx';
+import SnippetElasticRag2 from '/snippets/code/python/use-cases/rag-elastic-langchain-integration/elastic-rag-langgraph-py-2.mdx';
+import SnippetElasticRag3 from '/snippets/code/python/use-cases/rag-elastic-langchain-integration/elastic-rag-langgraph-py-3.mdx';
+import SnippetElasticRag4 from '/snippets/code/python/use-cases/rag-elastic-langchain-integration/elastic-rag-langgraph-py-4.mdx';
+import SnippetElasticRag5 from '/snippets/code/python/use-cases/rag-elastic-langchain-integration/elastic-rag-langgraph-py-5.mdx';
+
+## Overview
+
+In this tutorial, you'll learn how to build a **Retrieval-Augmented Generation (RAG)** application that combines:
+
+- **Elasticsearch** for document storage and semantic search using the ELSER model
+- **LangGraph** for building conversational agents
+- **Galileo** for end-to-end observability and logging
+
+This tutorial is intended for Python developers who want to build production-ready RAG applications. By the end, you'll have a working chatbot that can answer questions about your documents with full observability.
+
+## What you'll build
+
+You'll create a RAG chatbot that:
+
+1. Use ELSER model for semantic search
+2. Stores documents in the Elasticsearch vector store
+3. Uses LangGraph to orchestrate retrieval and generation steps
+4. Monitor traces with Galileo
+
+## Prerequisites
+
+Before starting, you'll need:
+
+- **Python 3.10+** installed
+- **An Elasticsearch instance** (we'll use Elastic Cloud Serverless)
+- **OpenAI API key** for the language model
+- **Galileo account** for observability
+
+## Step 1: Set up Elasticsearch Cloud Serverless
+
+First, let's set up your Elasticsearch instance for document storage and retrieval.
+
+### Create your Elasticsearch project
+
+1. Navigate to [cloud.elastic.co](https://cloud.elastic.co) and create an account or log in
+2. Click [**Create serverless project**](https://cloud.elastic.co/projects/create)
+3. Choose **Elasticsearch** as the project type
+4. Select **Optimized for Vectors** configuration
+5. Name your project (e.g., "rag-chatbot") and click **Create project**
+
+### Create your first index
+
+1. Once your project is ready, you'll see the index creation page
+2. Enter an index name: `demo`
+3. Click **Create my index**
+4. **Important**: Copy and save your **Elasticsearch URL** and **API key** - you won't see the API key again
+
+### Deploy or configure the ELSER model
+
+ELSER (Elastic Learned Sparse EncodeR) provides semantic search capabilities:
+
+1. In your Elasticsearch project, go to **Relevance** → **Inference Endpoints**
+2. If **ELSER** does not exist, click **Create endpoint**
+3. Follow [the ELSER docs](https://www.elastic.co/docs/explore-analyze/machine-learning/nlp/ml-nlp-elser#download-deploy-elser) or [ Elastic guide](https://www.elastic.co/getting-started/enterprise-search/vector-search)
+4. Note the model ID (typically `.elser_model_2_linux-x86_64`)
+
+## Step 2: Set up your Python environment
+
+Create a new project and install the required dependencies in a virtual environment:
+
+```bash
+# Install dependencies
+pip install \
+    elasticsearch \
+    langchain-elasticsearch \
+    langchain-openai \
+    langgraph \
+    galileo \
+    openai \
+    dotenv # Optionally depending on your environment
+```
+
+## Step 3: Configure environment variables
+
+Create a `.env` file or set these environment variables:
+
+```bash
+# Elasticsearch
+ES_HOST="your-elasticsearch-host-here"  # e.g., "https://your-cluster.es.us-central1.gcp.cloud.es.io:443"
+ES_API_KEY="your-api-key-here" 
+ES_INDEX="demo"
+ES_INDEX_CHAT_HISTORY="chat-history"
+ELSER_MODEL=".elser_model_2_linux-x86_64"  # Adjust based on your deployment
+
+# OpenAI
+OPENAI_API_KEY="your-openai-api-key-here"
+
+# Replace with your actual Galileo credentials
+GALILEO_API_KEY="your-galileo-api-key-here"
+GALILEO_PROJECT="elasticsearch-rag-demo" # YOUR PROJECT NAME
+GALILEO_LOG_STREAM="elastic_rag_stream"
+```
+
+**Note**: The ELSER model name varies by platform:
+- Linux x86_64: `.elser_model_2_linux-x86_64`
+- Check your Elasticsearch ML models for the exact name
+
+## Step 4: Build the RAG Application
+
+Now, let's build the RAG application step-by-step. Create a Python file (e.g., `demo.py`) and add the following code snippets.
+
+### Imports and Configuration
+
+First, we import the necessary libraries and configure our environment variables. This part of the script loads your API keys and sets up the connection details for Elasticsearch, OpenAI, and Galileo.
+
+<SnippetElasticRag1 />
+
+### 1. Elasticsearch Setup
+<SnippetElasticRag2 />
+The code automatically:
+- Connects to your Elasticsearch instance
+- Connects to the ELSER model for semantic search
+- Creates an index and stores sample documents
+
+
+### 2. Agent Architecture
+<SnippetElasticRag3 />
+- **State Management**: Uses `AgentState` to track conversation messages
+- **Tool Integration**: Creates a retriever tool that searches Elasticsearch
+- **LangGraph Workflow**: Defines the flow between agent reasoning and tool usage
+
+
+### 3. Conversation Flow
+<SnippetElasticRag4 />
+1. User asks a question
+2. Agent decides whether to use the retriever tool
+3. If needed, searches Elasticsearch for relevant documents
+4. Generates a response based on retrieved context
+5. Saves the conversation to chat history
+
+
+Finally, we put everything together. This block of code initializes the Elasticsearch setup, compiles the agent, and starts a Q&A session. You can see how to call the `ask_question` function with a sample query.
+
+<SnippetElasticRag5 />
+
+## Step 4: Run the Application
+
+To run your RAG application, save all the code into a single `demo.py` file and execute it from your terminal:
+
+```bash
+python demo.py
+```
+
+### 5. Adding Galileo observability
+
+1. Open your [Galileo Console](https://app.galileo.ai/)
+2. Navigate to your project (f.e. `elasticsearch-rag-demo`)
+3. You'll see traces for each question, showing:
+   - Document retrieval steps
+   - LLM generation
+   - Full conversation context
+   - Performance metrics
+
+
+The script will:
+
+1. **Connect to Elasticsearch** and verify the connection
+2. **Use the ELSER model**
+3. **Index sample documents** about company policies
+4. **Create the RAG agent** with LangGraph workflow
+5. **Run sample questions** and display answers and log them to Galileo
+
+Expected output:
+```
+Connecting to Elasticsearch...
+{'name': 'your-cluster', 'cluster_name': '...', ...}
+ELSER model ".elser_model_2_linux-x86_64" is already available.
+3 documents indexed successfully.
+
+--- Starting Q&A Session ---
+
+❓ Question: How many vacation days do new hires get?
+✅ Answer: New hires get 15 days of paid time off, which increases to 20 days after 3 years of service.
+
+❓ Question: What about health insurance?
+✅ Answer: The company offers comprehensive health insurance including medical, dental, and vision coverage.
+```
+
+## Understanding the application flow
+
+
+
+
+
+
+
+
+
+
+## Troubleshooting
+
+### Connection issues
+- Verify your Elasticsearch host URL and API key
+- Ensure your IP is whitelisted if using Elastic Cloud if not using serverless
+- Check that Elasticsearch is running and accessible
+
+### ELSER model issues
+- Verify the model name matches your platform
+- Ensure machine learning features are enabled
+- Check that you have sufficient resources for model deployment
+
+### Missing documents in search
+- Wait a few seconds after indexing for documents to be available
+- Verify the index name matches your configuration
+- Check Elasticsearch logs for indexing errors
+
+## Next steps
+
+Now that you have a working RAG application, you can add **evaluation metrics** in Galileo to measure chunk attribution
+
+## Additional resources
+
+- [Elasticsearch Vector Search Documentation](https://www.elastic.co/getting-started/enterprise-search/vector-search)
+- [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
+- [Galileo Python SDK](/sdk-api/python/overview)
+- [Example Chat App with streaming](https://github.com/rungalileo/elasticsearch-labs/tree/main/example-apps/chatbot-rag-app)
