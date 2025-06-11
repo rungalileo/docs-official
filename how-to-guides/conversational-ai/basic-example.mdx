@@ -5,6 +5,10 @@ description: Learn how to integrate and use OpenAI's API with Galileo's wrapper 
 
 When working with OpenAI's API, it's important to set up your environment and client correctly to ensure secure and efficient API calls. This guide shows you how to create a basic integration using Galileo's OpenAI client wrapper.
 
+<Note>
+The Galileo OpenAI wrapper doesn't support the asynchronous API. See our [Basic Async OpenAI example](/how-to-guides/conversational-ai/basic-async-openai-example.mdx) for a guide on how to do this.
+</Note>
+
 ### What You'll Need
 
 - OpenAI API key
@@ -16,7 +20,7 @@ When working with OpenAI's API, it's important to set up your environment and cl
 
 - **Environment Variables**: Secure storage of API keys
 - **Required Packages**: Galileo and OpenAI clients
-- **Python Environment**: 3.7 or higher recommended
+- **Python Environment**: 3.9 or higher recommended
 
 ## Implementation Steps
 
@@ -39,13 +43,11 @@ OPENAI_ORGANIZATION=your_org_id
 Create a `requirements.txt` file:
 
 ```text requirements.txt
-galileo==0.0.7
-openai==1.61.1
-pydantic==2.10.6
-python-dotenv==0.19.0
+galileo[openai]
+python-dotenv
 ```
 
-Install dependencies:
+Create a virtual environment using your preferred method, then install dependencies inside that environment:
 
 ```bash
 pip install -r requirements.txt
