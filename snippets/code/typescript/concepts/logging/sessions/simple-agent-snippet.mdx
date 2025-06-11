@@ -1,0 +1,25 @@
+```typescript TypeScript {16-21}
+import { configDotenv } from "dotenv";
+
+// Galileo dependencies
+import { GalileoCallback } from "galileo";
+
+// LangChain and LangGraph dependencies
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { RunnableConfig } from "@langchain/core/runnables";
+import { ChatOpenAI } from "@langchain/openai";
+
+// Load `.env` variables
+configDotenv();
+
+const openai = new ChatOpenAI();
+
+// For more complex apps, you can define your assistant elsewhere and import it here.
+// You can also provide tools! Galileo will add Spans for tool calls into your session.
+const simpleAgent = createReactAgent({
+  name: "simpleAssistant",
+  llm: openai,
+  prompt: "You are a friendly assistant that answers the user's questions",
+  tools: []
+});
+```

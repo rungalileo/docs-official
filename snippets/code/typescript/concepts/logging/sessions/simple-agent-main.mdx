@@ -1,0 +1,26 @@
+```python main.py {8}
+def main():
+    """ Main Application Logic """
+
+    # Let's setup a LangChain Runnable config object to hold the callback for LangGraph:
+    agent_config = RunnableConfig(callbacks=[GalileoCallback()])
+
+    # Next, call "with galileo_context()" to set up a session for all subsequent Traces.
+    with galileo_context():
+
+        # Here's what we will ask the LLM:
+        prompt = "Hello, Assistant! How many minutes are in a year?"
+        
+        # Here, we invoke the LLM with our question. 
+        response = simple_assistant.invoke(
+            input={"messages": [{"role": "user", "content": prompt}]},
+            config=agent_config, # pass the RunnableConfig here
+        )
+
+        # Print out the LLM's response to confirm that this code block ran:
+        print("Model response:", response.choices[0].message.content.strip())
+
+
+if __name__ == "__main__":
+    main()
+```
