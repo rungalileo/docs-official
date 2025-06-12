@@ -4,44 +4,22 @@ description: Learn to create and use Sessions in Galileo
 ---
 
 import { InfoNote } from "/snippets/components/info-note.mdx";
-import EnvironmentSnippet from "/snippets/code/python/sdk/env-setup.mdx"
-import SimpleAgentSnippet from "/snippets/code/python/concepts/logging/sessions/simple-agent-snippet.mdx"
-import SimpleAgentFull from "/snippets/code/python/concepts/logging/sessions/simple-agent-full.mdx"
-import WithGalileoSnippet from "/snippets/code/python/concepts/logging/sessions/galileo-context-snippet.mdx"
-import NamedSessionSnippet from "/snippets/code/python/concepts/logging/sessions/named-session-snippet.mdx"
-import NamedSessionMain from "/snippets/code/python/concepts/logging/sessions/named-session-main.mdx"
-import NamedSessionFull from "/snippets/code/python/concepts/logging/sessions/named-session-full.mdx"
+import EnvironmentSnippet from "/snippets/code/multilingual/env-with-openai.mdx"
+import SimpleAgentSnippet from "/snippets/code/multilingual/concepts/logging/sessions/simple-agent.mdx"
+import CreateLoggerSnippet from "/snippets/code/multilingual/concepts/logging/create-logger.mdx"
+import LoggerOptionalArgs from "/snippets/code/multilingual/concepts/logging/logger-optional-args.mdx"
+import StartSessionSnippet from "/snippets/code/multilingual/concepts/logging/sessions/start-session.mdx"
+import SessionMain from "/snippets/code/multilingual/concepts/logging/sessions/use-session-main.mdx"
+import SessionFull from "/snippets/code/multilingual/concepts/logging/sessions/use-session-full.mdx"
 
 
 ## Overview
 
-This document will guide you through creating and using [Sessions](/concepts/logging/sessions/sessions-overview) in Galileo, starting from a simple LLM-driven example and progressively adding more complexity with multiple agents and data sources.
+This tutorial will guide you through creating and using a [Session](/concepts/logging/sessions/sessions-overview) in Galileo, using a simple LLM-driven example that you can expand to multiple agents and data sources. It is a quick way to introduce you to logging sessions. By the end of this guide, you will know how to:
 
-This tutorial assumes you are familiar with:
-
-- Python 
-- [Setting up a project in Galileo](/getting-started/quickstart)
-- [Sessions](/concepts/logging/sessions/sessions-overview) in Galileo
-- Simple LLM Apps, and making simple OpenAI completion calls
-
-## Prerequisites
-
-- **Galileo Account & API Key**: Ensure you have a Galileo account with a `GALILEO_API_KEY`.  
-- **OpenAI API Key**: This example will use OpenAI as the underlying LLM.
-- **Python Environment**: Python 3.8+ installed.  
-- **Galileo Python SDK**
-- **Environment Variables**: A `.env` file containing your `OPENAI_API_KEY`, as well as:
-    <EnvironmentSnippet />
-
-
-## What we will do
-
-Before diving into code, here's the high-level flow common to all scenarios:
-
-1. Initialize the [`Galileo Context`](/sdk-api/python/logging/galileo-context)
-2. Run your LLM logic, logging one or more Traces (and their Spans) within a Session.
-3. Flush the context so that Galileo captures and uploads the Session data.
-4. Inspect the Session in the Galileo Console to see all related Traces and Spans.
+1. Initialize a [logging session](/concepts/logging/sessions/sessions-overview)
+1. Flush the session so that Galileo captures and uploads its data.
+1. Inspect the Session in the Galileo Console to see all related Traces and Spans.
 
 ```mermaid
 ---
@@ -50,9 +28,9 @@ flowchart:
     curve: linear
 ---
 graph TD;
-    __start__([<b>Initialize the Session</b>])
+    __start__([<b>Initialize a Session</b>])
     app_logic(Run LLM logic)
-    log_traces([<em>Galileo captures Traces and Spans</em>])
+    log_traces([<em>Galileo captures <code>Traces</code> and <code>Spans</code></em>])
     flush(Flush the context)
     __end__([<p>View Session in Galileo Console</p>])
 
@@ -64,161 +42,157 @@ graph TD;
 
 There will be minor differences around starting and flushing the session context, depending on whether you're using the automatic or manual way. We'll cover both below.
 
+## Prerequisites
+
+- **Galileo Account**: Ensure you have signed up for a Galileo account. This should provide you with the following values:
+    - `GALILEO_API_KEY`: Your API key
+    - `GALILEO_PROJECT`: The name of your Galileo Project
+    - `GALILEO_LOG_STREAM`: The log stream where you will save your sessions
+- **OpenAI API Key**: This example will use OpenAI as the underlying LLM, so you will need an API key from them.
+
+
+In addition, this tutorial assumes you are familiar with:
+
+- Simple LLM Apps, and making simple OpenAI completion calls using Python or TypeScript
+- The `GalileoLogger` class from the [Python](/sdk-api/python/logging/galileo-logger) or [TypeScript](/sdk-api/typescript/logging/galileo-logger) sdk
+
 
 ## Project setup
 
-Let's take a moment to prepare the development environment. If you already have a project setup with `Galileo`, `LangChain`, and `LangGraph`, you can skip right to [Automatic Sessions](#automatic-sessions). If not, here's an abbreviated quickstart:
+Let's take a moment to prepare the development environment. If you already have a project setup with `Galileo`, `LangChain`, and `LangGraph`, you can skip right to [Manage a Session](#manage-a-session). If not, here's an abbreviated quickstart:
 
 <Steps>
     <Step title="Install dependences">
-        Add the [Galileo Python SDK](/sdk-api/python/overview), LangChain, and LangGraph, as well as `python-dotenv` to pull in variables from your `.env` file:
+        We'll need the Galileo [Python](/sdk-api/python/overview) or [TypeScript](/sdk-api/python/overview) SDK, LangChain, LangGraph, OpenAI, and `dotenv` to pull in variables from your `.env` file. Let's start by installing them:
 
-        ```bash
-        pip install "galileo[openai]" langchain langgraph python-dotenv 
-        ```
+        <CodeGroup>
+            ```bash Python
+            pip install "galileo[openai]" langchain langgraph python-dotenv 
+            ```
+            ```bash TypeScript
+            npm i -s galileo openai @langchain/langgraph @langchain/core dotenv
+            ```
+        </CodeGroup>
     </Step>
 
     <Step title="Create a .env file">
-        Next, add a `.env` file with the following variables:
+        Next, create a `.env` file and add in the following variables:
 
-        ```bash .env
-        GALILEO_API_KEY=your-galileo-api-key
-        GALILEO_PROJECT=your-project-name
-        GALILEO_LOG_STREAM=your-log-stream-name
-        OPENAI_API_KEY=your-openai-api-key
-        ```
+        <EnvironmentSnippet />
     </Step>
 
     <Step title="Create your application logic file">
-        Finally, create a main script file (e.g. `main.py` or `app.py`) where you'll add your application logic.
+        Finally, create a main script file (e.g. `main.py` or `main.ts`) where you'll add and run your application logic. 
     </Step>
 </Steps>
 
-Now we can dive in, starting with the simplest way to log a session.
+Now we can dive in.
 
-## Automatic Sessions
 
-Let's start with a minimal chat-like application where Galileo automatically creates a Session for your Traces, and also flushes the context for you after your code has run. 
+## Manage a Session
 
-### Use galileo_context
-
-This example is a quick way to introduce you to session logging. If you're in a hurry, you can see the [full code sample here](#automatic-sessions-code-sample).
+Recall our objectives from earlier? We'll build a simple application and use it to work through each step. If you're in a hurry, you jump to the [full code sample here](#full-code-sample), then return to see how it was put together. 
 
 <Steps>
     <Step title="Create a simple agent">
-        In your main script, import the following dependencies. We'll see `galileo_context` and `GalileoCallback` in action soon; for now, let's create a very simple agent:
+        In your main script, import the following dependencies. Let's begin by creating a very simple agent using LangGraph and OpenAI:
 
-        <SimpleAgentSnippet />
+        <CodeGroup>
+            <SimpleAgentSnippet />
+        </CodeGroup>
+
+         We'll see `GalileoCallback` and `RunnableConfig` in action later. For now, let's move on to the next step.
     </Step>
 
-    <Step title="Use Galileo Context Manager">
-        Our very simple application will hard-code a question for the LLM, and then conclude. We will give the invocation a callback handler, which will run after the LLM has been invoked. Galileo SDK will do all the heavy lifting:
+    <Step title="Create a Logger Instance">
+        We'll be using the `GalileoLogger` to manage our logging session. Let's create one next:
 
-        <WithGalileoSnippet />
+        <CodeGroup>
+            <CreateLoggerSnippet />
+        </CodeGroup>
 
-        The important thing to note here is that **wrapping your chat app logic in `with galileo_context()` will generate a session for you, and flush it when the code block has concluded**.
+        <Accordion title="Optional arguments for GalileoLogger">
+            `GalileoLogger` takes some optional arguments: you don't have to provide any of them, but they are listed below so that you can see what is available.
 
-        <Accordion title="Optional arguments for Galileo Context">
-            - `project`: The Galileo Project in which to log this session.\
-            Defaults to `GALILEO_PROJECT` from your .env
-
-            - `log_stream`: The parent log-stream for your session. Supply a unique name to automatically 
-            create a new Log Stream in the Galileo Console.\
-            Defaults to `GALILEO_LOG_STREAM`
-
-            - `experiment_id`: 'experiment_id' can be the id of a previous experiment you want to link to this session. This does not have a default value.
+            <CodeGroup>
+                <LoggerOptionalArgs />
+            </CodeGroup>
         </Accordion>
     </Step>
 
-    <Step title="Run the script">
-        Now run your script: 
+    <Step title="Start a logging session">
+        Our simple application will have a `main` function where everything happens. The first thing we will do in this function is start up a logging session. This will prepare the logger to group all captured events under a single session.
 
-        ```bash
-        python3 main.py 
-        ```
+        Below, we give the session a unique `name` and `external id`. The name helps us find the session more easily in the Galileo Console. The `external id` can be used to link subsequent logging sessions to this one. (See the optional arguments for `GalileoLogger` in **Step 2**)
 
-        You should see the LLM's response in your terminal! You can also head to the [Galileo Console](https://app.galileo.ai) to view the newly-created session. (Shown below)
+        <CodeGroup>
+            <StartSessionSnippet />
+        </CodeGroup>
+
+        <InfoNote>
+            Treat `logger.start_session` like a lifecycle event, and call it before any code you want to monitor. The `name` and `external id` arguments are optional but recommended.
+        </InfoNote>
     </Step>
-</Steps>
-
-#### Automatic Sessions Code Sample
-<Accordion title="Full code sample (click to expand)">
-    <SimpleAgentFull />
-</Accordion>
-
-
-
-## Manage your own Sessions
-
-What if you want to control _when_ a session starts and ends, or set a custom name and unique identifier for the session? 
-
-### Use galileo_context.start_session
-
-Let's make a few small changes to the script from [Automatic Sessions](#use-galileo-context). You can see the [full code sample here](#manual-sessions-code-sample).
-
-<Steps>
-    <Steps title="Create a named session">
-        You can create a session by calling `galileo_context.start_session`. This replaces the `with galileo_context()` call from above.
-
-        <NamedSessionSnippet />
-
-        <Accordion title="Optional arguments for start_session">
-            - `name`: a unique name for the session, so you can identify it more easily in the Galileo Console.
-            - `external_id`: a unique id to identify this run. This is especially useful for linking multiple sessions together with the third optional parameter below.
-            - `previous_session_id`: The unique id of a previous session to which you will link the current one.
-        </Accordion>
-    </Steps>
 
     <Step title="Add your LLM logic">
-        For simplicity, we'll re-use the same app logic as in [Automatic Sessions](#use-galileo-context). You can expand this as needed: for example, using a `while True` loop to chat with the app in your CLI, or even adding a supervisor agent that runs a team of agents. 
+        Now you can interact with your LLM. Our very simple application will invoke the LLM with a single question, and then conclude the logging session. We will also pass a callback handler, which is a function that gets called by `LangChain` after the LLM has been invoked. You can add as much complexity as you like to this part. 
+        
+        Here's the full `main` function:
 
-        Regardless of what you choose, `start_session()` will begin logging Traces for any code that runs after it. Note that your code should be in the same scope as `start_session` (i.e. not indented):
-
-        <NamedSessionMain />
+        <CodeGroup>
+            <SessionMain />
+        </CodeGroup>
     </Step>
 
-    <Step title="Flush the context">
-        In Scenario 1, using `with galileo_context` gave us a scope that automatically flushed the context after it ran. This time, since we started the session, we can decide when it ends.
+    <Step title="Flush the session">
+        At the end of the application lifecycle, we want to send all captured events to the Galileo Console. Since this tutorial happens entirely within the `main` function, we will add one more line at the very bottom:
 
-        For our simple app, we will flush the context after printing the Model response. For your app, you can call this whenever you are done capturing logs (e.g. in a lifecycle shutdown).
+        <CodeGroup>
+            ```python Python {2}
+            # Flush all traces to the Galileo Console
+            logger.flush()
+            ```
 
-        ```python main.py 
-        # Flush the session context at the end of your logic:
-        galileo_context.flush()
-        ```
+            ```typescript TypeScript {2}
+            // Flush all traces to the Galileo Console
+            await logger.flush();
+            ```
+        </CodeGroup>
 
-        <Accordion title="Optional arguments for galileo_context">
-            - `project`: The Galileo Project in which to log this session.\
-            Defaults to `GALILEO_PROJECT` from your .env file
-
-            - `log_stream`: The parent log-stream for your session.\
-            Defaults to `GALILEO_LOG_STREAM` from your .env file 
-
-            - `experiment_id`: 'experiment_id' can be the id of a previous experiment you want to link to this session. This does not have a default value.
-        </Accordion>
-    </Step>
-
-    <Step title="Run the script">
-        Now run your script like before to see the LLM's response in your terminal: 
-
-        ```bash
-        python3 main.py 
-        ```
-
-        And that's it! You can now head to the [Galileo Console](https://app.galileo.ai) to view the newly-created session. (See below)
+        <InfoNote>
+            You can add this where it makes sense for your app (e.g. after doing some additional cleanup or other post-chat actions), as long as you use the same `logger` instance that started the session. 
+        </InfoNote>
     </Step>
 </Steps>
 
-
-#### Manual Sessions Code Sample
+### Full Code Sample
 <Accordion title="Full code sample (click to expand)">
-    <NamedSessionFull />
+    <CodeGroup>
+        <SessionFull />
+    </CodeGroup>
 </Accordion>
+
+### Run your script
+That's all the code: we have now learned to use `logger.start_session` before starting LLM chat session, and use `logger.flush` *after* the chat session has concluded. 
+
+Now let's run the script: 
+
+<CodeGroup>
+    ```bash Python
+    python3 main.py 
+    ```
+
+    ```bash TypeScript
+    npx tsx main.ts
+    ```
+</CodeGroup>
+
+You should see the LLM's response in your terminal! You can also head to the [Galileo Console](https://app.galileo.ai) to view the newly-created session. (Shown below)
 
 
 ## View your session
 
-Now that you've logged some sessions, it's time to view results. 
+Now that you've logged a session, it's time to view results. 
 
 <Steps>
 
@@ -228,7 +202,7 @@ Now that you've logged some sessions, it's time to view results.
         On your dashboard, select the Log Stream where you were sending your session logs. If you didn't specify a unique or new log stream name, you will find the logs in your **default** Log Stream.
 
         <Frame>
-        ![Select your Log Stream](/images/g2/session--select-logstream.png)
+        ![Select your Log Stream](/images/concepts/logging/session--select-logstream.png)
         </Frame>
     </Step>
 
@@ -236,7 +210,7 @@ Now that you've logged some sessions, it's time to view results.
         Selecting the log stream will bring you to its event records. All logs will be grouped by *Session*, though you can use the control near the top-left of your screen to change the log stream's event grouping:
 
         <Frame>
-        ![Group or ungroup log events](/cookbooks/use-cases/multi-agent-langgraph/single-session-list.webp)
+        ![Group or ungroup log events](/images/concepts/logging/session--event-toggle.webp)
         </Frame>
 
         Your session should be visible in the table below the controls, especially if you gave it a recognizable name. Select it to view the traces.
@@ -245,13 +219,47 @@ Now that you've logged some sessions, it's time to view results.
     <Step title="View your session">
         Once you select your session, you can see the Traces you captured from your test run as a flowchart. Any tools that were used will also show up as individual Spans. 
 
-        Select the nodes of the flowchart to see their inputs and outputs. 
+        Select the nodes of the flowchart to see their inputs and outputs on the right-edge of your screen. 
 
         <Frame>
-        ![Group or ungroup log events](/cookbooks/use-cases/multi-agent-langgraph/single-session-flowchart.webp)
+        ![Group or ungroup log events](/images/concepts/logging/session--trace-detail.webp)
         </Frame>
     </Step>
 </Steps>
+
+
+## Additional Considerations
+
+Remember to always use the same `GalileoLogger` instance across your project. This ensures that all captured events are placed in the same session. You can achieve this in a few ways: 
+
+1. Export your `logger` instance from a separate module, so that your application uses a singleton instance. 
+1. Use the TypeScript SDK's `getLogger` function, or the Python SDK's `galileo_context` context manager for a consistent reference:
+<CodeGroup>
+    ```python Python
+    from galileo import galileo_context
+    
+    # Create a new session
+    galileo_context.start_session(""" ...optional args """)
+    
+    # Application logic follows
+    
+    # Flush the session
+    galileo_context.flush()
+    ```
+
+    ```typescript TypeScript
+    import { getLogger } from 'galileo';
+    const logger = getLogger();
+    
+    // Create a new session
+    logger.startSession(/* ...optional args */);
+    
+    // Application logic follows
+    
+    // Flush the session
+    logger.flush()
+    ```
+</CodeGroup>
 
 ## Conclusion
 
@@ -268,6 +276,6 @@ For a more detailed walkthrough of a multi-agent application, take a look at [Mo
 
 ## Related Resources 
 
-- [Sessions](/concepts/logging/sessions/sessions-overview.mdx) - An overview of sessions
+- [Sessions](/concepts/logging/sessions/sessions-overview) - An overview of sessions
 - [`galileo_context`](/sdk-api/python/logging/galileo-context) - Learn about the Galileo Context Manager
 - [Monitoring LangChain Agents with Galileo](/cookbooks/use-cases/agent-langchain) - Follow this cookbook recipe to create and evaluate a multi-agent application.
