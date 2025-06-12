@@ -1,0 +1,22 @@
+```python Python
+# --- 4. Run the Agent ---
+# Now, we can ask questions and get answers.
+def ask_question(graph, question: str, session_id: str):
+    """
+    Asks a question to the RAG agent and returns the answer.
+    """
+    chat_history = ElasticsearchChatMessageHistory(
+        es_connection=elasticsearch_client,
+        index=ES_INDEX_CHAT_HISTORY,
+        session_id=session_id
+    )
+
+    inputs = {"messages": [HumanMessage(content=question)]}
+    final_state = graph.invoke(inputs, config={"recursion_limit": 5})
+    response = final_state["messages"][-1].content
+
+    # Save conversation history
+    chat_history.add_user_message(question)
+    chat_history.add_ai_message(response)
+    return response
+```

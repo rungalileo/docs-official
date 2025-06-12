@@ -1,0 +1,31 @@
+```python Python
+from dotenv import load_dotenv
+
+import os
+import time
+from typing import Annotated, Sequence
+
+# Load environment variables from your .env file
+load_dotenv()
+
+from elasticsearch import Elasticsearch, NotFoundError
+from langchain_core.tools.retriever import create_retriever_tool
+from langchain_core.messages import BaseMessage, HumanMessage
+from langchain_core.documents import Document
+from langchain_elasticsearch import ElasticsearchStore, SparseVectorStrategy
+from langchain_elasticsearch import ElasticsearchChatMessageHistory
+from langchain_openai import ChatOpenAI
+from langgraph.graph import END, StateGraph, START
+from langgraph.graph.message import add_messages
+from langgraph.prebuilt import ToolNode, tools_condition
+from typing_extensions import TypedDict
+
+# --- 1. Configuration ---
+# Set up your connection details and index names.
+# It's recommended to use environment variables for sensitive data.
+ES_HOST = os.environ["ES_HOST"]
+ES_API_KEY = os.environ["ES_API_KEY"]
+ES_INDEX = os.environ["ES_INDEX"] # For example  "demo"
+ES_INDEX_CHAT_HISTORY = os.environ["ES_INDEX_CHAT_HISTORY"] # For example "chat-history"
+ELSER_MODEL = os.getenv("ELSER_MODEL", ".elser_model_2_linux-x86_64")
+```

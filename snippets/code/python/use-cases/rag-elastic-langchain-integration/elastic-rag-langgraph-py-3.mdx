@@ -1,0 +1,42 @@
+```python Python
+# --- 3. Agent Definition ---
+# Define the state, tools, and the graph that powers the agent.
+
+
+class AgentState(TypedDict):
+    messages: Annotated[Sequence[BaseMessage], add_messages]
+
+# The retriever tool searches Elasticsearch for relevant documents.
+def setup_agent_and_graph(store: ElasticsearchStore):
+    """
+    Sets up the agent, tools, and the LangGraph workflow.
+    """
+    retriever = store.as_retriever()
+    retriever_tool = create_retriever_tool(
+        retriever,
+        "retrieve_workplace_documents",
+        "Search and return information about company policies, benefits, and processes.",
+    )
+    tools = [retriever_tool]
+
+    # Use a model that is good at tool use
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, streaming=True, api_key=os.environ["OPENAI_API_KEY"])
+    agent_runnable = llm.bind_tools(tools)
+
+    # 3c. Define the Graph
+    # The graph defines the flow of control for the agent.
+    def run_agent(state: AgentState):
+        """Invokes the agent to decide on the next action."""
+        return {"messages": [agent_runnable.invoke(state["messages"])]}
+
+    tool_node = ToolNode(tools)
+    workflow = StateGraph(AgentState)
+    workflow.add_node("agent", run_agent)
+    workflow.add_node("tools", tool_node)
+    workflow.add_edge(START, "agent")
+    workflow.add_conditional_edges("agent", tools_condition)
+    workflow.add_edge("tools", "agent")
+
+    graph = workflow.compile()
+    return graph
+```
