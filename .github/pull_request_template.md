@@ -8,6 +8,10 @@ For Galileo internally raised PRs only, please update this with your shortcut ti
 
 [SC-]()
 
+For external PRs, please add the issue (just put the number after the # below, and GitHub will automatically create a link):
+
+Issue: #<number>
+
 ## Checklist before requesting a review
 
 - [ ] - Is this ready for review? If not, raise as a draft PR
