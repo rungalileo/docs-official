@@ -1,13 +1,24 @@
 ---
-title: Log Using the @log Decorator
-description: Learn how to use the Galileo @log decorator to log functions to traces
+title: Log Using the log Decorator
+description: Learn how to use the Galileo log decorator to log functions to traces
+syncTabs: true
 ---
+
+import SnippetInstallPython from "/snippets/code/python/how-to-guides/basics/basic-example/install-packages.mdx";
+import SnippetCreateAppPython from "/snippets/code/python/how-to-guides/basics/basic-logging-with-decorator/create-app.mdx";
+import SnippetImportPython from "/snippets/code/python/how-to-guides/basics/basic-logging-with-decorator/import.mdx";
+import SnippetWrapperPython from "/snippets/code/python/how-to-guides/basics/basic-logging-with-decorator/wrapper.mdx";
+
+import SnippetInstallTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-example/install-packages.mdx";
+import SnippetCreateAppTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-logging-with-decorator/create-app.mdx";
+import SnippetImportTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-logging-with-decorator/import.mdx";
+import SnippetWrapperTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-logging-with-decorator/wrapper.mdx";
 
 ## Overview
 
-This guide shows you how to log spans to Galileo using the `@log` decorator.
+This guide shows you how to log spans to Galileo using the `@log` decorator in Python, or the `log` wrapper in TypeScript.
 
-For this example, you will be using the async OpenAI SDK, which is not supported by the Galileo OpenAI wrapper. Instead you will use the `@log` decorator to log function calls as LLM spans.
+For this example, you will be using the async OpenAI SDK, which is not supported by the Galileo OpenAI wrapper. Instead you will use the `@log` decorator or `log` wrapper to log function calls as LLM spans.
 
 ## Before you start
 
@@ -19,16 +30,18 @@ To complete this how-to, you will need:
 
 ## Install dependencies
 
-To use Galileo, you need to install some package dependencies in your virtual environment, as well as configuring environment variables.
+To use Galileo, you need to install some package dependencies, and configure environment variables.
 
 <Steps>
-<Step title="Create a virtual environment using your preferred method and activate it"/>
 
-<Step title="Install the required packages">
+<Step title="Install Required Dependencies">
 
-```bash
-pip install "galileo[openai]" python-dotenv
-```
+Install the required dependencies for your app. If you are using Python, create a virtual environment using your preferred method, then install dependencies inside that environment:
+
+<CodeGroup>
+  <SnippetInstallPython />
+  <SnippetInstallTypeScript />
+</CodeGroup>
 
 </Step>
 
@@ -45,46 +58,40 @@ OPENAI_API_KEY=your_openai_api_key
 </Step>
 </Steps>
 
-## Create the basic Python app to call OpenAI
+## Create the basic app to call OpenAI
 
 <Steps>
-<Step title="Create a Python file for your application called `app.py`."/>
+<Step title="Create a file for your application called `app.py` or `app.ts`."/>
 
 <Step title="Add the following code to call OpenAI to ask a question">
 
-```python app.py
-import os
-import asyncio
-import openai
-from dotenv import load_dotenv
-from galileo import GalileoLogger
+<CodeGroup>
+  <SnippetCreateAppPython />
+  <SnippetCreateAppTypeScript />
+</CodeGroup>
 
-load_dotenv()
+If you are using TypeScript, you will also need to configure your code to use ESM. Add the following to your `package.json` file:
 
-client = openai.AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-async def prompt_open_ai(prompt: str) -> str:
-    response = await client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return response.choices[0].message.content.strip()
-
-async def main():
-    prompt = "Explain the following topic succinctly: Newton's First Law"
-    response = await prompt_open_ai(prompt)
-    print(response)
-
-if __name__ == "__main__":
-    asyncio.run(main())
+```json package.json
+{
+  "type": "module",
+  ... // Existing contents
+}
 ```
+
 </Step>
 
-<Step title="Run the Python app to ensure everything is working">
+<Step title="Run the app to ensure everything is working">
 
-```bash
+<CodeGroup>
+```bash Python
 python app.py
 ```
+
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
 
 You should see a description of Newton's first law.
 
@@ -102,11 +109,11 @@ to physics.
 </Step>
 </Steps>
 
-## Add simple logging with the Galileo `@log` decorator
+## Add simple logging with the Galileo log decorator or wrapper
 
-Galileo has a `@log` decorator that logs function calls as spans. If these decorated calls are called whilst there is an active trace, they are added to that trace. If there is no active trace, a new one is created for this span.
+Galileo has a `@log` decorator in Python, and a `log` wrapper in TypeScript that logs function calls as spans. If these decorated or wrapped calls are called whilst there is an active trace, they are added to that trace. If there is no active trace, a new one is created for this span.
 
-In this guide, you will be adding the `@log` decorator to log the `prompt_open_ai` function.
+In this guide, you will be adding the decorator or wrapper to log the function that calls OpenAI.
 
 <Steps>
 
@@ -114,23 +121,23 @@ In this guide, you will be adding the `@log` decorator to log the `prompt_open_a
 
 At the top of your file, add an import for the log decorator:
 
-```python app.py
-from galileo import log
-```
+<CodeGroup>
+  <SnippetImportPython />
+  <SnippetImportTypeScript />
+</CodeGroup>
 
 </Step>
 
-<Step title="Decorate the function">
+<Step title="Decorate or wrap the function">
 
-Update the function definition to include the `@log` decorator:
+Update the function definition to include the decorator or wrapper:
 
-```python app.py
-@log(span_type="llm", name="OpenAI GPT-4o-mini")
-async def prompt_open_ai(prompt: str) -> str:
-    ...
-```
+<CodeGroup>
+  <SnippetWrapperPython />
+  <SnippetWrapperTypeScript />
+</CodeGroup>
 
-This will log the function as an LLM span using the `span_type="llm"` parameter. You can read more about these in our [span types documentation](/sdk-api/python/logging/log-decorator#span-types).
+This will log the function as an LLM span using the span type parameter. You can read more about these in our [span types documentation](/sdk-api/python/logging/log-decorator#span-types).
 
 This also sets the name of the span to "OpenAI GPT-4o-mini".
 
@@ -138,9 +145,15 @@ This also sets the name of the span to "OpenAI GPT-4o-mini".
 
 <Step title="Run the Python app">
 
-```bash
+<CodeGroup>
+```bash Python
 python app.py
 ```
+
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
 
 When the app runs, the span will be logged automatically, with the input as the `prompt`, the output as the returned `response`. The duration will also be logged.
 
