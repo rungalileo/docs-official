@@ -192,9 +192,13 @@ When creating a cookbook, follow [this guide](https://www.thegooddocsproject.dev
 
 Tutorials should also include a video walkthrough, for those who prefer videos to learn.
 
+The only change to the default tutorial template is to use the Mintlify [Steps component](https://mintlify.com/docs/components/steps) instead of numbered lists for steps to follow.
+
 #### How-to guide template
 
 There are two types of how-to guides we have - quickstarts, and specific how-to guides. How-to guides should also include a short video, for those who prefer videos to learn.
+
+The only change to the default how-to templates is to use the Mintlify [Steps component](https://mintlify.com/docs/components/steps) instead of numbered lists for steps to follow.
 
 ##### Quickstarts
 
