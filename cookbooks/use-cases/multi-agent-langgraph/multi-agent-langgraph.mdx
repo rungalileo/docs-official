@@ -28,7 +28,7 @@ For example, you can ask questions like "What credit cards do you offer?" or "Wh
 
 These are the 2 agents:
 
-1. Credit card information agent
+- Credit card information agent
 
     This agent provides information on the available credit cards.
 
@@ -54,7 +54,7 @@ These are the 2 agents:
 
     The credit card documentation that the agent uses is stored in a [Pinecone](https://www.pinecone.io) vector database.
 
-1. Supervisor agent
+- Supervisor agent
 
     ```mermaid
     ---
@@ -84,59 +84,71 @@ Chainlit provides a web front end for a chatbot, managing user interaction and c
 
 Before you start the tutorial, you will need:
 
-1. **The starter project** - Clone the [Galileo SDK-Examples repo](https://github.com/rungalileo/sdk-examples). This repo contains both the starting LangGraph app that you will be adding Galileo evaluations to, as well as a final version for reference.
-1. **A Pinecone account and API key** - If you don't have an existing Pinecone account, head to [pinecone.io](https://www.pinecone.io), sign up for a free account, and get an [API key](https://docs.pinecone.io/guides/get-started/quickstart#2-get-an-api-key).
-1. **An OpenAI API key** - This example uses OpenAI as the underlying LLM to run the agents.
-1. **A Galileo API key** - To access your Galileo API keys, open the [Galileo Console](https://app.galileo.ai/) and log in or create an account. From the **Settings and Users** page you can create a new API key.
+- **The starter project** - Clone the [Galileo SDK-Examples repo](https://github.com/rungalileo/sdk-examples). This repo contains both the starting LangGraph app that you will be adding Galileo evaluations to, as well as a final version for reference.
+- **A Pinecone account and API key** - If you don't have an existing Pinecone account, head to [pinecone.io](https://www.pinecone.io), sign up for a free account, and get an [API key](https://docs.pinecone.io/guides/get-started/quickstart#2-get-an-api-key).
+- **An OpenAI API key** - This example uses OpenAI as the underlying LLM to run the agents.
+- **A Galileo API key** - To access your Galileo API keys, open the [Galileo Console](https://app.galileo.ai/) and log in or create an account. From the **Settings and Users** page you can create a new API key.
 
 ## Set up the project
 
 The starter project is in the `sdk-examples/python/agent/langgraph-fsi-agent/before` folder in the cloned repo.
 
-1. Open the starter project in your Python IDE of choice.
-1. Install the dependencies that are defined in the `pyproject.toml`. Create a virtual environment, and install these dependencies using a tool such as [`uv`](https://docs.astral.sh/uv/):
+<Steps>
+<Step title="Open the starter project in your Python IDE of choice."/>
 
-    ```bash
-    uv venv .venv
-    source .venv/bin/activate
-    uv sync --dev
-    ```
+<Step title="Install the dependencies that are defined in the `pyproject.toml`.">
 
-1. Configure your `.env` file. Copy the `.env.example` file to `.env`, and set the values for your OpenAI and Pinecone API keys:
+Create a virtual environment, and install these dependencies using a tool such as [`uv`](https://docs.astral.sh/uv/):
 
-    ```ini
-    # AI services
-    OPENAI_API_KEY=<Your OpenAI API key>
-    PINECONE_API_KEY=<Your Pinecone API key>
-    ```
+```bash
+uv venv .venv
+source .venv/bin/activate
+uv sync --dev
+```
+</Step>
 
-    Replace `<Your OpenAI API key>` with your OpenAI API key. Replace `<Your Pinecone API key>` with your Pinecone API key.
+<Step title="Configure your `.env` file.">
 
-1. Upload the dummy credit card documentation to Pinecone using the provided helper script:
+Copy the `.env.example` file to `.env`, and set the values for your OpenAI and Pinecone API keys:
 
-    ```bash
-    python ./scripts/setup_pinecone.py
-    ```
+```ini
+# AI services
+OPENAI_API_KEY=<Your OpenAI API key>
+PINECONE_API_KEY=<Your Pinecone API key>
+```
 
-    This will take a few seconds and a successful run should look like:
+Replace `<Your OpenAI API key>` with your OpenAI API key. Replace `<Your Pinecone API key>` with your Pinecone API key.
+</Step>
 
-    ```text
-    Loading documents for credit-card-information folder...
-    ...
-    ✅ Document processing and upload complete!
-    ```
+<Step title="Upload the dummy credit card documentation to Pinecone using the provided helper script.">
 
-1. Run the project to test it out:
+```bash
+python ./scripts/setup_pinecone.py
+```
 
-    ```bash
-    chainlit run app.py -w
-    ```
+This will take a few seconds and a successful run should look like:
 
-    The app will be running at [localhost:8000](http://localhost:8000), so open it in your browser.
+```text
+Loading documents for credit-card-information folder...
+...
+✅ Document processing and upload complete!
+```
+</Step>
 
-    Ask the bot questions like "What credit cards do you offer?".
+<Step title="Run the project to test it out.">
 
-    ![A demo of the bot responding to being asked what credit cards do you offer. The bot lists 2 cards](/cookbooks/use-cases/multi-agent-langgraph/bot-demo.gif)
+```bash
+chainlit run app.py -w
+```
+
+The app will be running at [localhost:8000](http://localhost:8000), so open it in your browser.
+
+Ask the bot questions like "What credit cards do you offer?".
+
+![A demo of the bot responding to being asked what credit cards do you offer. The bot lists 2 cards](/cookbooks/use-cases/multi-agent-langgraph/bot-demo.gif)
+
+</Step>
+</Steps>
 
 You are now ready to add Galileo evaluations to your app.
 
@@ -144,35 +156,45 @@ You are now ready to add Galileo evaluations to your app.
 
 First you need a new Galileo project to log evaluations to.
 
-1. Create a new project from the [Galileo Console](https://app.galileo.ai/) using the **+ New Project** button. Name this project `bank-chatbot`.
+<Steps>
+<Step title="Create a new project from the [Galileo Console](https://app.galileo.ai/) using the **+ New Project** button.">
 
-    ![The create project dialog](/cookbooks/use-cases/multi-agent-langgraph/new-project.webp)
+Name this project `bank-chatbot`.
+
+![The create project dialog](/cookbooks/use-cases/multi-agent-langgraph/new-project.webp)
+</Step>
+</Steps>
 
 ## Install the Galileo Python package
 
 To send data to Galileo, you need to use the Galileo Python package.
 
-1. Install the Galileo Python package in your virtual environment.
+<Steps>
 
-    ```bash
-    uv add "galileo[openai]"
-    ```
+<Step title="Install the Galileo Python package in your virtual environment.">
 
-    This installs the Galileo Python package with the optional OpenAI wrapper.
+```bash
+uv add "galileo[openai]"
+```
 
-1. Add the following Galileo environment variables to you `.env` file:
+This installs the Galileo Python package with the optional OpenAI wrapper.
+</Step>
 
-    ```ini
-    GALILEO_API_KEY=<Your Galileo API key>
-    GALILEO_PROJECT=bank-chatbot
-    GALILEO_LOG_STREAM=chatbot-logs
-    ```
+<Step title="Add the following Galileo environment variables to you `.env` file.">
 
-    Replace `<Your Galileo API key>` with your Galileo API key. The project is set to the new project you just created, and the log stream is set to `chatbot-logs`.
+```ini
+GALILEO_API_KEY=<Your Galileo API key>
+GALILEO_PROJECT=bank-chatbot
+GALILEO_LOG_STREAM=chatbot-logs
+```
 
-    <Note>
-    You don't need to create the log stream in advance, a new log stream will be created automatically.
-    </Note>
+Replace `<Your Galileo API key>` with your Galileo API key. The project is set to the new project you just created, and the log stream is set to `chatbot-logs`.
+
+<Note>
+You don't need to create the log stream in advance, a new log stream will be created automatically.
+</Note>
+</Step>
+</Steps>
 
 ## Add logging to Galileo
 
@@ -184,103 +206,135 @@ You can find a complete version of this code with all the code added in the `sdk
 
 ### Add the logging code
 
-1. Add include directives for the Galileo components to the top of the `app.py` file:
+<Steps>
+<Step title="Add include directives for the Galileo components to the top of the `app.py` file.">
 
-    ```python
-    from galileo import galileo_context
-    from galileo.handlers.langchain import GalileoAsyncCallback    
-    ```
+```python
+from galileo import galileo_context
+from galileo.handlers.langchain import GalileoAsyncCallback    
+```
+</Step>
 
-1. Start a Galileo session. In the `on_chat_start` function in `app.py`, add the following code to create a new logging session:
+<Step title="Start a Galileo session.">
 
-    ```python
-    # Start Galileo session with unique session name
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    session_name = f"FSI Agent - {current_time}"
-    galileo_context.start_session(name=session_name, 
-                                  external_id=cl.context.session.id)
-    ```
+In the `on_chat_start` function in `app.py`, add the following code to create a new logging session:
 
-    This creates a new session named "FSI Agent - \{time\}" with the current date and time. This also sets the `external_id` to the current Chainlit session ID. Each separate conversation in Chainlit is a separate session with a unique ID.
+```python
+# Start Galileo session with unique session name
+current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+session_name = f"FSI Agent - {current_time}"
+galileo_context.start_session(name=session_name, 
+                                external_id=cl.context.session.id)
+```
 
-1. Create a callback handler. After the code you just added, add the following to create the callback handler, and save it in the Chainlit session:
+This creates a new session named "FSI Agent - \{time\}" with the current date and time. This also sets the `external_id` to the current Chainlit session ID. Each separate conversation in Chainlit is a separate session with a unique ID.
 
-    ```python
-    # Create the callback. This needs to be created in the same
-    # thread as the session so that it uses the same session context.
-    galileo_callback = GalileoAsyncCallback()
-    cl.user_session.set("galileo_callback", galileo_callback)
-    ```
+</Step>
 
-    This creates the callback handler, and saves it against the current user session.
+<Step title="Create a callback handler.">
 
-    <Note>
-    The Galileo logging handlers use the current thread context to connect to the current Galileo context. This means to have a callback handler tied to a session, it needs to be created in the same thread as the session. It can then be access from any other thread.
-    </Note>
+After the code you just added, add the following to create the callback handler, and save it in the Chainlit session:
 
-1. Pass the callback handler to LangGraph. In the `main` function, replace this line:
+```python
+# Create the callback. This needs to be created in the same
+# thread as the session so that it uses the same session context.
+galileo_callback = GalileoAsyncCallback()
+cl.user_session.set("galileo_callback", galileo_callback)
+```
 
-    ```python
-    callbacks: Callbacks = []
-    ```
+This creates the callback handler, and saves it against the current user session.
 
-    With the following:
+<Note>
+The Galileo logging handlers use the current thread context to connect to the current Galileo context. This means to have a callback handler tied to a session, it needs to be created in the same thread as the session. It can then be access from any other thread.
+</Note>
+</Step>
 
-    ```python
-    galileo_callback = cl.user_session.get("galileo_callback")
-    callbacks: Callbacks = [galileo_callback]
-    ```
+<Step title="Pass the callback handler to LangGraph.">
 
-    This will extract the Galileo callback from the user session, and adds it to a callbacks collection. This collection is passed to the LangGraph `RunnableConfig` that is passed when the supervisor agent is used.
+In the `main` function, replace this line:
+
+```python
+callbacks: Callbacks = []
+```
+
+With the following:
+
+```python
+galileo_callback = cl.user_session.get("galileo_callback")
+callbacks: Callbacks = [galileo_callback]
+```
+
+This will extract the Galileo callback from the user session, and adds it to a callbacks collection. This collection is passed to the LangGraph `RunnableConfig` that is passed when the supervisor agent is used.
+</Step>
+</Steps>
 
 ### Run the app
 
-1. Run the app.
+<Steps>
 
-    ```bash
-    chainlit run app.py -w
-    ```
+<Step title="Run the app.">
 
-    Open the app in your browser at [localhost:8000](http://localhost:8000), and ask the bot a question. In your terminal you will see references to the Galileo log stream being created, and traces being flushed:
+```bash
+chainlit run app.py -w
+```
 
-    ```output
-    🚀 Creating new log stream... log stream chatbot-logs created!
-    ...
-    Flushing 1 traces...
-    Successfully flushed 1 traces.
-    ```
+Open the app in your browser at [localhost:8000](http://localhost:8000), and ask the bot a question. In your terminal you will see references to the Galileo log stream being created, and traces being flushed:
 
-    Leave the app running whilst you view the traces.
+```output
+🚀 Creating new log stream... log stream chatbot-logs created!
+...
+Flushing 1 traces...
+Successfully flushed 1 traces.
+```
+</Step>
+</Steps>
+
+Leave the app running whilst you view the traces.
 
 ### View the traces
 
-1. View the session in Galileo. Open the [Galileo console](https://app.galileo.ai/) and select your project. In the **Sessions** tab you should see a single session created for the conversation.
+<Steps>
+<Step title="View the session in Galileo.">
 
-    ![The sessions list in Galileo with a single session](/cookbooks/use-cases/multi-agent-langgraph/single-session-list.webp)
+Open the [Galileo console](https://app.galileo.ai/) and select your project. In the **Sessions** tab you should see a single session created for the conversation.
 
-1. Select the single session. It will open in the sessions view showing a flowchart
+![The sessions list in Galileo with a single session](/cookbooks/use-cases/multi-agent-langgraph/single-session-list.webp)
+</Step>
 
-    ![The session as a flowchart showing input to agent to tool to output](/cookbooks/use-cases/multi-agent-langgraph/single-session-flowchart.webp)
+<Step title="Select the single session.">
 
-    Select the nodes in this chart to see the input and output.
+ It will open in the sessions view showing a flowchart
+
+![The session as a flowchart showing input to agent to tool to output](/cookbooks/use-cases/multi-agent-langgraph/single-session-flowchart.webp)
+
+Select the nodes in this chart to see the input and output.
+</Step>
+</Steps>
 
 ### Add more traces to the session
 
 Sessions can contain multiple traces. For example, a single user conversation with your bot would be a single session, containing multiple traces for the different questions you ask the bot.
 
-1. Ask the bot a follow up question related to credit cards, such as "Which card has no annual fee?"
+<Steps>
+<Step title="Ask the bot a follow up question related to credit cards, such as 'Which card has no annual fee?'"/>
 
-1. Follow this up with a third question that does not involve specific information about the credit cards, such as "What does APR stand for?"
+<Step title="Follow this up with a third question that does not involve specific information about the credit cards, such as 'What does APR stand for?'"/>
 
-1. View the session in the Galileo console.
+<Step title="View the session in the Galileo console.">
 
-    ![A session as a flowchart, showing Trace 1 of 3](/cookbooks/use-cases/multi-agent-langgraph/multi-session-flowchart.webp)
+![A session as a flowchart, showing Trace 1 of 3](/cookbooks/use-cases/multi-agent-langgraph/multi-session-flowchart.webp)
 
-    This session will have 3 traces. Use the Trace navigation to move between the traces. In the **Input** and **Output** you will see the relevant messages.
+This session will have 3 traces. Use the Trace navigation to move between the traces. In the **Input** and **Output** you will see the relevant messages.
 
-1. Navigate to the last trace. Where you asked "What does APR stand for?", the credit card agent would not need to be used, so the flowchart doesn't show this node.
+</Step>
 
-    ![A session as a flowchart without a credit card agent step](/cookbooks/use-cases/multi-agent-langgraph/multi-session-flowchart-no-cc-agent.webp)
+<Step title="Navigate to the last trace.">
+
+Where you asked "What does APR stand for?", the credit card agent would not need to be used, so the flowchart doesn't show this node.
+
+![A session as a flowchart without a credit card agent step](/cookbooks/use-cases/multi-agent-langgraph/multi-session-flowchart-no-cc-agent.webp)
+</Step>
+</Steps>
 
 ## Summary
 
