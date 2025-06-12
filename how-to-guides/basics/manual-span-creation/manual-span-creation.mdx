@@ -1,0 +1,394 @@
+---
+title: Create Traces and Spans
+description: Learn how to create log traces and spans manually in your AI apps
+---
+
+## Overview
+
+This guide shows you how to log spans to Galileo using the `GalileoLogger`.
+
+The Galileo wrappers and `@log` decorator are the preferred way to create log traces and spans, but there are times when you need to manually create a trace or a span to give you more granular control over the data you are logging.
+
+In this guide you will manually log a number of spans when calling an LLM. This pattern can be used for times with the wrapper or decorator are not applicable, such as when using a unsupported LLM SDK such as the Azure AI inference SDK. You will be using OpenAI for this example.
+
+## Before you start
+
+To complete this how-to, you will need:
+
+- An [OpenAI API key](https://openai.com/api/)
+- A [Galileo project](/concepts/projects) configured
+- Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
+
+## Install dependencies
+
+To use Galileo, you need to install some package dependencies in your virtual environment, as well as configuring environment variables.
+
+<Steps>
+<Step title="Create a virtual environment using your preferred method and activate it"/>
+
+<Step title="Install the required packages">
+
+```bash
+pip install "galileo[openai]" python-dotenv
+```
+
+</Step>
+
+<Step title="Create a `.env` file, and add the following values">
+
+```ini .env
+GALILEO_API_KEY=your_galileo_api_key
+GALILEO_PROJECT=your_project_name
+GALILEO_LOG_STREAM=your_log_stream
+
+OPENAI_API_KEY=your_openai_api_key
+```
+
+</Step>
+</Steps>
+
+## Create the basic Python app to call OpenAI
+
+<Steps>
+<Step title="Create a Python file for your application called `app.py`."/>
+
+<Step title="Add the following code to call OpenAI to ask a question">
+
+```python app.py
+import os
+import asyncio
+import openai
+from dotenv import load_dotenv
+from galileo import GalileoLogger
+
+load_dotenv()
+
+client = openai.AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+async def prompt_open_ai(prompt: str) -> str:
+    response = await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return response.choices[0].message.content.strip()
+
+async def main():
+    prompt = "Explain the following topic succinctly: Newton's First Law"
+    response = await prompt_open_ai(prompt)
+    print(response)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+</Step>
+
+<Step title="Run the Python app to ensure everything is working">
+
+```bash
+python app.py
+```
+
+You should see a description of Newton's first law.
+
+```output
+(.venv) ➜  python app.py   
+Newton's First Law, also known as the Law of Inertia, states that an object
+at rest will stay at rest and an object in motion will stay in motion with
+the same speed and in the same direction, unless acted upon by an
+unbalanced force. In simpler terms, it means that an object will keep doing
+what it's currently doing until a force makes it do something different.
+This law is fundamental to understanding motion and forces as it pertains
+to physics.
+```
+
+</Step>
+</Steps>
+
+## Create a new Galileo logger to log traces and spans to
+
+If you are using the Galileo wrappers or decorators, Galileo automatically create new logging sessions, traces, and spans for you. Seeing as you are doing everything manually, you will need to create a new logger.
+
+<Steps>
+
+<Step title="Import the Galileo logger">
+
+At the top of your file, add an import for the Galileo logger:
+
+```python app.py
+from galileo import GalileoLogger
+```
+
+</Step>
+
+<Step title="Create a logger instance">
+
+At the start of your `main` function, create a new Galileo logger instance:
+
+```python app.py
+async def main():
+    # Create a logger instance
+    logger = GalileoLogger()
+    ...
+```
+
+<Note>
+This will pick up the project and log stream from the `GALILEO_PROJECT` and `GALILEO_LOG_STREAM` environment variables, or you can override these by setting the `project` and `log_stream` parameters.
+</Note>
+
+</Step>
+
+<Step title="Create a new trace">
+
+The hierarchy for log streams is Sessions contain traces, which contain spans. If you start a new trace, a session is created automatically.
+
+Create a new trace using the logger by adding the following code just below the declaration of the logger:
+
+```python app.py
+# Start a new trace
+logger.start_trace("Newton's First Law Trace")
+```
+
+</Step>
+
+<Step title="Conclude and flush the logger">
+
+Once you have finished logging a trace, you need conclude it, passing in the output. Once concluded, you need to flush it to send it to Galileo.
+
+Add the following lines to the bottom of the `main` function:
+
+```
+logger.conclude(output=response)
+logger.flush()
+```
+
+Your `main` function should now look like this:
+
+```python app.py
+async def main():
+    # Create a logger instance
+    logger = GalileoLogger()
+    
+    # Start a new trace
+    logger.start_trace("Newton's First Law Trace")
+
+    prompt = "Explain the following topic succinctly: Newton's First Law"
+    response = await prompt_open_ai(prompt)
+    print(response)
+
+    logger.conclude(output=response)
+    logger.flush()
+```
+
+</Step>
+
+<Step title="Run the Python app to log the trace">
+
+```bash
+python app.py
+```
+
+</Step>
+
+<Step title="View the logged trace">
+
+From the [Galileo Console](https://app.galileo.ai), open the log stream for your project. You will see a trace in the traces table.
+
+![A trace in a table showing the input and output](/how-to-guides/basics/manual-span-creation/first-trace-table.webp)
+
+</Step>
+
+<Step title="View details of the trace">
+
+Select the trace to view details. Currently it contains no spans, and shows the question and the LLM response as input and output.
+
+![A trace details showing no spans](/how-to-guides/basics/manual-span-creation/first-trace-no-span.webp)
+
+</Step>
+
+</Steps>
+
+## Add spans
+
+The next step is to add spans to the trace. You will be adding an LLM span.
+
+LLM spans can contain a range of details about the LLM call. As well as the input and output text, you can add properties such as the number of tokens used, temperature, and more.
+
+<Steps>
+
+<Step title="Pass the logger to the `prompt_open_ai` function">
+
+To use the logger, first you need to pass it to the `prompt_open_ai` function.
+
+Update the function definition to the following:
+
+```python app.py
+async def prompt_open_ai(prompt: str, logger: GalileoLogger) -> str:
+    ...
+```
+
+Update the call to this function in the `main` function to pass the logger:
+
+```python app.py
+response = await prompt_open_ai(prompt, logger)
+```
+
+</Step>
+
+<Step title="Log the LLM span">
+
+After the call to the LLM, add the following to create an LLM span. Pass in the prompt, and the response from the LLM, along with details of the model and a name.
+
+```python app.py
+logger.add_llm_span(
+        input=prompt,
+        output=response.choices[0].message.content.strip(),
+        model="gpt-4o-mini",
+        name="OpenAI GPT-4o-mini response"
+    )
+```
+
+</Step>
+
+<Step title="Run the Python app to log the trace">
+
+```bash
+python app.py
+```
+
+</Step>
+
+<Step title="View the logged trace">
+
+From the Galileo console, select the new trace to view details. You will see a single LLM span called "OpenAI GPT-4o-mini response".
+
+![A trace details showing an LLM span](/how-to-guides/basics/manual-span-creation/second-trace-llm-span.webp)
+
+</Step>
+
+</Steps>
+
+## Add more details to the trace
+
+Now you have a span, you can add more details to both the span and the trace, such as duration to help measure latency in your app, and number of tokens to help understand usage and cost.
+
+<Steps>
+
+<Step title="Add the number of tokens to the LLM span">
+
+Update the call to `add_llm_span` to include the details of the tokens returned by the call to OpenAI:
+
+```python app.py
+logger.add_llm_span(
+    input=prompt,
+    output=response.choices[0].message.content.strip(),
+    model="gpt-4o-mini",
+    name="OpenAI GPT-4o-mini response",
+    # Add details about the tokens
+    num_input_tokens=response.usage.prompt_tokens,
+    num_output_tokens=response.usage.completion_tokens,
+    total_tokens=response.usage.total_tokens,
+)
+```
+
+</Step>
+
+<Step title="Add the duration of the LLM call">
+
+If you time the call to the LLM, you can pass this duration to the LLM span.
+
+Add an import for `time` to the top of the file:
+
+```python app.py
+import time
+```
+
+Use the performance counter from the `time` package by adding code around the OpenAI call
+
+```python app.py
+# Get the start time
+start_ns = time.perf_counter_ns()   
+response = await client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[{"role": "user", "content": prompt}],
+)
+# Calculate the duration
+duration_ns = time.perf_counter_ns() - start_ns
+```
+
+Add this duration to the LLM span:
+
+```python app.py
+logger.add_llm_span(
+    input=prompt,
+    output=response.choices[0].message.content.strip(),
+    model="gpt-4o-mini",
+    name="OpenAI GPT-4o-mini response",
+    # Add details about the tokens
+    num_input_tokens=response.usage.prompt_tokens,
+    num_output_tokens=response.usage.completion_tokens,
+    total_tokens=response.usage.total_tokens,
+    # Add the duration
+    duration_ns=duration_ns
+)
+```
+
+</Step>
+
+<Step title="Add the total duration">
+
+It can also be helpful to time the entire trace. This allows you to spot bottlenecks in your application.
+
+In the `main` function, add similar code to time the code between starting the trace and concluding it. Then pass this to the `logger.conclude` call:
+
+```python app.py
+async def main():
+    # Create a logger instance
+    logger = GalileoLogger()
+    
+    # Start a new trace
+    logger.start_trace("Newton's First Law Trace")
+
+    # Get the start time
+    start_ns = time.perf_counter_ns()
+     
+    prompt = "Explain the following topic succinctly: Newton's First Law"
+    response = await prompt_open_ai(prompt, logger)
+    print(response)
+
+    # Calculate the duration
+    duration_ns = time.perf_counter_ns() - start_ns
+    logger.conclude(output=response, duration_ns=duration_ns)
+    logger.flush()
+```
+
+</Step>
+
+<Step title="Run the Python app to log the trace">
+
+```bash
+python app.py
+```
+
+</Step>
+
+<Step title="View the details of the logged trace">
+
+From the Galileo console, select the new trace to view details. In the **Metrics** tab you will see the latency.
+
+![A trace details showing a latency of 1.43 seconds](/how-to-guides/basics/manual-span-creation/trace-latency.webp)
+
+Select the LLM span to see details of that span.
+
+![A trace with the LLM span selected showing a latency of 1.42 seconds, 18 input tokens, 69 output tokens, and 87 total tokens](/how-to-guides/basics/manual-span-creation/llm-span-latency-tokens.webp)
+
+</Step>
+
+</Steps>
+
+Your logging is now set up! You are ready to configure metrics for your project.
+
+## See also
+
+- [Configure metrics](/concepts/metrics/overview)
+- [Log streams](/concepts/logging/logstreams)
+- [Span types](/concepts/logging/spans#span-types-and-their-behavior)
