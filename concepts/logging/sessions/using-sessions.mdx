@@ -135,9 +135,9 @@ Recall our objectives from earlier? We'll build a simple application and use it 
     </Step>
 
     <Step title="Add your LLM logic">
-        Now you can interact with your LLM. Our very simple application will invoke the LLM with a single question, and then conclude the logging session. We will also pass a callback handler, which is a function that gets called by `LangChain` after the LLM has been invoked. You can add as much complexity as you like to this part. 
+        Now you can interact with your LLM. Our very simple application will invoke the LLM with two questions: each question will be a question/answer exchange that generates a `Trace` with child spans in our session. We will also pass a callback handler, which is a function that gets called by `LangChain` after the LLM has been invoked. 
         
-        Here's the full `main` function:
+        Here's our full `main` function: you can make this part as complex as you like!
 
         <CodeGroup>
             <SessionMain />
@@ -225,6 +225,16 @@ Now that you've logged a session, it's time to view results.
         ![Group or ungroup log events](/images/concepts/logging/session--trace-detail.webp)
         </Frame>
     </Step>
+
+    <Step title="Optional: View Chat Messages">
+        You can also view the questions and answers that resulted from the chat session. Just select the **Messages** tab (shown in the image below) to see a list of traces in the session, along with their child spans. Each message from the user and response from the LLM will form a single trace; you can view the contents here in a familiar format.
+
+        <Frame>
+        ![View Trace messages](/images/concepts/logging/session--trace-msgs.webp)
+        </Frame>
+
+        <InfoNote>Use the **Condense Steps** toggle to show only the most relevant spans in a trace. This will include any tool calls made by the LLM!</InfoNote>
+    </Step>
 </Steps>
 
 
@@ -234,32 +244,53 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
 
 1. Export your `logger` instance from a separate module, so that your application uses a singleton instance. 
 1. Use the TypeScript SDK's `getLogger` function, or the Python SDK's `galileo_context` context manager for a consistent reference:
-<CodeGroup>
+    <CodeGroup>
+        ```python Python
+        from galileo import galileo_context
+        
+        # Create a new session
+        galileo_context.start_session(""" ...optional args """)
+        
+        # Application logic follows
+        
+        # Flush the session
+        galileo_context.flush()
+        ```
+
+        ```typescript TypeScript
+        import { getLogger } from 'galileo';
+        const logger = getLogger();
+        
+        // Create a new session
+        logger.startSession(/* ...optional args */);
+        
+        // Application logic follows
+        
+        // Flush the session
+        logger.flush()
+        ```
+    </CodeGroup>
+1. You can also add `Traces` wherever you see fit. A `Trace` might represent a question asked to your LLM, and the response generated for it &mdash; as well as any tools used! Galileo will generate traces for you, but you can also create new ones by using your logger instance:
+    <CodeGroup>
     ```python Python
-    from galileo import galileo_context
-    
-    # Create a new session
-    galileo_context.start_session(""" ...optional args """)
-    
-    # Application logic follows
-    
-    # Flush the session
-    galileo_context.flush()
+    question = "What is the meaning of plenipotentiary?" 
+    logger.start_trace(input=question)
+    logger.add_llm_span(
+        input=question, 
+        output="Plenipotentiary means 'Invested with full power'"
+    )
+    logger.conclude() # end the trace
     ```
 
     ```typescript TypeScript
-    import { getLogger } from 'galileo';
-    const logger = getLogger();
-    
-    // Create a new session
-    logger.startSession(/* ...optional args */);
-    
-    // Application logic follows
-    
-    // Flush the session
-    logger.flush()
+    const question = "What is the meaning of plenipotentiary?" 
+    logger.startTrace({ input: question })
+    logger.addLlmSpan({ input: question, output: "Plenipotentiary means 'Invested with full power'" })
+    logger.conclude(); // end the trace
     ```
-</CodeGroup>
+    </CodeGroup>
+
+    <InfoNote>You can learn more about traces and how to use them [here](/concepts/logging/traces).</InfoNote>
 
 ## Conclusion
 

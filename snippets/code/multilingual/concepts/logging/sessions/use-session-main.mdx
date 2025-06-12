@@ -1,4 +1,4 @@
-```python Python {10, 14, 17-20, 23}
+```python Python {9-12, 17, 19-28}
 def main():
     """Main application logic"""
 
@@ -7,24 +7,27 @@ def main():
     logger.start_session(name="Logger Session Tutorial", external_id=external_id)
 
     # Here's what we will ask the LLM:
-    prompt = "Hello, Assistant! How many minutes are in a year?"
+    prompts = [
+        "Hello! How many minutes are in a year?",
+        "Hello! How far is an Astronomical Unit in kilometers?",
+    ]
 
-    # Create a LangChain Runnable config object with a LangGraph callback handler.
-    # We will supply the logger instance to ensure that it generates traces in the 
+    # Create a LangChain Runnable config object with a LangGraph callback handler:
+    # We will supply the logger instance to ensure that it generates traces in the
     # correct session
     agent_config = RunnableConfig(callbacks=[GalileoCallback(galileo_logger=logger)])
 
-    # Invoke the LLM with our question:
-    response = simple_agent.invoke(
-        input={"messages": [{"role": "user", "content": prompt}]},
-        config=agent_config,  # pass the RunnableConfig here
-    )
-
-    # Print out the LLM's response to confirm that this code block ran:
-    print("Model response:", response["messages"][-1].content.strip())
+    for prompt in prompts:
+        # Invoke the LLM with our question:
+        response = simple_agent.invoke(
+            input={"messages": [{"role": "user", "content": prompt}]},
+            config=agent_config,  # pass the RunnableConfig here
+        )
+        # Print out the LLM's response to confirm that this code block ran:
+        print("Model response:", response["messages"][-1].content.strip())
 ```
 
-```typescript TypeScript {8, 13-15, 18-21, 24}
+```typescript TypeScript {8-11, 16-18, 20-29}
 /** Main application logic */
 async function main() {
   // Start a logging session
@@ -32,22 +35,27 @@ async function main() {
   await logger.startSession({ name: "Logger Session Tutorial", externalId });
 
   // Here's what we will ask the LLM:
-  const prompt = "Hello, Assistant! How many minutes are in a year?";
+  const prompts = [
+    "Hello! How many minutes are in a year?",
+    "Hello! How far is an Astronomical Unit in kilometers?"
+  ];
 
-  // Create a LangChain Runnable config object with a LangGraph callback handler:
-  // We will supply the logger instance to ensure that it generates traces in the 
+  // Create a LangChain Runnable config object with a LangGraph callback handler.
+  // We will supply the logger instance to ensure that it generates traces in the
   // correct session
   const agentConfig: RunnableConfig = {
     callbacks: [new GalileoCallback(logger)]
   };
 
-  // Invoke the LLM with our question:
-  const result = await simpleAgent.invoke(
-    { messages: [{ role: "user", content: prompt }] },
-    agentConfig // pass the RunnableConfig here
-  );
+  for (const prompt of prompts) {
+    // Invoke the LLM with our question:
+    const result = await simpleAgent.invoke(
+      { messages: [{ role: "user", content: prompt }] },
+      agentConfig // pass the RunnableConfig here
+    );
 
-  //  Print out the LLM's response to confirm that this code block ran:
-  console.log("LLM Reply:", result.messages.at(-1)?.content);
+    //  Print out the LLM's response to confirm that this code block ran:
+    console.log("LLM Reply:", result.messages.at(-1)?.content);
+  }
 }
 ```
