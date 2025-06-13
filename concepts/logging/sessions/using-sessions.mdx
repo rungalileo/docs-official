@@ -3,7 +3,6 @@ title: Create and Use Sessions
 description: Learn to create and use Sessions in Galileo
 ---
 
-import { InfoNote } from "/snippets/components/info-note.mdx";
 import CreateLoggerSnippet from "/snippets/code/multilingual/concepts/logging/create-logger.mdx"
 import EnvironmentSnippet from "/snippets/code/multilingual/env-with-openai.mdx"
 import LoggerOptionalArgs from "/snippets/code/multilingual/concepts/logging/logger-optional-args.mdx"
@@ -68,7 +67,7 @@ Let's take a moment to prepare the development environment. If you already have 
 
         <CodeGroup>
             ```bash Python
-            pip install "galileo[openai]" langchain langgraph python-dotenv 
+            pip install "galileo[openai]" langchain langchain-openai langgraph python-dotenv 
             ```
             ```bash TypeScript
             npm i -s galileo openai @langchain/langgraph @langchain/core dotenv
@@ -132,9 +131,9 @@ Recall our objectives from earlier? We'll build a simple application and use it 
             <StartSessionSnippet />
         </CodeGroup>
 
-        <InfoNote>
+        <Note>
             Treat `logger.start_session` like a lifecycle event, and call it before any code you want to monitor. The `name` and `external id` arguments are optional but recommended.
-        </InfoNote>
+        </Note>
     </Step>
 
     <Step title="Add your LLM logic">
@@ -194,7 +193,7 @@ Now let's run the script:
 
 <CodeGroup>
     ```bash Python
-    python3 main.py 
+    python main.py 
     ```
 
     ```bash TypeScript
@@ -264,7 +263,7 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
     ```
     </CodeGroup>
 
-    <InfoNote>You can learn more about traces and how to use them [here](/concepts/logging/traces).</InfoNote>
+    <Note>You can learn more about traces and how to use them [here](/concepts/logging/traces).</Note>
 
 ## Conclusion
 
