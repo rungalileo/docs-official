@@ -1,6 +1,6 @@
-```typescript Typescript
+```typescript TypeScript
 import { createDataset, createPromptTemplate, runExperiment } from "galileo";
-import { MessageRole } from "galileo/dist/types/message.types";
+import { MessageRole } from "galileo/types";
 
 async function runPromptTemplateExperiment() {
   const projectName = "my-project";
@@ -15,8 +15,14 @@ async function runPromptTemplateExperiment() {
 
   const template = await createPromptTemplate({
     template: [
-      { role: MessageRole.system, content: "You are a geography expert. Respond with only the continent name." },
-      { role: MessageRole.user, content: "{{input}}" },
+      { 
+        role: MessageRole.system,
+        content: "You are a geography expert. Respond with only the continent name."
+      },
+      { 
+        role: MessageRole.user, 
+        content: "{{input}}"
+      },
     ],
     projectName: projectName,
     name: "geography-prompt",
