@@ -1,0 +1,72 @@
+---
+title: Sessions Overview
+description: Learn about log sessions in Galileo
+---
+
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import ViewSessionsInConsole from "/snippets/content/view-sessions-in-console.mdx"
+
+
+<DefinitionCard>
+A Session is **a collection of Traces, Events, and Spans emitted by your Application**. They group all Traces for one conversation or evaluation run, giving you a bird's-eye view of that LLM workflow.
+</DefinitionCard>
+
+## Introduction
+
+Imagine you're building a simple LLM-powered customer service chat application. In testing it, you might want to see how a single multi-turn conversation flows from user prompt to tool calling to model response. **Sessions** solve this problem by bundling low-level events into a cohesive unit, so you can trace an entire LLM interaction from start to finish.
+
+
+## Core Concepts
+
+Let's take a look at the building blocks of a session.
+
+### Span → Trace → Session
+- [**Span**](/concepts/logging/spans): The smallest logging unit the system, typically representing a single operation, function call, or request. Each user message, model API call, or model tool usage generates a *Span*.  
+- [**Trace**](/concepts/logging/traces): When multiple spans occur as part of a single logical operation (e.g. a request that triggers several downstream calls) they form a *Trace*. Traces allow you to see parent/child relationships among spans.  
+- **Session**: A collection of one or more traces that together represent an entire experiment, interaction, or multi-step evaluation. A Session bundles related traces so that you can analyze an entire workflow end to end, even if it spans multiple services, threads, or agents.
+
+
+## How do Sessions differ from Log Streams?
+
+A [**Log Stream**](/concepts/logging/logstreams) is a continuous sequence of log entries emitted over time. Log Streams simply capture everything in chronological order, and can contain a mix of spans, traces, and sessions. 
+
+On the other hand, a *Session* is a way to group Traces that are logically connected. And with Galileo, every Session is stored in a Log Stream that you can specify either explicitly or using environment variables.
+
+<Note>
+You can use **Sessions** to segment a log stream into coherent experiments or runs, making it easier to analyze end-to-end behavior.
+</Note>
+
+
+## How do Sessions differ from Workflows?
+A **Workflow** is a defined sequence of steps or tasks. It may include branching logic, conditional steps, and dependencies.  
+
+A *Session* can contain one or more *Workflows* if they are part of the same overall experiment or evaluation.
+
+
+## Where can I find my sessions?
+
+Sessions can be viewed in the [Galileo Console](/concepts/logging/sessions/using-sessions#view-your-session). When you create a session, you will usually select a Log Stream where they will be found. (If you don't specify one, Galileo will use your default log stream). 
+
+You can view them in a few easy steps:
+
+<ViewSessionsInConsole />
+
+You can learn more about creating and using sessions [here](/concepts/logging/sessions/using-sessions).
+
+## Conclusion
+
+A Session can collect multiple workflow runs and traces into one cohesive view. By using Sessions in your LLM application, you can:  
+1. Organize logs and metrics for each customer interaction or batch evaluation run, so debugging and analysis become straightforward.
+2. Drill down into any step—inspect the span for tokenization latency or the trace for scoring logic—without losing context.  
+3. Easily compare multiple chat sessions to track performance improvements.  
+
+## Next Steps
+
+Learn how to [create and use sessions](/concepts/logging/sessions/using-sessions) in Galileo. 
+
+## Related resources
+
+- [**Using Sessions**](/concepts/logging/sessions/using-sessions) - Create and view sessions in Galileo
+- [**Log Stream**](/concepts/logging/logstreams) - Learn about Log Streams in Galileo.
+- [**Spans**](/concepts/logging/spans) - Learn about the building blocks of Traces in Galileo.
+- [**Traces**](/concepts/logging/traces) - Learn about Traces, and different ways to create them.
