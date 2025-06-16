@@ -12,48 +12,93 @@ import { GalileoScorers } from "galileo";
 ```
 </CodeGroup>
 
-### LLM as a judge metrics
+### Metrics
 
-| Metric                                                                                        | Python                                                            | TypeScript |
-| :-------------------------------------------------------------------------------------------- | :---------------------------------------------------------------- | :--------- |
-| [Action Advancement](/concepts/metrics/agentic/action-advancement)                            | `GalileoScorers.action_advancement`                               | `GalileoScorers.ActionAdvancement` |
-| [Action Completion](/concepts/metrics/agentic/action-completion)                              | `GalileoScorers.action_completion`                                | `GalileoScorers.ActionCompletion` |
-| [BLEU](/concepts/metrics/expression-and-readability/bleu-and-rouge#understanding-bleu-score)  | `GalileoScorers.bleu`                                             | `GalileoScorers.Bleu` |
-| [Chunk Attribution](/concepts/metrics/response-quality/chunk-attribution)                     | `GalileoScorers.chunk_attribution_utilization`                    | `GalileoScorers.ChunkAttributionUtilization` |
-| [Chunk Utilization](/concepts/metrics/response-quality/chunk-utilization)                     | `GalileoScorers.chunk_attribution_utilization`                    | `GalileoScorers.ChunkAttributionUtilization` |
-| [Completeness](/concepts/metrics/response-quality/completeness)                               | `GalileoScorers.completeness`                                     | `GalileoScorers.Completeness` |
-| [Context Adherence](/concepts/metrics/response-quality/context-adherence)                     | `GalileoScorers.context_adherence`                                | `GalileoScorers.ContextAdherence` |
-| Context Relevance (Query Adherence)                                                           | `GalileoScorers.context_relevance`                                | `GalileoScorers.ContextRelevance` |
-| [Correctness (factuality)](/concepts/metrics/response-quality/correctness)                    | `GalileoScorers.correctness`                                      | `GalileoScorers.Correctness` |
-| [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence)           | `GalileoScorers.ground_truth_adherence`                           | `GalileoScorers.GroundTruthAdherence` |
-| [Instruction Adherence](/concepts/metrics/response-quality/instruction-adherence)             | `GalileoScorers.instruction_adherence`                            | `GalileoScorers.InstructionAdherence` |
-| [Prompt Injection](/concepts/metrics/safety-and-compliance/prompt-injection)                  | `GalileoScorers.prompt_injection`                                 | `GalileoScorers.PromptInjection` |
-| [Prompt Perplexity](/concepts/metrics/model-confidence/prompt-perplexity)                     | `GalileoScorers.prompt_perplexity`                                | `GalileoScorers.PromptPerplexity` |
-| [ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge#understanding-rouge)      | `GalileoScorers.rouge`                                            | `GalileoScorers.Rouge` |
-| [Sexism / Bias](/concepts/metrics/safety-and-compliance/sexism)                               | `GalileoScorers.input_sexism`, `GalileoScorers.output_sexism`     | `GalileoScorers.InputSexism`, `GalileoScorers.OutputSexism` |
-| [Tone](/concepts/metrics/expression-and-readability/tone)                                     | `GalileoScorers.input_tone`, `GalileoScorers.output_tone`         | `GalileoScorers.InputTone`, `GalileoScorers.OutputTone` |
-| [Tool Errors](/concepts/metrics/agentic/tool-error)                                           | `GalileoScorers.tool_error_rate`                                  | `GalileoScorers.ToolErrorRate` |
-| [Tool Selection Quality](/concepts/metrics/agentic/tool-selection-quality)                    | `GalileoScorers.tool_selection_quality`                           | `GalileoScorers.ToolSelectionQuality` |
-| [Toxicity](/concepts/metrics/safety-and-compliance/toxicity)                                  | `GalileoScorers.input_toxicity`, `GalileoScorers.output_toxicity` | `GalileoScorers.InputToxicity`, `GalileoScorers.OutputToxicity` |
+<Tabs>
+<Tab title="Python">
+| Metric                                                                                        | Value                                                             |
+| :-------------------------------------------------------------------------------------------- | :---------------------------------------------------------------- |
+| [Action Advancement](/concepts/metrics/agentic/action-advancement)                            | `GalileoScorers.action_advancement`                               |
+| [Action Completion](/concepts/metrics/agentic/action-completion)                              | `GalileoScorers.action_completion`                                |
+| [BLEU](/concepts/metrics/expression-and-readability/bleu-and-rouge#understanding-bleu-score)  | `GalileoScorers.bleu`                                             |
+| [Chunk Attribution](/concepts/metrics/response-quality/chunk-attribution)                     | `GalileoScorers.chunk_attribution_utilization`                    |
+| [Chunk Utilization](/concepts/metrics/response-quality/chunk-utilization)                     | `GalileoScorers.chunk_attribution_utilization`                    |
+| [Completeness](/concepts/metrics/response-quality/completeness)                               | `GalileoScorers.completeness`                                     |
+| [Context Adherence](/concepts/metrics/response-quality/context-adherence)                     | `GalileoScorers.context_adherence`                                |
+| Context Relevance (Query Adherence)                                                           | `GalileoScorers.context_relevance`                                |
+| [Correctness (factuality)](/concepts/metrics/response-quality/correctness)                    | `GalileoScorers.correctness`                                      |
+| [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence)           | `GalileoScorers.ground_truth_adherence`                           |
+| [Instruction Adherence](/concepts/metrics/response-quality/instruction-adherence)             | `GalileoScorers.instruction_adherence`                            |
+| [Prompt Injection](/concepts/metrics/safety-and-compliance/prompt-injection)                  | `GalileoScorers.prompt_injection`                                 |
+| [Prompt Perplexity](/concepts/metrics/model-confidence/prompt-perplexity)                     | `GalileoScorers.prompt_perplexity`                                |
+| [ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge#understanding-rouge)      | `GalileoScorers.rouge`                                            |
+| [Sexism / Bias](/concepts/metrics/safety-and-compliance/sexism)                               | `GalileoScorers.input_sexism`, `GalileoScorers.output_sexism`     |
+| [Tone](/concepts/metrics/expression-and-readability/tone)                                     | `GalileoScorers.input_tone`, `GalileoScorers.output_tone`         |
+| [Tool Errors](/concepts/metrics/agentic/tool-error)                                           | `GalileoScorers.tool_error_rate`                                  |
+| [Tool Selection Quality](/concepts/metrics/agentic/tool-selection-quality)                    | `GalileoScorers.tool_selection_quality`                           |
+| [Toxicity](/concepts/metrics/safety-and-compliance/toxicity)                                  | `GalileoScorers.input_toxicity`, `GalileoScorers.output_toxicity` |
+</Tab>
+<Tab title="TypeScript">
+| Metric                                                                                        | Value |
+| :-------------------------------------------------------------------------------------------- | :--------- |
+| [Action Advancement](/concepts/metrics/agentic/action-advancement)                            | `GalileoScorers.ActionAdvancement` |
+| [Action Completion](/concepts/metrics/agentic/action-completion)                              | `GalileoScorers.ActionCompletion` |
+| [BLEU](/concepts/metrics/expression-and-readability/bleu-and-rouge#understanding-bleu-score)  | `GalileoScorers.Bleu` |
+| [Chunk Attribution](/concepts/metrics/response-quality/chunk-attribution)                     | `GalileoScorers.ChunkAttributionUtilization` |
+| [Chunk Utilization](/concepts/metrics/response-quality/chunk-utilization)                     | `GalileoScorers.ChunkAttributionUtilization` |
+| [Completeness](/concepts/metrics/response-quality/completeness)                               | `GalileoScorers.Completeness` |
+| [Context Adherence](/concepts/metrics/response-quality/context-adherence)                     | `GalileoScorers.ContextAdherence` |
+| Context Relevance (Query Adherence)                                                           | `GalileoScorers.ContextRelevance` |
+| [Correctness (factuality)](/concepts/metrics/response-quality/correctness)                    | `GalileoScorers.Correctness` |
+| [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence)           | `GalileoScorers.GroundTruthAdherence` |
+| [Instruction Adherence](/concepts/metrics/response-quality/instruction-adherence)             | `GalileoScorers.InstructionAdherence` |
+| [Prompt Injection](/concepts/metrics/safety-and-compliance/prompt-injection)                  | `GalileoScorers.PromptInjection` |
+| [Prompt Perplexity](/concepts/metrics/model-confidence/prompt-perplexity)                     | `GalileoScorers.PromptPerplexity` |
+| [ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge#understanding-rouge)      | `GalileoScorers.Rouge` |
+| [Sexism / Bias](/concepts/metrics/safety-and-compliance/sexism)                               | `GalileoScorers.InputSexism`, `GalileoScorers.OutputSexism` |
+| [Tone](/concepts/metrics/expression-and-readability/tone)                                     | `GalileoScorers.InputTone`, `GalileoScorers.OutputTone` |
+| [Tool Errors](/concepts/metrics/agentic/tool-error)                                           | `GalileoScorers.ToolErrorRate` |
+| [Tool Selection Quality](/concepts/metrics/agentic/tool-selection-quality)                    | `GalileoScorers.ToolSelectionQuality` |
+| [Toxicity](/concepts/metrics/safety-and-compliance/toxicity)                                  | `GalileoScorers.InputToxicity`, `GalileoScorers.OutputToxicity` |
+</Tab>
+</Tabs>
 
 ### Luna metrics
 
 If you are using the [Galileo Luna 2.0 model](/concepts/luna/luna), then use these metric values.
 
-| Metric                                                                                        | Python                                                                      | TypeScript |
-| :-------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------- | :--------- |
-| [Action Advancement](/concepts/metrics/agentic/action-advancement)                            | `GalileoScorers.action_advancement_luna`                                    | `GalileoScorers.ActionAdvancementLuna` |
-| [Action Completion](/concepts/metrics/agentic/action-completion)                              | `GalileoScorers.action_completion_luna`                                     | `GalileoScorers.ActionCompletionLuna` |
-| [Chunk Attribution](/concepts/metrics/response-quality/chunk-attribution)                     | `GalileoScorers.chunk_attribution_utilization_luna`                         | `GalileoScorers.ChunkAttributionUtilizationLuna` |
-| [Chunk Utilization](/concepts/metrics/response-quality/chunk-utilization)                     | `GalileoScorers.chunk_attribution_utilization_luna`                         | `GalileoScorers.ChunkAttributionUtilizationLuna` |
-| [Completeness](/concepts/metrics/response-quality/completeness)                               | `GalileoScorers.completeness_luna`                                          | `GalileoScorers.CompletenessLuna` |
-| [Context Adherence](/concepts/metrics/response-quality/context-adherence)                     | `GalileoScorers.context_adherence_luna`                                     | `GalileoScorers.ContextAdherenceLuna` |
-| [Prompt Injection](/concepts/metrics/safety-and-compliance/prompt-injection)                  | `GalileoScorers.prompt_injection_luna`                                      | `GalileoScorers.PromptInjectionLuna` |
-| [Sexism / Bias](/concepts/metrics/safety-and-compliance/sexism)                               | `GalileoScorers.input_sexism_luna`, `GalileoScorers.output_sexism_luna`     | `GalileoScorers.InputSexismLuna`, `GalileoScorers.OutputSexismLuna` |
-| [Tone](/concepts/metrics/expression-and-readability/tone)                                     | `GalileoScorers.input_tone_luna`, `GalileoScorers.output_tone_luna`         | `GalileoScorers.InputTone`, `GalileoScorers.OutputTone` |
-| [Tool Errors](/concepts/metrics/agentic/tool-error)                                           | `GalileoScorers.tool_error_rate_luna`                                       | `GalileoScorers.ToolErrorRateLuna` |
-| [Tool Selection Quality](/concepts/metrics/agentic/tool-selection-quality)                    | `GalileoScorers.tool_selection_quality_luna`                                | `GalileoScorers.ToolSelectionQualityLuna` |
-| [Toxicity](/concepts/metrics/safety-and-compliance/toxicity)                                  | `GalileoScorers.input_toxicity_luna`, `GalileoScorers.output_toxicity_luna` | `GalileoScorers.InputToxicityLuna`, `GalileoScorers.OutputToxicityLuna` |
-
-
+<Tabs>
+<Tab title="Python">
+| Metric                                                                                        | Python                                                                      |
+| :-------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------- |
+| [Action Advancement](/concepts/metrics/agentic/action-advancement)                            | `GalileoScorers.action_advancement_luna`                                    |
+| [Action Completion](/concepts/metrics/agentic/action-completion)                              | `GalileoScorers.action_completion_luna`                                     |
+| [Chunk Attribution](/concepts/metrics/response-quality/chunk-attribution)                     | `GalileoScorers.chunk_attribution_utilization_luna`                         |
+| [Chunk Utilization](/concepts/metrics/response-quality/chunk-utilization)                     | `GalileoScorers.chunk_attribution_utilization_luna`                         |
+| [Completeness](/concepts/metrics/response-quality/completeness)                               | `GalileoScorers.completeness_luna`                                          |
+| [Context Adherence](/concepts/metrics/response-quality/context-adherence)                     | `GalileoScorers.context_adherence_luna`                                     |
+| [Prompt Injection](/concepts/metrics/safety-and-compliance/prompt-injection)                  | `GalileoScorers.prompt_injection_luna`                                      |
+| [Sexism / Bias](/concepts/metrics/safety-and-compliance/sexism)                               | `GalileoScorers.input_sexism_luna`, `GalileoScorers.output_sexism_luna`     |
+| [Tone](/concepts/metrics/expression-and-readability/tone)                                     | `GalileoScorers.input_tone_luna`, `GalileoScorers.output_tone_luna`         |
+| [Tool Errors](/concepts/metrics/agentic/tool-error)                                           | `GalileoScorers.tool_error_rate_luna`                                       |
+| [Tool Selection Quality](/concepts/metrics/agentic/tool-selection-quality)                    | `GalileoScorers.tool_selection_quality_luna`                                |
+| [Toxicity](/concepts/metrics/safety-and-compliance/toxicity)                                  | `GalileoScorers.input_toxicity_luna`, `GalileoScorers.output_toxicity_luna` |
+</Tab>
+<Tab title="TypeScript">
+| Metric                                                                                        | TypeScript |
+| :-------------------------------------------------------------------------------------------- | :--------- |
+| [Action Advancement](/concepts/metrics/agentic/action-advancement)                            | `GalileoScorers.ActionAdvancementLuna` |
+| [Action Completion](/concepts/metrics/agentic/action-completion)                              | `GalileoScorers.ActionCompletionLuna` |
+| [Chunk Attribution](/concepts/metrics/response-quality/chunk-attribution)                     | `GalileoScorers.ChunkAttributionUtilizationLuna` |
+| [Chunk Utilization](/concepts/metrics/response-quality/chunk-utilization)                     | `GalileoScorers.ChunkAttributionUtilizationLuna` |
+| [Completeness](/concepts/metrics/response-quality/completeness)                               | `GalileoScorers.CompletenessLuna` |
+| [Context Adherence](/concepts/metrics/response-quality/context-adherence)                     | `GalileoScorers.ContextAdherenceLuna` |
+| [Prompt Injection](/concepts/metrics/safety-and-compliance/prompt-injection)                  | `GalileoScorers.PromptInjectionLuna` |
+| [Sexism / Bias](/concepts/metrics/safety-and-compliance/sexism)                               | `GalileoScorers.InputSexismLuna`, `GalileoScorers.OutputSexismLuna` |
+| [Tone](/concepts/metrics/expression-and-readability/tone)                                     | `GalileoScorers.InputTone`, `GalileoScorers.OutputTone` |
+| [Tool Errors](/concepts/metrics/agentic/tool-error)                                           | `GalileoScorers.ToolErrorRateLuna` |
+| [Tool Selection Quality](/concepts/metrics/agentic/tool-selection-quality)                    | `GalileoScorers.ToolSelectionQualityLuna` |
+| [Toxicity](/concepts/metrics/safety-and-compliance/toxicity)                                  | `GalileoScorers.InputToxicityLuna`, `GalileoScorers.OutputToxicityLuna` |
+</Tab>
+</Tabs>
 
