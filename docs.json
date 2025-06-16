@@ -22,71 +22,11 @@
         ]
       },
       {
-        "group": "Getting Started",
+        "group": "Get Started",
         "pages": [
           "getting-started/quickstart",
           "getting-started/logging",
           "getting-started/experiments"
-        ]
-      },
-      {
-        "group": "SDK/API",
-        "pages": [
-          {
-            "group": "Python SDK Reference",
-            "icon": "python",
-            "pages": [
-              "sdk-api/python/overview",
-              {
-                "group": "Wrappers",
-                "icon": "box",
-                "pages": [
-                  "sdk-api/python/wrappers/wrappers-overview",
-                  "sdk-api/python/wrappers/openai"
-                ]
-              },
-              {
-                "group": "Core Logging",
-                "icon": "terminal",
-                "pages": [
-                  "sdk-api/python/logging/log-decorator",
-                  "sdk-api/python/logging/galileo-context",
-                  "sdk-api/python/logging/galileo-logger"
-                ]
-              },
-              "sdk-api/python/datasets",
-              "sdk-api/python/experiments",
-              "sdk-api/python/prompts",
-              "sdk-api/python/reference"
-            ]
-          },
-          {
-            "group": "TypeScript SDK Reference",
-            "icon": "node-js",
-            "pages": [
-              "sdk-api/typescript/overview",
-              {
-                "group": "Wrappers",
-                "icon": "box",
-                "pages": [
-                  "sdk-api/typescript/wrappers/wrappers-overview",
-                  "sdk-api/typescript/wrappers/openai"
-                ]
-              },
-              {
-                "group": "Core Logging",
-                "icon": "terminal",
-                "pages": [
-                  "sdk-api/typescript/logging/log-function-wrapper",
-                  "sdk-api/typescript/logging/galileo-logger"
-                ]
-              },
-              "sdk-api/typescript/datasets",
-              "sdk-api/typescript/experiments",
-              "sdk-api/typescript/prompts",
-              "sdk-api/typescript/reference"
-            ]
-          }
         ]
       },
       {
@@ -122,13 +62,20 @@
       {
         "group": "Cookbooks",
         "pages": [
+          "cookbooks/overview",
           {
-            "group": "Use Cases",
+            "group": "Agents",
             "pages": [
               "cookbooks/use-cases/agent-weather-vibes-app",
               "cookbooks/use-cases/agent-langchain",
-              "cookbooks/use-cases/multi-agent-langgraph/multi-agent-langgraph",
-              "cookbooks/use-cases/rag-mongodb-langchain-integration"
+              "cookbooks/use-cases/multi-agent-langgraph/multi-agent-langgraph"
+            ]
+          },
+          {
+            "group": "RAG",
+            "pages": [
+              "cookbooks/use-cases/rag-mongodb-langchain-integration",
+              "cookbooks/use-cases/rag-elastic-langchain-integration"
             ]
           }
         ]
@@ -137,7 +84,8 @@
         "group": "Integrations",
         "pages": [
           "integrations/openai-agent-integration",
-          "integrations/otel"
+          "integrations/otel",
+          "integrations/nvidia-nim-models"
         ]
       },
       {
@@ -153,6 +101,7 @@
                 "pages": [
                   "concepts/metrics/agentic/agentic-overview",
                   "concepts/metrics/agentic/action-advancement",
+                  "concepts/metrics/agentic/action-completion",
                   "concepts/metrics/agentic/tool-selection-quality",
                   "concepts/metrics/agentic/tool-error"
                 ]
@@ -182,6 +131,7 @@
                   "concepts/metrics/response-quality/chunk-attribution",
                   "concepts/metrics/response-quality/chunk-relevance",
                   "concepts/metrics/response-quality/completeness",
+                  "concepts/metrics/response-quality/context-adherence",
                   "concepts/metrics/response-quality/correctness",
                   "concepts/metrics/response-quality/ground-truth-adherence"
                 ]
@@ -203,7 +153,8 @@
                   "/concepts/metrics/custom-metrics/custom-metrics-ui-code",
                   "/concepts/metrics/custom-metrics/calling-local-scorers-python"
                 ]
-              }
+              },
+              "concepts/metrics/metrics-reference"
             ]
           },
           "concepts/projects",
@@ -211,6 +162,13 @@
             "group": "Logging",
             "pages": [
               "concepts/logging/logstreams",
+              {
+                "group": "Sessions",
+                "pages": [
+                  "concepts/logging/sessions/sessions-overview",
+                  "concepts/logging/sessions/using-sessions"
+                ]
+              },
               "concepts/logging/traces",
               "concepts/logging/spans"
             ]
@@ -236,10 +194,201 @@
         ]
       },
       {
-        "group": "API Reference",
-        "openapi": {
-          "source": "https://api.galileo.ai/public/v2/openapi.json"
-        }
+        "group": "SDK/API Reference",
+        "pages": [
+          {
+            "group": "Python SDK",
+            "pages": [
+              "sdk-api/python/overview",
+              {
+                "group": "Wrappers",
+                "pages": [
+                  "sdk-api/python/wrappers/wrappers-overview",
+                  "sdk-api/python/wrappers/openai"
+                ]
+              },
+              {
+                "group": "Core Logging",
+                "pages": [
+                  "sdk-api/python/logging/log-decorator",
+                  "sdk-api/python/logging/galileo-context",
+                  "sdk-api/python/logging/galileo-logger"
+                ]
+              },
+              "sdk-api/python/datasets",
+              "sdk-api/python/experiments",
+              "sdk-api/python/prompts",
+              {
+                "group": "SDK Reference",
+                "pages": [
+                  "sdk-api/python/sdk-reference",
+                  {
+                    "group": "galileo",
+                    "pages": [
+                      "sdk-api/python/reference/api_client",
+                      "sdk-api/python/reference/base",
+                      "sdk-api/python/reference/datasets",
+                      "sdk-api/python/reference/decorator",
+                      "sdk-api/python/reference/experiments",
+                      "sdk-api/python/reference/jobs",
+                      "sdk-api/python/reference/log_streams",
+                      "sdk-api/python/reference/logger",
+                      "sdk-api/python/reference/openai",
+                      "sdk-api/python/reference/projects",
+                      "sdk-api/python/reference/prompts",
+                      "sdk-api/python/reference/scorers",
+                      {
+                        "group": "utils",
+                        "pages": [
+                          "sdk-api/python/reference/utils/core_api_client",
+                          "sdk-api/python/reference/utils/datasets",
+                          "sdk-api/python/reference/utils/exceptions",
+                          "sdk-api/python/reference/utils/metrics",
+                          "sdk-api/python/reference/utils/serialization",
+                          "sdk-api/python/reference/utils/singleton"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "group": "TypeScript SDK",
+            "pages": [
+              "sdk-api/typescript/overview",
+              {
+                "group": "Wrappers",
+                "pages": [
+                  "sdk-api/typescript/wrappers/wrappers-overview",
+                  "sdk-api/typescript/wrappers/openai"
+                ]
+              },
+              {
+                "group": "Core Logging",
+                "pages": [
+                  "sdk-api/typescript/logging/log-function-wrapper",
+                  "sdk-api/typescript/logging/galileo-logger"
+                ]
+              },
+              "sdk-api/typescript/datasets",
+              "sdk-api/typescript/experiments",
+              "sdk-api/typescript/prompts",
+              {
+                "group": "SDK Reference",
+                "pages": [
+                  "sdk-api/typescript/sdk-reference",
+                  {
+                    "group": "galileo",
+                    "pages": [
+                      {
+                        "group": "Classes",
+                        "pages": [
+                          "sdk-api/typescript/reference/README/classes/GalileoApiClient",
+                          "sdk-api/typescript/reference/README/classes/GalileoCallback",
+                          "sdk-api/typescript/reference/README/classes/GalileoLogger"
+                        ]
+                      },
+                      {
+                        "group": "Functions",
+                        "pages": [
+                          "/sdk-api/typescript/reference/README/functions/createDataset",
+                          "/sdk-api/typescript/reference/README/functions/createExperiment",
+                          "/sdk-api/typescript/reference/README/functions/createLogStream",
+                          "/sdk-api/typescript/reference/README/functions/createProject",
+                          "/sdk-api/typescript/reference/README/functions/createPromptTemplate",
+                          "/sdk-api/typescript/reference/README/functions/flush",
+                          "/sdk-api/typescript/reference/README/functions/getDataset",
+                          "/sdk-api/typescript/reference/README/functions/getDatasetContent",
+                          "/sdk-api/typescript/reference/README/functions/getDatasets",
+                          "/sdk-api/typescript/reference/README/functions/getExperiment",
+                          "/sdk-api/typescript/reference/README/functions/getExperiments",
+                          "/sdk-api/typescript/reference/README/functions/getLogger",
+                          "/sdk-api/typescript/reference/README/functions/getLogStream",
+                          "/sdk-api/typescript/reference/README/functions/getLogStreams",
+                          "/sdk-api/typescript/reference/README/functions/getProject",
+                          "/sdk-api/typescript/reference/README/functions/getProjects",
+                          "/sdk-api/typescript/reference/README/functions/getPromptTemplate",
+                          "/sdk-api/typescript/reference/README/functions/getPromptTemplates",
+                          "/sdk-api/typescript/reference/README/functions/init",
+                          "/sdk-api/typescript/reference/README/functions/log",
+                          "/sdk-api/typescript/reference/README/functions/runExperiment",
+                          "/sdk-api/typescript/reference/README/functions/wrapOpenAI"
+                        ]
+                      },
+                      {
+                        "group": "Types",
+                        "pages": [
+                          {
+                            "group": "Classes",
+                            "pages": [
+                              "/sdk-api/typescript/reference/types/classes/Document",
+                              "/sdk-api/typescript/reference/types/classes/LlmSpan",
+                              "/sdk-api/typescript/reference/types/classes/RetrieverSpan",
+                              "/sdk-api/typescript/reference/types/classes/SpanWithParentStep",
+                              "/sdk-api/typescript/reference/types/classes/StepWithChildSpans",
+                              "/sdk-api/typescript/reference/types/classes/ToolSpan",
+                              "/sdk-api/typescript/reference/types/classes/Trace",
+                              "/sdk-api/typescript/reference/types/classes/WorkflowSpan"
+                            ]
+                          },
+                          {
+                            "group": "Enumerations",
+                            "pages": [
+                              "/sdk-api/typescript/reference/types/enumerations/MessageRole",
+                              "/sdk-api/typescript/reference/types/enumerations/Models",
+                              "/sdk-api/typescript/reference/types/enumerations/NodeType",
+                              "/sdk-api/typescript/reference/types/enumerations/ProjectTypes",
+                              "/sdk-api/typescript/reference/types/enumerations/ScorerTypes"
+                            ]
+                          },
+                          {
+                            "group": "Interfaces",
+                            "pages": [
+                              "/sdk-api/typescript/reference/types/interfaces/CustomizedScorer",
+                              "/sdk-api/typescript/reference/types/interfaces/Dataset",
+                              "/sdk-api/typescript/reference/types/interfaces/DatasetAppendRow",
+                              "/sdk-api/typescript/reference/types/interfaces/Experiment",
+                              "/sdk-api/typescript/reference/types/interfaces/LogStream",
+                              "/sdk-api/typescript/reference/types/interfaces/Message",
+                              "/sdk-api/typescript/reference/types/interfaces/Project",
+                              "/sdk-api/typescript/reference/types/interfaces/PromptRunSettings",
+                              "/sdk-api/typescript/reference/types/interfaces/RegisteredScorer",
+                              "/sdk-api/typescript/reference/types/interfaces/Scorer",
+                              "/sdk-api/typescript/reference/types/interfaces/ScorersConfiguration",
+                              "/sdk-api/typescript/reference/types/interfaces/SessionCreateResponse",
+                              "/sdk-api/typescript/reference/types/interfaces/ToolCall",
+                              "/sdk-api/typescript/reference/types/interfaces/ToolCallFunction"
+                            ]
+                          },
+                          {
+                            "group": "Type Aliases",
+                            "pages": [
+                              "/sdk-api/typescript/reference/types/type-aliases/ChunkMetaDataValueType",
+                              "/sdk-api/typescript/reference/types/type-aliases/CreateJobResponse",
+                              "/sdk-api/typescript/reference/types/type-aliases/DatasetRow",
+                              "/sdk-api/typescript/reference/types/type-aliases/PromptTemplate",
+                              "/sdk-api/typescript/reference/types/type-aliases/PromptTemplateVersion",
+                              "/sdk-api/typescript/reference/types/type-aliases/Span"
+                            ]
+                          }
+                          
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "group": "API",
+            "openapi": {
+              "source": "https://api.galileo.ai/public/v2/openapi.json"
+            }
+          }
+        ]
       },
       {
         "group": "References",
@@ -265,6 +414,9 @@
     }
   },
   "integrations": {
+    "ga4": {
+      "measurementId": "G-T19PJKCP07"
+    },
     "gtm": {
       "tagId": "GTM-585ZMNLS"
     }

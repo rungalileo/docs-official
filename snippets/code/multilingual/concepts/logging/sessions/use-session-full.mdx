@@ -1,0 +1,120 @@
+```python Python
+from time import time
+from dotenv import load_dotenv
+
+# Galileo dependencies
+from galileo import GalileoLogger
+from galileo.handlers.langchain import GalileoCallback
+
+# LangChain and LangGraph dependencies
+from langgraph.prebuilt import create_react_agent
+from langchain.schema.runnable.config import RunnableConfig
+
+# Load `.env` variables
+load_dotenv(override=True)
+
+# Create a simple assistant for our test (or import one). You can also provide
+# your agent with tools: the session will log their usage
+simple_agent = create_react_agent(
+    name="simple_agent",
+    model="openai:o3-mini",  # you can choose any OpenAI model here
+    prompt="You are a friendly assistant that answers the user's questions",
+    tools=[],  # (OPTIONAL) provide tools to your agent
+)
+
+# Create a GalileoLogger instance
+logger = GalileoLogger()
+
+
+def main():
+    """Main application logic"""
+
+    # start a logging session
+    external_id = f"custom_id-{int(time())}"
+    logger.start_session(name="Logger Session Tutorial", external_id=external_id)
+
+    # Here's what we will ask the LLM:
+    prompts = [
+        "Hello! How many minutes are in a year?",
+        "Hello! How far is an Astronomical Unit in kilometers?",
+    ]
+
+    # Create a LangChain Runnable config object with a LangGraph callback handler:
+    # We will supply the logger instance to ensure that it generates traces in the
+    # correct session
+    agent_config = RunnableConfig(callbacks=[GalileoCallback(galileo_logger=logger)])
+
+    for prompt in prompts:
+        # Invoke the LLM with our question:
+        response = simple_agent.invoke(
+            input={"messages": [{"role": "user", "content": prompt}]},
+            config=agent_config,  # pass the RunnableConfig here
+        )
+
+        # Print out the LLM's response to confirm that this code block ran:
+        print("Model response:", response["messages"][-1].content.strip())
+
+if __name__ == "__main__":
+    main()
+```
+
+```typescript TypeScript
+import { configDotenv } from "dotenv";
+
+// Galileo dependencies
+import { GalileoCallback, GalileoLogger } from "galileo";
+
+// LangChain and LangGraph dependencies
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { RunnableConfig } from "@langchain/core/runnables";
+import { ChatOpenAI } from "@langchain/openai";
+
+// Load environment variables
+configDotenv();
+
+// Create a simple assistant for our test (or import one). You can also provide
+// your agent with tools: the session will log their usage
+const simpleAgent = createReactAgent({
+  name: "simpleAgent",
+  llm: new ChatOpenAI({ model: "o3-mini" }),
+  prompt: "You are a friendly assistant that answers the user's questions",
+  tools: [] // (OPTIONAL) provide tools to your agent
+});
+
+// Create a GalileoLogger instance for our session
+const logger = new GalileoLogger();
+
+
+/** Main application logic */
+async function main() {
+  // Start a logging session
+  const externalId = `custom_id-${Math.round(Date.now() / 1000)}`;
+  await logger.startSession({ name: "Logger Session Tutorial", externalId });
+
+  // Here's what we will ask the LLM:
+  const prompts = [
+    "Hello! How many minutes are in a year?",
+    "Hello! How far is an Astronomical Unit in kilometers?"
+  ];
+
+  // Create a LangChain Runnable config object with a LangGraph callback handler.
+  // We will supply the logger instance to ensure that it generates traces in the
+  // correct session
+  const agentConfig: RunnableConfig = {
+    callbacks: [new GalileoCallback(logger)]
+  };
+
+  for (const prompt of prompts) {
+    // Invoke the LLM with our question:
+    const result = await simpleAgent.invoke(
+      { messages: [{ role: "user", content: prompt }] },
+      agentConfig // pass the RunnableConfig here
+    );
+
+    //  Print out the LLM's response to confirm that this code block ran:
+    console.log("LLM Reply:", result.messages.at(-1)?.content);
+  }
+}
+
+main();
+```

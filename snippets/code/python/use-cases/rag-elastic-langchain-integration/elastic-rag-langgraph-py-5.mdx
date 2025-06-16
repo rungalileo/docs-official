@@ -1,0 +1,23 @@
+```python Python
+# Step 1: Set up Elasticsearch index and data
+document_store = setup_elasticsearch()
+
+# Step 2: Compile the agent and its workflow
+rag_agent_graph = setup_agent_and_graph(document_store)
+
+# Step 3: Start a Q&A session
+print("\n--- Starting Q&A Session ---")
+session_id = f"session-{int(time.time())}"
+
+# Ask the first question
+question1 = "How many vacation days do new hires get?"
+print(f"\n❓ Question: {question1}")
+answer1 = ask_question(rag_agent_graph, question1, session_id)
+print(f"✅ Answer: {answer1}")
+
+# Ask a follow-up question
+question2 = "What about health insurance?"
+print(f"\n❓ Question: {question2}")
+answer2 = ask_question(rag_agent_graph, question2, session_id)
+print(f"✅ Answer: {answer2}")
+```

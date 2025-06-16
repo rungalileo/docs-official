@@ -1,0 +1,45 @@
+```python Python
+# --- 2. Elasticsearch Setup ---
+# Connect to Elasticsearch ensure your IP is unblocked
+print("Connecting to Elasticsearch...")
+elasticsearch_client = Elasticsearch(hosts=[ES_HOST], api_key=ES_API_KEY)
+print(elasticsearch_client.info())
+
+def setup_elasticsearch():
+    """
+    Ensures the ELSER model is deployed and sample documents are indexed.
+    """
+    # 2a. Deploy ELSER Model (Elastic's NLP model for semantic search)
+    try:
+        elasticsearch_client.ml.get_trained_models(model_id=ELSER_MODEL)
+        print(f'ELSER model "{ELSER_MODEL}" is already available.')
+    except NotFoundError:
+        print(f'ELSER model "{ELSER_MODEL}" not found, starting deployment...')
+        elasticsearch_client.ml.put_trained_model(
+            model_id=ELSER_MODEL, input={"field_names": ["text_field"]}
+        )
+        while True:
+            status = elasticsearch_client.ml.get_trained_models(model_id=ELSER_MODEL, include="definition_status")
+            if status["trained_model_configs"][0]["fully_defined"]:
+                break
+            time.sleep(1)
+        elasticsearch_client.ml.start_trained_model_deployment(
+            model_id=ELSER_MODEL, wait_for="fully_allocated"
+        )
+        print(f'ELSER model "{ELSER_MODEL}" deployed successfully.')
+
+    store = ElasticsearchStore(
+        es_connection=elasticsearch_client,
+        index_name=ES_INDEX,
+        strategy=SparseVectorStrategy(model_id=ELSER_MODEL),
+    )
+    sample_docs = [
+        Document(page_content="Our company offers comprehensive health insurance including medical, dental, and vision coverage.", metadata={"source": "employee_handbook"}),
+        Document(page_content="Remote work policy allows employees to work from home up to 3 days per week.", metadata={"source": "employee_handbook"}),
+        Document(page_content="The company's vacation policy provides 15 days of paid time off for new employees, increasing to 20 days after 3 years of service.", metadata={"source": "employee_handbook"}),
+    ]
+    store.add_documents(sample_docs)
+    time.sleep(2) # Give time for indexing
+    print(f"{len(sample_docs)} documents indexed successfully.")
+    return store
+```
