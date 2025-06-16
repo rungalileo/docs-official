@@ -1,0 +1,48 @@
+```python Python {9,17-22}
+from time import time
+from dotenv import load_dotenv
+
+# Galileo dependencies
+from galileo import GalileoLogger
+from galileo.handlers.langchain import GalileoCallback
+
+# LangChain and LangGraph dependencies
+from langgraph.prebuilt import create_react_agent
+from langchain.schema.runnable.config import RunnableConfig
+
+# Load `.env` variables
+load_dotenv(override=True)
+
+# Create a simple assistant for our test (or import one). You can also provide
+# your agent with tools: the session will log their usage
+simple_agent = create_react_agent(
+    name="simple_agent",
+    model="openai:o3-mini",  # you can choose any OpenAI model here
+    prompt="You are a friendly assistant that answers the user's questions",
+    tools=[],  # (OPTIONAL) provide tools to your agent
+)
+```
+
+```typescript TypeScript {7,9,16-22}
+import { configDotenv } from "dotenv";
+
+// Galileo dependencies
+import { GalileoCallback, GalileoLogger } from "galileo";
+
+// LangChain and LangGraph dependencies
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { RunnableConfig } from "@langchain/core/runnables";
+import { ChatOpenAI } from "@langchain/openai";
+
+// Load environment variables
+configDotenv();
+
+// Create a simple assistant for our test (or import one). You can also provide
+// your agent with tools: the session will log their usage
+const simpleAgent = createReactAgent({
+  name: "simpleAssistant",
+  llm: new ChatOpenAI({ model: "o3-mini" }),
+  prompt: "You are a friendly assistant that answers the user's questions",
+  tools: [] // (OPTIONAL) provide tools to your agent
+});
+```
