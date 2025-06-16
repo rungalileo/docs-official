@@ -1,0 +1,18 @@
+```typescript TypeScript
+const logger = new GalileoLogger();
+// Start a new trace
+logger.startTrace({ input: "Newton's First Law Trace" });
+
+// Get the start time
+const start = process.hrtime.bigint();
+
+const response = await promptOpenAI(prompt, logger);
+
+console.log(response);
+
+// Calculate the duration
+const durationNs = process.hrtime.bigint() - start;
+
+logger.conclude({ output: response, durationNs: Number(durationNs) });
+logger.flush();
+```

@@ -1,0 +1,20 @@
+```python Python
+async def main():
+    # Create a logger instance
+    logger = GalileoLogger()
+    
+    # Start a new trace
+    logger.start_trace("Newton's First Law Trace")
+
+    # Get the start time
+    start_ns = time.perf_counter_ns()
+     
+    prompt = "Explain the following topic succinctly: Newton's First Law"
+    response = await prompt_open_ai(prompt, logger)
+    print(response)
+
+    # Calculate the duration
+    duration_ns = time.perf_counter_ns() - start_ns
+    logger.conclude(output=response, duration_ns=duration_ns)
+    logger.flush()
+```

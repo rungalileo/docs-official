@@ -1,0 +1,385 @@
+---
+title: Create Traces and Spans
+description: Learn how to create log traces and spans manually in your AI apps
+syncTabs: true
+---
+
+import SnippetInstallPython from "/snippets/code/python/how-to-guides/basics/basic-example/install-packages.mdx";
+import SnippetCreateAppPython from "/snippets/code/python/how-to-guides/basics/basic-logging-with-decorator/create-app.mdx";
+import SnippetImportPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/import.mdx";
+import SnippetCreateLoggerPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/create-logger.mdx";
+import SnippetStartTracePython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/start-trace.mdx";
+import SnippetConcludePython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/conclude.mdx";
+import SnippetPromptWithLoggerPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/prompt-with-logger.mdx";
+import SnippetCallPromptWithLoggerPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/call-prompt-with-logger.mdx";
+import SnippetCodeWithTraceNoSpanPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/code-with-trace-no-span.mdx";
+import SnippetAddLLMSpanPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/add-llm-span.mdx";
+import SnippetAddLLMSpanTokensPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/add-llm-span-tokens.mdx";
+import SnippetAddLLMSpanDurationPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/add-llm-span-duration.mdx";
+import SnippetLLMCallDurationPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/llm-call-duration.mdx";
+import SnippetTraceDurationPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/trace-duration.mdx";
+
+import SnippetInstallTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-example/install-packages.mdx";
+import SnippetCreateAppTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-logging-with-decorator/create-app.mdx";
+import SnippetImportTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/import.mdx";
+import SnippetCreateLoggerTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/create-logger.mdx";
+import SnippetStartTraceTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/start-trace.mdx";
+import SnippetConcludeTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/conclude.mdx";
+import SnippetPromptWithLoggerTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/prompt-with-logger.mdx";
+import SnippetCallPromptWithLoggerTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/call-prompt-with-logger.mdx";
+import SnippetCodeWithTraceNoSpanTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/code-with-trace-no-span.mdx";
+import SnippetAddLLMSpanTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/add-llm-span.mdx";
+import SnippetAddLLMSpanTokensTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/add-llm-span-tokens.mdx";
+import SnippetAddLLMSpanDurationTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/add-llm-span-duration.mdx";
+import SnippetLLMCallDurationTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/llm-call-duration.mdx";
+import SnippetTraceDurationTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/trace-duration.mdx";
+
+## Overview
+
+This guide shows you how to log spans to Galileo using the `GalileoLogger`.
+
+The Galileo wrappers and `@log` decorator are the preferred way to create log traces and spans, but there are times when you need to manually create a trace or a span to give you more granular control over the data you are logging.
+
+In this guide you will manually log a number of spans when calling an LLM. This pattern can be used for times with the wrapper or decorator are not applicable, such as when using a unsupported LLM SDK such as the Azure AI inference SDK. You will be using OpenAI for this example.
+
+## Before you start
+
+To complete this how-to, you will need:
+
+- An [OpenAI API key](https://openai.com/api/)
+- A [Galileo project](/concepts/projects) configured
+- Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
+
+## Install dependencies
+
+To use Galileo, you need to install some package dependencies, and configure environment variables.
+
+<Steps>
+
+<Step title="Install Required Dependencies">
+
+Install the required dependencies for your app. If you are using Python, create a virtual environment using your preferred method, then install dependencies inside that environment:
+
+<CodeGroup>
+  <SnippetInstallPython />
+  <SnippetInstallTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Create a `.env` file, and add the following values">
+
+```ini .env
+GALILEO_API_KEY=your_galileo_api_key
+GALILEO_PROJECT=your_project_name
+GALILEO_LOG_STREAM=your_log_stream
+
+OPENAI_API_KEY=your_openai_api_key
+```
+
+</Step>
+</Steps>
+
+## Create the basic app to call OpenAI
+
+<Steps>
+<Step title="Create a file for your application called `app.py` or `app.ts`."/>
+
+<Step title="Add the following code to call OpenAI to ask a question">
+
+<CodeGroup>
+  <SnippetCreateAppPython />
+  <SnippetCreateAppTypeScript />
+</CodeGroup>
+
+If you are using TypeScript, you will also need to configure your code to use ESM. Add the following to your `package.json` file:
+
+```json package.json
+{
+  "type": "module",
+  ... // Existing contents
+}
+```
+
+</Step>
+
+<Step title="Run the app to ensure everything is working">
+
+<CodeGroup>
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
+
+You should see a description of Newton's first law.
+
+```output
+(.venv) ➜  python app.py   
+Newton's First Law, also known as the Law of Inertia, states that an object
+at rest will stay at rest and an object in motion will stay in motion with
+the same speed and in the same direction, unless acted upon by an
+unbalanced force. In simpler terms, it means that an object will keep doing
+what it's currently doing until a force makes it do something different.
+This law is fundamental to understanding motion and forces as it pertains
+to physics.
+```
+
+</Step>
+</Steps>
+
+## Create a new Galileo logger to log traces and spans to
+
+If you are using the Galileo wrappers or decorators, Galileo automatically create new logging sessions, traces, and spans for you. Seeing as you are doing everything manually, you will need to create a new logger.
+
+<Steps>
+
+<Step title="Import the Galileo logger">
+
+At the top of your file, add an import for the Galileo logger:
+
+<CodeGroup>
+  <SnippetImportPython />
+  <SnippetImportTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Create a logger instance">
+
+Create a new Galileo logger instance. In Python, do this at the start of the `main` function. In TypeScript, do this before the call to `promptOpenAI`.
+
+<CodeGroup>
+  <SnippetCreateLoggerPython />
+  <SnippetCreateLoggerTypeScript />
+</CodeGroup>
+
+<Note>
+This will pick up the project and log stream from the `GALILEO_PROJECT` and `GALILEO_LOG_STREAM` environment variables. You can override these if required by setting the relevant constructor parameters.
+</Note>
+
+</Step>
+
+<Step title="Create a new trace">
+
+The hierarchy for log streams is Sessions contain traces, which contain spans. If you start a new trace, a session is created automatically.
+
+Create a new trace using the logger by adding the following code just below the declaration of the logger:
+
+<CodeGroup>
+  <SnippetStartTracePython />
+  <SnippetStartTraceTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Conclude and flush the logger">
+
+Once you have finished logging a trace, you need conclude it, passing in the output. Once concluded, you need to flush it to send it to Galileo.
+
+Add the following lines to the bottom of the `main` function in Python, or the end of the `app.ts` file in TypeScript:
+
+<CodeGroup>
+  <SnippetConcludePython />
+  <SnippetConcludeTypeScript />
+</CodeGroup>
+
+Your full code should now look like this:
+
+<CodeGroup>
+  <SnippetCodeWithTraceNoSpanPython />
+  <SnippetCodeWithTraceNoSpanTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Run the app to log the trace">
+
+<CodeGroup>
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="View the logged trace">
+
+From the [Galileo Console](https://app.galileo.ai), open the log stream for your project. You will see a trace in the traces table.
+
+![A trace in a table showing the input and output](/how-to-guides/basics/manual-span-creation/first-trace-table.webp)
+
+</Step>
+
+<Step title="View details of the trace">
+
+Select the trace to view details. Currently it contains no spans, and shows the question and the LLM response as input and output.
+
+![A trace details showing no spans](/how-to-guides/basics/manual-span-creation/first-trace-no-span.webp)
+
+</Step>
+
+</Steps>
+
+## Add spans
+
+The next step is to add spans to the trace. You will be adding an LLM span.
+
+LLM spans can contain a range of details about the LLM call. As well as the input and output text, you can add properties such as the number of tokens used, temperature, and more.
+
+<Steps>
+
+<Step title="Pass the logger to the prompt OpenAI function">
+
+To use the logger, first you need to pass it to the prompt OpenAI function.
+
+Update the function definition to the following:
+
+<CodeGroup>
+  <SnippetPromptWithLoggerPython />
+  <SnippetPromptWithLoggerTypeScript />
+</CodeGroup>
+
+Update the call to this function in the `main` function to pass the logger:
+
+<CodeGroup>
+  <SnippetCallPromptWithLoggerPython />
+  <SnippetCallPromptWithLoggerTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Log the LLM span">
+
+After the call to the LLM in the prompt OpenAI function, add the following to create an LLM span. Pass in the prompt, and the response from the LLM, along with details of the model and a name.
+
+<CodeGroup>
+  <SnippetAddLLMSpanPython />
+  <SnippetAddLLMSpanTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Run the app to log the trace">
+
+<CodeGroup>
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="View the logged trace">
+
+From the Galileo console, select the new trace to view details. You will see a single LLM span called "OpenAI GPT-4o-mini response".
+
+![A trace details showing an LLM span](/how-to-guides/basics/manual-span-creation/second-trace-llm-span.webp)
+
+</Step>
+
+</Steps>
+
+## Add more details to the trace
+
+Now you have a span, you can add more details to both the span and the trace, such as duration to help measure latency in your app, and number of tokens to help understand usage and cost.
+
+<Steps>
+
+<Step title="Add the number of tokens to the LLM span">
+
+Update the call that adds the LLM span to include the details of the tokens returned by the call to OpenAI:
+
+<CodeGroup>
+  <SnippetAddLLMSpanTokensPython />
+  <SnippetAddLLMSpanTokensTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Add the duration of the LLM call">
+
+If you time the call to the LLM, you can pass this duration to the LLM span.
+
+If you are using Python, add an import for `time` to the top of the file:
+
+```python app.py
+import time
+```
+
+Add code to time the LLM call:
+
+<CodeGroup>
+  <SnippetLLMCallDurationPython />
+  <SnippetLLMCallDurationTypeScript />
+</CodeGroup>
+
+
+Add this duration to the LLM span:
+
+<CodeGroup>
+  <SnippetAddLLMSpanDurationPython />
+  <SnippetAddLLMSpanDurationTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Add the total duration">
+
+It can also be helpful to time the entire trace. This allows you to spot bottlenecks in your application.
+
+Add similar code to time the code between starting the trace and concluding it. Then pass this to the `logger.conclude` call:
+
+<CodeGroup>
+  <SnippetTraceDurationPython />
+  <SnippetTraceDurationTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Run the app to log the trace">
+
+<CodeGroup>
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="View the details of the logged trace">
+
+From the Galileo console, select the new trace to view details. In the **Metrics** tab you will see the latency.
+
+![A trace details showing a latency of 1.43 seconds](/how-to-guides/basics/manual-span-creation/trace-latency.webp)
+
+Select the LLM span to see details of that span.
+
+![A trace with the LLM span selected showing a latency of 1.42 seconds, 18 input tokens, 69 output tokens, and 87 total tokens](/how-to-guides/basics/manual-span-creation/llm-span-latency-tokens.webp)
+
+</Step>
+
+</Steps>
+
+Your logging is now set up! You are ready to configure metrics for your project.
+
+## See also
+
+- [Configure metrics](/concepts/metrics/overview)
+- [Log streams](/concepts/logging/logstreams)
+- [Span types](/concepts/logging/spans#span-types-and-their-behavior)

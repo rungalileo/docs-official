@@ -1,0 +1,184 @@
+---
+title: Log Using the log Decorator
+description: Learn how to use the Galileo log decorator to log functions to traces
+syncTabs: true
+---
+
+import SnippetInstallPython from "/snippets/code/python/how-to-guides/basics/basic-example/install-packages.mdx";
+import SnippetCreateAppPython from "/snippets/code/python/how-to-guides/basics/basic-logging-with-decorator/create-app.mdx";
+import SnippetImportPython from "/snippets/code/python/how-to-guides/basics/basic-logging-with-decorator/import.mdx";
+import SnippetWrapperPython from "/snippets/code/python/how-to-guides/basics/basic-logging-with-decorator/wrapper.mdx";
+
+import SnippetInstallTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-example/install-packages.mdx";
+import SnippetCreateAppTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-logging-with-decorator/create-app.mdx";
+import SnippetImportTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-logging-with-decorator/import.mdx";
+import SnippetWrapperTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-logging-with-decorator/wrapper.mdx";
+
+## Overview
+
+This guide shows you how to log spans to Galileo using the `@log` decorator in Python, or the `log` wrapper in TypeScript.
+
+For this example, you will be using the async OpenAI SDK, which is not supported by the Galileo OpenAI wrapper. Instead you will use the `@log` decorator or `log` wrapper to log function calls as LLM spans.
+
+## Before you start
+
+To complete this how-to, you will need:
+
+- An [OpenAI API key](https://openai.com/api/)
+- A [Galileo project](/concepts/projects) configured
+- Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
+
+## Install dependencies
+
+To use Galileo, you need to install some package dependencies, and configure environment variables.
+
+<Steps>
+
+<Step title="Install Required Dependencies">
+
+Install the required dependencies for your app. If you are using Python, create a virtual environment using your preferred method, then install dependencies inside that environment:
+
+<CodeGroup>
+  <SnippetInstallPython />
+  <SnippetInstallTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Create a `.env` file, and add the following values">
+
+```ini .env
+GALILEO_API_KEY=your_galileo_api_key
+GALILEO_PROJECT=your_project_name
+GALILEO_LOG_STREAM=your_log_stream
+
+OPENAI_API_KEY=your_openai_api_key
+```
+
+</Step>
+</Steps>
+
+## Create the basic app to call OpenAI
+
+<Steps>
+<Step title="Create a file for your application called `app.py` or `app.ts`."/>
+
+<Step title="Add the following code to call OpenAI to ask a question">
+
+<CodeGroup>
+  <SnippetCreateAppPython />
+  <SnippetCreateAppTypeScript />
+</CodeGroup>
+
+If you are using TypeScript, you will also need to configure your code to use ESM. Add the following to your `package.json` file:
+
+```json package.json
+{
+  "type": "module",
+  ... // Existing contents
+}
+```
+
+</Step>
+
+<Step title="Run the app to ensure everything is working">
+
+<CodeGroup>
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
+
+You should see a description of Newton's first law.
+
+```output
+(.venv) ➜  python app.py   
+Newton's First Law, also known as the Law of Inertia, states that an object
+at rest will stay at rest and an object in motion will stay in motion with
+the same speed and in the same direction, unless acted upon by an
+unbalanced force. In simpler terms, it means that an object will keep doing
+what it's currently doing until a force makes it do something different.
+This law is fundamental to understanding motion and forces as it pertains
+to physics.
+```
+
+</Step>
+</Steps>
+
+## Add simple logging with the Galileo log decorator or wrapper
+
+Galileo has a `@log` decorator in Python, and a `log` wrapper in TypeScript that logs function calls as spans. If these decorated or wrapped calls are called whilst there is an active trace, they are added to that trace. If there is no active trace, a new one is created for this span.
+
+In this guide, you will be adding the decorator or wrapper to log the function that calls OpenAI.
+
+<Steps>
+
+<Step title="Import the log decorator">
+
+At the top of your file, add an import for the log decorator:
+
+<CodeGroup>
+  <SnippetImportPython />
+  <SnippetImportTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Decorate or wrap the function">
+
+Update the function definition to include the decorator or wrapper:
+
+<CodeGroup>
+  <SnippetWrapperPython />
+  <SnippetWrapperTypeScript />
+</CodeGroup>
+
+This will log the function as an LLM span using the span type parameter. You can read more about these in our [span types documentation](/sdk-api/python/logging/log-decorator#span-types).
+
+This also sets the name of the span to "OpenAI GPT-4o-mini".
+
+</Step>
+
+<Step title="Run the Python app">
+
+<CodeGroup>
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
+
+When the app runs, the span will be logged automatically, with the input as the `prompt`, the output as the returned `response`. The duration will also be logged.
+
+</Step>
+
+<Step title="View the logged trace">
+
+From the [Galileo Console](https://app.galileo.ai), open the log stream for your project. You will see a trace with a single span containing the logged function call.
+
+Select the trace to see a detailed view:
+
+![A trace with an input, OpenAI span, and an output](/how-to-guides/basics/basic-logging-with-decorator/trace.webp)
+
+Select the OpenAI span to see the latency.
+
+![The trace with the OpenAI span selected and the latency highlighted in the system metrics pane](/how-to-guides/basics/basic-logging-with-decorator/trace-latency.webp)
+
+</Step>
+
+</Steps>
+
+Your logging is now set up! You are ready to configure metrics for your project.
+
+## See also
+
+- [Configure metrics](/concepts/metrics/overview)
+- [Log streams](/concepts/logging/logstreams)
+- [The `@log` decorator in the Python SDK](/sdk-api/python/logging/log-decorator)
