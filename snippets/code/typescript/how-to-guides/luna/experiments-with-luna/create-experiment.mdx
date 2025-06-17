@@ -1,6 +1,8 @@
 ```typescript TypeScript
 import { GalileoScorers, runExperiment } from "galileo";
 import { OpenAI } from "openai";
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -37,6 +39,6 @@ await runExperiment({
   dataset: dataset,
   function: runner,
   metrics: [GalileoScorers.PromptInjection],
-  projectName: "my-project",
+  projectName: process.env.GALILEO_PROJECT,
 });
 ```
