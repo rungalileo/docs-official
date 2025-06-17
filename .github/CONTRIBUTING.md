@@ -18,7 +18,7 @@ For small changes, such as spelling mistakes, minor formatting issues etc., plea
 
 For larger changes, including re-writing parts of a page, adding new pages, contributing cookbooks etc. please do the following:
 
-- If you are a Galileo employee, raise a ticket in shortcut. Reach out on the #documentation channel in Slack if you need help
+- If you are a Galileo employee, raise a ticket in shortcut with the **team** set to `devrel`, **workflow** set to `engineering`, and **area** set to `docs`. Reach out on the #documentation channel in Slack if you need help
 - For everyone else, raise an [issue](https://github.com/rungalileo/docs-official/issues). This way we can work with you to discuss the change before you submit a PR.
 
 > If you raise a large PR without a corresponding ticket, it will be closed.
