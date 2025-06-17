@@ -1,0 +1,31 @@
+```python Python
+import os
+import asyncio
+import openai
+from dotenv import load_dotenv
+
+load_dotenv()
+
+client = openai.AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+async def prompt_open_ai(prompt: str) -> str:
+    response = await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return response.choices[0].message.content.strip()
+
+async def main():
+    # Create a logger instance
+    logger = GalileoLogger()
+    
+    # Start a new trace
+    logger.start_trace("Newton's First Law Trace")
+
+    prompt = "Explain the following topic succinctly: Newton's First Law"
+    response = await prompt_open_ai(prompt)
+    print(response)
+
+    logger.conclude(output=response)
+    logger.flush()
+```

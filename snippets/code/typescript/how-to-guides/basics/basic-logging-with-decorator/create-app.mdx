@@ -1,0 +1,23 @@
+```typescript TypeScript
+import { OpenAI } from "openai";
+import dotenv from "dotenv";
+dotenv.config();
+
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY 
+});
+
+const prompt = "Explain the following topic succinctly: Newton's First Law";
+
+async function promptOpenAI(prompt: string) {
+    const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ content: prompt, role: "user" }],
+    });
+    return response.choices[0].message.content;
+}
+
+const response = await promptOpenAI(prompt);
+
+console.log(response);
+```

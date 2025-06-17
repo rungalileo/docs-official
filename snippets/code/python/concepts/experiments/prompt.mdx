@@ -11,8 +11,12 @@ prompt_template = create_prompt_template(
 	name="geography-prompt",
 	project=project,
 	messages=[
-		Message(role=MessageRole.system, content="You are a geography expert. Respond with only the continent name."),
-		Message(role=MessageRole.user, content=f"{input['input']}")
+		Message(role=MessageRole.system, 
+				content="""
+				You are a geography expert.
+				Respond with only the continent name.
+				"""),
+		Message(role=MessageRole.user, content="{{input}}")
 	]
 )
 
@@ -27,7 +31,8 @@ results = run_experiment(
 	# Optional
 	prompt_settings={
 		"max_tokens": 256,
-		"model_alias": "GPT-4o", # Make sure you have an integration set up for the model alias you're using
+		# Make sure you have an integration set up for the model alias you're using
+		"model_alias": "GPT-4o",
 		"temperature": 0.8
 	},
 	metrics=["correctness"],

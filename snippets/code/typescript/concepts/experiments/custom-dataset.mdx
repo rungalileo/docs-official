@@ -4,14 +4,21 @@ import { OpenAI } from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const dataset = [{ country: "Spain" }];
+const dataset = [{ input: "Spain" }];
 
 const runner = async (input: any) => {
   const result = await openai.chat.completions.create({
     model: "gpt-4",
     messages: [
-      { role: "system", content: "You are a geography expert" },
-      { role: "user", content: `Which continent does the following country belong to: ${input["country"]}` },
+      { 
+        role: "system",
+        content: "You are a geography expert"
+      },
+      {
+        role: "user",
+        content: `Which continent does the following country belong to:
+        ${input.input}`
+      },
     ],
   });
   return result;

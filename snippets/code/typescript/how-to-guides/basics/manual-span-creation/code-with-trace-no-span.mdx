@@ -1,0 +1,34 @@
+```typescript TypeScript
+import { OpenAI } from "openai";
+import dotenv from "dotenv";
+import { GalileoLogger } from "galileo";
+
+dotenv.config();
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
+
+const prompt = "Explain the following topic succinctly: Newton's First Law";
+
+async function promptOpenAI(prompt: string, logger: GalileoLogger) {
+    const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ content: prompt, role: "user" }],
+    });
+
+    return response.choices[0].message.content;
+}
+
+// Create a logger instance
+const logger = new GalileoLogger();
+// Start a new trace
+logger.startTrace({ input: "Newton's First Law Trace" });
+
+const response = await promptOpenAI(prompt, logger);
+
+console.log(response);
+
+logger.conclude({ output: response });
+logger.flush();
+```

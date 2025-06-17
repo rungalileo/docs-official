@@ -1,0 +1,14 @@
+```typescript TypeScript
+logger.addLlmSpan({
+    input: prompt,
+    output: response.choices[0].message.content,
+    model: "gpt-4o-mini",
+    name: "OpenAI GPT-4o-mini response",
+    // Add details about the tokens
+    numInputTokens: response.usage?.prompt_tokens,
+    numOutputTokens: response.usage?.completion_tokens,
+    totalTokens: response.usage?.total_tokens,
+    // Add the duration
+    durationNs: Number(durationNs),
+});
+```
