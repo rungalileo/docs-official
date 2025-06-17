@@ -8,7 +8,35 @@ icon: "python"
 
 To integrate OpenTelemetry (OTEL) tracing with Galileo you need the following dependencies:
 
+`pip install galileo`
 `pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation`
+
+## Quickstart
+
+You can configure OpenTelemetry to export spans to Galileo with a single function call.
+
+```python
+import os
+from galileo.otel import enable_tracing
+
+os.environ["GALILEO_API_KEY"] = "YOUR_API_KEY"
+
+enable_tracing(
+    project_name="YOUR_PROJECT_NAME", # Or via env ``GALILEO_PROJECT``
+    log_stream="YOUR_LOG_STREAM_NAME",       # Or via env ``GALILEO_LOG_STREAM``
+)
+```
+
+The `enable_tracing` function automatically discovers and instruments popular libraries like OpenAI, LangChain, LlamaIndex, and more.
+
+The function has the following parameters:
+
+- **`api_key`**: Your Galileo API key. If not provided, it falls back to the `GALILEO_API_KEY` environment variable.
+- **`project_name`**: The name of your Galileo project. Falls back to `GALILEO_PROJECT`.
+- **`log_stream`**: The name of the run or log stream in Galileo. Falls back to `GALILEO_LOG_STREAM`.
+- **`session_id`**: An optional unique identifier for a session. Associates all traces with this session. Can be a string or a `uuid.uuid4` object. Falls back to `GALILEO_SESSION_ID`.
+- **`console_url`**: The full URL of the Galileo console. Only needs to be set for self-hosted environments.
+- **`auto_instrument`**: If `True` (default), it automatically instruments supported libraries.
 
 ---
 
@@ -17,7 +45,7 @@ To integrate OpenTelemetry (OTEL) tracing with Galileo you need the following de
 1. [Generate an API key](https://app.galileo.ai/settings/api-keys) from your Galileo account.
 2. Copy your **project name** and **log stream name** from the Galileo console.
 
-Set the authentication headers in your environment:
+You can also set the authentication headers in your environment instead of using `enable_tracing`:
 
 ```python
 import os
@@ -33,7 +61,7 @@ os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS'] = ",".join([f"{k}={v}" for k, v 
 
 Once the headers are set, we can initialize the OTEL logging.
 
-## Python OpenTelemetry setup
+## Python OpenTelemetry setup (manually)
 
 Finally we can setup the OTEL logging to send traces to Galileo. Set the endpoint to your Galileo API.
 Place this setup at the top of your script, before initializing your LLM or pipeline framework:
@@ -191,7 +219,7 @@ If your console URL is `https://console.your_cluster_url.com`, the endpoint beco
 
 ---
 
-### How do I verify it’s working?
+### How do I verify it's working?
 
 - Use `ConsoleSpanExporter` to see local trace output.
 - Check the Galileo dashboard for incoming traces.
