@@ -3,7 +3,9 @@ title: Luna 2
 description: Discover Galileo's Luna 2 Evaluation model, reducing the latency and cost for metric evaluations
 ---
 
-**Luna 2** is the latest generation of the Galileo **Small Language Model (SLM)** that has been fine tuned to provide low latency and reduced costs for metric evaluations. Luna is designed to be further fine tuned for your specific use cases and custom metrics.
+**Luna 2** is the latest generation Galileo **Evaluation Foundation Model**, a small language model (SLM) that has been fine tuned to provide low latency and reduced costs for metric evaluations. Luna is designed to be further fine tuned for your specific use cases and custom metrics.
+
+Luna-based metrics offer highly accurate and efficient evaluations for generative AI applications, particularly those with agentic workflows.
 
 <Note>
 Luna is only available in the Enterprise tier of Galileo. [Contact us](https://galileo.ai/contact-sales) to learn more and get started.
@@ -20,7 +22,7 @@ Luna is only available in the Enterprise tier of Galileo. [Contact us](https://g
 
 ## Overview
 
-LLMs are powerful judges for evaluations, but as your application scales up to from tens or hundreds of traces a day to thousands or millions, they can fall short.
+LLMs are powerful judges for evaluations, but as your application scales up to from tens or hundreds of traces a day, to thousands or millions, they can fall short.
 
 - LLMs are expensive
 - LLMs don't provide the performance needed, especially for realtime guardrails
@@ -42,6 +44,34 @@ The Luna 2 model works with most of the [out of the box metrics](/concepts/metri
 | GPT 4o               | $2.50         | 0.94                | 3,200ms       | 128k       |
 | GPT 4o mini          | $0.02         | 0.90                | 2,600ms       | 128k       |
 | Azure Content Safety | $1.52         | 0.62                | 312ms         | 3k         |
+
+## Technical details
+
+Galileo's Luna metrics utilize fine-tuned Llama models (3B and 8B variants) for binary classification (True/False) in evaluating generative AI metrics. The technical process involves:
+
+- **Fine-Tuning:** Base Llama models are fine-tuned with proprietary data for specific metric needs.
+- **Classification:** Models output normalized log-probabilities of True/False tokens to determine metric accuracy.
+- **Optimized Infrastructure:** Metrics are hosted on Galileo's optimized inference engine with modern GPU hardware for low-latency and cost-effective evaluations. You can also self host on-prem or on your cloud infrastructure.
+- **Adapters for Custom Metrics:** Lightweight adapters on a shared base model enhance scalability and minimize infrastructure overhead for additional metrics.
+
+By leveraging fine-tuned Llama models, Luna metrics provide significant enhancements over traditional methods:
+
+- **Adaptability:** These models are most effective when fine tuned, requiring approximately 4,000 samples for fine-tuning to customer-specific use cases.
+- **Efficiency and Cost-Effectiveness:** Luns 2 models enable simultaneous evaluation of multiple metrics with low latency and reduced costs, ideal for real-time, high-scale deployments.
+- **Enhanced Accuracy:** Luna 2 demonstrates at least a 10% accuracy increase compared to traditional BERT-based models, perfect for precise monitoring in production environments.
+
+## Get started with Luna 2
+
+If you are using the enterprise tier of Galileo, follow these steps to use Galileo's Luna-based metrics:
+
+1. [Contact Galileo's customer support or account management](https://galileo.ai/contact-sales) to begin onboarding.
+1. If you are using a Galileo-hosted instance, request L4 GPUs or higher, necessary for running Luna models. Otherwise you can deploy to your own infrastructure, using L4 or higher GPUs.
+1. Review the provided documentation and model cards for details on latency, accuracy, and comparisons to BERT-based metrics.
+1. Provide Galileo with relevant labelled sample data to fine tune the model. We can augment this with synthetic data if needed.
+1. Galileo will fine tune your model for you, and deploy it.
+1. Set up your experiments and log streams to use [Luna-based metrics](/concepts/metrics/metrics-reference#luna-metrics).
+
+This is not a one-shot process. Your model can be tuned on a regular basis as required.
 
 ## Next steps
 
