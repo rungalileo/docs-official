@@ -77,9 +77,11 @@ When you raise a pull request, there is a template to fill in. Add the following
 
     Make sure your images or videos are appropriately sized. Prefer `jpg` or `webp` formats over `png` to reduce the file size. For animated GIFs, use as low a size and frame rate as possible. For larger videos, host these on YouTube and embed.
 
-  - **I have reviewed any spelling mistakes highlighted by the checks**
+  - **All checks have passed**
 
-    There is a Mintlify spell checker. It can be very overzealous with technical terms, but it is helpful to catch spelling mistakes in your changes. You can see these highlighted against your changes in the **Files Changed** tab of the PR
+    There are a number of built in checks, and these must all pass before a PR can be merged.
+
+    For the spelling check, if you are sure that the word that is being picked up is correct, you can add it to the [accept.txt](/.vale/styles/config/vocabularies/Galileo-Vocab/accept.txt) file. Please add words in alphabetical order. This list is case sensitive, so if you want to support different capitalizations, such as word and Word, then use the `[W,w]ord` syntax.
 
   - **I have reviewed broken links either from the checks, or by running `mint broken-links` and I haven't introduced any new broken links**
 
@@ -288,4 +290,3 @@ When creating new pages, do the following:
 - When creating code blocks, use the correct type (e.g. `python`, `typescript`, `bash`, `json`). If this is code or a terminal command, ensure that it can be copied and run, and contains no extra output or terminal indicators.
 - When using code blocks, Mintlify has space for about 85 columns before it scrolls. Keep lines below this to make all the text visible on screen without the reader having to continuously scroll.
 - Always use links to the root of the repo, never using the docs URL. Although relative links do work, the broken link detector will flag them.
-
