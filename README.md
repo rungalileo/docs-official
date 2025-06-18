@@ -31,3 +31,25 @@ Before pushing a change, check for broken links using:
 ```bash
 mint broken-links
 ```
+
+## Check spellings
+
+This repo is set up to use Vale to check spellings. To use it, first [install Vale](https://vale.sh/docs/install):
+
+```bash
+brew install vale
+```
+
+Then install MDX2VAST:
+
+```bash
+npm install -g mdx2vast
+```
+
+Then you can check spelling using:
+
+```bash
+vale . --glob='!{sdk-api/**/reference/**/*.*}'
+```
+
+This command ignores the generated SDK code.

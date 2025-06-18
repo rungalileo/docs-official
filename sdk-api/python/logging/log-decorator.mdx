@@ -69,7 +69,7 @@ def my_tool_function(input="tool call input"):
 ### Span Type Descriptions
 
 - **Workflow**: A span that can have child spans, useful for nesting several child spans to denote a thread within a trace. If you add the `@log` decorator to a parent method, calls that are made within that scope are automatically logged in the same trace.
-- **Llm**: Captures the input, output, and settings of an LLM call. This span gets automatically created when our client library wrappers (OpenAI) are used. Cannot have nested children.
+- **LLM**: Captures the input, output, and settings of an LLM call. This span gets automatically created when our client library wrappers (OpenAI) are used. Cannot have nested children.
 - **Retriever**: Contains the output documents of a retrieval operation. Useful for tracking what documents were retrieved in RAG applications.
 - **Tool**: Captures the input and output of a tool call. Used to decorate functions that are invoked as tools in agent-based systems.
 
@@ -122,10 +122,10 @@ def my_function(input):
 
 Use the `params` parameter to add or overwrite the span's fields' values. Every span type has the fields `name`, `input`, `metadata` and `tags`, and in addition:
 
-- llm spans have the extra fields `model`, `temperature` and `tools`.
+- LLM spans have the extra fields `model`, `temperature` and `tools`.
 - tool spans has the extra field `tool_call_id`.
 
-Here is an example on how to add metadata and tags to an llm span:
+Here is an example on how to add metadata and tags to an LLM span:
 
 ```python
 @log(span_type="llm", params={"metadata": "meta", "tags": "tag"})
@@ -183,5 +183,5 @@ for num in generate_numbers(5):
 
 - [GalileoLogger](/sdk-api/python/logging/galileo-logger) - For more manual control over logging
 - [OpenAI Wrapper](/sdk-api/python/wrappers/openai) - For automatic logging of OpenAI calls
-- [Langchain Integration](/sdk-api/python/wrappers/langchain) - For logging Langchain workflows
-- [galileo_context](/sdk-api/python/logging/galileo-context) - For managing trace context and automatic flushing
+- [LangChain Integration](/sdk-api/python/wrappers/langchain) - For logging LangChain workflows
+- [`galileo_context`](/sdk-api/python/logging/galileo-context) - For managing trace context and automatic flushing
