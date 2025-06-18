@@ -36,7 +36,9 @@ The Luna 2 model mitigates these issues:
 
 The Luna 2 model works with most of the [out of the box metrics](/concepts/metrics/metrics-reference#luna-metrics), or your [LLM as a judge custom metrics](http://localhost:3000/concepts/metrics/custom-metrics/custom-metrics-ui-llm).
 
-## Performance and Cost Comparison
+## Performance and cost comparison
+
+### Comparison with different LLMs and content safety tools
 
 | Model                | Cost/1M token | Accuracy (F1 score) | Latency (avg) | Max tokens |
 | :------------------- | ------------: | ------------------: | ------------: | ---------: |
@@ -44,6 +46,35 @@ The Luna 2 model works with most of the [out of the box metrics](/concepts/metri
 | GPT 4o               | $2.50         | 0.94                | 3,200ms       | 128k       |
 | GPT 4o mini          | $0.02         | 0.90                | 2,600ms       | 128k       |
 | Azure Content Safety | $1.52         | 0.62                | 312ms         | 3k         |
+
+### Latency vs compute requirements
+
+These are the measured latencies for Luna 2 across a range of GPUs for different sized requests.
+
+#### L4 GPU
+
+| Model   | Small (500 tokens) | Medium (2K tokens) | Large (15K tokens) | Extra Large (100K tokens) |
+| :------ | -----------------: | -----------------: | -----------------: | ------------------------: |
+| Luna 3B | 63ms               | 249ms              | 4.1s               | 154s                      |
+| Luna 8B | 150ms              | 580ms              | 10.3s              | 163s                      |
+
+#### L40S GPU
+
+| Model   | Small (500 tokens) | Medium (2K tokens) | Large (15K tokens) | Extra Large (100K tokens) |
+| :------ | -----------------: | -----------------: | -----------------: | ------------------------: |
+| Luna 3B | 14ms               | 47ms               | 564ms              | 17.2s                     |
+| Luna 8B | 31ms               | 115ms              | 1.06s              | 29s                       |
+
+#### A100 GPU
+
+| Model   | Small (500 tokens) | Medium (2K tokens) | Large (15K tokens) | Extra Large (100K tokens) |
+| :------ | -----------------: | -----------------: | -----------------: | ------------------------: |
+| Luna 3B | 19ms               | 60ms               | 601ms              | 12.5s                     |
+| Luna 8B | 36ms               | 138ms              | 1.24s              | 21.2s                     |
+
+<Note>
+The actual latencies can vary a lot based upon the load on the system (Eg: QPS). This can be managed with more GPUs, but the cost will increase.
+</Note>
 
 ## Technical details
 
