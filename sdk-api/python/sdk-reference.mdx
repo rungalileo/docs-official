@@ -11,7 +11,7 @@ import SnippetGalileoLogger from "/snippets/code/python/sdk/manual/galileo-logge
 import SnippetDatasetsBasic from "/snippets/code/python/sdk/datasets/datasets-basic.mdx";
 import SnippetPromptsBasic from "/snippets/code/python/sdk/prompts/prompts-basic.mdx";
 import SnippetExperimentsBasic from "/snippets/code/python/sdk/experiments/experiments-basic.mdx";
-import SnippetLangchainBasic from "/snippets/code/python/sdk/wrappers/langchain.mdx";
+import SnippetLangChainBasic from "/snippets/code/python/sdk/wrappers/langchain.mdx";
 
 ## Introduction
 
@@ -41,7 +41,7 @@ The simplest way to get started is to use our OpenAI client wrapper:
   <SnippetOpenAIBasic />
 </CodeGroup>
 
-### @log Decorator
+### `@log` Decorator
 
 The `@log` decorator allows you to capture function inputs and outputs as spans:
 
@@ -49,7 +49,7 @@ The `@log` decorator allows you to capture function inputs and outputs as spans:
   <SnippetLogDecoratorBasic />
 </CodeGroup>
 
-### galileo_context
+### `galileo_context`
 
 The `galileo_context` context manager provides control over trace context:
 
@@ -57,7 +57,7 @@ The `galileo_context` context manager provides control over trace context:
   <SnippetContextBasic />
 </CodeGroup>
 
-### GalileoLogger
+### `GalileoLogger`
 
 For more manual control over logging:
 
@@ -94,26 +94,26 @@ For running experiments:
 For integrating with LangChain:
 
 <CodeGroup>
-  <SnippetLangchainBasic />
+  <SnippetLangChainBasic />
 </CodeGroup>
 
 ## API Reference
 
-### galileo.openai
+### `galileo.openai`
 
 - `openai.OpenAI`: A wrapped version of the OpenAI client that automatically logs all API calls.
 
-### galileo.log
+### `galileo.log`
 
 - `@log`: A decorator for capturing function inputs and outputs as spans.
   - Parameters:
-    - `span_type`: The type of span to create ("workflow", "llm", "retriever", "tool").
+    - `span_type`: The type of span to create (`"workflow"`, `"llm"`, `"retriever"`, `"tool"`).
     - `name`: A custom name for the span.
     - `project`: The project to log to.
     - `log_stream`: The log stream to log to.
     - `params`: Additional parameters to include in the span.
 
-### galileo.galileo_context
+### `galileo.galileo_context`
 
 - `galileo_context`: A context manager for controlling logging behavior.
   - Parameters:
@@ -123,7 +123,7 @@ For integrating with LangChain:
     - `init(project, log_stream)`: Initialize the context.
     - `flush()`: Flush all traces to Galileo.
 
-### galileo.GalileoLogger
+### `galileo.GalileoLogger`
 
 - `GalileoLogger`: A class for manual control over logging.
   - Parameters:
@@ -138,26 +138,26 @@ For integrating with LangChain:
     - `conclude(output, duration_ns, status_code, conclude_all)`: Conclude the trace.
     - `flush()`: Flush the trace to Galileo.
 
-### galileo.datasets
+### `galileo.datasets`
 
 - `create_dataset(name, content)`: Create a new dataset.
 - `get_dataset(name, id)`: Get an existing dataset.
 - `list_datasets(limit)`: List all available datasets.
 - `delete_dataset(name, id)`: Delete a dataset.
 
-### galileo.prompts
+### `galileo.prompts`
 
 - `create_prompt_template(name, project, messages)`: Create a new prompt template.
 - `get_prompt_template(project, name)`: Get an existing prompt template.
 
-### galileo.experiments
+### `galileo.experiments`
 
 - `run_experiment(name, dataset, prompt, metrics, project)`: Run an experiment.
 - `create_experiment(project_id, experiment_name)`: Create a new experiment.
 - `get_experiment(project_id, experiment_name)`: Get an existing experiment.
 - `get_experiments(project_id)`: List all experiments in a project.
 
-### galileo.handlers.langchain
+### `galileo.handlers.langchain`
 
 - `GalileoCallback`: A callback handler for LangChain.
   - Parameters:
