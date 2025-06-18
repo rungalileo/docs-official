@@ -1,0 +1,25 @@
+name: Check Spellings with Vale
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+      - "release/**"
+
+jobs:
+  vale:
+    name: runner / vale
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 23
+      - run: npm install -g mdx2vast
+      - uses: errata-ai/vale-action@v2.1.1
+        with:
+          vale_flags: "--glob=!{sdk-api/**/reference/**/*.*}"
+          fail_on_error: true
+          # Uncomment the following lines when running locally with act
+          # reporter: local
+          # filter_mode: nofilter
