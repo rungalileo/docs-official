@@ -1,0 +1,139 @@
+---
+title: GalileoContext vs GalileoLogger vs @log Decorator
+sidebarTitle: Logging Methods
+description: Understand the difference between Galileo's SDK logging tools
+---
+
+import SnippetPythonGalileoLogger from "/snippets/code/python/concepts/logging/traces/galileo-logger.mdx";
+import SnippetTSGalileoLogger from "/snippets/code/typescript/concepts/logging/traces/galileo-logger.mdx";
+import LogDecoratorPy from "/snippets/code/python/sdk/decorators/log-decorator-span-types.mdx"
+import LogDecoratorTs from "/snippets/code/typescript/sdk/logging/log-wrapper-span-types.mdx"
+
+## Introduction
+
+When building a Generative AI application, understanding its behavior—what data is processed, where errors occur, and how long responses take—is crucial. Galileo provides three primary ways to log data from your AI applications:
+
+- `galileo_context` for simple, session-based logging
+- `GalileoLogger` class for flexible control
+- `@log` decorator for granular, function-level logging
+
+Each method is best suited for specific scenarios. This guide compares these approaches and offers guidance on when to use each one. If you're in a hurry, you can jump right to the [summary here](#when-to-use-each-method).
+
+
+## `galileo_context`
+
+The `galileo_context` context manager provides an easy way to control logging for a block of code. It is only available in the [Python SDK](/sdk-api/python/logging/galileo-context), and allows you to start logging quickly while handling details like creating traces or saving events to the Galileo Console for you. 
+
+### Example
+
+In the illustration below, all events captured within the `with` scope are bundled into a single [logging session](/concepts/logging/sessions/sessions-overview), and the data is sent to Galileo Console when the scope is done executing. You can see more detailed examples [here](/sdk-api/python/logging/galileo-context)
+
+```python Python
+from galileo import galileo_context
+
+# You can specify a different project name and/or log stream for the events.
+with galileo_context(project="my-project", log_stream="chat-stream"):
+    
+    # For simplicity, assume "llm_call" is defined elsewhere.
+    result = llm_call()  
+```
+
+It can also be used to access a managed `GalileoLogger` instance:
+
+```python Python
+from galileo import galileo_context
+
+# You can specify a different project name and/or log stream for the events.
+logger = galileo_context.get_logger_instance()
+ 
+# logger.add_trace() ...
+```
+
+### When to use galileo_context
+
+The Galileo Context manager is great when your logic is contained in a single block of code, or you are using the Python SDK and want to quickly get started logging. However, it cannot be used in TypeScript projects.
+
+
+
+## `GalileoLogger`
+
+The `GalileoLogger` class gives you more flexible control over logging, and is available in both the 
+[Python](/sdk-api/python/logging/galileo-logger) and [TypeScript](/sdk-api/typescript/logging/galileo-logger) SDKs. It lets you decide when your logging session starts or ends, and to create spans and traces manually within your logging session. `GalileoLogger` supports various span types (LLM, retriever, tool, workflow, agent), as well as [logging session management](/concepts/logging/sessions/using-sessions#steps).
+
+### Example
+
+The example below shows how to 
+
+1. Create a `GalileoLogger` instance
+1. Manually create a `Trace` for your application events
+1. Add `Spans` to the Trace, and 
+1. Both conclude and flush the logs. 
+
+<CodeGroup>
+  <SnippetPythonGalileoLogger />
+  <SnippetTSGalileoLogger />
+</CodeGroup>
+
+### When to use GalileoLogger
+
+This approach is ideal for complex applications that require fine-grained logging control, or where your app logic is spread around different functions: just create the `logger` instance and pass it around to the parts of your app that will generate (or manually create) traces or spans. 
+
+
+## @log Decorator
+
+The `@log` decorator ([Python](/sdk-api/python/logging/log-decorator), [TypeScript](/sdk-api/typescript/logging/log-function-wrapper)) provides a simple way to log individual functions, capturing their inputs and outputs as spans. It is the most granular approach to capturing events in your application, and can even support generator functions. 
+
+<Note>The `log` function is not an annotation in the TypeScript SDK. See the [documentation](/sdk-api/typescript/logging/log-function-wrapper) for more info.</Note>
+
+### Example
+
+You can decorate any function you want to log, offering flexibility and control. The `@log` decorator also supports different Span types:
+
+<CodeGroup>
+  <LogDecoratorPy />
+  <LogDecoratorTs />
+</CodeGroup>
+
+
+### When to use the Log function
+
+`@log` is great for when you want to define what [Spans](/concepts/logging/spans) you would like to see in your logs (e.g. an LLM response, or a call to a helper function). It works best for functions that represent meaningful work units. Note that, if your application has a lot of units to be manually logged, this approach will require a little more work than the others. 
+
+
+
+## When to Use Each Method
+
+| Method             | Use When...                                                                                                          |
+|:--------------------|:----------------------------------------------------------------------------------------------------------------------|
+| `galileo_context`  | You are using the Python SDK, want to log events with minimal code, and your logic is in a single block              |
+| `GalileoLogger`    | You need more flexible control over your logging session, and/or your application logic depends on more than one file |
+| `@log` decorator   | You want to capture individual function calls within your logging session, and/or combine them into custom workflows |
+
+## Conclusion
+
+Each Galileo logging method helps you capture your application's activity, but the right choice depends on your needs:
+
+- Use `galileo_context` to start logging with minimal effort
+- Use `GalileoLogger` when you need more control over every detail
+- Use `@log` for even more granular control in tracking function calls
+
+You can also combine these methods for even more flexibility.
+
+## Next Steps
+
+Learn more about:
+
+- [Spans](/concepts/logging/spans) — the smallest units that make up your application logs
+- [Traces](/concepts/logging/traces) — how to create and use traces
+- [Sessions](/concepts/logging/sessions/sessions-overview) — logging sessions and how to use them
+
+## Related Resources
+
+- [Galileo Context](/sdk-api/python/logging/galileo-context)
+- `GalileoLogger` class:
+  - [Python SDK](/sdk-api/python/logging/galileo-logger)
+  - [TypeScript SDK](/sdk-api/typescript/logging/galileo-logger)
+- `@log` Decorator:
+  - [Python SDK](/sdk-api/python/logging/log-decorator)
+  - [TypeScript SDK](/sdk-api/typescript/logging/log-function-wrapper)
+

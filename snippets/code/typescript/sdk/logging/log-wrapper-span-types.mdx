@@ -1,0 +1,33 @@
+```typescript TypeScript
+import { log } from galileo 
+
+/**
+ * `log` returns a wrapped function. When you call the wrapped function,
+ * its inputs and output will be captured in a Span.
+ */
+
+// Create a workflow span (default)
+const myWorkflowFunction = log({ name: "My Workflow" }, (_input: unknown) => {
+    // This can contain multiple steps and child spans
+    return result
+})
+
+// Create an LLM span
+const myLlmFunction = log({spanType: "llm" }, (_input: unknown) => {
+    // This should be for direct LLM calls
+    return result 
+})
+
+// Create a retriever span
+const myRetrieverFunction = log({spanType: "retriever" }, (_query: unknown) => {
+    // For functions that retrieve documents
+    // If the output is an array, it will be captured as documents
+    return ["doc1", "doc2"]
+})
+
+// Create a tool span
+const myToolFunction = log({spanType: "tool" }, (input="tool call input") => {
+    // For functions that act as tools in an agent system
+    return "tool call output"
+})
+```

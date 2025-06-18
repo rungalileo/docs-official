@@ -3,6 +3,8 @@ title: "@log Decorator"
 description: "Easily capture function inputs and outputs as spans in your traces"
 ---
 
+import LogDecoratorSpanTypesPy from "/snippets/code/python/sdk/decorators/log-decorator-span-types.mdx"
+
 The `@log` decorator provides a simple way to capture the inputs and outputs of a function as a span within a trace. This is particularly useful for tracking the execution of your AI application without having to manually create and manage spans.
 
 ## Overview
@@ -37,34 +39,7 @@ response = my_function("Some input text")
 
 By default, the `@log` decorator creates a workflow span, but you can specify different span types depending on what your function does:
 
-```python
-from galileo import log
-
-# Create a workflow span (default)
-@log
-def my_workflow_function(input):
-    # This can contain multiple steps and child spans
-    return result
-
-# Create an LLM span
-@log(span_type="llm")
-def my_llm_function(input):
-    # This should be for direct LLM calls
-    return result
-
-# Create a retriever span
-@log(span_type="retriever")
-def my_retriever_function(query):
-    # For functions that retrieve documents
-    # If the output is an array, it will be captured as documents
-    return ["doc1", "doc2"]
-
-# Create a tool span
-@log(span_type="tool")
-def my_tool_function(input="tool call input"):
-    # For functions that act as tools in an agent system
-    return "tool call output"
-```
+<LogDecoratorSpanTypesPy />
 
 ### Span Type Descriptions
 
