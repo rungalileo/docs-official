@@ -1,6 +1,6 @@
 ---
 title: "Logging using OpenTelemetry and OpenInference"
-description: "This guide explains how to send OpenTelemetry (OTEL) traces to Galileo using OpenInference. Configure the endpoint and headers to get started quickly."
+description: "This guide explains how to send OpenTelemetry (OTel) traces to Galileo using OpenInference. Configure the endpoint and headers to get started quickly."
 tag: Python
 ---
 
@@ -55,10 +55,10 @@ from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExport
 from opentelemetry.sdk.trace.export import ConsoleSpanExporter
 from openinference.instrumentation.langchain import LangChainInstrumentor
 
-# OTEL exporter endpoint
+# OTel exporter endpoint
 endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
 
-# Configure OTEL tracer provider
+# Configure OTel tracer provider
 tracer_provider = trace_sdk.TracerProvider()
 
 # Sends traces to Galileo
@@ -86,9 +86,9 @@ Check out a complete working example on Colab:
 
 ## Summary
 
-To enable OTEL logging with Galileo:
+To enable OTel logging with Galileo:
 
-1. Set the OTEL headers using your API key, project name, and log stream name.
+1. Set the OTel headers using your API key, project name, and log stream name.
 2. Set the exporter endpoint: `https://app.galileo.ai/api/galileo/otel/traces`
 3. Register your tracer provider and processors.
 4. Import and apply the OpenInference instrumentor(s) before initializing your application.
@@ -103,7 +103,7 @@ These can be used individually or in combination, depending on your framework:
 - [LLama Index](https://pypi.org/project/openinference-instrumentation-llama-index/)
 - [DSPy](https://pypi.org/project/openinference-instrumentation-dspy/)
 - [Bedrock](https://pypi.org/project/openinference-instrumentation-bedrock/)
-- [Langchain](https://pypi.org/project/openinference-instrumentation-langchain/)
+- [LangChain](https://pypi.org/project/openinference-instrumentation-langchain/)
 - [Mistral](https://pypi.org/project/openinference-instrumentation-mistralai/)
 - [Guardrails](https://pypi.org/project/openinference-instrumentation-guardrails/)
 - [Vertex AI](https://pypi.org/project/openinference-instrumentation-vertexai/)
@@ -186,7 +186,7 @@ client = instructor.from_openai(OpenAI())
 
 ---
 
-### What is the correct OTEL endpoint?
+### What is the correct OTel endpoint?
 
 Use the Galileo API base URL with the `/otel/traces` path:
 
@@ -235,13 +235,13 @@ with tracer.start_as_current_span("test-span"):
 
 ## Notebooks
 
-🔗 [Anthropic + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Anthropic_Notebook.ipynb)
-🔗 [Crew AI + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Crew_AI_Notebook.ipynb)
-🔗 [DSPY + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_DSPY_Notebook.ipynb)
-🔗 [Groq + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_GROQ_Notebook.ipynb)
-🔗 [LLamaIndex + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_LLama_Index_Notebook.ipynb)
-🔗 [LangChain + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_LangChain_Notebook.ipynb)
-🔗 [LiteLLM + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_LiteLLM_Notebook.ipynb)
-🔗 [Mistral + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Mistral_Notebook.ipynb)
-🔗 [OpenAI + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_OpenAI_Notebook.ipynb)
-🔗 [Vertexai + Galileo + Otel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Vertexai_Notebook.ipynb)
+🔗 [Anthropic + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Anthropic_Notebook.ipynb)
+🔗 [Crew AI + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Crew_AI_Notebook.ipynb)
+🔗 [DSPy + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_DSPY_Notebook.ipynb)
+🔗 [Groq + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_GROQ_Notebook.ipynb)
+🔗 [LLamaIndex + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_LLama_Index_Notebook.ipynb)
+🔗 [LangChain + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_LangChain_Notebook.ipynb)
+🔗 [LiteLLM + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_LiteLLM_Notebook.ipynb)
+🔗 [Mistral + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Mistral_Notebook.ipynb)
+🔗 [OpenAI + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_OpenAI_Notebook.ipynb)
+🔗 [Vertex AI + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Vertexai_Notebook.ipynb)
