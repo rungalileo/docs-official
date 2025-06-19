@@ -51,14 +51,16 @@ logger = galileo_context.get_logger_instance()
 
 ### When to use `galileo_context`
 
-The Galileo Context manager is great when your logic is contained in a single block of code, or you are using the Python SDK and want to quickly get started logging. However, it cannot be used in TypeScript projects.
+The Galileo Context manager is great when your logic is contained in a single block of code, or you are using the Python SDK and want to quickly get started logging. It is also ideal for experimenting in Python Notebooks (e.g. Jupyter). However, it cannot be used in TypeScript projects.
 
 
 
 ## `GalileoLogger`
 
 The `GalileoLogger` class gives you more flexible control over logging, and is available in both the 
-[Python](/sdk-api/python/logging/galileo-logger) and [TypeScript](/sdk-api/typescript/logging/galileo-logger) SDKs. It lets you decide when your logging session starts or ends, and to create spans and traces manually within your logging session. `GalileoLogger` supports various span types (LLM, retriever, tool, workflow, agent), as well as [logging session management](/concepts/logging/sessions/using-sessions#steps).
+[Python](/sdk-api/python/logging/galileo-logger) and [TypeScript](/sdk-api/typescript/logging/galileo-logger) SDKs. It lets you decide when your logging session starts or ends, create spans and traces manually within your logging session, and send a variety of other data to Galileo console. 
+
+`GalileoLogger` supports various span types (LLM, retriever, tool, workflow, agent), as well as [logging session management](/concepts/logging/sessions/using-sessions#steps).
 
 ### Example
 
@@ -79,25 +81,24 @@ The example below shows how to
 This approach is ideal for complex applications that require fine-grained logging control, or where your app logic is spread around different functions: just create the `logger` instance and pass it around to the parts of your app that will generate (or manually create) traces or spans. 
 
 
-## @log Decorator
+## `@log` decorator or `log` function wrapper
 
-The `@log` decorator ([Python](/sdk-api/python/logging/log-decorator), [TypeScript](/sdk-api/typescript/logging/log-function-wrapper)) provides a simple way to log individual functions, capturing their inputs and outputs as spans. It is the most granular approach to capturing events in your application, and can even support generator functions. 
-
-<Note>The `log` function is not an annotation in the TypeScript SDK. See the [documentation](/sdk-api/typescript/logging/log-function-wrapper) for more info.</Note>
+The `@log` decorator ([Python](/sdk-api/python/logging/log-decorator)) or `log` function wrapper ([TypeScript](/sdk-api/typescript/logging/log-function-wrapper)) is the most granular approach to capturing events in your application. It is used to capture the inputs and outputs of individual functions&mdash;even generator functions!&mdash;in a [span](/concepts/logging/spans). 
 
 ### Example
 
-You can decorate any function you want to log, offering flexibility and control. The `@log` decorator also supports different Span types:
+You can decorate or wrap any function you want to log, and specify the type of Span you want to create. The `@log` decorator supports different Span types: if there is no current trace when your function runs, `log` will generate a single-span trace. 
 
 <CodeGroup>
   <LogDecoratorPy />
   <LogDecoratorTs />
 </CodeGroup>
 
+View the [Python](/sdk-api/python/logging/log-decorator) or [TypeScript](/sdk-api/typescript/logging/log-function-wrapper) docs for more information. 
 
 ### When to use `log`
 
-`@log` is great for when you want to define what [Spans](/concepts/logging/spans) you would like to see in your logs (e.g. an LLM response, or a call to a helper function). It works best for functions that represent meaningful work units. Note that, if your application has a lot of units to be manually logged, this approach will require a little more work than the others. 
+This approach is ideal for generating spans in your logs (e.g. an LLM response, or a call to a helper function), and is best used on functions that represent meaningful work units. Note that, if your application has a lot of units to be manually logged, this approach will require a little more work than the others. 
 
 
 
@@ -133,7 +134,7 @@ Learn more about:
 - `GalileoLogger` class:
   - [Python SDK](/sdk-api/python/logging/galileo-logger)
   - [TypeScript SDK](/sdk-api/typescript/logging/galileo-logger)
-- `@log` Decorator:
-  - [Python SDK](/sdk-api/python/logging/log-decorator)
-  - [TypeScript SDK](/sdk-api/typescript/logging/log-function-wrapper)
+- `@log` decorator and function wrapper:
+  - [Python SDK (Decorator)](/sdk-api/python/logging/log-decorator)
+  - [TypeScript SDK (Function wrapper)](/sdk-api/typescript/logging/log-function-wrapper)
 
