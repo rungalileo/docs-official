@@ -236,18 +236,22 @@ the specified project and log stream.
 #### start\_session
 
 ```python
-def start_session(name: str,
+def start_session(name: Optional[str] = None,
                   previous_session_id: Optional[str] = None,
-                  external_id: Optional[str] = None) -> None
+                  external_id: Optional[str] = None) -> str
 ```
 
 Start a session in the active context logger instance.
 
 **Arguments**:
 
-- `name`: The name of the session.
+- `name`: The name of the session. If not provided, a session name will be generated automatically.
 - `previous_session_id`: The id of the previous session. Defaults to None.
 - `external_id`: The external id of the session. Defaults to None.
+
+**Returns**:
+
+`str`: The id of the newly created session.
 
 #### clear\_session
 
@@ -257,4 +261,16 @@ def clear_session() -> None
 
 Clear the session in the active context logger instance.
 
+
+#### set\_session
+
+```python
+def set_session(session_id: str) -> None
+```
+
+Set the session in the active context logger instance. This is useful when you want to continue logging to an existing session.
+
+**Arguments**:
+
+- `session_id`: The id of the session to set.
 
