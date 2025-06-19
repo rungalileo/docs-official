@@ -3,10 +3,11 @@ from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
 from galileo.openai import openai
 
+client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 dataset = get_dataset(name="countries")
 
 def llm_call(input):
-	return openai.chat.completions.create(
+	return client.chat.completions.create(
         model="gpt-4o",
         messages=[
           {

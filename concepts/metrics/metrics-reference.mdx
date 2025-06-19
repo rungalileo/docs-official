@@ -34,7 +34,8 @@ dataset = get_dataset(name="fictional_character_names")
 
 # Define a custom "runner" function for your experiment. 
 def my_custom_llm_runner(input):
-	return openai.chat.completions.create(
+  client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+	return client.chat.completions.create(
         model="gpt-4o",
         messages=[
           { "role": "system", "content": "You are a great storyteller." },
@@ -121,7 +122,8 @@ dataset = get_dataset(name="fictional_character_names")
 
 # Define a custom "runner" function for your experiment. 
 def my_custom_llm_runner(input):
-	return openai.chat.completions.create(
+  client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+	return client.chat.completions.create(
         model="gpt-4o",
         messages=[
           { "role": "system", "content": "You are a great storyteller." },

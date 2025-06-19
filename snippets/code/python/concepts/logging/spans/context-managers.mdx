@@ -3,7 +3,8 @@ from galileo import galileo_context
 from galileo.openai import openai
 
 def openai_call():
-    response = openai.chat.completions.create(
+    client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    response = client.chat.completions.create(
             model="gpt-4o",
             messages=[{"role": "user", "content": "What is the capital of France?"}]
         )
