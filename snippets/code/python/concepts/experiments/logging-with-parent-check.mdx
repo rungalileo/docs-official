@@ -1,0 +1,25 @@
+```python Python
+def process_message(input):
+    # Get the Galileo logger instance
+    galileo_logger = galileo_context.get_logger_instance()
+
+    # If there is a current parent trace, we are in an experiment
+    # Otherwise, we start a new trace for the chat workflow
+    is_in_experiment = False
+    if not galileo_logger.current_parent():
+        galileo_logger.start_trace(
+            input=input,
+            name="Chat Workflow"
+        )
+    else:
+        is_in_experiment = True
+
+    # Your code goes here to process the input and create log spans as needed
+    # You can also pass this log to other functions, or access it in those using
+    # galileo_context.get_logger_instance()
+
+    # If we are not in an experiment, we conclude and flush the trace
+    if not is_in_experiment:
+        galileo_logger.conclude("Some output")
+        galileo_logger.flush()
+```
