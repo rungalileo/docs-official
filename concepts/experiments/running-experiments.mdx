@@ -56,11 +56,15 @@ Galileo is model-agnostic, and supports leading LLM providers including OpenAI, 
 
 ### Run Experiments Against Complex Code with Custom Functions
 
-Custom functions can be as complex as required, including multiple steps, agents, RAG, and more. This means you can build experiments around an existing application, allowing you to run experiments against the full application you have built, using datasets to mimic user inputs. For example, if you have a multi-agent LangGraph application, you can log every stage in the agentic flow as part of an experiment.
+Custom functions can be as complex as required, including multiple steps, agents, RAG, and more. This means you can build experiments around an existing application, allowing you to run experiments against the full application you have built, using datasets to mimic user inputs.
+
+For example, if you have a multi-agent LangGraph chatbot application, you can run an experiment against it using a dataset to define different user inputs, and log every stage in the agentic flow as part of that experiment.
 
 To enable this, you will need to make some small changes to your application logic to handle the logging context from the experiment.
 
-When functions in your application is run by the `run_experiment` call, a logger is created by the experiment runner, and a trace is started. This logger can be passed through the application, accessed using the `@log` decorator, or by calling `galileo_context.get_logger_instance()`. You will need to change your code to use this instead of creating a new logger and trace.
+When functions in your application are run by the `run_experiment` call, a logger is created by the experiment runner, and a trace is started. This logger can be passed through the application, accessed using the `@log` decorator or by calling `galileo_context.get_logger_instance()`.
+
+You will need to change your code to use this instead of creating a new logger and starting a new trace.
 
 #### Get an existing logger and check for an existing trace
 
@@ -71,7 +75,7 @@ The Galileo SDK maintains a context that tracks the current logger. You can get 
   <SnippetExperimentsGetLoggerTypeScript/>
 </CodeGroup>
 
-If there isn't a current logger, one will be created so this will always return a logger.
+If there isn't a current logger, one will be created by this call, so this will always return a logger.
 
 Once you have the logger, you can check for an existing trace by accessing the current parent trace from the logger. If this is not set, then there is no active trace.
 
@@ -80,12 +84,14 @@ Once you have the logger, you can check for an existing trace by accessing the c
   <SnippetExperimentsGetCurrentParentTypeScript/>
 </CodeGroup>
 
-Once you have this information, you can use it to decide to create a new trace in your application.
+Once you have this information, you can use it to decide to create a new trace in your application. If there is no parent trace, you can safely create a new one.
 
 <CodeGroup>
   <SnippetExperimentsLoggingWithParentCheckPython/>
   <SnippetExperimentsLoggingWithParentCheckTypeScript/>
 </CodeGroup>
+
+You can then safely call your code from the experiment runner as well as in your normal application logic. When called from the experiment runner, your traces will be logged to that experiment. When called from your application code, the traces will be logged as normal.
 
 #### Using LangGraph agents in an experiment
 
