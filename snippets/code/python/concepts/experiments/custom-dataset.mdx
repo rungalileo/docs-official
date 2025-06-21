@@ -1,6 +1,7 @@
 ```python Python
 from galileo.experiments import run_experiment
-from galileo import log, openai
+from galileo.openai import openai
+from galileo.schema.metrics import GalileoScorers
 
 dataset = [
   {
@@ -9,7 +10,8 @@ dataset = [
 ]
 
 def llm_call(input):
-	return openai.chat.completions.create(
+  client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+  return client.chat.completions.create(
         model="gpt-4",
         messages=[
           {
@@ -29,7 +31,7 @@ results = run_experiment(
 	"geography-experiment",
 	dataset=dataset,
 	function=llm_call,
-	metrics=["correctness"],
+	metrics=[GalileoScorers.correctness],
 	project="my-project"
 )
 ```

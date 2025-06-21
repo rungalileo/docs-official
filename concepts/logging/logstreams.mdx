@@ -252,7 +252,8 @@ logger = GalileoLogger(project="my-project", log_stream="production-app")
 
 # Any logs created will go to the specified log stream
 
-response = openai.chat.completions.create(
+client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+response = client.chat.completions.create(
 model="gpt-4o",
 messages=[{"role": "user", "content": "Tell me about AI"}]
 )

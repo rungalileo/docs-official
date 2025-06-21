@@ -1,15 +1,14 @@
 ---
 title: Metrics SDK Reference
 description: A quick lookup for integrating and interpreting metrics in your workflows.
+syncTabs: true
 ---
 
 import MetricsReferenceTable from "/snippets/content/metrics-reference-table.mdx"
 import SnippetExperimentsCustomMetricsPython from "/snippets/code/python/concepts/experiments/custom-metrics.mdx";
 import SnippetExperimentsCustomMetricsTypescript from "/snippets/code/typescript/concepts/experiments/custom-metrics.mdx";
 
-
 Galileo AI provides a set of built-in, preset metrics designed to evaluate various aspects of LLM, agent, and retrieval-based workflows. This guide provides a reference for Galileo AI's preset metrics, including and SDK slugs.
-
 
 ---
 
@@ -34,7 +33,8 @@ dataset = get_dataset(name="fictional_character_names")
 
 # Define a custom "runner" function for your experiment. 
 def my_custom_llm_runner(input):
-	return openai.chat.completions.create(
+  client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+  return client.chat.completions.create(
         model="gpt-4o",
         messages=[
           { "role": "system", "content": "You are a great storyteller." },
@@ -121,7 +121,8 @@ dataset = get_dataset(name="fictional_character_names")
 
 # Define a custom "runner" function for your experiment. 
 def my_custom_llm_runner(input):
-	return openai.chat.completions.create(
+  client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+  return client.chat.completions.create(
         model="gpt-4o",
         messages=[
           { "role": "system", "content": "You are a great storyteller." },

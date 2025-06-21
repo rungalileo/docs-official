@@ -1,0 +1,26 @@
+```typescript TypeScript
+async function processMessage(input: any) {
+  // Get the Galileo logger
+  const galileoLogger = getLogger();
+
+  // If there is a current parent trace, we are in an experiment
+  // Otherwise, we start a new trace for the chat workflow
+  const isInExperiment = galileoLogger.currentParent() !== undefined;
+  if (!isInExperiment) {
+    galileoLogger.startTrace({
+      input: input,
+      name: "Chat Workflow",
+    });
+  }
+
+  // Your code goes here to process the input and create log spans as needed
+  // You can also pass this log to other functions, or access it in those using
+  // getLogger()
+
+  // If we are not in an experiment, we conclude and flush the trace
+  if (!isInExperiment) {
+    galileoLogger.conclude("Some output");
+    galileoLogger.flush();
+  }
+};
+```

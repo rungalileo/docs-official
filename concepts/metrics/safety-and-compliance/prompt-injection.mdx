@@ -99,9 +99,42 @@ The Prompt Injection metric identifies instances of prompt injection within a mo
 </Card>
 </CardGroup>
 
-### Calculation Method
+## How it works
 
-The Prompt Injection metric is calculated using a specialized detection system:
+The results for prompt injection metrics depend on if you are using an LLM as a judge, or using Luna 2.
+
+### LLM as a judge
+
+When using an LLM as a judge, the results for prompt injection metrics are on a scale of 0% - 100%, with 0% meaning there is a 0% chance of a prompt injection in the input, and 100% meaning there is a 100% chance of a prompt injection.
+
+Along with these results will be generated reasoning describing why the score was given.
+
+![A prompt injection metric at 100% with a generated reasoning detecting the phrase ignore previous instructions](/images/concepts/metrics/prompt-injection-llm.webp)
+
+<Note>
+You may need to configure your LLM to allow prompt injection through its content filters, otherwise the LLM may block the request to evaluate the metric.
+
+For example, if you are using models running on Azure AI Foundry, you will need to create a content filter that doesn't block jailbreaks. See [the Azure content filters documentation](https://learn.microsoft.com/azure/ai-services/openai/how-to/content-filters) for more details.
+
+</Note>
+
+### Luna 2
+
+Luna 2 has a more detailed categorization feature that gives the category of the prompt injection attack, returning one of the following values if a prompt injection is detected:
+
+- `impersonation`
+- `obfuscation`
+- `simple_instruction`
+- `few_shot`
+- `new_context`
+
+Along with these results will be generated reasoning describing why the score was given.
+
+![The Luna model reporting a new context response from the prompt injection](/images/concepts/metrics/prompt-injection-luna.webp)
+
+#### Calculation Method
+
+The Luna 2 Prompt Injection metric is calculated using a specialized detection system:
 
 <Steps>
   <Step title="Model Architecture">
@@ -117,13 +150,6 @@ The Prompt Injection metric is calculated using a specialized detection system:
 
 </Step>
 </Steps>
-
-<Note>
-If you have integrated a third-party LLM to evaluate this metric, you may need to configure the LLM to allow prompt injection through its content filters, otherwise the LLM may block the request to evaluate the metric.
-
-For example, if you are using models running on Azure AI Foundry, you will need to create a content filter that doesn't block jailbreaks. See [the Azure content filters documentation](https://learn.microsoft.com/azure/ai-services/openai/how-to/content-filters) for more details.
-
-</Note>
 
 ## Optimizing Your AI System
 

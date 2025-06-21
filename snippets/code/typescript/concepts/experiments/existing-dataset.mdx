@@ -1,5 +1,5 @@
 ```typescript TypeScript
-import { getDataset, runExperiment } from "galileo";
+import { GalileoScorers, getDataset, runExperiment } from "galileo";
 import { OpenAI } from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -27,7 +27,7 @@ await runExperiment({
   name: "geography-experiment",
   dataset: dataset,
   function: runner,
-  metrics: ["correctness"],
+  metrics: [GalileoScorers.Correctness],
   projectName: "my-project",
 });
 ```

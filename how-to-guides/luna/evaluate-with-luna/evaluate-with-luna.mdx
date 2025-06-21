@@ -1,0 +1,206 @@
+---
+title: Evaluate metrics with the Luna 2 model
+description: Learn how to evaluate metrics cheaper and faster using the Luna 2 model
+syncTabs: true
+---
+
+import SnippetInstallPython from "/snippets/code/python/how-to-guides/basics/basic-example/install-packages.mdx";
+import SnippetCreateAppPython from "/snippets/code/python/how-to-guides/luna/evaluate-with-luna/create-app.mdx";
+import SnippetUpdatePromptPython from "/snippets/code/python/how-to-guides/luna/evaluate-with-luna/update-prompt.mdx";
+
+import SnippetInstallTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-example/install-packages.mdx";
+import SnippetCreateAppTypeScript from "/snippets/code/typescript/how-to-guides/luna/evaluate-with-luna/create-app.mdx";
+import SnippetUpdatePromptTypeScript from "/snippets/code/typescript/how-to-guides/luna/evaluate-with-luna/update-prompt.mdx";
+
+## Overview
+
+This guide shows you how to use Luna 2 metrics to evaluate your AI applications.
+
+You will be running a basic AI app using OpenAI as an LLM, and evaluating it for [input toxicity](/concepts/metrics/safety-and-compliance/toxicity.mdx) and [prompt injections](/concepts/metrics/safety-and-compliance/prompt-injection.mdx) using Luna 2.
+
+<Note>
+Luna is only available in the Enterprise tier of Galileo. [Contact us](https://galileo.ai/contact-sales) to learn more and get started.
+</Note>
+
+## Before you start
+
+To complete this how-to, you will need:
+
+- An [OpenAI API key](https://openai.com/api/)
+- A [Galileo project](/concepts/projects) configured to use the Luna 2 model
+- Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
+
+## Install dependencies
+
+To use Galileo, you need to install some package dependencies, and configure environment variables.
+
+<Steps>
+
+<Step title="Install Required Dependencies">
+
+Install the required dependencies for your app. If you are using Python, create a virtual environment using your preferred method, then install dependencies inside that environment:
+
+<CodeGroup>
+  <SnippetInstallPython />
+  <SnippetInstallTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Create a `.env` file, and add the following values">
+
+```ini .env
+GALILEO_API_KEY=your_galileo_api_key
+GALILEO_PROJECT=your_project_name
+GALILEO_LOG_STREAM=your_log_stream
+
+OPENAI_API_KEY=your_openai_api_key
+```
+
+</Step>
+</Steps>
+
+## Create your AI application
+
+<Steps>
+<Step title="Create a file for your app called `app.py` or `app.ts`."/>
+
+<Step title="Add the following code to this file">
+
+This code makes a call to OpenAI using the Galileo OpenAI wrapper, making a compliment and asking a question about sunflowers.
+
+<CodeGroup>
+  <SnippetCreateAppPython />
+  <SnippetCreateAppTypeScript />
+</CodeGroup>
+
+If you are using TypeScript, you will also need to configure your code to use ESM. Add the following to your `package.json` file:
+
+```json package.json
+{
+  "type": "module",
+  ... // Existing contents
+}
+```
+
+</Step>
+
+<Step title="Run the app to ensure everything is working">
+
+<CodeGroup>
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="View the app in the Galileo console">
+
+Open the [Galileo console](https://app.galileo.ai) and view the log stream for your app. You should see a single session with a single trace.
+
+</Step>
+</Steps>
+
+## Configure Luna 2 metrics
+
+Now you can configure metrics using Luna 2. You will be adding metrics to look for toxicity and prompt injection attacks in the input.
+
+<Steps>
+
+<Step title="Configure metrics for the logstream">
+
+Select the **Configure metrics** button.
+
+![The configure metrics button on the sessions tab](/how-to-guides/luna/evaluate-with-luna/configure-metrics-button.webp)
+
+</Step>
+
+<Step title="Turn on the Luna input toxicity and prompt injection metrics">
+
+Locate the **Input Toxicity (SLM)** and **Prompt Injection (SLM)** metrics, and turn these on.
+
+![The configure metrics screen with the input toxicity (SLM) and prompt injection (SLM) metrics turned on](/how-to-guides/luna/evaluate-with-luna/toxicity-prompt-injection-metrics.webp)
+
+<Note>
+You will see 2 versions of these metrics, the LLM as a judge versions which use whatever integrations you have set up to third party LLMs, and the Luna versions.
+
+The Luna versions are labelled **(SLM)**, so make sure to select these.
+
+For example, ensure you turn **Input Toxicity (SLM)** on, NOT **Input Toxicity**.
+
+![Both the input toxicity and input toxicity SLM metrics, with the SLM version selected.](/how-to-guides/luna/evaluate-with-luna/input-toxicity-llm-slm.webp)
+
+</Note>
+</Step>
+
+<Step title="Save and close the metric configuration tab"/>
+
+</Steps>
+
+## Run your app again to evaluate these metrics
+
+<Steps>
+
+<Step title="Run your app again">
+
+Run your app as before to generate a new trace. This time the metrics will be evaluated.
+
+</Step>
+
+<Step title="View the traces for your app in the Galileo console">
+
+Open the [Galileo console](https://app.galileo.ai) and view the log stream for your app. You should see a single session with a single trace.
+
+Select this session to see the details of the trace, then select the **Metrics** tab from the Trace Summary. You will see an evaluation of the toxicity and prompt injection from the input, showing no toxicity or prompt injection attacks.
+
+![A trace with 0% for the toxicity, and N/A for the prompt injection](/how-to-guides/luna/evaluate-with-luna/metrics-no-toxicity-or-injection.webp)
+
+</Step>
+
+</Steps>
+
+## Adjust your prompt to increase toxicity and add a prompt injection
+
+Now that your app is evaluating metrics using Luna 2, you will change the prompt to see them in action.
+
+<Steps>
+
+<Step title="Update the prompt">
+
+Update the prompt in your code to the following.
+
+<CodeGroup>
+  <SnippetUpdatePromptPython />
+  <SnippetUpdatePromptTypeScript />
+</CodeGroup>
+
+</Step>
+
+<Step title="Run your app again">
+
+Run your app as before to generate a new trace. This time the metrics will be evaluated using the new prompt.
+
+</Step>
+
+<Step title="View the traces for your app in the Galileo console">
+
+Navigate to the latest session in the Galileo console. You will now see evaluations showing both toxicity in the input, and a context switch attack in the prompt.
+
+![A trace with 99% for the toxicity, and new context for the prompt injection](/how-to-guides/luna/evaluate-with-luna/metrics-toxicity-and-injection.webp)
+
+</Step>
+
+</Steps>
+
+You've successfully evaluated an app using the Luna 2 model.
+
+## See also
+
+- [The Luna 2 model](/concepts/luna/luna)
+- [Luna metrics](/concepts/metrics/metrics-reference#luna-metrics)
+- [Use Luna 2 in your experiments](/how-to-guides/luna/experiments-with-luna/experiments-with-luna)

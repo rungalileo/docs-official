@@ -1,0 +1,121 @@
+---
+title: Luna 2 Overview
+description: Discover Galileo's Luna 2 Evaluation model, reducing the latency and cost for metric evaluations
+---
+
+**Luna 2** is the latest generation of our Luna small language models (SLMs), purpose built for scaling AI evaluations. Luna models are fine tuned to provide low latency and reduced costs for metric evaluations. Luna is designed to be further fine tuned for your specific use cases and custom metrics with the goal of providing scalable, real-time, customizable evaluations for enterprises. 
+
+Luna-based metrics offer highly accurate and efficient evaluations for AI applications, particularly those with agentic workflows.
+
+<Note>
+Luna is only available in the Enterprise tier of Galileo. [Contact us](https://galileo.ai/contact-sales) to learn more and get started.
+</Note>
+
+<CardGroup cols={2}>
+<Card title="Contact us" icon="comment" horizontal href="https://galileo.ai/contact-sales">
+    Contact us to learn more about using Luna in your evaluations
+</Card>
+<Card title="Read our research" icon="brain" horizontal href="https://galileo.ai/research">
+    Learn how Galileo pushes the envelope on GenAI evaluation with our family of fine tuned small language models. 
+</Card>
+</CardGroup>
+
+## Overview
+
+LLMs are powerful judges for evaluations, but as your application scales up to from tens or hundreds of traces a day, to thousands or millions, they can fall short. Too often, organizations relying solely on LLMs to act as judges incur major inference costs and don't see the low-latency they need to enable real-time evaluations and guardrails. 
+
+- LLMs are expensive
+- LLMs don't provide the performance needed, especially for real-time guardrails
+- LLMs are general purpose, and even leveraging [CLHF](/concepts/metrics/custom-metrics/continuous-learning-via-human-feedback) to enhance the evaluation prompts, can still be less effective for your specific needs.
+
+The Luna 2 model mitigates these issues:
+
+- Being an SLM, it is an **order of magnitude cheaper** to run than most LLMs
+- SLMs run an **order of magnitude faster**, allowing for **real-time guardrails**
+- Luna is not only **fine-tuned for evaluations**, giving comparable performance out of the box with the top LLMs, but it can be **further fine-tuned using your data** to improve accuracy beyond any general purpose LLM.
+
+The Luna 2 model works with most of the [out of the box metrics](/concepts/metrics/metrics-reference#luna-metrics), or your [LLM as a judge custom metrics](http://localhost:3000/concepts/metrics/custom-metrics/custom-metrics-ui-llm).
+
+## Performance and cost comparison
+
+### Comparison with different LLMs and content safety tools
+
+| Model                | Cost/1M token | Accuracy (F1 score) | Latency (avg) | Max tokens |
+| :------------------- | ------------: | ------------------: | ------------: | ---------: |
+| **Luna 2**           | **$0.02**     | **0.88**            | **152ms**     | **128k**   |
+| GPT 4o               | $2.50         | 0.94                | 3,200ms       | 128k       |
+| GPT 4o mini          | $0.02         | 0.90                | 2,600ms       | 128k       |
+| Azure Content Safety | $1.52         | 0.62                | 312ms         | 3k         |
+
+### Latency vs compute requirements
+
+These are the measured latencies for Luna 2 across a range of GPUs for different sized requests.
+
+#### L4 GPU
+
+| Model   | Small (500 tokens) | Medium (2K tokens) | Large (15K tokens) | Extra Large (100K tokens) |
+| :------ | -----------------: | -----------------: | -----------------: | ------------------------: |
+| Luna 3B | 63ms               | 249ms              | 4.1s               | 154s                      |
+| Luna 8B | 150ms              | 580ms              | 10.3s              | 163s                      |
+
+#### L40S GPU
+
+| Model   | Small (500 tokens) | Medium (2K tokens) | Large (15K tokens) | Extra Large (100K tokens) |
+| :------ | -----------------: | -----------------: | -----------------: | ------------------------: |
+| Luna 3B | 14ms               | 47ms               | 564ms              | 17.2s                     |
+| Luna 8B | 31ms               | 115ms              | 1.06s              | 29s                       |
+
+#### A100 GPU
+
+| Model   | Small (500 tokens) | Medium (2K tokens) | Large (15K tokens) | Extra Large (100K tokens) |
+| :------ | -----------------: | -----------------: | -----------------: | ------------------------: |
+| Luna 3B | 19ms               | 60ms               | 601ms              | 12.5s                     |
+| Luna 8B | 36ms               | 138ms              | 1.24s              | 21.2s                     |
+
+<Note>
+The actual latencies can vary a lot based upon the load on the system (Eg: QPS). This can be managed with more GPUs, but the cost will increase.
+</Note>
+
+## Technical details
+
+Galileo's Luna metrics utilize fine-tuned Llama models (3B and 8B variants) in evaluating generative AI metrics. The technical process involves:
+
+- **Fine-Tuning:** Base Llama models are fine-tuned with proprietary data for specific metric needs.
+- **Classification:** Models output normalized log-probabilities of True/False tokens to determine metric accuracy.
+- **Optimized Infrastructure:** Metrics are hosted on Galileo's optimized inference engine with modern GPU hardware for low-latency and cost-effective evaluations. You can also self host on-prem or on your cloud infrastructure.
+- **Adapters for Custom Metrics:** Lightweight adapters on a shared base model enhance scalability and minimize infrastructure overhead for additional metrics.
+
+By leveraging fine-tuned Llama models, Luna metrics provide significant enhancements over traditional methods:
+
+- **Adaptability:** These models are most effective when fine tuned, requiring approximately 4,000 samples for fine-tuning to customer-specific use cases.
+- **Efficiency and Cost-Effectiveness:** Luna 2 models enable simultaneous evaluation of multiple metrics with low latency and reduced costs, ideal for real-time, high-scale deployments.
+- **Enhanced Accuracy:** Luna 2 demonstrates at least a 10% accuracy increase compared to traditional BERT-based models, perfect for precise monitoring in production environments.
+
+## Get started with Luna 2
+
+If you are using the enterprise tier of Galileo, follow these steps to use Galileo's Luna-based metrics:
+
+1. [Contact Galileo's customer support or account management](https://galileo.ai/contact-sales) to begin onboarding.
+1. If you are using a Galileo-hosted instance, request L4 GPUs or higher, necessary for running Luna models. Otherwise you can deploy to your own infrastructure, using L4 or higher GPUs.
+1. Review the provided documentation and model cards for details on latency, accuracy, and comparisons to BERT-based metrics.
+1. Provide Galileo with relevant labelled sample data to fine tune the model. We can augment this with synthetic data if needed.
+1. Galileo will fine tune your model for you, and deploy it.
+1. Set up your experiments and log streams to use [Luna-based metrics](/concepts/metrics/metrics-reference#luna-metrics).
+
+This is not a one-shot process. Your model can be tuned on a regular basis as required.
+
+## Next steps
+
+<CardGroup cols={1}>
+<Card title="Contact us" icon="comment" horizontal href="https://galileo.ai/contact-sales">
+    Contact us to learn more about using Luna in your evaluations
+</Card>
+</CardGroup>
+<CardGroup cols={2}>
+<Card title="Evaluate metrics with the Luna 2 model" icon="moon" horizontal href="/how-to-guides/luna/evaluate-with-luna/evaluate-with-luna">
+    Learn how to evaluate metrics cheaper and faster using the Luna 2 model
+</Card>
+<Card title="Use Luna 2 in your experiments" icon="flask" horizontal href="/how-to-guides/luna/experiments-with-luna/experiments-with-luna">
+    Learn how to use Luna 2 metrics when running experiments in code
+</Card>
+</CardGroup>
