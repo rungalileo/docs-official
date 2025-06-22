@@ -1,0 +1,258 @@
+---
+title: More ways to log your Code Experiments
+sidebarTitle: Logging code experiments
+description: Learn how to combine logging techniques and code experiments
+---
+
+import CreateLogger from "/snippets/code/multilingual/concepts/experiments/find-world-create-logger.mdx"
+import FindWorldTool from "/snippets/code/multilingual/concepts/experiments/find-world-tool.mdx"
+import FindWorldRunExperiment from "/snippets/code/multilingual/concepts/experiments/find-world-run-experiment.mdx"
+import FindWorldToolLogged from "/snippets/code/multilingual/concepts/experiments/find-world-log-tool.mdx"
+import FindWorldLLM from "/snippets/code/multilingual/concepts/experiments/find-world-runner.mdx"
+import FindWorldLogRunner from "/snippets/code/multilingual/concepts/experiments/find-world-log-runner.mdx"
+import FindWorldAgentFull from "/snippets/code/multilingual/concepts/experiments/find-world-log-full.mdx"
+import FindWorldChatFull from "/snippets/code/multilingual/concepts/experiments/find-world-chat-full.mdx"
+import FindWorldLogImports from "/snippets/code/multilingual/concepts/experiments/find-world-log-imports.mdx"
+
+## Overview 
+
+When you run a [code experiment](/concepts/experiments/running-experiments), Galileo's `run_experiment` function generates logs for you. Every user input/LLM output combination creates a trace, showing what happened in that step. But what if you want more detailed logs?
+
+In this document, we will explore how to take advantage of Galileo's logging techniques with code experiments. 
+
+## Before you begin
+
+If you haven't done so already, follow the [quickstart guide](/getting-started/quickstart) to setup a simple Galileo project. Here's a list of dependencies for the examples below: 
+
+<CodeGroup>
+    ```bash Python
+    pip install "galileo[openai]" langchain langchain-openai langgraph python-dotenv 
+    ```
+    ```bash TypeScript
+    npm i -s galileo openai @langchain/langgraph @langchain/core dotenv
+    ```
+</CodeGroup>
+
+You should also be familiar with creating chat completion messages with <Tooltip tip="If you are using TypeScript, your project should include openai as a dependency">`OpenAI`</Tooltip>
+
+
+## What we will be doing
+
+Our experiment will ask the LLM for a short, humorous sentence about a fictional world. When we run the experiment, each entry in the dataset will be used to invoke our LLM-call function. In order to achieve this, we will need: 
+
+1. A list of fictional worlds for our dataset
+1. A tool that the LLM will use to retrieve the world's description from a mock database
+1. A custom function to invoke the LLM
+
+We will explore the two ways you can achieve similar goals in your application: by invoking the [Chat Completion API](#1-add-custom-traces-with-galileologger) with a JSON tool description, as well as using an agent with a tool function. 
+
+## Experiment Data 
+
+When running a code experiment, you can use a [previously-uploaded dataset](/concepts/datasets#path-1%3A-creating-and-managing-datasets-via-ui) from the Galileo Console, or an "inline" one that you describe in code. Our examples below will use inline datasets, though you can adapt this to suit your application. 
+
+Here's our simple dataset of fictional world names: 
+
+<CodeGroup>
+```python Python
+dataset = [{ "input": "Varn" }, { "input": "Drath" }]
+```
+```typescript TypeScript
+const dataset = [{ input: "Varn" }, { input: "Drath" }]
+```
+</CodeGroup>
+
+Our dataset is linked to a mock database of worlds, which we can use to implement a tool that fetches a description for each world in the list:
+
+<CodeGroup>
+```python Python
+worlds_db = [
+    {
+        "name": "Varn",
+        "description": "Varn is a tidally locked moon orbiting a gas giant; its habitable zone is a narrow band of eternal dusk where life has adapted to constant twilight.",
+    },
+    {
+        "name": "Drath",
+        "description": "Drath is a high-gravity planet covered in dense jungle, where evolution favors thick carapaces and low, crawling vegetation.",
+    },
+]
+```
+```typescript TypeScript
+const worldsDb = [
+    {
+        name: "Varn",
+        description: "Varn is a tidally locked moon orbiting a gas giant; its habitable zone is a narrow band of eternal dusk where life has adapted to constant twilight.",
+    },
+    {
+        name: "Drath",
+        description: "Drath is a high-gravity planet covered in dense jungle, where evolution favors thick carapaces and low, crawling vegetation.",
+    },
+]
+```
+</CodeGroup>
+
+
+## 1. Add custom traces with `GalileoLogger`
+
+For our first example, we will use the `GalileoLogger` class to create a logging session for our experiment. We will add traces and spans to the session to identify individual events in the application flow. This example will use the ChatCompletions API.
+
+If you're in a hurry, you can take a look at the [full code sample](#fictional-world-chat-full), then return to review the steps for a breakdown. Otherwise, we can begin by importing everything that we will need:
+
+### Import dependencies
+
+<CodeGroup>
+    ```python Python 
+    import os
+    import re
+    
+    from dotenv import load_dotenv
+    from galileo import GalileoLogger
+    from galileo.experiments import run_experiment
+    from galileo.openai import openai
+
+    # Load environment variables (Galileo project, API keys, etc)
+    load_dotenv(override=True)
+    ```
+
+    ```typescript TypeScript 
+    import { configDotenv } from "dotenv";
+    import { GalileoLogger, runExperiment, wrapOpenAI } from "galileo";
+    import OpenAI from "openai";
+    
+    // Load environment variables
+    configDotenv();
+
+    // Create a wrapped instance of OpenAI for typescript
+    const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+    ```
+</CodeGroup>
+
+Now we're ready to get started.
+
+### Build the chat experiment
+
+<Steps>
+    <Step title="Create a GalileoLogger instance and session">
+        Let's create a `GalileoLogger` instance. We will use it to create a single <Tooltip tip="A Logging Session is a way to organize a group of related spans and traces">logging session</Tooltip> for capturing the experiment's traces.
+
+        <CodeGroup>
+            <CreateLogger />
+        </CodeGroup>
+    </Step>
+
+    <Step title="Create a Tool">
+        Next, we'll add a simple regex function to find a matching world from the list. You will see how to identify this function as a `tool` call when we run the experiment later:
+
+        <CodeGroup>
+            <FindWorldTool />
+        </CodeGroup>
+    </Step>
+    
+    <Step title="Define our experiment runner">
+        Now we need to create our experiment function. Since we aren't using an agent, we will invoke our search tool on behalf of the LLM, and inject the results into the LLM's prompt. We will also log the tool call to our session. 
+
+        Let's define the function:
+
+        <CodeGroup>
+            <FindWorldLLM />
+        </CodeGroup>
+
+        As you can see, the function tells Galileo when to create a trace and add spans, as well as what spans should be added. The function will be called once for each item in the `dataset` we pass to `run_experiment`. Because each run will encapsuate an input and output, we create a trace once we have the user input, and conclude it when the response has been generated.
+    </Step>
+
+    <Step title="Run the experiment!">
+        With all the pieces in place, we can run the experiment with our custom function.
+        <CodeGroup>
+            <FindWorldRunExperiment />
+        </CodeGroup>
+    </Step>
+</Steps>
+
+Your terminal will print out each response from the LLM. When the experiment concludes, you will also receive a URL to view the captured traces in the [Galileo Console](https://app.galileo.ai). Since we used `GalileoLogger`, you can also view the experiment data in the log stream you specified (or your default log stream, if you didn't).
+
+<span id="fictional-world-chat-full" />
+<Accordion title="Fictional World Chat code (select to expand)">
+    <CodeGroup>
+        <FindWorldChatFull />
+    </CodeGroup>
+</Accordion>
+
+
+## 2. Use the `log` decorator or function wrapper
+
+For our next example, we will use the `@log` [decorator](/sdk-api/python/logging/log-decorator) or [function wrapper (TypeScript)](/sdk-api/typescript/logging/log-function-wrapper) to capture function calls. We will also re-use the [dataset](#experiment-data) and tool function we defined earlier. You can peek at the [full code sample](#fictional-world-agent-full), then return to review the steps for a breakdown. 
+
+This example simulates an LLM call, so no API credits are used. It is a great way to see how you can use `log` in your experiments.
+
+Once again, we begin by importing everything that we will need. 
+
+### File dependencies 
+<CodeGroup>
+    <FindWorldLogImports />
+</CodeGroup>
+
+### Build the agent experiment
+
+<Steps>
+    <Step title="Create a tool">
+        Like our first example, we'll add a simple regex function to find a matching world from the list. This time, we'll use the `@log` decorator to identify the function as a tool:
+
+        <CodeGroup>
+            <FindWorldToolLogged />
+        </CodeGroup>
+    </Step>
+
+    <Step title="Create an LLM call">
+        Now let's create a simple function to simulate our LLM call. It will use the tool we just defined to search for a world and return a response: 
+
+        <CodeGroup>
+            ```python Python {1}
+            @log(span_type="llm")
+            def describe_world(world_name: str):
+                desc = find_fictional_world(world_name)
+                return desc
+            ```
+            ```typescript TypeScript {1, 4}
+            const describeWorld = log({ spanType: "llm" }, (worldName: string) => {
+                const desc = findFictionalWorld(worldName)
+                return desc;
+            })
+            ```
+        </CodeGroup>
+    </Step>
+
+    <Step title="Create the custom experiment function">
+        Now we can define another simple function for Galileo's experiment runner:
+
+        <CodeGroup>
+            <FindWorldLogRunner />
+        </CodeGroup>
+    </Step>
+
+    <Step title="Run the experiment!">
+        We can now run the experiment:
+        <CodeGroup>
+            <FindWorldRunExperiment />
+        </CodeGroup>
+    </Step>
+</Steps>
+
+
+As before, your terminal will print out each response from the LLM, as well as a URL to view the captured traces in the [Galileo Console](https://app.galileo.ai) when the experiment ends. You can also view the experiment data in the log stream you specified (or your default log stream, if you didn't).
+
+<span id="fictional-world-agent-full" />
+<Accordion title="Fictional World Agent code (select to expand)">
+    <CodeGroup>
+        <FindWorldAgentFull />
+    </CodeGroup>
+</Accordion>
+
+## Conclusion
+
+We have now examined how to generate more detailed logs in code experiments using `GalileoLogger` and the `log` decorator/function wrapper. As a bonus, you can also add [metrics](/concepts/metrics/overview) to your experiment runs to get even more data about your LLM's performance!
+
+## Next steps
+
+Learn more about:
+1. [Logging sessions](/concepts/logging/sessions/sessions-overview)
+1. [Using metrics](/concepts/metrics/overview)
+1. Galileo's OpenAI wrapper ([TypeScript](/sdk-api/typescript/wrappers/openai), [Python](/sdk-api/python/wrappers/openai))

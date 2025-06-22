@@ -1,0 +1,128 @@
+```python Python
+import os
+import re
+from dotenv import load_dotenv
+
+# Galileo dependencies
+from galileo import log
+from galileo.experiments import run_experiment
+
+# Load .env variables
+load_dotenv(override=True)
+
+# Experiment data
+dataset = [{"input": "Varn"}, {"input": "Drath"}]
+worlds_db = [
+    {
+        "name": "Varn",
+        "description": (
+            "Varn is a tidally locked moon orbiting a gas giant; its habitable "
+            "zone is a narrow band of eternal dusk where life has adapted to constant twilight."
+        ),
+    },
+    {
+        "name": "Drath",
+        "description": (
+            "Drath is a high-gravity planet covered in dense jungle, "
+            "where evolution favors thick carapaces and low, crawling vegetation."
+        ),
+    },
+]
+
+# Create a tool function
+@log(span_type="tool")
+def find_fictional_world(name: str) -> str:
+    """Returns a short description of a fictional world matching `name`"""
+
+    for w in worlds_db:
+        if re.search(name, w["name"], flags=re.IGNORECASE):
+            return w["description"]
+    return "No matches found"
+
+# Simulate an LLM call
+@log(span_type="llm")
+def describe_world(world_name: str):
+    desc = find_fictional_world(world_name)
+    return desc
+
+# Define the custom function for the experiment
+@log(span_type="workflow")
+def llm_call(world_name: str) -> str:
+    """Simulate an LLM call"""
+
+    response = describe_world(world_name=world_name)
+    print(f"LLM Response: {response}")
+
+    return response
+
+
+# run the experiment
+results = run_experiment(
+    project=os.environ.get("GALILEO_PROJECT"),
+    experiment_name="Contrived FW Agent XP",
+    dataset=dataset,
+    function=llm_call,
+)
+```
+
+```typescript TypeScript
+import { configDotenv } from "dotenv";
+
+// Galileo dependencies
+import { log, runExperiment } from "galileo";
+
+// Load environment variables
+configDotenv();
+
+// Experiment data
+const dataset = [{ input: "Varn" }, { input: "Drath" }];
+const worldsDb = [
+    {
+        name: "Varn",
+        description: `Varn is a tidally locked moon orbiting a gas giant; its 
+        habitable zone is a narrow band of eternal dusk where life has adapted 
+        to constant twilight`,
+    },
+    {
+        name: "Drath",
+        description: `Drath is a high-gravity planet covered in dense jungle, 
+        where evolution favors thick carapaces and low, crawling vegetation.`,
+    },
+];
+
+// Create a tool function
+/** Returns a short description of a fictional world matching `name` */ 
+const findFictionalWorld = log({ spanType: "tool" }, (name: string): string => {
+    const match = worldsDb.find((w) => new RegExp(name, "i").test(w.name));
+    return match?.description ?? "No matches found";
+});
+
+// Simulate an LLM call
+const describeWorld = log({ spanType: "llm" }, (worldName: string) => {
+    const desc = findFictionalWorld(worldName)
+    return desc;
+});
+
+// Define the custom function for the experiment
+/** Our experiment function for invoking the llm */
+const llmCall = log(
+    { spanType: "workflow"}, 
+
+    /** Simulate an LLM call */
+    async ({ input: worldName }: Record<string, string>) => {
+        const response = describeWorld(worldName)
+        console.log("Model response:", response);
+
+        // return the response to the experiment runner
+        return response
+    }
+);
+
+// run the experiment (note: `runExperiment` is an async function)
+runExperiment({ 
+    project: process.env.GALILEO_PROJECT,
+    name: "Fictional Worlds Experiment"
+    dataset: dataset,
+    function: llmCall
+})
+```

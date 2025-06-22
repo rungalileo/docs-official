@@ -1,0 +1,27 @@
+```python Python {2}
+# The experiment's custom function
+@log(span_type="workflow")
+def llm_call(world_name: str) -> str:
+    """Simulate an LLM call"""
+
+    response = describe_world(world_name=world_name)
+    print(f"Model Response: {response}")
+
+    return response
+```
+
+```typescript TypeScript {2,25}
+/** Our experiment function for invoking the llm */
+const llmCall = log(
+    { spanType: "workflow"}, 
+
+    /** Simulate an LLM call */
+    async ({ input: worldName }: Record<string, string>) => {
+        const response = describeWorld(worldName)
+        console.log("Model response:", response);
+
+        // return the response to the experiment runner
+        return response
+    }
+)
+```
