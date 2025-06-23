@@ -39,21 +39,21 @@ Each record in a Galileo dataset can have three top-level fields:
 
 ### Create a New Dataset
 
-The dataset creation button, is your starting point for organizing test cases in Galileo's interface. Select this button, then select **+ Create new dataset** to create a new dataset.
+The dataset creation button, is your starting point for organizing test cases in Galileo's interface. Select the **Add Dataset** button, then select **+ Create new dataset** to create a new dataset.
 
 ![Dataset creation button](/images/dataset-create-button.png)
 
-You can choose to create a dataset by uploading a dataset file, or by creating the dataset manually. If you upload a file, it needs to have at least one column that maps to the input values. These columns can have any name.
+You can choose to create a dataset by uploading a dataset file in CSV, JSON/JSONC, or Feather format, or by creating the dataset manually. If you upload a file, it needs to have at least one column that maps to the input values. These columns can have any name.
 
 ![Dataset dialog](/images/dataset-dialog.png)
 
-Once you have uploaded the file, you can name the dataset, and map the columns in the file to the datasets input, output, and metadata. Select the **Save dataset** button when done.
+Once you have uploaded the file, you can name the dataset, and map the columns in the file to the datasets input, output, and metadata by dragging them from the _Original uploaded dataset_ column to the relevant dataset column. Select the **Save dataset** button when you are done.
 
 ![Mapping a column called input to the input column](/images/dataset-match-columns.png)
 
-### Add Samples to Your Dataset
+### Add Rows to Your Dataset
 
-You can manually add samples to your dataset through the console, allowing you to capture problematic inputs or edge cases as you discover them.
+You can manually add new rows to your dataset through the console, allowing you to capture problematic inputs or edge cases as you discover them.
 
 ![Adding a new row to an existing dataset](/images/dataset-manual-sample.png)
 
@@ -65,7 +65,7 @@ The version history view allows you to track changes to your dataset over time, 
 
 ![Dataset versions](/images/dataset-versions.png)
 
-After we add a new sample to the dataset, we can see the version history by clicking the **Version History** tab.
+After we add a new row to the dataset, we can see the version history by clicking the **Version History** tab.
 
 ![Creating a new version of your dataset](/images/dataset-versions-new-version.png)
 
@@ -98,7 +98,7 @@ One of the benefits of Galileo's dataset management is automatic versioning. Aut
 
 ## Access Dataset Variables in Prompts
 
-When you use datasets in Galileo, the attributes stored in the input in your dataset are made available to your prompts using mustache templating.  This allows you to create dynamic prompts that adapt to the data in each sample.
+When you use datasets in Galileo, the attributes stored in the input in your dataset are made available to your prompts using mustache templating.  This allows you to create dynamic prompts that adapt to the data in each row.
 
 ### Example Dataset
 
@@ -125,9 +125,9 @@ Include daily sightseeing activities, dining suggestions, and local experiences.
 
 ### How It works 
 
-For each sample in your dataset, Galileo will render the prompt template, replacing the variables with the corresponding values from the sample. 
+For each row in your dataset, Galileo will render the prompt template, replacing the variables with the corresponding values from the row. 
 
-If a field is missing in a sample, the variable will be empty, so ensure your dataset is consistent. 
+If a field is missing in a row, the variable will be empty, so ensure your dataset is consistent. 
 
 ## Create Focus Sets
 
@@ -170,13 +170,13 @@ When working with datasets consider these tips:
   - **How**: Never delete old test cases—archive or version them instead.
 9. **Keep Your Dataset Schema Consistent**
   - **Why**: Inconsistent schemas (e.g., missing fields) can cause prompt rendering errors or unexpected results.
-  - **How**: Ensure every sample contains all fields referenced in your prompt templates.
+  - **How**: Ensure every row contains all fields referenced in your prompt templates.
 10. **Use Nested Access for Dictionaries**
   - **Why**: Many real-world datasets have nested structures. Dot notation (e.g., `input.metadata.days`) lets you access these fields cleanly in your prompt templates.
   - **How**: Reference nested fields using dot notation in your prompt templates.
 11. **Test Your Prompt Templates**
   - **Why**: Testing ensures that variables are replaced as expected and helps catch typos or missing fields before running large experiments.
-  - **How**: Render your prompt with a sample input to verify correct variable substitution.
+  - **How**: Render your prompt with a row input to verify correct variable substitution.
 12. **Document Your Prompt Templates**
   - **Why**: Clear documentation of which fields are used in your prompt templates helps maintainers and collaborators understand dependencies between your data and prompts.
   - **How**: Add comments or documentation near your prompt templates explaining expected input fields.
