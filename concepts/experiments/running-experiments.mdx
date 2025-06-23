@@ -5,6 +5,7 @@ syncTabs: true
 
 import SnippetExperimentsPromptPython from "/snippets/code/python/concepts/experiments/prompt.mdx";
 import SnippetExperimentsExistingDatasetPython from "/snippets/code/python/concepts/experiments/existing-dataset.mdx";
+import SnippetExperimentsGroundTruthPython from "/snippets/code/python/concepts/experiments/ground-truth.mdx";
 import SnippetExperimentsCustomDatasetPython from "/snippets/code/python/concepts/experiments/custom-dataset.mdx";
 import SnippetExperimentsCustomMetricsPython from "/snippets/code/python/concepts/experiments/custom-metrics.mdx";
 import SnippetExperimentsLangGraphCallbackPython from "/snippets/code/python/concepts/experiments/langgraph-callback.mdx";
@@ -14,6 +15,7 @@ import SnippetExperimentsLoggingWithParentCheckPython from "/snippets/code/pytho
 
 import SnippetExperimentsPromptTypescript from "/snippets/code/typescript/concepts/experiments/prompt.mdx";
 import SnippetExperimentsExistingDatasetTypescript from "/snippets/code/typescript/concepts/experiments/existing-dataset.mdx";
+import SnippetExperimentsGroundTruthTypescript from "/snippets/code/typescript/concepts/experiments/ground-truth.mdx";
 import SnippetExperimentsCustomDatasetTypescript from "/snippets/code/typescript/concepts/experiments/custom-dataset.mdx";
 import SnippetExperimentsCustomMetricsTypescript from "/snippets/code/typescript/concepts/experiments/custom-metrics.mdx";
 import SnippetExperimentsGetLoggerTypeScript from "/snippets/code/typescript/concepts/experiments/get-logger.mdx";
@@ -119,6 +121,19 @@ There are a few important principles to understand when logging experiments in c
 - Be sure to handle cases in your application code where a logger is created or a trace is started, and make sure this doesn't happen in an experiment, and the experiment logger and trace is used instead. 
 - Every row in a dataset is a new trace. If you create new traces manually, they will not be used.
 - Do not conclude or flush the logger in your experiment, the experiment will do this for you.
+
+## Ground truth
+
+For [BLUE, ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge), and [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence), you also need to set the ground truth in your dataset. This is set in the `output` column.
+
+<CodeGroup>
+  <SnippetExperimentsGroundTruthPython/>
+  <SnippetExperimentsGroundTruthTypescript/>
+</CodeGroup>
+
+<Note>
+If you set the `output` column when using other metrics, the value is not used in the calculation of the metric, but is surfaced in the console. This can be helpful for providing reference output for manual review.
+</Note>
 
 ## Custom Dataset Evaluation
 
