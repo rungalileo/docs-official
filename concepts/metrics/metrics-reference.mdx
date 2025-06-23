@@ -28,6 +28,7 @@ Supply a list of one or more metric names into the `run_experiment` function as 
 from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
 from galileo.openai import openai
+from galileo.schema.metrics import GalileoScorers
 
 dataset = get_dataset(name="fictional_character_names")
 
@@ -50,15 +51,15 @@ results = run_experiment(
 	function=my_custom_llm_runner,
 	metrics=[ 
         # List metrics here
-        "agentic_workflow_success",
-        "completeness_gpt",
-        "instruction_adherence"
+        GalileoScorers.action_advancement,
+        GalileoScorers.completeness,
+        GalileoScorers.instruction_adherence
     ], 
 )
 ```
 
 ```typescript TypeScript
-import { runExperiment } from "galileo";
+import { GalileoScorers, runExperiment } from "galileo";
 
 async function runFunctionExperiment() {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -84,9 +85,9 @@ async function runFunctionExperiment() {
     function: myCustomLLMRunner,
     metrics: [
       // List metrics here
-      "agentic_workflow_success",
-      "completeness_gpt",
-      "instruction_adherence"
+      GalileoScorers.ActionAdvancement,
+      GalileoScorers.Completeness,
+      GalileoScorers.InstructionAdherence
     ]
   });
 }
