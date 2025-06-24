@@ -21,5 +21,4 @@ Issue: #number
 - [ ] - I have tested any code that is added or updated
 - [ ] - I have verified all images and videos are clear, with appropriate zoom
 - [ ] - All checks have passed
-- [ ] - I have reviewed broken links either from the checks, or by running `mintlify broken-links` and I haven't introduced any new broken links
 - [ ] - This references a feature that is public. If not, add a note and we can schedule the merge for after the feature release
