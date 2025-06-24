@@ -1,31 +1,31 @@
 ---
-title: "Custom Metrics - Code based scoring"
-description: "Learn how to create, register, and use custom metrics to evaluate your LLM applications"
+title: Custom Code Based Metrics
+description: Learn how to create, register, and use custom metrics to evaluate your LLM applications
 ---
 
 Custom metrics allow you to define specific evaluation criteria for your LLM applications. Galileo supports two types of custom metrics:
 
-- **Registered Scorers**: Server-side metrics that can be shared across your organization
-- **Custom Scorers**: Local metrics that run in your notebook environment
+- **Registered custom metrics**: Server-side metrics that can be shared across your organization
+- **Local metrics**: Local metrics that run in your notebook environment
 
-## Registered Scorers
+## Registered Custom Metrics
 
-Registered Scorers run in Galileo's backend environment and can be used across your organization in both Evaluate and Observe projects.
+Registered custom metrics run in Galileo's backend environment and can be used across your organization.
 
-### Creating a Registered Scorer
+### Creating a Registered Custom Metric
 
-You can create a registered scorer either through the Python SDK or directly in the Galileo UI. Let's walk through the UI approach:
+You can create a registered custom metric either through the Python SDK or directly in the Galileo UI. Let's walk through the UI approach:
 
 <Steps>
   <Step title="Navigate to the Metrics section">
-    In the Galileo platform, go to the Metrics section and click the "Create New Metric" button in the top right corner.
+    In the Galileo platform, go to the Metrics section and select the **Create New Metric** button in the top right corner.
 
     ![Create a new metric](/images/g2/custom-metrics-create-new-metric-button.png)
 
 </Step>
 
   <Step title="Select the Code metric type">
-    From the dialog that appears, choose the "Code" metric type. This option allows you to write custom Python code to evaluate your LLM outputs.
+    From the dialog that appears, choose the **Code-powered metric** type. This option allows you to write custom Python code to evaluate your LLM outputs.
 
     ![Select the Code metric type](/images/g2/custom-metrics-create-new-metric-dialog.png)
 
@@ -41,9 +41,9 @@ You can create a registered scorer either through the Python SDK or directly in 
 </Step>
 
   <Step title="Save your metric">
-    After writing your custom metric code, click the "Save" button in the top right corner of the code editor. Your metric will be validated and, if there are no errors, it will be saved and become available for use across your organization.
+    After writing your custom metric code, select the **Save** button in the top right corner of the code editor. Your metric will be validated and, if there are no errors, it will be saved and become available for use across your organization.
 
-    You can now select this metric when running evaluations in both the Evaluate and Observe modules.
+    You can now select this metric when running evaluations.
 
 </Step>
 </Steps>
@@ -105,7 +105,7 @@ def aggregator_fn(*,
 
 #### Optional Functions
 
-##### Score Type Function
+##### **Score Type Function**
 
 ```python
 def score_type() -> Type[float] | Type[int] | Type[str] | Type[bool]:
@@ -114,7 +114,7 @@ def score_type() -> Type[float] | Type[int] | Type[str] | Type[bool]:
 
 This function defines the return type of your scorer (default is `float`).
 
-##### Node Type Restriction
+##### **Node Type Restriction**
 
 ```python
 def scoreable_node_types_fn() -> List[str]:
@@ -128,7 +128,7 @@ def scoreable_node_types_fn() -> List[str]:
     return ["retriever"]
 ```
 
-##### LLM Credentials Access
+##### **LLM Credentials Access**
 
 To access LLM credentials during scorer execution:
 
@@ -173,7 +173,7 @@ def scoreable_node_types_fn() -> List[str]:
 
 ### Execution Environment
 
-Registered Scorers run in a Python 3.10 environment with these libraries:
+Registered custom metrics run in a Python 3.10 environment with these libraries:
 
 ```
 numpy~=1.26.4
@@ -187,72 +187,49 @@ openai
 
 We provide advance notice before major version updates to these libraries.
 
-## Custom Scorers
+## Local Metrics
 
-If you need additional libraries or want to run metrics locally, use Custom Scorers. These run in your notebook environment but are limited to the Evaluate module.
+A **Local Metric** (or *Local scorer*) is a custom metric that you can attach to an experiment — just like a Galileo preset metric. The key difference is that a Local Metric lives in code on your machine, so you share it by sharing your code. Local Metrics are ideal for running isolated tests and refining outcomes when you need more control than built-in metrics offer.
 
-### Creating a Custom Scorer
+You can also use any library or custom Python code with your local metrics, including calling out to LLMs or other APIs.
 
-Custom Scorers require two functions:
+<Note>Galileo currently only supports Local scorers in Python</Note>
 
-#### 1. The Executor Function
+## Local Scorer Components
 
-```python
-def executor(row: PromptRow) -> float:
-    # Your scoring logic here
-    return score
-```
+A Local scorer consists of three main parts:
 
-#### 2. The Aggregator Function
+1. **Scorer Function**  
 
-```python
-def aggregator_fn(scores: List[float], indices: List[int]) -> Dict[str, float]:
-    return {
-        "Metric Name 1": aggregated_value_1,
-        "Metric Name 2": aggregated_value_2
-    }
-```
+   Receives a single [`Span`](/concepts/logging/spans) or [`Trace`](/concepts/logging/traces) containing the LLM input and output, and computes a score. The exact measurement is up to you — for example, you might measure the length of the output or rate it based on the presence/absence of specific words.
 
-### Example: Response Length Custom Scorer
+2. **Aggregator Function**  
 
-```python
-from typing import Dict, List
-from galileo import PromptRow, CustomScorer
+   Aggregates the scores generated by the Scorer Function and returns a final metric value. This function receives a list of the type returned by your Scorer. For instance, if your Scorer returns a `str`, the Aggregator will be called with a `list[str]`. The Aggregator's return value can also be any type (e.g., `str`, `bool`, `int`), depending on how you want to represent the final metric.
 
-def executor(row: PromptRow) -> float:
-    return len(row.response)
+3. **`LocalMetricConfig[type]`**  
 
-def aggregator_fn(scores: List[float], indices: List[int]) -> Dict[str, float]:
-    return {
-        'Total Response Length': sum(scores),
-        'Average Response Length': sum(scores)/len(scores) if scores else 0
-    }
+   A typed callable provided by Galileo's Python SDK that combines your Scorer and Aggregator into a custom metric.  
+   - The generic `type` should match the type returned by your Aggregator.  
+   - **Example:** If your Scorer returns `bool` values, you would use `LocalMetricConfig[bool](…)`, and your Aggregator must accept a `list[bool]` and return a `bool`.
 
-my_scorer = CustomScorer(
-    name='Response Length',
-    executor=executor,
-    aggregator=aggregator_fn
-)
-```
+Scorer and Aggregator functions can be simple lambdas when your logic is straightforward.
 
-Use your Custom Scorer:
+Local Metrics let you tailor evaluation to your exact needs by defining custom scoring logic in code. Whether you want to measure response brevity, detect specific keywords, or implement a complex scoring algorithm, Local Metrics integrate seamlessly with Galileo's experimentation framework. Once you've defined your **Scorer** and **Aggregator** functions and wrapped them in a `LocalMetricConfig`, running the experiment is as simple as calling `run_experiment`. The results appear alongside Galileo's built-in metrics, so you can compare, visualize, and analyze everything in one place.
 
-```python
-from galileo import run
+With Local Metrics, you have full control over how you measure LLM behavior—unlocking deeper insights and more targeted evaluations for your AI applications.
 
-template = "Explain {topic} to me like I'm a 5 year old"
-data = {"topic": ["Quantum Physics", "Politics", "Large Language Models"]}
-run(template=template, dataset=data, scorers=[my_scorer])
-```
+<Card title="Create a local metric" icon="code" href="/how-to-guides/metrics/create-local-metric/create-local-metric" horizontal>
+  Learn how to create a local metric in Python to use in your experiments
 
-## Comparison: Registered vs. Custom Scorers
+</Card>
 
-| Feature         | Registered Scorers                | Custom Scorers           |
-| --------------- | --------------------------------- | ------------------------ |
+## Comparison: Registered Custom Metrics vs. Local Metrics
+
+| Feature         | Registered Custom Metrics         | Local Metrics            |
+| :-------------- | :-------------------------------- | :----------------------- |
 | **Creation**    | Python client, activated via UI   | Python client only       |
 | **Sharing**     | Organization-wide                 | Current project only     |
-| **Modules**     | Evaluate and Observe              | Evaluate only            |
-| **Definition**  | Independent Python file           | Within notebook          |
 | **Environment** | Server-side                       | Local Python environment |
 | **Libraries**   | Limited to Galileo environment    | Any available library    |
 | **Resources**   | Restricted by Galileo             | Local resources          |
@@ -279,8 +256,13 @@ def scorer_fn(*, node_output: str, **kwargs) -> float:
     A simple sentiment scorer that counts positive and negative words.
     Returns a score between -1 (negative) and 1 (positive).
     """
-    positive_words = ["good", "great", "excellent", "positive", "happy", "best", "wonderful"]
-    negative_words = ["bad", "poor", "negative", "terrible", "worst", "awful", "horrible"]
+    positive_words = [
+        "good", "great", "excellent", 
+        "positive", "happy", "best", "wonderful"
+    ]
+    negative_words = [
+        "bad", "poor", "negative", "terrible", "worst", "awful", "horrible"
+    ]
 
     # Convert to lowercase for case-insensitive matching
     text = node_output.lower()
@@ -323,3 +305,10 @@ This simple sentiment scorer:
 - Aggregates results to show the distribution of positive, neutral, and negative responses
 
 You can easily extend this with more sophisticated sentiment analysis techniques or domain-specific terminology.
+
+## Next Steps
+
+<Card title="Create a local metric" icon="code" href="/how-to-guides/metrics/create-local-metric/create-local-metric" horizontal>
+  Learn how to create a local metric in Python to use in your experiments
+
+</Card>
