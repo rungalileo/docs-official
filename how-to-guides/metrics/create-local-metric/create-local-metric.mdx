@@ -1,0 +1,158 @@
+---
+title: Create a local metric
+description: Learn how to create a local metric in Python to use in your experiments
+---
+
+import SnippetInstallPython from "/snippets/code/python/how-to-guides/basics/basic-example/install-packages.mdx";
+import SnippetScorerFunctionPython from "/snippets/code/python/how-to-guides/metrics/local-metric/scorer-function.mdx";
+import SnippetAggregatorFunctionPython from "/snippets/code/python/how-to-guides/metrics/local-metric/aggregator-function.mdx";
+import SnippetCreateConfigPython from "/snippets/code/python/how-to-guides/metrics/local-metric/create-config.mdx";
+import SnippetCreateDatasetPython from "/snippets/code/python/how-to-guides/metrics/local-metric/create-dataset.mdx";
+import SnippetLLMCallPython from "/snippets/code/python/how-to-guides/metrics/local-metric/llm-call.mdx";
+import SnippetRunExperimentPython from "/snippets/code/python/how-to-guides/metrics/local-metric/run-experiment.mdx";
+
+## Overview
+
+This guide shows you how to create a custom [local metric](/concepts/metrics/custom-metrics/custom-metrics-ui-code#local-metrics) in Python to use in an experiment.
+
+In this example, you will be creating a metric to rate the brevity (shortness) of an LLM's response based on word count. The sample code to run the experiment will use OpenAI as an LLM.
+
+## Before you start
+
+To complete this how-to, you will need:
+
+- An [OpenAI API key](https://openai.com/api/)
+- A [Galileo project](/concepts/projects)
+- Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
+
+## Install dependencies
+
+To use Galileo, you need to install some package dependencies, and configure environment variables.
+
+<Steps>
+
+<Step title="Install Required Dependencies">
+
+Install the required dependencies for your app. Create a virtual environment using your preferred method, then install dependencies inside that environment:
+
+<SnippetInstallPython />
+
+</Step>
+
+<Step title="Create a `.env` file, and add the following values">
+
+```ini .env
+GALILEO_API_KEY=your_galileo_api_key
+GALILEO_PROJECT=your_project_name
+
+OPENAI_API_KEY=your_openai_api_key
+```
+
+</Step>
+</Steps>
+
+## Create your local metric
+
+<Steps>
+<Step title="Create a file for your experiment called `experiment.py`."/>
+
+<Step title="Create a scorer function">
+
+The Scorer Function assigns one of three ranks — `"Terse"`, `"Temperate"`, or `"Talkative"`, depending on how many words the model outputs. Add this code to your `experiment.py` file.
+        
+<SnippetScorerFunctionPython/>
+</Step>
+
+<Step title="Create an aggregator function">
+
+Since our Scorer returns a single rank per record, the aggregator examines that rank and returns it — modifying it to flag overly long responses as `"Terrible"`. Add this code to your `experiment.py` file.
+
+<SnippetAggregatorFunctionPython/>
+
+</Step>
+
+<Step title="Create the local metric configuration">
+
+Here, we tell Galileo that our custom metric returns a `str`. We give it a name ("Terseness"), then assign the Scorer and Aggregator. Add this code to your `experiment.py` file.
+
+<SnippetCreateConfigPython/>
+
+</Step>
+
+</Steps>
+
+The metric has been created. Next, we can use it in an experiment.
+
+## Prepare the experiment
+
+For this example, we'll ask the LLM to specify the continent of four countries, encouraging it to be succinct.
+
+<Steps>
+
+<Step title="Create a dataset">
+
+Create a dataset of inputs to the experiment by adding this code to your `experiment.py` file.
+
+<SnippetCreateDatasetPython/>
+
+</Step>
+
+<Step title="Call the LLM">
+
+Next you need a [custom function](/concepts/experiments/running-experiments#run-experiments-with-custom-functions) to be called by your experiment. Add this code to your `experiment.py` file.
+
+<SnippetLLMCallPython/>
+
+</Step>
+
+<Step title="Add code to run the experiment">
+
+Finally, add code to run the experiment using your dataset and custom local metric.
+
+<SnippetRunExperimentPython/>
+
+</Step>
+
+</Steps>
+
+## Run the experiment
+
+Now your experiment is set up, you can run it to see the results of your local metric.
+
+<Steps>
+
+<Step title="Run the experiment code">
+
+```bash Python
+python experiment.py
+```
+
+
+When the experiment runs, it will output a link to view the results in the terminal.
+
+```bash Python
+(.venv) ➜ python experiment.py
+Experiment terseness-local-metric has completed and results are available
+at https://console.galileo.ai//project/xxx/experiments/xxx
+```
+
+</Step>
+
+<Step title="View the experiment">
+
+Follow the link in your terminal to view the results of the experiment. This experiment has 4 rows - one per item in the dataset.
+
+The new Terseness metric is available in both the **Traces** table, and from the metrics pane when selecting a row.
+
+![A table of traces showing a terseness metric. Three are terse, one is temperate](/how-to-guides/metrics/create-local-metric/create-local-metric.webp)
+
+</Step>
+
+</Steps>
+
+You have successfully created a local metric and used it in an experiment.
+
+## See also
+
+- [Custom metrics in code](/concepts/metrics/custom-metrics/custom-metrics-ui-code)
+- [Custom metrics using an LLM](/concepts/metrics/custom-metrics/custom-metrics-ui-llm)

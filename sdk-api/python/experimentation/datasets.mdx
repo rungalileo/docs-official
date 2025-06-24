@@ -105,6 +105,7 @@ Datasets are primarily used for running experiments to evaluate the performance 
 from galileo.datasets import get_dataset
 from galileo.experiments import run_experiment
 from galileo.prompts import get_prompt_template
+from galileo.schema.metrics import GalileoScorers
 
 # Get an existing dataset
 dataset = get_dataset(name="countries")
@@ -120,7 +121,7 @@ results = run_experiment(
     "geography-experiment",
     dataset=dataset,
     prompt=prompt,
-    metrics=["correctness"],
+	metrics=[GalileoScorers.correctness],
     project="my-project",
 )
 ```

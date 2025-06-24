@@ -2,6 +2,7 @@
 from galileo.datasets import get_dataset
 from galileo.experiments import run_experiment
 from galileo.prompts import get_prompt_template
+from galileo.schema.metrics import GalileoScorers
 
 # Get an existing dataset
 dataset = get_dataset(
@@ -19,7 +20,7 @@ results = run_experiment(
     "geography-experiment",
     dataset=dataset,
     prompt_template=prompt_template,
-    metrics=["correctness"],
+    metrics=[GalileoScorers.Completeness],
     project="my-project",
 )
 ```

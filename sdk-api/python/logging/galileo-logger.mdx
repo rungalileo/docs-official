@@ -1,9 +1,9 @@
 ---
-title: "GalileoLogger"
-description: "Manual control over logging with the GalileoLogger class"
+title: GalileoLogger
+description: Get granular control over logging with the GalileoLogger class
 ---
 
-The `GalileoLogger` class provides the most granular control over logging in Galileo. While the [wrappers](/sdk-api/python/wrappers/wrappers-overview) and [@log decorator](/sdk-api/python/logging/log-decorator) are recommended for most use cases, the `GalileoLogger` gives you complete flexibility when you need it.
+The [`GalileoLogger`](/sdk-api/python/reference/logger) class provides the most granular control over logging in Galileo. While the [wrappers](/sdk-api/python/wrappers/wrappers-overview) and [@log decorator](/sdk-api/python/logging/log-decorator) are recommended for most use cases, the `GalileoLogger` gives you complete flexibility when you need it.
 
 ## Overview
 
@@ -64,6 +64,19 @@ logger = GalileoLogger(
 )
 ```
 
+See the [`GalileoLogger` Python SDK docs](/sdk-api/python/reference/logger) for more details.
+
+### Get the current logger from the current context
+
+```python
+from galileo import galileo_context
+
+# Get the current logger
+logger = galileo_context.get_logger_instance()
+```
+
+See the [`galileo_context` Python SDK docs](/sdk-api/python/reference/decorator) for more details.
+
 ### Starting a Trace
 
 ```python
@@ -81,9 +94,29 @@ trace = logger.start_trace(
 )
 ```
 
+See the [`start_trace` Python SDK docs](/sdk-api/python/reference/logger#start-trace) for more details.
+
 ### Adding Spans
 
 The `GalileoLogger` supports adding different types of spans to your traces:
+
+#### Agent Spans
+
+```python
+from galileo_core.schemas.logging.agent import AgentType
+
+logger.add_agent_span(
+    input="What is the capital of France?",
+    output="The capital of France is Paris.",
+    name="Capital Query",  # Optional name
+    duration_ns=1000000,  # Optional duration in nanoseconds
+    metadata={"temperature": "0.7"},  # Optional metadata
+    tags=["geography"],  # Optional tags
+    agent_type=AgentType.planner
+)
+```
+
+See the [`add_agent_span` Python SDK docs](/sdk-api/python/reference/logger#add-agent-span) for more details.
 
 #### LLM Spans
 
@@ -106,6 +139,8 @@ logger.add_llm_span(
 )
 ```
 
+See the [`add_llm_span` Python SDK docs](/sdk-api/python/reference/logger#add-llm-span) for more details.
+
 #### Retriever Spans
 
 ```python
@@ -119,6 +154,8 @@ logger.add_retriever_span(
     status_code=200  # Optional
 )
 ```
+
+See the [`add_retriever_span` Python SDK docs](/sdk-api/python/reference/logger#add-retriever-span) for more details.
 
 #### Tool Spans
 
@@ -134,6 +171,8 @@ logger.add_tool_span(
     tool_call_id="tool-123"  # Optional
 )
 ```
+
+See the [`add_tool_span` Python SDK docs](/sdk-api/python/reference/logger#add-tool-span) for more details.
 
 #### Workflow Spans
 
@@ -151,6 +190,8 @@ workflow_span = logger.add_workflow_span(
 # Later, you can conclude the workflow span when concluding the trace
 ```
 
+See the [`add_workflow_span` Python SDK docs](/sdk-api/python/reference/logger#add-workflow-span) for more details.
+
 ### Concluding and Flushing
 
 ```python
@@ -165,6 +206,8 @@ logger.conclude(
 # Flush the trace to Galileo
 logger.flush()
 ```
+
+See the [`conclude`](/sdk-api/python/reference/logger#conclude) and [`flush`](/sdk-api/python/reference/logger#flush) Python SDK docs for more details.
 
 ## Advanced Usage
 
@@ -187,6 +230,8 @@ logger.add_single_llm_span_trace(
     total_tokens=15
 )
 ```
+
+See the [`add_single_llm_span_trace` Python SDK docs](/sdk-api/python/reference/logger#add-single-llm-span-trace) for more details.
 
 ### Complex Trace Example
 

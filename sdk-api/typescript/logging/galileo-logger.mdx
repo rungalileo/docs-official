@@ -1,37 +1,311 @@
 ---
-title: Galileo Logger
-icon: "terminal"
+title: GalileoLogger
+description: Get granular control over logging with the GalileoLogger class
 ---
 
-import SnippetGalileoLoggerBasic from "/snippets/code/typescript/sdk/logging/galileo-logger-basic.mdx";
-import SnippetGalileoLoggerExample from "/snippets/code/typescript/sdk/logging/galileo-logger-example.mdx";
-import SnippetGalileoLoggerOpenAI from "/snippets/code/typescript/sdk/logging/galileo-logger-openai.mdx";
-import SnippetGalileoLoggerApi from "/snippets/code/typescript/sdk/logging/galileo-logger-api.mdx";
+The [`GalileoLogger`](/sdk-api/typescript/reference/README/classes/GalileoLogger) class provides the most granular control over logging in Galileo. While the [wrappers](/sdk-api/typescript/wrappers/wrappers-overview) and [`log` wrapper](/sdk-api/typescript/logging/log-function-wrapper) are recommended for most use cases, the `GalileoLogger` gives you complete flexibility when you need it.
 
-The `GalileoLogger` is a low-level API for logging traces and spans to Galileo. It provides more control over the logging process than the higher-level wrappers.
+## Overview
 
-## Usage
+The `GalileoLogger` class allows you to:
 
-<CodeGroup>
-  <SnippetGalileoLoggerBasic />
-</CodeGroup>
+- Manually create and manage traces
+- Add spans of different types to your traces
+- Control exactly what data gets logged
+- Explicitly manage when traces are flushed to Galileo
 
-## Examples
+This approach requires more code than using wrappers or decorators but gives you the most control over the logging process.
 
-### Basic Example
+## Basic Usage
 
-<CodeGroup>
-  <SnippetGalileoLoggerExample />
-</CodeGroup>
+Here's a simple example of using the `GalileoLogger` to log an LLM call:
 
-### Complete Example with OpenAI
+```typescript
+import { GalileoLogger } from "galileo";
 
-<CodeGroup>
-  <SnippetGalileoLoggerOpenAI />
-</CodeGroup>
+// Create a logger instance with project and log stream
+const galileoLogger = new GalileoLogger({
+    projectName: "my-project",
+    logStreamName: "my-log-stream",
+});
 
-## API Reference
+// Start a new trace
+const trace = galileoLogger.startTrace({
+    input: "Say this is a test"
+});
 
-<CodeGroup>
-  <SnippetGalileoLoggerApi />
-</CodeGroup>
+// Add an LLM span to the trace
+galileoLogger.addLlmSpan({
+    input: "Say this is a test",
+    output: "Hello, this is a test",
+    model: "gpt-4o",
+    numInputTokens: 10,
+    numOutputTokens: 3, 
+    totalTokens: 13,
+    durationNs: 1000,
+});
+
+// Conclude the trace with the final output
+galileoLogger.conclude({
+    output: "Hello, this is a test"
+});
+
+// Flush the trace to Galileo
+galileoLogger.flush();
+```
+
+## Detailed API
+
+### Initialization
+
+```typescript
+import { GalileoLogger } from "galileo";
+
+// Initialize with default settings (uses environment variables)
+const galileoLogger = new GalileoLogger();
+
+// Or specify project and log stream
+const galileoLogger = new GalileoLogger({
+    projectName: "my-project",
+    logStreamName: "my-log-stream",
+});
+```
+
+See the [`GalileoLogger` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger) for more details.
+
+### Get the current logger from the current context
+
+```typescript
+import { getLogger } from "galileo";
+
+// Get the current logger
+const galileoLogger = getLogger();
+```
+
+See the [`getLogger` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/getLogger) for more details.
+
+### Starting a Trace
+
+```typescript
+// Start a basic trace
+const trace = galileoLogger.startTrace({
+    input: "User query"
+});
+
+trace = logger.start_trace(input="User query")
+
+// Start a trace with additional metadata
+const trace = galileoLogger.startTrace({
+    input: "User query",
+    name: "User Interaction",
+    tags: ["production", "user-123"],
+    metadata: {"session_id": "abc123", "user_id": "user-456"},
+    durationNs: 1000000,  // Optional duration in nanoseconds
+    createdAt: Date.now()  // Optional creation timestamp
+});
+```
+
+See the [`start_trace` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#starttrace) for more details.
+
+### Adding Spans
+
+The `GalileoLogger` supports adding different types of spans to your traces:
+
+#### Agent Spans
+
+```typescript
+import { AgentType } from "galileo/dist/types/log.types";
+
+galileoLogger.addAgentSpan({
+    input: "What is the capital of France?",
+    output: "The capital of France is Paris.",
+    name: "Capital Query",  // Optional name
+    durationNs: 1000000,  // Optional duration in nanoseconds
+    metadata: {"temperature": "0.7"},  // Optional metadata
+    tags: ["geography"],  // Optional tags
+    agentType: AgentType.planner
+});
+```
+
+See the [`addAgentSpan` Python SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#addagentspan) for more details.
+
+#### LLM Spans
+
+```typescript
+galileoLogger.addLlmSpan({
+    input: "What is the capital of France?",
+    output: "The capital of France is Paris.",
+    model: "gpt-4o",
+    tools: [],  // Optional list of tools used
+    name: "Capital Query",  // Optional name
+    durationNs: 1000000,  // Optional duration in nanoseconds
+    metadata: {"temperature": "0.7"},  // Optional metadata
+    tags: ["geography"],  // Optional tags
+    numInputTokens: 10,  // Optional token counts
+    numOutputTokens: 5,
+    totalTokens: 15,
+    temperature: 0.7,  // Optional model parameters
+    statusCode: 200,  // Optional status code
+    timeToFirstTokenNs: 500000  // Optional time to first token
+});
+```
+
+See the [`addLlmSpan` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#addllmspan) for more details.
+
+#### Retriever Spans
+
+```typescript
+galileoLogger.addRetrieverSpan({
+    input: "Query about Roman history",
+    output: ["Rome was founded in 753 BC...", "The Roman Empire reached its peak..."],
+    name: "History Retrieval",  // Optional
+    durationNs: 500000,  // Optional
+    metadata: {"source": "history_db"},  // Optional
+    tags: ["history"],  // Optional
+    statusCode=200  // Optional
+});
+```
+
+See the [`addRetrieverSpan` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#addretrieverspan) for more details.
+
+#### Tool Spans
+
+```typescript
+galileoLogger.addToolSpan({
+    input: JSON.stringify({"operation": "add", "numbers": [1, 2, 3]}),
+    output: JSON.stringify({"result": 6}),
+    name: "Calculator",  // Optional
+    durationNs: 100000,  // Optional
+    metadata: {"tool_version": "1.0"},  // Optional
+    tags: ["math"],  // Optional
+    statusCode: 200,  // Optional
+    toolCallId: "tool-123"  // Optional
+});
+```
+
+See the [`addToolSpan` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#addtoolspan) for more details.
+
+#### Workflow Spans
+
+```typescript
+// Start a workflow span
+const workflowSpan = galileoLogger.addWorkflowSpan({
+    input: "Process user request",
+    output: undefined,  // Can be set later
+    name: "Main Process",  // Optional
+    durationNs: 1000,  // Optional, can be set later
+    metadata: {"workflow_type": "user_request"},  // Optional
+    tags: ["workflow"]  // Optional
+});
+
+// Later, you can conclude the workflow span when concluding the trace
+```
+
+See the [`addWorkflowSpan` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#addworkflowspan) for more details.
+
+### Concluding and Flushing
+
+```typescript
+// Conclude the trace with the final output
+galileoLogger.conclude({
+    output: "Final response to the user",
+    durationNs: 2000000,  // Optional duration in nanoseconds
+    statusCode: 200,  // Optional status code
+    concludeAll: false  // Whether to conclude all open spans
+});
+
+// Flush the trace to Galileo
+galileoLogger.flush();
+```
+
+See the [`conclude`](/sdk-api/typescript/reference/README/classes/GalileoLogger#conclude) and [`flush`](/sdk-api/typescript/reference/README/classes/GalileoLogger#flush) TypeScript SDK docs for more details.
+
+## Advanced Usage
+
+### Creating a Single-Span Trace
+
+For simple LLM calls, you can create a trace with a single LLM span in one step:
+
+```typescript
+galileoLogger.addSingleLlmSpanTrace({
+    input: "What is the capital of France?",
+    output: "The capital of France is Paris.",
+    model: "gpt-4o",
+    tools: undefined,
+    name: "Capital Query",
+    durationNs: 1000000,
+    metadata: {"temperature": "0.7"},
+    tags: ["geography"],
+    numInputTokens: 10,
+    numOutputTokens: 5,
+    totalTokens: 15
+});
+```
+
+See the [`addSingleLlmSpanTrace` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#addsinglellmspantrace) for more details.
+
+### Complex Trace Example
+
+Here's an example of creating a more complex trace with multiple spans:
+
+```typescript
+import { GalileoLogger } from "galileo";
+
+const galileoLogger = new GalileoLogger({
+    projectName: "my-project",
+    logStreamName: "my-log-stream",
+});
+
+// Start a trace for a user query
+const trace = galileoLogger.startTrace({
+    input: "Who's a good bot?",
+    name: "User Query",
+    tags: ["bot-interaction"]
+});
+
+// Add a retriever span for document retrieval
+galileoLogger.addRetrieverSpan({
+    input: "Who's a good bot?",
+    output: ["Research shows that I am a good bot."],
+    name: "Document Retrieval",
+    durationNs: 1000000
+});
+
+// Add an LLM span for generating a response
+galileoLogger.addLlmSpan({
+    input: "Who's a good bot?",
+    output: "I am!",
+    model: "gpt-4o",
+    name: "Response Generation",
+    numInputTokens: 25,
+    numOutputTokens: 3,
+    totalTokens: 28,
+    durationNs: 1000000
+});
+
+// Conclude the trace
+galileoLogger.conclude({
+    output: "I am!",
+    durationNs: 2000000
+})
+
+// Flush the trace to Galileo
+galileoLogger.flush();
+```
+
+## Best Practices
+
+1. **Use higher-level abstractions when possible**: The `log` function wrapper, and wrappers are easier to use and less error-prone.
+
+2. **Flush traces when appropriate**: Call `flush()` at the end of a request or user interaction to ensure data is sent to Galileo.
+
+3. **Include relevant metadata**: Add tags and metadata to make it easier to filter and analyze your traces.
+
+4. **Structure spans logically**: Create a span hierarchy that reflects the logical structure of your application.
+
+5. **Handle errors gracefully**: Include status codes and error information in your spans to help with debugging.
+
+## Related Resources
+
+- [`log` function wrapper](/sdk-api/typescript/logging/log-function-wrapper) - For a simpler way to log function calls
+- [OpenAI Wrapper](/sdk-api/typescript/wrappers/openai) - For automatic logging of OpenAI calls
