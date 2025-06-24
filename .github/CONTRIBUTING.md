@@ -83,10 +83,6 @@ When you raise a pull request, there is a template to fill in. Add the following
 
     For the spelling check, if you are sure that the word that is being picked up is correct, you can add it to the [accept.txt](/.vale/styles/config/vocabularies/Galileo-Vocab/accept.txt) file. Please add words in alphabetical order. This list is case sensitive, so if you want to support different capitalizations, such as word and Word, then use the `[W,w]ord` syntax.
 
-  - **I have reviewed broken links either from the checks, or by running `mint broken-links` and I haven't introduced any new broken links**
-
-    Ensure there are no broken links by either running `mint broken-links` on your PR, or checking the output of the checks run by Mintlify. Note that there will always be a few with links to API docs that are generated on deploy, so validate you haven't added any new broken links.
-
   - **This references a feature that is public. If not, add a note and we can schedule the merge for after the feature release**
 
     For Galileo employees, if you are documenting an upcoming feature, add a note on this with the release information. That way we can hold off on merging the docs until the feature is released.

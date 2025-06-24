@@ -1,5 +1,5 @@
 ```typescript TypeScript
-import { runExperiment, getPromptTemplate, getDataset } from "galileo";
+import { runExperiment, GalileoScorers, getPromptTemplate, getDataset } from "galileo";
 
 async function runPromptExperiment() {
   const template = await getPromptTemplate({
@@ -13,7 +13,7 @@ async function runPromptExperiment() {
     name: "Test Experiment",
     dataset: dataset,
     promptTemplate: template,
-    metrics: ["toxicity"],
+    metrics: [GalileoScorers.InputToxicity, GalileoScorers.OutputToxicity],
     projectName: "my-project",
   });
 }

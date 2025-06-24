@@ -1,5 +1,5 @@
 ```typescript TypeScript
-import { runExperiment } from "galileo";
+import { GalileoScorers, runExperiment } from "galileo";
 import { OpenAI } from "openai";
 
 async function runCustomDatasetExperiment() {
@@ -28,7 +28,7 @@ async function runCustomDatasetExperiment() {
     name: `Test Experiment`,
     dataset: dataset,
     function: runner,
-    metrics: ["tox"],
+    metrics: [GalileoScorers.InputToxicity, GalileoScorers.OutputToxicity],
     projectName: "my-project",
   });
 }
