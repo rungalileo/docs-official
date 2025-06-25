@@ -1,27 +1,19 @@
 ```typescript TypeScript
-import { createDataset, getDataset } from "galileo";
+import { createDataset } from "galileo";
 
-// Create a dataset from a file path
-const datasetFromFile = await createDataset("/path/to/dataset.csv", "my-dataset-name");
+const testData = [
+    { 
+      input: "Which continent is Spain in?", 
+      output: "Europe" 
+    },
+    {
+      input: "Which continent is Japan in?", 
+      output: "Asia"
+    },
+];
 
-// Create a dataset from an array of objects
-const datasetFromArray = await createDataset(
-  [
-    { input: "Spain", output: "Europe" },
-    { input: "Japan", output: "Asia" },
-  ],
-  "countries",
+const dataset = await createDataset(
+    testData,
+    "countries",
 );
-
-// Create a dataset from a dictionary of arrays
-const datasetFromDict = await createDataset(
-  {
-    input: ["Spain", "Japan"],
-    output: ["Europe", "Asia"],
-  },
-  "countries-from-dict",
-);
-
-// Get a dataset by name
-const dataset = await getDataset({ name: "countries" });
 ```

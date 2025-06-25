@@ -1,27 +1,26 @@
 ```typescript TypeScript
-import { GalileoScorers, runExperiment } from "galileo";
-import { OpenAI } from "openai";
+import { 
+  GalileoScorers, getDataset, 
+  getPromptTemplate, runExperiment
+} from "galileo";
 
-async function runDatasetExperiment() {
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Get an existing dataset
+const dataset = await getDataset({
+    name: "countries"
+});
 
-  const runner = async (input: any) => {
-    const result = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ content: `Which continent does the following country belong to ${input["input"]}!`, role: "user" }],
-    });
-    return result;
-  };
+// Get an existing prompt template
+const promptTemplate = await getPromptTemplate({
+    projectName: "my-project",
+    name: "geography-prompt",
+  });
 
-  await runExperiment({
-    name: `Test Experiment`,
-    datasetName: "countries",
-    function: runner,
+// Run an experiment with the dataset and prompt
+await runExperiment({
+    name: "geography-experiment",
+    dataset: dataset,
+    promptTemplate: promptTemplate,
     metrics: [GalileoScorers.Correctness],
     projectName: "my-project",
   });
-}
-
-// Run the experiment
-runDatasetExperiment();
 ```
