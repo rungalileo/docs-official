@@ -1,7 +1,7 @@
 ```python Python
 from galileo.handlers.langchain import GalileoCallback
 from langchain_openai import ChatOpenAI
-from langchain.schema import HumanMessage
+from langchain_core.messages import HumanMessage
 
 # Create a callback handler
 callback = GalileoCallback()
@@ -10,7 +10,9 @@ callback = GalileoCallback()
 llm = ChatOpenAI(model="gpt-4o", temperature=0.7, callbacks=[callback])
 
 # Create a message with the user's query
-messages = [HumanMessage(content="What is LangChain and how is it used with OpenAI?")]
+messages = [
+    HumanMessage(content="What is LangChain and how is it used with OpenAI?")
+]
 
 # Make the API call
 response = llm.invoke(messages)
