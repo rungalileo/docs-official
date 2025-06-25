@@ -1,0 +1,31 @@
+```python Python
+import os
+from galileo import log, galileo_context
+from galileo.openai import openai
+
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+def call_openai(prompt):
+    # This will be automatically logged as a child span
+    chat_completion = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return chat_completion.choices[0].message.content
+
+@log
+def make_nested_call():
+    # Gets the currently active logger
+    galileo_logger = galileo_context.get_logger_instance()
+    galileo_logger.add_workflow_span(
+        input="The Roman Empire",
+    )
+    # This creates a parent workflow span
+    first_result = call_openai("Tell me about the Roman Empire")
+    second_result = call_openai(f"Summarize this: {first_result}")
+    return second_result
+
+# When called, this will create a trace with a workflow span and two nested LLM spans
+response = make_nested_call()
+print(response)
+```

@@ -8,6 +8,8 @@ import SnippetPythonGalileoLogger from "/snippets/code/python/concepts/logging/t
 import SnippetTSGalileoLogger from "/snippets/code/typescript/concepts/logging/traces/galileo-logger.mdx";
 import LogDecoratorPy from "/snippets/code/python/sdk/decorators/log-decorator-span-types.mdx"
 import LogDecoratorTs from "/snippets/code/typescript/sdk/logging/log-wrapper-span-types.mdx"
+import ContextLoggerPython from "/snippets/code/python/concepts/logging/spans/galileo-context-logger.mdx"
+import ContextLoggerTypeScript from "/snippets/code/typescript/concepts/logging/spans/galileo-context-logger.mdx"
 
 ## Introduction
 
@@ -24,36 +26,20 @@ This guide compares these approaches and offers guidance on when to use each one
 
 ## `galileo_context`
 
-The `galileo_context` context manager provides a way to control logging for a block of code. It is only available in the [Python SDK](/sdk-api/python/logging/galileo-context), and allows you to start logging quickly while handling details like creating traces or saving events to the Galileo Console for you. 
+The Galileo Context manager provides a way to control logging for a block of code. It allows you to start logging quickly while handling details like creating traces or saving events to the Galileo Console for you. You can use it to access your project's logger instance. 
 
 ### Example
 
-In the illustration below, all events captured within the `with` scope are bundled into a single [logging session](/concepts/logging/sessions/sessions-overview), and the data is sent to Galileo Console when the scope is done executing. You can see more detailed examples [here](/sdk-api/python/logging/galileo-context)
+Galileo Context manager can be used to access a managed `GalileoLogger` instance, so that you can add custom traces and spans based on your application's flow. 
 
-```python Python
-from galileo import galileo_context
-
-# You can specify a different project name and/or log stream for the events.
-with galileo_context(project="my-project", log_stream="chat-stream"):
-    
-    # For simplicity, assume "llm_call" is defined elsewhere.
-    result = llm_call()  
-```
-
-It can also be used to access a managed `GalileoLogger` instance:
-
-```python Python
-from galileo import galileo_context
-
-# You can specify a different project name and/or log stream for the events.
-logger = galileo_context.get_logger_instance()
- 
-# logger.add_trace() ...
-```
+<CodeGroup>
+  <ContextLoggerPython />
+  <ContextLoggerTypeScript />
+</CodeGroup>
 
 ### When to use `galileo_context`
 
-The Galileo Context manager is great when your logic is contained in a single block of code, or you are using the Python SDK and want to quickly get started logging. It is also ideal for experimenting in Python Notebooks (e.g. Jupyter). However, it cannot be used in TypeScript projects.
+The Galileo Context manager is great when your logic is contained in a single block of code, or you want to quickly get started logging. It is also ideal for experimenting in Python Notebooks (e.g. Jupyter). 
 
 
 ## `GalileoLogger`
