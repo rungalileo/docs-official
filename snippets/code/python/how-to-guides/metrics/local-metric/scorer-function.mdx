@@ -1,0 +1,14 @@
+```python Python
+from galileo import Trace, Span
+
+def brevity_rank(step: Span | Trace) -> str:
+    """
+    Rank response brevity based on word count.
+    """
+    word_count = len(step.output.content.split(" "))
+    if word_count <= 3:
+        return "Terse"
+    if word_count <= 5:
+        return "Temperate"
+    return "Talkative"
+```
