@@ -12,13 +12,13 @@ import SnippetTSGetDataset from "/snippets/code/typescript/concepts/datasets/get
 
 **Datasets** are a fundamental building block in Galileo's experimentation workflow. They provide a structured way to **organize, version, and manage** your test cases. Whether you're evaluating prompts, testing application functionality, or analyzing model behavior, having well-organized datasets is crucial for systematic testing and continuous improvement.
 
-## Working with Datasets
+## Work with Datasets
 
 Datasets can be used in two ways:
 
-1. **Using the Galileo UI**
+1. **Using the Galileo Console**
 
-   - Create and manage datasets directly through Galileo's web interface
+   - Create and manage datasets directly through the Galileo console
    - Visually organize and track test cases
    - No coding required
 
@@ -27,53 +27,53 @@ Datasets can be used in two ways:
    - Integrate dataset management into your existing workflows
    - Automate dataset operations
 
-Choose the approach that best fits your workflow and team's needs. Many users combine both approaches, using code for bulk operations and the UI for visualization and quick edits.
+Choose the approach that best fits your workflow and team's needs. Many users combine both approaches, using code for bulk operations and the console for visualization and quick edits.
 
 Each record in a Galileo dataset can have three top-level fields: 
 
 1. **Input** - Input variables that can be passed to your application to recreate a test case.
-2. **Output** - Reference outputs to evaluate your application. These can also be expected outputs or ground truth.
+2. **Output** - Reference outputs to evaluate your application. These can be the ground truth for [BLEU, ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge), and [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence) metrics, or reference outputs for manual reference.
 3. **Metadata** - Additional data you can use to filter or group your dataset.
 
-## Path 1: Creating and Managing Datasets via UI
+## Create and Manage Datasets via the console
 
-### Creating a New Dataset
+### Create a New Dataset
+
+The dataset creation button, is your starting point for organizing test cases in Galileo's interface. Select the **Add Dataset** button, then select **+ Create new dataset** to create a new dataset.
 
 ![Dataset creation button](/images/dataset-create-button.png)
 
-The dataset creation button, shown above, is your starting point for organizing test cases in Galileo's interface.
+You can choose to create a dataset by uploading a dataset file in CSV, JSON/JSONC, or Feather format, or by creating the dataset manually. If you upload a file, it needs to have at least one column that maps to the input values. These columns can have any name.
 
 ![Dataset dialog](/images/dataset-dialog.png)
 
-The dataset configuration dialog provides options for naming, describing, and setting up your dataset with the appropriate schema for your testing needs.
+Once you have uploaded the file, you can name the dataset, and map the columns in the file to the datasets input, output, and metadata by dragging them from the _Original uploaded dataset_ column to the relevant dataset column. Select the **Save dataset** button when you are done.
 
-### Adding Samples to Your Dataset
+![Mapping a column called input to the input column](/images/dataset-match-columns.png)
 
-![Manual sample creation](/images/dataset-manual-sample.png)
+### Add Rows to Your Dataset
 
-As shown above, you can manually add samples to your dataset through the interface, allowing you to quickly capture problematic inputs or edge cases as you discover them.
+You can manually add new rows to your dataset through the console, allowing you to capture problematic inputs or edge cases as you discover them.
 
-### Saving Changes and Creating Versions
+![Adding a new row to an existing dataset](/images/dataset-manual-sample.png)
 
-![Dataset save button](/images/dataset-save-button.png)
+After making changes to your dataset, select the **Save changes** button to create a new version that preserves your modifications while maintaining the history of previous versions.
 
-After making changes to your dataset, use the save button to create a new version that preserves your modifications while maintaining the history of previous versions.
-
-### Viewing Version History
+### View Version History
 
 The version history view allows you to track changes to your dataset over time, see when modifications were made, and access previous versions for comparison or regression testing.
 
 ![Dataset versions](/images/dataset-versions.png)
 
-After we add a new sample to the dataset, we can see the version history by clicking the "Version History" tab.
+After we add a new row to the dataset, we can see the version history by clicking the **Version History** tab.
 
 ![Creating a new version of your dataset](/images/dataset-versions-new-version.png)
 
-## Path 2: Creating and Managing Datasets via Code
+## Create and Manage Datasets via Code
 
-### Creating and Growing Your Dataset
+### Create and Grow Your Dataset
 
-When building your test suite programmatically, you can create datasets using the Galileo SDK. 
+When building your test suite programmatically, you can create datasets using the Galileo SDK.
 
 <CodeGroup>
   <SnippetPythonCreateDataset />
@@ -96,10 +96,12 @@ One of the benefits of Galileo's dataset management is automatic versioning. Aut
   <SnippetTSGetDataset />
 </CodeGroup>
 
-## Accessing Dataset Variables in Prompts
-When you use datasets in Galileo, the attributes stored in the input in your dataset are made available to your prompts using mustache templating.  This allows you to create dynamic prompts that adapt to the data in each sample.
+## Access Dataset Variables in Prompts
+
+When you use datasets in Galileo, the attributes stored in the input in your dataset are made available to your prompts using mustache templating.  This allows you to create dynamic prompts that adapt to the data in each row.
 
 ### Example Dataset
+
 Suppose you have the following dataset: 
 
 ```python
@@ -110,9 +112,10 @@ test_data = [
 ```
 
 ### Example Prompt Template
+
 To reference fields from your dataset in your prompt, use double curly braces:
 
-```
+```output Prompt Template
 Plan a {{ days }}-day travel itinerary for a trip to {{ city }}.
 Include daily sightseeing activities, dining suggestions, and local experiences.
 ```
@@ -121,11 +124,12 @@ Include daily sightseeing activities, dining suggestions, and local experiences.
 - `{{ days }}` will be replaced with the value of the `days` field inside the `input` dictionary. 
 
 ### How It works 
-For each sample in your dataset, Galileo will render the prompt template, replacing the variables with the corresponding values from the sample. 
 
-If a field is missing in a sample, the variable will be empty, so ensure your dataset is consistent. 
+For each row in your dataset, Galileo will render the prompt template, replacing the variables with the corresponding values from the row. 
 
-## Creating Focus Sets
+If a field is missing in a row, the variable will be empty, so ensure your dataset is consistent. 
+
+## Create Focus Sets
 
 When you find problems, you can create focused subsets of data:
 
@@ -134,9 +138,10 @@ When you find problems, you can create focused subsets of data:
 3. Make sure fixes don't cause new problems
 4. Build a library of test cases for future testing
 
-This can be done either through the UI or programmatically, depending on your workflow.
+This can be done either through the console or programmatically, depending on your workflow.
 
 ## Best Practices for Dataset Management
+
 When working with datasets consider these tips:
 
 1. **Start Small and Representative**
@@ -155,8 +160,8 @@ When working with datasets consider these tips:
   - **Why**: Separate datasets for different types of tests (e.g., basic functionality, edge cases, regression tests) make it easier to target specific goals and analyze results.
   - **How**: Create and name datasets according to their intended use.
 6. **Choose the Right Approach**
-  - **Why**: The UI is great for quick edits and visual exploration, while code is better for automation and bulk operations.
--  **How**: Use both as needed—UI for ad hoc changes, SDK for systematic or large-scale updates.  
+  - **Why**: The console is great for quick edits and visual exploration, while code is better for automation and bulk operations.
+-  **How**: Use both as needed. Use the console for ad hoc changes, SDK for systematic or large-scale updates.  
 7. **Track Progress**
   - **Why**: Monitoring how changes affect both specific issues and overall performance helps you measure improvement and catch regressions.
   - **How**: Use metrics, dashboards, or manual review to assess the impact of dataset and prompt changes.
@@ -165,13 +170,13 @@ When working with datasets consider these tips:
   - **How**: Never delete old test cases—archive or version them instead.
 9. **Keep Your Dataset Schema Consistent**
   - **Why**: Inconsistent schemas (e.g., missing fields) can cause prompt rendering errors or unexpected results.
-  - **How**: Ensure every sample contains all fields referenced in your prompt templates.
+  - **How**: Ensure every row contains all fields referenced in your prompt templates.
 10. **Use Nested Access for Dictionaries**
   - **Why**: Many real-world datasets have nested structures. Dot notation (e.g., `input.metadata.days`) lets you access these fields cleanly in your prompt templates.
   - **How**: Reference nested fields using dot notation in your prompt templates.
 11. **Test Your Prompt Templates**
   - **Why**: Testing ensures that variables are replaced as expected and helps catch typos or missing fields before running large experiments.
-  - **How**: Render your prompt with a sample input to verify correct variable substitution.
+  - **How**: Render your prompt with a row input to verify correct variable substitution.
 12. **Document Your Prompt Templates**
   - **Why**: Clear documentation of which fields are used in your prompt templates helps maintainers and collaborators understand dependencies between your data and prompts.
   - **How**: Add comments or documentation near your prompt templates explaining expected input fields.
@@ -180,6 +185,6 @@ By following these practices and using Galileo's dataset management features, yo
 
 ## Summary
 
-Galileo's dataset management capabilities provide a foundation for systematic testing and continuous improvement of your AI applications. With two distinct paths for creating and managing datasets—through the UI or programmatically—choose the approach that best fits your workflow and team's needs.
+Galileo's dataset management capabilities provide a foundation for systematic testing and continuous improvement of your AI applications. With two distinct paths for creating and managing datasets—through the console or programmatically—choose the approach that best fits your workflow and team's needs.
 
 By leveraging datasets and the best practices provided, you can build a comprehensive test suite that helps you identify and address issues before they impact your users.
