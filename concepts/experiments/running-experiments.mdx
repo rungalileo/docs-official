@@ -19,11 +19,13 @@ import SnippetExperimentsCustomMetricsTypescript from "/snippets/code/typescript
 import SnippetExperimentsGetLoggerTypeScript from "/snippets/code/typescript/concepts/experiments/get-logger.mdx";
 import SnippetExperimentsGetCurrentParentTypeScript from "/snippets/code/typescript/concepts/experiments/get-current-parent.mdx";
 import SnippetExperimentsLoggingWithParentCheckTypeScript from "/snippets/code/typescript/concepts/experiments/logging-with-parent-check.mdx";
-import FindWorldRunExperiment from "/snippets/code/multilingual/concepts/experiments/find-world-run-experiment.mdx"
-import FindWorldToolLogged from "/snippets/code/multilingual/concepts/experiments/find-world-log-tool.mdx"
-import FindWorldLogRunner from "/snippets/code/multilingual/concepts/experiments/find-world-log-runner.mdx"
-import FindWorldLogFull from "/snippets/code/multilingual/concepts/experiments/find-world-log-full.mdx"
-import FindWorldLogImports from "/snippets/code/multilingual/concepts/experiments/find-world-log-imports.mdx"
+import FindWorldCustomDBPython from "/snippets/code/python/concepts/experiments/find-world-mock-db.mdx"
+import FindWorldCustomDBTypeScript from "/snippets/code/typescript/concepts/experiments/find-world-mock-db.mdx"
+import FindWorldLogRunnerPython from "/snippets/code/python/concepts/experiments/find-world-log-runner.mdx"
+import FindWorldLogRunnerTypeScript from "/snippets/code/typescript/concepts/experiments/find-world-log-runner.mdx"
+import FindWorldLogFullPython from "/snippets/code/python/concepts/experiments/find-world-log-full.mdx"
+import FindWorldLogFullTypeScript from "/snippets/code/typescript/concepts/experiments/find-world-log-full.mdx"
+import FindWorldLogImportsPython from "/snippets/code/python/concepts/experiments/find-world-log-imports.mdx"
 
 
 As you progress from initial testing to systematic evaluation, you'll want to run experiments to validate your application's performance and behavior. Here are several ways to structure your experiments, starting from the simplest approaches and moving to more sophisticated implementations.
@@ -122,7 +124,16 @@ You can also use the `@log` [decorator](/sdk-api/python/logging/log-decorator) o
 Let's begin by importing everything that we will need, and defining a data source for the function. 
 
 <CodeGroup>
-    <FindWorldLogImports />
+    <FindWorldLogImportsPython />
+    ```typescript TypeScript
+    import { configDotenv } from "dotenv";
+
+    // Galileo dependencies
+    import { log, runExperiment } from "galileo";
+
+    // Load environment variables
+    configDotenv();
+    ```
 </CodeGroup>
 
 Here's our simple dataset of fictional world names: 
@@ -139,30 +150,8 @@ const dataset = [{ input: "Varn" }, { input: "Drath" }]
 Our dataset is linked to a mock database of worlds, which we can use to implement a tool that fetches a description for each world in the list:
 
 <CodeGroup>
-```python Python
-worlds_db = [
-    {
-        "name": "Varn",
-        "description": "Varn is a tidally locked moon orbiting a gas giant; its habitable zone is a narrow band of eternal dusk where life has adapted to constant twilight.",
-    },
-    {
-        "name": "Drath",
-        "description": "Drath is a high-gravity planet covered in dense jungle, where evolution favors thick carapaces and low, crawling vegetation.",
-    },
-]
-```
-```typescript TypeScript
-const worldsDb = [
-    {
-        name: "Varn",
-        description: "Varn is a tidally locked moon orbiting a gas giant; its habitable zone is a narrow band of eternal dusk where life has adapted to constant twilight.",
-    },
-    {
-        name: "Drath",
-        description: "Drath is a high-gravity planet covered in dense jungle, where evolution favors thick carapaces and low, crawling vegetation.",
-    },
-]
-```
+  <FindWorldCustomDBPython />
+  <FindWorldCustomDBTypeScript />
 </CodeGroup>
 
 
@@ -171,7 +160,23 @@ const worldsDb = [
         We'll create a simple regex function to find a matching world from the list, and use the `@log` decorator to identify the function as a tool:
 
         <CodeGroup>
-            <FindWorldToolLogged />
+            ```python Python {1}
+            @log(span_type="tool")
+            def find_fictional_world(name: str) -> str:
+                """Returns a short description of a fictional world matching `name`"""
+
+                for w in worlds_db:
+                    if re.search(name, w["name"], flags=re.IGNORECASE):
+                        return w["description"]
+                return "No matches found"
+            ```
+            ```typescript TypeScript {2,5}
+            /** Returns a short description of a fictional world matching `name` */ 
+            const findFictionalWorld = log({ spanType: "tool" }, (name: string): string => {
+                const match = worldsDb.find((w) => new RegExp(name, "i").test(w.name));
+                return match?.description ?? "No matches found";
+            })
+            ```
         </CodeGroup>
     </Step>
 
@@ -198,20 +203,38 @@ const worldsDb = [
         Now we can define another simple function for Galileo's experiment runner:
 
         <CodeGroup>
-            <FindWorldLogRunner />
+            <FindWorldLogRunnerPython />
+            <FindWorldLogRunnerTypeScript />
         </CodeGroup>
     </Step>
 
     <Step title="Run the experiment!">
         We can now run the experiment:
         <CodeGroup>
-            <FindWorldRunExperiment />
+            ```python Python
+            # run the experiment
+            results = run_experiment(
+                project=os.environ.get("GALILEO_PROJECT"),
+                experiment_name="Fictional Worlds Experiment",
+                dataset=dataset,
+                function=llm_call,
+            )
+            ```
+            ```typescript TypeScript 
+            // run the experiment (note: `runExperiment` is an async function)
+            runExperiment({
+                projectName: process.env.GALILEO_PROJECT!,
+                name: "Fictional Worlds Experiment-TS",
+                dataset: dataset,
+                function: llmCall
+            });
+            ```
         </CodeGroup>
     </Step>
 </Steps>
 
 
-As before, your terminal will print out each response from the LLM, as well as a URL to view the captured traces in the [Galileo Console](https://app.galileo.ai) when the experiment ends. You can also view the experiment data in the log stream you specified (or your default log stream, if you didn't).
+When the experiment runs, your terminal will print out each response from the LLM, and conclude with a URL to view the captured traces in the [Galileo Console](https://app.galileo.ai). 
 
 <span id="fictional-world-agent-full" />
 <Accordion title="Log function code (select to expand)">
