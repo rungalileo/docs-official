@@ -1,0 +1,127 @@
+---
+title: Prompts
+description: Learn how to create and use prompt templates in experiments
+syncTabs: true
+---
+
+import SnippetSdkPromptsCreatePython from "/snippets/code/python/sdk/prompts/create.mdx";
+import SnippetSdkPromptsGetPython from "/snippets/code/python/sdk/prompts/get.mdx";
+import SnippetSdkPromptsListPython from "/snippets/code/python/sdk/prompts/list.mdx";
+import SnippetSdkPromptsDeletePython from "/snippets/code/python/sdk/prompts/delete.mdx";
+import SnippetSdkPromptsExperimentPython from "/snippets/code/python/sdk/datasets/experiments.mdx";
+
+import SnippetSdkPromptsCreateTypeScript from "/snippets/code/typescript/sdk/prompts/create.mdx";
+import SnippetSdkPromptsGetTypeScript from "/snippets/code/typescript/sdk/prompts/get.mdx";
+import SnippetSdkPromptsListTypeScript from "/snippets/code/typescript/sdk/prompts/list.mdx";
+import SnippetSdkPromptsDeleteTypeScript from "/snippets/code/typescript/sdk/prompts/delete.mdx";
+import SnippetSdkPromptsExperimentTypeScript from "/snippets/code/typescript/sdk/datasets/experiments.mdx";
+
+Prompt templates in Galileo allow you to create, store, and reuse prompts across your experiments. They provide a structured way to manage your prompts and ensure consistency in your LLM interactions.
+
+## Create Prompt Templates
+
+<CodeGroup>
+  <SnippetSdkPromptsCreatePython />
+  <SnippetSdkPromptsCreateTypeScript />
+</CodeGroup>
+
+### Connect Prompt Templates to Dataset Inputs
+
+When you use datasets in Galileo, the attributes stored in the input in your dataset are made available to your prompt templates using mustache templating.  This allows you to create dynamic prompts that adapt to the data in each row.
+
+Suppose you have the following dataset: 
+
+<CodeGroup>
+```python Python
+test_data = [
+    { "input": { "city": "Rome, Italy", "days": "5" } },
+    { "input": { "city": "Paris, France", "days": "3" } },
+]
+```
+
+```typescript TypeScript
+const testData = [
+    { input: { "city": "Rome, Italy", "days": "5" } },
+    { input: { "city": "Paris, France", "days": "3" } },
+];
+```
+</CodeGroup>
+
+To reference fields from your dataset in your prompt, use double curly braces:
+
+<CodeGroup>
+```python Python
+Message(role=MessageRole.user, 
+        content="""
+        Plan a {{ days }}-day travel itinerary
+        for a trip to {{ city }}.
+        """)
+```
+```typescript TypeScript
+{ 
+  role: "user", 
+  content: `
+    Please write a short story about
+    the following topic: {topic}
+    `
+}
+```
+</CodeGroup>
+
+- `{{ city }}` will be replaced with the value of the `city` field inside the `input` dictionary. 
+- `{{ days }}` will be replaced with the value of the `days` field inside the `input` dictionary. 
+
+## Get Prompt Templates
+
+<CodeGroup>
+  <SnippetSdkPromptsGetPython />
+  <SnippetSdkPromptsGetTypeScript />
+</CodeGroup>
+
+## List Prompt Templates
+
+To list all prompt templates in a project:
+
+<CodeGroup>
+  <SnippetSdkPromptsListPython />
+  <SnippetSdkPromptsListTypeScript />
+</CodeGroup>
+
+## Delete Prompt Templates
+
+To delete a prompt template:
+
+<CodeGroup>
+  <SnippetSdkPromptsDeletePython />
+  <SnippetSdkPromptsDeleteTypeScript />
+</CodeGroup>
+
+## Use Prompts in Experiments
+
+Prompts can be used in experiments to evaluate different prompt templates:
+
+<CodeGroup>
+  <SnippetSdkPromptsExperimentPython />
+  <SnippetSdkPromptsExperimentTypeScript />
+</CodeGroup>
+
+## Best Practices
+
+When working with prompt templates:
+
+1. Use descriptive names that reflect the template's purpose
+2. Include clear system messages to set context
+3. Document any required input variables
+4. Version your templates appropriately
+5. Test templates with various inputs before using in production
+
+## Related Resources
+
+<CardGroup cols={2}>
+<Card title="Datasets" icon="database" horizontal href="/concepts/datasets">
+    Learn about more datasets, the data driving your experiments.
+</Card>
+<Card title="Experiments" icon="flask" horizontal href="/concepts/experiments/overview">
+    Learn how to use datasets and experiments to improve your application.
+</Card>
+</CardGroup>
