@@ -1,23 +1,21 @@
 ````typescript TypeScript
-import { createDataset, createPromptTemplate, GalileoScorers, runExperiment } from "galileo";
+import { 
+  getDataset, createPromptTemplate, 
+  GalileoScorers, runExperiment
+} from "galileo";
 import { MessageRole } from "galileo/types";
 
 async function runPromptTemplateExperiment() {
   const projectName = "my-project";
 
-  const dataset = await createDataset(
-    [
-      { input: "Which continent is Spain in?", output: "Europe" },
-      { input: "Which continent is Japan in?", output: "Asia" },
-    ],
-    "geography-dataset",
-  );
-
   const template = await createPromptTemplate({
     template: [
       { 
         role: MessageRole.system,
-        content: "You are a geography expert. Respond with only the continent name."
+        content: `
+          You are a geography expert.
+          Respond with only the continent name.
+          `
       },
       { 
         role: MessageRole.user, 
@@ -30,10 +28,12 @@ async function runPromptTemplateExperiment() {
 
   await runExperiment({
     name: "geography-experiment",
-    dataset: dataset,
+    // Name of a dataset you created
+    dataset: getDataset({name="countries"}),
     promptTemplate: template,
     promptSettings: {
       max_tokens: 256,
+      // Make sure you have an integration set up for the model alias you're using
       model_alias: "GPT-4o",
       temperature: 0.8,
     },

@@ -22,17 +22,20 @@ prompt_template = create_prompt_template(
 )
 
 # 1b. (OPTIONAL) If the prompt template already exists, fetch it:
-# prompt_template = get_prompt_template(name="geography-prompt", project=project)  
+# prompt_template = get_prompt_template(name="geography-prompt",
+#                                       project=project)  
 
 # 2. Run the experiment and get results
 results = run_experiment(
 	"geography-experiment",
-	dataset=get_dataset(name="countries"), # Name of a dataset you created
+	# Name of a dataset you created
+	dataset=get_dataset(name="countries"), 
 	prompt_template=prompt_template,
 	# Optional
 	prompt_settings={
 		"max_tokens": 256,
-		# Make sure you have an integration set up for the model alias you're using
+		# Make sure you have an integration set up
+		# for the model alias you're using
 		"model_alias": "GPT-4o",
 		"temperature": 0.8
 	},
