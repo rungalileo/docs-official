@@ -1,0 +1,28 @@
+```python Python
+from galileo import log
+
+# Create a workflow span (default)
+@log
+def my_workflow_function(input):
+    # This can contain multiple steps and child spans
+    return result
+
+# Create an LLM span
+@log(span_type="llm")
+def my_llm_function(input):
+    # This should be for direct LLM calls
+    return result
+
+# Create a retriever span
+@log(span_type="retriever")
+def my_retriever_function(query):
+    # For functions that retrieve documents
+    # If the output is an array, it will be captured as documents
+    return ["doc1", "doc2"]
+
+# Create a tool span
+@log(span_type="tool")
+def my_tool_function(input="tool call input"):
+    # For functions that act as tools in an agent system
+    return "tool call output"
+```

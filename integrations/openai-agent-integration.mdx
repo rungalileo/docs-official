@@ -1,7 +1,7 @@
 ---
 title: "OpenAI Agent Integration"
 syncTabs: true
-tag: Python TypeScript
+tag: Python
 ---
 
 import SnippetAgentIntegration1Python from "/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-1.mdx";
@@ -14,16 +14,6 @@ import SnippetAgentIntegration7Python from "/snippets/code/python/how-to-guides/
 import SnippetAgentIntegration8Python from "/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-8.mdx";
 import SnippetAgentIntegration9Python from "/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-9.mdx";
 import SnippetAgentIntegration10Python from "/snippets/code/python/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-py-10.mdx";
-import SnippetAgentIntegration1Typescript from "/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-1.mdx";
-import SnippetAgentIntegration2Typescript from "/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-2.mdx";
-import SnippetAgentIntegration3Typescript from "/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-3.mdx";
-import SnippetAgentIntegration4Typescript from "/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-4.mdx";
-import SnippetAgentIntegration5Typescript from "/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-5.mdx";
-import SnippetAgentIntegration6Typescript from "/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-6.mdx";
-import SnippetAgentIntegration7Typescript from "/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-7.mdx";
-import SnippetAgentIntegration8Typescript from "/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-8.mdx";
-import SnippetAgentIntegration9Typescript from "/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-9.mdx";
-import SnippetAgentIntegration10Typescript from "/snippets/code/typescript/how-to-guides/agentic-ai/openai-agent-integration/openai-agent-integration-ts-10.mdx";
 
 Follow this step-by-step guide to build a "Homework Assistant" AI agent pipeline using **Galileo's OpenAI integrations**.
 
@@ -41,11 +31,6 @@ mkdir homework-assistant
 cd homework-assistant
 ```
 
-```typescript TypeScript
-mkdir homework-assistant
-cd homework-assistant
-```
-
 </CodeGroup>
 
 </Step>
@@ -56,7 +41,6 @@ Install the **Galileo SDK** and other necessary dependencies using the following
 
 <CodeGroup>
   <SnippetAgentIntegration1Python />
-  <SnippetAgentIntegration1Typescript />
 </CodeGroup>
 
 </Step>
@@ -69,12 +53,6 @@ In your project folder, create a new blank application file and `.env` file.
 ```python Python
 homework-assistant/
 │── app.py
-│── .env
-```
-
-```typescript TypeScript
-homework-assistant/
-│── app.ts
 │── .env
 ```
 
@@ -104,7 +82,6 @@ In your application file, add the following code to import all required librarie
 
 <CodeGroup>
   <SnippetAgentIntegration2Python />
-  <SnippetAgentIntegration2Typescript />
 </CodeGroup>
 
 </Step>
@@ -114,13 +91,12 @@ Add the code below to your application file to define an output structure.
 
 The Guardrail agent uses this structure to **reject invalid outputs by type**. For example, an `int` would be an invalid output in response to the question "Who was the first president of the United States?"
 
-This is achieved in **Python** using `BaseModel`, or in **TypeScript** using an `interface`.
+This is achieved in **Python** using `BaseModel`.
 
 - **BaseModel:** A **Python** class from the `pydantic` library which automatically validates whether groups of values are the correct types.
 
 <CodeGroup>
   <SnippetAgentIntegration3Python />
-  <SnippetAgentIntegration3Typescript />
 </CodeGroup>
 
 </Step>
@@ -133,7 +109,6 @@ Add the code below to your application file to create **two specialized "tutor a
 
 <CodeGroup>
   <SnippetAgentIntegration4Python />
-  <SnippetAgentIntegration4Typescript />
 </CodeGroup>
 
 </Step>
@@ -146,7 +121,6 @@ Add the code below to your application file to set up a **Guardrail agent** that
 
 <CodeGroup>
   <SnippetAgentIntegration5Python />
-  <SnippetAgentIntegration5Typescript />
 </CodeGroup>
 
 </Step>
@@ -159,7 +133,6 @@ Add the code below to your application file to define the Guardrail agent's logi
 
 <CodeGroup>
   <SnippetAgentIntegration6Python />
-  <SnippetAgentIntegration6Typescript />
 </CodeGroup>
 
 </Step>
@@ -172,7 +145,6 @@ Add the code below to your application file to set up a **Triage agent** to pass
 
 <CodeGroup>
   <SnippetAgentIntegration7Python />
-  <SnippetAgentIntegration7Typescript />
 </CodeGroup>
 
 </Step>
@@ -181,11 +153,14 @@ Add the code below to your application file to set up a **Triage agent** to pass
 
 Add the code below to your application file. It **runs the complete system** by sending sample inputs and observing which agents handles the questions.
 
+This code also sets a custom [OpenAI trace processor](https://openai.github.io/openai-agents-python/tracing/#custom-tracing-processors). This call replaces the built in OpenAI trace processor with a Galileo one that logs traces to Galileo.
+
+To learn more, check out the [Python `GalileoTracingProcessor` SDK docs](/sdk-api/python/reference/handlers/openai_agents#galileotracingprocessor-objects).
+
 - **Runner**: A utility that executes the agents with provided input and context.
 
 <CodeGroup>
   <SnippetAgentIntegration8Python />
-  <SnippetAgentIntegration8Typescript />
 </CodeGroup>
 
 </Step>
@@ -196,7 +171,6 @@ Below is the **final combined code** for the "Homework Assistant" AI agent appli
 
 <CodeGroup>
   <SnippetAgentIntegration9Python />
-  <SnippetAgentIntegration9Typescript />
 </CodeGroup>
 
 </Step>
@@ -236,7 +210,6 @@ To see the Tripwire get triggered, modify one of the inputs to be a question tha
 
 <CodeGroup>
   <SnippetAgentIntegration10Python />
-  <SnippetAgentIntegration10Typescript />
 </CodeGroup>
 
 </Step>

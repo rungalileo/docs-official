@@ -5,11 +5,9 @@ from agents import (
     Agent,
     GuardrailFunctionOutput,
     InputGuardrail,
-    InputGuardrailTripwireTriggered,
     Runner
 )
 from pydantic import BaseModel
-import os
 import asyncio
 from dotenv import load_dotenv
 load_dotenv()
@@ -23,17 +21,24 @@ class HomeworkOutput(BaseModel):
 math_tutor_agent = Agent(
     name="Math Tutor",
     handoff_description="Specialist agent for math questions",
-    instructions="You provide help with math problems. Explain your reasoning at each step and include examples",
+    instructions="""
+    You provide help with math problems.
+    Explain your reasoning at each step and include examples
+    """,
 )
 
 # Create history tutor agent to answer history questions
 history_tutor_agent = Agent(
     name="History Tutor",
     handoff_description="Specialist agent for historical questions",
-    instructions="You provide assistance with historical queries. Explain important events and context clearly.",
+    instructions="""
+    You provide assistance with historical queries.
+    Explain important events and context clearly.
+    """,
 )
 
-# Create Guardrail agent to determine if input question is homework-related
+# Create Guardrail agent to determine if input question
+# is homework-related
 guardrail_agent = Agent(
     name="Guardrail check",
     instructions="Check if the user is asking about homework.",
@@ -42,21 +47,30 @@ guardrail_agent = Agent(
 
 # Set tripwire to filter out non-homework questions with Guardrail agent
 async def homework_guardrail(ctx, agent, input_data):
-    result = await Runner.run(guardrail_agent, input_data, context=ctx.context)
+    result = await Runner.run(guardrail_agent, 
+                              input_data,
+                              context=ctx.context)
     final_output = result.final_output_as(HomeworkOutput)
-    return GuardrailFunctionOutput(output_info=final_output, tripwire_triggered=not final_output.is_homework)
+    return GuardrailFunctionOutput(output_info=final_output, 
+        tripwire_triggered=not final_output.is_homework)
 
 # Create Triage agent to determine which tutor agent to use
 triage_agent = Agent(
     name="Triage Agent",
     instructions="You determine which agent to use based on the user's homework question",
     handoffs=[history_tutor_agent, math_tutor_agent],
-    input_guardrails=[InputGuardrail(guardrail_function=homework_guardrail)],
+    input_guardrails=[
+        InputGuardrail(guardrail_function=homework_guardrail)
+    ],
 )
 
 # Use the Runner to run the agents and get the answers
 async def main():
-    result = await Runner.run(triage_agent, "who was the first president of the united states?")
+    # Set the trace processor to the Galileo trace processor
+    set_trace_processors([GalileoTracingProcessor()])
+
+    result = await Runner.run(triage_agent, 
+        "who was the first president of the united states?")
     print(result.final_output)
 
     result = await Runner.run(triage_agent, "what is life?")

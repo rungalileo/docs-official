@@ -1,0 +1,72 @@
+---
+title: Log Stream Metrics
+description: Learn how to configure metrics for log streams, including managing sampling rates
+---
+
+Once you have traces feeding in to a log stream, you can configure the metrics that you want to evaluate. Metrics are managed at organizational level, including the creation of custom metrics, then are used to evaluate traces at the log stream level.
+
+## Configure metrics for a log stream
+
+To configure metrics, open your log stream and select the **Configure Metrics** button.
+
+<Note>
+You will need at least one session in your log stream to be able to configure metrics.
+</Note>
+
+![The configure metrics button on the sessions tab](/how-to-guides/luna/evaluate-with-luna/configure-metrics-button.webp)
+
+This will load the **Configure metrics** pane.
+
+![The configure metrics pane with the action advancement metric turned on and the switch highlighted, and the save and close button highlighted](/concepts/logging/configure-metrics/configure-metrics-pane.webp)
+
+From here you can filter and search for metrics, then turn on the relevant ones for your log stream. Once you have the metrics you need turned on, select the **Save and close** button to save your settings.
+
+You can also create new custom metrics from this pane, either using an [LLM as a judge](/concepts/metrics/custom-metrics/custom-metrics-ui-llm), or in [code](/concepts/metrics/custom-metrics/custom-metrics-ui-code), then add them to your log stream.
+
+## Metric sampling
+
+Every evaluation interacts with an LLM (unless you are only using custom code based metrics), and therefore has an associated cost.
+
+When your application is in development you will probably want to evaluate every trace that is captured, but once your application is in production and is scaling to hundreds, thousands, or even millions of users you most likely want to reduce your evaluation costs by only evaluating a small sample of the traces that are captured.
+
+To configure metric sampling rate rules, select the **Metric Sampling** button.
+
+![The metrics sampling button](/concepts/logging/configure-metrics/metric-sampling-button.webp)
+
+From here you can configure the metric sampling rates. These rates can be applied to all metrics (including custom code metrics and Luna 2 metrics), or LLM-as-a-judge metrics only.
+
+Set the sampling rate you want, then select the **Save** button.
+
+![The metrics sampling dialog](/concepts/logging/configure-metrics/metric-sampling-dialog.webp)
+
+<Note>
+When you configure the sample rates, all traces are captured and visible in Galileo, but metrics will only be evaluated for those traces based off the sample rates.
+
+For example, if you set the sampling to 10% and create 100 traces, then all 100 traces will be visible in Galileo, with metrics evaluated for just 10 of them.
+</Note>
+
+{/* 
+
+Commented out till the functionality is working - https://app.shortcut.com/galileo/story/34033/
+
+### Metric sampling rates
+
+The most basic way to set sampling rates is by a percentage for all incoming logs. When you set a percentage, all traces are stored and available in Galileo, but only that percentage of traces will be evaluated. A trace is either evaluated for all configured metrics, or not evaluated.
+
+You can configure sampling at a more granular level by adding additional rules based off metadata. For example, if you are onboarding a new customer and want to evaluate all of their logs during the onboarding process, you can add the customer name to your metadata, and set a rule to evaluate 100% of traces that have that customer name in their metadata.
+
+These rules are applied in a top-down approach, so the first rule is evaluated and if the metadata matches, then the percentage is used, if not the next rule is evaluated, and so on. Finally if no rules match, the default sampling rate for all traces is used. */}
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="Metrics Overview" href="/concepts/metrics/overview" horizontal>
+  Explore Galileo's comprehensive metrics framework for evaluating and improving AI system performance across multiple dimensions.
+</Card>
+<Card title="Custom LLM-as-a-Judge Metrics" href="/concepts/metrics/custom-metrics/custom-metrics-ui-llm" horizontal>
+  Learn how to create evaluation metrics using LLMs to judge the quality of responses.
+</Card>
+<Card title="Custom Code Based Metrics" href="/concepts/metrics/custom-metrics/custom-metrics-ui-code" horizontal>
+  Learn how to create, register, and use custom metrics to evaluate your LLM applications.
+</Card>
+</CardGroup>
