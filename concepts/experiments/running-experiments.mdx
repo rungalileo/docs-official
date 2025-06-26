@@ -118,7 +118,9 @@ This behavior is also useful if you are logging to an existing logger, such as w
 
 ### Using the `log` decorator or function wrapper
 
-You can use the `@log` [decorator](/sdk-api/python/logging/log-decorator) or [function wrapper (TypeScript)](/sdk-api/typescript/logging/log-function-wrapper) to capture function calls in your custom function code experiments. The `@log` decorator or function wrapper enables you to identify functions that should generate unique spans in your application, like LLM calls or tool usage. This approach can be used to simulate an LLM call, so no API credits are used while you test the expected flow of your LLM application. 
+You can use the `@log` [decorator](/sdk-api/python/logging/log-decorator) or [function wrapper (TypeScript)](/sdk-api/typescript/logging/log-function-wrapper) to capture function calls in your custom function code experiments. The `@log` decorator or function wrapper enables you to identify functions that should generate unique spans in your application, like LLM calls or tool usage. 
+
+You can implement this by annotating your relevant functions with the `@log` decorator (Python), or wrapping the function in the `log` function wrapper (TypeScript). Then, you can run the experiment, and subsequently view the captured traces in the [Galileo Console](https://app.galileo.ai). This approach can be used to simulate an LLM call, so no API credits are used while you test the expected flow of your LLM application. 
 
 In the example below, we define a simple dataset of fictional worlds, with each entry linked to a mock database. We also define a function for calling the LLM, as well as a function that simulates tool usage when the LLM is called. When the experiment runs, your terminal will print out each response from the LLM, and conclude with a URL to view the captured traces in the [Galileo Console](https://app.galileo.ai). 
 
