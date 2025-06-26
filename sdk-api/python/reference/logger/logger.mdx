@@ -70,48 +70,6 @@ logger.flush()
 ```
 
 
-#### start\_trace
-
-```python
-@nop_sync
-def start_trace(input: StepAllowedInputType,
-                name: Optional[str] = None,
-                duration_ns: Optional[int] = None,
-                created_at: Optional[datetime] = None,
-                metadata: Optional[dict[str, str]] = None,
-                tags: Optional[list[str]] = None,
-                dataset_input: Optional[str] = None,
-                dataset_output: Optional[str] = None,
-                dataset_metadata: Optional[dict[str, str]] = None,
-                external_id: Optional[str] = None) -> Trace
-```
-
-Create a new trace and add it to the list of traces.
-
-Simple usage:
-```
-my_traces.start_trace("input")
-my_traces.add_llm_span("input", "output", model="<my_model>")
-my_traces.conclude("output")
-```
-
-**Arguments**:
-
-  ----------
-- `input` - StepIOType: Input to the node.
-- `output` - Optional[str]: Output of the node.
-- `name` - Optional[str]: Name of the trace.
-- `duration_ns` - Optional[int]: Duration of the trace in nanoseconds.
-- `created_at` - Optional[datetime]: Timestamp of the trace&#x27;s creation.
-- `metadata` - Optional[Dict[str, str]]: Metadata associated with this trace.
-- `ground_truth` - Optional[str]: Ground truth, expected output of the trace.
-
-**Returns**:
-
-  -------
-- `Trace` - The created trace.
-
-
 #### add\_single\_llm\_span\_trace
 
 ```python
