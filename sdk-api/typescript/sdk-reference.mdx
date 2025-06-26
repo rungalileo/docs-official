@@ -5,19 +5,20 @@ title: Overview
 import SnippetNpmInstall from "/snippets/code/typescript/sdk/installation/npm.mdx";
 import SnippetYarnInstall from "/snippets/code/typescript/sdk/installation/yarn.mdx";
 import SnippetPnpmInstall from "/snippets/code/typescript/sdk/installation/pnpm.mdx";
-import SnippetEnvSetup from "/snippets/code/typescript/sdk/env-setup/env.mdx";
-import SnippetOpenAISimple from "/snippets/code/typescript/sdk/wrappers/openai-simple.mdx";
-import SnippetLogWrapperExample from "/snippets/code/typescript/sdk/logging/log-wrapper-example.mdx";
-import SnippetGalileoLoggerExample from "/snippets/code/typescript/sdk/logging/galileo-logger-example.mdx";
-import SnippetCreatePrompt from "/snippets/code/typescript/sdk/prompts/create.mdx";
-import SnippetGetPrompt from "/snippets/code/typescript/sdk/prompts/get.mdx";
-import SnippetExperiment from "/snippets/code/typescript/sdk/datasets/experiments.mdx";
-import SnippetRunnerFunction from "/snippets/code/typescript/concepts/experiments/existing-dataset.mdx";
-import SnippetCustomDataset from "/snippets/code/typescript/concepts/experiments/custom-dataset.mdx";
+import SnippetEnvSetup from "/snippets/code/multilingual/env-setup.mdx";
 
 ## Introduction
 
-This document covers the design and developer experience of the TypeScript client library for Galileo. Here is the full [Galileo TypeScript SDK ](https://github.com/rungalileo/galileo-js) ([latest release](https://github.com/rungalileo/galileo-js/releases/latest)).
+This document covers the design and developer experience of the TypeScript client library for Galileo. 
+
+<CardGroup cols={2}>
+<Card title="TypeScript SDK" icon="js" horizontal href="https://www.npmjs.com/package/galileo">
+    The Galileo TypeScript SDK on npm.
+</Card>
+<Card title="TypeScript SDK GitHub repo" icon="github" horizontal href="https://github.com/rungalileo/galileo-js">
+    The GitHub repo for the Galileo TypeScript SDK.
+</Card>
+</CardGroup>
 
 > Note: This library is in pre-release mode and may not be stable.
 
@@ -44,88 +45,3 @@ process.env.GALILEO_API_KEY = "your-api-key";
 process.env.GALILEO_PROJECT = "your-project";
 process.env.GALILEO_LOG_STREAM = "your-log-stream";
 ```
-
-## Logging
-
-### OpenAI Client Wrapper
-
-The simplest way to get started is to use our OpenAI client wrapper. This example will automatically produce a single-span trace in the Log stream UI:
-
-<CodeGroup>
-  <SnippetOpenAISimple />
-</CodeGroup>
-
-### Log Function Wrapper
-
-The `log` function wrapper allows you to wrap functions with spans of different types. This is useful for creating workflow spans with nested LLM calls or tool spans.
-
-<CodeGroup>
-  <SnippetLogWrapperExample />
-</CodeGroup>
-
-#### Span Types
-
-Here are the different span types:
-
-- **Workflow**: A span that can have child spans, useful for nesting several child spans to denote a thread within a trace. If you wrap a parent function with `log`, calls that are made within that scope are automatically logged in the same trace.
-- **LLM**: Captures the input, output, and settings of an LLM call. This span gets automatically created when our client library wrappers (OpenAI and Anthropic) are used. Cannot have nested children.
-- **Retriever**: Contains the output documents of a retrieval operation.
-- **Tool**: Captures the input and output of a tool call. Used to decorate functions that are invoked as tools.
-
-### GalileoLogger
-
-For more advanced use cases, you can use the GalileoLogger directly:
-
-<CodeGroup>
-  <SnippetGalileoLoggerExample />
-</CodeGroup>
-
-## Prompts
-
-Create and use a prompt template:
-
-<CodeGroup>
-  <SnippetCreatePrompt />
-</CodeGroup>
-
-You can also use an existing template:
-
-<CodeGroup>
-  <SnippetGetPrompt />
-</CodeGroup>
-
-## Datasets
-
-### Creating and Using Datasets
-
-You can create and use datasets for experiments:
-
-```typescript
-import { getDataset } from "galileo";
-
-const dataset = await getDataset(undefined, "names");
-```
-
-## Experiments
-
-### Evaluating with Runner Function
-
-You can use a runner function to run an experiment with a dataset:
-
-<CodeGroup>
-  <SnippetRunnerFunction />
-</CodeGroup>
-
-### Running an Experiment with a Prompt Template
-
-<CodeGroup>
-  <SnippetExperiment />
-</CodeGroup>
-
-### Running an Experiment with Custom Dataset
-
-You can also use a locally generated dataset with a runner function:
-
-<CodeGroup>
-  <SnippetCustomDataset />
-</CodeGroup>
