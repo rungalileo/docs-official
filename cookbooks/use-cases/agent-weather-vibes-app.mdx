@@ -21,32 +21,32 @@ A command-line agent that:
 
 - Building multi-service AI agents
 - Integrating with external APIs
-- Analyzing agent performance
+- Analyzing agent performance with Galileo observability
 
-The application leverages multiple tools to create its final end result.
+The application leverages multiple tools to create its final end result:
 
-- **Umbrella Decider** - determines if you should/should not take an umbrella.
 - **Weather Retriever** - gets the current weather based on geographic location
-- **YouTube Retriever** - calls the YouTube API key guided by a prompt to retrieve a video that represents the current "vibes" of the weather.
+- **Recommendations Tool** - generates weather-appropriate item suggestions
+- **YouTube Retriever** - calls the YouTube API guided by a prompt to retrieve a video that represents the current "vibes" of the weather
 
 Finally, we'll run this application to demonstrate [Galileo's Agent Evaluation functionality](https://www.galileo.ai/blog/introducing-agentic-evaluations), where it will determine the success of each run and tool call. You can also follow along [on YouTube](https://youtu.be/h6Ui2kpstR4?si=Bek5yPt6vWtyL0U9).
+
 <iframe width="560" height="315" src="https://www.youtube.com/embed/h6Ui2kpstR4?si=PMVHWPlGN_A7IQ8v" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
 
 ### Requirements
 
-- Python package manager + some familiarity with Python (for the sake of this cookbook, we'll use [uv](https://docs.astral.sh/uv/))
-- OpenAI Key to assist [get one here](https://platform.openai.com/api-keys)
+- Python 3.9+ and familiarity with Python
+- Package manager (pip or uv recommended)
+- OpenAI API Key [get one here](https://platform.openai.com/api-keys)
 - WeatherAPI Key [get a free key here](https://www.weatherapi.com)
 - YouTube Data API Key [get a free key here](https://developers.google.com/youtube/v3/getting-started)
 - A free [Galileo Developer Account](https://app.galileo.ai)
 
-Note, this cookbook assumes that you have already created an account on https://app.galileo.ai — if you haven't, take a moment to create your account, and subsequently create a new project.
-
-Your project name will become the GALILEO_PROJECT_KEY, while your log stream will become the GALILEO_LOG_STREAM. If you left it as default, the log stream key will be `my-log-stream`.
+**Note:** This cookbook assumes you have already created an account on [app.galileo.ai](https://app.galileo.ai). If you haven't, take a moment to create your account and set up a new project. Your project name will become the `GALILEO_PROJECT`, while your log stream will become the `GALILEO_LOG_STREAM`.
 
 ### Sample Application
 
-To see a completed version of this application and other examples using the Galileo SDK, check out our [SDK Examples Repository](https://github.com/rungalileo/sdk-examples/tree/c8f5aa5e63f39a7b261cfbbb998f6c5a4c223057/python/agent/weather-vibes-agent)
+To see a completed version of this application and other examples using the Galileo SDK, check out our [SDK Examples Repository](https://github.com/rungalileo/sdk-examples/tree/main/python/agent/weather-vibes-agent).
 
 ## Environment Setup
 
@@ -66,49 +66,51 @@ To see a completed version of this application and other examples using the Gali
    ```
 
 2. **Create a virtual environment:**
-   **on Windows**
 
+   **Using uv (recommended):**
    ```bash
-   python -m venv venv
-   venv\Scripts\activate
+   uv venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
-   **on Mac**
-   Using a standard virtual environment
-
+   **Using standard Python venv:**
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-   Or using uv (faster)
-
-   ```bash
-   uv venv venv
-   source venv/bin/activate
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
 3. **Install dependencies:**
-   Using pip
 
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-   OR using uv
-
+   **Using uv:**
    ```bash
    uv pip install -r requirements.txt
    ```
 
-4. **Create a .env file** in the project root:
+   **Using pip:**
+   ```bash
+   pip install -r requirements.txt
    ```
+
+4. **Set up environment variables:**
+
+   Copy the `.env.example` file to `.env` and configure your API keys:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Edit the `.env` file with your actual API keys:
+
+   ```ini
    OPENAI_API_KEY=your_openai_key_here
    WEATHERAPI_KEY=your_weatherapi_key_here
    YOUTUBE_API_KEY=your_youtube_key_here
    GALILEO_API_KEY=your_galileo_key_here
-   GALILEO_LOG_STREAM=weather_vibes_agent
+   GALILEO_PROJECT=your-project-name-here
+   GALILEO_LOG_STREAM=your-log-stream-name-here
    ```
+
+   **Important:** Replace the placeholder values with your actual API keys. The `GALILEO_PROJECT` and `GALILEO_LOG_STREAM` can be customized to match your Galileo project setup.
 
 ## Understanding the Agent Architecture
 
@@ -118,7 +120,7 @@ The Weather Vibes Agent consists of several key components:
 
 Handles the main agent logic, coordinates tools, and processes requests.
 
-### 🛠️ Tools
+### 🛠️ Tools (`tools/`)
 
 Specialized modules for specific tasks:
 
@@ -132,7 +134,7 @@ Defines the agent's capabilities, inputs, outputs, and configuration in a format
 
 ### 🔍 Instrumentation (`agent.py`)
 
-Wraps the agent with Galileo monitoring for observability.
+Wraps the agent with Galileo monitoring for observability. This is where we add tracing and metrics.
 
 ### 📑 Templates (`templates/`)
 
@@ -140,55 +142,61 @@ Contains Jinja templates for generating system prompts.
 
 ## Main Agent Workflow
 
-The main workflow in `agent.py` ties everything together and adds Galileo instrumentation.
+The main workflow in `agent.py` ties everything together and adds Galileo instrumentation for observability.
 
 **Key Ingredients:**
 
-- Galileo context
+- Galileo context management
 - Logging decorators
 - Workflow spans
 - Error handling
 
 **How it works:**
 
-1. **Setting Up the Context:**
+1. **Setting Up the Galileo Context:**
 
    ```python
    with galileo_context(log_stream=galileo_log_stream):
        # Agent execution happens here
    ```
 
-2. **Creating the Main Span:**
+   This creates a top-level span that captures the entire agent execution.
+
+2. **Creating the Main Workflow Span:**
 
    ```python
-   @log(span_type="entrypoint", name="weather_vibes_agent")
+   @log(span_type="workflow", name="weather_vibes_agent")
    async def run_agent_with_inputs(location, units, mood, recommendations, verbose):
        # Agent execution logic
    ```
 
-3. **Creating the Workflow Span:**
+   This decorator creates a workflow span that tracks the main agent logic.
+
+3. **Tool Execution with Tracing:**
+
+   Each tool call is wrapped with its own span for detailed observability:
 
    ```python
-   @log(span_type="workflow", name="weather_vibes_workflow")
-   async def process_request(agent, request):
-       # Core workflow logic
+   @log(span_type="tool", name="weather_tool")
+   async def get_weather(weather_tool, location, units="metric"):
+       """Get weather data with Galileo tracing"""
+       result = await weather_tool.execute(location=location, units=units)
+       return result
    ```
 
-4. **Tool Execution:**
-   Each tool call is wrapped with its own span.
+4. **Result Aggregation:**
 
-5. **Result Aggregation:**
-   Results from all tools are combined into a single response.
+   Results from all tools are combined into a single response with proper error handling.
 
-**Galileo's Role:**
-Galileo creates a hierarchical trace structure:
+**Galileo's Role in Observability:**
 
-- The entrypoint span contains the entire run
-- The workflow span tracks the main agent logic
-- Individual tool spans track specific operations
-- Metadata captures important context
+The Galileo-instrumented version of the agent includes several span types.  Learn more about spans, the atomic unit of logging in Galileo, [here](/getting-started/logging).
+- **Entrypoint span**: Contains the entire run with input parameters
+- **Workflow span**: Tracks the main agent logic and decision-making
+- **Tool spans**: Monitor individual tool performance and success rates
 
-This lets you analyze the complete flow and identify bottlenecks or errors.
+
+This hierarchical structure lets you analyze the complete flow and identify bottlenecks, errors, or optimization opportunities.
 
 ## The Weather Tool
 
@@ -209,7 +217,7 @@ Let's examine the Weather Tool to understand how it works and where Galileo fits
 2. **Request Formatting:**
 
    ```python
-   url = "http://api.weatherapi.com/v1/forecast.json"
+   url = "http://api.weatherapi.com/v1/current.json"
    params = {
     "key": api_key,
     "q": location,
@@ -224,20 +232,18 @@ Let's examine the Weather Tool to understand how it works and where Galileo fits
 
    ```python
    return {
-       "location": data["name"],
-       "temperature": data["main"]["temp"],
-       "feels_like": data["main"]["feels_like"],
-       "humidity": data["main"]["humidity"],
-       "pressure": data["main"]["pressure"],
-       "wind_speed": data["wind"]["speed"],
-       "condition": data["weather"][0]["main"],
-       "description": data["weather"][0]["description"],
-       "icon": data["weather"][0]["icon"]
+       "location": data["location"]["name"],
+       "temperature": data["current"]["temp_c"],
+       "feels_like": data["current"]["feelslike_c"],
+       "humidity": data["current"]["humidity"],
+       "condition": data["current"]["condition"]["text"],
+       "description": data["current"]["condition"]["text"],
+       "icon": data["current"]["condition"]["icon"]
    }
    ```
 
 4. **Error Handling:**
-   The tool includes robust error handling to gracefully manage API failures.
+   The tool includes robust error handling to gracefully manage API failures and provide meaningful error messages.
 
 **Where Galileo Comes In:**
 The tool itself doesn't directly use Galileo. Instead, the main `agent.py` wraps the tool execution with Galileo's `@log` decorator:
@@ -253,24 +259,25 @@ async def get_weather(weather_tool, location, units="metric"):
 This creates a span in Galileo that:
 
 - Captures the input location and units
-- Records the tool's output
-- Measures execution time
-- Tracks any errors
+- Records the tool's output and execution time
+- Tracks any errors or warnings
+- Provides context for debugging and optimization
 
 ## The Recommendations Tool
 
-This tool generates clothing and item recommendations based on weather conditions.
+This tool generates clothing and item recommendations based on weather conditions using OpenAI's language models.
 
 **Key Ingredients:**
 
-- OpenAI API
+- OpenAI API integration
 - Weather condition mapping
-- JSON response parsing
+- Structured prompt engineering
+- Response parsing and validation
 
 **How it works:**
 
 1. **Prompt Engineering:**
-   The tool constructs a prompt for the LLM using the weather data:
+   The tool constructs a context-aware prompt for the LLM using the weather data:
 
    ```python
    prompt = (
@@ -278,17 +285,16 @@ This tool generates clothing and item recommendations based on weather condition
        f"Location: {weather['location']}\n"
        f"Temperature: {weather['temperature']}°{temp_unit}\n"
        f"Condition: {weather['condition']}\n"
-       f"Humidity: {weather['humidity']}%\n"
-       f"Wind Speed: {weather['wind_speed']} {speed_unit}\n\n"
+       f"Humidity: {weather['humidity']}%\n\n"
        f"Recommend {max_items} items a person should bring or wear. "
        f"Return just a simple list of items, no explanations."
    )
    ```
 
 2. **LLM Integration:**
-   The tool calls OpenAI from within the [Galileo Python SDK](https://github.com/rungalileo/galileo-python/) to generate recommendations. The default is to use GPT 4o for its success in tool-calling, however feel free to use whatever model suits your fancy. Do note that every model will have its own strengths and weaknesses.
+   The tool calls OpenAI through the [Galileo Python SDK](https://github.com/rungalileo/galileo-python/) to generate recommendations. The default uses GPT-4o for its success in tool-calling, but you can use any supported model.
 
-3. **Response Parsing:**
+3. **Response Processing:**
    The tool processes the LLM's response to extract a clean list of recommendations.
 
 **Galileo Integration:**
@@ -308,24 +314,26 @@ This allows you to analyze:
 - LLM response quality
 - Processing time
 
-See this within the Galileo log stream as pictured below.
+
+You can see this within the Galileo log stream as pictured below.
 
 ![Weather Vibes Log Stream](../../images/weather-vibes-log-stream.jpeg)
 
 ## The YouTube Tool
 
-This tool finds videos that match the current weather condition or mood.
+This tool finds videos that match the current weather condition or mood using the YouTube Data API.
 
 **Key Ingredients:**
 
-- YouTube Data API
+- YouTube Data API integration
 - Weather-to-mood mapping
 - Search query construction
+- Video selection logic
 
 **How it works:**
 
 1. **Mood Mapping:**
-   The tool maps weather conditions to appropriate moods:
+   The tool maps weather conditions to appropriate moods for video selection:
 
    ```python
    WEATHER_MOOD_MAP = {
@@ -341,7 +349,7 @@ This tool finds videos that match the current weather condition or mood.
    ```
 
 2. **Query Construction:**
-   The tool builds a YouTube search query:
+   The tool builds a YouTube search query based on the weather and mood:
 
    ```python
    query = f"{mood} music {weather_condition.lower()} weather"
@@ -370,7 +378,7 @@ This helps you monitor:
 - Query effectiveness
 - Response times
 
-We can see the results of the YouTube tool by opening up an individual span within the Galileo application and reviewing the tool selection, and latency of the tool call.
+You can see the results of the YouTube tool by opening up an individual span within the Galileo application and reviewing the tool selection and latency.
 
 ![YouTube Tool Call Span](../../images/youtube-tool-call-span.jpeg)
 
@@ -408,39 +416,43 @@ Now it's time to see the results of our instrumentation in Galileo!
 1. **Log into Galileo:**
    Visit [app.galileo.ai](https://app.galileo.ai) and log in.
 
-2. **View Your Traces:**
+2. **Navigate to Your Project:**
+   - Select your project (e.g., `weather_vibes_agent`)
+   - Go to the Traces section
+   - Look for your log stream (e.g., `weather_vibes_agent`)
 
-   - Navigate to the Traces section
-   - Look for the `weather_vibes_agent` log stream
-   - Click on a recent trace
+3. **View Your Traces:**
+
+   - Click on a recent trace to see the detailed execution flow
+   - Explore the hierarchical structure of spans
 
    ![Review Traces + Spans](../../images/review-spans.gif)
 
-3. **Explore the Hierarchy:**
+4. **Explore the Hierarchy:**
    You'll see a visualization showing:
 
-   - The main entrypoint span
-   - The workflow span
-   - Individual tool spans
+   - The session as a whole
+   - The workflow span (main agent logic)
+   - Individual tool spans (weather, recommendations, YouTube)
 
-4. **Analyze Performance:**
+5. **Analyze Performance:**
    In the trace view, you can:
 
    - See the execution time for each component
-   - View the input and output data
+   - View the input and output data for each tool
    - Identify any errors or warnings
-   - Compare multiple runs
+   - Compare multiple runs for performance trends
 
-5. **Identify Optimization Opportunities:**
+6. **Identify Optimization Opportunities:**
    Look for:
-   - Slow API calls
+   - Slow API calls that could benefit from caching
    - Bottlenecks in the workflow
-   - Error patterns
-   - Response quality issues
+   - Error patterns that need better handling
+   - Response quality issues that could be improved
 
 ## Extending the Agent
 
-Want to make the Weather Vibes Agent even better? Here are some ideas:
+Want to make the Weather Vibes Agent even better? Here are some ideas for extension:
 
 ### Add New Tools
 
@@ -453,30 +465,32 @@ class ForecastTool:
         pass
 ```
 
-### Add More Instrumentation
-
-Add custom metrics to your Galileo spans:
+Then add it to your agent workflow with Galileo tracing:
 
 ```python
-@log(span_type="tool", name="forecast_tool", metrics={"days_requested": days})
+@log(span_type="tool", name="forecast_tool")
 async def get_forecast(forecast_tool, location, days=5):
+    """Get weather forecast with Galileo tracing"""
     result = await forecast_tool.execute(location=location, days=days)
     return result
 ```
 
 ### Implement Caching
 
-Add caching to improve performance:
+Add caching to improve performance and reduce API calls:
 
 ```python
 class WeatherTool:
     def __init__(self):
         self.cache = {}
+        self.cache_ttl = 300  # 5 minutes
 
     async def execute(self, location, units="metric"):
         cache_key = f"{location}_{units}"
         if cache_key in self.cache:
-            return self.cache[cache_key]
+            cache_time, data = self.cache[cache_key]
+            if time.time() - cache_time < self.cache_ttl:
+                return data
         # Normal API call logic
         self.cache[cache_key] = result
         return result
@@ -488,16 +502,17 @@ You've now learned how to build, run, and monitor the Weather Vibes Agent with G
 
 **Key Takeaways:**
 
-- Multi-tool agents can combine various APIs into a unified experience
-- Galileo observability provides valuable insights into agent performance
-- Well-structured tracing helps identify issues and optimization opportunities
+- **Modular Design**: Multi-tool agents can combine various APIs into a unified experience
+- **Observability**: Galileo provides valuable insights into agent performance and behavior
+- **Structured Tracing**: Well-structured tracing helps identify issues and optimization opportunities
+- **Error Handling**: Robust error handling ensures your agent works reliably in production
 
 **Next Steps:**
 
-- Check out the [Galileo YouTube Channel](https://www.youtube.com/@rungalileo) to see what you can build!
-- Star the [Galileo SDK-examples repo](https://github.com/rungalileo/sdk-examples) to bookmark more ways to get started with the Galileo SDK.
-- Follow [Galileo on LinkedIn](https://www.linkedin.com/company/galileo-ai/) to stay in touch with the latest news and resources.
-- Watch the [video walkthrough](https://youtu.be/h6Ui2kpstR4) for an overview
+- Check out the [Galileo YouTube Channel](https://www.youtube.com/@rungalileo) for more tutorials and examples
+- Star the [Galileo SDK-examples repo](https://github.com/rungalileo/sdk-examples) to bookmark more ways to get started
+- Follow [Galileo on LinkedIn](https://www.linkedin.com/company/galileo-ai/) for the latest news and resources
+- Watch the [video walkthrough](https://youtu.be/h6Ui2kpstR4) for a visual guide
 
 Happy building! 🚀
 
@@ -510,37 +525,45 @@ Here are some problems you might encounter and how to fix them:
 **Problem:** `ModuleNotFoundError: No module named 'weather_vibes'`
 
 **Solution:**
-
-- Fix the imports in `agent/weather_vibes_agent.py`
-- Or create a symbolic link: `ln -s . weather_vibes`
+- Ensure you're in the correct directory: `sdk-examples/python/agent/weather-vibes-agent`
+- Check that all dependencies are installed: `pip install -r requirements.txt`
+- Verify your Python environment is activated
 
 ### API Key Issues
 
 **Problem:** "Invalid API key" errors
 
 **Solution:**
-
-- Double-check your `.env` file
-- For OpenWeatherMap, new keys take a few hours to activate
+- Double-check your `.env` file has the correct API keys
+- Ensure API keys are properly formatted (no extra spaces or quotes)
+- For WeatherAPI, new keys may take a few minutes to activate
 - For YouTube, ensure the API is enabled in Google Cloud Console
-
-### Template Issues
-
-**Problem:** Jinja template errors
-
-**Solution:**
-
-```bash
-mkdir -p templates
-echo "You are a helpful weather agent." > templates/system.j2
-```
 
 ### Galileo Connection Issues
 
 **Problem:** Traces aren't showing up in Galileo
 
 **Solution:**
+- Confirm your `GALILEO_API_KEY` is valid and has proper permissions
+- Check that `GALILEO_PROJECT` and `GALILEO_LOG_STREAM` match your Galileo setup
+- Verify internet connectivity
+- Ensure the Galileo SDK is properly installed: `pip install galileo`
 
-- Confirm your API key is valid
-- Check internet connectivity
-- Ensure `flush()` is being called at the end of execution
+### Template Issues
+
+**Problem:** Jinja template errors
+
+**Solution:**
+- Ensure the `templates/` directory exists with required template files
+- Check template syntax and variable references
+- Verify Jinja2 is installed: `pip install Jinja2`
+
+### Performance Issues
+
+**Problem:** Slow response times
+
+**Solution:**
+- Check API rate limits for WeatherAPI and YouTube
+- Consider implementing caching for weather data
+- Monitor Galileo traces to identify bottlenecks
+- Use async/await properly for concurrent API calls

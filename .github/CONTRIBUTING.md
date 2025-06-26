@@ -83,6 +83,20 @@ When you raise a pull request, there is a template to fill in. Add the following
 
     For the spelling check, if you are sure that the word that is being picked up is correct, you can add it to the [accept.txt](/.vale/styles/config/vocabularies/Galileo-Vocab/accept.txt) file. Please add words in alphabetical order. This list is case sensitive, so if you want to support different capitalizations, such as word and Word, then use the `[W,w]ord` syntax.
 
+    For broken links, you can check locally using:
+
+    ```bash
+    mint broken-links
+    ```
+
+    However, this fails to find links to generated API docs. To test for these, first generate the API docs using the following:
+
+    ```bash
+    npx --yes @mintlify/scraping@latest openapi-file https://api.galileo.ai/public/v2/openapi.json -o api-reference
+    ```
+
+    The `api-reference` folder is ignored in the `.gitignore` as this is always regenerated on publishing.
+
   - **This references a feature that is public. If not, add a note and we can schedule the merge for after the feature release**
 
     For Galileo employees, if you are documenting an upcoming feature, add a note on this with the release information. That way we can hold off on merging the docs until the feature is released.

@@ -1,0 +1,23 @@
+name: Check for broken links
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+      - "release/**"
+
+jobs:
+  broken-link-check:
+    name: Check for broken links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 23
+      # Install Mintlify CLI
+      - run: npm install -g mint
+      # Generate API docs
+      - run: npx --yes @mintlify/scraping@latest openapi-file https://api.galileo.ai/public/v2/openapi.json -o api-reference
+      # Check for broken links
+      - run: mint broken-links
