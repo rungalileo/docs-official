@@ -8,15 +8,47 @@ import SnippetExperimentsPromptPython from "/snippets/code/python/concepts/exper
 import SnippetExperimentsExistingDatasetPython from "/snippets/code/python/concepts/experiments/existing-dataset.mdx";
 import SnippetExperimentsCustomDatasetPython from "/snippets/code/python/concepts/experiments/custom-dataset.mdx";
 import SnippetExperimentsCustomMetricsPython from "/snippets/code/python/concepts/experiments/custom-metrics.mdx";
+import SnippetExperimentsProjectNamePython from "/snippets/code/python/sdk/experiments/set-project.mdx";
 
 import SnippetExperimentsPromptTypeScript from "/snippets/code/typescript/concepts/experiments/prompt.mdx";
 import SnippetExperimentsExistingDatasetTypeScript  from "/snippets/code/typescript/concepts/experiments/existing-dataset.mdx";
 import SnippetExperimentsCustomDatasetTypeScript from "/snippets/code/typescript/concepts/experiments/custom-dataset.mdx";
 import SnippetExperimentsCustomMetricsTypeScript from "/snippets/code/typescript/concepts/experiments/custom-metrics.mdx";
+import SnippetExperimentsProjectNameTypeScript from "/snippets/code/typescript/sdk/experiments/set-project.mdx";
 
 Experiments in Galileo allow you to evaluate and compare different prompts, models, and configurations using [datasets](/sdk-api/experiments/datasets) and [prompt templates](/sdk-api/experiments/prompts), and measure their performance using various [metrics](/concepts/metrics/overview). This helps you identify the best approach for your specific use case.
 
 For a list of supported metrics, see the [Metrics Reference Guide](/concepts/metrics/metrics-reference).
+
+Experiments belong to projects, with one project containing many experiments. Each experiment has a single log stream with multiple traces. When you use a dataset with an experiment, each row in the dataset is logged as a separate trace in the experiment's log stream.
+
+## Initial setup
+
+To log experiments to Galileo, you need to configure a connection to Galileo using an API key and optionally a URL for a custom deployment, as well as setting the project.
+
+### API key
+
+To get started running experiments with Galileo, you need to configure your API key, and optionally the URL of your Galileo deployment if you are using a custom hosted, or self deployed version. These are set as environment variables. In development you can use a `.env` file for these, for a production deployment make sure you configure these correctly for your deployment platform.
+
+| Environment variable  | Description |
+| :-------------------- | :---------- |
+| `GALILEO_API_KEY`     | Your [Galileo API key](/references/faqs/find-keys#galileo-api-key). |
+| `GALILEO_CONSOLE_URL` | Optional. The URL of your Galileo console to log to. If this is not set, it will default to the hosted Galileo version at [app.galileo.ai](https://app.galileo.ai). |
+
+### Project
+
+The project can be configured as an environment variable, or directly in code.
+
+| Environment variable  | Description |
+| :-------------------- | :---------- |
+| `GALILEO_PROJECT`     | The [Galileo project](/concepts/projects) to log to. If this is not set, you will need to pass the project name in code. |
+
+You can also set the project when running the experiment by passing it in to the run experiments call.
+
+<CodeGroup>
+  <SnippetExperimentsProjectNamePython />
+  <SnippetExperimentsProjectNameTypeScript />
+</CodeGroup>
 
 ## Run an Experiment with a Prompt Template
 
