@@ -152,6 +152,7 @@
                   "concepts/metrics/response-quality/chunk-relevance",
                   "concepts/metrics/response-quality/completeness",
                   "concepts/metrics/response-quality/context-adherence",
+                  "concepts/metrics/response-quality/context-relevance",
                   "concepts/metrics/response-quality/correctness",
                   "concepts/metrics/response-quality/ground-truth-adherence"
                 ]
@@ -249,7 +250,6 @@
               "sdk-api/experiments/experiments",
               "sdk-api/experiments/datasets",
               "sdk-api/experiments/prompts"
-
             ]
           },
           "sdk-api/metrics/metrics",
@@ -307,7 +307,7 @@
                   {
                     "group": "handlers",
                     "pages": [
-                      "sdk-api/python/reference/handlers/openai_agents",
+                      "sdk-api/python/reference/handlers/openai_agents/handler",
                       "sdk-api/python/reference/handlers/langchain/async_handler",
                       "sdk-api/python/reference/handlers/langchain/handler"
                     ]
@@ -315,6 +315,7 @@
                   {
                     "group": "utils",
                     "pages": [
+                      "sdk-api/python/reference/utils/catch_log",
                       "sdk-api/python/reference/utils/core_api_client",
                       "sdk-api/python/reference/utils/datasets",
                       "sdk-api/python/reference/utils/exceptions",
@@ -441,7 +442,6 @@
                           "/sdk-api/typescript/reference/types/type-aliases/Span"
                         ]
                       }
-                      
                     ]
                   }
                 ]
@@ -490,33 +490,114 @@
     }
   },
   "redirects": [
-    { "source": "/how-to-guides/conversational-ai/fixing-hallucinations-and-facutal-erros", "destination": "/how-to-guides/conversational-ai/fixing-hallucinations-and-factual-errors" },
-    { "source": "/concepts/experiments/datasets", "destination": "/concepts/datasets" },
-    { "source": "/getting-started/experiments/datasets", "destination": "/concepts/datasets" },
-    { "source": "/getting-started/experiments/running-experiments-in-console", "destination": "/concepts/experiments/running-experiments-in-console" },
-    { "source": "/getting-started/experiments/running-experiments", "destination": "/concepts/experiments/running-experiments" },
-    { "source": "/getting-started/experiments/overview", "destination": "/getting-started/experiments" },
-    { "source": "/concepts/logstreams", "destination": "/concepts/logging/logstreams" },
-    { "source": "/concepts/traces", "destination": "/concepts/logging/traces" },
-    { "source": "/concepts/spans", "destination": "/concepts/logging/spans" },
-    { "source": "/cookbooks/features/metrics/custom-metrics-ui-llm", "destination": "/concepts/metrics/custom-metrics/custom-metrics-ui-llm" },
-    { "source": "/cookbooks/features/metrics/custom-metrics-ui-code", "destination": "/concepts/metrics/custom-metrics/custom-metrics-ui-code" },
-    { "source": "/how-to-guides/conversational-ai/basic-example", "destination": "/how-to-guides/basics/basic-example" },
-    { "source": "/concepts/metrics/custom-metrics/calling-local-scorers-python", "destination": "/how-to-guides/metrics/create-local-scorer" },
-    { "source": "/concepts/metrics/metrics-reference", "destination": "/sdk-api/metrics/metrics" },
-    { "source": "/sdk-api/python/reference/logger", "destination": "/sdk-api/python/reference/logger/logger" },
-    { "source": "/sdk-api/python/datasets", "destination": "/sdk-api/experiments/datasets" },
-    { "source": "/sdk-api/typescript/datasets", "destination": "/sdk-api/experiments/datasets" },
-    { "source": "/sdk-api/python/prompts", "destination": "/sdk-api/experiments/prompts" },
-    { "source": "/sdk-api/typescript/prompts", "destination": "/sdk-api/experiments/prompts" },
-    { "source": "/sdk-api/python/experiments", "destination": "/sdk-api/experiments/experiments" },
-    { "source": "/sdk-api/typescript/experiments", "destination": "/sdk-api/experiments/experiments" },
-    { "source": "/sdk-api/python/overview", "destination": "/sdk-api/overview" },
-    { "source": "/sdk-api/typescript/overview", "destination": "/sdk-api/overview" },
-    { "source": "/sdk-api/python/logging/galileo-logger", "destination": "/sdk-api/logging/galileo-logger" },
-    { "source": "/sdk-api/typescript/galileo-logger", "destination": "/sdk-api/logging/galileo-logger" },
-    { "source": "/sdk-api/python/logging/log-decorator", "destination": "/sdk-api/logging/log-decorator/log-decorator" },
-    { "source": "/sdk-api/typescript/logging/log-function-wrapper", "destination": "/sdk-api/logging/log-decorator/log-decorator" }
+    {
+      "source": "/how-to-guides/conversational-ai/fixing-hallucinations-and-facutal-erros",
+      "destination": "/how-to-guides/conversational-ai/fixing-hallucinations-and-factual-errors"
+    },
+    {
+      "source": "/concepts/experiments/datasets",
+      "destination": "/concepts/datasets"
+    },
+    {
+      "source": "/getting-started/experiments/datasets",
+      "destination": "/concepts/datasets"
+    },
+    {
+      "source": "/getting-started/experiments/running-experiments-in-console",
+      "destination": "/concepts/experiments/running-experiments-in-console"
+    },
+    {
+      "source": "/getting-started/experiments/running-experiments",
+      "destination": "/concepts/experiments/running-experiments"
+    },
+    {
+      "source": "/getting-started/experiments/overview",
+      "destination": "/getting-started/experiments"
+    },
+    {
+      "source": "/concepts/logstreams",
+      "destination": "/concepts/logging/logstreams"
+    },
+    {
+      "source": "/concepts/traces",
+      "destination": "/concepts/logging/traces"
+    },
+    {
+      "source": "/concepts/spans",
+      "destination": "/concepts/logging/spans"
+    },
+    {
+      "source": "/cookbooks/features/metrics/custom-metrics-ui-llm",
+      "destination": "/concepts/metrics/custom-metrics/custom-metrics-ui-llm"
+    },
+    {
+      "source": "/cookbooks/features/metrics/custom-metrics-ui-code",
+      "destination": "/concepts/metrics/custom-metrics/custom-metrics-ui-code"
+    },
+    {
+      "source": "/how-to-guides/conversational-ai/basic-example",
+      "destination": "/how-to-guides/basics/basic-example"
+    },
+    {
+      "source": "/concepts/metrics/custom-metrics/calling-local-scorers-python",
+      "destination": "/how-to-guides/metrics/create-local-scorer"
+    },
+    {
+      "source": "/concepts/metrics/metrics-reference",
+      "destination": "/sdk-api/metrics/metrics"
+    },
+    {
+      "source": "/sdk-api/python/reference/logger",
+      "destination": "/sdk-api/python/reference/logger/logger"
+    },
+    {
+      "source": "/sdk-api/python/datasets",
+      "destination": "/sdk-api/experiments/datasets"
+    },
+    {
+      "source": "/sdk-api/typescript/datasets",
+      "destination": "/sdk-api/experiments/datasets"
+    },
+    {
+      "source": "/sdk-api/python/prompts",
+      "destination": "/sdk-api/experiments/prompts"
+    },
+    {
+      "source": "/sdk-api/typescript/prompts",
+      "destination": "/sdk-api/experiments/prompts"
+    },
+    {
+      "source": "/sdk-api/python/experiments",
+      "destination": "/sdk-api/experiments/experiments"
+    },
+    {
+      "source": "/sdk-api/typescript/experiments",
+      "destination": "/sdk-api/experiments/experiments"
+    },
+    {
+      "source": "/sdk-api/python/overview",
+      "destination": "/sdk-api/overview"
+    },
+    {
+      "source": "/sdk-api/typescript/overview",
+      "destination": "/sdk-api/overview"
+    },
+    {
+      "source": "/sdk-api/python/logging/galileo-logger",
+      "destination": "/sdk-api/logging/galileo-logger"
+    },
+    {
+      "source": "/sdk-api/typescript/galileo-logger",
+      "destination": "/sdk-api/logging/galileo-logger"
+    },
+    {
+      "source": "/sdk-api/python/logging/log-decorator",
+      "destination": "/sdk-api/logging/log-decorator/log-decorator"
+    },
+    {
+      "source": "/sdk-api/typescript/logging/log-function-wrapper",
+      "destination": "/sdk-api/logging/log-decorator/log-decorator"
+    }
   ],
   "contextual": {
     "options": [
