@@ -146,8 +146,6 @@ See the `GalileoLogger` [Python SDK docs](/sdk-api/python/reference/logger/logge
 
 The Galileo context management keeps track of loggers. You can get the current logger, which will create a new one if there isn't an existing logger.
 
-If you are using any of the decorators, wrappers, or third-party integrations then this allows you to get the logger created by those components. For example, if you are adding a call inside a method decorated by the Python `@log` decorator, wrapped in the TypeScript `log` wrapper, or created automatically by an experiment, then this will return that logger instance so you can manually add additional spans.
-
 <CodeGroup>
 ```python Python
 from galileo import galileo_context
@@ -163,6 +161,39 @@ import { getLogger } from "galileo";
 const galileoLogger = getLogger();
 ```
 </CodeGroup>
+
+If you are using any of the decorators, wrappers, or third-party integrations then this allows you to get the logger created by those components. For example, if you are adding a call inside a method decorated by the Python `@log` decorator, wrapped in the TypeScript `log` wrapper, or created automatically by an experiment, then this will return that logger instance so you can manually add additional spans.
+
+<CodeGroup>
+```python Python
+from galileo import log, galileo_context
+
+@log(span_type="llm")
+def logged_function(input_text):
+    # Get the current logger
+    logger = galileo_context.get_logger_instance()
+
+    # Add a span
+    workflow_span = logger.add_workflow_span(
+        input="My workflow"
+    )
+```
+
+```typescript TypeScript
+import { getLogger, log } from "galileo";
+
+const wrappedFunc = log({}, async (input: any) => {
+    // Get the current logger
+    const galileoLogger = getLogger();
+
+    // Add a span
+    const workflowSpan = galileoLogger.addWorkflowSpan({
+        input: "Process user request",
+    });
+});
+```
+</CodeGroup>
+
 
 See the [`galileo_context` Python SDK docs](/sdk-api/python/reference/decorator) or [`getLogger` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/getLogger) for more details.
 
@@ -186,7 +217,7 @@ const sessionId = galileoLogger.startSession({
 
 The name and external Id fields are optional. If you want to connect a session to another Id that you are using internally, for example a unique id for a chatbot conversation, then you can set this in the external Id field.
 
-See the [`start_session` Python SDK docs](/sdk-api/python/reference/logger/logger#start-session) or [`startSession` TypeScript SDK docs](/sdk-api/typescript/reference/README/reference/README/classes/GalileoLogger#startsession) for more details.
+See the [`start_session` Python SDK docs](/sdk-api/python/reference/logger/logger#start-session) or [`startSession` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#startsession) for more details.
 
 ### Start a Trace
 
@@ -232,7 +263,15 @@ See the [`start_trace` Python SDK docs](/sdk-api/python/reference/logger/logger#
 
 ### Add Spans
 
-The `GalileoLogger` supports adding different types of spans to your traces:
+The `GalileoLogger` supports adding different types of spans to your traces. All spans take the input and output, as well as a name, duration, tags, and other metadata.
+
+| Span Type | Description |
+| :-------- | :---------- |
+| Agent     | A span for logging agent actions. You can specify the agent type, for example a supervisor, planner, router, or judge. |
+| LLM       | A span for logging calls to an LLM. You can specify the number of tokens, time to first token, temperature, model, and any tools. |
+| Retriever | A span for logging RAG actions. In the output for this span you can provide all the data returned from the RAG platform for evaluating your RAG processing, |
+| Tool      | A span for logging calls to tools. You can specify the tool call Id to tie to an LLM tool call. |
+| Workflow  | Workflow spans are for creating logical groupings of spans based on different flows in your app. |
 
 #### Agent Spans
 
@@ -399,6 +438,20 @@ workflow_span = logger.add_workflow_span(
 )
 
 # Later, you can conclude the workflow span when concluding the trace
+```
+
+```typescript
+// Start a workflow span
+const workflowSpan = galileoLogger.addWorkflowSpan({
+    input: "Process user request",
+    output: undefined,  // Can be set later
+    name: "Main Process",  // Optional
+    durationNs: 1000,  // Optional, can be set later
+    metadata: {"workflow_type": "user_request"},  // Optional
+    tags: ["workflow"]  // Optional
+});
+
+// Later, you can conclude the workflow span when concluding the trace
 ```
 </CodeGroup>
 
@@ -572,23 +625,23 @@ galileoLogger.flush();
 
 1. **Use higher-level abstractions when possible**: The `@log` decorator and wrappers are easier to use and less error-prone.
 
-2. **Flush traces when appropriate**: Call `flush()` at the end of a request or user interaction to ensure data is sent to Galileo.
+1. **Flush traces when appropriate**: Call `flush()` at the end of a request or user interaction to ensure data is sent to Galileo.
 
-3. **Include relevant metadata**: Add tags and metadata to make it easier to filter and analyze your traces.
+1. **Include relevant metadata**: Add tags and metadata to make it easier to filter and analyze your traces.
 
-4. **Structure spans logically**: Create a span hierarchy that reflects the logical structure of your application.
+1. **Structure spans logically**: Create a span hierarchy that reflects the logical structure of your application.
 
-5. **Handle errors gracefully**: Include status codes and error information in your spans to help with debugging.
+1. **Handle errors gracefully**: Include status codes and error information in your spans to help with debugging.
 
 ## Next steps
 
 ### Basic logging components
 
 <CardGroup cols={2}>
-<Card title="Log decorator or wrapper" icon="code" horizontal href="/sdk-api/logging/log-decorator">
+<Card title="Log decorator or wrapper" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
     Quickly add logging to your code with the log decorator and wrapper.
 </Card>
-<Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/context-manager">
+<Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
     Manage logging using the Galileo context manager.
 </Card>
 </CardGroup>
@@ -596,21 +649,13 @@ galileoLogger.flush();
 ### Integrations with third-party SDKs
 
 <CardGroup cols={2}>
-<Card title="OpenAI wrapper" icon="code" horizontal href="/sdk-api/logging/openai">
+<Card title="OpenAI wrapper" icon="code" horizontal href="/sdk-api/third-party-integrations/openai">
     Automatically log calls to the OpenAI SDK with a wrapper.
 </Card>
-<Card title="OpenAI Agents trace processor" icon="code" horizontal href="/sdk-api/logging/openai-agents">
+<Card title="OpenAI Agents trace processor" icon="code" horizontal href="/sdk-api/third-party-integrations/openai-agents">
     Automatically log all the steps in your OpenAI agent SDK apps using the Galileo trace processor.
 </Card>
-<Card title="LangChain callback" icon="code" horizontal href="/sdk-api/logging/langchain">
+<Card title="LangChain callback" icon="code" horizontal href="/sdk-api/third-party-integrations/langchain">
     Automatically log all the steps in your LangChain or LangGraph application with the Galileo callback.
 </Card>
 </CardGroup>
-
-## Related Resources
-
-- [@log Decorator](/sdk-api/python/logging/log-decorator) - For a simpler way to log function calls
-- [OpenAI Wrapper](/sdk-api/python/wrappers/openai) - For automatic logging of OpenAI calls
-- [LangChain Integration](/sdk-api/python/wrappers/langchain) - For logging LangChain workflows
-- [galileo_context()](/sdk-api/python/logging/galileo-context) - For managing trace context and automatic flushing
-- [OpenTelemetry logging](/integrations/otel) - Using OpenTelemetry for logging traces in Python

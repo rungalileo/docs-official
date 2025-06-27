@@ -1,14 +1,17 @@
 ---
 title: Galileo Context
-description: "Manage trace context and control logging behavior with the Galileo context manager"
+description: Manage trace context and control logging behavior with the Galileo context manager
 ---
 
-The `galileo_context` context manager provides a convenient way to control the logging behavior of your application. It allows you to:
+The Galileo Context manager provides a convenient way to control the logging behavior of your application. It allows you to:
 
 1. Set the project and log stream for all logs within its scope
-2. Automatically start and flush traces
-3. Group related operations into a single trace
-4. Ensure traces are flushed even in long-running applications
+1. Manage sessions
+1. Automatically start and flush traces
+1. Group related operations into a single trace
+1. Ensure traces are flushed even in long-running applications
+
+In the Python SDK, this is available through the [`galileo_context` object](/sdk-api/python/reference/decorator), in TypeScript this is available as a set of distinct [top-level functions](/sdk-api/typescript/reference/README/functions/).
 
 <Note>
 When using a Python Notebook (such as Jupyter, Google Colab, etc.), you should use the `galileo_context` and make sure to call `galileo_context.flush()` at the end of your notebook.
@@ -134,14 +137,14 @@ with galileo_context(project="main-project", log_stream="main-stream"):
 
 1. **Use context managers for logical grouping**: Wrap related operations in a `galileo_context` to group them into a single trace.
 
-2. **Specify project and log stream explicitly**: While environment variables work, it's often clearer to specify the project and log stream in your code.
+1. **Specify project and log stream explicitly**: While environment variables work, it's often clearer to specify the project and log stream in your code.
 
-3. **Flush in long-running applications**: In applications that don't terminate (like web servers or Streamlit apps), explicitly flush traces to ensure they're sent to Galileo.
+1. **Flush in long-running applications**: In applications that don't terminate (like web servers or Streamlit apps), explicitly flush traces to ensure they're sent to Galileo.
 
-4. **Use nesting judiciously**: Nested contexts can be powerful but can also make your code harder to follow. Use them when you need to temporarily override settings.
+1. **Use nesting judiciously**: Nested contexts can be powerful but can also make your code harder to follow. Use them when you need to temporarily override settings.
 
 ## Related Resources
 
-- [@log Decorator](/sdk-api/python/logging/log-decorator) - For decorating functions with logging
-- [GalileoLogger](/sdk-api/python/logging/galileo-logger) - For more manual control over logging
-- [OpenAI Wrapper](/sdk-api/python/wrappers/openai) - For automatic logging of OpenAI calls
+- [log Decorator](/sdk-api/logging/log-decorator) - For decorating functions with logging
+- [GalileoLogger](/sdk-api/logging/galileo-logger) - For more manual control over logging
+- [OpenAI Wrapper](/sdk-api/third-party-integrations/openai) - For automatic logging of OpenAI calls

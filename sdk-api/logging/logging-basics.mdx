@@ -145,6 +145,21 @@ Starting sessions is optional - if you don't start a session, then all traces ar
 
 Using the Galileo SDK you can either do all these steps manually, or you can use a range of wrappers, decorators and integrations with third-party SDKs, where most of this is handled for you.
 
+## Logging components
+
+Galileo provides 3 ways to log your application code:
+
+- **[The Galileo Logger](/sdk-api/logging/galileo-logger)** - You can create a logger, and manually manage sessions, traces, spans and more. This logger can be passed around your application to create traces and add spans as needed.
+- **[log decorator](/sdk-api/logging/log-decorator/log-decorator)** - You can decorate or wrap functions with the log decorator to have spans created automatically. If you don't have an active session or trace, one will be created. You can also access the logger used by the decorator for manual control.
+- **Third-party integrations** - Galileo integrates SDKs like the OpenAI SDK, the OpenAI Agents SDK, and LangChain/LangGraph. These integrations manage logging for you, automatically creating sessions, traces and spans as needed.
+
+All these can be mixed and matched, and combined with the Galileo Context to provide top level logging management, such as setting the project and log stream, and managing sessions.
+
+For example:
+
+- In a chatbot app using LangGraph, you can start sessions for each distinct user conversation with the Galileo context, then have the Galileo LangGraph callback log each chat message as a separate trace automatically.
+- In an agentic app, you can wrap top level calls with the `log` decorator to start a trace, access the log that was created by the decorator to add workflow spans, then have spans added automatically under these workflow spans using the OpenAI Agents SDK integration.
+
 ## Next steps
 
 ### Basic logging components
@@ -153,10 +168,10 @@ Using the Galileo SDK you can either do all these steps manually, or you can use
 <Card title="Galileo logger" icon="code" horizontal href="/sdk-api/logging/galileo-logger">
     Log with full control over sessions, traces, and spans using the Galileo logger.
 </Card>
-<Card title="Log decorator or wrapper" icon="code" horizontal href="/sdk-api/logging/log-decorator">
+<Card title="Log decorator or wrapper" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
     Quickly add logging to your code with the log decorator and wrapper.
 </Card>
-<Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/context-manager">
+<Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
     Manage logging using the Galileo context manager.
 </Card>
 </CardGroup>
@@ -164,13 +179,13 @@ Using the Galileo SDK you can either do all these steps manually, or you can use
 ### Integrations with third-party SDKs
 
 <CardGroup cols={2}>
-<Card title="OpenAI wrapper" icon="code" horizontal href="/sdk-api/logging/openai">
+<Card title="OpenAI wrapper" icon="code" horizontal href="/sdk-api/third-party-integrations/openai">
     Automatically log calls to the OpenAI SDK with a wrapper.
 </Card>
-<Card title="OpenAI Agents trace processor" icon="code" horizontal href="/sdk-api/logging/openai-agents">
+<Card title="OpenAI Agents trace processor" icon="code" horizontal href="/sdk-api/third-party-integrations/openai-agents">
     Automatically log all the steps in your OpenAI agent SDK apps using the Galileo trace processor.
 </Card>
-<Card title="LangChain callback" icon="code" horizontal href="/sdk-api/logging/langchain">
+<Card title="LangChain callback" icon="code" horizontal href="/sdk-api/third-party-integrations/langchain">
     Automatically log all the steps in your LangChain or LangGraph application with the Galileo callback.
 </Card>
 </CardGroup>
