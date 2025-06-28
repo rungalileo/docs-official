@@ -488,6 +488,27 @@ logger.flush()
 
 See the [`flush` Python SDK docs](/sdk-api/python/reference/logger/logger#flush) or [`flush` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#flush)  for more details.
 
+The flush call on the logger will just flush that specific logger. To flush all loggers, you can flush at the context level.
+
+<CodeGroup>
+```python Python
+from galileo import galileo_context
+
+# Flush the logger for the current project and log stream
+galileo_context.flush()
+
+# Flush all loggers across all projects and log streams
+galileo_context.flush_all()
+```
+
+```typescript TypeScript
+import { flush } from "galileo";
+
+// Flush the logger for the current project and log stream
+await flush();
+```
+</CodeGroup>
+
 ## Advanced Usage
 
 ### Create a Single-Span Trace
@@ -649,7 +670,7 @@ galileoLogger.flush();
 ### Integrations with third-party SDKs
 
 <CardGroup cols={2}>
-<Card title="OpenAI wrapper" icon="code" horizontal href="/sdk-api/third-party-integrations/openai">
+<Card title="OpenAI wrapper" icon="code" horizontal href="/sdk-api/third-party-integrations/openai/openai">
     Automatically log calls to the OpenAI SDK with a wrapper.
 </Card>
 <Card title="OpenAI Agents trace processor" icon="code" horizontal href="/sdk-api/third-party-integrations/openai-agents">

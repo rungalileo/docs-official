@@ -4,8 +4,10 @@ description: Easily capture function inputs and outputs as spans in your traces
 ---
 
 import LogDecoratorSpanTypesPy from "/snippets/code/python/sdk/decorators/log-decorator-span-types.mdx"
+import SnippetSdkWrappersOpenAILogDecoratorPython from "/snippets/code/python/sdk/wrappers/openai-log-decorator.mdx";
 
 import SnippetLogWrapperBasicTypeScript from "/snippets/code/typescript/sdk/logging/log-wrapper-basic.mdx";
+import SnippetSdkWrappersOpenAILogDecoratorTypeScript from "/snippets/code/typescript/sdk/wrappers/openai-log-function.mdx";
 
 The `@log` decorator (Python) or `log` function wrapper (TypeScript) provides a single line of code way to capture the inputs and outputs of a function as a span within a trace. This is particularly useful for tracking the execution of your AI application without having to manually create and manage spans.
 
@@ -105,62 +107,8 @@ One of the most powerful features of the `log` decorator is its ability to creat
 You can nest calls to functions also decorated with the log decorator, or calls using third-party SDK integrations.
 
 <CodeGroup>
-```python Python
-import os
-from galileo import log
-from galileo.openai import openai
-
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-def call_openai(prompt):
-    # This will be automatically logged as a child span
-    chat_completion = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return chat_completion.choices[0].message.content
-
-@log(span_type="workflow", name="Roman Empire Span")
-def make_nested_call():
-    # This creates a parent workflow span
-    first_result = call_openai("Tell me about the Roman Empire")
-    second_result = call_openai(f"Summarize this: {first_result}")
-    return second_result
-
-# When called, this will create a trace with a workflow span and two nested LLM spans
-response = make_nested_call()
-print(response)
-```
-
-```typescript TypeScript
-import { log, flush, wrapOpenAI } from "galileo";
-import { OpenAI } from "openai";
-
-// Create a wrapped OpenAI client
-const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
-
-async function callOpenAI(prompt: string) {
-    // This will be automatically logged as a child span
-    const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [{ role: "user", content: prompt }],
-    });
-    return response.choices[0].message.content;
-}
-
-const makeNestedCall = log({ spanType: "workflow", name: "Roman Empire Span" }, 
-                             async () => {
-    // This creates a parent workflow span
-    const firstResult = await callOpenAI("Tell me about the Roman Empire")
-    const secondResult = await callOpenAI(`Summarize this: ${firstResult}`)
-    return secondResult
-});
-
-const response = await makeNestedCall();
-await flush();
-
-console.log(response);
-```
+    <SnippetSdkWrappersOpenAILogDecoratorPython/>
+    <SnippetSdkWrappersOpenAILogDecoratorTypeScript />
 </CodeGroup>
 
 In this example, the nested calls use the OpenAI SDK integration. Each nested call is logged inside the same workflow trace that is created by the log decorator.
@@ -289,7 +237,7 @@ for num in generate_numbers(5):
 ### Integrations with third-party SDKs
 
 <CardGroup cols={2}>
-<Card title="OpenAI wrapper" icon="code" horizontal href="/sdk-api/third-party-integrations/openai">
+<Card title="OpenAI wrapper" icon="code" horizontal href="/sdk-api/third-party-integrations/openai/openai">
     Automatically log calls to the OpenAI SDK with a wrapper.
 </Card>
 <Card title="OpenAI Agents trace processor" icon="code" horizontal href="/sdk-api/third-party-integrations/openai-agents">
