@@ -3,60 +3,11 @@ title: Metrics Overview
 description: Explore Galileo's comprehensive metrics framework for evaluating and improving AI system performance across multiple dimensions.
 ---
 
-import { MetricCategories } from "/snippets/components/Metric-categories.mdx";
-import { ResponseQuality } from "/snippets/components/Response-Quality-Metrics.mdx";
-import { SafetyAndComplianceMetrics } from "/snippets/components/Safety-And-Compliance-Metrics.mdx";
-import { AgenticPerformanceMetrics } from "/snippets/components/Agentic-Performance-Metrics.mdx";
-import { ModelConfidenceMetrics } from "/snippets/components/Model-Confidence-Metrics.mdx";
-import { ExpressionAndReadabilityMetrics } from "/snippets/components/Expression-And-Readability-Metrics.mdx";
-
-
-<script>
-  {`
-  function highlightSection() {
-    // Remove any existing highlights
-    const prevHighlight = document.querySelector('.section-highlight');
-    if (prevHighlight) {
-      prevHighlight.classList.remove('section-highlight');
-    }
-
-    // If we have a hash, find and highlight the section
-    if (window.location.hash) {
-      const targetSection = document.querySelector(window.location.hash);
-      if (targetSection) {
-        targetSection.classList.add('section-highlight');
-        // Ensure smooth scroll
-        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-  }
-
-  // Run on page load and when hash changes
-  if (typeof window !== 'undefined') {
-    window.addEventListener('load', highlightSection);
-    window.addEventListener('hashchange', highlightSection);
-  }
-`}
-</script>
-
-<style>
-  {`
-  .section-highlight {
-    position: relative;
-    background: #4a2ff911;
-    padding: 24px;
-    margin: -24px;
-    border-radius: 8px;
-    border-left: 4px solid #4a2ff9;
-    animation: flashHighlight 2s ease-out;
-  }
-
-  @keyframes flashHighlight {
-    0% { background: #4a2ff933; }
-    100% { background: #4a2ff911; }
-  }
-`}
-</style>
+import ResponseQuality from "/snippets/components/Response-Quality-Metrics.mdx";
+import SafetyAndComplianceMetrics from "/snippets/components/Safety-And-Compliance-Metrics.mdx";
+import AgenticPerformanceMetrics from "/snippets/components/Agentic-Performance-Metrics.mdx";
+import ModelConfidenceMetrics from "/snippets/components/Model-Confidence-Metrics.mdx";
+import ExpressionAndReadabilityMetrics from "/snippets/components/Expression-And-Readability-Metrics.mdx";
 
 Galileo comes with a set of ready-to-use metrics that allow you to see how your AI is performing. With these metrics, you can quickly spot problems, track improvements, and make your AI work better for your users.
 
@@ -69,16 +20,22 @@ Metrics can be used with [experiments](/concepts/experiments/running-experiments
 To get the most value from Galileo's metrics:
 
 1. **Start with key metrics** - Focus on metrics most relevant to your use case
-2. **Establish baselines** - Understand your current performance before making changes
-3. **Track trends over time** - Monitor how metrics change as you iterate on your system
-4. **Combine multiple metrics** - Look at related metrics together for a more complete picture
-5. **Set thresholds** - Define acceptable ranges for critical metrics
+1. **Establish baselines** - Understand your current performance before making changes
+1. **Track trends over time** - Monitor how metrics change as you iterate on your system
+1. **Combine multiple metrics** - Look at related metrics together for a more complete picture
+1. **Set thresholds** - Define acceptable ranges for critical metrics
 
 ## Out-of-the-Box Metric Categories
 
 Our metrics can be broken down into five key categories, each addressing a specific aspect of AI system performance. Many times, folks benefit from using metrics from more than one category, depending on the metrics that matter most to them.  Galileo also supports [custom metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm) that are able to be implemented alongside the out-of-the-box metric options. 
 
-  <MetricCategories />
+| Category | Description | When to Use | Example Use Cases |
+|:---------|:------------|:------------|:------------------|
+| [Agentic](/concepts/metrics/overview#agentic-performance-metrics) | Metrics that evaluate how effectively AI agents perform tasks, use tools, and progress toward goals. | When building and optimizing AI systems that take actions, make decisions, or use tools to accomplish tasks. | <ul><li>Evaluating a travel planning agent's ability to book complete itineraries</li><li>Assessing a coding assistant's appropriate use of APIs and libraries</li><li>Measuring a data analysis agent's tool selection effectiveness</li></ul> |
+| [Expression and Readability](/concepts/metrics/overview#expression-and-readability-metrics) | Metrics that evaluate the style, tone, clarity, and overall presentation of AI-generated content. | When the format, tone, and presentation of AI outputs are important for user experience or brand consistency. | <ul><li>Ensuring a luxury brand chatbot maintains a sophisticated tone</li><li>Verifying educational content is presented at the appropriate reading level</li><li>Measuring clarity and conciseness in technical documentation generation</li></ul> |
+| [Model Confidence](/concepts/metrics/overview#model-confidence-metrics) | Metrics that measure how certain or uncertain your AI model is about its responses. | When you want to flag low-confidence responses for review, improve system reliability, or better understand model uncertainty. | <ul><li>Flagging uncertain answers in a customer support chatbot for human review</li><li>Identifying low-confidence predictions in a medical diagnosis assistant</li><li>Improving user trust by surfacing confidence scores in AI-generated content</li></ul> |
+| [Response Quality](/concepts/metrics/overview#response-quality-metrics) | Metrics that assess the accuracy, completeness, relevance, and overall quality of AI-generated responses. | When evaluating how well AI systems answer questions, follow instructions, or provide information based on context. | <ul><li>Measuring factual accuracy in a medical information system</li><li>Evaluating how well a RAG system uses retrieved information</li><li>Assessing if customer service responses address all parts of a query</li></ul> |
+| [Safety and Compliance](/concepts/metrics/overview#safety-and-compliance-metrics) | Metrics that identify potential risks, harmful content, bias, or privacy concerns in AI interactions. | When ensuring AI systems meet regulatory requirements, protect user privacy, and avoid generating harmful or biased content. | <ul><li>Detecting PII in healthcare chatbot conversations</li><li>Identifying potential prompt injection attacks in public-facing systems</li><li>Measuring bias in hiring or loan approval recommendation systems</li></ul> |
 
 ## Agentic Performance Metrics
 
@@ -109,13 +66,3 @@ Use these metrics to evaluate how well your AI answers user questions and follow
 Use these metrics to identify potential risks, harmful content, or compliance issues in your AI's responses. They're important when you need to protect users, meet regulatory requirements, or avoid generating biased or unsafe content.
 
 <SafetyAndComplianceMetrics />
-
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Explore Response Quality" href="/concepts/metrics/response-quality/instruction-adherence">
-    Dive deeper into metrics for evaluating response quality.
-
-</Card>
-</CardGroup>
