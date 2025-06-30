@@ -1,0 +1,21 @@
+```typescript TypeScript
+import { GalileoCallback } from "galileo";
+import { ChatOpenAI } from "@langchain/openai";
+
+// Create a callback handler
+const callback = new GalileoCallback();
+
+// Initialize the LLM with the callback
+const llm = new ChatOpenAI({
+  model: "gpt-4o",
+  temperature: 0.7,
+  callbacks: [callback]
+});
+
+// Make the LLM call
+const response = await llm.invoke(
+    "What is LangChain and how is it used with OpenAI?"
+);
+
+console.log(response.content);
+```

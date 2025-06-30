@@ -1,0 +1,17 @@
+```typescript TypeScript
+import { GalileoCallback, GalileoLogger, flush } from "galileo";
+import { ChatOpenAI } from "@langchain/openai";
+
+// Create a custom logger
+const logger = new GalileoLogger({
+  projectName: "my-project",
+  logStreamName: "my-log-stream"
+});
+
+// Create a callback with the custom logger
+const callback = new GalileoCallback({
+  galileoLogger: logger, // Optional custom logger
+  startNewTrace: true,   // Whether to start a new trace for each chain
+  flushOnChainEnd: true, // Whether to flush traces when chains end
+});
+```

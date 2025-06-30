@@ -1,28 +1,30 @@
 ```python Python
-from galileo.handlers.langchain import GalileoCallback
-from langchain.chains import LLMMathChain
+from galileo.handlers.langchain import GalileoAsyncCallback
 from langchain_openai import ChatOpenAI
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain.schema.runnable.config import RunnableConfig
 
 # Create a callback handler
-handler = GalileoCallback()
+callback = GalileoAsyncCallback()
 
-# Initialize the LLM with the callback
-llm = ChatOpenAI(model="gpt-4o", callbacks=[handler])
+# Create the model
+llm = ChatOpenAI(model="gpt-4o", temperature=0.7, callbacks=[callback])
 
-# Initialize the chain with the callback
-llm_math = LLMMathChain.from_llm(llm, callbacks=[handler])
+# Create a prompt template
+prompt = ChatPromptTemplate.from_template("Tell me a joke about {topic}")
 
-# Invoke the chain with the callback and additional metadata
-result = llm_math.invoke(
-    "What's 2 + 2?",
-    {
-        "callbacks": [handler],
-        "metadata": {
-            "galileo_session": "my-session",
-            "galileo_user_id": "user-id",
-        },
-    },
+# Assemble the chain with the prompt, LLM, and output parser
+chain = prompt | llm | StrOutputParser()
+
+# Create a configuration for the runnable
+# that includes the callback handler
+config = RunnableConfig(
+    callbacks=[callback]
 )
 
-print(result)
+# Invoke the chain with a topic and configuration
+response = chain.invoke({"topic": "the Roman Empire"}, 
+                        config=config)
+print(response)
 ```

@@ -1,13 +1,15 @@
 ```python Python
-result = chain.invoke(
-    "Your input here",
-    {
-        "callbacks": [handler],
-        "metadata": {
-            "user_id": "user-123",
-            "session_id": "session-456",
-            "custom_field": "custom value"
-        }
-    }
+# Create a configuration for the runnable
+# that includes the callback handler and metadata
+config = RunnableConfig(
+    callbacks=[callback],
+    metadata={
+        "user_id": "user-123",
+        "session_id": "session-456",
+        "custom_field": "custom value",
+    },
 )
+
+# Invoke the chain with a topic and configuration
+response = chain.invoke({"topic": "the Roman Empire"}, config=config)
 ```

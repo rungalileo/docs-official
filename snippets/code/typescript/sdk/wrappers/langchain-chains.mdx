@@ -1,0 +1,36 @@
+```typescript TypeScript
+import { GalileoCallback, GalileoLogger, flush } from "galileo";
+import { ChatOpenAI } from "@langchain/openai";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+
+// Create a callback handler
+const callback = new GalileoCallback();
+
+// Initialize the LLM with the callback
+const llm = new ChatOpenAI({
+  model: "gpt-4o",
+  callbacks: [callback]
+});
+
+const prompt = ChatPromptTemplate.fromTemplate(
+    "Tell me a joke about {topic}"
+);
+
+// Assemble the chain with the prompt and LLM
+const chain = prompt.pipe(llm)
+                    .pipe(new StringOutputParser());
+
+// Create a runnable configuration
+// that includes the callback handler
+const runnableConfig = {
+    callbacks: [callback]
+};
+
+// Invoke the chain with a topic and configuration
+const response = await chain.invoke({
+    topic: "the Roman Empire",
+    options: [runnableConfig]
+});
+console.log(response);
+```

@@ -13,11 +13,12 @@ import SnippetExperimentsGetLoggerPython from "/snippets/code/python/concepts/ex
 import SnippetExperimentsGetCurrentParentPython from "/snippets/code/python/concepts/experiments/get-current-parent.mdx";
 import SnippetExperimentsLoggingWithParentCheckPython from "/snippets/code/python/concepts/experiments/logging-with-parent-check.mdx";
 
-import SnippetExperimentsPromptTypescript from "/snippets/code/typescript/concepts/experiments/prompt.mdx";
-import SnippetExperimentsExistingDatasetTypescript from "/snippets/code/typescript/concepts/experiments/existing-dataset.mdx";
-import SnippetExperimentsGroundTruthTypescript from "/snippets/code/typescript/concepts/experiments/ground-truth.mdx";
-import SnippetExperimentsCustomDatasetTypescript from "/snippets/code/typescript/concepts/experiments/custom-dataset.mdx";
-import SnippetExperimentsCustomMetricsTypescript from "/snippets/code/typescript/concepts/experiments/custom-metrics.mdx";
+import SnippetExperimentsPromptTypeScript from "/snippets/code/typescript/concepts/experiments/prompt.mdx";
+import SnippetExperimentsExistingDatasetTypeScript from "/snippets/code/typescript/concepts/experiments/existing-dataset.mdx";
+import SnippetExperimentsGroundTruthTypeScript from "/snippets/code/typescript/concepts/experiments/ground-truth.mdx";
+import SnippetExperimentsCustomDatasetTypeScript from "/snippets/code/typescript/concepts/experiments/custom-dataset.mdx";
+import SnippetExperimentsCustomMetricsTypeScript from "/snippets/code/typescript/concepts/experiments/custom-metrics.mdx";
+import SnippetExperimentsLangGraphCallbackTypeScript from "/snippets/code/typescript/concepts/experiments/langgraph-callback.mdx";
 import SnippetExperimentsGetLoggerTypeScript from "/snippets/code/typescript/concepts/experiments/get-logger.mdx";
 import SnippetExperimentsGetCurrentParentTypeScript from "/snippets/code/typescript/concepts/experiments/get-current-parent.mdx";
 import SnippetExperimentsLoggingWithParentCheckTypeScript from "/snippets/code/typescript/concepts/experiments/logging-with-parent-check.mdx";
@@ -38,7 +39,7 @@ The simplest way to get started with experimentation is by evaluating prompts di
 
 <CodeGroup>
   <SnippetExperimentsPromptPython />
-  <SnippetExperimentsPromptTypescript />
+  <SnippetExperimentsPromptTypeScript />
 </CodeGroup>
 
 ## Run Experiments with Custom Functions
@@ -53,7 +54,7 @@ Galileo is model-agnostic, and supports leading LLM providers including OpenAI, 
 
 <CodeGroup>
   <SnippetExperimentsExistingDatasetPython />
-  <SnippetExperimentsExistingDatasetTypescript />
+  <SnippetExperimentsExistingDatasetTypeScript />
 </CodeGroup>
 
 ### Run Experiments Against Complex Code with Custom Functions
@@ -95,16 +96,17 @@ Once you have this information, you can use it to decide to create a new trace i
 
 You can then safely call your code from the experiment runner as well as in your normal application logic. When called from the experiment runner, your traces will be logged to that experiment. When called from your application code, the traces will be logged as normal.
 
-#### Using LangGraph agents in an experiment
+#### Using LangChain or LangGraph in an experiment
 
-When using LangGraph in Python, Galileo provides a callback class that handles creating a logger, starting a trace, logging spans, then concluding and flushing the trace. This behavior is inconsistent with that required for experiments, where the logger is created and trace started at the start of the experiment, and the logger is concluded and flushed at the end.
+When using LangChain or LangGraph, Galileo provides a callback class that handles creating a logger, starting a trace, logging spans, then concluding and flushing the trace. This behavior is inconsistent with that required for experiments, where the logger is created and trace started at the start of the experiment, and the logger is concluded and flushed at the end.
 
 To work around this, you can tell the callback to not start or flush the trace by detecting if there is already an active trace. If there is, then don't start a new trace or flush it on completion.
 
 The easiest way to do this is to get the current logger from the Galileo context, and check to see if it contains a parent trace. If there is no parent trace, then it is a new logger instance and you can start and flush the trace. If there is a parent trace, then it is an existing logger created from the experiment, and you can create the callback setting parameters to not start or flush the trace.
 
 <CodeGroup>
-  <SnippetExperimentsLangGraphCallbackPython/>
+  <SnippetExperimentsLangGraphCallbackPython />
+  <SnippetExperimentsLangGraphCallbackTypeScript />
 </CodeGroup>
 
 <Note>
@@ -128,7 +130,7 @@ For [BLUE, ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge), 
 
 <CodeGroup>
   <SnippetExperimentsGroundTruthPython/>
-  <SnippetExperimentsGroundTruthTypescript/>
+  <SnippetExperimentsGroundTruthTypeScript/>
 </CodeGroup>
 
 <Note>
@@ -141,7 +143,7 @@ As your testing needs become more specific, you might need to work with custom o
 
 <CodeGroup>
   <SnippetExperimentsCustomDatasetPython />
-  <SnippetExperimentsCustomDatasetTypescript />
+  <SnippetExperimentsCustomDatasetTypeScript />
 </CodeGroup>
 
 ## Custom Metrics for Deep Analysis
@@ -150,7 +152,7 @@ For the most sophisticated level of testing, you might need to track specific as
 
 <CodeGroup>
   <SnippetExperimentsCustomMetricsPython />
-  <SnippetExperimentsCustomMetricsTypescript />
+  <SnippetExperimentsCustomMetricsTypeScript />
 </CodeGroup>
 
 Each of these experimentation approaches fits into different stages of your development and testing workflow. As you progress from simple prompt testing to sophisticated custom metrics, Galileo's experimentation framework provides the tools you need to gather insights and improve your application's performance at every level of complexity.

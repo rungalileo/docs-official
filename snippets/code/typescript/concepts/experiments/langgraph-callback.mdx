@@ -1,0 +1,18 @@
+```typescript TypeScript
+import { getLogger, GalileoCallback } from "galileo";
+
+// Get the logger from the current Galileo context
+const logger = getLogger();
+
+const isInExperiment = logger.currentParent() !== undefined;
+
+// Create the callback checking to see if we are in an experiment
+// If we are, set start_new_trace and flush_on_chain_end to False
+// so that the existing trace is used, and not flushed
+const galileoCallback = GalileoCallback({
+    galileoLogger: logger,
+    startNewTrace: !isInExperiment,
+    flushOnChainEnd: !isInExperiment,
+});
+const callbacks = [galileoCallback];
+```
