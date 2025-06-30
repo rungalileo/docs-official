@@ -1,0 +1,46 @@
+---
+title: OpenAI Agents SDK
+description: Learn how to send traces from the OpenAI Agents SDK to Galileo for evaluation.
+---
+
+The OpenAI Agents SDK uses has built in tracing to log agent runs, and this can be extended to log to platforms like Galileo. The Galileo Python SDK has a custom [OpenAI trace processor](https://openai.github.io/openai-agents-python/tracing/#custom-tracing-processors) that logs all agent events, allowing you to evaluate your agentic apps using Galileo metrics.
+
+<CardGroup cols={1}>
+<Card title="Integrate Galileo into an OpenAI Agents SDK app" icon="code" horizontal href="/sdk-api/logging/galileo-logger">
+    Get hands on integrating Galileo into an agentic app using the OpenAI Agents SDK
+</Card>
+</CardGroup>
+
+## Log an OpenAI agent app
+
+To log OpenAI agent apps to Galileo, you need to create an instance of the [`GalileoTracingProcessor`](/sdk-api/python/reference/handlers/openai_agents#galileotracingprocessor-objects), and set this as the default trace processor for your agent using the [`set_trace_processors`](https://openai.github.io/openai-agents-python/ref/tracing/#agents.tracing.set_trace_processors) function from the OpenAI Agents SDK.
+
+<CodeGroup>
+```python Python
+from galileo.handlers.openai_agents import GalileoTracingProcessor
+from agents import set_trace_processors
+
+# Create a Galileo trace processor and set it as the OpenAI trace processor
+set_trace_processors([GalileoTracingProcessor()])
+```
+</CodeGroup>
+
+Once this is set, all agent events, such as tool calls, handoffs, and generations, will be logged to Galileo.
+
+![A graph of an agent call in Galileo showing guardrails and response generation](/sdk-api/third-party-integrations/openai-agents/agent-graph.webp)
+
+![A set of spans in Galileo showing an OpenAI agent running guardrails, handoffs, and generating responses](/sdk-api/third-party-integrations/openai-agents/agent-spans.webp)
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="Galileo logger" icon="code" horizontal href="/sdk-api/logging/galileo-logger">
+    Log with full control over sessions, traces, and spans using the Galileo logger.
+</Card>
+<Card title="Log decorator" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
+    Quickly add logging to your code with the log decorator and wrapper.
+</Card>
+<Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
+    Manage logging using the Galileo context manager.
+</Card>
+</CardGroup>
