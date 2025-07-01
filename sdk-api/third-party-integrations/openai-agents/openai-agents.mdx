@@ -3,6 +3,9 @@ title: OpenAI Agents SDK
 description: Learn how to send traces from the OpenAI Agents SDK to Galileo for evaluation.
 ---
 
+import SnippetSdkHandlersOpenAIAgentsBasicSetupPython from "/snippets/code/python/sdk/handlers/openai-agents/basic-setup.mdx";
+import SnippetSdkHandlersOpenAIAgentsCustomLoggerPython from "/snippets/code/python/sdk/handlers/openai-agents/custom-logger.mdx";
+
 The OpenAI Agents SDK uses has built in tracing to log agent runs, and this can be extended to log to platforms like Galileo. The Galileo Python SDK has a custom [OpenAI tracing processor](https://openai.github.io/openai-agents-python/tracing/#custom-tracing-processors) that logs all agent events, allowing you to evaluate your agentic apps using Galileo metrics.
 
 <CardGroup cols={2}>
@@ -19,14 +22,7 @@ The OpenAI Agents SDK uses has built in tracing to log agent runs, and this can 
 To log OpenAI agent apps to Galileo, you need to create an instance of the [`GalileoTracingProcessor`](/sdk-api/python/reference/handlers/openai_agents#galileotracingprocessor-objects), and set this as the default tracing processor for your agent using the [`set_trace_processors`](https://openai.github.io/openai-agents-python/ref/tracing/#agents.tracing.set_trace_processors) function from the OpenAI Agents SDK.
 
 <CodeGroup>
-```python Python
-from galileo.handlers.openai_agents import GalileoTracingProcessor
-from agents import set_trace_processors
-
-# Create a Galileo tracing processor
-# and set it as the OpenAI tracing processor
-set_trace_processors([GalileoTracingProcessor()])
-```
+  <SnippetSdkHandlersOpenAIAgentsBasicSetupPython />
 </CodeGroup>
 
 Once this is set, all agent events, such as tool calls, handoffs, and generations, will be logged to Galileo.
@@ -40,18 +36,7 @@ By default the tracing processor using the current logger at the time it is crea
 You can override this by passing a [GalileoLogger](/sdk-api/logging/galileo-logger) into the `GalileoTracingProcessor` constructor.
 
 <CodeGroup>
-```python Python
-from galileo import GalileoLogger
-from galileo.handlers.openai_agents import GalileoTracingProcessor
-from agents import set_trace_processors
-
-# Create a logger
-logger = GalileoLogger()
-
-# Create a Galileo tracing processor using the existing logger
-# and set it as the OpenAI tracing processor
-set_trace_processors([GalileoTracingProcessor(galileo_logger=logger)])
-```
+  <SnippetSdkHandlersOpenAIAgentsCustomLoggerPython />
 </CodeGroup>
 
 
