@@ -1,0 +1,44 @@
+```typescript TypeScript
+import { GalileoLogger } from "galileo";
+
+const galileoLogger = new GalileoLogger({
+    projectName: "my-project",
+    logStreamName: "my-log-stream",
+});
+
+// Start a trace for a user query
+const trace = galileoLogger.startTrace({
+    input: "Who's a good bot?",
+    name: "User Query",
+    tags: ["bot-interaction"]
+});
+
+// Add a retriever span for document retrieval
+galileoLogger.addRetrieverSpan({
+    input: "Who's a good bot?",
+    output: ["Research shows that I am a good bot."],
+    name: "Document Retrieval",
+    durationNs: 1000000
+});
+
+// Add an LLM span for generating a response
+galileoLogger.addLlmSpan({
+    input: "Who's a good bot?",
+    output: "I am!",
+    model: "gpt-4o",
+    name: "Response Generation",
+    numInputTokens: 25,
+    numOutputTokens: 3,
+    totalTokens: 28,
+    durationNs: 1000000
+});
+
+// Conclude the trace
+galileoLogger.conclude({
+    output: "I am!",
+    durationNs: 2000000
+})
+
+// Flush the trace to Galileo
+galileoLogger.flush();
+```

@@ -1,0 +1,39 @@
+```python Python
+from galileo import GalileoLogger
+from datetime import datetime
+
+logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
+
+# Start a trace for a user query
+trace = logger.start_trace(
+    input="Who's a good bot?",
+    name="User Query",
+    tags=["bot-interaction"]
+)
+
+# Add a retriever span for document retrieval
+logger.add_retriever_span(
+    input="Who's a good bot?",
+    output=["Research shows that I am a good bot."],
+    name="Document Retrieval",
+    duration_ns=1000000
+)
+
+# Add an LLM span for generating a response
+logger.add_llm_span(
+    input="Who's a good bot?",
+    output="I am!",
+    model="gpt-4o",
+    name="Response Generation",
+    num_input_tokens=25,
+    num_output_tokens=3,
+    total_tokens=28,
+    duration_ns=1000000
+)
+
+# Conclude the trace
+logger.conclude(output="I am!", duration_ns=2000000)
+
+# Flush the trace to Galileo
+logger.flush()
+```
