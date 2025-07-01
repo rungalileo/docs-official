@@ -1,6 +1,6 @@
 ---
 title: Overview
-description: An overview of the Galileo Python SDK.
+description: An overview of the Galileo SDKs.
 ---
 
 import SnippetEnvSetup from "/snippets/code/multilingual/env-setup.mdx";
@@ -58,7 +58,11 @@ You can also optionally set the following environment variables to define the pr
 | :-------------------- | :---------- |
 | `GALILEO_PROJECT`     | The [Galileo project](/concepts/projects) to log to. If this is not set, you will need to pass the project name in code. |
 | `GALILEO_LOG_STREAM`  | The [default log stream](/concepts/logging/logstreams) to log to. If this is not set, you will need to pass the log stream name in code. |
-| `GALILEO_CONSOLE_URL` | The URL of your Galileo console to log to. If this is not set, it will default to the hosted Galileo version at [app.galileo.ai](https://app.galileo.ai). |
+| `GALILEO_CONSOLE_URL` | For custom Galileo deployments only, set this to the URL of your Galileo console to log to. If this is not set, it will default to the hosted Galileo version at [app.galileo.ai](https://app.galileo.ai). |
+
+<Note>
+If you are using the free version of Galileo, there is no need to set the `GALILEO_CONSOLE_URL` environment variable.
+</Note>
 
 When developing your application, you should use a `.env` file. Create or update a `.env` file with the following values as required:
 
@@ -85,7 +89,7 @@ For Python, you will need to install `python-dotenv` if you haven't already.
 
 The Galileo SDKs allow you to log all prompts, responses, and statistics around your LLM usage. There are three main ways to log your application:
 
-1. **Use a wrapper** - use wrappers that integrate with common SDKs to automatically log LLM calls or agentic workflows.
+1. **Use a third-party integration** - use wrappers that integrate with common SDKs to automatically log LLM calls or agentic workflows.
 1. **Use a decorator** - by decorating a function that calls an LLM with the `@log` decorator or `log` wrapper, the Galileo SDK logs all AI prompts within.
 1. **Directly using the `GalileoLogger` class** - For more control over your logging, you can use the `GalileoLogger` directly. This allows you to manually create sessions, start traces, and log spans. This can be mixed with the other methods, for example accessing the logger directly inside a decorated function call to manually add spans.
 
@@ -102,6 +106,37 @@ See our [run experiments with code documentation](/concepts/experiments/running-
 <CardGroup cols={2}>
 <Card title="Learn how to log experiments" icon="flask" horizontal href="/sdk-api/experiments">
     Learn how to run experiments with multiple data points using datasets and prompt templates
+</Card>
+<Card title="Galileo logger" icon="code" horizontal href="/sdk-api/logging/galileo-logger">
+    Log with full control over sessions, traces, and spans using the Galileo logger.
+</Card>
+<Card title="Log decorator" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
+    Quickly add logging to your code with the log decorator and wrapper.
+</Card>
+<Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
+    Manage logging using the Galileo context manager.
+</Card>
+</CardGroup>
+
+### How-to guides
+
+<CardGroup cols={2}>
+<Card title="Log Using the OpenAI Wrapper" href="/how-to-guides/basics/basic-example" horizontal>
+  Learn how to integrate and use OpenAI's API with Galileo's wrapper client.
+  <br/>
+  **Python**
+</Card>
+
+<Card title="Log Using the @log Decorator" href="/how-to-guides/basics/basic-logging-with-decorator/basic-logging-with-decorator" horizontal>
+  Learn how to use the Galileo @log decorator to log functions to traces
+  <br/>
+  **Python**
+</Card>
+
+<Card title="Create Traces and Spans" href="/how-to-guides/basics/manual-span-creation/manual-span-creation" horizontal>
+  Learn how to create log traces and spans manually in your AI apps
+  <br/>
+  **Python**
 </Card>
 </CardGroup>
 

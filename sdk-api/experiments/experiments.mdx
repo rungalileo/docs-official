@@ -33,7 +33,11 @@ To get started running experiments with Galileo, you need to configure your API 
 | Environment variable  | Description |
 | :-------------------- | :---------- |
 | `GALILEO_API_KEY`     | Your [Galileo API key](/references/faqs/find-keys#galileo-api-key). |
-| `GALILEO_CONSOLE_URL` | Optional. The URL of your Galileo console to log to. If this is not set, it will default to the hosted Galileo version at [app.galileo.ai](https://app.galileo.ai). |
+| `GALILEO_CONSOLE_URL` | For custom Galileo deployments only, set this to the URL of your Galileo console to log to. If this is not set, it will default to the hosted Galileo version at [app.galileo.ai](https://app.galileo.ai). |
+
+<Note>
+If you are using the free version of Galileo, there is no need to set the `GALILEO_CONSOLE_URL` environment variable.
+</Note>
 
 ### Project
 
@@ -54,8 +58,8 @@ You can also set the project when running the experiment by passing it in to the
 
 The simplest way to get started is by using a prompt template. 
 
-* If you have an existing prompt template, you can [load it in code](/sdk-api/experiments/prompts#get-prompt-templates).
-* To get a dataset, you need to have one already created through either the [console](https://app.galileo.ai/datasets) or the [SDK](/sdk-api/experiments/datasets#create-datasets). Ensure you have saved a dataset before running the experiment!
+- If you have an existing prompt template, you can [load it in code](/sdk-api/experiments/prompts#get-prompt-templates).
+- Datasets can be created through either the [console](https://app.galileo.ai/datasets) or the [SDK](/sdk-api/experiments/datasets#create-datasets), and loaded as needed, or can be a [custom one created locally](#custom-dataset-evaluation).
 
 <CodeGroup>
   <SnippetExperimentsPromptPython />
@@ -64,7 +68,7 @@ The simplest way to get started is by using a prompt template.
 
 ## Run Experiments with Custom Functions
 
-For more complex scenarios, you can use custom functions with the OpenAI wrapper. Here, you may use either a [saved dataset](/sdk-api/experiments/datasets#create-datasets) or a [custom one](#custom-dataset-evaluation)
+For more complex scenarios, you can use custom functions logged with the [`log` decorator](/sdk-api/logging/log-decorator/log-decorator), or using [third-party SDK integrations](/sdk-api/third-party-integrations/overview), such as the [OpenAI wrapper](/sdk-api/third-party-integrations/openai/openai). Here, you may use either a [saved dataset](/sdk-api/experiments/datasets#create-datasets) or a [custom one](#custom-dataset-evaluation).
 
 <CodeGroup>
   <SnippetExperimentsExistingDatasetPython />
@@ -73,7 +77,7 @@ For more complex scenarios, you can use custom functions with the OpenAI wrapper
 
 ## Custom Dataset Evaluation
 
-When you need to test specific scenarios:
+When you need to test specific scenarios, you can use custom datasets defined in code.
 
 <CodeGroup>
   <SnippetExperimentsCustomDatasetPython />
@@ -92,13 +96,9 @@ For sophisticated evaluation needs, you can also create metrics in code and use 
 ## Best Practices
 
 1. **Use consistent datasets**: Use the same dataset when comparing different prompts or models to ensure fair comparisons.
-
 1. **Test multiple variations**: Run experiments with different prompt variations to find the best approach.
-
 1. **Use appropriate metrics**: Choose metrics that are relevant to your specific use case.
-
 1. **Start small**: Begin with a small dataset to quickly iterate and refine your approach before scaling up.
-
 1. **Document your experiments**: Keep track of what you're testing and why to make it easier to interpret results.
 
 ## Related Resources
