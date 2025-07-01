@@ -1,0 +1,37 @@
+```typescript TypeScript
+import { GalileoLogger } from "galileo";
+
+// Create a logger instance with project and log stream
+const galileoLogger = new GalileoLogger({
+    projectName: "my-project",
+    logStreamName: "my-log-stream",
+});
+
+const sessionId = galileoLogger.startSession({
+    name: "Test session"
+});
+
+// Start a new trace
+const trace = galileoLogger.startTrace({
+    input: "Say this is a test"
+});
+
+// Add an LLM span to the trace
+galileoLogger.addLlmSpan({
+    input: "Say this is a test",
+    output: "Hello, this is a test",
+    model: "gpt-4o",
+    numInputTokens: 10,
+    numOutputTokens: 3, 
+    totalTokens: 13,
+    durationNs: 1000,
+});
+
+// Conclude the trace with the final output
+galileoLogger.conclude({
+    output: "Hello, this is a test"
+});
+
+// Flush the trace to Galileo
+galileoLogger.flush();
+```

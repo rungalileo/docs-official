@@ -9,12 +9,16 @@ import SnippetSdkPromptsGetPython from "/snippets/code/python/sdk/prompts/get.md
 import SnippetSdkPromptsListPython from "/snippets/code/python/sdk/prompts/list.mdx";
 import SnippetSdkPromptsDeletePython from "/snippets/code/python/sdk/prompts/delete.mdx";
 import SnippetSdkPromptsExperimentPython from "/snippets/code/python/sdk/datasets/experiments.mdx";
+import SnippetSdkPromptsTestDataPython from "/snippets/code/python/sdk/experiments/test-data.mdx";
+import SnippetSdkPromptsReferenceDataSetPython from "/snippets/code/python/sdk/experiments/reference-dataset.mdx";
 
 import SnippetSdkPromptsCreateTypeScript from "/snippets/code/typescript/sdk/prompts/create.mdx";
 import SnippetSdkPromptsGetTypeScript from "/snippets/code/typescript/sdk/prompts/get.mdx";
 import SnippetSdkPromptsListTypeScript from "/snippets/code/typescript/sdk/prompts/list.mdx";
 import SnippetSdkPromptsDeleteTypeScript from "/snippets/code/typescript/sdk/prompts/delete.mdx";
 import SnippetSdkPromptsExperimentTypeScript from "/snippets/code/typescript/sdk/datasets/experiments.mdx";
+import SnippetSdkPromptsTestDataTypeScript from "/snippets/code/typescript/sdk/experiments/test-data.mdx";
+import SnippetSdkPromptsReferenceDataSetTypeScript from "/snippets/code/typescript/sdk/experiments/reference-dataset.mdx";
 
 Prompt templates in Galileo allow you to create, store, and reuse prompts across your experiments. They provide a structured way to manage your prompts and ensure consistency in your LLM interactions.
 
@@ -32,40 +36,15 @@ When you use datasets in Galileo, the attributes stored in the input in your dat
 Suppose you have the following dataset: 
 
 <CodeGroup>
-```python Python
-test_data = [
-    { "input": { "city": "Rome, Italy", "days": "5" } },
-    { "input": { "city": "Paris, France", "days": "3" } },
-]
-```
-
-```typescript TypeScript
-const testData = [
-    { input: { "city": "Rome, Italy", "days": "5" } },
-    { input: { "city": "Paris, France", "days": "3" } },
-];
-```
+  <SnippetSdkPromptsTestDataPython />
+  <SnippetSdkPromptsTestDataTypeScript />
 </CodeGroup>
 
 To reference fields from your dataset in your prompt, use double curly braces:
 
 <CodeGroup>
-```python Python
-Message(role=MessageRole.user, 
-        content="""
-        Plan a {{ days }}-day travel itinerary
-        for a trip to {{ city }}.
-        """)
-```
-```typescript TypeScript
-{ 
-  role: "user", 
-  content: `
-    Please write a short story about
-    the following topic: {topic}
-    `
-}
-```
+  <SnippetSdkPromptsReferenceDataSetPython />
+  <SnippetSdkPromptsReferenceDataSetTypeScript />
 </CodeGroup>
 
 - `{{ city }}` will be replaced with the value of the `city` field inside the `input` dictionary. 

@@ -5,9 +5,21 @@ description: Get granular control over logging with the GalileoLogger class
 
 import SnippetSdkLoggingGetLoggerPython from "/snippets/code/python/sdk/logging/logger-from-context.mdx";
 import SnippetSdkLoggingGetLoggerDecoratorPython from "/snippets/code/python/sdk/logging/logger-from-context-log-decorator.mdx";
+import SnippetSdkLoggingBasicLoggingPython from "/snippets/code/python/sdk/logging/basic-logging.mdx";
+import SnippetSdkLoggingCreateLoggerPython from "/snippets/code/python/sdk/logging/create-logger.mdx";
+import SnippetSdkLoggingStartLoggerSessionPython from "/snippets/code/python/sdk/logging/start-logger-session.mdx";
+import SnippetSdkLoggingSetLoggerSessionPython from "/snippets/code/python/sdk/logging/set-logger-session.mdx";
+import SnippetSdkLoggingStartLoggerSessionExternalIdPython from "/snippets/code/python/sdk/logging/start-logger-session-external-id.mdx";
+import SnippetSdkLoggingClearLoggerSessionPython from "/snippets/code/python/sdk/logging/clear-logger-session.mdx";
 
 import SnippetSdkLoggingGetLoggerTypeScript from "/snippets/code/typescript/sdk/logging/logger-from-context.mdx";
 import SnippetSdkLoggingGetLoggerDecoratorTypeScript from "/snippets/code/typescript/sdk/logging/logger-from-context-log-decorator.mdx";
+import SnippetSdkLoggingBasicLoggingTypeScript from "/snippets/code/typescript/sdk/logging/basic-logging.mdx";
+import SnippetSdkLoggingCreateLoggerTypeScript from "/snippets/code/typescript/sdk/logging/create-logger.mdx";
+import SnippetSdkLoggingStartLoggerSessionTypeScript from "/snippets/code/typescript/sdk/logging/start-logger-session.mdx";
+import SnippetSdkLoggingSetLoggerSessionTypeScript from "/snippets/code/typescript/sdk/logging/set-logger-session.mdx";
+import SnippetSdkLoggingStartLoggerSessionExternalIdTypeScript from "/snippets/code/typescript/sdk/logging/start-logger-session-external-id.mdx";
+import SnippetSdkLoggingClearLoggerSessionTypeScript from "/snippets/code/typescript/sdk/logging/clear-logger-session.mdx";
 
 The `GalileoLogger` class provides the most granular control over logging in Galileo. You can create a logger yourself, or use one from the current context from inside a decorated or wrapped function or when using a third-party SDK integration.
 
@@ -37,73 +49,8 @@ This approach requires more code than using wrappers or decorators but gives you
 Here's a simple example of using the `GalileoLogger` to log an LLM call:
 
 <CodeGroup>
-```python Python
-from galileo import GalileoLogger
-
-# Create a logger instance
-logger = GalileoLogger()
-
-# Start a session
-session_id = logger.start_session(name="Test session")
-
-# Start a new trace
-trace = logger.start_trace("Say this is a test")
-
-# Add an LLM span to the trace
-logger.add_llm_span(
-    input="Say this is a test",
-    output="Hello, this is a test",
-    model="gpt-4o",
-    num_input_tokens=10,
-    num_output_tokens=3,
-    total_tokens=13,
-    duration_ns=1000,
-)
-
-# Conclude the trace with the final output
-logger.conclude(output="Hello, this is a test", duration_ns=1000)
-
-# Flush the trace to Galileo
-logger.flush()
-```
-
-```typescript TypeScript
-import { GalileoLogger } from "galileo";
-
-// Create a logger instance with project and log stream
-const galileoLogger = new GalileoLogger({
-    projectName: "my-project",
-    logStreamName: "my-log-stream",
-});
-
-const sessionId = galileoLogger.startSession({
-    name: "Test session"
-});
-
-// Start a new trace
-const trace = galileoLogger.startTrace({
-    input: "Say this is a test"
-});
-
-// Add an LLM span to the trace
-galileoLogger.addLlmSpan({
-    input: "Say this is a test",
-    output: "Hello, this is a test",
-    model: "gpt-4o",
-    numInputTokens: 10,
-    numOutputTokens: 3, 
-    totalTokens: 13,
-    durationNs: 1000,
-});
-
-// Conclude the trace with the final output
-galileoLogger.conclude({
-    output: "Hello, this is a test"
-});
-
-// Flush the trace to Galileo
-galileoLogger.flush();
-```
+  <SnippetSdkLoggingBasicLoggingPython />
+  <SnippetSdkLoggingBasicLoggingTypeScript />
 </CodeGroup>
 
 This example:
@@ -119,31 +66,8 @@ This example:
 ### Initialization
 
 <CodeGroup>
-```python Python
-from galileo import GalileoLogger
-
-# Initialize with default settings (uses environment variables)
-logger = GalileoLogger()
-
-# Or specify project and log stream
-logger = GalileoLogger(
-    project="my-project",
-    log_stream="my-log-stream"
-)
-```
-
-```typescript TypeScript
-import { GalileoLogger } from "galileo";
-
-// Initialize with default settings (uses environment variables)
-const galileoLogger = new GalileoLogger();
-
-// Or specify project and log stream
-const galileoLogger = new GalileoLogger({
-    projectName: "my-project",
-    logStreamName: "my-log-stream",
-});
-```
+  <SnippetSdkLoggingCreateLoggerPython />
+  <SnippetSdkLoggingCreateLoggerTypeScript />
 </CodeGroup>
 
 See the `GalileoLogger` [Python SDK docs](/sdk-api/python/reference/logger/logger) or [TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger) for more details.
@@ -175,17 +99,8 @@ All traces live inside a session. If you don't create a session, then one is cre
 You can start a new session, providing a name and an external Id.
 
 <CodeGroup>
-```python Python
-session_id = logger.start_session(name="My session"
-                                  external_id="chat-1")
-```
-
-```typescript TypeScript
-const sessionId = galileoLogger.startSession({
-    name: "My session",
-    externalId="chat-1"
-});
-```
+  <SnippetSdkLoggingStartLoggerSessionPython />
+  <SnippetSdkLoggingStartLoggerSessionTypeScript />
 </CodeGroup>
 
 The name and external Id fields are optional. If you want to connect a session to another Id that you are using internally, for example a unique id for a chatbot conversation, then you can set this in the external Id field.
@@ -197,15 +112,8 @@ See the [`start_session` Python SDK docs](/sdk-api/python/reference/logger/logge
 If you want to add a trace to an existing session, you can set the current session for the logger, passing the session Id. This is useful if you want to persist a session, for example saving a chatbot conversation with a user mid conversation, then resuming the next time a user connects.
 
 <CodeGroup>
-```python Python
-logger.set_session(session_id=my_session_id)
-```
-
-```typescript TypeScript
-galileoLogger.setSessionId({
-    sessionId: mySessionId,
-});
-```
+  <SnippetSdkLoggingSetLoggerSessionPython />
+  <SnippetSdkLoggingSetLoggerSessionTypeScript />
 </CodeGroup>
 
 See the [`set_session` Python SDK docs](/sdk-api/python/reference/logger/logger#set-session) or [`setSession` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#setsession) for more details.
@@ -213,14 +121,8 @@ See the [`set_session` Python SDK docs](/sdk-api/python/reference/logger/logger#
 You can also continue a conversation using an external Id using the start session function.
 
 <CodeGroup>
-```python Python
-session_id = logger.start_session(external_id=conversation_id)
-```
-```typescript TypeScript
-const sessionId = galileoLogger.startSession({
-    externalId=conversationId
-});
-```
+  <SnippetSdkLoggingStartLoggerSessionExternalIdPython />
+  <SnippetSdkLoggingStartLoggerSessionExternalIdTypeScript />
 </CodeGroup>
 
 #### End a Session
@@ -228,13 +130,8 @@ const sessionId = galileoLogger.startSession({
 To stop logging to a session, you can clear the current session.
 
 <CodeGroup>
-```python Python
-logger.clear_session()
-```
-
-```typescript TypeScript
-logger.clearSession()
-```
+  <SnippetSdkLoggingClearLoggerSessionPython />
+  <SnippetSdkLoggingClearLoggerSessionTypeScript />
 </CodeGroup>
 
 See the [`clear_session` Python SDK docs](/sdk-api/python/reference/logger/logger#clear-session) or [`clearSession` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#clearsession) for more details.

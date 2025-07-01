@@ -6,6 +6,15 @@ description: Manage trace context and control logging behavior with the Galileo 
 import SnippetSdkLoggingGetLoggerPython from "/snippets/code/python/sdk/logging/logger-from-context.mdx";
 import SnippetSdkLoggingGetLoggerDecoratorPython from "/snippets/code/python/sdk/logging/logger-from-context-log-decorator.mdx";
 import SnippetSdkLoggingFlushLoggerPython from "/snippets/code/python/sdk/logging/flush-logger.mdx";
+import SnippetSdkLoggingContextSimpleWithPython from "/snippets/code/python/sdk/logging/context-simple-with.mdx";
+import SnippetSdkLoggingContextSimpleWithLogPython from "/snippets/code/python/sdk/logging/context-simple-with-log.mdx";
+import SnippetSdkLoggingContextSimpleWithOpenAIPython from "/snippets/code/python/sdk/logging/context-simple-with-openai.mdx";
+import SnippetSdkLoggingNestingScopesPython from "/snippets/code/python/sdk/logging/nesting-scopes.mdx";
+import SnippetSdkLoggingContextNewSessionPython from "/snippets/code/python/sdk/logging/context-new-session.mdx";
+import SnippetSdkLoggingContextNewSessionExternalIdPython from "/snippets/code/python/sdk/logging/context-new-session-external-id.mdx";
+import SnippetSdkLoggingContextContinueSessionPython from "/snippets/code/python/sdk/logging/context-continue-session.mdx";
+import SnippetSdkLoggingContextContinueSessionExternalIdPython from "/snippets/code/python/sdk/logging/context-continue-session-external-id.mdx";
+import SnippetSdkLoggingContextClearSessionPython from "/snippets/code/python/sdk/logging/clear-session.mdx";
 
 import SnippetSdkLoggingGetLoggerTypeScript from "/snippets/code/typescript/sdk/logging/logger-from-context.mdx";
 import SnippetSdkLoggingGetLoggerDecoratorTypeScript from "/snippets/code/typescript/sdk/logging/logger-from-context-log-decorator.mdx";
@@ -39,53 +48,19 @@ By default, Galileo uses the `GALILEO_PROJECT` and `GALILEO_LOG_STREAM` environm
 You can set the project and log stream for a scope using the Python [`galileo_context`](/sdk-api/python/reference/decorator), object in a with statement. Every log inside this block, including nested calls, will use the specified project and log stream.
 
 <CodeGroup>
-```python Python
-from galileo import galileo_context
-
-# This will log to the specified project and log stream
-with galileo_context(project="my-project", log_stream="my-log-stream"):
-    # All operations within this block will be logged to the same trace
-    # in the specified project and log stream
-    result = your_function()
-    print(result)
-```
+  <SnippetSdkLoggingContextSimpleWithPython />
 </CodeGroup>
 
-This also works with the `@log` decorator, and third-party integrations like the OpenAI wrapper.
+This also works with the `@log` decorator.
 
 <CodeGroup>
-```python Python
-from galileo import log, galileo_context
-
-@log
-def make_nested_call():
-    # Function implementation
-    return "result"
-
-# This will log to the specified project and log stream
-with galileo_context(project="my-project", log_stream="my-log-stream"):
-    content = make_nested_call()
-    print(content)
-```
+ <SnippetSdkLoggingContextSimpleWithLogPython />
 </CodeGroup>
 
+Third-party integrations like the OpenAI wrapper also support this.
 
 <CodeGroup>
-```python Python
-import os
-from galileo import galileo_context, openai
-
-# Initialize the Galileo wrapped OpenAI client
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-# This will log to the specified project and log stream
-with galileo_context(project="my-project", log_stream="my-log-stream"):
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}],
-        model="gpt-4o"
-    )
-    print(chat_completion.choices[0].message.content)
-```
+  <SnippetSdkLoggingContextSimpleWithOpenAIPython />
 </CodeGroup>
 
 ### Nesting Scopes
@@ -93,20 +68,7 @@ with galileo_context(project="my-project", log_stream="my-log-stream"):
 You can nest `galileo_context` calls to temporarily override the project or log stream:
 
 <CodeGroup>
-```python Python
-from galileo import galileo_context
-
-with galileo_context(project="my-project", log_stream="my-log-stream"):
-    # This will log to my-project/my-log-stream
-    operation_1()
-
-    with galileo_context(log_stream="sub-stream"):
-        # This will log to my-project/sub-stream
-        operation_2()
-
-    # Back to logging to my-project/my-log-stream
-    operation_3()
-```
+  <SnippetSdkLoggingNestingScopesPython />
 </CodeGroup>
 
 ## Get the Current Logger
@@ -124,8 +86,6 @@ If you are using any of the decorators, wrappers, or third-party integrations th
   <SnippetSdkLoggingGetLoggerDecoratorPython />
   <SnippetSdkLoggingGetLoggerDecoratorTypeScript />
 </CodeGroup>
-
-See the [`galileo_context` Python SDK docs](/sdk-api/python/reference/decorator) or [`getLogger` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/getLogger) for more details.
 
 ## Flush logs
 
@@ -153,12 +113,7 @@ In the TypeScript SDK, these functions are only available on a logger instance.
 To create a new session, use the [`start_session`](/sdk-api/python/reference/decorator#start-session) function.
 
 <CodeGroup>
-```python Python
-from galileo import galileo_context
-
-# Start a new session
-galileo_context.start_session("My session")
-```
+  <SnippetSdkLoggingContextNewSessionPython />
 </CodeGroup>
 
 When you start a session you can optionally give it a name. If you don't provide a name, one is created for you based off the traces in the session.
@@ -166,12 +121,7 @@ When you start a session you can optionally give it a name. If you don't provide
 You can also provide an external Id to link a session in Galileo to an external identifier.
 
 <CodeGroup>
-```python Python
-from galileo import galileo_context
-
-# Start a new session
-galileo_context.start_session(external_id=conversation_id)
-```
+  <SnippetSdkLoggingContextNewSessionExternalIdPython />
 </CodeGroup>
 
 ### Continue an Existing Session
@@ -179,23 +129,13 @@ galileo_context.start_session(external_id=conversation_id)
 If you want to add a trace to an existing session, you can use the `set_session` function, passing the session Id. This is useful if you want to persist a session, for example saving a chatbot conversation with a user mid conversation, then resuming the next time a user connects.
 
 <CodeGroup>
-```python Python
-from galileo import galileo_context
-
-# Start an existing session to add new traces to it
-galileo_context.set_session(session_id=conversation_session_id)
-```
+  <SnippetSdkLoggingContextContinueSessionPython />
 </CodeGroup>
 
 You can also continue a conversation using an external Id using the `start_session` function.
 
 <CodeGroup>
-```python Python
-from galileo import galileo_context
-
-# Start an existing session by its external Id to add new traces to it
-galileo_context.start_session(external_id=conversation_id)
-```
+  <SnippetSdkLoggingContextContinueSessionExternalIdPython />
 </CodeGroup>
 
 ### End a Session
@@ -203,12 +143,7 @@ galileo_context.start_session(external_id=conversation_id)
 To stop logging to a session, you can clear the current session.
 
 <CodeGroup>
-```python Python
-from galileo import galileo_context
-
-# Clear the current session
-galileo_context.clear_session()
-```
+  <SnippetSdkLoggingContextClearSessionPython />
 </CodeGroup>
 
 ## Next Steps
