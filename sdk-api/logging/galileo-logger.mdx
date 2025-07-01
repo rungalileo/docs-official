@@ -3,6 +3,12 @@ title: Galileo Logger
 description: Get granular control over logging with the GalileoLogger class
 ---
 
+import SnippetSdkLoggingGetLoggerPython from "/snippets/code/python/sdk/logging/logger-from-context.mdx";
+import SnippetSdkLoggingGetLoggerDecoratorPython from "/snippets/code/python/sdk/logging/logger-from-context-log-decorator.mdx";
+
+import SnippetSdkLoggingGetLoggerTypeScript from "/snippets/code/typescript/sdk/logging/logger-from-context.mdx";
+import SnippetSdkLoggingGetLoggerDecoratorTypeScript from "/snippets/code/typescript/sdk/logging/logger-from-context-log-decorator.mdx";
+
 The `GalileoLogger` class provides the most granular control over logging in Galileo. You can create a logger yourself, or use one from the current context from inside a decorated or wrapped function or when using a third-party SDK integration.
 
 ## Overview
@@ -147,53 +153,16 @@ See the `GalileoLogger` [Python SDK docs](/sdk-api/python/reference/logger/logge
 The Galileo context management keeps track of loggers. You can get the current logger, which will create a new one if there isn't an existing logger.
 
 <CodeGroup>
-```python Python
-from galileo import galileo_context
-
-# Get the current logger
-logger = galileo_context.get_logger_instance()
-```
-
-```typescript TypeScript
-import { getLogger } from "galileo";
-
-// Get the current logger
-const galileoLogger = getLogger();
-```
+  <SnippetSdkLoggingGetLoggerPython />
+  <SnippetSdkLoggingGetLoggerTypeScript />
 </CodeGroup>
 
 If you are using any of the decorators, wrappers, or third-party integrations then this allows you to get the logger created by those components. For example, if you are adding a call inside a method decorated by the Python `@log` decorator, wrapped in the TypeScript `log` wrapper, or created automatically by an experiment, then this will return that logger instance so you can manually add additional spans.
 
 <CodeGroup>
-```python Python
-from galileo import log, galileo_context
-
-@log(span_type="llm")
-def logged_function(input_text):
-    # Get the current logger
-    logger = galileo_context.get_logger_instance()
-
-    # Add a span
-    workflow_span = logger.add_workflow_span(
-        input="My workflow"
-    )
-```
-
-```typescript TypeScript
-import { getLogger, log } from "galileo";
-
-const wrappedFunc = log({}, async (input: any) => {
-    // Get the current logger
-    const galileoLogger = getLogger();
-
-    // Add a span
-    const workflowSpan = galileoLogger.addWorkflowSpan({
-        input: "Process user request",
-    });
-});
-```
+  <SnippetSdkLoggingGetLoggerDecoratorPython />
+  <SnippetSdkLoggingGetLoggerDecoratorTypeScript />
 </CodeGroup>
-
 
 See the [`galileo_context` Python SDK docs](/sdk-api/python/reference/decorator) or [`getLogger` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/getLogger) for more details.
 

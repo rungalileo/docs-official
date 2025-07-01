@@ -3,6 +3,10 @@ title: Logging basics
 description: Learn the basics of logging using the Galileo SDKs
 ---
 
+import SnippetSdkLoggingContextInitPython from "/snippets/code/python/sdk/logging/context-init.mdx";
+
+import SnippetSdkLoggingContextInitTypeScript from "/snippets/code/typescript/sdk/logging/context-init.mdx";
+
 Log streams are the core building blocks used for evaluations. Log streams belong to a project, with one project containing one or more log streams. The way you structure this varies depending on your organizational preferences or standards, but a typical model would be:
 
 - A **[project](/concepts/projects)** represents a distinct application. For example - a customer facing chatbot and an internal HR chatbot would be 2 separate projects.
@@ -73,20 +77,8 @@ The advantage of setting in code is you have more granular control, for example 
 To set at the context level, use this code. After running this code, every trace will go to the specified log stream for the specified project.
 
 <CodeGroup>
-```python Python
-from galileo import galileo_context
-
-galileo_context.init(project="my-project",log_stream="my-log-stream")
-```
-
-```typescript TypeScript
-import { init } from "galileo";
-
-init({
-    projectName: "my-project",
-    logStreamName: "my-log-stream",
-});
-```
+    <SnippetSdkLoggingContextInitPython />
+    <SnippetSdkLoggingContextInitTypeScript />
 </CodeGroup>
 
 To set the project and log stream for a single logger, you can pass it to the logger constructor.
@@ -153,7 +145,9 @@ Galileo provides 3 ways to log your application code:
 - **[log decorator](/sdk-api/logging/log-decorator/log-decorator)** - You can decorate or wrap functions with the log decorator to have spans created automatically. If you don't have an active session or trace, one will be created. You can also access the logger used by the decorator for manual control.
 - **Third-party integrations** - Galileo integrates SDKs like the OpenAI SDK, the OpenAI Agents SDK, and LangChain/LangGraph. These integrations manage logging for you, automatically creating sessions, traces and spans as needed.
 
-All these can be mixed and matched, and combined with the Galileo Context to provide top level logging management, such as setting the project and log stream, and managing sessions.
+In addition, there is a [Galileo context manager](/sdk-api/logging/galileo-context) that provides top level control over logging, such as setting the project and log stream, flushing all loggers, and managing sessions.
+
+All the logging methods can be mixed and matched, and combined with the Galileo Context.
 
 For example:
 

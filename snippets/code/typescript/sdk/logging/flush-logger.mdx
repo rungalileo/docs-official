@@ -1,0 +1,19 @@
+```typescript TypeScript {17}
+import { OpenAI } from "openai";
+import { wrapOpenAI, flush } from "galileo";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+
+async function callOpenAI(prompt: string) {
+    const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "user", content: prompt }],
+    });
+    return response.choices[0].message.content;
+}
+
+const response = await callOpenAI("Tell me about the Roman Empire");
+
+// This will upload the trace to Galileo
+await flush();
+```
