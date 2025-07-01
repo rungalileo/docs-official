@@ -4,8 +4,12 @@ description: Learn the basics of logging using the Galileo SDKs
 ---
 
 import SnippetSdkLoggingContextInitPython from "/snippets/code/python/sdk/logging/context-init.mdx";
+import SnippetSdkLoggingCreateLoggerWithProjectPython from "/snippets/code/python/sdk/logging/create-logger-with-project.mdx";
+import SnippetSdkLoggingContextGetLoggerPython from "/snippets/code/python/sdk/logging/context-get-logger.mdx";
 
 import SnippetSdkLoggingContextInitTypeScript from "/snippets/code/typescript/sdk/logging/context-init.mdx";
+import SnippetSdkLoggingCreateLoggerWithProjectTypeScript from "/snippets/code/typescript/sdk/logging/create-logger-with-project.mdx";
+import SnippetSdkLoggingContextGetLoggerTypeScript from "/snippets/code/typescript/sdk/logging/context-get-logger.mdx";
 
 Log streams are the core building blocks used for evaluations. Log streams belong to a project, with one project containing one or more log streams. The way you structure this varies depending on your organizational preferences or standards, but a typical model would be:
 
@@ -84,35 +88,15 @@ To set at the context level, use this code. After running this code, every trace
 To set the project and log stream for a single logger, you can pass it to the logger constructor.
 
 <CodeGroup>
-```python Python
-from galileo import GalileoLogger
-
-logger = GalileoLogger(project="my-project",
-                       log_stream="my-log-stream")
-```
-
-```typescript TypeScript
-import { GalileoLogger } from "galileo";
-
-const logger = new GalileoLogger({
-    projectName: "my-project",
-    logStreamName: "my-log-stream",
-});
-```
+  <SnippetSdkLoggingCreateLoggerWithProjectPython />
+  <SnippetSdkLoggingCreateLoggerWithProjectTypeScript />
 </CodeGroup>
 
 You can also use the current context to get a logger for a particular project and log stream.
 
 <CodeGroup>
-```python Python
-from galileo import galileo_context
-
-logger = galileo_context.get_logger_instance(project="my-project", log_stream="my-log-stream")
-```
-
-```typescript TypeScript
-// Not currently supported
-```
+  <SnippetSdkLoggingContextGetLoggerPython />
+  <SnippetSdkLoggingContextGetLoggerTypeScript />
 </CodeGroup>
 
 If you are using experiments, you can set the project name in the call to run the experiment. Learn more in our [experiment SDK docs](/sdk-api/experiments/experiments#project).
