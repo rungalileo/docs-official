@@ -166,9 +166,13 @@ If you are using any of the decorators, wrappers, or third-party integrations th
 
 See the [`galileo_context` Python SDK docs](/sdk-api/python/reference/decorator) or [`getLogger` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/getLogger) for more details.
 
-### Start a Session
+### Manage Sessions
 
-All traces live inside a session. If you don't create a session, then one is created automatically.
+All traces live inside a session. If you don't create a session, then one is created automatically with a generated name.
+
+#### Start a Session
+
+You can start a new session, providing a name and an external Id.
 
 <CodeGroup>
 ```python Python
@@ -187,6 +191,53 @@ const sessionId = galileoLogger.startSession({
 The name and external Id fields are optional. If you want to connect a session to another Id that you are using internally, for example a unique id for a chatbot conversation, then you can set this in the external Id field.
 
 See the [`start_session` Python SDK docs](/sdk-api/python/reference/logger/logger#start-session) or [`startSession` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#startsession) for more details.
+
+#### Continue an Existing Session
+
+If you want to add a trace to an existing session, you can set the current session for the logger, passing the session Id. This is useful if you want to persist a session, for example saving a chatbot conversation with a user mid conversation, then resuming the next time a user connects.
+
+<CodeGroup>
+```python Python
+logger.set_session(session_id=my_session_id)
+```
+
+```typescript TypeScript
+galileoLogger.setSessionId({
+    sessionId: mySessionId,
+});
+```
+</CodeGroup>
+
+See the [`set_session` Python SDK docs](/sdk-api/python/reference/logger/logger#set-session) or [`setSession` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#setsession) for more details.
+
+You can also continue a conversation using an external Id using the start session function.
+
+<CodeGroup>
+```python Python
+session_id = logger.start_session(external_id=conversation_id)
+```
+```typescript TypeScript
+const sessionId = galileoLogger.startSession({
+    externalId=conversationId
+});
+```
+</CodeGroup>
+
+#### End a Session
+
+To stop logging to a session, you can clear the current session.
+
+<CodeGroup>
+```python Python
+logger.clear_session()
+```
+
+```typescript TypeScript
+logger.clearSession()
+```
+</CodeGroup>
+
+See the [`clear_session` Python SDK docs](/sdk-api/python/reference/logger/logger#clear-session) or [`clearSession` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#clearsession) for more details.
 
 ### Start a Trace
 
