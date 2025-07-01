@@ -1,6 +1,6 @@
 ---
 title: Run Experiments
-description: Learn how to run experiments in Galileo using the Galileo SDKs
+description: Learn how to run experiments in Galileo using the Galileo SDKs.
 ---
 
 import SnippetExperimentsPromptPython from "/snippets/code/python/concepts/experiments/prompt.mdx";
@@ -41,7 +41,9 @@ To configure an LLM, visit the relevant API platform to obtain an API key, then 
 
 The entry point for running experiments is a call to the run experiments function (see the [`run_experiment` Python SDK docs](/sdk-api/python/reference/experiments#run-experiment), or the [`runExperiment` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/runExperiment) for more details).
 
-This takes a dataset, and can either pass it to a prompt template, or to a custom function. This custom function can go from a simple call to an LLM right up to a full agentic workflow. For each row in a dataset, a new trace is created, and either the prompt template is logged as an LLM span, or every span created in the custom function is logged to that trace.
+Experiments take a dataset, and can either pass it to a prompt template, or to a custom function. This custom function can go from a simple call to an LLM right up to a full agentic workflow.
+
+For each row in a dataset, a new trace is created, and either the prompt template is logged as an LLM span, or every span created in the custom function is logged to that trace.
 
 If you are building experiments into your production application, you will need to enable a way to call the experiment runner. For example, you can do this inside a unit test.
 
@@ -82,7 +84,7 @@ For example, if you have a multi-agent LangGraph chatbot application, you can ru
 
 To enable this, you will need to make some small changes to your application logic to handle the logging context from the experiment.
 
-When functions in your application are run by the `run_experiment` call, a logger is created by the experiment runner, and a trace is started. This logger can be passed through the application, accessed using the `@log` decorator or by calling `galileo_context.get_logger_instance()`.
+When functions in your application are run by the `run_experiment` call, a logger is created by the experiment runner, and a trace is started. This logger can be passed through the application, accessed using the `@log` decorator or by calling [`galileo_context.get_logger_instance()`](/sdk-api/python/reference/decorator#get-logger-instance) in Python, or [`getLogger`](/sdk-api/typescript/reference/README/functions/getLogger) in TypeScript.
 
 You will need to change your code to use this instead of creating a new logger and starting a new trace.
 
@@ -104,7 +106,7 @@ Once you have the logger, you can check for an existing trace by accessing the c
   <SnippetExperimentsGetCurrentParentTypeScript/>
 </CodeGroup>
 
-Once you have this information, you can use it to decide to create a new trace in your application. If there is no parent trace, you can safely create a new one.
+You can use this to decide if you need to create a new trace in your application. If there is no parent trace, you can safely create a new one.
 
 <CodeGroup>
   <SnippetExperimentsLoggingWithParentCheckPython/>
