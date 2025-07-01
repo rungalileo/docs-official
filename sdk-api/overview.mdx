@@ -12,10 +12,15 @@ import SnippetSdkToolPython from "/snippets/code/python/sdk/decorators/tool.mdx"
 import SnippetSdkGalileoLoggerPython from "/snippets/code/python/sdk/manual/galileo-logger.mdx";
 import SnippetSdkContextBasicPython from "/snippets/code/python/sdk/context/basic.mdx";
 import SnippetSdkContextExplicitFlushPython from "/snippets/code/python/sdk/context/explicit-flush.mdx";
+import SnippetInstallationPython from "/snippets/code/python/sdk/installation.mdx";
+import SnippetInstallationOpenAIPython from "/snippets/code/python/sdk/installation-openai.mdx";
+import SnippetLoadEnvPython from "/snippets/code/python/sdk/load-env.mdx";
+import SnippetInstallDotEnvPython from "/snippets/code/python/sdk/install-dotenv.mdx";
 
 import SnippetInstallationNpm from "/snippets/code/typescript/sdk/installation/npm.mdx";
 import SnippetInstallationYarn from "/snippets/code/typescript/sdk/installation/yarn.mdx";
 import SnippetInstallationPnpm from "/snippets/code/typescript/sdk/installation/pnpm.mdx";
+import SnippetLoadEnvTypeScript from "/snippets/code/typescript/sdk/load-env.mdx";
 
 The Galileo SDKs provide a comprehensive set of tools for logging, evaluating, and experimenting with LLM applications. Regardless of how you go about logging your AI application, you will still need to install the Galileo SDK and initialize your API keys by following the steps below.
 
@@ -31,9 +36,7 @@ The Galileo SDKs provide a comprehensive set of tools for logging, evaluating, a
 ## Installation
 
 <CodeGroup>
-```bash Python
-pip install galileo
-```
+  <SnippetInstallationPython />
   <SnippetInstallationNpm />
   <SnippetInstallationYarn />
   <SnippetInstallationPnpm />
@@ -42,9 +45,7 @@ pip install galileo
 If you want to use the OpenAI wrapper in Python, you need to install with the optional OpenAI dependencies.
 
 <CodeGroup>
-```bash Python
-pip install "galileo[openai]"
-```
+  <SnippetInstallationOpenAIPython />
 </CodeGroup>
 
 ## Initialization and Authentication
@@ -61,27 +62,22 @@ You can also optionally set the following environment variables to define the pr
 
 When developing your application, you should use a `.env` file. Create or update a `.env` file with the following values as required:
 
-<SnippetEnvSetup />
+<CodeGroup>
+    <SnippetEnvSetup />
+</CodeGroup>
 
 You can then load the environment variables from this file:
 
 <CodeGroup>
-```python Python
-from dotenv import load_dotenv
-load_dotenv()
-```
-
-```typescript TypeScript
-import { config } from "dotenv";
-config();
-```
+  <SnippetLoadEnvPython />
+  <SnippetLoadEnvTypeScript />
 </CodeGroup>
 
 For Python, you will need to install `python-dotenv` if you haven't already.
 
-```bash
-pip install python-dotenv
-```
+<CodeGroup>
+  <SnippetInstallDotEnvPython />
+</CodeGroup>
 
 <Note>The SDK automatically targets the [hosted Galileo console](https://app.galileo.ai). If you are using a deployment of Galileo on premises or in the cloud, point `GALILEO_CONSOLE_URL` to your own installation.</Note>
 
