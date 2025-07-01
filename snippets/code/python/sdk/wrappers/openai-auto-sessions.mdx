@@ -1,0 +1,25 @@
+```python Python
+import os
+from galileo.openai import openai
+
+# Initialize the Galileo wrapped OpenAI client
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+# Use the Galileo wrapped OpenAI client which logs automatically
+# This will create a single span trace with the OpenAI call in a new session
+first_result = client.chat.completions.create(
+    messages=[{"role": "user", "content": "Tell me about the Roman Empire"}],
+    model="gpt-4o"
+)
+
+# This second call will create a new single span trace inside the same session
+second_result = client.chat.completions.create(
+    messages=[{
+        "role": "user", 
+        "content": f"Summarize this: {first_result.choices[0].message.content}"
+    }],
+    model="gpt-4o"
+)
+
+print(second_result.choices[0].message.content)
+```

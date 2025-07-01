@@ -1,0 +1,19 @@
+```typescript TypeScript
+import { OpenAI } from "openai";
+import { wrapOpenAI, flush } from "galileo";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+
+const stream = await openai.chat.completions.create({
+    messages: [{"role": "user", "content": "Say this is a streaming test"}],
+    model: "gpt-4o",
+    stream: true
+});
+
+for await (const part of stream) {
+    console.log(part.choices[0]?.delta?.content || '');
+}
+
+// Flush logs before exiting
+await flush();
+```

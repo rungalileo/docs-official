@@ -1,0 +1,28 @@
+```typescript TypeScript
+import { OpenAI } from "openai";
+import { wrapOpenAI, flush } from "galileo";
+
+// Wrap the OpenAI client
+const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+
+// Use the Galileo wrapped OpenAI client which logs automatically
+// This will create a single span trace with the OpenAI call in a new session
+const firstResult = await openai.chat.completions.create({
+    messages: [{"role": "user", "content": "Tell me about the Roman Empire"}],
+    model: "gpt-4o"
+});
+
+// This second call will create a new single span trace inside the same session
+const secondResult = await openai.chat.completions.create({
+    messages: [{
+        "role": "user",
+        "content": `Summarize this: ${firstResult.choices[0].message.content}`
+    }],
+    model: "gpt-4o"
+});
+
+console.log(secondResult.choices[0].message.content);
+
+// Flush logs before exiting
+await flush();
+```
