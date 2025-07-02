@@ -11,22 +11,22 @@ import SnippetSdkLoggingContextInitTypeScript from "/snippets/code/typescript/sd
 import SnippetSdkLoggingCreateLoggerWithProjectTypeScript from "/snippets/code/typescript/sdk/logging/create-logger-with-project.mdx";
 import SnippetSdkLoggingContextGetLoggerTypeScript from "/snippets/code/typescript/sdk/logging/context-get-logger.mdx";
 
-**Log streams** are the core building blocks used for evaluations. Log streams belong to a **project**, with one project containing one or more log streams. The way you structure this varies depending on your organizational preferences or standards, but a typical model would be:
+**Log streams** are the core building blocks used for evaluations. Log streams belong to a **project**, with one project containing one or more Log streams. The way you structure this varies depending on your organizational preferences or standards, but a typical model would be:
 
 - A **[project](/concepts/projects)** represents a distinct application. For example - a customer facing chatbot and an internal HR chatbot would be 2 separate projects.
-- A **[log stream](/concepts/logging/logstreams)** represents a distinct environment in that project that you want to monitor. For example, a dev log stream for your development work, a staging log stream for your staging environment, and a production log stream for your production application.
+- A **[Log stream](/concepts/logging/logstreams)** represents a distinct environment in that project that you want to monitor. For example, a dev Log stream for your development work, a staging Log stream for your staging environment, and a production Log stream for your production application.
 
 This allows you to evaluate each separate deployment of each application separately, such as to compare changed in your staging environment to production before a rollout, or to add different metrics to a dev environment to reflect new capabilities.
 
-## Structure of log streams
+## Structure of Log streams
 
-When logging applications, **log streams** are made up of zero or more **sessions**, which are in turn made up of **traces**, which contain **spans**. **Experiments** can be thought of as a single session, containing multiple traces made up of spans.
+When logging applications, **Log streams** are made up of zero or more **sessions**, which are in turn made up of **traces**, which contain **spans**. **Experiments** can be thought of as a single session, containing multiple traces made up of spans.
 
 - **[Sessions](/concepts/logging/sessions/sessions-overview)** represent logical groupings of traces for actions involving an AI that may contain multiple steps. For example, in a chatbot, the entire conversation with a single user would be a session.
 - **[Traces](/concepts/logging/traces)** represent one complete interaction with an AI that may contain multiple calls and interactions. For example, inside a chatbot app sending a single message, having the AI handle it using tool calls or RAG, then returning a response, would be a single trace.
 - **[Spans](/concepts/logging/spans)** represent distinct operations inside a trace. Each LLM call, tool call, or step in an agentic workflow would be an individual span. For example, in a chatbot app the initial message sent to the LLM, calls to tools based off the LLM response, follow and up LLM calls would all be separate spans.
 
-Metrics are configured at the log stream level, allowing different metrics for different log streams.
+Metrics are configured at the Log stream level, allowing different metrics for different Log streams.
 
 ```mermaid
 block-beta
@@ -48,11 +48,11 @@ block-beta
     Spans --> Traces
 ```
 
-To log to Galileo using the SDK, you use a `GalileoLogger` object that is configured to point to a specific project and log stream, then from there you can create sessions and traces, and add log spans to a trace. This logger can be created manually, or automatically using a range of wrappers, decorators and integrations with third party SDKs.
+To log to Galileo using the SDK, you use a `GalileoLogger` object that is configured to point to a specific project and Log stream, then from there you can create sessions and traces, and add log spans to a trace. This logger can be created manually, or automatically using a range of wrappers, decorators and integrations with third party SDKs.
 
 ## Initial setup
 
-To log to Galileo, you need to configure a connection to Galileo using an API key and optionally a URL for a custom deployment, as well as setting the project and log stream you want to log to.
+To log to Galileo, you need to configure a connection to Galileo using an API key and optionally a URL for a custom deployment, as well as setting the project and Log stream you want to log to.
 
 ### API key
 
@@ -61,51 +61,51 @@ To get started building with Galileo, you need to configure your API key, and op
 | Environment variable  | Description |
 | :-------------------- | :---------- |
 | `GALILEO_API_KEY`     | Your [Galileo API key](/references/faqs/find-keys#galileo-api-key). |
-| `GALILEO_CONSOLE_URL` | Optional. For custom Galileo deployments only, set this to the URL of your Galileo console to log to. If this is not set, it will default to the free or hosted Galileo version at [app.galileo.ai](https://app.galileo.ai). |
+| `GALILEO_CONSOLE_URL` | Optional. For custom Galileo deployments only, set this to the URL of your Galileo Console to log to. If this is not set, it will default to the free or hosted Galileo version at [app.galileo.ai](https://app.galileo.ai). |
 
 <Note>
 If you are using the free version of Galileo, there is no need to set the `GALILEO_CONSOLE_URL` environment variable.
 </Note>
 
-### Project and log stream
+### Project and Log stream
 
-Both the project and log stream can be configured as environment variables, or directly in code.
+Both the project and Log stream can be configured as environment variables, or directly in code.
 
-#### Set the project and log stream using environment variables
+#### Set the project and Log stream using environment variables
 
-The advantage of using environment variables to set your project and log stream is that you can share code across deployments and configure those deployments separately, for example to share the same project but log to different log streams.
+The advantage of using environment variables to set your project and Log stream is that you can share code across deployments and configure those deployments separately, for example to share the same project but log to different Log streams.
 
 | Environment variable  | Description |
 | :-------------------- | :---------- |
 | `GALILEO_PROJECT`     | The [Galileo project](/concepts/projects) to log to. If this is not set, you will need to pass the project name in code. |
-| `GALILEO_LOG_STREAM`  | The [default log stream](/concepts/logging/logstreams) to log to. If this is not set, you will need to pass the log stream name in code. |
+| `GALILEO_LOG_STREAM`  | The [default Log stream](/concepts/logging/logstreams) to log to. If this is not set, you will need to pass the Log stream name in code. |
 
-#### Set the project and log stream in code
+#### Set the project and Log stream in code
 
-The advantage of setting in code is you have more granular control, for example logging different parts of your application to different log streams. You can set these in code in two ways - set it at the context level so that it is shared by all logging calls, or set it at an individual logger level.
+The advantage of setting in code is you have more granular control, for example logging different parts of your application to different Log streams. You can set these in code in two ways - set it at the context level so that it is shared by all logging calls, or set it at an individual logger level.
 
-To set at the context level, use this code. After running this code, every trace will go to the specified log stream for the specified project.
+To set at the context level, use this code. After running this code, every trace will go to the specified Log stream for the specified project.
 
 <CodeGroup>
     <SnippetSdkLoggingContextInitPython />
     <SnippetSdkLoggingContextInitTypeScript />
 </CodeGroup>
 
-To set the project and log stream for a single logger, you can pass it to the logger constructor.
+To set the project and Log stream for a single logger, you can pass it to the logger constructor.
 
 <CodeGroup>
   <SnippetSdkLoggingCreateLoggerWithProjectPython />
   <SnippetSdkLoggingCreateLoggerWithProjectTypeScript />
 </CodeGroup>
 
-You can also use the current context to get a logger for a particular project and log stream.
+You can also use the current context to get a logger for a particular project and Log stream.
 
 <CodeGroup>
   <SnippetSdkLoggingContextGetLoggerPython />
   <SnippetSdkLoggingContextGetLoggerTypeScript />
 </CodeGroup>
 
-If you are using experiments, you can set the project name in the call to run the experiment, and the log stream name is generated for you. Learn more in our [experiment SDK docs](/sdk-api/experiments/experiments#project).
+If you are using experiments, you can set the project name in the call to run the experiment, and the Log stream name is generated for you. Learn more in our [experiment SDK docs](/sdk-api/experiments/experiments#project).
 
 ## Logging flow
 
@@ -135,7 +135,7 @@ Galileo provides 3 ways to log your application code:
 - **[log decorator](/sdk-api/logging/log-decorator/log-decorator)** - You can decorate or wrap functions with the log decorator to have spans created automatically. If you don't have an active session or trace, one will be created. You can also access the logger used by the decorator for manual control.
 - **[Third-party integrations](/sdk-api/third-party-integrations/overview)** - Galileo integrates SDKs like the OpenAI SDK, the OpenAI Agents SDK, and LangChain/LangGraph. These integrations manage logging for you, automatically creating sessions, traces and spans as needed.
 
-In addition, there is a [Galileo context manager](/sdk-api/logging/galileo-context) that provides top level control over logging, such as setting the project and log stream, flushing all loggers, and managing sessions.
+In addition, there is a [Galileo context manager](/sdk-api/logging/galileo-context) that provides top level control over logging, such as setting the project and Log stream, flushing all loggers, and managing sessions.
 
 All the logging methods can be mixed and matched, and combined with the Galileo Context.
 
@@ -167,7 +167,7 @@ For example:
     Automatically log calls to the OpenAI SDK with a wrapper.
 </Card>
 <Card title="OpenAI Agents trace processor" icon="code" horizontal href="/sdk-api/third-party-integrations/openai-agents/openai-agents">
-    Automatically log all the steps in your OpenAI agent SDK apps using the Galileo trace processor.
+    Automatically log all the steps in your OpenAI Agent SDK apps using the Galileo trace processor.
 </Card>
 <Card title="LangChain callback" icon="code" horizontal href="/sdk-api/third-party-integrations/langchain/langchain">
     Automatically log all the steps in your LangChain or LangGraph application with the Galileo callback.

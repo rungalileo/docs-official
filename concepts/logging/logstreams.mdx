@@ -11,7 +11,7 @@ Log Streams serve as containers for logs, allowing you to:
 - Group logs by feature, team, or business unit
 - Organize logs for specific experiments or testing scenarios
 
-To monitor your application, you [configure the metrics](/concepts/logging/configure-metrics/configure-metrics) that you want to be evaluated for each trace and session in the log stream.
+To monitor your application, you [configure the metrics](/concepts/logging/configure-metrics/configure-metrics) that you want to be evaluated for each trace and session in the Log stream.
 
 ## Why Log streams are important
 
@@ -87,7 +87,7 @@ Log Streams can be created through various methods in Galileo:
 
 The simplest way to create a Log Stream is through the Galileo web interface:
 
-1. Navigate to your project in the Galileo console
+1. Navigate to your project in the Galileo Console
 2. Go to the Log Streams section
 3. Click "Create Log Stream"
 4. Provide a name and optional description
@@ -102,7 +102,7 @@ You can also create Log Streams programmatically using the Galileo SDK:
 ```python create_logstream.py
 from galileo import GalileoLogger
 
-# Initialize with a new log stream (will be created if it doesn't exist)
+# Initialize with a new Log stream (will be created if it doesn't exist)
 logger = GalileoLogger(project="my-project", log_stream="new-log-stream")
 
 ```
@@ -110,7 +110,7 @@ logger = GalileoLogger(project="my-project", log_stream="new-log-stream")
 ```typescript create_logstream.ts
 import { withGalileo } from "galileo";
 
-// The log stream will be created if it doesn't exist
+// The Log stream will be created if it doesn't exist
 withGalileo({ project: "my-project", logStream: "new-log-stream" }, async () => {
   // Your code here
 });
@@ -249,11 +249,11 @@ import os
 from galileo import GalileoLogger
 from galileo.openai import openai
 
-# Initialize with a specific log stream
+# Initialize with a specific Log stream
 
 logger = GalileoLogger(project="my-project", log_stream="production-app")
 
-# Any logs created will go to the specified log stream
+# Any logs created will go to the specified Log stream
 
 client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 response = client.chat.completions.create(
@@ -269,7 +269,7 @@ import { wrapOpenAI } from "galileo/wrappers";
 
 const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
 
-// Use a specific log stream for this block of code
+// Use a specific Log stream for this block of code
 withGalileo({ project: "my-project", logStream: "production-app" }, async () => {
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
@@ -293,7 +293,7 @@ from galileo.openai import openai
 # Determine environment from environment variable
 env = os.getenv("APP_ENVIRONMENT", "development")
 
-# Create a logger with an environment-specific log stream
+# Create a logger with an environment-specific Log stream
 logger = GalileoLogger(
     project="my-ai-app",
     log_stream=f"my-ai-app-{env}"
@@ -316,7 +316,7 @@ logger = GalileoLogger(project="my-project", log_stream="production")
 
 # Use context to add tags for a specific feature
 
-with galileo_context(tags=["recommendation-engine", "v2.3"]): # All logs in this context will have the specified tags # making them easier to filter within the log stream
+with galileo_context(tags=["recommendation-engine", "v2.3"]): # All logs in this context will have the specified tags # making them easier to filter within the Log stream
 result = recommendation_engine.get_recommendations(user_id)
 
 ```
@@ -327,7 +327,7 @@ import { withGalileo } from "galileo";
 // Use context to add tags for a specific feature
 withGalileo({ project: "my-project", logStream: "production" }, async () => {
     // All logs in this context will have the specified tags
-    // making them easier to filter within the log stream
+    // making them easier to filter within the Log stream
     result = recommendation_engine.get_recommendations(user_id)
 });
 ```
