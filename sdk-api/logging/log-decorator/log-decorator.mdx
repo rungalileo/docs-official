@@ -31,7 +31,10 @@ When you wrap or decorate a function, Galileo automatically:
 - Creates an appropriate span in the current trace
 - (Python only) Flushes all traces when exiting the decorated function
 
-This approach is less automatic than using third-party SDK wrappers but more flexible, as you can decorate any function in your codebase, not just LLM calls.
+This approach is less automatic than using third-party SDK wrappers but more flexible, as you can decorate any function in your codebase, not just LLM calls. It is ideal when:
+- You are using LLMs or frameworks that don't have a Galileo wrapper
+- You want to add logging to existing code with minimal code changes
+- You need to pass additional details to the logger based on function or method parameters
 
 <CardGroup cols={2}>
 <Card title="Python SDK reference" icon="code" horizontal href="/sdk-api/python/reference/decorator">
@@ -62,7 +65,7 @@ By default, the `@log` decorator creates a workflow span, but you can specify di
 | Agent     | `"agent"`     | A span for logging agent actions. You can specify the agent type, for example a supervisor, planner, router, or judge. |
 | LLM       | `"llm"`       | A span for logging calls to an LLM. You can specify the number of tokens, time to first token, temperature, model, and any tools. |
 | Retriever | `"retriever"` | A span for logging RAG actions. In the output for this span you can provide all the data returned from the RAG platform for evaluating your RAG processing, |
-| Tool      | `"tool"`.     | A span for logging calls to tools. You can specify the tool call Id to tie to an LLM tool call. |
+| Tool      | `"tool"`.     | A span for logging calls to tools. You can specify the tool call ID to tie to an LLM tool call. |
 | Workflow  | `"workflow"`  | Workflow spans are for creating logical groupings of spans based on different flows in your app. |
 
 <CodeGroup>
@@ -107,7 +110,7 @@ Use the `params` parameter to add or overwrite the span's fields' values. These 
 | `"model"`        | `llm`                | string                         | The LLM model name. |
 | `"temperature"`  | `llm`                | float                          | The temperature of the LLM. |
 | `"tools"`        | `llm`                | list of dictionaries           | Tool descriptions. |
-| `"tool_call_id"` | `tool`               | string                         | The tool call Id from the LLM. |
+| `"tool_call_id"` | `tool`               | string                         | The tool call ID from the LLM. |
 
 Here is an example on how to add metadata and tags to an LLM span:
 
