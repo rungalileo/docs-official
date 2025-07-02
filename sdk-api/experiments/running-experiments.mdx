@@ -31,13 +31,13 @@ Experiments fit both into the initial prompt engineering and model selection pha
 
 AI Engineers and data scientists can use experiments in notebooks or in simple applications to test out prompts or different models. AI Engineers can then add experiments into their production apps allowing these experiments to be run against complex applications or scenarios, including RAG and agentic flows.
 
-## Configure an LLM Integration
+## Configure an LLM integration
 
 To calculate metrics, you will either need to configure an integration with an LLM, or set up the [Luna 2 SLM](/concepts/luna/luna).
 
 To configure an LLM, visit the relevant API platform to obtain an API key, then add it using the [integrations page](https://app.galileo.ai/settings/integrations) in the Galileo console.
 
-## Experiment Flow
+## Experiment flow
 
 The entry point for running experiments is a call to the run experiments function (see the [`run_experiment` Python SDK docs](/sdk-api/python/reference/experiments#run-experiment), or the [`runExperiment` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/runExperiment) for more details).
 
@@ -47,7 +47,7 @@ For each row in a dataset, a new trace is created, and either the prompt templat
 
 If you are building experiments into your production application, you will need to enable a way to call the experiment runner. For example, you can do this inside a unit test.
 
-## Work with Prompts
+## Work with prompts
 
 The simplest way to get started with experimentation is by evaluating prompts directly against datasets. This is especially valuable during the initial prompt development and refinement phase, where you want to test different prompt variations. Assuming you've previously created a dataset, you can use the following code to run an experiment:
 
@@ -56,7 +56,7 @@ The simplest way to get started with experimentation is by evaluating prompts di
   <SnippetExperimentsPromptTypeScript />
 </CodeGroup>
 
-## Run Experiments with Custom Functions
+## Run experiments with custom functions
 
 Once you're comfortable with basic prompt testing, you might want to evaluate more complex parts of your app using your datasets. This approach is particularly useful when you have a generation function in your app that takes a set of inputs, which you can model with a dataset.
 
@@ -76,7 +76,7 @@ This example uses the [OpenAI SDK wrapper](/sdk-api/third-party-integrations/ope
   <SnippetExperimentsExistingDatasetTypeScript />
 </CodeGroup>
 
-### Run Experiments Against Complex Code with Custom Functions
+### Run experiments against complex code with custom functions
 
 Custom functions can be as complex as required, including multiple steps, agents, RAG, and more. This means you can build experiments around an existing application, allowing you to run experiments against the full application you have built, using datasets to mimic user inputs.
 
@@ -132,7 +132,7 @@ The easiest way to do this is to get the current logger from the Galileo context
 This behavior is also useful if you are logging to an existing logger, such as when you want the LangGraph agent to only be a part of a larger trace.
 </Note>
 
-### Custom Function Logging Principles
+### Custom function logging principles
 
 There are a few important principles to understand when logging experiments in code.
 
@@ -156,7 +156,7 @@ For [BLUE, ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge), 
 If you set the `output` column when using other metrics, the value is not used in the calculation of the metric, but is surfaced in the console. This can be helpful for providing reference output for manual review.
 </Note>
 
-## Custom Dataset Evaluation
+## Custom dataset evaluation
 
 As your testing needs become more specific, you might need to work with custom or local datasets. This approach is perfect for focused testing of edge cases or when building up your test suite with specific scenarios:
 
@@ -165,7 +165,7 @@ As your testing needs become more specific, you might need to work with custom o
   <SnippetExperimentsCustomDatasetTypeScript />
 </CodeGroup>
 
-## Custom Metrics for Deep Analysis
+## Custom metrics for deep analysis
 
 For the most sophisticated level of testing, you might need to track specific aspects of your application's behavior. Custom metrics provide the flexibility to define precisely what you want to measure, enabling deep analysis and targeted improvement:
 
@@ -176,7 +176,7 @@ For the most sophisticated level of testing, you might need to track specific as
 
 Each of these experimentation approaches fits into different stages of your development and testing workflow. As you progress from simple prompt testing to sophisticated custom metrics, Galileo's experimentation framework provides the tools you need to gather insights and improve your application's performance at every level of complexity.
 
-## Experimenting with Agentic and RAG Applications
+## Experimenting with agentic and RAG applications
 
 The experimentation framework extends naturally to more complex applications like agentic AI systems and RAG (Retrieval-Augmented Generation) applications. When working with agents, you can evaluate various aspects of their behavior, from decision-making capabilities to tool usage patterns. This is particularly valuable when testing how agents handle complex workflows, multi-step reasoning, or tool selection.
 
@@ -184,7 +184,7 @@ For RAG applications, experimentation helps validate both the retrieval and gene
 
 The same experimentation patterns shown above apply to these more complex systems. You can use predefined datasets to benchmark performance, create custom datasets for specific edge cases, and define specialized metrics that capture the unique aspects of agent behavior or RAG performance. This systematic approach to testing helps ensure that your advanced AI applications maintain high quality and reliability in production environments.
 
-## Best Practices
+## Best practices
 
 1. **Use consistent datasets**: Use the same dataset when comparing different prompts or models to ensure fair comparisons.
 1. **Test multiple variations**: Run experiments with different prompt variations to find the best approach.
@@ -192,7 +192,7 @@ The same experimentation patterns shown above apply to these more complex system
 1. **Start small**: Begin with a small dataset to quickly iterate and refine your approach before scaling up.
 1. **Document your experiments**: Keep track of what you're testing and why to make it easier to interpret results.
 
-## Next Steps
+## Next steps
 
 ### Experiments SDK
 

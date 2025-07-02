@@ -45,7 +45,7 @@ This approach is less automatic than using third-party SDK wrappers but more fle
 </Card>
 </CardGroup>
 
-## Basic Usage
+## Basic usage
 
 To use the `@log` decorator or `log` wrapper, import it from the Galileo package and apply it to your functions, setting the span type to be created, and optionally a name.
 
@@ -56,7 +56,7 @@ To use the `@log` decorator or `log` wrapper, import it from the Galileo package
 
 When the span is created, the input is set to the input passed to the decorated function by combining all the parameters into a single JSON object, and the output is set to the return value of the function call. You can customize the input using the [`params` parameter](#additional-parameters).
 
-## Span Types
+## Span types
 
 By default, the `@log` decorator creates a workflow span, but you can specify different span types depending on what your function does.
 
@@ -73,7 +73,7 @@ By default, the `@log` decorator creates a workflow span, but you can specify di
     <SnippetLogWrapperSpanTypesTypeScript />
 </CodeGroup>
 
-## Nested Spans Example
+## Nested spans example
 
 One of the most powerful features of the `log` decorator is its ability to create nested spans, which helps visualize the flow of your application.
 
@@ -88,7 +88,7 @@ In this example, the nested calls use the OpenAI SDK integration. Each nested ca
 
 ![A workflow span containing 2 LLM spans](/sdk-api/logging/log-decorator/nested-span.webp)
 
-## Additional Parameters
+## Additional parameters
 
 When you manually create a span, you can set properties such as tags, metadata, or the model for an LLM span. To do the same for the log decorator, you can map parameters that are passed to the function being logged to these fields in the span.
 
@@ -119,7 +119,7 @@ Here is an example on how to add metadata and tags to an LLM span:
   <SnippetLogWrapperMetadataTagsTypeScript />
 </CodeGroup>
 
-## Context Management (Python)
+## Context management (Python)
 
 In Python, you can use the `galileo_context` to set the project and log stream for all decorated functions within its scope:
 
@@ -127,7 +127,7 @@ In Python, you can use the `galileo_context` to set the project and log stream f
   <SnippetLogDecoratorContextManagementPython />
 </CodeGroup>
 
-## Handling Generators (Python)
+## Handling generators (Python)
 
 The `@log` decorator also works with generator functions, both synchronous and asynchronous:
 
@@ -135,7 +135,7 @@ The `@log` decorator also works with generator functions, both synchronous and a
   <SnippetLogDecoratorGeneratorsPython />
 </CodeGroup>
 
-## Best Practices
+## Best practices
 
 1. **Decorate high-level functions**: For the clearest traces, decorate the highest-level functions that encompass meaningful units of work.
 1. **Use appropriate span types**: Choose the span type that best represents what your function does.

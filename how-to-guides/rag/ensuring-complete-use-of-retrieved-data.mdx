@@ -5,7 +5,7 @@ description: Learn how to ensure that your RAG systems provide complete answers 
 
 This guide explains the challenge of ensuring answer completeness in Retrieval-Augmented Generation (RAG) systems, using the Galileo completeness metric to measure success. We'll compare a basic implementation with an enhanced version to demonstrate how different approaches affect answer completeness.
 
-## The Completeness Challenge
+## The completeness challenge
 
 Answer completeness refers to how thoroughly and comprehensively a RAG system answers a given question. The Galileo completeness metric evaluates this by using the LLM as a judge to compare the response against its own knowledge of the topic. This approach has important implications:
 
@@ -23,7 +23,7 @@ A complete answer should:
 
 The Galileo completeness metric evaluates these aspects by analyzing how well the answer covers all relevant information that is part of open domain knowledge, using the LLM as a judge to identify any gaps or omissions in the response.
 
-## Basic Implementation
+## Basic implementation
 
 The basic implementation ([`ensure-completeness-basic.py`](https://github.com/rungalileo/sdk-examples/blob/main/python/rag/cli-rag-demo/challenges/ensure-completeness-basic.py)) demonstrates several limitations that lead to incomplete answers:
 
@@ -81,7 +81,7 @@ The prompting strategy in the basic implementation is minimal and lacks specific
 
 These limitations in the basic implementation often result in incomplete answers that miss key information from other relevant documents, lose context due to poor chunking, fail to synthesize information across different sources, and omit important details. This typically leads to lower completeness scores.
 
-## Improved Implementation
+## Improved implementation
 
 The improved implementation ([`ensure-completeness-enhanced.py`](https://github.com/rungalileo/sdk-examples/blob/main/python/rag/cli-rag-demo/challenges/ensure-completeness-enhanced.py)) addresses these limitations through several significant improvements:
 
@@ -140,7 +140,7 @@ The improved implementation uses a comprehensive system prompt that provides cle
 
 These improvements in the improved implementation lead to more comprehensive answers that better incorporate multiple sources, preserve context through improved chunking, effectively synthesize information across documents, and include all significant details. This typically results in higher Galileo completeness scores.
 
-## Key Differences in Practice
+## Key differences in practice
 
 When comparing the two implementations:
 
@@ -220,13 +220,13 @@ The basic implementation's prompting strategy often results in answers that miss
 </Step>
 </Steps>
 
-## Measuring Success with Galileo
+## Measuring success with Galileo
 
 The Galileo completeness metric provides a quantitative way to evaluate the effectiveness of RAG systems by assessing several key aspects. It measures the coverage of relevant information, evaluating how well the system incorporates all necessary details from the source documents. The metric also assesses the synthesis of multiple sources, ensuring that information from different documents is properly combined and presented coherently. Additionally, it evaluates the citation of sources, checking that all information is properly attributed. The metric also considers context preservation, ensuring that the meaning and relationships between pieces of information are maintained. Finally, it provides an overall assessment of answer thoroughness.
 
 The improved implementation consistently achieves higher completeness scores by addressing the limitations of the basic approach through better document retrieval, processing, and prompting strategies.
 
-## Practical Example: Penicillin Discovery
+## Practical example: penicillin discovery
 
 To illustrate the difference between the basic and improved implementations, let's examine how they handle a query about the discovery of penicillin. This example is particularly interesting because penicillin's discovery is well-known open domain knowledge that the LLM already has access to. The completeness metric evaluates how well the system uses the retrieved documents compared to this baseline knowledge.
 
@@ -301,7 +301,7 @@ This example clearly demonstrates how the improved implementation achieves highe
 
 The difference in completeness scores (75% vs 100%) reflects the improved implementation's ability to provide more thorough, well-sourced, and contextually rich answers that effectively utilize the provided documents rather than falling back on general knowledge.
 
-## Best Practices for Ensuring Completeness
+## Best practices for ensuring completeness
 
 <Steps>
 <Step title="Document Retrieval">

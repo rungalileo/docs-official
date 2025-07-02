@@ -13,7 +13,7 @@ Under the hood, three main deficiencies hold most RAG pipelines back:
 
 These three factors—ranking, integration, and signaling—determine whether the model's final answer simply skims the surface or includes the full depth of information in your document repository.
 
-## The Gap: Chunk Attribution and Utilization
+## The gap: chunk attribution and utilization
 
 When building RAG applications, there's a critical gap between retrieving relevant information and actually using it effectively. Even when your system successfully finds the right chunks, the final responses often fall short in three key ways:
 
@@ -43,7 +43,7 @@ The response uses only basic definitional information despite having access to r
 - Understand how information across chunks relates to each other
 - Determine the relative importance of different pieces of information
 
-### Baseline Performance Metrics
+### Baseline performance metrics
 
 When measuring this basic implementation against our key metrics, we see significant room for improvement:
 
@@ -53,11 +53,11 @@ When measuring this basic implementation against our key metrics, we see signifi
 
 These metrics highlight the gap between having access to relevant information and actually using it effectively in the response. Let's look at how we can improve these numbers through enhanced implementation.
 
-## Improving the system: Enhanced Retrieval and Guidance
+## Improving the system: enhanced retrieval and guidance
 
 Let's look at how we can improve each part of the system through three key enhancements:
 
-### 1. Cross-Encoder Reranking for Better Document Selection
+### 1. cross-Encoder reranking for better document selection
 
 Vector similarity alone treats the query and the document as two separate embeddings. A cross-encoder, however, reads them side by side (e.g., as "query [SEP] document text"). This produces richer relevance scores since the model can detect subtle connections or contradictory nuances.
 
@@ -98,7 +98,7 @@ The reranking code adds extra metadata, like `combined_score` and `relevance`, w
 5. Adds metadata that helps the model understand document importance
 6. Returns only the top k most relevant documents
 
-### 2. Prompting for Synthesis and Better Information Integration
+### 2. prompting for synthesis and better information integration
 
 If you want the model to combine details from multiple chunks, you need to tell it how to do so:
 
@@ -125,7 +125,7 @@ This system prompt:
 
 By laying out these rules, you remind the model that it isn't enough to restate each chunk separately. It should blend details, note relevant sources, and produce a single, well-structured explanation. With explicit instructions to reference scores or cross-document relationships, your pipeline gains contextual awareness.
 
-### 3. Enriched Formatting for Clear Information Structure
+### 3. enriched formatting for clear information structure
 
 When you format each chunk, include metadata that matters:
 
@@ -150,7 +150,7 @@ This enhanced formatting:
 
 By embedding the relevance tag and final numeric score, you give the language model reasons to say: "Document 1 is obviously the most relevant, so I should prioritize these details." This extra nudge prevents the model from ignoring vital chunks.
 
-### Putting It All Together
+### Putting it all together
 
 Here's how these components work together in the final implementation:
 
@@ -195,7 +195,7 @@ The complete workflow:
 4. The enhanced system prompt guides the model in synthesizing information across documents
 5. The model generates a response that incorporates information from all relevant sources
 
-## Performance Gains: Putting Theory into Practice
+## Performance gains: putting theory into practice
 
 The enhanced implementation delivers significant improvements across key metrics:
 
@@ -218,13 +218,13 @@ Building an effective RAG system doesn't stop at retrieving the right documents.
 
 By addressing the three core deficiencies—importance ranking, cross-chunk integration, and relevance signaling—you can dramatically improve your RAG system's performance without changing the underlying retrieval mechanism or language model.
 
-## Appendix: Building a Basic Document Store
+## Appendix: building a basic document store
 
 If you're building this solution from scratch, you'll need to start with a basic document store implementation. This section walks you through creating the foundation that we'll improve upon.
 
 Below is a sample implementation of how you might load a dataset, chunk it, build a FAISS index, and perform a simple k-nearest-neighbors search for relevant chunks. Let's break down each component:
 
-### Document Store Initialization
+### Document store initialization
 
 The `DocumentStore` class serves as our foundation for managing and retrieving documents:
 
@@ -289,7 +289,7 @@ This initialization code handles several important tasks:
    - We use the `SentenceTransformer` model 'all-MiniLM-L6-v2', which provides a good balance of speed and quality
    - The `k` parameter determines how many similar documents to retrieve for each query
 
-### Text Chunking Implementation
+### Text chunking implementation
 
 The chunking strategy is crucial for document retrieval. Our implementation uses a sentence-aware approach to maintain context:
 
@@ -346,7 +346,7 @@ This chunking implementation has several key features:
    - Handles the last chunk properly to avoid losing content
    - Maintains document structure for better retrieval
 
-### Building the Vector Index
+### Building the vector index
 
 For efficient similarity search, we build a FAISS index. FAISS is particularly good at handling large-scale similarity search:
 
@@ -385,7 +385,7 @@ The indexing process involves several important steps:
    - Optimized for cosine similarity between normalized vectors
    - Enables fast nearest neighbor search at scale
 
-### Basic Search Implementation
+### Basic search implementation
 
 The search functionality ties everything together, enabling efficient retrieval of relevant chunks:
 

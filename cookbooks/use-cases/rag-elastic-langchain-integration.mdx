@@ -38,7 +38,7 @@ Before starting, you'll need:
 - **OpenAI API key** for the language model
 - **Galileo account** for observability
 
-## Step 1: Set up Elasticsearch Cloud Serverless
+## Step 1: set up Elasticsearch cloud serverless
 
 First, let's set up your Elasticsearch instance for document storage and retrieval.
 
@@ -66,7 +66,7 @@ ELSER (Elastic Learned Sparse EncodeR) provides semantic search capabilities:
 3. Follow [the ELSER docs](https://www.elastic.co/docs/explore-analyze/machine-learning/nlp/ml-nlp-elser#download-deploy-elser) or [ Elastic guide](https://www.elastic.co/getting-started/enterprise-search/vector-search)
 4. Note the model ID (typically `.elser_model_2_linux-x86_64`)
 
-## Step 2: Set up your Python environment
+## Step 2: set up your Python environment
 
 Create a new project and install the required dependencies in a virtual environment:
 
@@ -82,7 +82,7 @@ pip install \
     dotenv # Optionally depending on your environment
 ```
 
-## Step 3: Configure environment variables
+## Step 3: configure environment variables
 
 Create a `.env` file or set these environment variables:
 
@@ -107,17 +107,17 @@ GALILEO_LOG_STREAM="elastic_rag_stream"
 - Linux x86_64: `.elser_model_2_linux-x86_64`
 - Check your Elasticsearch ML models for the exact name
 
-## Step 4: Build the RAG Application
+## Step 4: build the RAG application
 
 Now, let's build the RAG application step-by-step. Create a Python file (e.g., `demo.py`) and add the following code snippets.
 
-### Imports and Configuration
+### Imports and configuration
 
 First, we import the necessary libraries and configure our environment variables. This part of the script loads your API keys and sets up the connection details for Elasticsearch, OpenAI, and Galileo.
 
 <SnippetElasticRag1 />
 
-### 1. Elasticsearch Setup
+### 1. Elasticsearch setup
 <SnippetElasticRag2 />
 The code automatically:
 - Connects to your Elasticsearch instance
@@ -125,14 +125,14 @@ The code automatically:
 - Creates an index and stores sample documents
 
 
-### 2. Agent Architecture
+### 2. agent architecture
 <SnippetElasticRag3 />
 - **State Management**: Uses `AgentState` to track conversation messages
 - **Tool Integration**: Creates a retriever tool that searches Elasticsearch
 - **LangGraph Workflow**: Defines the flow between agent reasoning and tool usage
 
 
-### 3. Conversation Flow
+### 3. conversation flow
 <SnippetElasticRag4 />
 1. User asks a question
 2. Agent decides whether to use the retriever tool
@@ -145,7 +145,7 @@ Finally, we put everything together. This block of code initializes the Elastics
 
 <SnippetElasticRag5 />
 
-## Step 4: Run the Application
+## Step 4: run the application
 
 To run your RAG application, save all the code into a single `demo.py` file and execute it from your terminal:
 
@@ -153,7 +153,7 @@ To run your RAG application, save all the code into a single `demo.py` file and 
 python demo.py
 ```
 
-### 5. Adding Galileo observability
+### 5. adding Galileo observability
 
 1. Open your [Galileo Console](https://app.galileo.ai/)
 2. Navigate to your project (f.e. `elasticsearch-rag-demo`)
