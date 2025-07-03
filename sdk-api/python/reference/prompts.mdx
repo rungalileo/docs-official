@@ -11,3 +11,96 @@ title: prompts
 class PromptTemplate(BasePromptTemplateResponse)
 ```
 
+#### get\_prompt
+
+```python
+def get_prompt(
+        *,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
+        version: Optional[int] = None) -> Optional[PromptTemplateVersion]
+```
+
+Retrieves a specific global prompt template version.
+
+You must provide either &#x27;id&#x27; or &#x27;name&#x27;, but not both.
+If &#x27;version&#x27; is not provided, the currently selected version is returned.
+
+**Arguments**:
+
+- `id` (`str`): The unique identifier of the template to retrieve. Defaults to None.
+- `name` (`str`): The name of the template to retrieve. Defaults to None.
+- `version` (`int`): The version number to retrieve. If not provided, the currently selected version is returned. Defaults to None.
+
+**Raises**:
+
+- `ValueError`: If neither or both &#x27;id&#x27; and &#x27;name&#x27; are provided.
+
+**Returns**:
+
+`Optional[PromptTemplateVersion]`: The template version if found, None otherwise.
+
+#### delete\_prompt
+
+```python
+def delete_prompt(*,
+                  id: Optional[str] = None,
+                  name: Optional[str] = None) -> None
+```
+
+Delete a global prompt template by ID or name.
+
+**Arguments**:
+
+- `id` (`str`): The unique identifier of the template to delete. Defaults to None.
+- `name` (`str`): The name of the template to delete. Defaults to None.
+
+**Raises**:
+
+- `ValueError`: If neither or both id and name are provided, or if the template is not found.
+
+**Returns**:
+
+`None`: 
+
+#### create\_prompt
+
+```python
+def create_prompt(name: str, template: Union[list[Message],
+                                             str]) -> PromptTemplate
+```
+
+Create a new global prompt template.
+
+**Arguments**:
+
+- `name` (`str`): The name for the new template.
+- `template` (`Union[list[Message], str]`): The template content. Can be either a list of Message objects or a JSON string
+representing the message structure.
+
+**Raises**:
+
+- `PromptTemplateAPIException`: If the API request fails or returns an error.
+
+**Returns**:
+
+`PromptTemplate`: The created prompt template.
+
+#### get\_prompts
+
+```python
+def get_prompts(name_filter: Optional[str] = None,
+                limit: Union[Unset, int] = 100) -> list[PromptTemplate]
+```
+
+List global prompt templates with optional filtering.
+
+**Arguments**:
+
+- `name_filter` (`Optional[str]`): Filter templates by name containing this string. Defaults to None (no filtering).
+- `limit` (`Union[Unset, int]`): Maximum number of templates to return. Defaults to 100.
+
+**Returns**:
+
+`list[PromptTemplate]`: List of prompt templates matching the criteria.
+
