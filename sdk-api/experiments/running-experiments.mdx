@@ -1,0 +1,223 @@
+---
+title: Run Experiments
+description: Learn how to run experiments in Galileo using the Galileo SDKs.
+---
+
+import SnippetExperimentsPromptPython from "/snippets/code/python/concepts/experiments/prompt.mdx";
+import SnippetExperimentsExistingDatasetPython from "/snippets/code/python/concepts/experiments/existing-dataset.mdx";
+import SnippetExperimentsExistingDatasetLogDecoratorPython from "/snippets/code/python/concepts/experiments/existing-dataset-log.mdx";
+import SnippetExperimentsGroundTruthPython from "/snippets/code/python/concepts/experiments/ground-truth.mdx";
+import SnippetExperimentsCustomDatasetPython from "/snippets/code/python/concepts/experiments/custom-dataset.mdx";
+import SnippetExperimentsCustomMetricsPython from "/snippets/code/python/concepts/experiments/custom-metrics.mdx";
+import SnippetExperimentsLangGraphCallbackPython from "/snippets/code/python/concepts/experiments/langgraph-callback.mdx";
+import SnippetExperimentsGetLoggerPython from "/snippets/code/python/concepts/experiments/get-logger.mdx";
+import SnippetExperimentsGetCurrentParentPython from "/snippets/code/python/concepts/experiments/get-current-parent.mdx";
+import SnippetExperimentsLoggingWithParentCheckPython from "/snippets/code/python/concepts/experiments/logging-with-parent-check.mdx";
+
+import SnippetExperimentsPromptTypeScript from "/snippets/code/typescript/concepts/experiments/prompt.mdx";
+import SnippetExperimentsExistingDatasetTypeScript from "/snippets/code/typescript/concepts/experiments/existing-dataset.mdx";
+import SnippetExperimentsExistingDatasetLogDecoratorTypeScript from "/snippets/code/typescript/concepts/experiments/existing-dataset-log.mdx";
+import SnippetExperimentsGroundTruthTypeScript from "/snippets/code/typescript/concepts/experiments/ground-truth.mdx";
+import SnippetExperimentsCustomDatasetTypeScript from "/snippets/code/typescript/concepts/experiments/custom-dataset.mdx";
+import SnippetExperimentsCustomMetricsTypeScript from "/snippets/code/typescript/concepts/experiments/custom-metrics.mdx";
+import SnippetExperimentsLangGraphCallbackTypeScript from "/snippets/code/typescript/concepts/experiments/langgraph-callback.mdx";
+import SnippetExperimentsGetLoggerTypeScript from "/snippets/code/typescript/concepts/experiments/get-logger.mdx";
+import SnippetExperimentsGetCurrentParentTypeScript from "/snippets/code/typescript/concepts/experiments/get-current-parent.mdx";
+import SnippetExperimentsLoggingWithParentCheckTypeScript from "/snippets/code/typescript/concepts/experiments/logging-with-parent-check.mdx";
+
+As you progress from initial testing to systematic evaluation, you'll want to run experiments to validate your application's performance and behavior. Here are several ways to structure your experiments, starting from the simplest approaches and moving to more sophisticated implementations.
+
+Experiments fit both into the initial prompt engineering and model selection phases of your app, as well as during application development time, such as during testing or in a CI/CD pipeline. This allows you to fit experiments into your SDLC for evaluation-driven development.
+
+AI Engineers and data scientists can use experiments in notebooks or in simple applications to test out prompts or different models. AI Engineers can then add experiments into their production apps allowing these experiments to be run against complex applications or scenarios, including RAG and agentic flows.
+
+## Configure an LLM Integration
+
+To calculate metrics, you will either need to configure an integration with an LLM, or set up the [Luna 2 SLM](/concepts/luna/luna).
+
+To configure an LLM, visit the relevant API platform to obtain an API key, then add it using the [integrations page](https://app.galileo.ai/settings/integrations) in the Galileo console.
+
+## Experiment Flow
+
+The entry point for running experiments is a call to the run experiments function (see the [`run_experiment` Python SDK docs](/sdk-api/python/reference/experiments#run-experiment), or the [`runExperiment` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/runExperiment) for more details).
+
+Experiments take a dataset, and can either pass it to a prompt template, or to a custom function. This custom function can go from a simple call to an LLM right up to a full agentic workflow.
+
+For each row in a dataset, a new trace is created, and either the prompt template is logged as an LLM span, or every span created in the custom function is logged to that trace.
+
+If you are building experiments into your production application, you will need to enable a way to call the experiment runner. For example, you can do this inside a unit test.
+
+## Work with Prompts
+
+The simplest way to get started with experimentation is by evaluating prompts directly against datasets. This is especially valuable during the initial prompt development and refinement phase, where you want to test different prompt variations. Assuming you've previously created a dataset, you can use the following code to run an experiment:
+
+<CodeGroup>
+  <SnippetExperimentsPromptPython />
+  <SnippetExperimentsPromptTypeScript />
+</CodeGroup>
+
+## Run Experiments with Custom Functions
+
+Once you're comfortable with basic prompt testing, you might want to evaluate more complex parts of your app using your datasets. This approach is particularly useful when you have a generation function in your app that takes a set of inputs, which you can model with a dataset.
+
+If your experiment runs code that uses the `log` decorator, or a third-party SDK integration, then all the spans created by these will be logged to the experiment.
+
+This example uses the [`log` decorator](/sdk-api/logging/log-decorator/log-decorator). The workflow span created by the log decorator will be logged to the experiment.
+
+<CodeGroup>
+  <SnippetExperimentsExistingDatasetLogDecoratorPython />
+  <SnippetExperimentsExistingDatasetLogDecoratorTypeScript />
+</CodeGroup>
+
+This example uses the [OpenAI SDK wrapper](/sdk-api/third-party-integrations/openai/openai). The LLM span created by the wrapper will be logged to the experiment.
+
+<CodeGroup>
+  <SnippetExperimentsExistingDatasetPython />
+  <SnippetExperimentsExistingDatasetTypeScript />
+</CodeGroup>
+
+### Run Experiments Against Complex Code with Custom Functions
+
+Custom functions can be as complex as required, including multiple steps, agents, RAG, and more. This means you can build experiments around an existing application, allowing you to run experiments against the full application you have built, using datasets to mimic user inputs.
+
+For example, if you have a multi-agent LangGraph chatbot application, you can run an experiment against it using a dataset to define different user inputs, and log every stage in the agentic flow as part of that experiment.
+
+To enable this, you will need to make some small changes to your application logic to handle the logging context from the experiment.
+
+When functions in your application are run by the `run_experiment` call, a logger is created by the experiment runner, and a trace is started. This logger can be passed through the application, accessed using the `@log` decorator or by calling [`galileo_context.get_logger_instance()`](/sdk-api/python/reference/decorator#get-logger-instance) in Python, or [`getLogger`](/sdk-api/typescript/reference/README/functions/getLogger) in TypeScript.
+
+You will need to change your code to use this instead of creating a new logger and starting a new trace.
+
+#### Get an existing logger and check for an existing trace
+
+The Galileo SDK maintains a context that tracks the current logger. You can get this logger with the following code:
+
+<CodeGroup>
+  <SnippetExperimentsGetLoggerPython/>
+  <SnippetExperimentsGetLoggerTypeScript/>
+</CodeGroup>
+
+If there isn't a current logger, one will be created by this call, so this will always return a logger.
+
+Once you have the logger, you can check for an existing trace by accessing the current parent trace from the logger. If this is not set, then there is no active trace.
+
+<CodeGroup>
+  <SnippetExperimentsGetCurrentParentPython/>
+  <SnippetExperimentsGetCurrentParentTypeScript/>
+</CodeGroup>
+
+You can use this to decide if you need to create a new trace in your application. If there is no parent trace, you can safely create a new one.
+
+<CodeGroup>
+  <SnippetExperimentsLoggingWithParentCheckPython/>
+  <SnippetExperimentsLoggingWithParentCheckTypeScript/>
+</CodeGroup>
+
+You can then safely call your code from the experiment runner as well as in your normal application logic. When called from the experiment runner, your traces will be logged to that experiment. When called from your application code, the traces will be logged as normal.
+
+#### Using LangChain or LangGraph in an experiment
+
+When using LangChain or LangGraph, Galileo provides a callback class that handles creating a logger, starting a trace, logging spans, then concluding and flushing the trace. This behavior is inconsistent with that required for experiments, where the logger is created and trace started at the start of the experiment, and the logger is concluded and flushed at the end.
+
+To work around this, you can tell the callback to not start or flush the trace by detecting if there is already an active trace. If there is, then don't start a new trace or flush it on completion.
+
+The easiest way to do this is to get the current logger from the Galileo context, and check to see if it contains a parent trace. If there is no parent trace, then it is a new logger instance and you can start and flush the trace. If there is a parent trace, then it is an existing logger created from the experiment, and you can create the callback setting parameters to not start or flush the trace.
+
+<CodeGroup>
+  <SnippetExperimentsLangGraphCallbackPython />
+  <SnippetExperimentsLangGraphCallbackTypeScript />
+</CodeGroup>
+
+<Note>
+This behavior is also useful if you are logging to an existing logger, such as when you want the LangGraph agent to only be a part of a larger trace.
+</Note>
+
+### Custom Function Logging Principles
+
+There are a few important principles to understand when logging experiments in code.
+
+- When running an experiment, a new logger is created for you and set in the Galileo context. If you create a new logger manually in the application code used in your experiment, this logger will not be used in the experiment.
+- To access the logger to manually add traces inside the experiment code, you can call `galileo_context.get_logger_instance()` (Python) or `getLogger()` (TypeScript) to get the current logger.
+- To detect if there is an active trace, use the `current_parent()` (Python) or `currentParent` (TypeScript) method on the logger. This will return `None`/`undefined` if there isn't an active trace.
+- Be sure to handle cases in your application code where a logger is created or a trace is started, and make sure this doesn't happen in an experiment, and the experiment logger and trace is used instead. 
+- Every row in a dataset is a new trace. If you create new traces manually, they will not be used.
+- Do not conclude or flush the logger in your experiment, the experiment will do this for you.
+
+## Ground truth
+
+For [BLUE, ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge), and [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence), you also need to set the ground truth in your dataset. This is set in the `output` column.
+
+<CodeGroup>
+  <SnippetExperimentsGroundTruthPython/>
+  <SnippetExperimentsGroundTruthTypeScript/>
+</CodeGroup>
+
+<Note>
+If you set the `output` column when using other metrics, the value is not used in the calculation of the metric, but is surfaced in the console. This can be helpful for providing reference output for manual review.
+</Note>
+
+## Custom Dataset Evaluation
+
+As your testing needs become more specific, you might need to work with custom or local datasets. This approach is perfect for focused testing of edge cases or when building up your test suite with specific scenarios:
+
+<CodeGroup>
+  <SnippetExperimentsCustomDatasetPython />
+  <SnippetExperimentsCustomDatasetTypeScript />
+</CodeGroup>
+
+## Custom Metrics for Deep Analysis
+
+For the most sophisticated level of testing, you might need to track specific aspects of your application's behavior. Custom metrics provide the flexibility to define precisely what you want to measure, enabling deep analysis and targeted improvement:
+
+<CodeGroup>
+  <SnippetExperimentsCustomMetricsPython />
+  <SnippetExperimentsCustomMetricsTypeScript />
+</CodeGroup>
+
+Each of these experimentation approaches fits into different stages of your development and testing workflow. As you progress from simple prompt testing to sophisticated custom metrics, Galileo's experimentation framework provides the tools you need to gather insights and improve your application's performance at every level of complexity.
+
+## Experimenting with Agentic and RAG Applications
+
+The experimentation framework extends naturally to more complex applications like agentic AI systems and RAG (Retrieval-Augmented Generation) applications. When working with agents, you can evaluate various aspects of their behavior, from decision-making capabilities to tool usage patterns. This is particularly valuable when testing how agents handle complex workflows, multi-step reasoning, or tool selection.
+
+For RAG applications, experimentation helps validate both the retrieval and generation components of your system. You can assess the quality of retrieved context, measure response relevance, and ensure that your RAG pipeline maintains high accuracy across different types of queries. This is especially important when fine-tuning retrieval parameters or testing different reranking strategies.
+
+The same experimentation patterns shown above apply to these more complex systems. You can use predefined datasets to benchmark performance, create custom datasets for specific edge cases, and define specialized metrics that capture the unique aspects of agent behavior or RAG performance. This systematic approach to testing helps ensure that your advanced AI applications maintain high quality and reliability in production environments.
+
+## Best Practices
+
+1. **Use consistent datasets**: Use the same dataset when comparing different prompts or models to ensure fair comparisons.
+1. **Test multiple variations**: Run experiments with different prompt variations to find the best approach.
+1. **Use appropriate metrics**: Choose metrics that are relevant to your specific use case.
+1. **Start small**: Begin with a small dataset to quickly iterate and refine your approach before scaling up.
+1. **Document your experiments**: Keep track of what you're testing and why to make it easier to interpret results.
+
+## Next Steps
+
+### Experiments SDK
+
+<CardGroup cols={2}>
+<Card title="Use Datasets in Code" icon="database" horizontal href="/sdk-api/experiments/datasets">
+    Learn about more datasets, the data driving your experiments.
+</Card>
+<Card title="Prompt Templates" icon="message" horizontal href="/sdk-api/experiments/prompts">
+    Learn how to create and use prompt templates in experiments
+</Card>
+</CardGroup>
+
+### Metrics
+
+<CardGroup cols={2}>
+<Card title="Metrics Reference Guide" icon="brain" horizontal href="/sdk-api/metrics/metrics">
+    A list of supported metrics and how to use them in experiments.
+</Card>
+<Card title="Local Metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code#local-metrics">
+    Create and run custom metrics directly in code.
+</Card>
+<Card title="Custom Code Based Metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code">
+    Create reusable custom metrics right in the Galileo Console.
+</Card>
+<Card title="Custom LLM-as-a-Judge Metrics" icon="brain" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-llm">
+    Create reusable custom metrics using LLMs to evaluate your response quality
+</Card>
+</CardGroup>

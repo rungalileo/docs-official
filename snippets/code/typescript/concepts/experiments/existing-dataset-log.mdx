@@ -1,0 +1,20 @@
+```typescript TypeScript
+import { log, GalileoScorers, getDataset, runExperiment } from "galileo";
+
+const dataset = await getDataset({name: "countries"});
+
+const runner = async (input: any) => {
+  // Custom function code
+  return result;
+};
+
+const wrappedRunner = log({spanType: "llm", name: "My Span"}, runner);
+
+await runExperiment({
+  name: "geography-experiment",
+  dataset: dataset,
+  function: wrappedRunner,
+  metrics: [GalileoScorers.Correctness],
+  projectName: "my-project",
+});
+```

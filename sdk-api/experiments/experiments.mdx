@@ -1,26 +1,23 @@
 ---
-title: Experiments SDK Overview
-description: Learn how to run experiments with multiple data points using datasets and prompt templates
-syncTabs: true
+title: Experiments Basics
+description: Learn the basics of running experiments with multiple data points using datasets and prompt templates using the Galileo SDKs.
 ---
 
-import SnippetExperimentsPromptPython from "/snippets/code/python/concepts/experiments/prompt.mdx";
-import SnippetExperimentsExistingDatasetPython from "/snippets/code/python/concepts/experiments/existing-dataset.mdx";
-import SnippetExperimentsCustomDatasetPython from "/snippets/code/python/concepts/experiments/custom-dataset.mdx";
-import SnippetExperimentsCustomMetricsPython from "/snippets/code/python/concepts/experiments/custom-metrics.mdx";
 import SnippetExperimentsProjectNamePython from "/snippets/code/python/sdk/experiments/set-project.mdx";
 
-import SnippetExperimentsPromptTypeScript from "/snippets/code/typescript/concepts/experiments/prompt.mdx";
-import SnippetExperimentsExistingDatasetTypeScript  from "/snippets/code/typescript/concepts/experiments/existing-dataset.mdx";
-import SnippetExperimentsCustomDatasetTypeScript from "/snippets/code/typescript/concepts/experiments/custom-dataset.mdx";
-import SnippetExperimentsCustomMetricsTypeScript from "/snippets/code/typescript/concepts/experiments/custom-metrics.mdx";
 import SnippetExperimentsProjectNameTypeScript from "/snippets/code/typescript/sdk/experiments/set-project.mdx";
 
-Experiments in Galileo allow you to evaluate and compare different prompts, models, and configurations using [datasets](/sdk-api/experiments/datasets) and [prompt templates](/sdk-api/experiments/prompts), and measure their performance using various [metrics](/concepts/metrics/overview). This helps you identify the best approach for your specific use case.
+**Experiments** in Galileo allow you to evaluate and compare different prompts, models, and configurations using [datasets](/sdk-api/experiments/datasets) and [prompt templates](/sdk-api/experiments/prompts), and measure their performance using various [metrics](/concepts/metrics/overview). This helps you identify the best approach for your specific use case.
+
+You can [run experiments](/sdk-api/experiments/running-experiments) against dedicated experiment code, for example in a Jupyter notebook for prompt engineering and model evaluation, or use experiments to run your application code under controlled conditions for evaluation-driven development, for example by running your experiments in your CI/CD pipeline.
 
 For a list of supported metrics, see the [Metrics Reference Guide](/sdk-api/metrics/metrics).
 
+## Logging experiments
+
 Experiments belong to projects, with one project containing many experiments. Each experiment has a single log stream with multiple traces. When you use a dataset with an experiment, each row in the dataset is logged as a separate trace in the experiment's log stream.
+
+When you are starting to plan your experiments, ensure you have [created the relevant project](/concepts/projects#creating-a-project) to run them in.
 
 ## Initial setup
 
@@ -55,62 +52,15 @@ You can also set the project when running the experiment by passing it in to the
   <SnippetExperimentsProjectNameTypeScript />
 </CodeGroup>
 
-## Run an experiment with a prompt template
+## Next Steps
 
-The simplest way to get started is by using a prompt template. 
-
-- If you have an existing prompt template, you can [load it in code](/sdk-api/experiments/prompts#get-prompt-templates).
-- Datasets can be created through either the [console](https://app.galileo.ai/datasets) or the [SDK](/sdk-api/experiments/datasets#create-datasets), and loaded as needed, or can be a [custom one created locally](#custom-dataset-evaluation).
-
-<CodeGroup>
-  <SnippetExperimentsPromptPython />
-  <SnippetExperimentsPromptTypeScript />
-</CodeGroup>
-
-## Run experiments with custom functions
-
-For more complex scenarios, you can use custom functions logged with the [`log` decorator](/sdk-api/logging/log-decorator/log-decorator), or using [third-party SDK integrations](/sdk-api/third-party-integrations/overview), such as the [OpenAI wrapper](/sdk-api/third-party-integrations/openai/openai). Here, you may use either a [saved dataset](/sdk-api/experiments/datasets#create-datasets) or a [custom one](#custom-dataset-evaluation).
-
-<CodeGroup>
-  <SnippetExperimentsExistingDatasetPython />
-  <SnippetExperimentsExistingDatasetTypeScript />
-</CodeGroup>
-
-## Custom dataset evaluation
-
-When you need to test specific scenarios, you can use custom datasets defined in code.
-
-<CodeGroup>
-  <SnippetExperimentsCustomDatasetPython />
-  <SnippetExperimentsCustomDatasetTypeScript />
-</CodeGroup>
-
-## Custom metrics for deep analysis
-
-For sophisticated evaluation needs, you can also create metrics in code and use them in experiments. For a detailed walkthrough of the code sample below, take a look at [local metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-code#local-metrics). 
-
-<CodeGroup>
-  <SnippetExperimentsCustomMetricsPython />
-  <SnippetExperimentsCustomMetricsTypeScript />
-</CodeGroup>
-
-## Best practices
-
-1. **Use consistent datasets**: Use the same dataset when comparing different prompts or models to ensure fair comparisons.
-1. **Test multiple variations**: Run experiments with different prompt variations to find the best approach.
-1. **Use appropriate metrics**: Choose metrics that are relevant to your specific use case.
-1. **Start small**: Begin with a small dataset to quickly iterate and refine your approach before scaling up.
-1. **Document your experiments**: Keep track of what you're testing and why to make it easier to interpret results.
-
-## Related resources
-
-### Datasets and prompt templates
+### Experiments SDK
 
 <CardGroup cols={2}>
-<Card title="What are Datasets?" icon="database" horizontal href="/concepts/datasets">
-    Learn about more datasets, the data driving your experiments.
+<Card title="Run Experiments" icon="code" horizontal href="/sdk-api/experiments/running-experiments">
+    Learn how to run experiments in Galileo using the Galileo SDKs
 </Card>
-<Card title="Use Datasets in Code" icon="code" horizontal href="/sdk-api/experiments/datasets">
+<Card title="Use Datasets in Code" icon="database" horizontal href="/sdk-api/experiments/datasets">
     Learn about more datasets, the data driving your experiments.
 </Card>
 <Card title="Prompt Templates" icon="message" horizontal href="/sdk-api/experiments/prompts">
