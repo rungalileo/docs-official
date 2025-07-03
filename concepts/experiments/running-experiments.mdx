@@ -45,9 +45,9 @@ AI Engineers and data scientists can use experiments in notebooks or in simple a
 
 When running experiments in code, the entry point is a call to the run experiments function (see the [Experiments SDK documentation](/sdk-api/experiments/running-experiments#experiment-flow) for more details).
 
-Experiments are run for a specific project. They live in that project, with new Log streams automatically created for each experiment. When starting with Experiments, make sure to [created the relevant project](/concepts/projects#creating-a-project) to run them in.
+Experiments are run for a specific project. They live in that project, with new log streams automatically created for each experiment. When starting with Experiments, make sure to [create the relevant project](/concepts/projects#creating-a-project) to run them in.
 
-Experiments take a dataset, and can either pass it to a prompt template to run directly against an LLM, or to a custom function. This custom function can go from a simple call to an LLM right up to a full agentic workflow.
+Experiments take a dataset, and can either pass it to a prompt template to run directly against an LLM, or pass it to a custom function that contains logging using Galileo. This custom function can go from a simple call to an LLM right up to a full agentic workflow, and you can log either manually, or using the `log` decorator, or one of our third-party SDK integrations.
 
 For each row in a dataset, a new trace is created, and either the prompt template is logged as an LLM span, or every span created in the custom function is logged to that trace.
 
@@ -71,7 +71,7 @@ flowchart TD
 
 All the traces logged to Galileo can then be evaluated using the [metrics of your choice](/sdk-api/metrics/metrics).
 
-If you are building experiments into your production application, you will need to enable a way to call the experiment runner. For example, you can do this inside a unit test.
+If you are building experiments into your production application, you will need to enable a way to call the experiment runner, such as in unit tests.
 
 ## Experiments in code
 
