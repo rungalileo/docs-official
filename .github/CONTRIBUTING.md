@@ -230,9 +230,9 @@ How-to guides are task oriented, and show a user how to solve a particular probl
 
 When creating a how-to guide, follow [this guide](https://www.thegooddocsproject.dev/template/how-to). This gives details on best practices for creating a how-to guide. The actual template adjusted for the Galileo standards is available in [this repo](./templates/template-how-to.md).
 
-## Document integrations
+## Documenting integrations
 
-When working on integrations between Galileo and other platforms, follow this standard:
+When working on documenting integrations between Galileo and other platforms, follow this standard:
 
 - If there are any product changes, such as a new third-party SDK integration in the Galileo SDKs, then make sure this is documented in the [SDK/API third-party integrations](../sdk-api/third-party-integrations/) folder.
 - Create a sample project that shows how to integrate Galileo with the relevant platform, and add this to the [SDK Examples repo](https://github.com/rungalileo/sdk-examples) following the best practices defined in that repo and in the [Tutorials/Cookbooks](#tutorialscookbooks) section above. Make sure this sample is relevant to the audience and is easily reproducible. It needs to:
