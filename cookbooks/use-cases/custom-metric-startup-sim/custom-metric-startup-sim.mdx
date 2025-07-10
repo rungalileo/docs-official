@@ -9,9 +9,10 @@ tag: "Python"
 In this tutorial, you'll learn how to add custom evaluations to a comedy multi-agent LLM app using Galileo. This tutorial is intended for Python developers building domain-specific AI applications. It assumes you have basic knowledge of:
 
 - Some familiarity with Python/Flask
--Python Package Manager of choice (we’ll be using [uv](https://docs.astral.sh/uv/)) 
--Code editor of choice (VS Code, Cursor, Warp, etc.)
--API keys for: [OpenAI](https://platform.openai.com/docs/overview), [NewsAPI (free!)](https://newsapi.org/), and [Galileo (free!)](https://app.galileo.ai)
+- Python Package Manager of choice (we’ll be using [uv](https://docs.astral.sh/uv/)) 
+- Code editor of choice (VS Code, Cursor, Warp, etc.)
+- API keys for: 
+    - [OpenAI](https://platform.openai.com/docs/overview), [NewsAPI (free!)](https://newsapi.org/), and [Galileo (free!)](https://app.galileo.ai)
 
 By the end of this tutorial, you'll be able to:
 - Understand the importance of domain-expertise in Galileo
@@ -23,8 +24,8 @@ For the sake of jumping right into action — we’ll be starting from an [exist
 
 The app we'll be building off of is the Startup Sim 3000, an LLM-based Python application that generates either serious or silly startup pitches using OpenAI and real-time data. The app includes two agent chains:
 
-- Serious Mode: Uses NewsAPI data and GPT-4 to generate business-style startup pitches
-- Silly Mode: Uses HackerNews headlines to inspire parody pitches of absurd tech startups
+- **Serious Mode**: Uses NewsAPI data and GPT-4 to generate business-style startup pitches
+- **Silly Mode**: Uses HackerNews headlines to inspire parody pitches of absurd tech startups
 
 We'll demonstrate how to observe the agent’s performance and evaluate humor or business quality with custom metrics, using Galileo for session tracking and LLM-as-a-Judge metrics.
 
@@ -33,8 +34,7 @@ We'll demonstrate how to observe the agent’s performance and evaluate humor or
 <Steps>
 <Step title="Clone the project in your IDE of choice."/>
 The starter project is in the `sdk-examples/python/agent/startup-simulator-3000` folder in the cloned repo.
-
-```
+```bash
 git clone https://github.com/rungalileo/sdk-examples
 ``` 
 
@@ -43,14 +43,14 @@ git clone https://github.com/rungalileo/sdk-examples
 A virtual environment keeps your project’s dependencies isolated from your global Python installation.  For this we’ll be using [uv](https://docs.astral.sh/uv/).
 
 On Windows
-```
+```bash
 uv venv
 source .venv\Scripts\activate 
 uv pip install -r requirements.txt
 ```
 
 On MacOS/Linux
-```
+```bash
 uv venv
 source .venv/bin/activate 
 uv pip install -r requirements.txt
@@ -58,12 +58,12 @@ uv pip install -r requirements.txt
 
 This creates and activates a virtual environment for your project, then installs the necessary requirements.
 
-<Step title="Configure your .env file."/>
+<Step title="Configure your .env file.">
 Take the `.example.env` file, copy it, renaming it to `.env` and add in your own variables. Be sure the variables are added to your `.gitignore` file. 
 
 When complete, it should look something like this: 
 
-```
+```markdown
 # Example .env file — copy this file to .env and fill in the values. 
 # Be sure to add the .env file to your .gitignore file.
   
@@ -90,7 +90,7 @@ ENABLE_LOGGING=true
 ENABLE_TOOL_SELECTION=true
 ```
 
-<Step title="Start the Flask app and test out the application"/>
+<Step title="Start the Flask app and test out the application">
 
 After your environment variables are set, you are all set to run the application.  The application is designed as a Flask Application, with a JavaScript frontend, and Python backend.
 
