@@ -6,7 +6,7 @@ This repo is the source for [Galileo's docs](https://v2docs.galileo.ai/).  We us
 
 See our [contributing guide](./.github/CONTRIBUTING.md) for more details.
 
-## Dev Container
+## Dev container
 
 This repo has a devcontainer configured so you can run in VS Code with the dev containers extension and Docker, or in a code space, and have an isolated environment with all the relevant tools installed.
 

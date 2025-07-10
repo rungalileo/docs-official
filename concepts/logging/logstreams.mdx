@@ -11,9 +11,9 @@ Log Streams serve as containers for logs, allowing you to:
 - Group logs by feature, team, or business unit
 - Organize logs for specific experiments or testing scenarios
 
-To monitor your application, you [configure the metrics](/concepts/logging/configure-metrics/configure-metrics) that you want to be evaluated for each trace and session in the log stream.
+To monitor your application, you [configure the metrics](/concepts/logging/configure-metrics/configure-metrics) that you want to be evaluated for each trace and session in the Log stream.
 
-## Why Log Streams Are Important
+## Why Log streams are important
 
 Log Streams play a crucial role in organizing your logging infrastructure for several reasons:
 
@@ -23,7 +23,7 @@ Log Streams play a crucial role in organizing your logging infrastructure for se
 
 3. **Lifecycle Management**: Different Log Streams can have different retention policies, allowing you to keep critical production logs longer while purging development logs more frequently.
 
-### How Log Streams Support Workflows
+### How Log streams support workflows
 
 Log Streams contribute to effective log management in several ways:
 
@@ -33,7 +33,7 @@ Log Streams contribute to effective log management in several ways:
 
 - **Analysis**: By organizing logs into logical groups, Log Streams facilitate more focused analysis and pattern recognition within specific contexts.
 
-## Key Components of a Log Stream
+## Key components of a Log stream
 
 A Log Stream in Galileo consists of several core components:
 
@@ -44,7 +44,7 @@ A Log Stream in Galileo consists of several core components:
 1. **Access Controls**: Permissions determining who can view or modify the Log Stream
 1. **Metrics**: [Configured metrics](/concepts/logging/configure-metrics/configure-metrics) that will be evaluated for each trace and session
 
-### How Logs Are Grouped in Log Streams
+### How logs are grouped in Log streams
 
 Logs are grouped into Log Streams based on how you configure your logging setup:
 
@@ -61,7 +61,7 @@ Within a Log Stream, logs are typically organized chronologically, but can be fi
 - User or session information
 - Custom tags or metadata
 
-### Role of Metadata in Log Streams
+### Role of metadata in Log streams
 
 Metadata plays an important role in organizing and filtering Log Streams:
 
@@ -77,9 +77,9 @@ Common metadata used with Log Streams includes:
 - Team or owner information
 - Geographic or regional data
 
-## Creating and Managing Log Streams
+## Creating and managing Log streams
 
-### How to Create Log Streams
+### How to create Log streams
 
 Log Streams can be created through various methods in Galileo:
 
@@ -87,7 +87,7 @@ Log Streams can be created through various methods in Galileo:
 
 The simplest way to create a Log Stream is through the Galileo web interface:
 
-1. Navigate to your project in the Galileo console
+1. Navigate to your project in the Galileo Console
 2. Go to the Log Streams section
 3. Click "Create Log Stream"
 4. Provide a name and optional description
@@ -102,7 +102,7 @@ You can also create Log Streams programmatically using the Galileo SDK:
 ```python create_logstream.py
 from galileo import GalileoLogger
 
-# Initialize with a new log stream (will be created if it doesn't exist)
+# Initialize with a new Log stream (will be created if it doesn't exist)
 logger = GalileoLogger(project="my-project", log_stream="new-log-stream")
 
 ```
@@ -110,14 +110,14 @@ logger = GalileoLogger(project="my-project", log_stream="new-log-stream")
 ```typescript create_logstream.ts
 import { withGalileo } from "galileo";
 
-// The log stream will be created if it doesn't exist
+// The Log stream will be created if it doesn't exist
 withGalileo({ project: "my-project", logStream: "new-log-stream" }, async () => {
   // Your code here
 });
 ```
 
 </CodeGroup>
-#### Using Environment Variables
+#### Using environment variables
 
 You can set a default Log Stream using environment variables:
 
@@ -126,7 +126,7 @@ GALILEO_PROJECT=my-project
 GALILEO_LOG_STREAM=my-log-stream
 ```
 
-### Required Configurations
+### Required configurations
 
 At minimum, a Log Stream requires:
 
@@ -140,7 +140,7 @@ Additional optional configurations include:
 - **Metadata**: Additional contextual information
 - **Retention Policy**: How long logs should be kept in the Log Stream
 
-### Customization Options
+### Customization options
 
 Log Streams can be customized in several ways:
 
@@ -150,9 +150,9 @@ Log Streams can be customized in several ways:
 - **Access Controls**: Configure who can view or modify the Log Stream
 - **Retention Policies**: Set how long logs should be kept in the Log Stream
 
-## Using Log Streams in Practice
+## Using Log streams in practice
 
-### Organizing Logs for Different Environments
+### Organizing logs for different environments
 
 A common pattern is to create separate Log Streams for different environments:
 
@@ -167,17 +167,17 @@ This separation allows you to:
 - Focus on relevant logs when debugging issues
 - Prevent development logs from cluttering production analysis
 
-### Best Practices
+### Best practices
 
 When managing Log Streams, follow these best practices:
 
-#### Naming Conventions
+#### Naming conventions
 
 - Use consistent, descriptive names
 - Include the environment in the name (e.g., `app-name-prod`, `app-name-dev`)
 - Consider including version information for major releases
 
-#### Organization Strategies
+#### Organization strategies
 
 - Create separate Log Streams for different applications or services
 - Use distinct Log Streams for different environments
@@ -189,7 +189,7 @@ When managing Log Streams, follow these best practices:
 - Document the purpose and ownership of each Log Stream
 - Establish clear retention policies based on importance and compliance requirements
 
-### Isolating Workflows and Failure Modes
+### Isolating workflows and failure modes
 
 Log Streams can be used to isolate specific workflows or failure modes:
 
@@ -203,9 +203,9 @@ This isolation helps you:
 - Set up targeted alerts for critical components
 - Analyze patterns in specific workflows without noise from unrelated logs
 
-## Integration with the Galileo Ecosystem
+## Integration with the Galileo ecosystem
 
-### Interaction with Other Components
+### Interaction with other components
 
 Log Streams integrate with other Galileo components in several ways:
 
@@ -219,7 +219,7 @@ Log Streams integrate with other Galileo components in several ways:
 
 5. **Alerts**: Alerts can be configured to monitor specific Log Streams for anomalies or issues.
 
-### Supporting Workflows
+### Supporting workflows
 
 Log Streams support various workflows in Galileo:
 
@@ -228,7 +228,7 @@ Log Streams support various workflows in Galileo:
 - **Experimentation**: Use separate Log Streams for control and experimental groups
 - **Monitoring**: Set up dashboards and alerts for specific Log Streams
 
-### Dependencies and Connections
+### Dependencies and connections
 
 Log Streams have dependencies on several Galileo components:
 
@@ -237,9 +237,9 @@ Log Streams have dependencies on several Galileo components:
 - **SDK**: The Galileo SDK is used to interact with Log Streams
 - **Logs**: Log Streams contain and organize logs
 
-## Examples and Practical Applications
+## Examples and practical applications
 
-### Basic Log Stream Creation
+### Basic Log stream creation
 
 Here's a simple example of creating and using a Log Stream with the Galileo SDK:
 
@@ -249,11 +249,11 @@ import os
 from galileo import GalileoLogger
 from galileo.openai import openai
 
-# Initialize with a specific log stream
+# Initialize with a specific Log stream
 
 logger = GalileoLogger(project="my-project", log_stream="production-app")
 
-# Any logs created will go to the specified log stream
+# Any logs created will go to the specified Log stream
 
 client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 response = client.chat.completions.create(
@@ -269,7 +269,7 @@ import { wrapOpenAI } from "galileo/wrappers";
 
 const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
 
-// Use a specific log stream for this block of code
+// Use a specific Log stream for this block of code
 withGalileo({ project: "my-project", logStream: "production-app" }, async () => {
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
@@ -281,7 +281,7 @@ withGalileo({ project: "my-project", logStream: "production-app" }, async () => 
 
 </CodeGroup>
 
-### Multi-Environment Log Stream Management
+### Multi-Environment Log stream management
 
 Here's an example of managing logs across different environments:
 
@@ -293,7 +293,7 @@ from galileo.openai import openai
 # Determine environment from environment variable
 env = os.getenv("APP_ENVIRONMENT", "development")
 
-# Create a logger with an environment-specific log stream
+# Create a logger with an environment-specific Log stream
 logger = GalileoLogger(
     project="my-ai-app",
     log_stream=f"my-ai-app-{env}"
@@ -302,7 +302,7 @@ logger = GalileoLogger(
 # All logs will now go to the environment-specific stream
 ```
 
-### Custom Tagging for Log Streams
+### Custom tagging for Log streams
 
 You can use tags and metadata to further organize logs within a Log Stream:
 
@@ -316,7 +316,7 @@ logger = GalileoLogger(project="my-project", log_stream="production")
 
 # Use context to add tags for a specific feature
 
-with galileo_context(tags=["recommendation-engine", "v2.3"]): # All logs in this context will have the specified tags # making them easier to filter within the log stream
+with galileo_context(tags=["recommendation-engine", "v2.3"]): # All logs in this context will have the specified tags # making them easier to filter within the Log stream
 result = recommendation_engine.get_recommendations(user_id)
 
 ```
@@ -327,7 +327,7 @@ import { withGalileo } from "galileo";
 // Use context to add tags for a specific feature
 withGalileo({ project: "my-project", logStream: "production" }, async () => {
     // All logs in this context will have the specified tags
-    // making them easier to filter within the log stream
+    // making them easier to filter within the Log stream
     result = recommendation_engine.get_recommendations(user_id)
 });
 ```
@@ -338,21 +338,21 @@ withGalileo({ project: "my-project", logStream: "production" }, async () => {
 
 After understanding Log Streams, you can explore these related Galileo features:
 
-### Advanced Log Stream Usage
+### Advanced Log stream usage
 
 - **Metrics**: Set up metrics to measure key aspects of your AI application based on Log Stream data.
 - **Alerts**: Configure alerts to notify you of issues in specific Log Streams.
 - **Dashboards**: Create dashboards to visualize data from different Log Streams.
 - **Comparative Analysis**: Compare metrics across different Log Streams to identify trends or issues.
 
-## Related Galileo Workflows
+## Related Galileo workflows
 
 - **Project Management**: Learn how to organize Log Streams within projects.
 - **Access Control**: Configure who can access and modify different Log Streams.
 - **Retention Policies**: Set up policies for how long logs should be kept in different Log Streams.
 - **Log Analysis**: Use Galileo's analysis tools to derive insights from your Log Streams. */}
 
-## Further Resources
+## Further resources
 
 - [Projects](/concepts/projects) - Learn about the top-level organization of Galileo resources
 - [Traces](/concepts/logging/traces) - Learn more about how logs are organized into traces

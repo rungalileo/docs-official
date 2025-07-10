@@ -1,5 +1,5 @@
 ---
-title: "Logging using OpenTelemetry and OpenInference"
+title: Logging Using OpenTelemetry and OpenInference
 description: "This guide explains how to send OpenTelemetry (OTel) traces to Galileo using OpenInference. Configure the endpoint and headers to get started quickly."
 tag: Python
 ---
@@ -23,7 +23,7 @@ pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp open
 ## Authentication
 
 1. [Generate an API key](https://app.galileo.ai/settings/api-keys) from your Galileo account.
-2. Copy your **project name** and **log stream name** from the Galileo console.
+2. Copy your **project name** and **Log stream name** from the Galileo Console.
 
 Set the authentication headers in your environment:
 
@@ -33,7 +33,7 @@ import os
 headers = {
     "Galileo-API-Key": "<YOUR_API_KEY>",           # Replace with your actual API key
     "project": "<YOUR_PROJECT_NAME>",         # Replace with your project name
-    "logstream": "<YOUR_RUN_NAME>",          # Must match the log stream name in Galileo
+    "logstream": "<YOUR_RUN_NAME>",          # Must match the Log stream name in Galileo
 }
 
 # Format headers as a comma-separated key=value string
@@ -43,7 +43,7 @@ os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS'] = ",".join([f"{k}={v}" for k, v 
 
 ---
 
-## OpenTelemetry Setup
+## OpenTelemetry setup
 
 Place this setup at the top of your script, before initializing your LLM or pipeline framework:
 
@@ -77,7 +77,7 @@ LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
 
 ---
 
-## Full Working Example
+## Full working example
 
 Check out a complete working example on Colab:
 🔗 [OpenTelemetry + Galileo Integration Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_LangChain_Notebook.ipynb)
@@ -88,14 +88,14 @@ Check out a complete working example on Colab:
 
 To enable OTel logging with Galileo:
 
-1. Set the OTel headers using your API key, project name, and log stream name.
+1. Set the OTel headers using your API key, project name, and Log stream name.
 2. Set the exporter endpoint: `https://app.galileo.ai/api/galileo/otel/traces`
 3. Register your tracer provider and processors.
 4. Import and apply the OpenInference instrumentor(s) before initializing your application.
 
 ---
 
-## Supported Instrumentors
+## Supported instrumentors
 
 These can be used individually or in combination, depending on your framework:
 
@@ -120,7 +120,7 @@ These can be used individually or in combination, depending on your framework:
 
 ### How do I create a project?
 
-Log in to the Galileo console and create a new logging project. After creation, copy the **project name** and **log stream name** from the interface.
+Log in to the Galileo Console and create a new logging project. After creation, copy the **project name** and **Log stream name** from the interface.
 
 ---
 
@@ -173,7 +173,7 @@ from openinference.instrumentation.instructor import InstructorInstrumentor
 from openinference.instrumentation.anthropic import AnthropicInstrumentor
 ```
 
-#### Instructor Example with Client:
+#### Instructor example with client:
 
 ```python
 from openinference.instrumentation.instructor import InstructorInstrumentor
@@ -200,7 +200,7 @@ If your console URL is `https://console.your_cluster_url.com`, the endpoint beco
 
 ---
 
-### How do I verify it’s working?
+### How do I verify it's working?
 
 - Use `ConsoleSpanExporter` to see local trace output.
 - Check the Galileo dashboard for incoming traces.
@@ -218,7 +218,7 @@ with tracer.start_as_current_span("test-span"):
 
 ### Troubleshooting
 
-- ✅ Confirm your API key, project name, and log stream name are correct.
+- ✅ Confirm your API key, project name, and Log stream name are correct.
 - ✅ Make sure the environment variable is correctly formatted.
 - ✅ Ensure the endpoint is accessible from your environment.
 - ✅ Instrument your framework before using it.

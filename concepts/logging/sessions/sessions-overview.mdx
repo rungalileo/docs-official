@@ -13,33 +13,33 @@ A Session is **a collection of Traces, Events, and Spans emitted by your Applica
 
 ## Introduction
 
-Imagine you're building an LLM-powered customer service chat application. During development or in production, you will want to see how a multi-turn conversation flows from user prompt, to tool calling, to model response. **Sessions** solve this problem by bundling log stream traces into a cohesive unit, so you can observe and evaluate an entire agent interaction from start to finish.
+Imagine you're building an LLM-powered customer service chat application. During development or in production, you will want to see how a multi-turn conversation flows from user prompt, to tool calling, to model response. **Sessions** solve this problem by bundling Log stream traces into a cohesive unit, so you can observe and evaluate an entire agent interaction from start to finish.
 
-## Core Concepts
+## Core concepts
 
 Let's take a look at the building blocks of a session.
 
-### Span → Trace → Session
+### Span → trace → session
 
 - [**Span**](/concepts/logging/spans): The smallest logging unit the system, typically representing a single operation, function call, or request. Each user message, model API call, or model tool usage generates a *Span*.  
 - [**Trace**](/concepts/logging/traces): When multiple spans occur as part of a single logical operation (e.g. a request that triggers several downstream calls) they form a *Trace*. Traces allow you to see parent/child relationships among spans.  
 - **Session**: A collection of one or more traces that together represent an entire interaction, or multi-step evaluation. A Session bundles related traces so that you can analyze an entire workflow end to end, even if it spans multiple services, threads, or agents.
 
-## How do Sessions differ from Log Streams?
+## How do sessions differ from Log streams?
 
 A [**Log Stream**](/concepts/logging/logstreams) is a continuous sequence of log entries emitted over time. Log Streams simply capture everything in chronological order, and can contain a mix of spans, traces, and sessions. 
 
 On the other hand, a *Session* is a way to group Traces that are logically connected. And with Galileo, every Session is stored in a Log Stream that you can specify either explicitly or using environment variables.
 
-## How do Sessions differ from Workflows?
+## How do sessions differ from workflows?
 
 A **Workflow** is a defined sequence of steps or tasks. It may include branching logic, conditional steps, and dependencies.  
 
 A *Session* can contain one or more *Workflows* if they are part of the same overall evaluation.
 
-## Where can I find my sessions?
+## Where can i find my sessions?
 
-Sessions can be viewed in the [Galileo Console](/concepts/logging/sessions/using-sessions#view-your-session). When you create a session, you will usually select a Log Stream where they will be found. (If you don't specify one, Galileo will use your default log stream). 
+Sessions can be viewed in the [Galileo Console](/concepts/logging/sessions/using-sessions#view-your-session). When you create a session, you will usually select a Log Stream where they will be found. (If you don't specify one, Galileo will use your default Log stream). 
 
 <ViewSessionsInConsole />
 
@@ -53,7 +53,7 @@ A Session can collect multiple workflow runs and traces into one cohesive view. 
 1. Drill down into any step, inspecting the span for tokenization latency or the trace for scoring logic without losing context.  
 1. Compare multiple chat sessions to track performance improvements.  
 
-## Next Steps
+## Next steps
 
 Learn how to [create and use sessions](/concepts/logging/sessions/using-sessions) in Galileo. 
 

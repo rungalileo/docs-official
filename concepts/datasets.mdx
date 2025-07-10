@@ -15,13 +15,13 @@ import SnippetSdkPromptsTestDataTypeScript from "/snippets/code/typescript/sdk/e
 
 **Datasets** are a fundamental building block in Galileo's experimentation workflow. They provide a structured way to **organize, version, and manage** your test cases. Whether you're evaluating prompts, testing application functionality, or analyzing model behavior, having well-organized datasets is crucial for systematic testing and continuous improvement.
 
-## Work with Datasets
+## Work with datasets
 
 Datasets can be used in two ways:
 
 1. **Using the Galileo Console**
 
-   - Create and manage datasets directly through the Galileo console
+   - Create and manage datasets directly through the Galileo Console
    - Visually organize and track test cases
    - No coding required
 
@@ -38,9 +38,9 @@ Each record in a Galileo dataset can have three top-level fields:
 2. **Output** - Reference outputs to evaluate your application. These can be the ground truth for [BLEU, ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge), and [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence) metrics, or reference outputs for manual reference.
 3. **Metadata** - Additional data you can use to filter or group your dataset.
 
-## Create and Manage Datasets via the console
+## Create and manage datasets via the console
 
-### Create a New Dataset
+### Create a new dataset
 
 The dataset creation button, is your starting point for organizing test cases in Galileo's interface. Select the **Add Dataset** button, then select **+ Create new dataset** to create a new dataset.
 
@@ -54,7 +54,7 @@ Once you have uploaded the file, you can name the dataset, and map the columns i
 
 ![Mapping a column called input to the input column](/images/dataset-match-columns.png)
 
-### Add Rows to Your Dataset
+### Add rows to your dataset
 
 You can manually add new rows to your dataset through the console, allowing you to capture problematic inputs or edge cases as you discover them.
 
@@ -62,7 +62,7 @@ You can manually add new rows to your dataset through the console, allowing you 
 
 After making changes to your dataset, select the **Save changes** button to create a new version that preserves your modifications while maintaining the history of previous versions.
 
-### View Version History
+### View version history
 
 The version history view allows you to track changes to your dataset over time, see when modifications were made, and access previous versions for comparison or regression testing.
 
@@ -72,9 +72,9 @@ After we add a new row to the dataset, we can see the version history by clickin
 
 ![Creating a new version of your dataset](/images/dataset-versions-new-version.png)
 
-## Create and Manage Datasets via Code
+## Create and manage datasets via code
 
-### Create and Grow Your Dataset
+### Create and grow your dataset
 
 When building your test suite programmatically, you can create datasets using the Galileo SDK.
 
@@ -90,7 +90,7 @@ As you discover new test cases, you can add them to your dataset by running the 
   <SnippetTSAddToDataset />
 </CodeGroup>
 
-### Version Management and History
+### Version management and history
 
 One of the benefits of Galileo's dataset management is automatic versioning. Automatic versioning allows you to track how your test suite evolves over time as well as ensures reproducibility of your experiments. You can always reference specific versions of a dataset or work with the latest version:
 
@@ -99,11 +99,11 @@ One of the benefits of Galileo's dataset management is automatic versioning. Aut
   <SnippetTSGetDataset />
 </CodeGroup>
 
-## Access Dataset Variables in Prompts
+## Access dataset variables in prompts
 
 When you use datasets in Galileo, the attributes stored in the input in your dataset are made available to your prompts using mustache templating.  This allows you to create dynamic prompts that adapt to the data in each row.
 
-### Example Dataset
+### Example dataset
 
 Suppose you have the following dataset: 
 
@@ -112,7 +112,7 @@ Suppose you have the following dataset:
   <SnippetSdkPromptsTestDataTypeScript />
 </CodeGroup>
 
-### Example Prompt Template
+### Example prompt template
 
 To reference fields from your dataset in your prompt, use double curly braces:
 
@@ -124,13 +124,13 @@ Include daily sightseeing activities, dining suggestions, and local experiences.
 - `{{ city }}` will be replaced with the value of the `city` field inside the `input` dictionary. 
 - `{{ days }}` will be replaced with the value of the `days` field inside the `input` dictionary. 
 
-### How It works 
+### How it works
 
 For each row in your dataset, Galileo will render the prompt template, replacing the variables with the corresponding values from the row. 
 
 If a field is missing in a row, the variable will be empty, so ensure your dataset is consistent. 
 
-## Create Focus Sets
+## Create focus sets
 
 When you find problems, you can create focused subsets of data:
 
@@ -141,7 +141,7 @@ When you find problems, you can create focused subsets of data:
 
 This can be done either through the console or programmatically, depending on your workflow.
 
-## Best Practices for Dataset Management
+## Best practices for dataset management
 
 When working with datasets consider these tips:
 
@@ -155,7 +155,7 @@ When working with datasets consider these tips:
   - **Why**: Versioning lets you track major changes, reproduce past experiments, and understand how your test suite evolves.
   - **How**: Create a new version when you make significant changes, and use version history to compare results over time.
 4. **Document Changes**
-  - **Why**: Keeping a record of why you added certain test cases or created new versions helps future you (and your teammates) understand the reasoning behind your dataset’s evolution.
+  - **Why**: Keeping a record of why you added certain test cases or created new versions helps future you (and your teammates) understand the reasoning behind your dataset's evolution.
   - **How**: Use comments, changelogs, or dataset descriptions to note the purpose of additions or modifications.
 5. **Organize by Purpose**
   - **Why**: Separate datasets for different types of tests (e.g., basic functionality, edge cases, regression tests) make it easier to target specific goals and analyze results.

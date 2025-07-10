@@ -8,11 +8,11 @@ Custom metrics allow you to define specific evaluation criteria for your LLM app
 - **Registered custom metrics**: Server-side metrics that can be shared across your organization
 - **Local metrics**: Local metrics that run in your notebook environment
 
-## Registered Custom Metrics
+## Registered custom metrics
 
 Registered custom metrics run in Galileo's backend environment and can be used across your organization.
 
-### Creating a Registered Custom Metric
+### Creating a registered custom metric
 
 You can create a registered custom metric either through the Python SDK or directly in the Galileo UI. Let's walk through the UI approach:
 
@@ -48,7 +48,7 @@ You can create a registered custom metric either through the Python SDK or direc
 </Step>
 </Steps>
 
-#### 1. The Scorer Function (`scorer_fn`)
+#### 1. the scorer function (`scorer_fn`)
 
 This function evaluates individual responses and returns a score:
 
@@ -88,7 +88,7 @@ def scorer_fn(*,
 - `node_name`, `node_type`, `node_id`, `tools`: Workflow/chain-specific parameters
 - `dataset_variables`: Key-value pairs from the dataset (includes ground truth)
 
-#### 2. The Aggregator Function (`aggregator_fn`)
+#### 2. the aggregator function (`aggregator_fn`)
 
 This function aggregates individual scores into summary metrics:
 
@@ -103,9 +103,9 @@ def aggregator_fn(*,
     }
 ```
 
-#### Optional Functions
+#### Optional functions
 
-##### **Score Type Function**
+##### **Score type function**
 
 ```python
 def score_type() -> Type[float] | Type[int] | Type[str] | Type[bool]:
@@ -114,7 +114,7 @@ def score_type() -> Type[float] | Type[int] | Type[str] | Type[bool]:
 
 This function defines the return type of your scorer (default is `float`).
 
-##### **Node Type Restriction**
+##### **Node type restriction**
 
 ```python
 def scoreable_node_types_fn() -> List[str]:
@@ -128,7 +128,7 @@ def scoreable_node_types_fn() -> List[str]:
     return ["retriever"]
 ```
 
-##### **LLM Credentials Access**
+##### **LLM credentials access**
 
 To access LLM credentials during scorer execution:
 
@@ -147,7 +147,7 @@ When enabled, credentials are passed to `scorer_fn` as a dictionary:
 }
 ```
 
-### Complete Example: Response Length Scorer
+### Complete example: response length scorer
 
 Let's create a custom metric that measures response length:
 
@@ -171,7 +171,7 @@ def scoreable_node_types_fn() -> List[str]:
     return ["llm", "chat"]
 ```
 
-### Execution Environment
+### Execution environment
 
 Registered custom metrics run in a Python 3.10 environment with these libraries:
 
@@ -187,7 +187,7 @@ openai
 
 We provide advance notice before major version updates to these libraries.
 
-## Local Metrics
+## Local metrics
 
 A **Local Metric** (or *Local scorer*) is a custom metric that you can attach to an experiment — just like a Galileo preset metric. The key difference is that a Local Metric lives in code on your machine, so you share it by sharing your code. Local Metrics are ideal for running isolated tests and refining outcomes when you need more control than built-in metrics offer.
 
@@ -195,7 +195,7 @@ You can also use any library or custom Python code with your local metrics, incl
 
 <Note>Galileo currently only supports Local scorers in Python</Note>
 
-## Local Scorer Components
+## Local scorer components
 
 A Local scorer consists of three main parts:
 
@@ -224,7 +224,7 @@ With Local Metrics, you have full control over how you measure LLM behavior—un
 
 </Card>
 
-## Comparison: Registered Custom Metrics vs. Local Metrics
+## Comparison: registered custom metrics vs. local metrics
 
 | Feature         | Registered Custom Metrics         | Local Metrics            |
 | :-------------- | :-------------------------------- | :----------------------- |
@@ -234,7 +234,7 @@ With Local Metrics, you have full control over how you measure LLM behavior—un
 | **Libraries**   | Limited to Galileo environment    | Any available library    |
 | **Resources**   | Restricted by Galileo             | Local resources          |
 
-## Common Use Cases
+## Common use cases
 
 Custom metrics are ideal for:
 
@@ -243,7 +243,7 @@ Custom metrics are ideal for:
 - **Business-specific metrics**: Measuring domain-specific quality indicators
 - **Comparative analysis**: Comparing outputs against ground truth or reference data
 
-## Simple Example: Sentiment Scorer
+## Simple example: sentiment scorer
 
 Here's a simple custom metric that evaluates the sentiment of responses:
 
@@ -306,7 +306,7 @@ This simple sentiment scorer:
 
 You can easily extend this with more sophisticated sentiment analysis techniques or domain-specific terminology.
 
-## Next Steps
+## Next steps
 
 <Card title="Create a local metric" icon="code" href="/how-to-guides/metrics/create-local-metric/create-local-metric" horizontal>
   Learn how to create a local metric in Python to use in your experiments

@@ -24,30 +24,30 @@ import SnippetSdkLoggingFlushLoggerTypeScript from "/snippets/code/typescript/sd
 
 The Galileo Context Manager provides a convenient way to control the logging behavior of your application. It allows you to:
 
-1. Set the project and log stream for all logs
+1. Set the project and Log stream for all logs
 1. Get the current logger
 1. Flush traces
 
 In Python, you can also:
 
-1. Set the project and log stream for a particular scope
+1. Set the project and Log stream for a particular scope
 1. Manage sessions
 1. Get the current span and trace
 
 In the Python SDK, this is available through the [`galileo_context` object](/sdk-api/python/reference/decorator), in TypeScript this is available as a set of distinct [top-level functions](/sdk-api/typescript/reference/README/functions/).
 
-## Set the Project and Log Stream
+## Set the project and Log stream
 
-By default, Galileo uses the `GALILEO_PROJECT` and `GALILEO_LOG_STREAM` environment variables to determine which project and log stream to log to. You can override this by initializing the Galileo context with a project and log stream name.
+By default, Galileo uses the `GALILEO_PROJECT` and `GALILEO_LOG_STREAM` environment variables to determine which project and Log stream to log to. You can override this by initializing the Galileo context with a project and Log stream name.
 
 <CodeGroup>
   <SnippetSdkLoggingContextInitPython />
   <SnippetSdkLoggingContextInitTypeScript />
 </CodeGroup>
 
-### Set the Project and Log Stream for a Single Scope in Python
+### Set the project and Log stream for a single scope in Python
 
-You can set the project and log stream for a scope using the Python [`galileo_context`](/sdk-api/python/reference/decorator), object in a with statement. Every log inside this block, including nested calls, will use the specified project and log stream.
+You can set the project and Log stream for a scope using the Python [`galileo_context`](/sdk-api/python/reference/decorator), object in a with statement. Every log inside this block, including nested calls, will use the specified project and Log stream.
 
 <CodeGroup>
   <SnippetSdkLoggingContextSimpleWithPython />
@@ -65,15 +65,15 @@ Third-party integrations like the OpenAI wrapper also support this.
   <SnippetSdkLoggingContextSimpleWithOpenAIPython />
 </CodeGroup>
 
-### Nesting Scopes
+### Nesting scopes
 
-You can nest `galileo_context` calls to temporarily override the project or log stream:
+You can nest `galileo_context` calls to temporarily override the project or Log stream:
 
 <CodeGroup>
   <SnippetSdkLoggingNestingScopesPython />
 </CodeGroup>
 
-## Get the Current Logger
+## Get the current logger
 
 The Galileo context management keeps track of loggers. You can get the current logger, which will create a new one if there isn't an existing logger.
 
@@ -104,13 +104,13 @@ This approach is particularly useful for long-running applications where you nee
 When using a Python Notebook (such as Jupyter, Google Colab, etc.), you should use the `galileo_context` and make sure to call `galileo_context.flush()` at the end of your notebook.
 </Note>
 
-## Manage Sessions in Python
+## Manage sessions in Python
 
 With the Python SDK, you can manage [sessions](/concepts/logging/sessions/sessions-overview) from the context level in addition to the logger level. All the session management functions are applied to the current logger if called from the context. If you want to apply these to a specific logger instance, call the same methods directly on that logger instance.
 
 In the TypeScript SDK, these functions are only available on a [GalileoLogger instance](/sdk-api/logging/galileo-logger#manage-sessions).
 
-### Create a New Session
+### Create a new session
 
 To create a new session, use the [`start_session`](/sdk-api/python/reference/decorator#start-session) function.
 
@@ -126,7 +126,7 @@ You can also provide an external ID to link a session in Galileo to an external 
   <SnippetSdkLoggingContextNewSessionExternalIdPython />
 </CodeGroup>
 
-### Continue an Existing Session
+### Continue an existing session
 
 If you want to add a trace to an existing session, you can use the `set_session` function, passing the session ID. This is useful if you want to persist a session, for example saving a chatbot conversation with a user mid-conversation, then resuming the next time a user connects.
 
@@ -140,7 +140,7 @@ You can also continue a conversation using an external ID using the `start_sessi
   <SnippetSdkLoggingContextContinueSessionExternalIdPython />
 </CodeGroup>
 
-### End a Session
+### End a session
 
 To stop logging to a session, you can clear the current session.
 
@@ -148,7 +148,7 @@ To stop logging to a session, you can clear the current session.
   <SnippetSdkLoggingContextClearSessionPython />
 </CodeGroup>
 
-## Next Steps
+## Next steps
 
 ### Basic logging components
 

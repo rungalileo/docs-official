@@ -1,4 +1,4 @@
-# Welcome to the Galileo docs contributing guide
+# Welcome to the Galileo Docs Contributing Guide
 
 Thank you for wanting to contribute to the Galileo documentation!
 
@@ -30,7 +30,8 @@ When you raise a pull request, there is a template to fill in. Add the following
 - Add a description of the change, including what was changed and why.
 - Add a link to the relevant ticket.
 
-  - For Galileo employees, add a link to the Shortcut ticked in the form `[SC-xxx]()`, where the test is `SC-` followed by the ticket number, linking to the ticket. For example, `[SC-27352](https://app.shortcut.com/galileo/story/27352)`. This is the correct format for Shortcut to pick up and attach the PR to the ticket
+  - For Galileo employees, add a link to the Shortcut ticked in the form `[SC-xxx]()`, where the test is `SC-` followed by the ticket number, linking to the ticket. For example, `[SC-27352](https://app.shortcut.com/galileo/story/27352)`. This is the correct format for Shortcut to pick up and attach the PR to the ticket.
+    **Only use this format for the actual ticket that will be closed by this PR, as there is automation set up to close tickets on PRs being merged**. If you need to refer to another ticket, or this is only part of the fix for a ticket, just add the raw link.
   - For everyone else, add a link to the issue number using `#number`, and GitHub will create the link
   - If this is a small change such as a spelling mistake without a ticket, add a note about this, such as "Minor spelling fix, no ticket"
 
@@ -49,7 +50,7 @@ When you raise a pull request, there is a template to fill in. Add the following
   - **I have reviewed my changes**
 
     Please review all your changes thoroughly, and check this when you are happy with them.
-    
+
     For cookbooks or how-to guides, make sure you have followed the guide thoroughly and accurately in a clean environment, only following the steps in the guide and nothing else. This ensures users will be able to be successful in following your steps.
 
   - **I have reviewed the deployed version of my changes**
@@ -109,17 +110,17 @@ This section covers some best practices for authoring docs that we follow.
 
 These best practices are a recent addition, and our existing documentation may not completely align with them. If you are editing an existing doc that doesn't follow these best practices, use the following framework to decide a course of action:
 
-1. Can the document be aligned with relatively minor changes, such as adding or changing section titles, or re-wording paragraphs to focus their intent on (Tutorials/How-To/Reference/Explanation)? 
+1. Can the document be aligned with relatively minor changes, such as adding or changing section titles, or re-wording paragraphs to focus their intent on (Tutorials/How-To/Reference/Explanation)?
 
     - If YES, make the changes and note them in your PR
 
 1. Does alignment require more work, like shifting some content into a separate page?
 
-    - If YES, create a ( Shortcut Task or GitHub Issue, as required ) and notify the Galileo team of the need
+    - If YES, create a Shortcut Task or GitHub Issue, as required, and notify the Galileo team of the need
 
-1. Does the lack of alignment _block_ your ability to edit or link to [ an unaligned document ]? 
+1. Does the lack of alignment _block_ your ability to edit or link to [ an unaligned document ]?
 
-    - if YES, create a ( Shortcut Task or GitHub Issue ), _**note that it is a blocker**_, and notify the Galileo Team.
+    - if YES, create a Shortcut Task or GitHub Issue, _**note that it is a blocker**_, and notify the Galileo Team.
 
 ### The Diátaxis framework
 
@@ -153,6 +154,8 @@ tag: "Python"
 
 When creating a cookbook, all associated code resources will live in the [SDK Examples repo](https://github.com/rungalileo/sdk-examples). When raising a cookbook PR, add a link to the relevant PR in that repo so they can both be reviewed and merged together.
 
+These SDK examples need to be as clear and concise as possible, with just the code needed to illustrate the concepts explained in the cookbook to avoid confusing the reader. This code needs to be well commented, using sensible naming conventions, and comes with a README that not only explains how to configure and run the code, but also links back to the docs.
+
 #### How-to guides
 
 How-to guides are instructional guides focused on solving a specific problem or performing a specific task. These are grouped by action, rather than product area, to make it easier for users to find the guide they need based on the action they are trying to take.
@@ -171,9 +174,9 @@ How-to guides are in multiple areas where relevant:
 
 Unless a how-to guide is specific to a single programming language, it should include all supported programming languages.
 
-#### Explanations
+#### Concepts/Explanations
 
-Explanations provide context and background information. These explain the why of the product. These are grouped by product area. These can include concept guides, and overviews of Galileo.
+Explanations (referred to as **concepts** in our docs) provide context and background information. These explain the why of the product. These are grouped by product area. These can include concept guides, and overviews of Galileo.
 
 **Audience** - someone who wants a better understanding of the product, such as use cases, or the reasoning behind features.
 
@@ -201,37 +204,54 @@ Reference documentation is in 2 parts of our documentation:
 
 ### Templates
 
-To make it easier to create consistent documentation, we use templates from [The Good Docs Project](https://www.thegooddocsproject.dev).
+To make it easier to create consistent documentation, we use templates from [The Good Docs Project](https://www.thegooddocsproject.dev). These templates have been copied to this repo and adjusted for our standards and documentation platform (for example using the Mintlify Steps component).
 
 #### Tutorial template
 
-When creating a cookbook, follow [this guide](https://www.thegooddocsproject.dev/template/tutorial). This gives details on best practices for creating a tutorial. The actual template is available in [the templates repo](https://gitlab.com/tgdp/templates/-/tree/main/tutorial).
+When creating a cookbook, follow [this guide](https://www.thegooddocsproject.dev/template/tutorial). This gives details on best practices for creating a tutorial. The actual template adjusted for the Galileo standards is available in [this repo](./templates/template-cookbook.md).
 
 Tutorials should also include a video walkthrough, for those who prefer videos to learn.
 
-The only change to the default tutorial template is to use the Mintlify [Steps component](https://mintlify.com/docs/components/steps) instead of numbered lists for steps to follow.
-
 #### How-to guide template
 
-There are two types of how-to guides we have - quickstarts, and specific how-to guides. How-to guides should also include a short video, for those who prefer videos to learn.
+There are two types of how-to guides we have - quickstarts, and specific how-to guides. How-to guides should also ideally include a short video, for those who prefer videos to learn.
 
-The only change to the default how-to templates is to use the Mintlify [Steps component](https://mintlify.com/docs/components/steps) instead of numbered lists for steps to follow.
+How-to guides should also ideally include a video walkthrough, for those who prefer videos to learn.
 
 ##### Quickstarts
 
 Quickstarts are designed to get a user quickly started with Galileo, and focus on on-boarding for a new user, getting them to a successful onboarding as fast as possible with little additional information.
 
-When creating a quickstart, follow [this guide](https://www.thegooddocsproject.dev/template/quickstart). This gives details on best practices for creating a quickstart. The actual template is available in [the templates repo](https://gitlab.com/tgdp/templates/-/tree/main/quickstart).
+When creating a quickstart, follow [this guide](https://www.thegooddocsproject.dev/template/quickstart). This gives details on best practices for creating a quickstart. The actual template adjusted for the Galileo standards is available in [this repo](./templates/template-quickstart.md).
 
 ##### How-tos
 
 How-to guides are task oriented, and show a user how to solve a particular problem, or do a specific task.
 
-When creating a how-to guide, follow [this guide](https://www.thegooddocsproject.dev/template/how-to). This gives details on best practices for creating a how-to guide. The actual template is available in [the templates repo](https://gitlab.com/tgdp/templates/-/tree/main/how-to).
+When creating a how-to guide, follow [this guide](https://www.thegooddocsproject.dev/template/how-to). This gives details on best practices for creating a how-to guide. The actual template adjusted for the Galileo standards is available in [this repo](./templates/template-how-to.md).
 
-### Structure of our docs
+## Documenting integrations
 
-#### Structure of the public facing docs pages
+When working on documenting integrations between Galileo and other platforms, follow this standard:
+
+- If there are any product changes, such as a new third-party SDK integration in the Galileo SDKs, then make sure this is documented in the [SDK/API third-party integrations](../sdk-api/third-party-integrations/) folder.
+- Create a sample project that shows how to integrate Galileo with the relevant platform, and add this to the [SDK Examples repo](https://github.com/rungalileo/sdk-examples) following the best practices defined in that repo and in the [Tutorials/Cookbooks](#tutorialscookbooks) section above. Make sure this sample is relevant to the audience and is easily reproducible. It needs to:
+  - have a README that defines how to configure and run it (for example what environment variables need to be set), with a link to a cookbook in the docs
+  - be written in a way that is relevant to the audience, for example not in a notebook if the core audience is an application developer
+  - contain the smallest possible amount of code that illustrates the integration so that the reader isn't struggling to find relevant details
+  - be very well commented, with descriptive naming
+  - be well tested on a clean platform so that a new user can run this with minimal setup by following the steps in the README and cookbook
+- Create a cookbook following the instructions in the [Tutorials/Cookbooks](#tutorialscookbooks) section above. This needs to link to the sample project in the [SDK Examples repo](https://github.com/rungalileo/sdk-examples) repo. Ensure this cookbook defines all the steps a user needs to follow and is very well tested on a clean setup. For example, don't just test it in a Google Colab, then copy the code into an `app.py` file and expect it to work.
+- Create a video walkthrough of the cookbook. Add a link to the raw file in the PR so we can upload it to the Galileo YouTube and provide a link to be embedded in the cookbook.
+- Check the existing documentation for any gaps that are relevant to this cookbook. If you find any, raise a Shortcut ticket (internal Galileo) with the **team** set to `devrel`, **workflow** set to `engineering`, and **area** set to `docs`, or an issue in this repo. Feel free to also fill those gaps in the same PR for the cookbook.
+
+If this integration is supported in multiple programming languages, then make sure the documentation supports them all. See the [documenting code](#documenting-code) section below for more details.
+
+These steps do involve a certain amount of coordination between videos, and PRs in 2 repos. Reach out to the Galileo devrel team for help if needed.
+
+## Structure of our docs
+
+### Structure of the public facing docs pages
 
 Our docs are structured in the following way:
 
@@ -272,13 +292,37 @@ The cookbooks and how-to sections have overview pages. If you add a new item to 
 
 This reduces SEO issues with broken links, or problems with eternal links such as shared on social media, in presentations etc.
 
-#### Structure of this repo
+### Structure of this repo
 
 The `docs.json` file maps the files in this repo to the navigational structure of our documentation site. In addition to the raw markdown pages, this repo also contains code snippets, images, and framework items, such as the `docs.json` file, or icons.
 
+## Documenting code
+
 Any code samples included in documentation should exist as snippets in the [`snippets`](/snippets/) folder (with the exception of small blocks of code, such as inline code, or one or two liners where a whole file is not appropriate). These are grouped by programming language and the docs area they are used from.
 
-### Creating new pages
+Each code snippet should be code in markdown, with the language defined by the code block. Each code block should also name the code, ideally with the programming language so that it can be used in a code block:
+
+```markdown
+```python Python
+```
+
+You can then import these into your docs:
+
+```javascript
+import SnippetInstallPython from "/snippets/code/python/how-to-guides/basics/basic-example/install-packages.mdx";
+```
+
+To use these snippets, add the HTML for the component inside a `CodeGroup` component:
+
+```html
+<CodeGroup>
+  <SnippetInstallPython />
+</CodeGroup>
+```
+
+Inside the `CodeGroup` component, add snippets for all supported programming languages. The rendered documentation will contain tabs for each code block. As long as you use the correct and consistent naming convention for each code block, the groups will be in sync - when you change the tab in one code group, all the others will change to match.
+
+## Creating new pages
 
 When creating new pages, do the following:
 
@@ -288,7 +332,7 @@ When creating new pages, do the following:
 1. If your document uses images, instead of placing all images in an images folder where they can be hard to find, create a folder for your document and have the images stored in that folder.
 1. Check the [Mintlify documentation](https://mintlify.com/docs/) for guides on using components to structure your page.
 
-### Style and formatting best practices
+## Style and formatting best practices
 
 - Use the active, instructional voice (e.g. "Create a new page" instead of "Creating a new page", "Galileo stores traces" instead of "the traces are stored by Galileo")
 - Use gender neutral and inclusive terms
@@ -300,3 +344,6 @@ When creating new pages, do the following:
 - When creating code blocks, use the correct type (e.g. `python`, `typescript`, `bash`, `json`). If this is code or a terminal command, ensure that it can be copied and run, and contains no extra output or terminal indicators.
 - When using code blocks, Mintlify has space for about 85 columns before it scrolls. Keep lines below this to make all the text visible on screen without the reader having to continuously scroll.
 - Always use links to the root of the repo, never using the docs URL. Although relative links do work, the broken link detector will flag them.
+- Use title case for document titles in front matter, sentence case for all other headings.
+- For descriptions in the front matter, only end the description with a period if the description has multiple sentences, otherwise there is no need for a period.
+- Use correct naming and capitalization of proper names and product names. If you are unsure, check the product documentation. Examples are Luna-2 for the Galileo Luna model, not Luna or Luna 2, or OpenAI Agents SDK, not OpenAI agents SDK.

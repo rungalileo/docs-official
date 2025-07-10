@@ -6,11 +6,11 @@ This guide describes common errors and their solutions.
 
 ---
 
-## ↔️ Galileo API Errors
+## ↔️ Galileo API errors
 
 Find solutions to errors with the [Galileo API](/api-reference) below.
 
-### 400: Bad Request
+### 400: bad request
 
 - **Message**: `Missing required field: 'model_id'`
 - **Interpretation**: A required field in the request body is missing or malformed.
@@ -35,7 +35,7 @@ Find solutions to errors with the [Galileo API](/api-reference) below.
 }
 ```
 
-### 401: Unauthorized
+### 401: unauthorized
 
 - **Message**: `Authentication credentials were not provided.`
 - **Interpretation**: The request was made without a valid API key.
@@ -43,7 +43,7 @@ Find solutions to errors with the [Galileo API](/api-reference) below.
   - Ensure the `Authorization` header is set.
   - Visit your [Galileo account settings](https://app.galileo.ai/settings/api-keys) to confirm the API key is valid and not expired.
 
-### 403: Forbidden
+### 403: forbidden
 
 - **Message**: `You do not have permission to access this resource.`
 - **Interpretation**: The API key is valid, but access to the specified resource is denied.
@@ -51,7 +51,7 @@ Find solutions to errors with the [Galileo API](/api-reference) below.
   - Double-check your project, workspace, or dataset permissions.
   - Visit your [Galileo account settings](https://app.galileo.ai/settings/api-keys) to confirm your API key has the correct scope.
 
-### 404: Not Found
+### 404: not found
 
 - **Message**: `Project ID 'xyz' not found.`
 - **Interpretation**: The specified resource doesn't exist.
@@ -59,7 +59,7 @@ Find solutions to errors with the [Galileo API](/api-reference) below.
   - Verify the resource ID exists in your [Galileo Console](https://app.galileo.ai).
   - Double-check for typos in the endpoint or parameter.
 
-### 405: Method Not Allowed
+### 405: method not allowed
 
 - **Message**: `POST method not supported for this endpoint.`
 - **Interpretation**: The wrong HTTP method was used.
@@ -67,7 +67,7 @@ Find solutions to errors with the [Galileo API](/api-reference) below.
   {/* Use a full href as the broken link checker can't cope with links to generated API docs */}
   - Consult the [API documentation](/api-reference) to confirm the correct method (`GET`, `POST`, `PUT`, `DELETE`).
 
-### 422: Unprocessable Entity
+### 422: unprocessable entity
 
 - **Message**: `Field 'logits' must be an array of floats matching number of classes.`
 - **Interpretation**: The data format is incorrect even though the syntax is valid.
@@ -99,7 +99,7 @@ Find solutions to errors with the [Galileo API](/api-reference) below.
 }
 ```
 
-### 501: Not Implemented
+### 501: not implemented
 
 - **Message**: `This endpoint is not available.`
 - **Interpretation**: The endpoint exists but is not supported or publicly accessible.
@@ -109,9 +109,9 @@ Find solutions to errors with the [Galileo API](/api-reference) below.
 
 ---
 
-## 📁 Galileo SDK Errors
+## 📁 Galileo SDK errors
 
-### Missing or Invalid API Key
+### Missing or invalid API key
 
 - **Error Message**: `ValueError: No API key found. Please set your GALILEO_API_KEY.`
 - **Interpretation**: The SDK cannot authenticate with the Galileo API.
@@ -126,7 +126,7 @@ Find solutions to errors with the [Galileo API](/api-reference) below.
     galileo.set_api_key("your-api-key")
     ```
 
-### Invalid Input Shape
+### Invalid input shape
 
 - **Error Message**: `ValueError: Inputs and logits must have the same batch size.`
 - **Interpretation**: The arrays passed to `log_model_outputs()` are mismatched.
@@ -148,7 +148,7 @@ galileo.log_model_outputs(inputs=inputs, logits=logits, labels=labels)
 logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
 ```
 
-### Unsupported Model Type
+### Unsupported model type
 
 - **Error Message**: `UnsupportedModelTypeError: Model type 'regression' is not supported.`
 - **Interpretation**: The SDK currently supports a limited set of model types.
@@ -156,7 +156,7 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
   - Use supported types like `classification`, `token_classification`, or `text_generation`.
   - Review [Galileo model compatibility](/references/faqs/faqs#q%3A-which-llm-providers%2C-models%2C-and-frameworks-does-galileo-support-out-of-the-box%3F).
 
-### Token Mismatch Error
+### Token mismatch error
 
 - **Error Message**: `ValueError: Token offsets do not match number of tokens.`
 - **Interpretation**: The offsets passed during token classification are misaligned.
@@ -164,7 +164,7 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
   - Validate token offset array lengths match token arrays.
   - Use the Galileo Tokenizer helpers when possible.
 
-### Dataset Not Found
+### Dataset not found
 
 - **Error Message**: `DatasetNotFoundError: Dataset 'reviews_v2' not found.`
 - **Interpretation**: The specified dataset was not found in the project or workspace.
@@ -172,7 +172,7 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
   - Confirm dataset name and project association in the [Galileo Console](https://app.galileo.ai).
   - Run `galileo.get_datasets()` to verify available datasets.
 
-### Experiment Creation Failed
+### Experiment creation failed
 
 - **Error Message**: `ExperimentError: Cannot create experiment. Missing metadata.`
 - **Interpretation**: Required metadata fields were not logged before calling `create_experiment()`.
@@ -180,7 +180,7 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
   - Ensure you've logged inputs, outputs, and model predictions.
   - Call `log_model_outputs()` before `create_experiment()`.
 
-### Network or Timeout Issues
+### Network or timeout issues
 
 - **Error Message**: `requests.exceptions.ConnectionError`
 - **Interpretation**: SDK could not connect to the Galileo API.
@@ -191,9 +191,9 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
 
 ---
 
-## 🖥️ Galileo Console Errors
+## 🖥️ Galileo Console errors
 
-### Access Denied
+### Access denied
 
 - **Error Message**: `You do not have permission to view this project.`
 - **Interpretation**: Your account lacks access to a resource within a workspace or project.
@@ -201,7 +201,7 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
   - Ask your admin to verify your permissions.
   - Ensure you're logged into the correct workspace.
 
-### Project Not Found
+### Project not found
 
 - **Error Message**: `Project does not exist or has been deleted.`
 - **Interpretation**: The requested project ID or slug is invalid.
@@ -209,7 +209,7 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
   - Refresh the Console and check your project list.
   - Ask a teammate to verify the project is still active.
 
-### Dataset Load Failed
+### Dataset load failed
 
 - **Error Message**: `Failed to load dataset. Please try again.`
 - **Interpretation**: The dataset may not have been logged properly, or it failed to sync.
@@ -218,7 +218,7 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
   - Try refreshing the browser or logging out and back in.
   - If persistent, check SDK logs for any upload errors.
 
-### Experiment Failed to Run
+### Experiment failed to run
 
 - **Error Message**: `Unable to create experiment. Check that all required data is available.`
 - **Interpretation**: The backend did not receive sufficient input data.
@@ -227,7 +227,7 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
   - Confirm the correct dataset is selected.
   - Re-run `log_model_outputs()` before retrying in the Console.
 
-### Visualization Error
+### Visualization error
 
 - **Error Message**: `Visualization failed to render.`
 - **Interpretation**: The plot component encountered unexpected data or rendering issues.
@@ -236,7 +236,7 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
   - If you uploaded custom metadata, ensure it follows the schema.
   - Try a different browser or clear cache.
 
-### File Upload Failed
+### File upload failed
 
 - **Error Message**: `File type not supported.` or `Upload failed. Please retry.`
 - **Interpretation**: Invalid file type or temporary server-side issue.
@@ -245,7 +245,7 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
   - Rename the file and try again.
   - If issue persists, contact support.
 
-### Export Unavailable
+### Export unavailable
 
 - **Error Message**: `Export failed. No records available for download.`
 - **Interpretation**: Attempting to export an empty or invalid dataset or experiment.
@@ -253,7 +253,7 @@ logits = [[0.1, 0.9], [0.8, 0.2]]  # Now matches batch size
   - Ensure filters are not excluding all records.
   - Re-run the experiment to regenerate results.
 
-### General Tips
+### General tips
 
 - Refresh the Console often when data changes.
 - Use the latest version of a modern browser (Chrome, Edge, Firefox).

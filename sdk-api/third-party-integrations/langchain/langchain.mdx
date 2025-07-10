@@ -28,7 +28,7 @@ The Galileo LangChain integration allows you to automatically log all LangChain 
 </Card>
 </CardGroup>
 
-## Basic Usage
+## Basic usage
 
 The integration is based on the `GalileoCallback` class, which implements LangChain's callback interface. To use it, create an instance of the callback and pass it to your LangChain components:
 
@@ -57,7 +57,7 @@ For each of these events, the callback logs relevant information to Galileo, suc
 
 The GalileoCallback automatically handles nested chains and agents, creating a hierarchical trace that reflects the structure of your LangChain application.
 
-### Python Asynchronous Callbacks
+### Python asynchronous callbacks
 
 In Python, there are separate callbacks for synchronous and asynchronous code. If you are using the asynchronous LangChain or LangGraph API, use the [`GalileoAsyncCallback` callback handler](/sdk-api/python/reference/handlers/langchain/async_handler).
 
@@ -65,7 +65,7 @@ In Python, there are separate callbacks for synchronous and asynchronous code. I
   <SnippetLangChainAsyncPython/>
 </CodeGroup>
 
-## Use a Custom Logger
+## Use a custom logger
 
 When initializing the `GalileoCallback`, you can optionally specify a Galileo logger instance, or control trace behavior:
 
@@ -76,7 +76,7 @@ When initializing the `GalileoCallback`, you can optionally specify a Galileo lo
 
 This is particularly useful if you want to call your LangChain code from inside a function [decorated with the `log` decorator](/sdk-api/logging/log-decorator/log-decorator), or from inside an [experiment](/concepts/experiments/running-experiments#using-langchain-or-langgraph-in-an-experiment).
 
-## Use with LangChain Chains
+## Use with LangChain chains
 
 You can also use the callback with LangChain chains. Make sure to pass the callback to both the LLM and the chain.
 
@@ -85,7 +85,7 @@ You can also use the callback with LangChain chains. Make sure to pass the callb
   <SnippetLangChainChainsTypeScript />
 </CodeGroup>
 
-## Add Metadata
+## Add metadata
 
 You can add custom metadata to your logs by including it in the `metadata` parameter of a LangChain runnable configuration when invoking a chain or LLM.
 
@@ -98,7 +98,7 @@ This metadata will be attached to the logs in Galileo, making it easier to filte
 
 ![A chain node in a trace with metadata attached](/sdk-api/third-party-integrations/langchain/metadata.webp)
 
-## Best Practices
+## Best practices
 
 1. **Pass callbacks consistently**: Make sure to pass the callback to all LangChain components (LLMs, chains, agents, etc.) to ensure complete logging.
 1. **Include meaningful metadata**: Add relevant metadata to your invocations to make it easier to filter and analyze your logs.
