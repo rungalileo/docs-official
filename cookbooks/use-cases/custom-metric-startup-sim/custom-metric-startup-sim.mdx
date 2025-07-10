@@ -116,118 +116,119 @@ In order to set up custom metrics, we'll need a Galileo project to log evaluatio
 
 <Steps>
 <Step title="Create a new project from the Galileo Console using the `New Project button`">
-
-If you haven’t already, create a free Galileo account on app.galileo.ai. When prompted, add an organization name.  To dive right into this tutorial, you can skip past the onboarding screen by clicking on the Galileo Logo in the upper left hand corner. 
+If you haven't already, create a free Galileo account on app.galileo.ai. When prompted, add an organization name.  To dive right into this tutorial, you can skip past the onboarding screen by clicking on the Galileo Logo in the upper left hand corner. 
 
 ![A red arrow pointing at the Galileo logo in the upper left hand corner of the screen](/cookbooks/use-cases/custom-metric-startup-sim/galileo-logo-project.webp)
 
 **NOTE:** you will not be able to come back to this screen again, however there are helpful instructions to getting started in the Galileo Docs.
 
-Create a new project by clicking on the ‘new project’ button on the upper right hand screen.   You will be prompted to add a project name, as well as a log stream name.
+Create a new project by clicking on the 'new project' button on the upper right hand screen.   You will be prompted to add a project name, as well as a log stream name.
+</Step>
 
 <Step title="Getting your Galileo API Keys">
-Once that is created.  Click on the profile icon in the upper right hand side of the page, navigate on the drop-down menu to API keys.  From the API Keys screen, select ‘Create New Key’.  Save the key within your environment file with the project name and log stream name you've created.
+Once that is created.  Click on the profile icon in the upper right hand side of the page, navigate on the drop-down menu to API keys.  From the API Keys screen, select 'Create New Key'.  Save the key within your environment file with the project name and log stream name you've created.
 
 ![A gif showing how to create your API keys within Galileo](/cookbooks/use-cases/custom-metric-startup-sim/create-api-keys.gif)
 
 Run your app again, and you'll now be able to see the logs appear within Galileo.  If you're looking to see how to instrument each individual log within this application — follow the [full tutorial on our blog](https://galileo.ai/blog/silly-startups-serious-signals-how-to-use-custom-metrics-to-measure-domain-specific-ai-success#why-custom-metrics-matter). 
-
+</Step>
 </Steps>
 
 ## Creating a custom LLM-as-a-Judge metric in Galileo
 <Steps>
 <Step title="Adding metrics to your log stream in Galileo">
-
 Navigate to your project home inside of Galileo. 
 
-Look for the name of your project, and open it up to the log stream you’ve got your traces in.
+Look for the name of your project, and open it up to the log stream you've got your traces in.
 
-Click on the “trace” view and see your most recent runs listed below, it should look something like below.
+Click on the "trace" view and see your most recent runs listed below, it should look something like below.
 
 ![A view of log streams within the Galileo Console](/cookbooks/use-cases/custom-metric-startup-sim/galileo-logo-project.webp)
 
 From this view, navigate to the upper right hand side of your screen and click on the `Configure Metrics` button.  A side panel should appear with a set of different metrics from you to choose from. 
 
 ![A gif showing where to see all metrics within Galileo](/cookbooks/use-cases/custom-metric-startup-sim/configure-metrics.gif)
+</Step>
 
 <Step title="Adding custom metrics">
-That’s where custom metrics come in.
+That's where custom metrics come in.
 
-Once in this panel, navigate to the “Create Metric” in the upper right hand corner of your screen, and select “LLM-as-a-Judge” Metric.
+Once in this panel, navigate to the "Create Metric" in the upper right hand corner of your screen, and select "LLM-as-a-Judge" Metric.
 
 ![A screenshot with a red arrow pointing to the Create Metric button in the upper right hand corner of the screen.](/cookbooks/use-cases/custom-metric-startup-sim/LLM-as-judge-Metric.webp)
+</Step>
 
 <Step title="Creating your own LLM-as-a-Judge prompt">
-
-A window will appear where you will be able to generate a metric prompt. A metric prompt is a prompt to prompt the creation of the final LLM as a judge prompt. This is to ensure you spend your time focused on what’s important (the success criteria) instead of worrying about the output format.
+A window will appear where you will be able to generate a metric prompt. A metric prompt is a prompt to prompt the creation of the final LLM as a judge prompt. This is to ensure you spend your time focused on what's important (the success criteria) instead of worrying about the output format.
 
 When writing a good prompt, remember that the goal is to transform **subjective evaluation criteria** into a consistent, repeatable process that a language model can assess.
 
 Use a specific, structured metric for best results.  For this example, I've provided a sample custom metric below. 
 
 ```markdown
-You are an expert humor judge specializing in startup culture satire and tech industry parody. Your role is to evaluate the humor and effectiveness of startup-related content generated by an AI system. 
+You are an expert humor judge specializing in startup culture satire and tech industry parody. Your role is to evaluate the humor and effectiveness of startup-related content generated by an AI system. 
 EVALUATION CRITERIA:
 For each criterion, answer TRUE if the content meets the standard, FALSE if it doesn't.
 1. SATIRE EFFECTIVENESS
-   - [ ] Content clearly parodies startup culture tropes
-   - [ ] Parody is recognizable to tech industry insiders
-   - [ ] Maintains balance between believable and absurd
-   - [ ] Successfully mocks common startup practices
+   - [ ] Content clearly parodies startup culture tropes
+   - [ ] Parody is recognizable to tech industry insiders
+   - [ ] Maintains balance between believable and absurd
+   - [ ] Successfully mocks common startup practices
 2. HUMOR CONSISTENCY
-   - [ ] Humor level remains consistent throughout
-   - [ ] No significant drops in comedic quality
-   - [ ] Tone remains appropriate for satire
-   - [ ] Jokes build upon each other effectively
+   - [ ] Humor level remains consistent throughout
+   - [ ] No significant drops in comedic quality
+   - [ ] Tone remains appropriate for satire
+   - [ ] Jokes build upon each other effectively
 3. CULTURAL RELEVANCE
-   - [ ] References are current and timely
-   - [ ] Captures current startup culture trends
-   - [ ] Buzzwords are accurately parodied
-   - [ ] Industry-specific knowledge is evident
+   - [ ] References are current and timely
+   - [ ] Captures current startup culture trends
+   - [ ] Buzzwords are accurately parodied
+   - [ ] Industry-specific knowledge is evident
 4. NARRATIVE COHERENCE
-   - [ ] Story follows internal logic
-   - [ ] Pivots make sense within context
-   - [ ] Character/voice remains consistent
-   - [ ] Plot points connect logically
+   - [ ] Story follows internal logic
+   - [ ] Pivots make sense within context
+   - [ ] Character/voice remains consistent
+   - [ ] Plot points connect logically
 5. ORIGINALITY
-   - [ ] Avoids overused startup jokes
-   - [ ] Contains unique elements
-   - [ ] Offers fresh perspective
-   - [ ] Surprises the audience
+   - [ ] Avoids overused startup jokes
+   - [ ] Contains unique elements
+   - [ ] Offers fresh perspective
+   - [ ] Surprises the audience
 6. TECHNICAL ACCURACY
-   - [ ] Startup concepts are correctly parodied
-   - [ ] Industry terminology is used appropriately
-   - [ ] Business concepts are accurately mocked
-   - [ ] Technical details are correctly referenced
- Answer TRUE only if ALL of the following conditions are met:
-   - [ ] At least 80% of all criteria are rated TRUE
-   - [ ] No critical criteria (Satire Effectiveness, Humor Consistency) are rated FALSE
-   - [ ] Content would be considered funny by the target audience
-   - [ ] Satire successfully achieves its intended purpose
-   - [ ] Content maintains appropriate tone throughout
+   - [ ] Startup concepts are correctly parodied
+   - [ ] Industry terminology is used appropriately
+   - [ ] Business concepts are accurately mocked
+   - [ ] Technical details are correctly referenced
+ Answer TRUE only if ALL of the following conditions are met:
+   - [ ] At least 80% of all criteria are rated TRUE
+   - [ ] No critical criteria (Satire Effectiveness, Humor Consistency) are rated FALSE
+   - [ ] Content would be considered funny by the target audience
+   - [ ] Satire successfully achieves its intended purpose
+   - [ ] Content maintains appropriate tone throughout
 ```
 
-When added, press ‘save’ then test your metric.  The evaluation prompt will then be generated for you to see within a preview window. 
+When added, press 'save' then test your metric.  The evaluation prompt will then be generated for you to see within a preview window. 
+</Step>
 
 <Step title="Testing your metric">
-
 From within the Custom Metric UI, select Test Metric. 
 
 ![A screenshot showing where to test the metric within the Custom Metric UI](/cookbooks/use-cases/custom-metric-startup-sim/test-custom-metric.webp)
 
-Take the output from an earlier run, and paste it in the output section of the ‘test metric’ page, and check the response.
+Take the output from an earlier run, and paste it in the output section of the 'test metric' page, and check the response.
 
 ![A screenshot showing where to test the metric within the Custom Metric UI](/cookbooks/use-cases/custom-metric-startup-sim/tested-metric.webp)
 
-Continue tweaking the prompt until you have a metric that you feel confident with — the goal isn’t to have a metric that is perfect 100% of the time, but helps you determine what “good” looks like.
+Continue tweaking the prompt until you have a metric that you feel confident with — the goal isn't to have a metric that is perfect 100% of the time, but helps you determine what "good" looks like.
 
-Have examples of what a subject matter expert would consider to be “good” and “bad” to test your metric for success.
+Have examples of what a subject matter expert would consider to be "good" and "bad" to test your metric for success.
+</Step>
 
 <Step title="Adding your Custom Metric">
-Once tested, your metric will appear in the list of available metrics.  Click on “Configure Metrics” and flip the toggle the metric you’ve created, on. From there, it can be used to assess future LLM outputs across runs and sessions—giving you visibility into quality over time.
+Once tested, your metric will appear in the list of available metrics.  Click on "Configure Metrics" and flip the toggle the metric you've created, on. From there, it can be used to assess future LLM outputs across runs and sessions—giving you visibility into quality over time.
 
 ![A gif showing where to add the custom metric to your application within the Custom Metric UI](/cookbooks/use-cases/custom-metric-startup-sim/adding-custom-metric.webp)
-
+</Step>
 </Steps>
 
 ### Summary
