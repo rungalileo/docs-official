@@ -20,7 +20,7 @@ By the end of this tutorial, you'll be able to:
 
 ## Background
 
-For the sake of jumping right into action — we’ll be starting from an [existing application](https://github.com/erinmikailstaples/startup-sim-3000) and demonstrating how to add custom metrics to an existing application. 
+For the sake of jumping right into action — we’ll be starting from an [existing application](https://github.com/rungalileo/sdk-examples) and demonstrating how to add custom metrics to an existing application. 
 
 The app we'll be building off of is the Startup Sim 3000, an LLM-based Python application that generates either serious or silly startup pitches using OpenAI and real-time data. The app includes two agent chains:
 
@@ -28,6 +28,30 @@ The app we'll be building off of is the Startup Sim 3000, an LLM-based Python ap
 - **Silly Mode**: Uses HackerNews headlines to inspire parody pitches of absurd tech startups
 
 We'll demonstrate how to observe the agent’s performance and evaluate humor or business quality with custom metrics, using Galileo for session tracking and LLM-as-a-Judge metrics.
+
+## Create a new Galileo project
+
+In order to set up custom metrics, we'll need a Galileo project to log evaluations to first. 
+
+<Steps>
+<Step title="Create a new project from the Galileo Console using the `New Project button`">
+If you haven't already, create a free Galileo account on [app.galileo.ai](https://app.galileo.ai). When prompted, add an organization name.  To dive right into this tutorial, you can skip past the onboarding screen by clicking on the Galileo Logo in the upper left hand corner. 
+
+![A red arrow pointing at the Galileo logo in the upper left hand corner of the screen](/cookbooks/use-cases/custom-metric-startup-sim/galileo-logo-project.webp)
+
+<Note> Note: You will not be able to come back to this screen again, however there are helpful instructions to getting started in the [Galileo Docs](/getting-started/quickstart). </Note>
+
+Create a new project by clicking on the **New Project** button on the upper right hand screen.   You will be prompted to add a project name, as well as a log stream name.
+</Step>
+
+<Step title="Get your Galileo API Keys">
+Once that is created.  Click on the profile icon in the upper right hand side of the page, navigate on the drop-down menu to API keys.  From the API Keys screen, select **Create New Key**.  Save the key within your environment file with the project name and log stream name you've created.
+
+![A gif showing how to create your API keys within Galileo](/cookbooks/use-cases/custom-metric-startup-sim/create-api-keys.gif)
+
+Run your app again, and you'll now be able to see the logs appear within Galileo. 
+</Step>
+</Steps>
 
 ## Set up the project
 
@@ -110,30 +134,6 @@ User Input → Flask Route → Agent Coordinator → Tool Chain → AI Model →
 </Step>
 </Steps>
 
-## Create a new Galileo project
-
-In order to set up custom metrics, we'll need a Galileo project to log evaluations to first. 
-
-<Steps>
-<Step title="Create a new project from the Galileo Console using the `New Project button`">
-If you haven't already, create a free Galileo account on [app.galileo.ai](https://app.galileo.ai). When prompted, add an organization name.  To dive right into this tutorial, you can skip past the onboarding screen by clicking on the Galileo Logo in the upper left hand corner. 
-
-![A red arrow pointing at the Galileo logo in the upper left hand corner of the screen](/cookbooks/use-cases/custom-metric-startup-sim/galileo-logo-project.webp)
-
-**NOTE:** you will not be able to come back to this screen again, however there are helpful instructions to getting started in the Galileo Docs.
-
-Create a new project by clicking on the **New Project** button on the upper right hand screen.   You will be prompted to add a project name, as well as a log stream name.
-</Step>
-
-<Step title="Get your Galileo API Keys">
-Once that is created.  Click on the profile icon in the upper right hand side of the page, navigate on the drop-down menu to API keys.  From the API Keys screen, select **Create New Key**.  Save the key within your environment file with the project name and log stream name you've created.
-
-![A gif showing how to create your API keys within Galileo](/cookbooks/use-cases/custom-metric-startup-sim/create-api-keys.gif)
-
-Run your app again, and you'll now be able to see the logs appear within Galileo.  If you're looking to see how to instrument each individual log within this application — follow the [full tutorial on our blog](https://galileo.ai/blog/silly-startups-serious-signals-how-to-use-custom-metrics-to-measure-domain-specific-ai-success#why-custom-metrics-matter). 
-</Step>
-</Steps>
-
 ## Creating a custom LLM-as-a-Judge metric in Galileo
 <Steps>
 <Step title="Add metrics to your log stream in Galileo">
@@ -141,24 +141,24 @@ Navigate to your project home inside of Galileo.
 
 Look for the name of your project, and open it up to the log stream you've got your traces in.
 
-Click on the "trace" view and see your most recent runs listed below, it should look something like below.
+Click on the **Trace** view and see your most recent runs listed below, it should look something like below.
 
 ![A view of log streams within the Galileo Console](/cookbooks/use-cases/custom-metric-startup-sim/galileo-logo-project.webp)
 
-From this view, navigate to the upper right hand side of your screen and click on the `Configure Metrics` button.  A side panel should appear with a set of different metrics from you to choose from. 
+From this view, navigate to the upper right hand side of your screen and click on the **Configure Metrics** button.  A side panel should appear with a set of different metrics from you to choose from. 
 
 ![A gif showing where to see all metrics within Galileo](/cookbooks/use-cases/custom-metric-startup-sim/configure-metrics.gif)
 </Step>
 
-<Step title="Adding custom metrics">
+<Step title="Add custom metrics">
 That's where custom metrics come in.
 
-Once in this panel, navigate to the "Create Metric" in the upper right hand corner of your screen, and select "LLM-as-a-Judge" Metric.
+Once in this panel, navigate to the **Create Metric** in the upper right hand corner of your screen, and select **LLM-as-a-Judge** Metric.
 
 ![A screenshot with a red arrow pointing to the Create Metric button in the upper right hand corner of the screen.](/cookbooks/use-cases/custom-metric-startup-sim/LLM-as-judge-Metric.webp)
 </Step>
 
-<Step title="Creating your own LLM-as-a-Judge prompt">
+<Step title="Create your own LLM-as-a-Judge prompt">
 A window will appear where you will be able to generate a metric prompt. A metric prompt is a prompt to prompt the creation of the final LLM as a judge prompt. This is to ensure you spend your time focused on what's important (the success criteria) instead of worrying about the output format.
 
 When writing a good prompt, remember that the goal is to transform **subjective evaluation criteria** into a consistent, repeatable process that a language model can assess.
@@ -207,15 +207,15 @@ For each criterion, answer TRUE if the content meets the standard, FALSE if it d
    - [ ] Content maintains appropriate tone throughout
 ```
 
-When added, press 'save' then test your metric.  The evaluation prompt will then be generated for you to see within a preview window. 
+When added, press **Save** then test your metric.  The evaluation prompt will then be generated for you to see within a preview window. 
 </Step>
 
-<Step title="Testing your metric">
-From within the Custom Metric UI, select Test Metric. 
+<Step title="Test your metric">
+From within the Custom Metric pane, select **Test Metric**. 
 
 ![A screenshot showing where to test the metric within the Custom Metric UI](/cookbooks/use-cases/custom-metric-startup-sim/test-custom-metric.webp)
 
-Take the output from an earlier run, and paste it in the output section of the 'test metric' page, and check the response.
+Take the output from an earlier run, and paste it in the output section of the **Test Metric** page, and check the response.
 
 ![A screenshot showing where to test the metric within the Custom Metric UI](/cookbooks/use-cases/custom-metric-startup-sim/tested-metric.webp)
 
@@ -224,21 +224,21 @@ Continue tweaking the prompt until you have a metric that you feel confident wit
 Have examples of what a subject matter expert would consider to be "good" and "bad" to test your metric for success.
 </Step>
 
-<Step title="Adding your Custom Metric">
-Once tested, your metric will appear in the list of available metrics.  Click on "Configure Metrics" and flip the toggle the metric you've created, on. From there, it can be used to assess future LLM outputs across runs and sessions—giving you visibility into quality over time.
+<Step title="Add your Custom Metric">
+Once tested, your metric will appear in the list of available metrics.  Click on **Configure Metrics** and flip the toggle the metric you've created, on. From there, it can be used to assess future LLM outputs across runs and sessions—giving you visibility into quality over time.
 
 ![A gif showing where to add the custom metric to your application within the Custom Metric UI](/cookbooks/use-cases/custom-metric-startup-sim/adding-custom-metric.webp)
 </Step>
 </Steps>
 
-### Summary
+## Summary
 
 In this tutorial, you learned how to:
 - Configure and observe spans in a creative AI agent app
 - Translate your domain expertise into a measurable AI quality rubric
 - Build a custom metric with LLM-as-a-Judge to evaluate startup pitches
 
-### Next steps 
-- Check out other cookbooks in the [Galileo cookbook library](https://v2docs.galileo.ai/cookbooks/overview)
-- Explore how to create custom metrics in [Galileo using code](https://v2docs.galileo.ai/concepts/metrics/custom-metrics/custom-metrics-ui-code). 
-- Learn more about the different [out-of-the-box-metrics available](https://v2docs.galileo.ai/concepts/metrics/overview) in Galileo. 
+## Next steps 
+- Check out other cookbooks in the [Galileo cookbook library](/cookbooks/overview)
+- Explore how to create custom metrics in [Galileo using code](/concepts/metrics/custom-metrics/custom-metrics-ui-code). 
+- Learn more about the different [out-of-the-box-metrics available](/concepts/metrics/overview) in Galileo. 
