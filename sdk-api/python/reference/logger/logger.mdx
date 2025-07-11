@@ -88,29 +88,25 @@ def start_trace(input: StepAllowedInputType,
 
 Create a new trace and add it to the list of traces.
 
-Simple usage:
-```
-my_traces.start_trace("input")
-my_traces.add_llm_span("input", "output", model="<my_model>")
-my_traces.conclude("output")
-```
+Once this trace is complete, you can close it out by calling conclude()
 
 **Arguments**:
 
   ----------
-- `input` - StepIOType: Input to the node.
-- `output` - Optional[str]: Output of the node.
+- `input` - StepAllowedInputType: Input to the node.
 - `name` - Optional[str]: Name of the trace.
 - `duration_ns` - Optional[int]: Duration of the trace in nanoseconds.
 - `created_at` - Optional[datetime]: Timestamp of the trace&#x27;s creation.
 - `metadata` - Optional[Dict[str, str]]: Metadata associated with this trace.
-- `ground_truth` - Optional[str]: Ground truth, expected output of the trace.
+- `tags` - Optional[list[str]]: Tags associated with this trace.
+- `external_id` - Optional[str]: External ID for this trace to connect to external systems.
+  
 
 **Returns**:
 
   -------
 - `Trace` - The created trace.
-
+  
 
 #### add\_single\_llm\_span\_trace
 
