@@ -7,12 +7,12 @@ const logger = getLogger();
 const isInExperiment = logger.currentParent() !== undefined;
 
 // Create the callback checking to see if we are in an experiment
-// If we are, set start_new_trace and flush_on_chain_end to False
+// If we are, set startNewTrace and flushOnChainEnd to false
 // so that the existing trace is used, and not flushed
-const galileoCallback = GalileoCallback({
-    galileoLogger: logger,
-    startNewTrace: !isInExperiment,
-    flushOnChainEnd: !isInExperiment,
-});
+const galileoCallback = new GalileoCallback(
+    logger,          // galileoLogger
+    !isInExperiment, // startNewTrace
+    !isInExperiment, // flushOnChainEnd
+);
 const callbacks = [galileoCallback];
 ```
