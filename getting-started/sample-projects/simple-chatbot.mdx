@@ -9,11 +9,97 @@ The code for this sample is available in Python and TypeScript, and you can run 
 
 The sample code has 3 variations for the following LLM providers:
 
-- [OpenAI](https://openai.com/api/), or any OpenAI API compatible endpoint, such as [Ollama](https://ollama.com) running locally
+- [OpenAI](https://openai.com/api/), or any OpenAI API compatible endpoint, such as [Ollama](https://ollama.com) running locally, or [Google Vertex](https://cloud.google.com/vertex-ai/generative-ai/docs/migrate/openai/overview).
 - [Anthropic](https://www.anthropic.com/api)
 - [Azure AI Foundry](https://ai.azure.com) models using the Azure AI inference SDK
 
-## Get the code
+## Evaluate the app
+
+The sample project comes with a Log stream pre-populated with a set of traces for some sample interactions with the chatbot - some serious, some asking nonsense questions.
+
+### Investigate the Log stream
+
+Navigate to the **Default Log Stream** by ensuring it is selected, and selecting the **View all logs** button.
+
+<Columns cols={2}>
+  ![The view all logs button](/getting-started/sample-projects/simple-chatbot-view-all-logs-button.webp)
+</Columns>
+
+The Log stream is configured to evaluate the following metrics:
+
+- [Correctness](/concepts/metrics/response-quality/correctness)
+- [Instruction Adherence](/concepts/metrics/response-quality/instruction-adherence)
+
+For some of the traces, these metrics are evaluated at 100%, showing the chatbot is working well for those inputs. For other traces, these metrics are reporting lower values, showing the chatbot needs some improvements.
+
+![A set of traces with Correctness and Instruction Adherence metrics with a range of values from 33% to 100%](/getting-started/sample-projects/simple-chatbot-traces.webp)
+
+Select different rows to see more details, including the input and output data, the metric scores, and explanations
+
+### Get insights
+
+Galileo has an Insights Engine that continuously reviews your traces and metrics, and gives suggestions to improve your application. Navigate back to the project page by selecting the **Simple Chatbot** from the top navigation bar.
+
+Insights will be showing on the right-hand side:
+
+![A list of insights](/getting-started/sample-projects/simple-chatbot-insights.webp)
+
+Review the generated insights, and think about ways to improve the chatbot. For example, the system prompt for the chatbot is:
+
+```output
+You are a helpful assistant that can answer questions and provide information.
+If you are not sure about the question, then try to answer it to the best of
+your ability, including extrapolating or guessing the answer from your
+training data.
+```
+
+This will likely cause the chatbot to mislead users. The insights will say something like this:
+
+> **Summary**
+>
+> The system message contains explicit instructions preventing the LLM from expressing uncertainty: 'Under no circumstances should you respond with "I don't know"' and requires it to 'make educated guesses even when unsure.' While this worked fine for the straightforward factual question about Italy's capital, this instruction could be problematic for complex or ambiguous questions where expressing uncertainty would be more appropriate and honest. Forcing confidence could mislead users about the LLM's actual level of certainty and potentially lead to confident-sounding but incorrect responses.
+>
+> **Suggestions**
+>
+> Consider allowing the LLM to express uncertainty for complex or ambiguous questions where confidence may be inappropriate.
+
+To see how you can use these insights to improve the app, get the code and try some different system prompts.
+
+## Run the sample app
+
+You can run the sample app to generate more traces, and test out different system prompts.
+
+### Prerequisites
+
+To run the code yourself to generate more traces, you will need:
+
+- Access to an LLM, with one of:
+    - Access to an OpenAI compatible API, such as
+        - An OpenAI API key
+        - Access to an OpenAI compatible API, such as Google Vertex
+        - Ollama installed locally with a model downloaded
+    - An Anthropic API key
+    - An model compatible with the Azure AI Inference API deployed to Azure AI Foundry
+- Either Python 3.9 or later, or Node installed
+
+To get metrics calculated in Galileo, you will need:
+
+- An integration with an LLM configured. If you don't have an integration configured, then:
+
+    <Steps>
+    <Step title="Open the integrations page">
+    Select the menu in the top right, and select **Integrations**
+
+    ![The integrations menu item](/getting-started/sample-projects/integrations.webp)
+    </Step>
+    <Step title="Add an integration">
+    Select **+ Add Integration** for the LLM you are using and add the relevant details, such as an API key or endpoint.
+
+    ![The integrations menu item](/getting-started/sample-projects/integrations-list.webp)
+    </Step>
+    </Steps>
+
+### Get the code
 
 <Steps>
 <Step title="Clone the SDK examples repo">
@@ -26,7 +112,7 @@ git clone https://github.com/rungalileo/sdk-examples
 
 <Step title="Navigate to the relevant project folder">
 
-Start by navigating to the root folder by the SDK you are using:
+Start by navigating to the root folder for the programming language you are using:
 
 <CodeGroup>
 ```bash Python
@@ -40,7 +126,7 @@ cd typescript/chatbot/sample-project-chatbot
 Then navigate to the folder for the relevant LLM you are using:
 
 <CodeGroup>
-```bash OpenAI
+```bash OpenAI compatible API
 cd openai-ollama
 ```
 ```bash Anthropic
@@ -61,7 +147,7 @@ The full source code for all of our sample projects is available in the Galileo 
 </Card>
 </CardGroup>
 
-## Run the code
+### Run the code
 
 <Steps>
 <Step title="Install required dependencies">
@@ -85,8 +171,8 @@ In each project folder is a `.env.example` file. Rename this file to `.env` and 
 | Environment Variable  | Value |
 | :-------------------- | :---- |
 | `GALILEO_API_KEY`     | Your API key |
-| `GALILEO_PROJECT`     | The name of your Galileo project - this is set to the sample project |
-| `GALILEO_LOG_STREAM`  | The name of your Log stream - this is set to the default Log stream name for the sample project |
+| `GALILEO_PROJECT`     | The name of your Galileo project - this is preset to `Simple Chatbot` |
+| `GALILEO_LOG_STREAM`  | The name of your Log stream - this is preset to `Default Log Stream` |
 | `GALILEO_CONSOLE_URL` | Optional. The URL of your Galileo console for custom deployments. For the fre tier, you don't need to set this. |
 
 <Note>
@@ -99,8 +185,8 @@ Next populate the values for your LLM:
 <Tab title="OpenAI">
 | Environment Variable | Value |
 | :------------------- | :---- |
-| `OPENAI_API_KEY`     | Your OpenAI API key. If you are using Ollama, set this to `ollama`. |
-| `OPENAI_BASE_URL`    | Optional. The base URL of your OpenAI deployment. Leave this commented out if you are using the default OpenAI API. If you are using Ollama, set this to `http://localhost:11434/v1`. |
+| `OPENAI_API_KEY`     | Your OpenAI API key. If you are using Ollama, set this to `ollama`. If you are using another OpenAI compatible API, then set this to the relevant API key. |
+| `OPENAI_BASE_URL`    | Optional. The base URL of your OpenAI deployment. Leave this commented out if you are using the default OpenAI API. If you are using Ollama, set this to `http://localhost:11434/v1`. If you are using another OpenAI compatible API, then set this to the relevant URL. |
 | `MODEL_NAME`         | The name of the model you are using |
 </Tab>
 <Tab title="Anthropic">
@@ -159,57 +245,9 @@ potential for supporting life.
 </Step>
 </Steps>
 
-## Evaluate your app
+### Improve the app
 
-The sample project comes with a Log stream pre-populated with a set of traces for some sample interactions with the chatbot, some serious, some asking nonsense questions.
-
-### Investigate the Log stream
-
-Navigate to the **Default Log Stream** by selecting it and selecting the **View all logs** button.
-
-<Columns cols={2}>
-  ![The view all logs button](/getting-started/sample-projects/view-all-logs-button.webp)
-</Columns>
-
-The Log stream is configured to evaluate the following metrics:
-
-- [Correctness](/concepts/metrics/response-quality/correctness)
-- [Instruction Adherence](/concepts/metrics/response-quality/instruction-adherence)
-
-For some of the traces, these metrics are evaluated at 100%, showing the chatbot is working well in those situations. For other traces, these metrics are reporting lower values, showing the chatbot needs some improvements.
-
-![A set of traces with Correctness and Instruction Adherence metrics with a range of values from 33% to 100%](/getting-started/sample-projects/simple-chatbot-traces.webp)
-
-Select different rows to see more details, including the input and output data, the metric scores, and explanations
-
-### Get insights
-
-Galileo has an Insights Engine that continuously reviews your traces and metrics, and gives suggestions to improve your application. Navigate back to the project page by selecting the **Simple Chatbot** from the top navigation bar.
-
-Insights will be showing on the right-hand side:
-
-![A list of insights](/getting-started/sample-projects/simple-chatbot-insights.webp)
-
-Review the generated insights, and think about ways to improve the chatbot. For example, the system prompt for the chatbot is:
-
-```output
-You are a helpful assistant that can answer questions and provide information.
-If you are not sure about the question, then try to answer it to the best of
-your ability, including extrapolating or guessing the answer from your
-training data.
-```
-
-This will likely cause the chatbot to mislead users. The insights should show this:
-
-> **Summary**
->
-> The system message contains explicit instructions preventing the LLM from expressing uncertainty: 'Under no circumstances should you respond with "I don't know"' and requires it to 'make educated guesses even when unsure.' While this worked fine for the straightforward factual question about Italy's capital, this instruction could be problematic for complex or ambiguous questions where expressing uncertainty would be more appropriate and honest. Forcing confidence could mislead users about the LLM's actual level of certainty and potentially lead to confident-sounding but incorrect responses.
->
-> **Suggestions**
->
-> Consider allowing the LLM to express uncertainty for complex or ambiguous questions where confidence may be inappropriate.
-
-To fix this, review the relevant file:
+The insights you viewed earlier suggested improving the system prompt. The default system prompt is defined in the following file:
 
 <CodeGroup>
 ```output Python
@@ -263,11 +301,13 @@ const chatHistory = [
 ```
 </CodeGroup>
 
-Try commenting out the original system prompt, and uncomment the suggestion. Then restart the chatbot and interact with it, asking questions about made-up things to see how it responds. You should see the metrics improving.
+Try commenting out the original system prompt, and uncomment the suggestion. Then restart the chatbot and interact with it, asking questions about made-up things to see how it responds.
 
-## Run experiments
+Once you have asked a few questions, head back to the Galileo Console and examine the new traces. You should see the metrics improving.
 
-Galileo allows you to run [experiments](/concepts/experiments/overview) against [datasets](/concepts/datasets) of known data, generating traces in an experiment Log stream and evaluating these for different metrics. Experiments allow you to take a know set of inputs and evaluate different prompts, LLMs, or versions of your apps.
+### Run the sample app as an experiment
+
+Galileo allows you to run [experiments](/concepts/experiments/overview) against [datasets](/concepts/datasets) of known data, generating traces in an experiment Log stream and evaluating these for different metrics. Experiments allow you to take a known set of inputs and evaluate different prompts, LLMs, or versions of your apps.
 
 This sample project has a unit test that runs the chatbot against a pre-defined dataset, containing a mixture of sensible and nonsense questions:
 
@@ -278,6 +318,7 @@ This sample project has a unit test that runs the chatbot against a pre-defined 
     { "input": "Describe the running of the hippopotamus festival in Spain." },
     { "input": "What is the estimated population of Querulous Quails in Florin." },
     { "input": "Describe the famous Pudding Lane BBQ party" }
+    ...
 ]
 ```
 
