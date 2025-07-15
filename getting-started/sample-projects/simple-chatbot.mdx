@@ -3,9 +3,9 @@ title: Simple Chatbot
 description: Get started with the simple chatbot sample project
 ---
 
-The simple chatbot sample project is a demo of a simplistic LLM chatbot where you can have a back-and-forth conversation with an LLM. This project comes pre-populated with a Log stream with traces, as well as insights to help you improve this project.
+The simple chatbot sample project is a demo of a simplistic terminal-based LLM chatbot where you can have a back-and-forth conversation with an LLM. This project comes pre-populated with a Log stream with traces and evaluated metrics, as well as insights to help you improve this project.
 
-The code for this sample is available in Python and TypeScript, and you can run this against a range of LLM providers to generate more traces, and experiment with improving the app based off the evaluations.
+The code for this sample is available in Python and TypeScript, and you can run this code using a range of LLM providers to generate more traces, and experiment with improving the app based off the evaluations.
 
 The sample code has 3 variations for the following LLM providers:
 
@@ -15,21 +15,13 @@ The sample code has 3 variations for the following LLM providers:
 
 ## Get the code
 
-The full source code for all of our sample projects is available in the Galileo [SDK Examples GitHub repo](https://github.com/rungalileo/sdk-examples).
-
-<CardGroup cols={2}>
-<Card title="SDK Examples" icon="code" horizontal href="https://github.com/rungalileo/sdk-examples">
-    Check out sample projects using Galileo
-</Card>
-</CardGroup>
-
-## Run the code
-
 <Steps>
 <Step title="Clone the SDK examples repo">
+
 ```bash Terminal
 git clone https://github.com/rungalileo/sdk-examples
 ```
+
 </Step>
 
 <Step title="Navigate to the relevant project folder">
@@ -59,7 +51,19 @@ cd azure-inference
 ```
 </CodeGroup>
 </Step>
+</Steps>
 
+The full source code for all of our sample projects is available in the Galileo [SDK Examples GitHub repo](https://github.com/rungalileo/sdk-examples).
+
+<CardGroup cols={2}>
+<Card title="SDK Examples" icon="code" horizontal href="https://github.com/rungalileo/sdk-examples">
+    Check out sample projects using Galileo
+</Card>
+</CardGroup>
+
+## Run the code
+
+<Steps>
 <Step title="Install required dependencies">
 
 From the project folder, Install the required dependencies. For Python, make sure to create and activate a virtual environment before installing the dependencies.
@@ -81,8 +85,8 @@ In each project folder is a `.env.example` file. Rename this file to `.env` and 
 | Environment Variable  | Value |
 | :-------------------- | :---- |
 | `GALILEO_API_KEY`     | Your API key |
-| `GALILEO_PROJECT`     | The name of your Galileo project |
-| `GALILEO_LOG_STREAM`  | The name of your Log stream |
+| `GALILEO_PROJECT`     | The name of your Galileo project - this is set to the sample project |
+| `GALILEO_LOG_STREAM`  | The name of your Log stream - this is set to the default Log stream name for the sample project |
 | `GALILEO_CONSOLE_URL` | Optional. The URL of your Galileo console for custom deployments. For the fre tier, you don't need to set this. |
 
 <Note>
@@ -157,5 +161,220 @@ potential for supporting life.
 
 ## Evaluate your app
 
+The sample project comes with a Log stream pre-populated with a set of traces for some sample interactions with the chatbot, some serious, some asking nonsense questions.
+
+### Investigate the Log stream
+
+Navigate to the **Default Log Stream** by selecting it and selecting the **View all logs** button.
+
+<Columns cols={2}>
+  ![The view all logs button](/getting-started/sample-projects/view-all-logs-button.webp)
+</Columns>
+
+The Log stream is configured to evaluate the following metrics:
+
+- [Correctness](/concepts/metrics/response-quality/correctness)
+- [Instruction Adherence](/concepts/metrics/response-quality/instruction-adherence)
+
+For some of the traces, these metrics are evaluated at 100%, showing the chatbot is working well in those situations. For other traces, these metrics are reporting lower values, showing the chatbot needs some improvements.
+
+![A set of traces with Correctness and Instruction Adherence metrics with a range of values from 33% to 100%](/getting-started/sample-projects/simple-chatbot-traces.webp)
+
+Select different rows to see more details, including the input and output data, the metric scores, and explanations
+
+### Get insights
+
+Galileo has an Insights Engine that continuously reviews your traces and metrics, and gives suggestions to improve your application. Navigate back to the project page by selecting the **Simple Chatbot** from the top navigation bar.
+
+Insights will be showing on the right-hand side:
+
+![A list of insights](/getting-started/sample-projects/simple-chatbot-insights.webp)
+
+Review the generated insights, and think about ways to improve the chatbot. For example, the system prompt for the chatbot is:
+
+```output
+You are a helpful assistant that can answer questions and provide information.
+If you are not sure about the question, then try to answer it to the best of
+your ability, including extrapolating or guessing the answer from your
+training data.
+```
+
+This will likely cause the chatbot to mislead users. The insights should show this:
+
+> **Summary**
+>
+> The system message contains explicit instructions preventing the LLM from expressing uncertainty: 'Under no circumstances should you respond with "I don't know"' and requires it to 'make educated guesses even when unsure.' While this worked fine for the straightforward factual question about Italy's capital, this instruction could be problematic for complex or ambiguous questions where expressing uncertainty would be more appropriate and honest. Forcing confidence could mislead users about the LLM's actual level of certainty and potentially lead to confident-sounding but incorrect responses.
+>
+> **Suggestions**
+>
+> Consider allowing the LLM to express uncertainty for complex or ambiguous questions where confidence may be inappropriate.
+
+To fix this, review the relevant file:
+
+<CodeGroup>
+```output Python
+app.py
+```
+```output TypeScript
+chat.ts
+```
+</CodeGroup>
+
+In this file is the current system prompt, as well as a suggested improvement:
+
+<CodeGroup>
+```python Python
+chat_history = [
+    {
+        "role": "system",
+        "content": """
+        You are a helpful assistant that can answer questions and provide information.
+        If you are not sure about the question, then try to answer it to the best of your ability,
+        including extrapolating or guessing the answer from your training data.
+        """,
+        # This default system prompt can lead to hallucinations, so you might want to change it.
+        # For example, you could use a more restrictive prompt like:
+        # """
+        # You are a helpful assistant that can answer questions and provide information.
+        # If you don't know the answer, say "I don't know" instead of making up an answer.
+        # Do not under any circumstances make up an answer.
+        # """
+    }
+]
+```
+```typescript TypeScript
+const chatHistory = [
+    {
+        "role": "system",
+        "content": `
+        You are a helpful assistant that can answer questions and provide information.
+        If you are not sure about the question, then try to answer it to the best of your ability,
+        including extrapolating or guessing the answer from your training data.
+        `,
+        // This default system prompt can lead to hallucinations, so you might want to change it.
+        // For example, you could use a more restrictive prompt like:
+        // `
+        // You are a helpful assistant that can answer questions and provide information.
+        // If you don't know the answer, say "I don't know" instead of making up an answer.
+        // Do not under any circumstances make up an answer.
+        // `
+    }
+]
+```
+</CodeGroup>
+
+Try commenting out the original system prompt, and uncomment the suggestion. Then restart the chatbot and interact with it, asking questions about made-up things to see how it responds. You should see the metrics improving.
+
+## Run experiments
+
+Galileo allows you to run [experiments](/concepts/experiments/overview) against [datasets](/concepts/datasets) of known data, generating traces in an experiment Log stream and evaluating these for different metrics. Experiments allow you to take a know set of inputs and evaluate different prompts, LLMs, or versions of your apps.
+
+This sample project has a unit test that runs the chatbot against a pre-defined dataset, containing a mixture of sensible and nonsense questions:
+
+```json dataset.json
+[
+    { "input": "Which continent is Spain in?" },
+    { "input": "Which continent is Japan in?" },
+    { "input": "Describe the running of the hippopotamus festival in Spain." },
+    { "input": "What is the estimated population of Querulous Quails in Florin." },
+    { "input": "Describe the famous Pudding Lane BBQ party" }
+]
+```
+
+You can use this unit test to evaluate different system prompts for your app.
+
+<Steps>
+
+<Step title="Run the unit test">
+
+Use the following command to run the unit test:
+<CodeGroup>
+```python Python
+python -m pytest test.py
+```
+```typescript TypeScript
+npm run test
+```
+</CodeGroup>
+</Step>
+
+<Step title="Evaluate the experiment">
+The unit test will output a link to the experiment in the Galileo Console:
+
+```output Terminal
+Experiment simple-chatbot-experiment 2025-07-15 at 00:48:11.842 has 
+completed and results are available at 
+https://app.galileo.ai/project/<id>/experiments/<id>
+```
+
+Follow this link to see the metrics for the experiment Log stream.
+
+![The experiment with low correctness scores for most rows](/getting-started/sample-projects/simple-chatbot-experiment.webp)
+
+</Step>
+
+<Step title="Try different system prompts">
+
+Experiment with different system prompts. Edit the system prompt in the app, then re-run the experiment through the unit test to see how different system prompts affect the metrics.
+
+</Step>
+<Step title="Compare experiments">
+If you navigate to the experiments list using the **All Experiments** link, you will be able to compare the average metric values of each run.
+
+![A list of experiments with the scores increasing as you go up the list](/getting-started/sample-projects/compare-experiments.webp)
+
+You can then select multiple rows and [compare the experiments in detail](/concepts/experiments/compare).
+</Step>
+</Steps>
+
 ## Next steps
 
+### Logging with the SDKs
+
+<CardGroup cols={2}>
+<Card title="Learn how to log experiments" icon="flask" horizontal href="/sdk-api/experiments">
+    Learn how to run experiments with multiple data points using datasets and prompt templates
+</Card>
+<Card title="Galileo logger" icon="code" horizontal href="/sdk-api/logging/galileo-logger">
+    Log with full control over sessions, traces, and spans using the Galileo logger.
+</Card>
+<Card title="Log decorator" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
+    Quickly add logging to your code with the log decorator and wrapper.
+</Card>
+<Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
+    Manage logging using the Galileo context manager.
+</Card>
+</CardGroup>
+
+### How-to guides
+
+<CardGroup cols={2}>
+<Card title="Log Using the OpenAI Wrapper" icon="code" href="/how-to-guides/basics/basic-example" horizontal>
+  Learn how to integrate and use OpenAI's API with Galileo's wrapper client.
+  <br/>
+  **Python**
+</Card>
+
+<Card title="Log Using the @log Decorator" icon="code" href="/how-to-guides/basics/basic-logging-with-decorator/basic-logging-with-decorator" horizontal>
+  Learn how to use the Galileo @log decorator to log functions to traces
+  <br/>
+  **Python**
+</Card>
+
+<Card title="Create Traces and Spans" icon="code" href="/how-to-guides/basics/manual-span-creation/manual-span-creation" horizontal>
+  Learn how to create log traces and spans manually in your AI apps
+  <br/>
+  **Python**
+</Card>
+</CardGroup>
+
+### SDK reference
+
+<CardGroup cols={2}>
+<Card title="Python SDK Reference" icon="python" horizontal href="/sdk-api/python/sdk-reference">
+    The Galileo Python SDK reference.
+</Card>
+<Card title="TypeScript SDK Reference" icon="js" horizontal href="/sdk-api/typescript/sdk-reference">
+    The Galileo TypeScript SDK reference.
+</Card>
+</CardGroup>
