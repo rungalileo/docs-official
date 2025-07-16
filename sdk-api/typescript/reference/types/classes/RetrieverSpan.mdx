@@ -8,69 +8,27 @@ title: RetrieverSpan
 
 # Class: RetrieverSpan
 
-Defined in: [src/types/log.types.ts:291](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L291)
+Defined in: [src/types/logging/span.types.ts:195](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L195)
 
 ## Extends
 
-- `BaseStep`
+- [`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep)
 
 ## Constructors
 
 ### Constructor
 
 ```ts
-new RetrieverSpan(data: object): RetrieverSpan;
+new RetrieverSpan(data: RetrieverSpanOptions): RetrieverSpan;
 ```
 
-Defined in: [src/types/log.types.ts:297](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L297)
+Defined in: [src/types/logging/span.types.ts:200](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L200)
 
 #### Parameters
 
 ##### data
 
-###### createdAtNs?
-
-`number`
-
-###### durationNs?
-
-`number`
-
-###### groundTruth?
-
-`string`
-
-###### input
-
-`StepIOType`
-
-###### metadata?
-
-`Record`\<`string`, `string`\>
-
-###### name?
-
-`string`
-
-###### output
-
-`RetrieverStepAllowedOutputType`
-
-###### parent?
-
-[`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans)
-
-###### statusCode?
-
-`number`
-
-###### stepNumber?
-
-`number`
-
-###### tags?
-
-`string`[]
+[`RetrieverSpanOptions`](/sdk-api/typescript/reference/types/interfaces/RetrieverSpanOptions)
 
 #### Returns
 
@@ -78,41 +36,63 @@ Defined in: [src/types/log.types.ts:297](https://github.com/rungalileo/galileo-j
 
 #### Overrides
 
-```ts
-BaseStep.constructor;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`constructor`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#constructor)
 
 ## Properties
 
-### createdAtNs
+### createdAt
 
 ```ts
-createdAtNs: number;
+createdAt: Date;
 ```
 
-Defined in: [src/types/step.types.ts:56](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L56)
+Defined in: [src/types/logging/step.types.ts:109](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L109)
 
 #### Inherited from
 
-```ts
-BaseStep.createdAtNs;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`createdAt`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#createdat)
 
 ---
 
-### durationNs
+### datasetInput?
 
 ```ts
-durationNs: number = 0;
+optional datasetInput: string;
 ```
 
-Defined in: [src/types/step.types.ts:57](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L57)
+Defined in: [src/types/logging/step.types.ts:116](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L116)
 
 #### Inherited from
 
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`datasetInput`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#datasetinput)
+
+---
+
+### datasetMetadata?
+
 ```ts
-BaseStep.durationNs;
+optional datasetMetadata: Record<string, string> = {};
 ```
+
+Defined in: [src/types/logging/step.types.ts:118](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L118)
+
+#### Inherited from
+
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`datasetMetadata`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#datasetmetadata)
+
+---
+
+### datasetOutput?
+
+```ts
+optional datasetOutput: string;
+```
+
+Defined in: [src/types/logging/step.types.ts:117](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L117)
+
+#### Inherited from
+
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`datasetOutput`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#datasetoutput)
 
 ---
 
@@ -122,29 +102,11 @@ BaseStep.durationNs;
 optional externalId: string;
 ```
 
-Defined in: [src/types/step.types.ts:64](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L64)
+Defined in: [src/types/logging/step.types.ts:114](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L114)
 
 #### Inherited from
 
-```ts
-BaseStep.externalId;
-```
-
----
-
-### groundTruth?
-
-```ts
-optional groundTruth: string;
-```
-
-Defined in: [src/types/step.types.ts:60](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L60)
-
-#### Inherited from
-
-```ts
-BaseStep.groundTruth;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`externalId`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#externalid)
 
 ---
 
@@ -154,45 +116,25 @@ BaseStep.groundTruth;
 input: string;
 ```
 
-Defined in: [src/types/log.types.ts:294](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L294)
+Defined in: [src/types/logging/span.types.ts:197](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L197)
 
 #### Overrides
 
-```ts
-BaseStep.input;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`input`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#input)
 
 ---
 
 ### metrics
 
 ```ts
-metrics: Metrics = {};
+metrics: Metrics;
 ```
 
-Defined in: [src/types/step.types.ts:63](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L63)
+Defined in: [src/types/logging/step.types.ts:113](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L113)
 
 #### Inherited from
 
-```ts
-BaseStep.metrics;
-```
-
----
-
-### modelConfig?
-
-```ts
-optional modelConfig: Record<string, any>;
-```
-
-Defined in: [src/types/step.types.ts:61](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L61)
-
-#### Inherited from
-
-```ts
-BaseStep.modelConfig;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`metrics`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#metrics)
 
 ---
 
@@ -202,13 +144,11 @@ BaseStep.modelConfig;
 name: string = "";
 ```
 
-Defined in: [src/types/step.types.ts:55](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L55)
+Defined in: [src/types/logging/step.types.ts:108](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L108)
 
 #### Inherited from
 
-```ts
-BaseStep.name;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`name`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#name)
 
 ---
 
@@ -218,23 +158,11 @@ BaseStep.name;
 output: Document[] = [];
 ```
 
-Defined in: [src/types/log.types.ts:295](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L295)
+Defined in: [src/types/logging/span.types.ts:198](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L198)
 
 #### Overrides
 
-```ts
-BaseStep.output;
-```
-
----
-
-### parent?
-
-```ts
-optional parent: StepWithChildSpans;
-```
-
-Defined in: [src/types/log.types.ts:293](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L293)
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`output`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#output)
 
 ---
 
@@ -244,13 +172,11 @@ Defined in: [src/types/log.types.ts:293](https://github.com/rungalileo/galileo-j
 optional statusCode: number;
 ```
 
-Defined in: [src/types/step.types.ts:59](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L59)
+Defined in: [src/types/logging/step.types.ts:112](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L112)
 
 #### Inherited from
 
-```ts
-BaseStep.statusCode;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`statusCode`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#statuscode)
 
 ---
 
@@ -260,13 +186,11 @@ BaseStep.statusCode;
 optional stepNumber: number;
 ```
 
-Defined in: [src/types/step.types.ts:65](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L65)
+Defined in: [src/types/logging/step.types.ts:115](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L115)
 
 #### Inherited from
 
-```ts
-BaseStep.stepNumber;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`stepNumber`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#stepnumber)
 
 ---
 
@@ -276,29 +200,25 @@ BaseStep.stepNumber;
 optional tags: string[];
 ```
 
-Defined in: [src/types/step.types.ts:62](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L62)
+Defined in: [src/types/logging/step.types.ts:111](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L111)
 
 #### Inherited from
 
-```ts
-BaseStep.tags;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`tags`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#tags)
 
 ---
 
 ### type
 
 ```ts
-type: NodeType = NodeType.retriever;
+type: StepType = StepType.retriever;
 ```
 
-Defined in: [src/types/log.types.ts:292](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L292)
+Defined in: [src/types/logging/span.types.ts:196](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L196)
 
 #### Overrides
 
-```ts
-BaseStep.type;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`type`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#type)
 
 ---
 
@@ -308,13 +228,11 @@ BaseStep.type;
 userMetadata: Record<string, string> = {};
 ```
 
-Defined in: [src/types/step.types.ts:58](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L58)
+Defined in: [src/types/logging/step.types.ts:110](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L110)
 
 #### Inherited from
 
-```ts
-BaseStep.userMetadata;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`userMetadata`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#usermetadata)
 
 ## Methods
 
@@ -324,7 +242,7 @@ BaseStep.userMetadata;
 toJSON(): Record<string, any>;
 ```
 
-Defined in: [src/types/log.types.ts:318](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L318)
+Defined in: [src/types/logging/span.types.ts:207](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L207)
 
 #### Returns
 
@@ -332,32 +250,43 @@ Defined in: [src/types/log.types.ts:318](https://github.com/rungalileo/galileo-j
 
 #### Overrides
 
-```ts
-BaseStep.toJSON;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`toJSON`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#tojson)
 
 ---
 
 ### validateInputOutputSerializable()
 
 ```ts
-validateInputOutputSerializable(val: StepIOType): StepIOType;
+validateInputOutputSerializable<T>(val: T): T;
 ```
 
-Defined in: [src/types/step.types.ts:100](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L100)
+Defined in: [src/types/logging/step.types.ts:141](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L141)
+
+#### Type Parameters
+
+##### T
+
+`T` =
+\| `string`
+\| `string`[]
+\| [`Document`](/sdk-api/typescript/reference/types/classes/Document)
+\| [`Message`](/sdk-api/typescript/reference/types/interfaces/Message)
+\| `Record`\<`string`, `string`\>
+\| [`Message`](/sdk-api/typescript/reference/types/interfaces/Message)[]
+\| `Record`\<`string`, `string`\>[]
+\| `Record`\<`string`, `string`\>[]
+\| [`Document`](/sdk-api/typescript/reference/types/classes/Document)[]
 
 #### Parameters
 
 ##### val
 
-`StepIOType`
+`T`
 
 #### Returns
 
-`StepIOType`
+`T`
 
 #### Inherited from
 
-```ts
-BaseStep.validateInputOutputSerializable;
-```
+[`BaseStep`](/sdk-api/typescript/reference/types/classes/BaseStep).[`validateInputOutputSerializable`](/sdk-api/typescript/reference/types/classes/BaseStep.mdx#validateinputoutputserializable)

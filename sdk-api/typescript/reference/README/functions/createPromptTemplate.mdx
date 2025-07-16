@@ -13,7 +13,7 @@ function createPromptTemplate(__namedParameters: object): Promise<{
   all_available_versions: number[];
   all_versions?: object[];
   created_at: string;
-  creator: null | {
+  created_by_user: null | {
     email: string;
     first_name?: null | string;
     id: string;
@@ -25,6 +25,12 @@ function createPromptTemplate(__namedParameters: object): Promise<{
   permissions?: object[];
   selected_version: {
     created_at: string;
+    created_by_user: null | {
+      email: string;
+      first_name?: null | string;
+      id: string;
+      last_name?: null | string;
+    };
     id: string;
     lines_added: number;
     lines_edited: number;
@@ -33,7 +39,33 @@ function createPromptTemplate(__namedParameters: object): Promise<{
     output_type?: null | string;
     raw?: boolean;
     settings: {
-      [key: string]: unknown;
+      deployment_name?: null | string;
+      echo?: boolean;
+      frequency_penalty?: number;
+      known_models?: object[];
+      logprobs?: boolean;
+      max_tokens?: number;
+      model_alias?: string;
+      n?: number;
+      presence_penalty?: number;
+      response_format?: null | {
+        [key: string]: string;
+      };
+      stop_sequences?: null | string[];
+      temperature?: number;
+      tool_choice?:
+        | null
+        | string
+        | {
+            function: {
+              name: string;
+            };
+            type?: string;
+          };
+      tools?: null | object[];
+      top_k?: number;
+      top_logprobs?: number;
+      top_p?: number;
     };
     settings_changed: boolean;
     template: string | (object & object[]);
@@ -47,7 +79,7 @@ function createPromptTemplate(__namedParameters: object): Promise<{
 }>;
 ```
 
-Defined in: [src/utils/prompt-templates.ts:154](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/utils/prompt-templates.ts#L154)
+Defined in: [src/utils/prompt-templates.ts:154](https://github.com/rungalileo/galileo-js/blob/main/src/utils/prompt-templates.ts#L154)
 
 ## Parameters
 
@@ -71,7 +103,7 @@ Defined in: [src/utils/prompt-templates.ts:154](https://github.com/rungalileo/ga
 `all_available_versions`: `number`[];
 `all_versions?`: `object`[];
 `created_at`: `string`;
-`creator`: \| `null`
+`created_by_user`: \| `null`
 \| \{
 `email`: `string`;
 `first_name?`: `null` \| `string`;
@@ -84,6 +116,13 @@ Defined in: [src/utils/prompt-templates.ts:154](https://github.com/rungalileo/ga
 `permissions?`: `object`[];
 `selected_version`: \{
 `created_at`: `string`;
+`created_by_user`: \| `null`
+\| \{
+`email`: `string`;
+`first_name?`: `null` \| `string`;
+`id`: `string`;
+`last_name?`: `null` \| `string`;
+\};
 `id`: `string`;
 `lines_added`: `number`;
 `lines_edited`: `number`;
@@ -92,7 +131,33 @@ Defined in: [src/utils/prompt-templates.ts:154](https://github.com/rungalileo/ga
 `output_type?`: `null` \| `string`;
 `raw?`: `boolean`;
 `settings`: \{
-[`key`: `string`]: `unknown`;
+`deployment_name?`: `null` \| `string`;
+`echo?`: `boolean`;
+`frequency_penalty?`: `number`;
+`known_models?`: `object`[];
+`logprobs?`: `boolean`;
+`max_tokens?`: `number`;
+`model_alias?`: `string`;
+`n?`: `number`;
+`presence_penalty?`: `number`;
+`response_format?`: \| `null`
+\| \{
+[`key`: `string`]: `string`;
+\};
+`stop_sequences?`: `null` \| `string`[];
+`temperature?`: `number`;
+`tool_choice?`: \| `null`
+\| `string`
+\| \{
+`function`: \{
+`name`: `string`;
+\};
+`type?`: `string`;
+\};
+`tools?`: `null` \| `object`[];
+`top_k?`: `number`;
+`top_logprobs?`: `number`;
+`top_p?`: `number`;
 \};
 `settings_changed`: `boolean`;
 `template`: `string` \| `object` & `object`[];
