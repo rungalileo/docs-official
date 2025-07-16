@@ -8,7 +8,7 @@ title: AgentSpan
 
 # Class: AgentSpan
 
-Defined in: [src/types/log.types.ts:174](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L174)
+Defined in: [src/types/logging/span.types.ts:90](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L90)
 
 ## Extends
 
@@ -19,66 +19,16 @@ Defined in: [src/types/log.types.ts:174](https://github.com/rungalileo/galileo-j
 ### Constructor
 
 ```ts
-new AgentSpan(data: object): AgentSpan;
+new AgentSpan(data: AgentSpanOptions): AgentSpan;
 ```
 
-Defined in: [src/types/log.types.ts:179](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L179)
+Defined in: [src/types/logging/span.types.ts:94](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L94)
 
 #### Parameters
 
 ##### data
 
-###### agentType?
-
-[`AgentType`](/sdk-api/typescript/reference/types/enumerations/AgentType)
-
-###### createdAtNs?
-
-`number`
-
-###### durationNs?
-
-`number`
-
-###### groundTruth?
-
-`string`
-
-###### input
-
-`StepIOType`
-
-###### metadata?
-
-`Record`\<`string`, `string`\>
-
-###### name?
-
-`string`
-
-###### output?
-
-`StepIOType`
-
-###### parent?
-
-[`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans)
-
-###### spans?
-
-[`Span`](/sdk-api/typescript/reference/types/type-aliases/Span)[]
-
-###### statusCode?
-
-`number`
-
-###### stepNumber?
-
-`number`
-
-###### tags?
-
-`string`[]
+[`AgentSpanOptions`](/sdk-api/typescript/reference/types/interfaces/AgentSpanOptions)
 
 #### Returns
 
@@ -93,38 +43,66 @@ Defined in: [src/types/log.types.ts:179](https://github.com/rungalileo/galileo-j
 ### agentType
 
 ```ts
-agentType: AgentType = AgentType.default;
+agentType: AgentType;
 ```
 
-Defined in: [src/types/log.types.ts:177](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L177)
+Defined in: [src/types/logging/span.types.ts:92](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L92)
 
 ---
 
-### createdAtNs
+### createdAt
 
 ```ts
-createdAtNs: number;
+createdAt: Date;
 ```
 
-Defined in: [src/types/step.types.ts:56](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L56)
+Defined in: [src/types/logging/step.types.ts:109](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L109)
 
 #### Inherited from
 
-[`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans).[`createdAtNs`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans.mdx#createdatns)
+[`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans).[`createdAt`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans.mdx#createdat)
 
 ---
 
-### durationNs
+### datasetInput?
 
 ```ts
-durationNs: number = 0;
+optional datasetInput: string;
 ```
 
-Defined in: [src/types/step.types.ts:57](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L57)
+Defined in: [src/types/logging/step.types.ts:116](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L116)
 
 #### Inherited from
 
-[`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans).[`durationNs`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans.mdx#durationns)
+[`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans).[`datasetInput`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans.mdx#datasetinput)
+
+---
+
+### datasetMetadata?
+
+```ts
+optional datasetMetadata: Record<string, string> = {};
+```
+
+Defined in: [src/types/logging/step.types.ts:118](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L118)
+
+#### Inherited from
+
+[`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans).[`datasetMetadata`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans.mdx#datasetmetadata)
+
+---
+
+### datasetOutput?
+
+```ts
+optional datasetOutput: string;
+```
+
+Defined in: [src/types/logging/step.types.ts:117](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L117)
+
+#### Inherited from
+
+[`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans).[`datasetOutput`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans.mdx#datasetoutput)
 
 ---
 
@@ -134,7 +112,7 @@ Defined in: [src/types/step.types.ts:57](https://github.com/rungalileo/galileo-j
 optional externalId: string;
 ```
 
-Defined in: [src/types/step.types.ts:64](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L64)
+Defined in: [src/types/logging/step.types.ts:114](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L114)
 
 #### Inherited from
 
@@ -142,27 +120,13 @@ Defined in: [src/types/step.types.ts:64](https://github.com/rungalileo/galileo-j
 
 ---
 
-### groundTruth?
-
-```ts
-optional groundTruth: string;
-```
-
-Defined in: [src/types/step.types.ts:60](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L60)
-
-#### Inherited from
-
-[`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans).[`groundTruth`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans.mdx#groundtruth)
-
----
-
 ### input
 
 ```ts
-input: StepIOType;
+input: StepAllowedInputType;
 ```
 
-Defined in: [src/types/step.types.ts:53](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L53)
+Defined in: [src/types/logging/span.types.ts:26](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L26)
 
 #### Inherited from
 
@@ -173,28 +137,14 @@ Defined in: [src/types/step.types.ts:53](https://github.com/rungalileo/galileo-j
 ### metrics
 
 ```ts
-metrics: Metrics = {};
+metrics: Metrics;
 ```
 
-Defined in: [src/types/step.types.ts:63](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L63)
+Defined in: [src/types/logging/step.types.ts:113](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L113)
 
 #### Inherited from
 
 [`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans).[`metrics`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans.mdx#metrics)
-
----
-
-### modelConfig?
-
-```ts
-optional modelConfig: Record<string, any>;
-```
-
-Defined in: [src/types/step.types.ts:61](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L61)
-
-#### Inherited from
-
-[`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans).[`modelConfig`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans.mdx#modelconfig)
 
 ---
 
@@ -204,7 +154,7 @@ Defined in: [src/types/step.types.ts:61](https://github.com/rungalileo/galileo-j
 name: string = "";
 ```
 
-Defined in: [src/types/step.types.ts:55](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L55)
+Defined in: [src/types/logging/step.types.ts:108](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L108)
 
 #### Inherited from
 
@@ -212,27 +162,17 @@ Defined in: [src/types/step.types.ts:55](https://github.com/rungalileo/galileo-j
 
 ---
 
-### output
+### output?
 
 ```ts
-output: StepIOType = "";
+optional output: StepAllowedOutputType;
 ```
 
-Defined in: [src/types/step.types.ts:54](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L54)
+Defined in: [src/types/logging/step.types.ts:107](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L107)
 
 #### Inherited from
 
 [`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans).[`output`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans.mdx#output)
-
----
-
-### parent?
-
-```ts
-optional parent: StepWithChildSpans;
-```
-
-Defined in: [src/types/log.types.ts:176](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L176)
 
 ---
 
@@ -242,7 +182,7 @@ Defined in: [src/types/log.types.ts:176](https://github.com/rungalileo/galileo-j
 spans: Span[] = [];
 ```
 
-Defined in: [src/types/log.types.ts:54](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L54)
+Defined in: [src/types/logging/span.types.ts:39](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L39)
 
 #### Inherited from
 
@@ -256,7 +196,7 @@ Defined in: [src/types/log.types.ts:54](https://github.com/rungalileo/galileo-js
 optional statusCode: number;
 ```
 
-Defined in: [src/types/step.types.ts:59](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L59)
+Defined in: [src/types/logging/step.types.ts:112](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L112)
 
 #### Inherited from
 
@@ -270,7 +210,7 @@ Defined in: [src/types/step.types.ts:59](https://github.com/rungalileo/galileo-j
 optional stepNumber: number;
 ```
 
-Defined in: [src/types/step.types.ts:65](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L65)
+Defined in: [src/types/logging/step.types.ts:115](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L115)
 
 #### Inherited from
 
@@ -284,7 +224,7 @@ Defined in: [src/types/step.types.ts:65](https://github.com/rungalileo/galileo-j
 optional tags: string[];
 ```
 
-Defined in: [src/types/step.types.ts:62](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L62)
+Defined in: [src/types/logging/step.types.ts:111](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L111)
 
 #### Inherited from
 
@@ -295,10 +235,10 @@ Defined in: [src/types/step.types.ts:62](https://github.com/rungalileo/galileo-j
 ### type
 
 ```ts
-type: NodeType = NodeType.agent;
+type: StepType = StepType.agent;
 ```
 
-Defined in: [src/types/log.types.ts:175](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L175)
+Defined in: [src/types/logging/span.types.ts:91](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L91)
 
 #### Overrides
 
@@ -312,7 +252,7 @@ Defined in: [src/types/log.types.ts:175](https://github.com/rungalileo/galileo-j
 userMetadata: Record<string, string> = {};
 ```
 
-Defined in: [src/types/step.types.ts:58](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L58)
+Defined in: [src/types/logging/step.types.ts:110](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L110)
 
 #### Inherited from
 
@@ -320,33 +260,13 @@ Defined in: [src/types/step.types.ts:58](https://github.com/rungalileo/galileo-j
 
 ## Methods
 
-### addChild()
-
-```ts
-addChild(...spans: Span[]): void;
-```
-
-Defined in: [src/types/log.types.ts:209](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L209)
-
-#### Parameters
-
-##### spans
-
-...[`Span`](/sdk-api/typescript/reference/types/type-aliases/Span)[]
-
-#### Returns
-
-`void`
-
----
-
 ### addChildSpan()
 
 ```ts
 addChildSpan(...spans: Span[]): void;
 ```
 
-Defined in: [src/types/log.types.ts:84](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L84)
+Defined in: [src/types/logging/span.types.ts:54](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L54)
 
 #### Parameters
 
@@ -364,31 +284,13 @@ Defined in: [src/types/log.types.ts:84](https://github.com/rungalileo/galileo-js
 
 ---
 
-### children()
-
-```ts
-children(): BaseStep[];
-```
-
-Defined in: [src/types/log.types.ts:205](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L205)
-
-#### Returns
-
-`BaseStep`[]
-
-#### Overrides
-
-[`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans).[`children`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans.mdx#children)
-
----
-
 ### toJSON()
 
 ```ts
 toJSON(): Record<string, any>;
 ```
 
-Defined in: [src/types/log.types.ts:215](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/log.types.ts#L215)
+Defined in: [src/types/logging/span.types.ts:100](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts#L100)
 
 #### Returns
 
@@ -403,20 +305,35 @@ Defined in: [src/types/log.types.ts:215](https://github.com/rungalileo/galileo-j
 ### validateInputOutputSerializable()
 
 ```ts
-validateInputOutputSerializable(val: StepIOType): StepIOType;
+validateInputOutputSerializable<T>(val: T): T;
 ```
 
-Defined in: [src/types/step.types.ts:100](https://github.com/rungalileo/galileo-js/blob/5f3b47cd2f2a68c90abbeb33a3543ed980446089/src/types/step.types.ts#L100)
+Defined in: [src/types/logging/step.types.ts:141](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts#L141)
+
+#### Type Parameters
+
+##### T
+
+`T` =
+\| `string`
+\| `string`[]
+\| [`Document`](/sdk-api/typescript/reference/types/classes/Document)
+\| [`Message`](/sdk-api/typescript/reference/types/interfaces/Message)
+\| `Record`\<`string`, `string`\>
+\| [`Message`](/sdk-api/typescript/reference/types/interfaces/Message)[]
+\| `Record`\<`string`, `string`\>[]
+\| `Record`\<`string`, `string`\>[]
+\| [`Document`](/sdk-api/typescript/reference/types/classes/Document)[]
 
 #### Parameters
 
 ##### val
 
-`StepIOType`
+`T`
 
 #### Returns
 
-`StepIOType`
+`T`
 
 #### Inherited from
 
