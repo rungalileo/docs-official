@@ -11,6 +11,33 @@ title: prompts
 class PromptTemplate(BasePromptTemplateResponse)
 ```
 
+## GlobalPromptTemplates Objects
+
+```python
+class GlobalPromptTemplates(BaseClientModel)
+```
+
+#### update
+
+```python
+def update(*, template_id: str, name: str) -> PromptTemplate
+```
+
+Update a global prompt template.
+
+**Arguments**:
+
+- `template_id` (`str`): The ID of the template to update.
+- `name` (`str`): The new name for the template.
+
+**Raises**:
+
+- `PromptTemplateAPIException`: If the API request fails or returns an error.
+
+**Returns**:
+
+`PromptTemplate`: The updated prompt template.
+
 #### get\_prompt
 
 ```python
@@ -62,6 +89,32 @@ Delete a global prompt template by ID or name.
 **Returns**:
 
 `None`: 
+
+#### update\_prompt
+
+```python
+def update_prompt(*,
+                  id: Optional[str] = None,
+                  name: Optional[str] = None,
+                  new_name: str) -> PromptTemplate
+```
+
+Update a global prompt template by ID or name.
+
+**Arguments**:
+
+- `id` (`str`): The unique identifier of the template to update. Defaults to None.
+- `name` (`str`): The name of the template to update. Defaults to None.
+- `new_name` (`str`): The new name for the template.
+
+**Raises**:
+
+- `ValueError`: If neither or both id and name are provided, or if the template is not found.
+- `PromptTemplateAPIException`: If the API request fails or returns an error.
+
+**Returns**:
+
+`PromptTemplate`: The updated prompt template.
 
 #### create\_prompt
 
