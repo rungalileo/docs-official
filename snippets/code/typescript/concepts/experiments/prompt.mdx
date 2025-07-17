@@ -1,6 +1,6 @@
 ````typescript TypeScript
 import { 
-  getDataset, createPromptTemplate, 
+  getDataset, createPrompt, 
   GalileoScorers, runExperiment
 } from "galileo";
 import { MessageRole } from "galileo/types";
@@ -8,7 +8,7 @@ import { MessageRole } from "galileo/types";
 async function runPromptTemplateExperiment() {
   const projectName = "my-project";
 
-  const template = await createPromptTemplate({
+  const prompt = await createPrompt({
     template: [
       { 
         role: MessageRole.system,
@@ -22,7 +22,6 @@ async function runPromptTemplateExperiment() {
         content: "{{input}}"
       },
     ],
-    projectName: projectName,
     name: "geography-prompt",
   });
 
@@ -30,7 +29,7 @@ async function runPromptTemplateExperiment() {
     name: "geography-experiment",
     // Name of a dataset you created
     dataset: getDataset({name="countries"}),
-    promptTemplate: template,
+    promptTemplate: prompt,
     promptSettings: {
       max_tokens: 256,
       // Make sure you have an integration set up for the model alias you're using
