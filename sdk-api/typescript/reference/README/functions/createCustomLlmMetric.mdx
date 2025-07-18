@@ -11,8 +11,9 @@ title: createCustomLlmMetric
 ```ts
 function createCustomLlmMetric(
   name: string,
-  instructions: string,
-  chainPollTemplate: object,
+  userPrompt: string,
+  nodeLevel: StepType,
+  cotEnabled: boolean,
   modelName: string,
   numJudges: number,
   description: string,
@@ -32,87 +33,17 @@ Creates a custom LLM metric.
 
 The name of the custom metric.
 
-### instructions
+### userPrompt
 
 `string`
 
-Instructions for the LLM scorer version.
+### nodeLevel
 
-### chainPollTemplate
+[`StepType`](/sdk-api/typescript/reference/types/enumerations/StepType) = `StepType.llm`
 
-The chain poll template for the scorer version.
+### cotEnabled
 
-#### explanation_field_name?
-
-`string`
-
-Explanation Field Name
-
-**Description**
-
-Field name to look for in the chainpoll response, for the explanation.
-
-**Default**
-
-```ts
-explanation;
-```
-
-#### metric_description?
-
-`null` \| `string`
-
-Metric Description
-
-**Description**
-
-Description of what the metric should do.
-
-#### metric_few_shot_examples?
-
-`object`[]
-
-Metric Few Shot Examples
-
-**Description**
-
-Few-shot examples for the metric.
-
-#### metric_system_prompt?
-
-`null` \| `string`
-
-Metric System Prompt
-
-**Description**
-
-System prompt for the metric.
-
-#### template
-
-`string`
-
-Template
-
-**Description**
-
-Chainpoll prompt template.
-
-#### value_field_name?
-
-`string`
-
-Value Field Name
-
-**Description**
-
-Field name to look for in the chainpoll response, for the rating.
-
-**Default**
-
-```ts
-rating;
-```
+`boolean` = `true`
 
 ### modelName
 
