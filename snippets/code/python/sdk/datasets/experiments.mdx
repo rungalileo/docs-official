@@ -1,7 +1,7 @@
 ```python Python
 from galileo.datasets import get_dataset
 from galileo.experiments import run_experiment
-from galileo.prompts import get_prompt_template
+from galileo.prompts import get_prompt
 from galileo.schema.metrics import GalileoScorers
 
 # Get an existing dataset
@@ -9,9 +9,8 @@ dataset = get_dataset(
     name="countries"
 )
 
-# Get an existing prompt template
-prompt_template = get_prompt_template(
-    project="my-project",
+# Get an existing prompt 
+prompt = get_prompt(
     name="geography-prompt"
 )
 
@@ -19,7 +18,7 @@ prompt_template = get_prompt_template(
 results = run_experiment(
     "geography-experiment",
     dataset=dataset,
-    prompt_template=prompt_template,
+    prompt_template=prompt,
     metrics=[GalileoScorers.completeness],
     project="my-project",
 )

@@ -1,7 +1,7 @@
 ```typescript TypeScript
 import { 
   GalileoScorers, getDataset, 
-  getPromptTemplate, runExperiment
+  getPrompt, runExperiment
 } from "galileo";
 
 // Get an existing dataset
@@ -9,9 +9,8 @@ const dataset = await getDataset({
     name: "countries"
 });
 
-// Get an existing prompt template
-const promptTemplate = await getPromptTemplate({
-    projectName: "my-project",
+// Get an existing prompt 
+const prompt = await getPrompt({
     name: "geography-prompt",
   });
 
@@ -19,7 +18,7 @@ const promptTemplate = await getPromptTemplate({
 await runExperiment({
     name: "geography-experiment",
     dataset: dataset,
-    promptTemplate: promptTemplate,
+    promptTemplate: prompt,
     metrics: [GalileoScorers.Correctness],
     projectName: "my-project",
   });

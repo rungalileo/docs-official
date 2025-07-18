@@ -1,17 +1,16 @@
 ```python Python
 from galileo import Message, MessageRole
-from galileo.prompts import create_prompt_template 
+from galileo.prompts import create_prompt 
 from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
 from galileo.schema.metrics import GalileoScorers
 
 project = "my-project"
 
-# 1a. If the prompt template does not exist, create it:
-prompt_template = create_prompt_template(
+# 1a. If the prompt  does not exist, create it:
+prompt = create_prompt(
 	name="geography-prompt",
-	project=project,
-	messages=[
+	template=[
 		Message(role=MessageRole.system, 
 				content="""
 				You are a geography expert.
@@ -21,16 +20,15 @@ prompt_template = create_prompt_template(
 	]
 )
 
-# 1b. (OPTIONAL) If the prompt template already exists, fetch it:
-# prompt_template = get_prompt_template(name="geography-prompt",
-#                                       project=project)  
+# 1b. (OPTIONAL) If the prompt  already exists, fetch it:
+# prompt = get_prompt(name="geography-prompt")  
 
 # 2. Run the experiment and get results
 results = run_experiment(
 	"geography-experiment",
 	# Name of a dataset you created
 	dataset=get_dataset(name="countries"), 
-	prompt_template=prompt_template,
+	prompt_template=prompt,
 	# Optional
 	prompt_settings={
 		"max_tokens": 256,
