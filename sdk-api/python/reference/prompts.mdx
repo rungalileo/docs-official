@@ -38,6 +38,33 @@ Update a global prompt template.
 
 `PromptTemplate`: The updated prompt template.
 
+#### render\_template
+
+```python
+def render_template(*,
+                    template: str,
+                    data: Union[DatasetData, StringData],
+                    starting_token: Union[Unset, int] = 0,
+                    limit: Union[Unset, int] = 100) -> RenderTemplateResponse
+```
+
+Render a template with provided data.
+
+**Arguments**:
+
+- `template` (`str`): The template string to render.
+- `data` (`Union[DatasetData, StringData]`): The data to use for rendering the template. Can be either dataset data or string data.
+- `starting_token` (`Union[Unset, int]`): Starting token for pagination. Defaults to 0.
+- `limit` (`Union[Unset, int]`): Maximum number of rendered templates to return. Defaults to 100.
+
+**Raises**:
+
+- `PromptTemplateAPIException`: If the API request fails or returns an error.
+
+**Returns**:
+
+`Optional[RenderTemplateResponse]`: The rendered template response if successful, None otherwise.
+
 #### get\_prompt
 
 ```python
@@ -156,4 +183,35 @@ List global prompt templates with optional filtering.
 **Returns**:
 
 `list[PromptTemplate]`: List of prompt templates matching the criteria.
+
+#### render\_template
+
+```python
+def render_template(*,
+                    template: str,
+                    data: Union[DatasetData, StringData, list[str], str],
+                    starting_token: Union[Unset, int] = 0,
+                    limit: Union[Unset, int] = 100) -> RenderTemplateResponse
+```
+
+Render a template with provided data.
+
+**Arguments**:
+
+- `template` (`str`): The template string to render.
+- `data` (`Union[DatasetData, StringData, list[str], str]`): The data to use for rendering the template. Can be:
+- DatasetData: Reference to a dataset
+- StringData: List of input strings
+- list[str]: List of input strings (will be converted to StringData)
+- str: Dataset ID (will be converted to DatasetData)
+- `starting_token` (`Union[Unset, int]`): Starting token for pagination. Defaults to 0.
+- `limit` (`Union[Unset, int]`): Maximum number of rendered templates to return. Defaults to 100.
+
+**Raises**:
+
+- `PromptTemplateAPIException`: If the API request fails or returns an error.
+
+**Returns**:
+
+`Optional[RenderTemplateResponse]`: The rendered template response if successful, None otherwise.
 
