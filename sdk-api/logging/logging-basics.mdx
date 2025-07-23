@@ -29,23 +29,16 @@ When logging applications, **Log streams** are made up of zero or more **session
 Metrics are configured at the Log stream level, allowing different metrics for different Log streams.
 
 ```mermaid
-block-beta
-    columns 5
-    space:2 Project:3
-    space:5
-    Metrics space LogStreams["Log Streams"]:3 
-    space:5
-    space:2 Sessions:3
-    space:5
-    space:2 Traces:3
-    space:5
-    space:2 Spans:3
+flowchart LR
+    metrics[Metrics] --> trace
     
-    LogStreams --> Project
-    Metrics --> LogStreams
-    Sessions --> LogStreams
-    Traces --> Sessions
-    Spans --> Traces
+    subgraph trace[" "]
+        logstreams --> project[Project]
+        sessions --> logstreams[Log streams]
+        traces --> sessions[Sessions]
+        spans[Spans] --> traces[Traces]
+
+    end
 ```
 
 To log to Galileo using the SDK, you use a `GalileoLogger` object that is configured to point to a specific project and Log stream, then from there you can create sessions and traces, and add log spans to a trace. This logger can be created manually, or automatically using a range of wrappers, decorators and integrations with third party SDKs.
