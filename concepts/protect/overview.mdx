@@ -1,9 +1,9 @@
 ---
-title: Protect
-description: Learn the concepts behind Galileo Protect to safeguard applications with real-time monitoring using Luna-2 or custom code based metrics
+title: Runtime guardrails
+description: Learn the concepts behind Galileo Protect to safeguard applications with runtime monitoring using Luna-2 or custom code based metrics
 ---
 
-Galileo Protect provides real-time guardrails for your AI applications, checking inputs to, and outputs from LLMs against a range of metrics, allowing you to block user actions, or respond differently to the user.
+Galileo Protect provides runtime guardrails for your AI applications, checking inputs to, and outputs from LLMs against a range of metrics, allowing you to block user actions, or respond differently to the user.
 
 With Protect you can protect your system and your users from:
 
@@ -17,15 +17,15 @@ Protect either requires Luna-2 running on the enterprise tier of Galileo, or cus
 
 <CardGroup cols={2}>
 <Card title="Protect SDK reference" icon="code" horizontal href="/sdk-api/protect/protect">
-    Learn how to add real-time guardrails to your applications with Galileo Protect.
+    Learn how to add runtime guardrails to your applications with Galileo Protect.
 </Card>
 </CardGroup>
 
 ## Overview
 
-Galileo Protect allows you to add guardrails to your application by checking either the inputs to, or outputs from an LLM against metrics, either using Luna-2, or custom code based metrics. These checks are defined as **rules**, which are grouped into **rule sets**, which in turn are grouped into **stages** that can be run at different stages in the workflow of your application.
+Galileo Protect allows you to add guardrails to your application by checking either the inputs to, or outputs from an LLM against metrics, either using Luna-2, or custom code based metrics. These checks are defined as **rules**, which are grouped into **rulesets**, which in turn are grouped into **stages** that can be run at different stages in the workflow of your application.
 
-Rules are **triggered** based off the checking the value of different metrics evaluated using inputs or outputs, rule sets are triggered if **all** the rules in the set are triggered, and stages are triggered if **any** rulesets in that stage are triggered.
+Rules are **triggered** based off the checking the value of different metrics evaluated using inputs or outputs, rulesets are triggered if **all** the rules in the set are triggered, and stages are triggered if **any** rulesets in that stage are triggered.
 
 If the inputs or outputs you are checking trigger any rulesets in the stage, your application can handle this by blocking the input, returning a different output, or passing a user over to a human instead of an AI chatbot.
 
@@ -95,25 +95,29 @@ When a [rule set](#rulesets) is triggered, your application will need to handle 
 
 ### Rulesets
 
-Rulesets are collections of rules, along with an action. All the rules in the ruleset are evaluated in parallel, and if *all* the rules are triggered, then the ruleset is triggered. This is an `and` operation, not an `or` operation, so all rules need to return a true response for the ruleset to be triggered.
+Rulesets are collections of rules, along with an action. All the rules in the ruleset are evaluated in parallel, and if **all** the rules are triggered, then the ruleset is triggered. This is an `and` operation, not an `or` operation, so all rules need to return a true response for the ruleset to be triggered.
 
 ### Stages
 
-A stage contains a prioritized collection of rulesets. A stage is triggered if any of the rulesets are triggered, and the action returned is the action from the highest priority ruleset that is triggered. For example, if a stage has four rulesets in the order 1, 2, 3, and 4, and 2 and 4 are triggered, then the action from 2 would be returned.
+A stage contains a prioritized collection of rulesets. A stage is triggered if **any** of the rulesets are triggered, and the action returned is the action from the highest priority ruleset that is triggered. For example, if a stage has four rulesets in the order 1, 2, 3, and 4, and 2 and 4 are triggered, then the action from 2 would be returned.
 
 Stages align to the different stages in the pipelines or workflows inside your application. For example, you could have a user input stage that verifies that the user input to a chatbot does not contain any toxic content, and if so direct the user to a human operator. You can then have an output stage that verifies that the chatbot is not returning any PII.
+
+Stages can be paused and resumed when required. When paused, the stage will always return success (with a status of paused) with no rulesets triggered.
+
+Stages can also be versioned, with different versions having different rulesets. When you use a stage in your guardrails, you can specify the version to use.
 
 Stages are created in code, and saved against your Galileo project. Stages can have one of two types, [central](#central-stages) or [local](#local-stages).
 
 #### Central stages
 
-Central stages are designed to be centrally managed by an organization, for example containing rules set by an AI governance team. When you create a central stage, you create it with a prioritized list of rule sets. These stages are then called in application code by name or Id.
+Central stages are designed to be centrally managed by an organization, for example containing rules set by an AI governance team. When you create a central stage, you create it with a prioritized list of rulesets. These stages are then called in application code by name or Id.
 
 An example setup would be a central AI governance team creating different stages for chatbot inputs and outputs. All application teams across the organization would then be required to create guardrails using these stages in their applications. These stages can then be monitored by the AI governance teams, updating rules as needed without the need to re-deploy applications as the needs of the business change. As soon as the AI governance team updates a stage, the updates are immediately available to every application that uses the stage.
 
-This is particularly useful when new LLM attacks are spotted, or new regulations are implemented by compliance teams.
+When stages are updated, for example adding new rulesets, the version is incremented. The applications using these stages can then either use a stage with a fixed version, or use the latest version.
 
-Central stages can be paused or resumed when required.
+This is particularly useful when new LLM attacks are spotted, or new regulations are implemented by compliance teams.
 
 #### Local stages
 
@@ -121,13 +125,11 @@ Local stages are designed to be managed by application teams. These stages are c
 
 The advantage of local stages is that you can add custom logic to the rulesets in your application, for example allowing for a different target value for tone based off user settings. The disadvantage is that you will need to re-deploy your application to update the rules.
 
-Local stages cannot be paused, instead they are controlled by your application.
-
 ## Next steps
 
 <CardGroup cols={2}>
 <Card title="Protect SDK reference" icon="code" horizontal href="/sdk-api/protect/protect">
-    Learn how to add real-time guardrails to your applications with Galileo Protect.
+    Learn how to add runtime guardrails to your applications with Galileo Protect.
 </Card>
 <Card title="Contact us to enable Luna-2" icon="comment" horizontal href="https://galileo.ai/contact-sales">
     Contact us to learn more about using Luna-2 with Galileo Protect.

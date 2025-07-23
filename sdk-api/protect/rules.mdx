@@ -1,6 +1,6 @@
 ---
 title: Rules
-description: Learn about defining rules for your real-time guardrails
+description: Learn about defining rules for your runtime guardrails
 ---
 
 Rules are conditions that you never want your application to break. A rule is composed of three parts:
@@ -9,7 +9,42 @@ Rules are conditions that you never want your application to break. A rule is co
 - An operator
 - A target value
 
-These rules will take the value from an evaluated metric, then use the operator to compare with the target value. If this comparison returns `true`, then the rule has been broken. You can then use this in your code to change the response from your application.
+These rules will take the value from an evaluated metric, then use the operator to compare with the target value. If this comparison returns `true`, then the rule has been broken is is triggered. You can then use this in your code to change the response from your application.
+
+## Create rules
+
+To create a rule, create an instance of the `Rule`, setting the metric and operator. Set the target values as needed (for example, for the `empty` and `not_empty` operatora, there is no need to set a target value).
+
+The metric uses the [`GalileoScorers`](/sdk-api/metrics/metrics) enum, and the operator uses the `RuleOperator` enum.
+
+<CodeGroup>
+```python Python
+from galileo import GalileoScorers
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+
+rule = Rule(
+    metric=GalileoScorers.action_advancement,
+    operator=RuleOperator.lt,
+    target_value=0.90
+)
+```
+</CodeGroup>
+
+Valid values for the operator are:
+
+| Value                    | Type                     | Description           | Notes |
+| ------------------------ | ------------------------ | --------------------- | ----- |
+| `RuleOperator.gt`        | Numerical                | Greater than          | |
+| `RuleOperator.lt`        | Numerical                | Less than             | |
+| `RuleOperator.gte`       | Numerical                | Greater than or equal | |
+| `RuleOperator.lte`       | Numerical                | Less than or equal    | |
+| `RuleOperator.eq`        | Numerical or Categorical | Equals                | |
+| `RuleOperator.neq`       | Numerical or Categorical | Not equals            | |
+| `RuleOperator.contains`  | Categorical              | Contains              | Does the list of categories contain the single target values |
+| `RuleOperator.all`       | Categorical              | All                   | Does the list of categories contain all the target values |
+| `RuleOperator.any`       | Categorical              | Any                   | Does the list of categories contain any of the target values |
+| `RuleOperator.empty`     | Categorical              | Empty                 | Is the list of categories empty |
+| `RuleOperator.not_empty` | Categorical              | Not empty             | Is the list of categories not empty |
 
 ## Metrics and Operators supported
 
@@ -31,7 +66,7 @@ You can also use [custom code based metrics](#custom-code-based-metrics)
 
 Metrics can have different output values (e.g. numerical, categorical, etc.), therefore the operators and target values differ depending on the metric.
 
-## Action advancement
+### Action advancement
 
 This rule measures if your agent accomplishes, or is making progress towards a goal.
 
@@ -41,7 +76,7 @@ Read more about [action advancement](/concepts/metrics/agentic/action-advancemen
 <Tab title="Python">
 | Setting | Value |
 | :------ | :---- |
-| Metric  | `GalileoScorers.action_advancement_luna` |
+| Metric  | `GalileoScorers.action_advancement` |
 | Required Payload Fields | Both `input` and `output` must be included |
 | Values | 0.0 - 1.0 |
 | Operators supported | Greater than (`RuleOperator.gt`)<br/>Less than (`RuleOperator.lt`)<br/>Greater than or equal (`RuleOperator.gte`)<br/>Less than or equal (`RuleOperator.lte`) |
@@ -54,14 +89,14 @@ from galileo import GalileoScorers
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 
 rule = Rule(
-    metric=GalileoScorers.action_advancement_luna,
+    metric=GalileoScorers.action_advancement,
     operator=RuleOperator.lt,
     target_value=0.90
 )
 ```
 </CodeGroup>
 
-## Action completion
+### Action completion
 
 This rule measures if your agent successfully accomplished all of the user's goals.
 
@@ -71,7 +106,7 @@ Read more about [action completion](/concepts/metrics/agentic/action-completion)
 <Tab title="Python">
 | Setting | Value |
 | :------ | :---- |
-| Metric  | `GalileoScorers.action_completion_luna` |
+| Metric  | `GalileoScorers.action_completion` |
 | Required Payload Fields | Both `input` and `output` must be included |
 | Values | 0.0 - 1.0 |
 | Operators supported | Greater than (`RuleOperator.gt`)<br/>Less than (`RuleOperator.lt`)<br/>Greater than or equal (`RuleOperator.gte`)<br/>Less than or equal (`RuleOperator.lte`) |
@@ -84,14 +119,14 @@ from galileo import GalileoScorers
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 
 rule = Rule(
-    metric=GalileoScorers.action_advancement_luna,
+    metric=GalileoScorers.action_advancement,
     operator=RuleOperator.lt,
     target_value=0.90
 )
 ```
 </CodeGroup>
 
-## Completeness
+### Completeness
 
 This rule measures how thoroughly your model's response covered the relevant information available in the context provided.
 
@@ -101,7 +136,7 @@ Read more about [completeness](/concepts/metrics/response-quality/completeness).
 <Tab title="Python">
 | Setting | Value |
 | :------ | :---- |
-| Metric  | `GalileoScorers.completeness_luna` |
+| Metric  | `GalileoScorers.completeness` |
 | Required Payload Fields | Both `input` and `output` must be included |
 | Values | 0.0 - 1.0 |
 | Operators supported | Greater than (`RuleOperator.gt`)<br/>Less than (`RuleOperator.lt`)<br/>Greater than or equal (`RuleOperator.gte`)<br/>Less than or equal (`RuleOperator.lte`) |
@@ -114,14 +149,14 @@ from galileo import GalileoScorers
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 
 rule = Rule(
-    metric=GalileoScorers.completeness_luna,
+    metric=GalileoScorers.completeness,
     operator=RuleOperator.lt,
     target_value=0.90
 )
 ```
 </CodeGroup>
 
-## Context Adherence
+### Context Adherence
 
 This rule measures whether your model's response was purely based on the context provided. It can be used to stop hallucinations from reaching your end users.
 
@@ -131,7 +166,7 @@ Read more about [context adherence](/concepts/metrics/response-quality/context-a
 <Tab title="Python">
 | Setting | Value |
 | :------ | :---- |
-| Metric  | `GalileoScorers.context_adherence_luna` |
+| Metric  | `GalileoScorers.context_adherence` |
 | Required Payload Fields | Both `input` and `output` must be included |
 | Values | 0.0 - 1.0 |
 | Operators supported | Greater than (`RuleOperator.gt`)<br/>Less than (`RuleOperator.lt`)<br/>Greater than or equal (`RuleOperator.gte`)<br/>Less than or equal (`RuleOperator.lte`) |
@@ -146,14 +181,14 @@ from galileo import GalileoScorers
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 
 rule = Rule(
-    metric=GalileoScorers.context_adherence_luna,
+    metric=GalileoScorers.context_adherence,
     operator=RuleOperator.lt,
     target_value=0.10
 )
 ```
 </CodeGroup>
 
-## PII (Personal Identifiable Information)
+### PII (Personal Identifiable Information)
 
 This rule is used to detect and stop Personal Identifiable Information (PII). When applied on the input, it can be used to stop the user or company PII from being included in API calls to external services. When applied on the output, it can be used to prevent data leakage or PII being shown back to the user.
 
@@ -183,7 +218,7 @@ rule = Rule(
 ```
 </CodeGroup>
 
-## Prompt Injection
+### Prompt Injection
 
 This rule is used to detect and stop prompt injections in the input.
 
@@ -193,7 +228,7 @@ Read more about [Prompt Injection](/concepts/metrics/safety-and-compliance/promp
 <Tab title="Python">
 | Setting | Value |
 | :------ | :---- |
-| Metric  | `GalileoScorers.prompt_injection_luna` |
+| Metric  | `GalileoScorers.prompt_injection` |
 | Required Payload Fields | `input` |
 | Values | Depending on the operator, one or more of:<br/>`impersonation`<br/>`obfuscation`<br/>`simple_instruction`<br/>`few_shot`<br/>`new_context` |
 | Operators supported | Any (`RuleOperator.any`) - A list of categories<br/>All (`RuleOperator.all`) - A list of categories<br/>Contains (`RuleOperator.contains`) - A single category<br/>Equal (`RuleOperator.eq`) - A single category<br/>Not equal (`RuleOperator.neq`) - A single category<br/>Empty (`RuleOperator.empty`)<br/>Not empty (`RuleOperator.not_empty`) |
@@ -206,14 +241,14 @@ from galileo import GalileoScorers
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 
 rule = Rule(
-    metric=GalileoScorers.prompt_injection_luna,
+    metric=GalileoScorers.prompt_injection,
     operator=RuleOperator.any,
     target_value=["impersonation", "obfuscation"]
 )
 ```
 </CodeGroup>
 
-## Sexism
+### Sexism
 
 This rule is used to. detect sexist or biased language. When applied on the input, it can be used to detect sexist remarks in user queries. When applied on the output, it can be used to prevent your application from using an making biased or sexist comments in its responses.
 
@@ -223,7 +258,7 @@ Read more about [sexism](/concepts/metrics/safety-and-compliance/sexism.mdx).
 <Tab title="Python">
 | Setting | Value |
 | :------ | :---- |
-| Metric  | `GalileoScorers.input_sexism_luna` (for detecting sexism in the input)<br/>`GalileoScorers.output_sexism_luna` (for detecting sexism in the output) |
+| Metric  | `GalileoScorers.input_sexism` (for detecting sexism in the input)<br/>`GalileoScorers.output_sexism` (for detecting sexism in the output) |
 | Required Payload Fields | `input` for input sexism, `output` for output sexism |
 | Values | 0.0 - 1.0. Higher values indicate higher sexism. |
 | Operators supported | Greater than (`RuleOperator.gt`)<br/>Less than (`RuleOperator.lt`)<br/>Greater than or equal (`RuleOperator.gte`)<br/>Less than or equal (`RuleOperator.lte`) |
@@ -236,14 +271,14 @@ from galileo import GalileoScorers
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 
 rule = Rule(
-    metric=GalileoScorers.input_sexism_luna,
+    metric=GalileoScorers.input_sexism,
     operator=RuleOperator.gt,
     target_value=0.95
 )
 ```
 </CodeGroup>
 
-## Tone
+### Tone
 
 This rule is used to detect the primary tone from the text. When applied on the input, it can be used to detect negative tones in user queries. When applied on the output, it can be used to prevent your application from using an undesired tone in its responses.
 
@@ -273,7 +308,7 @@ rule = Rule(
 ```
 </CodeGroup>
 
-## Tool errors
+### Tool errors
 
 This rule measures any errors when executing tools.
 
@@ -283,7 +318,7 @@ Read more about [tool errors](/concepts/metrics/agentic/tool-error).
 <Tab title="Python">
 | Setting | Value |
 | :------ | :---- |
-| Metric  | `GalileoScorers.tool_error_rate_luna` |
+| Metric  | `GalileoScorers.tool_error_rate` |
 | Required Payload Fields | Both `input` and `output` must be included |
 | Values | 0.0 - 1.0 |
 | Operators supported | Greater than (`RuleOperator.gt`)<br/>Less than (`RuleOperator.lt`)<br/>Greater than or equal (`RuleOperator.gte`)<br/>Less than or equal (`RuleOperator.lte`) |
@@ -296,14 +331,14 @@ from galileo import GalileoScorers
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 
 rule = Rule(
-    metric=GalileoScorers.tool_error_rate_luna,
+    metric=GalileoScorers.tool_error_rate,
     operator=RuleOperator.lt,
     target_value=0.90
 )
 ```
 </CodeGroup>
 
-## Tool selection quality
+### Tool selection quality
 
 This rule measures whether the agent selected the correct tool, and for each tool passed the correct arguments.
 
@@ -313,7 +348,7 @@ Read more about [tool selection quality](/concepts/metrics/agentic/tool-selectio
 <Tab title="Python">
 | Setting | Value |
 | :------ | :---- |
-| Metric  | `GalileoScorers.tool_selection_quality_luna` |
+| Metric  | `GalileoScorers.tool_selection_quality` |
 | Required Payload Fields | Both `input` and `output` must be included |
 | Values | 0.0 - 1.0 |
 | Operators supported | Greater than (`RuleOperator.gt`)<br/>Less than (`RuleOperator.lt`)<br/>Greater than or equal (`RuleOperator.gte`)<br/>Less than or equal (`RuleOperator.lte`) |
@@ -326,14 +361,14 @@ from galileo import GalileoScorers
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 
 rule = Rule(
-    metric=GalileoScorers.tool_selection_quality_luna,
+    metric=GalileoScorers.tool_selection_quality,
     operator=RuleOperator.lt,
     target_value=0.90
 )
 ```
 </CodeGroup>
 
-## Toxicity
+### Toxicity
 
 This rule is used to detect and stop toxic or foul language in the input (user query) or output (response shown to the user).
 
@@ -343,7 +378,7 @@ Read more about [toxicity](/concepts/metrics/safety-and-compliance/toxicity).
 <Tab title="Python">
 | Setting | Value |
 | :------ | :---- |
-| Metric  | `GalileoScorers.input_toxicity_luna` (for detecting toxicity in the input)<br/>`GalileoScorers.output_toxicity_luna` (for detecting toxicity in the output) |
+| Metric  | `GalileoScorers.input_toxicity` (for detecting toxicity in the input)<br/>`GalileoScorers.output_toxicity` (for detecting toxicity in the output) |
 | Required Payload Fields | `input` for input toxicity, `output` for output toxicity |
 | Values | 0.0 - 1.0. Higher values indicate higher toxicity. |
 | Operators supported | Greater than (`RuleOperator.gt`)<br/>Less than (`RuleOperator.lt`)<br/>Greater than or equal (`RuleOperator.gte`)<br/>Less than or equal (`RuleOperator.lte`) |
@@ -356,14 +391,14 @@ from galileo import GalileoScorers
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 
 rule = Rule(
-    metric=GalileoScorers.input_toxicity_luna,
+    metric=GalileoScorers.input_toxicity,
     operator=RuleOperator.gt,
     target_value=0.95
 )
 ```
 </CodeGroup>
 
-## Custom code-based metrics
+### Custom code-based metrics
 
 If you have a [custom code-based metric scorer](/concepts/metrics/custom-metrics/custom-metrics-ui-code.mdx), it can also be used in your Galileo Protect rulesets.
 
@@ -380,3 +415,17 @@ rule = Rule(
 </CodeGroup>
 
 The operators and target values here should match the type of data that the registered scorer is expected to produce.
+
+## Related resources
+
+<CardGroup cols={2}>
+<Card title="Protect basics" horizontal href="/sdk-api/protect/protect">
+    Learn the basics of running runtime guardrails with Galileo Protect.
+</Card>
+<Card title="Rulesets" horizontal href="/sdk-api/protect/rulesets">
+    Learn about defining rulesets for your runtime guardrails.
+</Card>
+<Card title="Stages" horizontal href="/sdk-api/protect/stages">
+    Learn how to use datasets and experiments to improve your application.
+</Card>
+</CardGroup>

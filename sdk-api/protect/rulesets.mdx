@@ -1,0 +1,100 @@
+---
+title: Rulesets
+description: Learn about defining rulesets for your runtime guardrails
+---
+
+Rulesets are grouped sets of rules, combined with an associated action. Rulesets are triggered if all the rules in the set are triggered, performing an `and` operation across all the rules. Once a rule set is triggered, the action can be used in your application to decide what response to return to the user.
+
+Rulesets can be created up front and added to [central stages](/sdk-api/protect/stages#central-stages) for use later in applications, or created in your application and used with a [local stage](/sdk-api/protect/stages#local-stages)
+
+## Actions
+
+When a rule set is triggered, it returns an action to tell your application what to do. This is particularly useful when using [central stages](/sdk-api/protect/stages#central-stages) where the action can be managed by a central AI governance team to provide standard and approved responses.
+
+There are 2 types of action, passthrough and override.
+
+### Passthrough actions
+
+Passthrough actions are the default, and tell your application to handle the triggered rule set using logic managed inside your application. As this is the default, you don't need to set a passthrough action when creating a ruleset.
+
+### Override actions
+
+Override actions override your application logic by providing a random selection from a choice of one or more pre-set responses. This allows for centrally managed responses, with randomness to give different responses to different users from a pre-defined set.
+
+When you create the override action, you can set the choices:
+
+<CodeGroup>
+```python Python
+from galileo_core.schemas.protect.action import OverrideAction
+
+action = OverrideAction(
+    choices=[
+        "This is sexist.",
+        "This is not appropriate.",
+        "Please rephrase your input."
+    ]
+)
+```
+</CodeGroup>
+
+You can then get the selected choice from the response:
+
+<CodeGroup>
+```python Python
+response = invoke(
+    payload=Payload(input=user_input),
+    stage_name="my_stage",
+)
+
+# Print the random choice from the response
+print(response.action_result["value"])
+```
+</CodeGroup>
+
+## Create rulesets
+
+To create a ruleset, first create the [rules](/sdk-api/protect/rules), then create an [action](#actions) if needed, then pass these to the ruleset, with an optional description.
+
+<CodeGroup>
+```python Python
+from galileo_core.schemas.protect.action import OverrideAction
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
+
+from galileo import GalileoScorers
+
+rule = Rule(
+    metric=GalileoScorers.input_sexism,
+    operator=RuleOperator.gt,
+    target_value=0.1
+)
+
+action = OverrideAction(
+    choices=[
+        "This is sexist.",
+        "This is not appropriate.",
+        "Please rephrase your input."
+    ]
+)
+
+ruleset = Ruleset(
+    rules=[rule],
+    action=action,
+    "A ruleset to detect sexism in the input to a chatbot"
+)
+```
+</CodeGroup>
+
+## Related resources
+
+<CardGroup cols={2}>
+<Card title="Protect basics" horizontal href="/sdk-api/protect/protect">
+    Learn the basics of running runtime guardrails with Galileo Protect.
+</Card>
+<Card title="Rules" horizontal href="/sdk-api/protect/rules">
+    Learn about defining rules for your runtime guardrails.
+</Card>
+<Card title="Stages" horizontal href="/sdk-api/protect/stages">
+    Learn how to use datasets and experiments to improve your application.
+</Card>
+</CardGroup>

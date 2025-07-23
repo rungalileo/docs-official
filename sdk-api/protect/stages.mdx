@@ -1,0 +1,175 @@
+---
+title: Stages
+description: Learn about defining stages for your runtime guardrails to be used during different stages in your application workflow
+---
+
+Stages allow you to map to and control guardrails at different stages in your applications workflow. For example, you can have a stage to run guardrails on the input from a user, and a different stage for the output from an agentic workflow.
+
+A stage contains a prioritized collection of [rulesets](/sdk-api/protect/rulesets). A stage is triggered if **any** of the rulesets are triggered, and the [action](/sdk-api/protect/rulesets#actions) returned is the action from the highest priority ruleset that is triggered. For example, if a stage has four rulesets in the order 1, 2, 3, and 4, and 2 and 4 are triggered, then the action from 2 would be returned.
+
+## Stage concepts
+
+Stages are created in code against a project, then used in a guardrail by name or Id. Stages can have one of two types, [central stages](#central-stages) or [local stages](#local-stages). You can provide the project name or project Id directly when creating a stage, or use the `GALILEO_PROJECT` environment variable.
+
+When you create a central stage, you need to provide a prioritized list of [rulesets](/sdk-api/protect/rulesets). The order of these rulesets determines the action that is returned when run the guardrail. If any rulesets are triggered, the action from the first triggered ruleset in the list is returned.
+
+Stages can be paused and resumed when required. When paused, the stage will always return success (with a status of paused) with no rulesets triggered.
+
+Stages can also be versioned, with different versions having different rulesets. When you use a stage in your guardrails, you can specify the version to use.
+
+### Central stages
+
+Central stages are designed to be created and managed by central AI governance or IT teams, and can be used by any application. When you create a central stage, you supply the rulesets at creation time. When these stages are updated, for example adding new rulesets, the version is incremented. The applications using these stages can then either use a stage with a fixed version, or use the latest version.
+
+Once a central stage has been created, it can be used in any application that uses the same Galileo project, using the stage Id or name.
+
+### Local stages
+
+Local stages are designed to be managed by application teams. These stages are created without rules, then when your application uses the stage, it supplies the ruleset at runtime.
+
+Local stages can be re-used between applications, but each application will need to provide the rulesets at runtime.
+
+## Create stages
+
+See the [`create_stage` Python SDK docs](/sdk-api/python/reference/stages#create-stage) for more details.
+
+### Create a central stage
+
+When you create a central stage, you need to provide the prioritized list of rulesets.
+
+<CodeGroup>
+```python Python
+from galileo.stages import create_stage
+
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
+from galileo_core.schemas.protect.stage import StageType
+
+# Create a rule
+rule = Rule(
+    metric=GalileoScorers.input_sexism,
+    operator=RuleOperator.gt,
+    target_value=0.1
+)
+
+# Create a ruleset
+ruleset = Ruleset(rules=[rule])
+
+# Create a stage
+stage = create_stage(
+    name="My stage",
+    stage_type=StageType.central,
+    prioritized_rulesets=[ruleset],
+    description="Test the input for sexism."
+)
+```
+</CodeGroup>
+
+### Create a local stage
+
+When you create a central stage, you don't provide rulesets up front.
+
+<CodeGroup>
+```python Python
+from galileo.stages import create_stage
+
+from galileo_core.schemas.protect.stage import StageType
+
+# Create a stage
+stage = create_stage(
+    name="My stage",
+    stage_type=StageType.local,
+    description="A local stage with rules set when it is used"
+)
+```
+</CodeGroup>
+
+## Get stages
+
+You can get a stage by name or Id.
+
+<CodeGroup>
+```python Python
+from galileo.stages import get_stage
+
+stage = get_stage(stage_name="My stage")
+```
+</CodeGroup>
+
+See the [`get_stage` Python SDK docs](/sdk-api/python/reference/stages#get-stage) for more details.
+
+## Update central stages
+
+You can update the rulesets associated with a central stage. The stage can be updated to have a new ruleset, or you can clear the rules for a stage. When you update a stage, a new version is created.
+
+<CodeGroup>
+```python Python
+from galileo.stages import update_stage
+
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
+from galileo_core.schemas.protect.stage import StageType
+
+# Create a rule
+rule = Rule(
+    metric=GalileoScorers.input_toxicity,
+    operator=RuleOperator.gt,
+    target_value=0.1
+)
+
+# Create a ruleset
+ruleset = Ruleset(rules=[rule])
+
+# update the stage
+stage = update_stage(
+    stage_name="My stage",
+    prioritized_rulesets=[ruleset],
+)
+```
+</CodeGroup>
+
+See the [`update_stage` Python SDK docs](/sdk-api/python/reference/stages#update-stage) for more details.
+
+## Pause and resume stages
+
+Stages can be paused and resumed. This allows you to turn stages on and off without re-deploying your application.
+
+### pause a stage
+
+<CodeGroup>
+```python Python
+from galileo.stages import pause_stage
+
+# Pause a stage
+pause_stage(stage_name="My stage")
+```
+</CodeGroup>
+
+See the [`pause_stage` Python SDK docs](/sdk-api/python/reference/stages#pause-stage) for more details.
+
+### Resume a stage
+
+<CodeGroup>
+```python Python
+from galileo.stages import resume_stage
+
+# Resume the stage
+resume_stage(stage_name="My stage")
+```
+</CodeGroup>
+
+See the [`resume_stage` Python SDK docs](/sdk-api/python/reference/stages#resume-stage) for more details.
+
+## Related resources
+
+<CardGroup cols={2}>
+<Card title="Protect basics" horizontal href="/sdk-api/protect/protect">
+    Learn the basics of running runtime guardrails with Galileo Protect.
+</Card>
+<Card title="Rules" horizontal href="/sdk-api/protect/rules">
+    Learn about defining rules for your runtime guardrails.
+</Card>
+<Card title="Rulesets" horizontal href="/sdk-api/protect/rulesets">
+    Learn about defining rulesets for your runtime guardrails.
+</Card>
+</CardGroup>
