@@ -18,7 +18,29 @@ function createCustomLlmMetric(
   numJudges: number,
   description: string,
   tags: string[],
-): Promise<void>;
+): Promise<{
+  generated_scorer?: null | {
+    chain_poll_template: {
+      explanation_field_name?: string;
+      metric_description?: null | string;
+      metric_few_shot_examples?: object[];
+      metric_system_prompt?: null | string;
+      template: string;
+      value_field_name?: string;
+    };
+    id: string;
+    instructions: string;
+    name: string;
+  };
+  id: string;
+  model_name?: null | string;
+  num_judges?: null | number;
+  registered_scorer?: null | {
+    id: string;
+    name: string;
+  };
+  version: number;
+}>;
 ```
 
 Defined in: [src/utils/metrics.ts:21](https://github.com/rungalileo/galileo-js/blob/main/src/utils/metrics.ts#L21)
@@ -71,6 +93,30 @@ The name of the custom metric.
 
 ## Returns
 
-`Promise`\<`void`\>
+`Promise`\<\{
+`generated_scorer?`: \| `null`
+\| \{
+`chain_poll_template`: \{
+`explanation_field_name?`: `string`;
+`metric_description?`: `null` \| `string`;
+`metric_few_shot_examples?`: `object`[];
+`metric_system_prompt?`: `null` \| `string`;
+`template`: `string`;
+`value_field_name?`: `string`;
+\};
+`id`: `string`;
+`instructions`: `string`;
+`name`: `string`;
+\};
+`id`: `string`;
+`model_name?`: `null` \| `string`;
+`num_judges?`: `null` \| `number`;
+`registered_scorer?`: \| `null`
+\| \{
+`id`: `string`;
+`name`: `string`;
+\};
+`version`: `number`;
+\}\>
 
 A promise that resolves when the metric is created.
