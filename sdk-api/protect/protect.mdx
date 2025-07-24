@@ -1,11 +1,77 @@
 ---
-title: Run time guardrail Basics
-description: Learn the basics of running real-time guardrails at runtime with Galileo Protect
+title: Runtime guardrail Basics
+description: Learn the basics of running real-time guardrails at runtime
 ---
 
-## Invoke a guardrail
+Runtime guardrails allow you to verify inputs and outputs in your application against a set of metrics in real time, allowing you to block user actions, or respond differently to the user.
 
-## Add protections to your app
+These guardrails allow you to protect your application and users from harmful inputs such as prompt injections, leaking PII, or hallucinations. 
+
+<Note>
+Protect either requires Luna-2 running on the enterprise tier of Galileo, or custom code based metrics. [Contact us](https://galileo.ai/contact-sales) to get started with Luna-2.
+</Note>
+
+These guardrails are defined as **rules**, which are grouped into **rulesets**, which in turn are grouped into **stages** that can be run at different stages in the workflow of your application.
+
+<CardGroup cols={2}>
+<Card title="Rules" horizontal href="/sdk-api/protect/rules">
+    Learn about defining rules for your runtime guardrails.
+</Card>
+<Card title="Rulesets" horizontal href="/sdk-api/protect/rulesets">
+    Learn about defining rulesets for your runtime guardrails.
+</Card>
+<Card title="Stages" horizontal href="/sdk-api/protect/stages">
+    Learn how to use datasets and experiments to improve your application.
+</Card>
+<Card title="Invoke guardrails" horizontal href="/sdk-api/protect/invoke-guardrails">
+    Learn how to invoke guardrails in code using the Galileo SDK.
+</Card>
+</CardGroup>
+
+## Initial setup
+
+To use runtime guardrails in Galileo, you need to configure the SDK to connect to Galileo using an API key and optionally a URL for a custom deployment, as well as setting the project name to log the experiments to.
+
+### API key
+
+To get started with runtime guardrails, you need to configure your API key, and optionally the URL of your Galileo deployment if you are using a custom-hosted, or self-deployed version. These are set as environment variables. In development you can use a `.env` file for these, for a production deployment make sure you configure these correctly for your deployment platform.
+
+| Environment variable  | Description |
+| :-------------------- | :---------- |
+| `GALILEO_API_KEY`     | Your [Galileo API key](/references/faqs/find-keys#galileo-api-key). |
+| `GALILEO_CONSOLE_URL` | For custom Galileo deployments only, set this to the URL of your Galileo Console. If this is not set, it will default to the hosted Galileo version at [app.galileo.ai](https://app.galileo.ai). |
+
+
+### Project
+
+The project can be configured as an environment variable, or directly in code.
+
+| Environment variable  | Description |
+| :-------------------- | :---------- |
+| `GALILEO_PROJECT`     | The [Galileo project](/concepts/projects) to run guardrails in. If this is not set, you will need to pass the project name in code. |
+
+You can also set the project by passing it in when invoking the guardrail.
+
+<CodeGroup>
+```python Python
+response = invoke(
+    payload=payload,
+    stage_id="My stage",
+    project_name="My project" # Set your project name here
+)
+```
+</CodeGroup>
+
+### Luna-2
+
+With the exception of custom code based metrics, all guardrail metrics require a Galileo enterprise tier with Luna-2. [Contact us](https://galileo.ai/contact-sales) to get started with Luna-2 if you don't have this set up.
+
+## Best practices with runtime guardrails
+
+Here are some best practices with runtime guardrails:
+
+1. Use central stages to manage guardrails at an organization level.
+1. Fail early. Put guardrails as early in your application as possible. For example, check inputs before sending them to an LLM.
 
 ## Next steps
 
@@ -18,5 +84,8 @@ description: Learn the basics of running real-time guardrails at runtime with Ga
 </Card>
 <Card title="Stages" horizontal href="/sdk-api/protect/stages">
     Learn how to use datasets and experiments to improve your application.
+</Card>
+<Card title="Invoke guardrails" horizontal href="/sdk-api/protect/invoke-guardrails">
+    Learn how to invoke guardrails in code using the Galileo SDK.
 </Card>
 </CardGroup>

@@ -1,0 +1,263 @@
+---
+title: Invoke guardrails
+description: Learn how to invoke guardrails in code using the Galileo SDK
+---
+
+Once you have defined your [rules](/sdk-api/protect/rules), [rulesets](/sdk-api/protect/rulesets), and [stages](/sdk-api/protect/stages), you are ready to invoke guardrails in your application.
+
+## Invoke a guardrail
+
+Guardrails are invoked, passing a payload and the stage. The `Payload` has an `input` and `output` as required, depending on the metric (see the [metrics in the rules](/sdk-api/protect/rules#metrics-and-operators-supported) for more information on what metrics need input, output, or both).
+
+You can set the stage either by name or Id, and optionally provide a version. If you don't provide a version, the latest version of the stage is used.
+
+### Invoke a guardrail with a central stage
+
+When using a central stage, the stage needs to be created with rulesets. This can be created at any time, but is best practice to control these via scripts managed by central IT, AI governance, or operations teams who can control stages at an organizational or team level. These teams can then manage the stages independently of the application development teams.
+
+<CodeGroup>
+```python Python
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
+from galileo_core.schemas.protect.stage import StageType
+
+from galileo.stages import create_stage
+
+# Create a rule
+rule = Rule(
+    metric=GalileoScorers.input_sexism,
+    operator=RuleOperator.gt,
+    target_value=0.1
+)
+
+# Add this rule to a ruleset, using the default passthrough action
+ruleset = Ruleset(
+    rules=[rule]
+)
+
+# Create the stage
+stage = create_stage(
+    name="My local stage",
+    stage_type=StageType.central,
+    prioritized_rulesets=[ruleset]
+)
+```
+</CodeGroup>
+
+Then once the stage is created, it can be used in a guardrail.
+
+<CodeGroup>
+```python Python
+from galileo_core.schemas.protect.payload import Payload
+
+from galileo.protect import ainvoke
+
+# Create the payload
+payload = Payload(
+    input="Men are terrible parents."
+)
+
+# Invoke the guardrail with the pre-existing stage
+response = await ainvoke(
+    payload=payload,
+    stage_name="My stage"
+)
+```
+</CodeGroup>
+
+To run a guardrail synchronously, use the `invoke` method:
+
+<CodeGroup>
+```python Python
+from galileo.protect import invoke
+
+# Invoke the guardrail synchronously with the pre-existing stage
+response = invoke(
+    payload=payload,
+    stage_name="My stage"
+)
+```
+</CodeGroup>
+
+### Invoke a guardrail with a local stage
+
+When using local stages, the stage needs to be created without any rulesets. This can be created at any time, including in your application (after checking to see if it already exists), or as part of your deployment.
+
+<CodeGroup>
+```python Python
+from galileo_core.schemas.protect.stage import StageType
+
+from galileo.stages import create_stage
+
+stage = create_stage(
+    name="My local stage",
+    stage_type=StageType.local
+)
+```
+</CodeGroup>
+
+Then once the stage is created, it can be used in a guardrail.
+
+<CodeGroup>
+```python Python
+from galileo_core.schemas.protect.payload import Payload
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
+
+from galileo.protect import ainvoke
+
+# Create a rule
+rule = Rule(
+    metric=GalileoScorers.input_sexism,
+    operator=RuleOperator.gt,
+    target_value=0.1
+)
+
+# Add this rule to a ruleset, using the default passthrough action
+ruleset = Ruleset(
+    rules=[rule]
+)
+
+# Create the payload
+payload = Payload(
+    input="Men are terrible parents."
+)
+
+# Invoke the guardrail
+response = await ainvoke(
+    payload=payload,
+    stage_name="My stage",
+    prioritized_rulesets=[ruleset]
+)
+```
+</CodeGroup>
+
+To run a guardrail synchronously, use the `invoke` method:
+
+<CodeGroup>
+```python Python
+from galileo.protect import invoke
+
+# Invoke the guardrail synchronously
+response = invoke(
+    payload=payload,
+    stage_name="My stage",
+    prioritized_rulesets=[ruleset]
+)
+```
+</CodeGroup>
+
+### Set a timeout
+
+Sometimes responsiveness is more important than enforcing guardrails. When you invoke the guardrail, you can set a timeout in seconds. If this timeout is hit, the call returns a response status of timeout. The default value if this is not set is 300 seconds (5 minutes).
+
+## Guardrail responses
+
+When you invoke the guardrail, it will return a `Response` object. This has two properties of interest, `status` and `action_result`.
+
+The typical flow is:
+
+- If invoking the guardrail returns **triggered**, then check the action result to see what to return.
+    - If the action result is **passthrough**, return to the user a response that is handled in your application logic, and stop the current workflow.
+    - If the action result is **override**, return the provided choice to the user, and stop the current workflow.
+- If the guardrail returns **not triggered**, or **paused**, continue with your application workflow as normal
+
+### Response status
+
+The response status can be one of a range of `ExecutionStatus` values.
+
+| Value                           | Description |
+| :------------------------------ | :---------- |
+| `ExecutionStatus.not_triggered` | None of the rulesets have been triggered. This is the main success criteria, and your application can continue as normal. |
+| `ExecutionStatus.triggered`     | One or more of the rulesets has been triggered. Rulesets are triggered when all of the rules in the ruleset are triggered. Your application should check the action result to see if it should handle the trigger, or use the returned choice from an override action. |
+| `ExecutionStatus.paused`        | The stage you are using has been paused. Treat this as if the guardrail was not triggered. |
+| `ExecutionStatus.failed`        | The metric calculations failed. |
+| `ExecutionStatus.error`         | An error occurred with invoking the guardrail. Check the response for more details on the error.  | 
+| `ExecutionStatus.timeout`       | The guardrail timed out. |
+
+### Action result
+
+If the status of the stage is triggered, then the action result returns the result based on the action set on the highest priority ruleset that was triggered. If this is a passthrough action, then the action result is passthrough, if this is an override action, then the result is a randomly chosen value from choices set on the action.
+
+<CodeGroup>
+```python Python
+from galileo.protect import ainvoke
+
+from galileo_core.schemas.protect.execution_status import ExecutionStatus
+from galileo_core.schemas.protect.payload import Payload
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
+from galileo_core.schemas.protect.action import OverrideAction, ActionType
+
+# Create an override action with 3 choices
+action = OverrideAction(
+    choices=[
+        "This is sexist.",
+        "This is not appropriate.",
+        "Please rephrase your input."
+    ]
+)
+
+# Create a rule
+rule = Rule(
+    metric=GalileoScorers.input_sexism,
+    operator=RuleOperator.gt,
+    target_value=0.1
+)
+
+# Create a ruleset with the rule and action
+ruleset = Ruleset(
+    rules=[rule],
+    action=action,
+)
+
+# Create a central stage
+stage = create_stage(
+     name="My stage",
+     stage_type=StageType.central,
+     prioritized_rulesets=[ruleset],
+     description="Test the input for sexism."
+)
+
+# Create the payload
+payload = Payload(
+    input="Men are terrible parents."
+)
+
+# Invoke the guardrail
+response = await ainvoke(
+    payload=payload,
+    stage_name="My stage"
+)
+
+# Check if the stage triggered any rules
+if response.status == ExecutionStatus.triggered:
+    # Print the action result if the action type is override
+    if response.action_result["type"] == ActionType.OVERRIDE:
+        print(response.action_result["value"])
+```
+</CodeGroup>
+
+This code will trigger the rule, returning a random choice from the override action choices.
+
+```output
+➜ python app.py
+This is sexist.
+```
+
+## Related resources
+
+<CardGroup cols={2}>
+<Card title="Runtime guardrail basics" horizontal href="/sdk-api/protect/protect">
+    Learn the basics of running runtime guardrails.
+</Card>
+<Card title="Rules" horizontal href="/sdk-api/protect/rules">
+    Learn about defining rules for your runtime guardrails.
+</Card>
+<Card title="Rulesets" horizontal href="/sdk-api/protect/rulesets">
+    Learn about defining rulesets for your runtime guardrails.
+</Card>
+<Card title="Stages" horizontal href="/sdk-api/protect/stages">
+    Learn about defining stages for your runtime guardrails to be used during different stages in your application workflow.
+</Card>
+</CardGroup>

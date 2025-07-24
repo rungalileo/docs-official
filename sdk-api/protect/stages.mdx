@@ -31,6 +31,8 @@ Local stages can be re-used between applications, but each application will need
 
 ## Create stages
 
+Stages need to be created before being used, but can be created at any time. For central stages, these can be created using scripts managed by central AI governance teams. For local stages, you can create these in your application code (checking to see if they exist first), or create manually using scripts or part of your deployment pipelines.
+
 See the [`create_stage` Python SDK docs](/sdk-api/python/reference/stages#create-stage) for more details.
 
 ### Create a central stage
@@ -95,6 +97,8 @@ from galileo.stages import get_stage
 stage = get_stage(stage_name="My stage")
 ```
 </CodeGroup>
+
+If the stage doesn't exist, this returns `None`.
 
 See the [`get_stage` Python SDK docs](/sdk-api/python/reference/stages#get-stage) for more details.
 
@@ -163,13 +167,16 @@ See the [`resume_stage` Python SDK docs](/sdk-api/python/reference/stages#resume
 ## Related resources
 
 <CardGroup cols={2}>
-<Card title="Protect basics" horizontal href="/sdk-api/protect/protect">
-    Learn the basics of running runtime guardrails with Galileo Protect.
+<Card title="Runtime guardrail basics" horizontal href="/sdk-api/protect/protect">
+    Learn the basics of running runtime guardrails.
 </Card>
 <Card title="Rules" horizontal href="/sdk-api/protect/rules">
     Learn about defining rules for your runtime guardrails.
 </Card>
 <Card title="Rulesets" horizontal href="/sdk-api/protect/rulesets">
     Learn about defining rulesets for your runtime guardrails.
+</Card>
+<Card title="Invoke guardrails" horizontal href="/sdk-api/protect/invoke-guardrails">
+    Learn how to invoke guardrails in code using the Galileo SDK.
 </Card>
 </CardGroup>
