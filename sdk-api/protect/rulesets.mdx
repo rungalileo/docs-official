@@ -29,7 +29,7 @@ from galileo_core.schemas.protect.action import OverrideAction
 
 action = OverrideAction(
     choices=[
-        "This is sexist.",
+        "This is toxic.",
         "This is not appropriate.",
         "Please rephrase your input."
     ]
@@ -64,14 +64,14 @@ from galileo_core.schemas.protect.ruleset import Ruleset
 from galileo import GalileoScorers
 
 rule = Rule(
-    metric=GalileoScorers.input_sexism,
+    metric=GalileoScorers.input_toxicity,
     operator=RuleOperator.gt,
     target_value=0.1
 )
 
 action = OverrideAction(
     choices=[
-        "This is sexist.",
+        "This is toxic.",
         "This is not appropriate.",
         "Please rephrase your input."
     ]
@@ -80,7 +80,7 @@ action = OverrideAction(
 ruleset = Ruleset(
     rules=[rule],
     action=action,
-    "A ruleset to detect sexism in the input to a chatbot"
+    "A ruleset to detect toxicity in the input to a chatbot"
 )
 ```
 </CodeGroup>

@@ -25,7 +25,7 @@ from galileo.stages import create_stage
 
 # Create a rule
 rule = Rule(
-    metric=GalileoScorers.input_sexism,
+    metric=GalileoScorers.input_toxicity,
     operator=RuleOperator.gt,
     target_value=0.1
 )
@@ -54,7 +54,7 @@ from galileo.protect import ainvoke
 
 # Create the payload
 payload = Payload(
-    input="Men are terrible parents."
+    input="You are a terrible AI and I hate you."
 )
 
 # Invoke the guardrail with the pre-existing stage
@@ -108,7 +108,7 @@ from galileo.protect import ainvoke
 
 # Create a rule
 rule = Rule(
-    metric=GalileoScorers.input_sexism,
+    metric=GalileoScorers.input_toxicity,
     operator=RuleOperator.gt,
     target_value=0.1
 )
@@ -120,7 +120,7 @@ ruleset = Ruleset(
 
 # Create the payload
 payload = Payload(
-    input="Men are terrible parents."
+    input="You are a terrible AI and I hate you."
 )
 
 # Invoke the guardrail
@@ -192,7 +192,7 @@ from galileo_core.schemas.protect.action import OverrideAction, ActionType
 # Create an override action with 3 choices
 action = OverrideAction(
     choices=[
-        "This is sexist.",
+        "This is toxic.",
         "This is not appropriate.",
         "Please rephrase your input."
     ]
@@ -200,7 +200,7 @@ action = OverrideAction(
 
 # Create a rule
 rule = Rule(
-    metric=GalileoScorers.input_sexism,
+    metric=GalileoScorers.input_toxicity,
     operator=RuleOperator.gt,
     target_value=0.1
 )
@@ -216,12 +216,12 @@ stage = create_stage(
      name="My stage",
      stage_type=StageType.central,
      prioritized_rulesets=[ruleset],
-     description="Test the input for sexism."
+     description="Test the input for toxicity."
 )
 
 # Create the payload
 payload = Payload(
-    input="Men are terrible parents."
+    input="You are a terrible AI and I hate you."
 )
 
 # Invoke the guardrail
@@ -242,7 +242,7 @@ This code will trigger the rule, returning a random choice from the override act
 
 ```output
 ➜ python app.py
-This is sexist.
+This is toxic.
 ```
 
 ## Related resources
