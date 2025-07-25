@@ -3,6 +3,10 @@ title: Rulesets
 description: Learn about defining rulesets for your runtime guardrails
 ---
 
+import SnippetCreateActionPython from "/snippets/code/python/sdk/protect/create-action.mdx";
+import SnippetGetActionResponsePython from "/snippets/code/python/sdk/protect/get-action-response.mdx";
+import SnippetCreateRulesetPython from "/snippets/code/python/sdk/protect/create-ruleset.mdx";
+
 Rulesets are grouped sets of rules, combined with an associated action. Rulesets are triggered if all the rules in the set are triggered, performing an `and` operation across all the rules. Once a rule set is triggered, the action can be used in your application to decide what response to return to the user.
 
 Rulesets can be created up front and added to [central stages](/sdk-api/protect/stages#central-stages) for use later in applications, or created in your application and used with a [local stage](/sdk-api/protect/stages#local-stages)
@@ -24,31 +28,13 @@ Override actions override your application logic by providing a random selection
 When you create the override action, you can set the choices:
 
 <CodeGroup>
-```python Python
-from galileo_core.schemas.protect.action import OverrideAction
-
-action = OverrideAction(
-    choices=[
-        "This is toxic.",
-        "This is not appropriate.",
-        "Please rephrase your input."
-    ]
-)
-```
+<SnippetCreateActionPython/>
 </CodeGroup>
 
 You can then get the selected choice from the response:
 
 <CodeGroup>
-```python Python
-response = invoke(
-    payload=Payload(input=user_input),
-    stage_name="my_stage",
-)
-
-# Print the random choice from the response
-print(response.action_result["value"])
-```
+<SnippetGetActionResponsePython/>
 </CodeGroup>
 
 ## Create rulesets
@@ -56,33 +42,7 @@ print(response.action_result["value"])
 To create a ruleset, first create the [rules](/sdk-api/protect/rules), then create an [action](#actions) if needed, then pass these to the ruleset, with an optional description.
 
 <CodeGroup>
-```python Python
-from galileo_core.schemas.protect.action import OverrideAction
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-from galileo_core.schemas.protect.ruleset import Ruleset
-
-from galileo import GalileoScorers
-
-rule = Rule(
-    metric=GalileoScorers.input_toxicity,
-    operator=RuleOperator.gt,
-    target_value=0.1
-)
-
-action = OverrideAction(
-    choices=[
-        "This is toxic.",
-        "This is not appropriate.",
-        "Please rephrase your input."
-    ]
-)
-
-ruleset = Ruleset(
-    rules=[rule],
-    action=action,
-    "A ruleset to detect toxicity in the input to a chatbot"
-)
-```
+<SnippetCreateRulesetPython/>
 </CodeGroup>
 
 ## Related resources
