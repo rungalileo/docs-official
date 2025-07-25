@@ -1,0 +1,40 @@
+```python create_central_stage.py
+from galileo import GalileoScorers
+from galileo.stages import create_stage
+
+from galileo_core.schemas.protect.action import OverrideAction
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
+from galileo_core.schemas.protect.stage import StageType
+
+# Create a rule for toxicity
+toxicity_rule = Rule(
+    metric=GalileoScorers.input_toxicity,
+    operator=RuleOperator.gt,
+    target_value=0.1
+)
+
+# Create an override action
+action = OverrideAction(
+    choices=[
+        "This is toxic. Goodbye.",
+        "This is not appropriate. I'm ending this conversation.",
+        "Please don't speak to me that way. I'm going now."
+    ]
+)
+
+# Create a ruleset from the toxicity rule and action
+ruleset = Ruleset(
+    rules=[toxicity_rule],
+    action=action,
+)
+
+# Create a stage with the ruleset
+stage = create_stage(
+    name="Toxicity Stage",
+    stage_type=StageType.central,
+    prioritized_rulesets=[ruleset]
+)
+
+print(f"Created stage: {stage}")
+```
