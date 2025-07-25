@@ -3,6 +3,14 @@ title: Invoke guardrails
 description: Learn how to invoke guardrails in code using the Galileo SDK
 ---
 
+import SnippetCreateCentralStagePython from "/snippets/code/python/sdk/protect/create-central-stage.mdx";
+import SnippetCreateLocalStagePython from "/snippets/code/python/sdk/protect/create-local-stage.mdx";
+import SnippetAInvokeProtectCentralStagePython from "/snippets/code/python/sdk/protect/ainvoke-protect-central.mdx";
+import SnippetInvokeProtectCentralStagePython from "/snippets/code/python/sdk/protect/invoke-protect-central.mdx";
+import SnippetAInvokeProtectLocalStagePython from "/snippets/code/python/sdk/protect/ainvoke-protect-local.mdx";
+import SnippetInvokeProtectLocalStagePython from "/snippets/code/python/sdk/protect/invoke-protect-local.mdx";
+import SnippetActionResultPython from "/snippets/code/python/sdk/protect/action-result.mdx";
+
 Once you have defined your [rules](/sdk-api/protect/rules), [rulesets](/sdk-api/protect/rulesets), and [stages](/sdk-api/protect/stages), you are ready to invoke guardrails in your application.
 
 ## Invoke a guardrail
@@ -16,67 +24,19 @@ You can set the stage either by name or Id, and optionally provide a version. If
 When using a central stage, the stage needs to be created with rulesets. This can be created at any time, but is best practice to control these via scripts managed by central IT, AI governance, or operations teams who can control stages at an organizational or team level. These teams can then manage the stages independently of the application development teams.
 
 <CodeGroup>
-```python Python
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-from galileo_core.schemas.protect.ruleset import Ruleset
-from galileo_core.schemas.protect.stage import StageType
-
-from galileo.stages import create_stage
-
-# Create a rule
-rule = Rule(
-    metric=GalileoScorers.input_toxicity,
-    operator=RuleOperator.gt,
-    target_value=0.1
-)
-
-# Add this rule to a ruleset, using the default passthrough action
-ruleset = Ruleset(
-    rules=[rule]
-)
-
-# Create the stage
-stage = create_stage(
-    name="My local stage",
-    stage_type=StageType.central,
-    prioritized_rulesets=[ruleset]
-)
-```
+<SnippetCreateCentralStagePython/>
 </CodeGroup>
 
 Then once the stage is created, it can be used in a guardrail.
 
 <CodeGroup>
-```python Python
-from galileo_core.schemas.protect.payload import Payload
-
-from galileo.protect import ainvoke
-
-# Create the payload
-payload = Payload(
-    input="You are a terrible AI and I hate you."
-)
-
-# Invoke the guardrail with the pre-existing stage
-response = await ainvoke(
-    payload=payload,
-    stage_name="My stage"
-)
-```
+<SnippetAInvokeProtectCentralStagePython/>
 </CodeGroup>
 
 To run a guardrail synchronously, use the `invoke` method:
 
 <CodeGroup>
-```python Python
-from galileo.protect import invoke
-
-# Invoke the guardrail synchronously with the pre-existing stage
-response = invoke(
-    payload=payload,
-    stage_name="My stage"
-)
-```
+<SnippetInvokeProtectCentralStagePython/>
 </CodeGroup>
 
 ### Invoke a guardrail with a local stage
@@ -84,67 +44,19 @@ response = invoke(
 When using local stages, the stage needs to be created without any rulesets. This can be created at any time, including in your application (after checking to see if it already exists), or as part of your deployment.
 
 <CodeGroup>
-```python Python
-from galileo_core.schemas.protect.stage import StageType
-
-from galileo.stages import create_stage
-
-stage = create_stage(
-    name="My local stage",
-    stage_type=StageType.local
-)
-```
+<SnippetCreateLocalStagePython/>
 </CodeGroup>
 
 Then once the stage is created, it can be used in a guardrail.
 
 <CodeGroup>
-```python Python
-from galileo_core.schemas.protect.payload import Payload
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-from galileo_core.schemas.protect.ruleset import Ruleset
-
-from galileo.protect import ainvoke
-
-# Create a rule
-rule = Rule(
-    metric=GalileoScorers.input_toxicity,
-    operator=RuleOperator.gt,
-    target_value=0.1
-)
-
-# Add this rule to a ruleset, using the default passthrough action
-ruleset = Ruleset(
-    rules=[rule]
-)
-
-# Create the payload
-payload = Payload(
-    input="You are a terrible AI and I hate you."
-)
-
-# Invoke the guardrail
-response = await ainvoke(
-    payload=payload,
-    stage_name="My stage",
-    prioritized_rulesets=[ruleset]
-)
-```
+<SnippetAInvokeProtectLocalStagePython/>
 </CodeGroup>
 
-To run a guardrail synchronously, use the `invoke` method:
+To run a local stage synchronously, use the `invoke` method:
 
 <CodeGroup>
-```python Python
-from galileo.protect import invoke
-
-# Invoke the guardrail synchronously
-response = invoke(
-    payload=payload,
-    stage_name="My stage",
-    prioritized_rulesets=[ruleset]
-)
-```
+<SnippetInvokeProtectLocalStagePython/>
 </CodeGroup>
 
 ### Set a timeout
@@ -181,62 +93,7 @@ The response status can be one of a range of `ExecutionStatus` values.
 If the status of the stage is triggered, then the action result returns the result based on the action set on the highest priority ruleset that was triggered. If this is a passthrough action, then the action result is passthrough, if this is an override action, then the result is a randomly chosen value from choices set on the action.
 
 <CodeGroup>
-```python Python
-from galileo.protect import ainvoke
-
-from galileo_core.schemas.protect.execution_status import ExecutionStatus
-from galileo_core.schemas.protect.payload import Payload
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-from galileo_core.schemas.protect.ruleset import Ruleset
-from galileo_core.schemas.protect.action import OverrideAction, ActionType
-
-# Create an override action with 3 choices
-action = OverrideAction(
-    choices=[
-        "This is toxic.",
-        "This is not appropriate.",
-        "Please rephrase your input."
-    ]
-)
-
-# Create a rule
-rule = Rule(
-    metric=GalileoScorers.input_toxicity,
-    operator=RuleOperator.gt,
-    target_value=0.1
-)
-
-# Create a ruleset with the rule and action
-ruleset = Ruleset(
-    rules=[rule],
-    action=action,
-)
-
-# Create a central stage
-stage = create_stage(
-     name="My stage",
-     stage_type=StageType.central,
-     prioritized_rulesets=[ruleset],
-     description="Test the input for toxicity."
-)
-
-# Create the payload
-payload = Payload(
-    input="You are a terrible AI and I hate you."
-)
-
-# Invoke the guardrail
-response = await ainvoke(
-    payload=payload,
-    stage_name="My stage"
-)
-
-# Check if the stage triggered any rules
-if response.status == ExecutionStatus.triggered:
-    # Print the action result if the action type is override
-    if response.action_result["type"] == ActionType.OVERRIDE:
-        print(response.action_result["value"])
-```
+<SnippetActionResultPython/>
 </CodeGroup>
 
 This code will trigger the rule, returning a random choice from the override action choices.
