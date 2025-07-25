@@ -3,6 +3,19 @@ title: Rules
 description: Learn about defining rules for your runtime guardrails
 ---
 
+import SnippetCreateRuleToxicityPython from "/snippets/code/python/sdk/protect/create-rule-toxicity.mdx";
+import SnippetCreateRuleActionAdvancementPython from "/snippets/code/python/sdk/protect/create-rule-action-advancement.mdx";
+import SnippetCreateRuleActionCompletionPython from "/snippets/code/python/sdk/protect/create-rule-action-completion.mdx";
+import SnippetCreateRuleCompletenessPython from "/snippets/code/python/sdk/protect/create-rule-completeness.mdx";
+import SnippetCreateRuleContextAdherencePython from "/snippets/code/python/sdk/protect/create-rule-context-adherence.mdx";
+import SnippetCreateRulePiiPython from "/snippets/code/python/sdk/protect/create-rule-pii.mdx";
+import SnippetCreateRulePromptInjectionPython from "/snippets/code/python/sdk/protect/create-rule-prompt-injection.mdx";
+import SnippetCreateRuleSexismPython from "/snippets/code/python/sdk/protect/create-rule-sexism.mdx";
+import SnippetCreateRuleTonePython from "/snippets/code/python/sdk/protect/create-rule-tone.mdx";
+import SnippetCreateRuleToolErrorsPython from "/snippets/code/python/sdk/protect/create-rule-tool-errors.mdx";
+import SnippetCreateRuleToolSelectionQualityPython from "/snippets/code/python/sdk/protect/create-rule-tool-selection-quality.mdx";
+import SnippetCreateRuleCustomCodeMetricPython from "/snippets/code/python/sdk/protect/create-rule-custom-code-metric.mdx";
+
 Rules are conditions that you never want your application to break. A rule is composed of three parts:
 
 - A metric
@@ -18,16 +31,7 @@ To create a rule, create an instance of the `Rule`, setting the metric and opera
 The metric uses the [`GalileoScorers`](/sdk-api/metrics/metrics) enum, and the operator uses the `RuleOperator` enum.
 
 <CodeGroup>
-```python Python
-from galileo import GalileoScorers
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric=GalileoScorers.action_advancement,
-    operator=RuleOperator.lt,
-    target_value=0.90
-)
-```
+<SnippetCreateRuleToxicityPython/>
 </CodeGroup>
 
 Valid values for the operator are:
@@ -84,16 +88,7 @@ Read more about [action advancement](/concepts/metrics/agentic/action-advancemen
 </Tabs>
 
 <CodeGroup>
-```python Python
-from galileo import GalileoScorers
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric=GalileoScorers.action_advancement,
-    operator=RuleOperator.lt,
-    target_value=0.90
-)
-```
+<SnippetCreateRuleActionAdvancementPython/>
 </CodeGroup>
 
 ### Action completion
@@ -114,16 +109,7 @@ Read more about [action completion](/concepts/metrics/agentic/action-completion)
 </Tabs>
 
 <CodeGroup>
-```python Python
-from galileo import GalileoScorers
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric=GalileoScorers.action_advancement,
-    operator=RuleOperator.lt,
-    target_value=0.90
-)
-```
+<SnippetCreateRuleActionCompletionPython />
 </CodeGroup>
 
 ### Completeness
@@ -144,16 +130,7 @@ Read more about [completeness](/concepts/metrics/response-quality/completeness).
 </Tabs>
 
 <CodeGroup>
-```python Python
-from galileo import GalileoScorers
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric=GalileoScorers.completeness,
-    operator=RuleOperator.lt,
-    target_value=0.90
-)
-```
+<SnippetCreateRuleCompletenessPython />
 </CodeGroup>
 
 ### Context Adherence
@@ -176,16 +153,7 @@ Read more about [context adherence](/concepts/metrics/response-quality/context-a
 Generally, `0.1` is a good threshold below which the response is not adhering to the context. Creating a rule for less than 0.1 will trigger the rule when the response does not adhere to the provided context.
 
 <CodeGroup>
-```python Python
-from galileo import GalileoScorers
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric=GalileoScorers.context_adherence,
-    operator=RuleOperator.lt,
-    target_value=0.10
-)
-```
+<SnippetCreateRuleContextAdherencePython/>
 </CodeGroup>
 
 ### PII (Personal Identifiable Information)
@@ -206,16 +174,7 @@ Read more about [PII categories and their definitions](/concepts/metrics/safety-
 </Tabs>
 
 <CodeGroup>
-```python Python
-from galileo import GalileoScorers
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric=GalileoScorers.output_pii,
-    operator=RuleOperator.any,
-    target_value=["ssn", "address"]
-)
-```
+<SnippetCreateRulePiiPython/>
 </CodeGroup>
 
 ### Prompt Injection
@@ -236,16 +195,7 @@ Read more about [Prompt Injection](/concepts/metrics/safety-and-compliance/promp
 </Tabs>
 
 <CodeGroup>
-```python Python
-from galileo import GalileoScorers
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric=GalileoScorers.prompt_injection,
-    operator=RuleOperator.any,
-    target_value=["impersonation", "obfuscation"]
-)
-```
+<SnippetCreateRulePromptInjectionPython/>
 </CodeGroup>
 
 ### Sexism
@@ -266,16 +216,7 @@ Read more about [sexism](/concepts/metrics/safety-and-compliance/sexism.mdx).
 </Tabs>
 
 <CodeGroup>
-```python Python
-from galileo import GalileoScorers
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric=GalileoScorers.input_sexism,
-    operator=RuleOperator.gt,
-    target_value=0.95
-)
-```
+<SnippetCreateRuleSexismPython/>
 </CodeGroup>
 
 ### Tone
@@ -296,16 +237,7 @@ Read more about [tone](/concepts/metrics/expression-and-readability/tone).
 </Tabs>
 
 <CodeGroup>
-```python Python
-from galileo import GalileoScorers
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric=GalileoScorers.input_tone,
-    operator=RuleOperator.neq,
-    target_value="neutral"
-)
-```
+<SnippetCreateRuleTonePython/>
 </CodeGroup>
 
 ### Tool errors
@@ -326,16 +258,7 @@ Read more about [tool errors](/concepts/metrics/agentic/tool-error).
 </Tabs>
 
 <CodeGroup>
-```python Python
-from galileo import GalileoScorers
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric=GalileoScorers.tool_error_rate,
-    operator=RuleOperator.lt,
-    target_value=0.90
-)
-```
+<SnippetCreateRuleToolErrorsPython/>
 </CodeGroup>
 
 ### Tool selection quality
@@ -356,16 +279,7 @@ Read more about [tool selection quality](/concepts/metrics/agentic/tool-selectio
 </Tabs>
 
 <CodeGroup>
-```python Python
-from galileo import GalileoScorers
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric=GalileoScorers.tool_selection_quality,
-    operator=RuleOperator.lt,
-    target_value=0.90
-)
-```
+<SnippetCreateRuleToolSelectionQualityPython/>
 </CodeGroup>
 
 ### Toxicity
@@ -386,16 +300,7 @@ Read more about [toxicity](/concepts/metrics/safety-and-compliance/toxicity).
 </Tabs>
 
 <CodeGroup>
-```python Python
-from galileo import GalileoScorers
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric=GalileoScorers.input_toxicity,
-    operator=RuleOperator.gt,
-    target_value=0.95
-)
-```
+<SnippetCreateRuleToxicityPython/>
 </CodeGroup>
 
 ### Custom code-based metrics
@@ -403,15 +308,7 @@ rule = Rule(
 You can use [custom code-based metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-code.mdx) in your guardrail rulesets.
 
 <CodeGroup>
-```python Python
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-
-rule = Rule(
-    metric="your-metric-name",
-    operator=RuleOperator.gt,
-    target_value=0.95
-)
-```
+<SnippetCreateRuleCustomCodeMetricPython/>
 </CodeGroup>
 
 The operators and target values here should match the type of data that the registered scorer is expected to produce.
