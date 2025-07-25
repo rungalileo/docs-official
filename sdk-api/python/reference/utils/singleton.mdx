@@ -28,6 +28,7 @@ def get(*,
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
+        mode: str = "batch",
         local_metrics: Optional[list[LocalMetricConfig]] = None
         ) -> GalileoLogger
 ```
@@ -55,7 +56,8 @@ Only used if initializing a new logger, ignored otherwise.  Defaults to None.
 ```python
 def reset(project: Optional[str] = None,
           log_stream: Optional[str] = None,
-          experiment_id: Optional[str] = None) -> None
+          experiment_id: Optional[str] = None,
+          mode: str = "batch") -> None
 ```
 
 Reset (terminate and remove) one or all GalileoLogger instances.
@@ -80,7 +82,8 @@ Reset (terminate and remove) all GalileoLogger instances.
 ```python
 def flush(project: Optional[str] = None,
           log_stream: Optional[str] = None,
-          experiment_id: Optional[str] = None) -> None
+          experiment_id: Optional[str] = None,
+          mode: str = "batch") -> None
 ```
 
 Flush (upload and clear) a GalileoLogger instance.
@@ -107,7 +110,7 @@ Flush (upload and clear) all GalileoLogger instances.
 #### get\_all\_loggers
 
 ```python
-def get_all_loggers() -> dict[tuple[str, str, str], GalileoLogger]
+def get_all_loggers() -> dict[tuple[str, str, str, str], GalileoLogger]
 ```
 
 Retrieve a copy of the dictionary containing all active loggers.
