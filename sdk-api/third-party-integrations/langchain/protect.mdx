@@ -3,6 +3,10 @@ title: Runtime guardrails
 description: Learn about using Galileo runtime guardrails with LangChain and LangGraph
 ---
 
+import SnippetLangChainProtectPython from "/snippets/code/python/sdk/wrappers/langchain-protect.mdx";
+import SnippetLangChainProtectResponsePython from "/snippets/code/python/sdk/wrappers/langchain-protect-response.mdx";
+import SnippetLangChainProtectLoggingPython from "/snippets/code/python/sdk/wrappers/langchain-protect-logging.mdx";
+
 You can use runtime guardrails inside your LangChain and LangGraph apps to intercept any inputs or outputs that trigger rulesets, and stop the chain.
 
 ## Basic usage
@@ -15,28 +19,7 @@ There are 2 main components to adding runtime guardrails:
 You can then chain these together to create a runnable protected chain. 
 
 <CodeGroup>
-```python Python
-from galileo.handlers.langchain.tool import ProtectTool, ProtectParser
-
-from langchain_openai import ChatOpenAI
-
-# Create a ProtectTool instance
-protect_tool = ProtectTool(
-    stage_name="My stage"
-)
-
-# Create a LangChain LLM instance
-llm = ChatOpenAI(model="gpt-4o")
-
-# Create a ProtectParser instance, passing the LLM as the chain to be invoked
-protect_parser = ProtectParser(chain=llm, echo_output=True)
-
-# Define the chain with Protect.
-protected_chain = protect_tool | protect_parser.parser
-
-# Invoke the protected chain
-response = protected_chain.invoke({"input": query})
-```
+<SnippetLangChainProtectPython/>
 </CodeGroup>
 
 If the rulesets in the guardrail are triggered, then the response will depend on the action assigned to the ruleset that was triggered. If the action is a `Passthrough` action, the original input is returned to be processed by the calling application. If the action is an `Override` then a randomly selected choice is returned.
@@ -44,19 +27,7 @@ If the rulesets in the guardrail are triggered, then the response will depend on
 If no rulesets are triggered, then the chain is run and the relevant message type is returned by LangChain.
 
 <CodeGroup>
-```python Python
-# Invoke the chain
-response = protected_chain.invoke({"input": query})
-
-# Check the response type
-if isinstance(response, str):
-    # This indicates the ProtectTool intervened and returned a string directly
-    # such as the random choice from an Override action
-    print(f"🛡️ Intercepted/Modified - Protect Response: {response}")
-else:
-    # This means the LLM part of the chain was executed
-    print(f"✅ Allowed - LLM Response: {response.content}")
-```
+<SnippetLangChainProtectResponsePython/>
 </CodeGroup>
 
 ## Integrate with logging
@@ -64,22 +35,7 @@ else:
 You can pass a `RunnableConfig` when invoking the protected chain, allowing you to add a [GalileoCallback](/sdk-api/third-party-integrations/langchain/langchain) logger callback handler.
 
 <CodeGroup>
-```python Python
-from galileo.handlers.langchain import GalileoCallback
-from langchain_core.runnables.config import RunnableConfig
-
-# Create a callback handler
-galileo_callback = GalileoCallback()
-
-# Create the config with the callback
-config = RunnableConfig(
-            callbacks=[galileo_callback]
-        )
-
-# Invoke the chain with the callback
-response = protected_chain.invoke({"input": query}, 
-                                  config=config)
-```
+<SnippetLangChainProtectLoggingPython/>
 </CodeGroup>
 
 ## Next steps
