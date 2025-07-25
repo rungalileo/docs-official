@@ -15,3 +15,15 @@ def get_last_output(node: Union[BaseStep, None]) -> Optional[str]
 Get the last output of a node or its child spans recursively.
 
 
+#### handle\_galileo\_http\_exceptions\_for\_retry
+
+```python
+def handle_galileo_http_exceptions_for_retry(func: Callable) -> Callable
+```
+
+Decorator that catches and re-raises GalileoHTTPExceptions if the status code is 404, 408, 429, or &gt;= 500.
+
+This decorator will re-raise the exception so it can be handled by the
+`backoff` decorator.
+
+

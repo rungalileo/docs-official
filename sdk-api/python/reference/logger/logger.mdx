@@ -8,8 +8,7 @@ title: logger.logger
 ## GalileoLogger Objects
 
 ```python
-class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger,
-                    DecorateAllMethods)
+class GalileoLogger(TracesLogger, DecorateAllMethods)
 ```
 
 This class can be used to upload traces to Galileo.
@@ -52,7 +51,7 @@ And let&#x27;s add some more complex inputs/outputs using some of our helper cla
 trace = logger.start_trace(input="Who's a good bot?")
 logger.add_retriever_span(
     input="Who's a good bot?",
-    documents=["Research shows that I am a good bot."],
+    output=["Research shows that I am a good bot."],
     duration_ns=1000
 )
 logger.add_llm_span(
@@ -139,6 +138,8 @@ def add_single_llm_span_trace(
 ```
 
 Create a new trace with a single span and add it to the list of traces.
+
+The trace is automatically concluded.
 
 **Arguments**:
 

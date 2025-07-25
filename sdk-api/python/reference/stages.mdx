@@ -8,11 +8,12 @@ title: stages
 #### create\_stage
 
 ```python
-def create_stage(project_id: Union[str, UUID4],
+def create_stage(project_id: Optional[Union[str, UUID4]] = None,
+                 project_name: Optional[str] = None,
                  name: Optional[str] = None,
                  stage_type: StageType = StageType.local,
                  pause: bool = False,
-                 rulesets: Optional[list[Rule]] = None,
+                 prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
                  description: Optional[str] = None) -> Optional[StageDB]
 ```
 
@@ -21,10 +22,12 @@ Creates a new stage.
 **Arguments**:
 
 - `project_id`: The ID of the project.
+- `project_name`: Name of the project. If `project_id` is not provided,
+this will be used to look up the project.
 - `name`: Name of the stage. Defaults to a generated name.
 - `stage_type`: Type of the stage.
 - `pause`: Whether the stage should be created in a paused state.
-- `rulesets`: List of rules for the stage.
+- `prioritized_rulesets`: List of rulesets for the stage.
 - `description`: Description for the stage.
 
 **Returns**:
@@ -59,11 +62,11 @@ The fetched Stage.
 
 ```python
 def update_stage(
-        project_id: Optional[Union[str, UUID4]] = None,
-        project_name: Optional[str] = None,
-        stage_id: Optional[Union[str, UUID4]] = None,
-        stage_name: Optional[str] = None,
-        prioritized_rulesets: Optional[list[Rule]] = None
+    project_id: Optional[Union[str, UUID4]] = None,
+    project_name: Optional[str] = None,
+    stage_id: Optional[Union[str, UUID4]] = None,
+    stage_name: Optional[str] = None,
+    prioritized_rulesets: Optional[Sequence[Ruleset]] = None
 ) -> Optional[StageDB]
 ```
 
