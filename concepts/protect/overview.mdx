@@ -1,11 +1,11 @@
 ---
-title: Runtime guardrails
-description: Learn the concepts behind runtime guardrails to safeguard applications with runtime monitoring using Luna-2 or custom code based metrics
+title: Runtime Protection
+description: Learn the concepts behind runtime protection to safeguard applications with runtime monitoring using Luna-2 or custom code based metrics
 ---
 
-Galileo provides runtime guardrails for your AI applications, checking inputs to, and outputs from LLMs against a range of metrics, allowing you to block user actions, or respond differently to the user.
+Galileo provides runtime protection for your AI applications, checking inputs to, and outputs from LLMs against a range of metrics, allowing you to block user actions, or respond differently to the user.
 
-With runtime guardrails you can protect your system and your users from:
+With runtime protection you can protect your system and your users from:
 
 - Harmful requests and security threats (e.g. Prompt Injections, toxic language)
 - Data Privacy protection (e.g. PII leakage)
@@ -18,17 +18,17 @@ Protect either requires [Luna-2](/concepts/luna/luna) running on the enterprise 
 </Note>
 
 <CardGroup cols={2}>
-<Card title="Runtime guardrail SDK reference" icon="code" horizontal href="/sdk-api/protect/protect">
-    Learn how to add runtime guardrails to your applications.
+<Card title="Runtime protection SDK reference" icon="code" horizontal href="/sdk-api/protect/protect">
+    Learn how to add runtime protection to your applications.
 </Card>
-<Card title="Add runtime guardrails to a simple chatbot" icon="code" href="/how-to-guides/protect/basic-protect" horizontal>
-  Learn how to add a runtime guardrail to a simple chatbot application
+<Card title="Add runtime protection to a simple chatbot" icon="code" href="/how-to-guides/protect/basic-protect" horizontal>
+  Learn how to add runtime protection to a simple chatbot application
 </Card>
 </CardGroup>
 
 ## Overview
 
-You can add guardrails to your application, checking either the inputs to, or outputs from an LLM against metrics, either using Luna-2, or custom code based metrics. These checks are defined as **rules**, which are grouped into **rulesets**, which in turn are grouped into **stages** that can be run at different stages in the workflow of your application.
+You can add runtime protection to your application, checking either the inputs to, or outputs from an LLM against metrics, either using Luna-2, or custom code based metrics. These checks are defined as **rules**, which are grouped into **rulesets**, which in turn are grouped into **stages** that can be run at different stages in the workflow of your application.
 
 Rules are **triggered** based off the checking the value of different metrics evaluated using inputs or outputs, rulesets are triggered if **all** the rules in the set are triggered, and stages are triggered if **any** rulesets in that stage are triggered.
 
@@ -76,13 +76,13 @@ flowchart LR
 
 Stages can be defined and managed either inside an application by the development team of that application, or at a central level, allowing AI governance teams or central IT to control the rules used by multiple applications across your organization.
 
-## Components of a runtime guardrail
+## Components of runtime protection
 
-To invoke runtime guardrails, you need to configure a number of components - rules, actions, rulesets, and stages.
+To invoke runtime protection, you need to configure a number of components - rules, actions, rulesets, and stages.
 
 ### Rules
 
-The core component of a guardrail is a **rule**. Rules are defined as a **metric**, an **operator**, and zero or more **target values**. Rules are triggered if the result of the metric, evaluated against a given input or output, meets the condition of the operator and the target values. Rules should be triggered and return a true value for unwanted scenarios. For example, if you are building a guardrail to block a toxic input, the rule should trigger if the input is toxic.
+The core component of runtime protection is a **rule**. Rules are defined as a **metric**, an **operator**, and zero or more **target values**. Rules are triggered if the result of the metric, evaluated against a given input or output, meets the condition of the operator and the target values. Rules should be triggered and return a true value for unwanted scenarios. For example, if you are building protection to block a toxic input, the rule should trigger if the input is toxic.
 
 The operator and target values depend on the metric. For example, a numerical metric like input sexism gives a numerical score from 0.0-1.0, so you could create a rule that is triggered when the metric value is greater than 0.1. If you are checking for a categorical value like PII, then you create a rule that is triggered if the result of the metric contains a password or a Social Security number.
 
@@ -110,7 +110,7 @@ Stages align to the different stages in the pipelines or workflows inside your a
 
 Stages can be paused and resumed when required. When paused, the stage will always return success (with a status of paused) with no rulesets triggered.
 
-Stages can also be versioned, with different versions having different rulesets. When you use a stage in your guardrails, you can specify the version to use.
+Stages can also be versioned, with different versions having different rulesets. When you use a stage, you can specify the version to use.
 
 Stages are created in code, and saved against your Galileo project. Stages can have one of two types, [central](#central-stages) or [local](#local-stages).
 
@@ -118,7 +118,7 @@ Stages are created in code, and saved against your Galileo project. Stages can h
 
 Central stages are designed to be centrally managed by an organization, for example containing rules set by an AI governance team. When you create a central stage, you create it with a prioritized list of rulesets. These stages are then called in application code by name or Id.
 
-An example setup would be a central AI governance team creating different stages for chatbot inputs and outputs. All application teams across the organization would then be required to create guardrails using these stages in their applications. These stages can then be monitored by the AI governance teams, updating rules as needed without the need to re-deploy applications as the needs of the business change. As soon as the AI governance team updates a stage, the updates are immediately available to every application that uses the stage.
+An example setup would be a central AI governance team creating different stages for chatbot inputs and outputs. All application teams across the organization would then be required to add runtime protection using these stages in their applications. These stages can then be monitored by the AI governance teams, updating rules as needed without the need to re-deploy applications as the needs of the business change. As soon as the AI governance team updates a stage, the updates are immediately available to every application that uses the stage.
 
 When stages are updated, for example adding new rulesets, the version is incremented. The applications using these stages can then either use a stage with a fixed version, or use the latest version.
 
@@ -133,10 +133,10 @@ The advantage of local stages is that you can add custom logic to the rulesets i
 ## Next steps
 
 <CardGroup cols={2}>
-<Card title="Runtime guardrail SDK reference" icon="code" horizontal href="/sdk-api/protect/protect">
-    Learn how to add runtime guardrails to your applications.
+<Card title="Runtime protection SDK reference" icon="code" horizontal href="/sdk-api/protect/protect">
+    Learn how to add runtime protection to your applications.
 </Card>
 <Card title="Contact us to enable Luna-2" icon="comment" horizontal href="https://galileo.ai/contact-sales">
-    Contact us to learn more about using Luna-2 with runtime guardrails.
+    Contact us to learn more about using Luna-2 with runtime protection.
 </Card>
 </CardGroup>

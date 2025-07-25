@@ -19,20 +19,20 @@ while True:
     if user_input.lower() in ["bye", "goodbye", ""]:
         break
 
-    # Create the payload for the guardrail
+    # Create the payload
     payload = Payload(
         input=user_input
     )
 
-    guardrail_response = invoke(
+    protection_response = invoke(
         stage_name="Toxicity Stage",
         payload=payload
     )
 
-    # Check the guardrail status
-    if guardrail_response.status == ExecutionStatus.triggered:
-        # If the guardrail is triggered, print the action result
-        print(f"Assistant: {guardrail_response.action_result['value']}")
+    # Check the runtime protection status
+    if protection_response.status == ExecutionStatus.triggered:
+        # If the ruleset is triggered, print the action result
+        print(f"Assistant: {protection_response.action_result['value']}")
         # Skip the LLM call and end the conversation
         break
 

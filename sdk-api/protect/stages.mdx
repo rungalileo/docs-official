@@ -1,6 +1,6 @@
 ---
 title: Stages
-description: Learn about defining stages for your runtime guardrails to be used during different stages in your application workflow
+description: Learn about defining stages for runtime protection to be used during different stages in your application workflow
 ---
 
 import SnippetCreateCentralStagePython from "/snippets/code/python/sdk/protect/create-central-stage.mdx";
@@ -10,19 +10,19 @@ import SnippetUpdateCentralStagePython from "/snippets/code/python/sdk/protect/u
 import SnippetPauseStagePython from "/snippets/code/python/sdk/protect/pause-stage.mdx";
 import SnippetResumeStagePython from "/snippets/code/python/sdk/protect/resume-stage.mdx";
 
-Stages allow you to map to and control guardrails at different stages in your applications workflow. For example, you can have a stage to run guardrails on the input from a user, and a different stage for the output from an agentic workflow.
+Stages allow you to map to and control runtime protection at different stages in your applications workflow. For example, you can have a stage to run rules against the input from a user, and a different stage for the output from an agentic workflow.
 
 A stage contains a prioritized collection of [rulesets](/sdk-api/protect/rulesets). A stage is triggered if **any** of the rulesets are triggered, and the [action](/sdk-api/protect/rulesets#actions) returned is the action from the highest priority ruleset that is triggered. For example, if a stage has four rulesets in the order 1, 2, 3, and 4, and 2 and 4 are triggered, then the action from 2 would be returned.
 
 ## Stage concepts
 
-Stages are created in code against a project, then used in a guardrail by name or Id. Stages can have one of two types, [central stages](#central-stages) or [local stages](#local-stages). You can provide the project name or project Id directly when creating a stage, or use the `GALILEO_PROJECT` environment variable.
+Stages are created in code against a project, then used in runtime protection by name or Id. Stages can have one of two types, [central stages](#central-stages) or [local stages](#local-stages). You can provide the project name or project Id directly when creating a stage, or use the `GALILEO_PROJECT` environment variable.
 
-When you create a central stage, you need to provide a prioritized list of [rulesets](/sdk-api/protect/rulesets). The order of these rulesets determines the action that is returned when run the guardrail. If any rulesets are triggered, the action from the first triggered ruleset in the list is returned.
+When you create a central stage, you need to provide a prioritized list of [rulesets](/sdk-api/protect/rulesets). The order of these rulesets determines the action that is returned, if any rulesets are triggered, the action from the first triggered ruleset in the list is returned.
 
 Stages can be paused and resumed when required. When paused, the stage will always return success (with a status of paused) with no rulesets triggered.
 
-Stages can also be versioned, with different versions having different rulesets. When you use a stage in your guardrails, you can specify the version to use.
+Stages can also be versioned, with different versions having different rulesets. When you use a stage, you can specify the version to use.
 
 ### Central stages
 
@@ -103,16 +103,16 @@ See the [`resume_stage` Python SDK docs](/sdk-api/python/reference/stages#resume
 ## Related resources
 
 <CardGroup cols={2}>
-<Card title="Runtime guardrail basics" horizontal href="/sdk-api/protect/protect">
-    Learn the basics of running runtime guardrails.
+<Card title="Runtime protection basics" horizontal href="/sdk-api/protect/protect">
+    Learn the basics of running runtime protection.
 </Card>
 <Card title="Rules" horizontal href="/sdk-api/protect/rules">
-    Learn about defining rules for your runtime guardrails.
+    Learn about defining rules for runtime protection.
 </Card>
 <Card title="Rulesets" horizontal href="/sdk-api/protect/rulesets">
-    Learn about defining rulesets for your runtime guardrails.
+    Learn about defining rulesets for runtime protection.
 </Card>
-<Card title="Invoke guardrails" horizontal href="/sdk-api/protect/invoke-guardrails">
-    Learn how to invoke guardrails in code using the Galileo SDK.
+<Card title="Invoke runtime protection" horizontal href="/sdk-api/protect/invoke-protection">
+    Learn how to invoke runtime protection in code using the Galileo SDK.
 </Card>
 </CardGroup>

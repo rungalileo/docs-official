@@ -1,6 +1,6 @@
 ---
-title: Add runtime guardrails to a simple chatbot
-description: Learn how to add a runtime guardrail to a simple chatbot application
+title: Add runtime protection to a simple chatbot
+description: Learn how to add runtime protection to a simple chatbot application
 ---
 
 import GalileoOpenAIEnvVars from "/snippets/code/multilingual/env-galileo-openai.mdx"
@@ -12,17 +12,17 @@ import SnippetCreateActionPython from "/snippets/code/python/how-to-guides/prote
 import SnippetCreateRulesetPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/create-ruleset.mdx"
 import SnippetCreateStagePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/create-stage.mdx"
 import SnippetBasicChatbotPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/basic-chatbot.mdx"
-import SnippetImportsGuardrailPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/imports-guardrail.mdx"
+import SnippetImportsProtectPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/imports-protect.mdx"
 import SnippetCreatePayloadPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/create-payload.mdx"
-import SnippetInvokeGuardrailPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/invoke-guardrail.mdx"
-import SnippetCheckGuardrailResponsePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/check-guardrail-response.mdx"
+import SnippetInvokeProtectPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/invoke-protect.mdx"
+import SnippetCheckProtectResponsePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/check-protect-response.mdx"
 
 import SnippetFullCreateCentralStagePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/full-create-stage.mdx"
 import SnippetFullAppPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/full-app.mdx"
 
 ## Overview
 
-This guide explains how to add runtime guardrails to a simple chatbot.
+This guide explains how to add runtime protection to a simple chatbot.
 
 You will be running a basic chatbot, detecting toxicity in the users input, and if this is detected, ending the conversation. You will start by creating a central stage, as if you were an AI governance team. You will then use this stage in a simple chatbot.
 
@@ -33,7 +33,7 @@ In a real-world scenario, you could use this detection to redirect a user from a
 To complete this how-to, you will need:
 
 - An [OpenAI API key](https://openai.com/api/)
-- A [Galileo project](/concepts/projects) configured to use the Luna-2 model. Runtime guardrails require Luna-2.
+- A [Galileo project](/concepts/projects) configured to use the Luna-2 model. Runtime protection requires Luna-2.
 - Your [Galileo API key](/references/faqs/find-keys#galileo-api-key)
 
 ## Install dependencies
@@ -160,16 +160,16 @@ Assistant: Galileo Galilei was an Italian astronomer, physicist and engineer, so
 </Step>
 </Steps>
 
-## Add a runtime guardrail to your basic chatbot
+## Add runtime protection to your basic chatbot
 
-Now you have a chatbot, you can add a runtime guardrail. In this case, you will be checking the input for toxicity, and if the input is toxic, ending the conversation.
+Now you have a chatbot, you can add runtime protection. In this case, you will be checking the input for toxicity, and if the input is toxic, ending the conversation.
 
 <Steps>
-<Step title="Add import directives for the guardrails">
+<Step title="Add import directives">
 Add the following to the top of your `app.py` file:
 
 <CodeGroup>
-<SnippetImportsGuardrailPython/>
+<SnippetImportsProtectPython/>
 </CodeGroup>
 </Step>
 <Step title="Create a payload">
@@ -179,21 +179,21 @@ After the `user_input` has been checked to see if the conversation should end, c
 <SnippetCreatePayloadPython/>
 </CodeGroup>
 </Step>
-<Step title="Send the payload to the guardrail">
-Add the following code to send the payload to the guardrail.
+<Step title="Send the payload to the runtime protection SDK">
+Add the following code to send the payload.
 
 <CodeGroup>
-<SnippetInvokeGuardrailPython/>
+<SnippetInvokeProtectPython/>
 </CodeGroup>
 </Step>
 <Step title="Check the response">
-The response from the guardrail will tell you if the rule has been triggered. If it is triggered, it will also include a randomly selected choice from the override action to return as a response.
+The response will tell you if the rule has been triggered. If it is triggered, it will also include a randomly selected choice from the override action to return as a response.
 
 <CodeGroup>
-<SnippetCheckGuardrailResponsePython/>
+<SnippetCheckProtectResponsePython/>
 </CodeGroup>
 
-If the guardrail is triggered, this code prints out the selected choice from the override action, and breaks out of the `while` loop, ending the conversation.
+If the stage is triggered, this code prints out the selected choice from the override action, and breaks out of the `while` loop, ending the conversation.
 </Step>
 
 <Step title="Run your code">
@@ -217,10 +217,10 @@ Assistant: This is not appropriate. I'm ending this conversation.
 </Step>
 </Steps>
 
-You've successfully added runtime guardrails to a basic chatbot.
+You've successfully added runtime protection to a basic chatbot.
 
 ## See also
 
-- [Runtime guardrails](/concepts/protect/overview)
-- [Runtime guardrails SDK](/sdk-api/protect/protect)
-- [Integrate runtime guardrails with LangChain](/sdk-api/third-party-integrations/langchain/protect)
+- [Runtime protection](/concepts/protect/overview)
+- [Runtime protection SDK](/sdk-api/protect/protect)
+- [Integrate runtime protection with LangChain](/sdk-api/third-party-integrations/langchain/protect)
