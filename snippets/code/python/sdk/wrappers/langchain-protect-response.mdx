@@ -1,0 +1,13 @@
+```python Python
+# Invoke the chain
+response = protected_chain.invoke({"input": query})
+
+# Check the response type
+if isinstance(response, str):
+    # This indicates the ProtectTool intervened and returned a string directly
+    # such as the random choice from an Override action
+    print(f"🛡️ Intercepted/Modified - Protect Response: {response}")
+else:
+    # This means the LLM part of the chain was executed
+    print(f"✅ Allowed - LLM Response: {response.content}")
+```

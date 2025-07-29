@@ -1,0 +1,56 @@
+```python Python
+from galileo.protect import ainvoke
+
+from galileo_core.schemas.protect.execution_status import ExecutionStatus
+from galileo_core.schemas.protect.payload import Payload
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
+from galileo_core.schemas.protect.action import OverrideAction, ActionType
+
+# Create an override action with 3 choices
+action = OverrideAction(
+    choices=[
+        "This is toxic.",
+        "This is not appropriate.",
+        "Please rephrase your input."
+    ]
+)
+
+# Create a rule
+rule = Rule(
+    metric=GalileoScorers.input_toxicity,
+    operator=RuleOperator.gt,
+    target_value=0.1
+)
+
+# Create a ruleset with the rule and action
+ruleset = Ruleset(
+    rules=[rule],
+    action=action,
+)
+
+# Create a central stage
+stage = create_stage(
+     name="My stage",
+     stage_type=StageType.central,
+     prioritized_rulesets=[ruleset],
+     description="Test the input for toxicity."
+)
+
+# Create the payload
+payload = Payload(
+    input="You are a terrible AI and I hate you."
+)
+
+# Invoke runtime protection
+response = await ainvoke(
+    payload=payload,
+    stage_name="My stage"
+)
+
+# Check if the stage triggered any rules
+if response.status == ExecutionStatus.triggered:
+    # Print the action result if the action type is override
+    if response.action_result["type"] == ActionType.OVERRIDE:
+        print(response.action_result["value"])
+```

@@ -1,0 +1,121 @@
+---
+title: Invoke runtime protection
+description: Learn how to invoke runtime protection in code using the Galileo SDK
+---
+
+import SnippetCreateCentralStagePython from "/snippets/code/python/sdk/protect/create-central-stage.mdx";
+import SnippetCreateLocalStagePython from "/snippets/code/python/sdk/protect/create-local-stage.mdx";
+import SnippetAInvokeProtectCentralStagePython from "/snippets/code/python/sdk/protect/ainvoke-protect-central.mdx";
+import SnippetInvokeProtectCentralStagePython from "/snippets/code/python/sdk/protect/invoke-protect-central.mdx";
+import SnippetAInvokeProtectLocalStagePython from "/snippets/code/python/sdk/protect/ainvoke-protect-local.mdx";
+import SnippetInvokeProtectLocalStagePython from "/snippets/code/python/sdk/protect/invoke-protect-local.mdx";
+import SnippetActionResultPython from "/snippets/code/python/sdk/protect/action-result.mdx";
+
+Once you have defined your [rules](/sdk-api/protect/rules), [rulesets](/sdk-api/protect/rulesets), and [stages](/sdk-api/protect/stages), you are ready to invoke runtime protection in your application.
+
+## Invoke runtime protection
+
+Runtime protection is invoked by calling the SDK, passing a payload and the stage. The `Payload` has an `input` and `output` as required, depending on the metric (see the [metrics in the rules](/sdk-api/protect/rules#metrics-and-operators-supported) for more information on what metrics need input, output, or both).
+
+You can set the stage either by name or Id, and optionally provide a version. If you don't provide a version, the latest version of the stage is used.
+
+### Invoke runtime protection with a central stage
+
+When using a central stage, the stage needs to be created with rulesets. This can be created at any time, but is best practice to control these via scripts managed by central IT, AI governance, or operations teams who can control stages at an organizational or team level. These teams can then manage the stages independently of the application development teams.
+
+<CodeGroup>
+<SnippetCreateCentralStagePython/>
+</CodeGroup>
+
+Then once the stage is created, it can be used in runtime protection.
+
+<CodeGroup>
+<SnippetAInvokeProtectCentralStagePython/>
+</CodeGroup>
+
+To run runtime protection synchronously, use the `invoke` method:
+
+<CodeGroup>
+<SnippetInvokeProtectCentralStagePython/>
+</CodeGroup>
+
+### Invoke runtime protection with a local stage
+
+When using local stages, the stage needs to be created without any rulesets. This can be created at any time, including in your application (after checking to see if it already exists), or as part of your deployment.
+
+<CodeGroup>
+<SnippetCreateLocalStagePython/>
+</CodeGroup>
+
+Then once the stage is created, it can be used in runtime protection.
+
+<CodeGroup>
+<SnippetAInvokeProtectLocalStagePython/>
+</CodeGroup>
+
+To run a local stage synchronously, use the `invoke` method:
+
+<CodeGroup>
+<SnippetInvokeProtectLocalStagePython/>
+</CodeGroup>
+
+### Set a timeout
+
+Sometimes responsiveness is more important than enforcing runtime protection. When you invoke runtime protection, you can set a timeout in seconds. If this timeout is hit, the call returns a response status of timeout. The default value if this is not set is 300 seconds (5 minutes).
+
+## Runtime protection responses
+
+When you invoke runtime protection, it will return a `Response` object. This has two properties of interest, `status` and `action_result`.
+
+The typical flow is:
+
+- If invoking runtime protection returns **triggered**, then check the action result to see what to return.
+    - If the action result is **passthrough**, return to the user a response that is handled in your application logic, and stop the current workflow.
+    - If the action result is **override**, return the provided choice to the user, and stop the current workflow.
+- If runtime protection returns **not triggered**, or **paused**, continue with your application workflow as normal
+
+### Response status
+
+The response status can be one of a range of `ExecutionStatus` values.
+
+| Value                           | Description |
+| :------------------------------ | :---------- |
+| `ExecutionStatus.not_triggered` | None of the rulesets have been triggered. This is the main success criteria, and your application can continue as normal. |
+| `ExecutionStatus.triggered`     | One or more of the rulesets has been triggered. Rulesets are triggered when all of the rules in the ruleset are triggered. Your application should check the action result to see if it should handle the trigger, or use the returned choice from an override action. |
+| `ExecutionStatus.paused`        | The stage you are using has been paused. Treat this as if the stage was not triggered. |
+| `ExecutionStatus.failed`        | The metric calculations failed. Please contact Galileo support for help. |
+| `ExecutionStatus.error`         | An error occurred with invoking runtime protection. Check the response for more details on the error.  | 
+| `ExecutionStatus.skipped`       | The stage did not have any rulesets defined, so was skipped. |
+| `ExecutionStatus.timeout`       | The stage timed out. |
+
+### Action result
+
+If the status of the stage is triggered, then the action result returns the result based on the action set on the highest priority ruleset that was triggered. If this is a passthrough action, then the action result is passthrough, if this is an override action, then the result is a randomly chosen value from choices set on the action.
+
+<CodeGroup>
+<SnippetActionResultPython/>
+</CodeGroup>
+
+This code will trigger the rule, returning a random choice from the override action choices.
+
+```output
+➜ python app.py
+This is toxic.
+```
+
+## Related resources
+
+<CardGroup cols={2}>
+<Card title="Runtime protection basics" horizontal href="/sdk-api/protect/protect">
+    Learn the basics of running runtime protection.
+</Card>
+<Card title="Rules" horizontal href="/sdk-api/protect/rules">
+    Learn about defining rules for runtime protection.
+</Card>
+<Card title="Rulesets" horizontal href="/sdk-api/protect/rulesets">
+    Learn about defining rulesets for runtime protection.
+</Card>
+<Card title="Stages" horizontal href="/sdk-api/protect/stages">
+    Learn about defining stages for runtime protection to be used during different stages in your application workflow.
+</Card>
+</CardGroup>

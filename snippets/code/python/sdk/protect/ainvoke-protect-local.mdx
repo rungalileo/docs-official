@@ -1,0 +1,31 @@
+```python Python
+from galileo_core.schemas.protect.payload import Payload
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
+
+from galileo.protect import ainvoke
+
+# Create a rule
+rule = Rule(
+    metric=GalileoScorers.input_toxicity,
+    operator=RuleOperator.gt,
+    target_value=0.1
+)
+
+# Add this rule to a ruleset, using the default passthrough action
+ruleset = Ruleset(
+    rules=[rule]
+)
+
+# Create the payload
+payload = Payload(
+    input="You are a terrible AI and I hate you."
+)
+
+# Invoke runtime protection
+response = await ainvoke(
+    payload=payload,
+    stage_name="My stage",
+    prioritized_rulesets=[ruleset]
+)
+```

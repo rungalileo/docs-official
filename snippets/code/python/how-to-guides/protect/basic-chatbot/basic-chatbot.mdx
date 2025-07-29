@@ -1,0 +1,22 @@
+```python app.py
+from galileo.openai import openai
+
+from dotenv import load_dotenv
+load_dotenv()
+
+client = openai.OpenAI()
+
+while True:
+    # Get the input from the user
+    user_input = input("User: ")
+
+    if user_input.lower() in ["bye", "goodbye", ""]:
+        break
+
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": user_input}],
+    )
+
+    print(f"Assistant: {response.choices[0].message.content.strip()}")
+```

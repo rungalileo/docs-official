@@ -1,0 +1,23 @@
+```python Python
+from galileo.stages import update_stage
+
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
+from galileo_core.schemas.protect.stage import StageType
+
+# Create a rule
+rule = Rule(
+    metric=GalileoScorers.input_toxicity,
+    operator=RuleOperator.gt,
+    target_value=0.1
+)
+
+# Create a ruleset
+ruleset = Ruleset(rules=[rule])
+
+# update the stage
+stage = update_stage(
+    stage_name="My stage",
+    prioritized_rulesets=[ruleset],
+)
+```

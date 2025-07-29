@@ -1,0 +1,108 @@
+---
+title: Runtime protection Basics
+description: Learn the basics of running real-time protection at runtime
+---
+
+import SnippetInvokeProtectPython from "/snippets/code/python/sdk/protect/invoke-protect-with-project.mdx";
+
+Runtime protection allows you to verify inputs and outputs in your application against a set of metrics in real time, allowing you to block user actions, or respond differently to the user.
+
+This allows you to protect your application and users from harmful inputs such as prompt injections, leaking PII, or hallucinations. 
+
+<Note>
+Protect either requires Luna-2 running on the enterprise tier of Galileo, or custom code based metrics. [Contact us](https://galileo.ai/contact-sales) to get started with Luna-2.
+</Note>
+
+Runtime protection starts with **rules**, which are grouped into **rulesets**, which in turn are grouped into **stages** that can be run at different stages in the workflow of your application.
+
+<CardGroup cols={2}>
+<Card title="Rules" horizontal icon="code" href="/sdk-api/protect/rules">
+    Learn about defining rules for runtime protection.
+</Card>
+<Card title="Rulesets" horizontal icon="code" href="/sdk-api/protect/rulesets">
+    Learn about defining rulesets for runtime protection.
+</Card>
+<Card title="Stages" horizontal icon="code" href="/sdk-api/protect/stages">
+    Learn about defining stages for runtime protection to be used during different stages in your application workflow.
+</Card>
+<Card title="Invoke protection" horizontal icon="code" href="/sdk-api/protect/invoke-protect">
+    Learn how to invoke runtime protection in code using the Galileo SDK.
+</Card>
+<Card title="Integrate with LangChain" horizontal icon="code" href="/sdk-api/third-party-integrations/langchain/protect">
+    Learn how to invoke runtime protection in your LangChain applications.
+</Card>
+</CardGroup>
+
+## Initial setup
+
+To use runtime protection in Galileo, you need to configure the SDK to connect to Galileo using an API key and optionally a URL for a custom deployment, as well as setting the project name to log the experiments to.
+
+### API key
+
+To get started with runtime protection, you need to configure your API key, and optionally the URL of your Galileo deployment if you are using a custom-hosted, or self-deployed version. These are set as environment variables. In development you can use a `.env` file for these, for a production deployment make sure you configure these correctly for your deployment platform.
+
+| Environment variable  | Description |
+| :-------------------- | :---------- |
+| `GALILEO_API_KEY`     | Your [Galileo API key](/references/faqs/find-keys#galileo-api-key). |
+| `GALILEO_CONSOLE_URL` | For custom Galileo deployments only, set this to the URL of your Galileo Console. If this is not set, it will default to the hosted Galileo version at [app.galileo.ai](https://app.galileo.ai). |
+
+
+### Project
+
+The project can be configured as an environment variable, or directly in code.
+
+| Environment variable  | Description |
+| :-------------------- | :---------- |
+| `GALILEO_PROJECT`     | The [Galileo project](/concepts/projects) to run runtime protection in. If this is not set, you will need to pass the project name in code. |
+
+You can also set the project by passing it in when invoking runtime protection.
+
+<CodeGroup>
+<SnippetInvokeProtectPython/>
+</CodeGroup>
+
+### Luna-2
+
+With the exception of custom code based metrics, all runtime protection metrics require a Galileo enterprise tier with Luna-2. [Contact us](https://galileo.ai/contact-sales) to get started with Luna-2 if you don't have this set up.
+
+## Best practices with runtime protection
+
+Here are some best practices with runtime protection:
+
+1. Use central stages to manage runtime protection at an organization level.
+1. Fail early. Put runtime protection as early in your application as possible. For example, check inputs before sending them to an LLM.
+
+## Next steps
+
+### Basic runtime protection components
+
+<CardGroup cols={2}>
+<Card title="Rules" horizontal icon="code" href="/sdk-api/protect/rules">
+    Learn about defining rules for runtime protection.
+</Card>
+<Card title="Rulesets" horizontal icon="code" href="/sdk-api/protect/rulesets">
+    Learn about defining rulesets for runtime protection.
+</Card>
+<Card title="Stages" horizontal icon="code" href="/sdk-api/protect/stages">
+    Learn about defining stages for runtime protection to be used during different stages in your application workflow.
+</Card>
+<Card title="Invoke runtime protection" icon="code" horizontal href="/sdk-api/protect/invoke-protect">
+    Learn how to invoke runtime protection in code using the Galileo SDK.
+</Card>
+</CardGroup>
+
+### Integrations with third-party SDKs
+
+<CardGroup cols={2}>
+<Card title="Integrate with LangChain" icon="code" horizontal href="/sdk-api/third-party-integrations/langchain/protect">
+    Learn how to invoke runtime protection in your LangChain applications.
+</Card>
+</CardGroup>
+
+### How-to guides
+
+<CardGroup cols={2}>
+<Card title="Add runtime protection to a simple chatbot" icon="code" href="/how-to-guides/protect/basic-protect" horizontal>
+  Learn how to add runtime protection to a simple chatbot application
+</Card>
+</CardGroup>
