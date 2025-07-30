@@ -20,6 +20,18 @@ optional defaults: object;
 
 Defined in: [src/types/scorer.types.ts:68](https://github.com/rungalileo/galileo-js/blob/main/src/types/scorer.types.ts#L68)
 
+#### cot_enabled?
+
+```ts
+optional cot_enabled: null | boolean;
+```
+
+Cot Enabled
+
+##### Description
+
+Whether to enable chain of thought for this scorer. Defaults to False for llm scorers.
+
 #### filters?
 
 ```ts
@@ -51,18 +63,23 @@ List of filters to apply to the scorer.
 #### input_type?
 
 ```ts
-optional input_type: null | "basic" | "normalized";
+optional input_type:
+  | null
+  | "basic"
+  | "llm_spans"
+  | "retriever_spans"
+  | "sessions_normalized"
+  | "sessions_trace_io_only"
+  | "tool_spans"
+  | "trace_input_only"
+  | "trace_io_only"
+  | "trace_normalized"
+  | "trace_output_only";
 ```
 
 ##### Description
 
-Type of input that this scorer accepts. Defaults to ScorerInputType.basic.
-
-##### Default
-
-```ts
-basic;
-```
+What type of input to use for model-based scorers (sessions_normalized, trace_io_only, etc..).
 
 #### model_name?
 
@@ -79,6 +96,23 @@ optional num_judges: null | number;
 ```
 
 Num Judges
+
+#### output_type?
+
+```ts
+optional output_type:
+  | null
+  | "boolean"
+  | "categorical"
+  | "count"
+  | "discrete"
+  | "freeform"
+  | "percentage";
+```
+
+##### Description
+
+What type of output to use for model-based scorers (boolean, categorical, etc.).
 
 #### scoreable_node_types?
 
