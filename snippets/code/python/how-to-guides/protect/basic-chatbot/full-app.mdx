@@ -1,0 +1,45 @@
+```python app.py
+from galileo.openai import openai
+from galileo.protect import invoke
+
+from galileo_core.schemas.protect.execution_status import (
+    ExecutionStatus
+)
+from galileo_core.schemas.protect.payload import Payload
+
+from dotenv import load_dotenv
+load_dotenv()
+
+client = openai.OpenAI()
+
+while True:
+    # Get the input from the user
+    user_input = input("User: ")
+
+    if user_input.lower() in ["bye", "goodbye", ""]:
+        break
+
+    # Create the payload
+    payload = Payload(
+        input=user_input
+    )
+
+    protection_response = invoke(
+        stage_name="Toxicity Stage",
+        payload=payload
+    )
+
+    # Check the runtime protection status
+    if protection_response.status == ExecutionStatus.triggered:
+        # If the ruleset is triggered, print the action result
+        print(f"Assistant: {protection_response.action_result['value']}")
+        # Skip the LLM call and end the conversation
+        break
+
+    response = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[{"role": "user", "content": user_input}],
+    )
+
+    print(f"Assistant: {response.choices[0].message.content.strip()}")
+```

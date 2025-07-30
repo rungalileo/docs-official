@@ -1,0 +1,58 @@
+---
+title: Runtime protection
+description: Learn about using Galileo runtime protection with LangChain and LangGraph
+---
+
+import SnippetLangChainProtectPython from "/snippets/code/python/sdk/wrappers/langchain-protect.mdx";
+import SnippetLangChainProtectResponsePython from "/snippets/code/python/sdk/wrappers/langchain-protect-response.mdx";
+import SnippetLangChainProtectLoggingPython from "/snippets/code/python/sdk/wrappers/langchain-protect-logging.mdx";
+
+You can use runtime protection inside your LangChain and LangGraph apps to intercept any inputs or outputs that trigger rulesets, and stop the chain.
+
+## Basic usage
+
+There are 2 main components to adding runtime protection:
+
+- `ProtectTool` - a LangChain tool that is configured with a stage, and optionally prioritized rulesets for local stages
+- `ProtectParser` - a parser that checks the results of the `ProtectTool`, and runs the next step in the chain if the rulesets are not triggered
+
+You can then chain these together to create a runnable protected chain. 
+
+<CodeGroup>
+<SnippetLangChainProtectPython/>
+</CodeGroup>
+
+If the rulesets are triggered, then the response will depend on the action assigned to the ruleset that was triggered. If the action is a `Passthrough` action, the original input is returned to be processed by the calling application. If the action is an `Override` then a randomly selected choice is returned.
+
+If no rulesets are triggered, then the chain is run and the relevant message type is returned by LangChain.
+
+<CodeGroup>
+<SnippetLangChainProtectResponsePython/>
+</CodeGroup>
+
+## Integrate with logging
+
+You can pass a `RunnableConfig` when invoking the protected chain, allowing you to add a [GalileoCallback](/sdk-api/third-party-integrations/langchain/langchain) logger callback handler.
+
+<CodeGroup>
+<SnippetLangChainProtectLoggingPython/>
+</CodeGroup>
+
+## Next steps
+
+### Basic protection components
+
+<CardGroup cols={2}>
+<Card title="Rules" horizontal icon="code" href="/sdk-api/protect/rules">
+    Learn about defining rules for runtime protection.
+</Card>
+<Card title="Rulesets" horizontal icon="code" href="/sdk-api/protect/rulesets">
+    Learn about defining rulesets for runtime protection.
+</Card>
+<Card title="Stages" horizontal icon="code" href="/sdk-api/protect/stages">
+    Learn about defining stages for runtime protection to be used during different stages in your application workflow.
+</Card>
+<Card title="Invoke runtime protection" icon="code" horizontal href="/sdk-api/protect/invoke-protect">
+    Learn how to invoke runtime protection in code using the Galileo SDK.
+</Card>
+</CardGroup>

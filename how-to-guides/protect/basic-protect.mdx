@@ -1,0 +1,226 @@
+---
+title: Add runtime protection to a simple chatbot
+description: Learn how to add runtime protection to a simple chatbot application
+---
+
+import GalileoOpenAIEnvVars from "/snippets/code/multilingual/env-galileo-openai.mdx"
+
+import SnippetInstallPython from "/snippets/code/python/how-to-guides/basics/basic-example/install-packages.mdx";
+import SnippetImportsStagePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/imports-stage.mdx"
+import SnippetCreateRulePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/create-rule.mdx"
+import SnippetCreateActionPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/create-action.mdx"
+import SnippetCreateRulesetPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/create-ruleset.mdx"
+import SnippetCreateStagePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/create-stage.mdx"
+import SnippetBasicChatbotPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/basic-chatbot.mdx"
+import SnippetImportsProtectPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/imports-protect.mdx"
+import SnippetCreatePayloadPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/create-payload.mdx"
+import SnippetInvokeProtectPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/invoke-protect.mdx"
+import SnippetCheckProtectResponsePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/check-protect-response.mdx"
+
+import SnippetFullCreateCentralStagePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/full-create-stage.mdx"
+import SnippetFullAppPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/full-app.mdx"
+
+## Overview
+
+This guide explains how to add runtime protection to a simple chatbot.
+
+You will be running a basic chatbot, detecting toxicity in the users input, and if this is detected, ending the conversation. You will start by creating a central stage, as if you were an AI governance team. You will then use this stage in a simple chatbot.
+
+In a real-world scenario, you could use this detection to redirect a user from an AI chatbot to a human representative.
+
+## Before you start
+
+To complete this how-to, you will need:
+
+- An [OpenAI API key](https://openai.com/api/)
+- A [Galileo project](/concepts/projects) configured to use the Luna models.
+- Your [Galileo API key](/references/faqs/find-keys#galileo-api-key)
+
+## Install dependencies
+
+To use Galileo, you need to install some package dependencies, and configure environment variables.
+
+<Steps>
+
+<Step title="Install Required Dependencies">
+
+Install the required dependencies for your app. Make sure to create a virtual environment using your preferred method, then install dependencies inside that environment:
+
+<CodeGroup>
+  <SnippetInstallPython />
+</CodeGroup>
+
+</Step>
+
+<Step title="Create a .env file, and add the following values">
+
+<CodeGroup>
+<GalileoOpenAIEnvVars/>
+</CodeGroup>
+
+</Step>
+</Steps>
+
+## Create a central stage
+
+You first need to create a central stage. In a real-world scenario, these central stages would be managed by an AI governance team.
+
+<Steps>
+<Step title="Create a Python file to create the stage called `create_central_stage.py`">
+This file will define a rule that is triggered if the input toxicity is evaluated to greater than 0.1. This will then be added to a ruleset with an override action with 3 choices of response.
+
+This ruleset will be added to a central stage, registered in your project.
+</Step>
+<Step title="Add import directives">
+Start by adding import directives to import all the functions and types needed for creating stages.
+
+<CodeGroup>
+<SnippetImportsStagePython/>
+</CodeGroup>
+</Step>
+<Step title="Create the rule">
+Add code to create a rule. This rule is triggered if the input toxicity is greater than 0.1.
+
+<CodeGroup>
+<SnippetCreateRulePython/>
+</CodeGroup>
+</Step>
+<Step title="Create an override action">
+Add code to create an override action. This action has 3 choices of response if the rule is triggered.
+
+<CodeGroup>
+<SnippetCreateActionPython/>
+</CodeGroup>
+</Step>
+<Step title="Create a ruleset">
+Add code to create a ruleset using your rule and action.
+
+<CodeGroup>
+<SnippetCreateRulesetPython/>
+</CodeGroup>
+</Step>
+<Step title="Create the central stage">
+Add code to create the central stage. Stages need a unique name, so this code can only be run once per project.
+
+<CodeGroup>
+<SnippetCreateStagePython/>
+</CodeGroup>
+</Step>
+<Step title="Run your code">
+Run your code to create the central stage.
+
+<CodeGroup>
+```bash Terminal
+python create_central_stage.py
+```
+</CodeGroup>
+
+<Note>
+If you get errors showing the stage has already been created (for example, someone else working through this on the same project), then change the name of the stage and run this again.
+</Note>
+
+This will create the central stage against your project, and you can then use it in your application.
+
+<Accordion title="The full create_central_stage.py code">
+<SnippetFullCreateCentralStagePython/>
+</Accordion>
+</Step>
+</Steps>
+
+## Create a basic chatbot
+
+Now your central stage is created, you need to create a chatbot to use the stage.
+
+<Steps>
+<Step title="Create a Python file to for the chatbot called `app.py`">
+This file will have a simple console based chatbot, using OpenAI.
+</Step>
+<Step title="Add the basic chatbot code">
+
+Add the following code to your `app.py` file.
+
+<CodeGroup>
+<SnippetBasicChatbotPython/>
+</CodeGroup>
+</Step>
+<Step title="Run your code">
+Run your code to verify the basic chatbot is working. Ask a question and you should see an answer in your terminal.
+
+<CodeGroup>
+```bash Terminal
+python app.py
+```
+</CodeGroup>
+
+```output Terminal wrap
+➜ python app.py
+User: Who was Galileo
+Assistant: Galileo Galilei was an Italian astronomer, physicist and engineer, sometimes described as a polymath. Galileo has been called the "father of observational astronomy", the "father of modern physics", the "father of the scientific method", and the "father of modern science". He is known for his works in areas like improvements to the telescope and consequent astronomical observations, and his support for Copernicanism—the idea that the Earth revolves around the Sun. His works and contributions have deeply impacted modern scientific methods. He was born on February 15, 1564, and died on January 8, 1642.
+```
+</Step>
+</Steps>
+
+## Add runtime protection to your basic chatbot
+
+Now you have a chatbot, you can add runtime protection. In this case, you will be checking the input for toxicity, and if the input is toxic, ending the conversation.
+
+<Steps>
+<Step title="Add import directives">
+Add the following to the top of your `app.py` file:
+
+<CodeGroup>
+<SnippetImportsProtectPython/>
+</CodeGroup>
+</Step>
+<Step title="Create a payload">
+After the `user_input` has been checked to see if the conversation should end, create a `Payload` using this input:
+
+<CodeGroup>
+<SnippetCreatePayloadPython/>
+</CodeGroup>
+</Step>
+<Step title="Send the payload to the runtime protection SDK">
+Add the following code to send the payload.
+
+<CodeGroup>
+<SnippetInvokeProtectPython/>
+</CodeGroup>
+</Step>
+<Step title="Check the response">
+The response will tell you if the rule has been triggered. If it is triggered, it will also include a randomly selected choice from the override action to return as a response.
+
+<CodeGroup>
+<SnippetCheckProtectResponsePython/>
+</CodeGroup>
+
+If the stage is triggered, this code prints out the selected choice from the override action, and breaks out of the `while` loop, ending the conversation.
+</Step>
+
+<Step title="Run your code">
+Run your code and ask questions. Ask both non-toxic and toxic questions.
+
+<CodeGroup>
+```bash Terminal
+python app.py
+```
+</CodeGroup>
+
+```output Terminal
+➜ python app.py
+User: You are a terrible AI and I hate you
+Assistant: This is not appropriate. I'm ending this conversation.
+```
+
+<Accordion title="The full app.py code">
+<SnippetFullAppPython/>
+</Accordion>
+</Step>
+</Steps>
+
+You've successfully added runtime protection to a basic chatbot.
+
+## See also
+
+- [Runtime protection](/concepts/protect/overview)
+- [Runtime protection SDK](/sdk-api/protect/protect)
+- [Integrate runtime protection with LangChain](/sdk-api/third-party-integrations/langchain/protect)

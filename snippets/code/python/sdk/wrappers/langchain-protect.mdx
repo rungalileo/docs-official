@@ -1,0 +1,22 @@
+```python Python
+from galileo.handlers.langchain.tool import ProtectTool, ProtectParser
+
+from langchain_openai import ChatOpenAI
+
+# Create a ProtectTool instance
+protect_tool = ProtectTool(
+    stage_name="My stage"
+)
+
+# Create a LangChain LLM instance
+llm = ChatOpenAI(model="gpt-4o")
+
+# Create a ProtectParser instance, passing the LLM as the chain to be invoked
+protect_parser = ProtectParser(chain=llm, echo_output=True)
+
+# Define the chain with Protect.
+protected_chain = protect_tool | protect_parser.parser
+
+# Invoke the protected chain
+response = protected_chain.invoke({"input": query})
+```

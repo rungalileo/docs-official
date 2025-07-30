@@ -1,0 +1,118 @@
+---
+title: Stages
+description: Learn about defining stages for runtime protection to be used during different stages in your application workflow
+---
+
+import SnippetCreateCentralStagePython from "/snippets/code/python/sdk/protect/create-central-stage.mdx";
+import SnippetCreateLocalStagePython from "/snippets/code/python/sdk/protect/create-local-stage.mdx";
+import SnippetGetStagePython from "/snippets/code/python/sdk/protect/get-stage.mdx";
+import SnippetUpdateCentralStagePython from "/snippets/code/python/sdk/protect/update-central-stage.mdx";
+import SnippetPauseStagePython from "/snippets/code/python/sdk/protect/pause-stage.mdx";
+import SnippetResumeStagePython from "/snippets/code/python/sdk/protect/resume-stage.mdx";
+
+Stages allow you to map to and control runtime protection at different stages in your applications workflow. For example, you can have a stage to run rules against the input from a user, and a different stage for the output from an agentic workflow.
+
+A stage contains a prioritized collection of [rulesets](/sdk-api/protect/rulesets). A stage is triggered if **any** of the rulesets are triggered, and the [action](/sdk-api/protect/rulesets#actions) returned is the action from the highest priority ruleset that is triggered. For example, if a stage has four rulesets in the order 1, 2, 3, and 4, and 2 and 4 are triggered, then the action from 2 would be returned.
+
+## Stage concepts
+
+Stages are created in code against a project, then used in runtime protection by name or Id. Stages can have one of two types, [central stages](#central-stages) or [local stages](#local-stages). You can provide the project name or project Id directly when creating a stage, or use the `GALILEO_PROJECT` environment variable.
+
+When you create a central stage, you need to provide a prioritized list of [rulesets](/sdk-api/protect/rulesets). The order of these rulesets determines the action that is returned, if any rulesets are triggered, the action from the first triggered ruleset in the list is returned.
+
+Stages can be paused and resumed when required. When paused, the stage will always return success (with a status of paused) with no rulesets triggered.
+
+Stages can also be versioned, with different versions having different rulesets. When you use a stage, you can specify the version to use.
+
+### Central stages
+
+Central stages are designed to be created and managed by central AI governance or IT teams, and can be used by any application. When you create a central stage, you supply the rulesets at creation time. When these stages are updated, for example adding new rulesets, the version is incremented. The applications using these stages can then either use a stage with a fixed version, or use the latest version.
+
+Once a central stage has been created, it can be used in any application that uses the same Galileo project, using the stage Id or name.
+
+### Local stages
+
+Local stages are designed to be managed by application teams. These stages are created without rules, then when your application uses the stage, it supplies the ruleset at runtime.
+
+Local stages can be re-used between applications, but each application will need to provide the rulesets at runtime.
+
+## Create stages
+
+Stages need to be created before being used, but can be created at any time. For central stages, these can be created using scripts managed by central AI governance teams. For local stages, you can create these in your application code (checking to see if they exist first), or create manually using scripts or part of your deployment pipelines.
+
+See the [`create_stage` Python SDK docs](/sdk-api/python/reference/stages#create-stage) for more details.
+
+### Create a central stage
+
+When you create a central stage, you need to provide the prioritized list of rulesets.
+
+<CodeGroup>
+<SnippetCreateCentralStagePython/>
+</CodeGroup>
+
+### Create a local stage
+
+When you create a local stage, you don't provide rulesets up front.
+
+<CodeGroup>
+<SnippetCreateLocalStagePython/>
+</CodeGroup>
+
+## Get stages
+
+You can get a stage by name or Id.
+
+<CodeGroup>
+<SnippetGetStagePython/>
+</CodeGroup>
+
+If the stage doesn't exist, this returns `None`.
+
+See the [`get_stage` Python SDK docs](/sdk-api/python/reference/stages#get-stage) for more details.
+
+## Update central stages
+
+You can update the rulesets associated with a central stage. The stage can be updated to have a new ruleset, or you can clear the rules for a stage. When you update a stage, a new version is created.
+
+<CodeGroup>
+<SnippetUpdateCentralStagePython/>
+</CodeGroup>
+
+See the [`update_stage` Python SDK docs](/sdk-api/python/reference/stages#update-stage) for more details.
+
+## Pause and resume stages
+
+Stages can be paused and resumed. This allows you to turn stages on and off without re-deploying your application.
+
+### pause a stage
+
+<CodeGroup>
+<SnippetPauseStagePython/>
+</CodeGroup>
+
+See the [`pause_stage` Python SDK docs](/sdk-api/python/reference/stages#pause-stage) for more details.
+
+### Resume a stage
+
+<CodeGroup>
+<SnippetResumeStagePython/>
+</CodeGroup>
+
+See the [`resume_stage` Python SDK docs](/sdk-api/python/reference/stages#resume-stage) for more details.
+
+## Related resources
+
+<CardGroup cols={2}>
+<Card title="Runtime protection basics" horizontal href="/sdk-api/protect/protect">
+    Learn the basics of running runtime protection.
+</Card>
+<Card title="Rules" horizontal href="/sdk-api/protect/rules">
+    Learn about defining rules for runtime protection.
+</Card>
+<Card title="Rulesets" horizontal href="/sdk-api/protect/rulesets">
+    Learn about defining rulesets for runtime protection.
+</Card>
+<Card title="Invoke runtime protection" horizontal href="/sdk-api/protect/invoke-protect">
+    Learn how to invoke runtime protection in code using the Galileo SDK.
+</Card>
+</CardGroup>
