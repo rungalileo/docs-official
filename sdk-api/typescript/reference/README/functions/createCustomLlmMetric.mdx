@@ -18,7 +18,9 @@ function createCustomLlmMetric(
   numJudges: number,
   description: string,
   tags: string[],
+  outputType: OutputType,
 ): Promise<{
+  cot_enabled?: null | boolean;
   generated_scorer?: null | {
     chain_poll_template: {
       explanation_field_name?: string;
@@ -29,21 +31,43 @@ function createCustomLlmMetric(
       value_field_name?: string;
     };
     id: string;
-    instructions: string;
+    instructions?: null | string;
     name: string;
+    user_prompt?: null | string;
   };
   id: string;
+  input_type?:
+    | null
+    | "basic"
+    | "llm_spans"
+    | "retriever_spans"
+    | "sessions_normalized"
+    | "sessions_trace_io_only"
+    | "tool_spans"
+    | "trace_input_only"
+    | "trace_io_only"
+    | "trace_normalized"
+    | "trace_output_only";
   model_name?: null | string;
   num_judges?: null | number;
+  output_type?:
+    | null
+    | "boolean"
+    | "categorical"
+    | "count"
+    | "discrete"
+    | "freeform"
+    | "percentage";
   registered_scorer?: null | {
     id: string;
     name: string;
   };
+  scoreable_node_types?: null | string[];
   version: number;
 }>;
 ```
 
-Defined in: [src/utils/metrics.ts:21](https://github.com/rungalileo/galileo-js/blob/main/src/utils/metrics.ts#L21)
+Defined in: [src/utils/metrics.ts:23](https://github.com/rungalileo/galileo-js/blob/main/src/utils/metrics.ts#L23)
 
 Creates a custom LLM metric.
 
@@ -59,19 +83,25 @@ The name of the custom metric.
 
 `string`
 
+The user prompt for the metric.
+
 ### nodeLevel
 
 [`StepType`](/sdk-api/typescript/reference/types/enumerations/StepType) = `StepType.llm`
+
+(Optional) The node level for the metric, i.e. StepType.llm, StepType.trace. Defaults to StepType.llm.
 
 ### cotEnabled
 
 `boolean` = `true`
 
+(Optional) Whether chain of thought is enabled. Defaults to true.
+
 ### modelName
 
-`string` = `'GPT-4o'`
+`string` = `'gpt-4.1-mini'`
 
-(Optional) The model name to use. Defaults to 'GPT-4o'.
+(Optional) The model name to use. Defaults to 'gpt-4.1-mini'.
 
 ### numJudges
 
@@ -91,9 +121,16 @@ The name of the custom metric.
 
 (Optional) Tags to associate with the metric.
 
+### outputType
+
+[`OutputType`](/sdk-api/typescript/reference/types/enumerations/OutputType) = `OutputType.BOOLEAN`
+
+(Optional) The output type for the metric. Defaults to OutputType.BOOLEAN.
+
 ## Returns
 
 `Promise`\<\{
+`cot_enabled?`: `null` \| `boolean`;
 `generated_scorer?`: \| `null`
 \| \{
 `chain_poll_template`: \{
@@ -105,17 +142,37 @@ The name of the custom metric.
 `value_field_name?`: `string`;
 \};
 `id`: `string`;
-`instructions`: `string`;
+`instructions?`: `null` \| `string`;
 `name`: `string`;
+`user_prompt?`: `null` \| `string`;
 \};
 `id`: `string`;
+`input_type?`: \| `null`
+\| `"basic"`
+\| `"llm_spans"`
+\| `"retriever_spans"`
+\| `"sessions_normalized"`
+\| `"sessions_trace_io_only"`
+\| `"tool_spans"`
+\| `"trace_input_only"`
+\| `"trace_io_only"`
+\| `"trace_normalized"`
+\| `"trace_output_only"`;
 `model_name?`: `null` \| `string`;
 `num_judges?`: `null` \| `number`;
+`output_type?`: \| `null`
+\| `"boolean"`
+\| `"categorical"`
+\| `"count"`
+\| `"discrete"`
+\| `"freeform"`
+\| `"percentage"`;
 `registered_scorer?`: \| `null`
 \| \{
 `id`: `string`;
 `name`: `string`;
 \};
+`scoreable_node_types?`: `null` \| `string`[];
 `version`: `number`;
 \}\>
 
