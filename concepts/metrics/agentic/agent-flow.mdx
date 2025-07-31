@@ -1,0 +1,60 @@
+---
+title: Agent Flow
+description: Learn how to measure the correctness and coherence of an agentic trajectory by validating it against user-specified natural language tests
+---
+
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+
+import SnippetPrompt from "/snippets/prompts/metrics/agent-flow.mdx"
+
+**Agent flow** is a custom LLM-as-a-judge session-level metric, based around a pre-created prompt available from Galileo with user customizations.
+
+<DefinitionCard>
+<strong>Agent Flow</strong> is a binary evaluation metric that measures the correctness and coherence of an agentic trajectory by validating it against user-specified natural language tests.
+</DefinitionCard>
+
+A trajectory is said to pass the Agent Flow metric if and only if all the user-defined natural language conditions are successfully satisfied by the agent's realized behavior or output.
+
+When you create this metric, you will need to provide the flow conditions in the prompt.
+
+{/* This is a **boolean** metric, returning  */}
+
+## Create the agent flow metric
+
+This metric needs to be manually created, using a prompt defined by Galileo.
+
+<Steps>
+<Step title="Create a new LLM-as-a-judge metric">
+Create a new LLM-as-a-judge metric by following the instructions in our [LLM-as-a-judge concept guide](/concepts/metrics/custom-metrics/custom-metrics-ui-llm).
+
+Use the following settings:
+
+| Setting           | Value |
+| :---------------- | ----- |
+| Name              | `Agent flow` |
+| LLM Model         | Select your preferred model |
+| Apply to          | **Session** |
+| Advanced Settings | Configure these as required for your needs |
+
+</Step>
+<Step title="Set the prompt">
+
+Set the prompt to the following:
+
+<SnippetPrompt/>
+
+This prompt needs to be customized based on your application, and the inputs and outputs you are expecting. Replace `{{ Add your tests here }}` with a numbered list of tests in natural language that can be used to evaluate the agent efficiency. This can include:
+
+- Expected tool or agent calls, using the tool or agent names
+- Conditions on tool or agent calling (e.g. if tool x is called, don't call agent y)
+- Expectations around the input or output parameters to tools and agents
+- Limitations on the number of tool or agent calls
+
+</Step>
+
+<Step title="Save the metric">
+Save the metric, then turn it on for your Log stream.
+</Step>
+</Steps>
+
+Your metric is now ready to use in your project.

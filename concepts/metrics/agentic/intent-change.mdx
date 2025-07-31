@@ -1,0 +1,51 @@
+---
+title: Intent Change
+description: Learn how to measure if users are using your agent system for different intents across multi-turn conversation
+---
+
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+
+import SnippetPrompt from "/snippets/prompts/metrics/intent-change.mdx"
+
+**Intent change** is a custom LLM-as-a-judge session-level metric, with a pre-created prompt available from Galileo.
+
+<DefinitionCard>
+<strong>Intent Change</strong> is a binary evaluation metric, and is defined as a significant shift in the user's primary conversational goal or workflow during a session, relative to their initial stated intent.
+</DefinitionCard>
+
+This metric is specifically designed to analyze the entire user interaction, providing a holistic view of user intent management across multi-turn dialogues.
+
+{/* This is a **boolean** metric, returning  */}
+
+## Create the agent efficiency metric
+
+This metric needs to be manually created, using a prompt defined by Galileo.
+
+<Steps>
+<Step title="Create a new LLM-as-a-judge metric">
+Create a new LLM-as-a-judge metric by following the instructions in our [LLM-as-a-judge concept guide](/concepts/metrics/custom-metrics/custom-metrics-ui-llm).
+
+Use the following settings:
+
+| Setting           | Value |
+| :---------------- | ----- |
+| Name              | `Intent change` |
+| LLM Model         | Select your preferred model |
+| Apply to          | **Trace** |
+| Advanced Settings | Configure these as required for your needs |
+
+</Step>
+<Step title="Set the prompt">
+
+Set the prompt to the following:
+
+<SnippetPrompt/>
+
+</Step>
+
+<Step title="Save the metric">
+Save the metric, then turn it on for your Log stream.
+</Step>
+</Steps>
+
+Your metric is now ready to use in your project.

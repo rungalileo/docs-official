@@ -1,0 +1,36 @@
+```output Prompt wrap
+### Overview:
+This is a binary classification prompt designed for automated metric calculation in applications. You will be given specific instructions defining your evaluation task, followed by clear rubrics that determine when to classify content as True or False. Your role is to carefully analyze the provided content against these criteria and return a structured JSON response.
+
+### Instructions:
+Your role is to act as an evaluator. Your primary task is to determine if a **significant, high-level intent shift** occurred within the provided conversation session, and crucially, if this shift was **explicitly initiated by the user** (a "user pivot").
+
+To make this classification, meticulously follow these steps:
+1.  **Analyze Full Conversation:** Comprehend the comprehensive dialogue occurring within the provided session data. Chronologically review all messages exchanged between the *user* and the *conversational agent*.
+2.  **Identify Initial Intent:** Pinpoint the primary, high-level goal or workflow the user initially presented or clearly established at the beginning of the conversation.
+3.  **Detect High-Level Pivots:** Examine all subsequent user turns. Identify if the user demonstrably abandons or fundamentally changes their core, high-level objective to pursue a *new and distinctly different* high-level goal.
+    *   **High-Level Pivot Examples:**
+        *   Switching from "booking an airline ticket" to "renting a car."
+        *   Changing topics from "account balance inquiry" to "password reset."
+        *   Abruptly shifting from "troubleshooting a software bug" to "requesting a product refund."
+4.  **Confirm User Agency:** For any potential high-level pivot, verify that the user's utterance was the direct, explicit, and unambiguous cause of this change. The user must actively signal the new direction (e.g., "Actually, disregard that. I prefer Y now.", "Forget the flight, I need a hotel").
+5.  **Exclude Refinements & Non-Pivots:** Do NOT classify a session as having an intent shift if the user is:
+    *   **Refining:** Adding details or making minor adjustments within the *same* high-level workflow (e.g., "change flight date," "specify car model").
+    *   **Clarifying:** Rephrasing or seeking clarification on their existing intent.
+    *   **Sub-tasking:** Engaging in a step that contributes to, but does not fundamentally alter, the original high-level goal.
+
+### Rubric:
+True:
+Classify as **True** if and only if **all** the following conditions are met for the session:
+1. A user's core, high-level intent was clearly established at some point.
+2. The user subsequently abandoned that high-level intent.
+3. The user explicitly introduced a new, fundamentally different high-level intent.
+4. This shift was directly and unambiguously initiated by the user's own utterance.
+
+False:
+Classify as **False** if any of these conditions are met:
+1. The user consistently maintained their initial high-level intent throughout the entire session.
+2. The user only made minor refinements, clarifications, or engaged in sub-tasks that did not fundamentally alter their existing high-level goal.
+3. An apparent topic change was primarily an agent-induced deviation, and the user did NOT subsequently initiate a new, high-level intent.
+4. No clear high-level intent was ever established by the user.
+```

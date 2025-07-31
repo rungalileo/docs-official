@@ -1,0 +1,49 @@
+---
+title: Conversation Quality
+description: Learn how to measure the quality of a conversation that a user has with a chatbot
+---
+
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+
+import SnippetPrompt from "/snippets/prompts/metrics/conversation-quality.mdx"
+
+**Conversation quality** is a custom LLM-as-a-judge trace-level metric, with a pre-created prompt available from Galileo.
+
+<DefinitionCard>
+<strong>Conversation Quality</strong> is a binary evaluation metric that assesses whether a chatbot interaction left the user feeling satisfied and positive, or frustrated and dissatisfied, based on tone, engagement, and overall experience.
+</DefinitionCard>
+
+{/* This is a **boolean** metric, returning  */}
+
+## Create the agent efficiency metric
+
+This metric needs to be manually created, using a prompt defined by Galileo.
+
+<Steps>
+<Step title="Create a new LLM-as-a-judge metric">
+Create a new LLM-as-a-judge metric by following the instructions in our [LLM-as-a-judge concept guide](/concepts/metrics/custom-metrics/custom-metrics-ui-llm).
+
+Use the following settings:
+
+| Setting           | Value |
+| :---------------- | ----- |
+| Name              | `Conversation quality` |
+| LLM Model         | Select your preferred model |
+| Apply to          | **Trace** |
+| Advanced Settings | Configure these as required for your needs |
+
+</Step>
+<Step title="Set the prompt">
+
+Set the prompt to the following:
+
+<SnippetPrompt/>
+
+</Step>
+
+<Step title="Save the metric">
+Save the metric, then turn it on for your Log stream.
+</Step>
+</Steps>
+
+Your metric is now ready to use in your project.
