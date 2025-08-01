@@ -1,15 +1,15 @@
 ---
-title: Metrics
-description: A quick lookup for integrating and interpreting metrics in your workflows
+title: Metrics Basics
+description: Learn how to use metrics in code
 ---
 
 import MetricsReferenceTable from "/snippets/content/metrics-reference-table.mdx"
 
 import SnippetPresetMetricsPython from "/snippets/code/python/concepts/metrics/preset-metrics.mdx";
-import SnippetCustomMetricsPython from "/snippets/code/python/concepts/metrics/custom-metrics.mdx";
+import SnippetExperimentCustomMetricNamePython from "/snippets/code/python/sdk/experiments/custom-metric.mdx";
 
 import SnippetPresetMetricsTypeScript from "/snippets/code/typescript/concepts/metrics/preset-metrics.mdx";
-import SnippetCustomMetricsTypeScript from "/snippets/code/typescript/concepts/metrics/custom-metrics.mdx";
+import SnippetExperimentCustomMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/custom-metric.mdx";
 
 Galileo AI provides a set of built-in, preset metrics designed to evaluate various aspects of LLM, agent, and retrieval-based workflows. This guide provides a reference for Galileo AI's preset metrics, including and SDK slugs.
 
@@ -37,13 +37,15 @@ You can use [custom metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-
 1. Create your metric in the [Galileo Console](https://app.galileo.ai) (or in [code](/concepts/metrics/custom-metrics/custom-metrics-ui-code#custom-scorers)). Your custom metric will return a numerical score based on its input.
 1. Pass the name of your new metric into the `run experiment`, like in the example below. 
 
-In this example, we reference a custom metric that was saved in the console with the name `My custom metric`.
+For example, if you have a metric called `"Compliance - do not recommend any financial actions"`:
 
-![A custom metric in the console with the description "counts the length of the input and output"](/images/g2/custom-metric-name-example.png)
+![A metric called Compliance - do not recommend any financial actions](/concepts/metrics/custom-metrics/metric-name.webp)
+
+You would pass this to an experiment like this:
 
 <CodeGroup>
-  <SnippetCustomMetricsPython/>
-  <SnippetCustomMetricsTypeScript/>
+<SnippetExperimentCustomMetricNamePython/>
+<SnippetExperimentCustomMetricNameTypeScript/>
 </CodeGroup>
 
 Custom metrics provide the flexibility to define precisely what you want to measure, enabling deep analysis and targeted improvement. For a detailed walkthrough on creating them, see [Custom Metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-code).
