@@ -55,6 +55,18 @@ This prompt needs to be customized based on your application, and the inputs and
 - Expectations around the input or output parameters to tools and agents
 - Limitations on the number of tool or agent calls
 
+For example, imagine you were creating an agent to provide advice on exercises for different body parts, such as for a physical therapy application. This has multiple tools, including `list_by_target_muscle_for_exercised`, `list_by_body_part_for_exercised`, `list_of_bodyparts_for_exercised`. Some user tests might be:
+
+```output
+1. If a call to "list_by_target_muscle_for_exercised" returns an error that contains the text "target not found", the agent should subsequently attempt an alternative lookup by calling either "list_by_body_part_for_exercised" or "list_of_bodyparts_for_exercised"
+2. When the user asks for exercises that target leg muscles, the agent must call at least one of the tools ["list_by_target_muscle_for_exercised", "list_by_body_part_for_exercised"] during the conversation
+3. After receiving a successful response from "list_by_body_part_for_exercised", the agent's following natural-language message must contain at least one exercise name, the corresponding equipment, and an animated demonstration URL taken from the tool output
+4. Every invocation of the tool "list_by_body_part_for_exercised" must include the required parameter "bodypart"
+5. After receiving data from list_by_body_part_for_exercised, the agent response must include the exercise id for every exercise it presents to the user
+6. No assistant message should include more than one tool invocation
+7. The agent should conclude the conversation with a human-readable answer that summarizes the requested leg exercises using data returned from the tools
+```
+
 </Step>
 
 <Step title="Save the metric">
