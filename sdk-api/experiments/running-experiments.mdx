@@ -13,6 +13,8 @@ import SnippetExperimentsLangGraphCallbackPython from "/snippets/code/python/con
 import SnippetExperimentsGetLoggerPython from "/snippets/code/python/concepts/experiments/get-logger.mdx";
 import SnippetExperimentsGetCurrentParentPython from "/snippets/code/python/concepts/experiments/get-current-parent.mdx";
 import SnippetExperimentsLoggingWithParentCheckPython from "/snippets/code/python/concepts/experiments/logging-with-parent-check.mdx";
+import SnippetExperimentCustomMetricNamePython from "/snippets/code/python/sdk/experiments/custom-metric.mdx";
+import SnippetExperimentOOTBMetricNamePython from "/snippets/code/python/sdk/experiments/ootb-metric.mdx";
 
 import SnippetExperimentsPromptTypeScript from "/snippets/code/typescript/concepts/experiments/prompt.mdx";
 import SnippetExperimentsExistingDatasetTypeScript from "/snippets/code/typescript/concepts/experiments/existing-dataset.mdx";
@@ -24,6 +26,8 @@ import SnippetExperimentsLangGraphCallbackTypeScript from "/snippets/code/typesc
 import SnippetExperimentsGetLoggerTypeScript from "/snippets/code/typescript/concepts/experiments/get-logger.mdx";
 import SnippetExperimentsGetCurrentParentTypeScript from "/snippets/code/typescript/concepts/experiments/get-current-parent.mdx";
 import SnippetExperimentsLoggingWithParentCheckTypeScript from "/snippets/code/typescript/concepts/experiments/logging-with-parent-check.mdx";
+import SnippetExperimentCustomMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/custom-metric.mdx";
+import SnippetExperimentOOTBMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/ootb-metric.mdx";
 
 As you progress from initial testing to systematic evaluation, you'll want to run experiments to validate your application's performance and behavior. Here are several ways to structure your experiments, starting from the simplest approaches and moving to more sophisticated implementations.
 
@@ -33,19 +37,43 @@ AI Engineers and data scientists can use experiments in notebooks or in simple a
 
 ## Configure an LLM integration
 
-To calculate metrics, you will either need to configure an integration with an LLM, or set up the [Luna-2 SLM](/concepts/luna/luna).
+To calculate metrics using an out-of-the-box metric, or a [custom LLM-as-a-judge metric](/concepts/metrics/custom-metrics/custom-metrics-ui-llm), you will either need to configure an integration with an LLM, or set up the [Luna-2 SLM](/concepts/luna/luna).
 
 To configure an LLM, visit the relevant API platform to obtain an API key, then add it using the [integrations page](https://app.galileo.ai/settings/integrations) in the Galileo Console.
+
+If you are using a [custom code-based metric](/concepts/metrics/custom-metrics/custom-metrics-ui-code) then you don't need an LLM integration.
 
 ## Experiment flow
 
 The entry point for running experiments is a call to the run experiments function (see the [`run_experiment` Python SDK docs](/sdk-api/python/reference/experiments#run-experiment), or the [`runExperiment` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/runExperiment) for more details).
 
-Experiments take a dataset, and can either pass it to a prompt template, or to a custom function. This custom function can go from a simple call to an LLM right up to a full agentic workflow.
+Experiments take a dataset, and can either pass it to a prompt template, or to a custom function. This custom function can go from a simple call to an LLM right up to a full agentic workflow. Experiments also take a list of one or more metrics to use to evaluate the traces. This can be one of the [out-of-the-box metrics](/sdk-api/metrics/metrics) using the constants provided by the Galileo SDK, or the name of a custom metric.
 
 For each row in a dataset, a new trace is created, and either the prompt template is logged as an LLM span, or every span created in the custom function is logged to that trace.
 
 If you are building experiments into your production application, you will need to enable a way to call the experiment runner. For example, you can do this inside a unit test.
+
+## Set the metrics for your experiment
+
+When you run an experiment, you need to define which metrics you want to evaluate for each row in the dataset.
+
+For out-of-the-box metrics, use the [constants provided by the Galileo SDK](/sdk-api/metrics/metrics).
+
+<CodeGroup>
+<SnippetExperimentOOTBMetricNamePython/>
+<SnippetExperimentOOTBMetricNameTypeScript/>
+</CodeGroup>
+
+For custom metrics, use the name you set when you created the metric. For example, if you have a custom LLM-as-a-judge metric called `"Compliance - do not recommend any financial actions"`:
+
+![A metric called Compliance - do not recommend any financial actions](/concepts/metrics/custom-metrics/metric-name.webp)
+
+You would pass this to an experiment like this:
+
+<CodeGroup>
+<SnippetExperimentCustomMetricNamePython/>
+<SnippetExperimentCustomMetricNameTypeScript/>
+</CodeGroup>
 
 ## Work with prompts
 
@@ -214,7 +242,7 @@ The same experimentation patterns shown above apply to these more complex system
 <Card title="Local Metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code#local-metrics">
     Create and run custom metrics directly in code.
 </Card>
-<Card title="Custom Code Based Metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code">
+<Card title="Custom Code-Based Metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code">
     Create reusable custom metrics right in the Galileo Console.
 </Card>
 <Card title="Custom LLM-as-a-Judge Metrics" icon="brain" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-llm">

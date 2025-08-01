@@ -1,16 +1,16 @@
 ---
-title: Custom Code Based Metrics
-description: Learn how to create, register, and use custom metrics to evaluate your LLM applications
+title: Custom Code-Based Metrics
+description: Learn how to create, register, and use custom code-based metrics to evaluate your LLM applications
 ---
 
 Custom metrics allow you to define specific evaluation criteria for your LLM applications. Galileo supports two types of custom metrics:
 
-- **Registered custom metrics**: Server-side metrics that can be shared across your organization
-- **Local metrics**: Local metrics that run in your notebook environment
+- **Registered custom metrics**:  Metrics that can be shared across your organization
+- **Local metrics**: Metrics that run in your local notebook environment
 
 ## Registered custom metrics
 
-Registered custom metrics run in Galileo's backend environment and can be used across your organization.
+Registered custom metrics are stored and run in Galileo's environment and can be used across your organization.
 
 ### Creating a registered custom metric
 
@@ -20,15 +20,16 @@ You can create a registered custom metric either through the Python SDK or direc
   <Step title="Navigate to the Metrics section">
     In the Galileo platform, go to the Metrics section and select the **Create New Metric** button in the top right corner.
 
-    ![Create a new metric](/images/g2/custom-metrics-create-new-metric-button.png)
+    ![Create a new metric](/concepts/metrics/custom-metrics/create-metric-button.webp)
 
 </Step>
 
-  <Step title="Select the Code metric type">
-    From the dialog that appears, choose the **Code-powered metric** type. This option allows you to write custom Python code to evaluate your LLM outputs.
+<Step title="Select the Code metric type">
+From the dialog that appears, choose the **Code-powered metric** type. This option allows you to write custom Python code to evaluate your LLM outputs.
 
-    ![Select the Code metric type](/images/g2/custom-metrics-create-new-metric-dialog.png)
-
+<Columns cols={2}>
+![Select the Code metric type](/concepts/metrics/custom-metrics/create-code-metric.webp)
+</Columns>
 </Step>
 
   <Step title="Write your custom metric">
@@ -48,7 +49,7 @@ You can create a registered custom metric either through the Python SDK or direc
 </Step>
 </Steps>
 
-#### 1. the scorer function (`scorer_fn`)
+#### 1. The scorer function (`scorer_fn`)
 
 This function evaluates individual responses and returns a score:
 
@@ -189,7 +190,7 @@ We provide advance notice before major version updates to these libraries.
 
 ## Local metrics
 
-A **Local Metric** (or *Local scorer*) is a custom metric that you can attach to an experiment — just like a Galileo preset metric. The key difference is that a Local Metric lives in code on your machine, so you share it by sharing your code. Local Metrics are ideal for running isolated tests and refining outcomes when you need more control than built-in metrics offer.
+A **Local metric** (or *Local scorer*) is a custom metric that you can attach to an experiment — just like a Galileo preset metric. The key difference is that a Local Metric lives in code on your machine, so you share it by sharing your code. Local Metrics are ideal for running isolated tests and refining outcomes when you need more control than built-in metrics offer.
 
 You can also use any library or custom Python code with your local metrics, including calling out to LLMs or other APIs.
 
@@ -213,11 +214,11 @@ A Local scorer consists of three main parts:
    - The generic `type` should match the type returned by your Aggregator.  
    - **Example:** If your Scorer returns `bool` values, you would use `LocalMetricConfig[bool](…)`, and your Aggregator must accept a `list[bool]` and return a `bool`.
 
-Scorer and Aggregator functions can be simple lambdas when your logic is straightforward.
+Scorer and aggregator functions can be simple lambdas when your logic is straightforward.
 
-Local Metrics let you tailor evaluation to your exact needs by defining custom scoring logic in code. Whether you want to measure response brevity, detect specific keywords, or implement a complex scoring algorithm, Local Metrics integrate seamlessly with Galileo's experimentation framework. Once you've defined your **Scorer** and **Aggregator** functions and wrapped them in a `LocalMetricConfig`, running the experiment is as simple as calling `run_experiment`. The results appear alongside Galileo's built-in metrics, so you can compare, visualize, and analyze everything in one place.
+Local metrics let you tailor evaluation to your exact needs by defining custom scoring logic in code. Whether you want to measure response brevity, detect specific keywords, or implement a complex scoring algorithm, Local Metrics integrate seamlessly with Galileo's experimentation framework. Once you've defined your **Scorer** and **Aggregator** functions and wrapped them in a `LocalMetricConfig`, running the experiment is as simple as calling `run_experiment`. The results appear alongside Galileo's built-in metrics, so you can compare, visualize, and analyze everything in one place.
 
-With Local Metrics, you have full control over how you measure LLM behavior—unlocking deeper insights and more targeted evaluations for your AI applications.
+With local metrics, you have full control over how you measure LLM behavior—unlocking deeper insights and more targeted evaluations for your AI applications.
 
 <Card title="Create a local metric" icon="code" href="/how-to-guides/metrics/create-local-metric/create-local-metric" horizontal>
   Learn how to create a local metric in Python to use in your experiments
