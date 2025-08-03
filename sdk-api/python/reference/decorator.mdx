@@ -100,7 +100,8 @@ A decorated function that logs its execution
 ```python
 def get_logger_instance(project: Optional[str] = None,
                         log_stream: Optional[str] = None,
-                        experiment_id: Optional[str] = None) -> GalileoLogger
+                        experiment_id: Optional[str] = None,
+                        mode: Optional[str] = None) -> GalileoLogger
 ```
 
 Get the Galileo Logger instance for the current decorator context.
@@ -162,12 +163,25 @@ Retrieve the current trace from context.
 
 Trace | None: The current trace
 
+#### get\_current\_mode
+
+```python
+def get_current_mode() -> Optional[str]
+```
+
+Retrieve the current mode from context.
+
+**Returns**:
+
+str
+
 #### flush
 
 ```python
 def flush(project: Optional[str] = None,
           log_stream: Optional[str] = None,
-          experiment_id: Optional[str] = None) -> None
+          experiment_id: Optional[str] = None,
+          mode: Optional[str] = None) -> None
 ```
 
 Upload all captured traces under a project and log stream context to Galileo.
@@ -216,6 +230,7 @@ Reset the trace context inside the decorator.
 def init(project: Optional[str] = None,
          log_stream: Optional[str] = None,
          experiment_id: Optional[str] = None,
+         mode: Optional[str] = None,
          local_metrics: Optional[list[LocalMetricConfig]] = None) -> None
 ```
 
