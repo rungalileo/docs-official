@@ -6,10 +6,11 @@ tag: "TypeScript"
 
 ## Overview
 
-In this tutorial, you'll learn how to set up and run a complete AI agent that integrates with Stripe's payment processing API via the [Stripe Agent Toolkit](https://github.com/stripe/agent-toolkit) while using [Galileo](https://galileo.ai) for it's AI Agent Reliability tooling.
+In this tutorial, you'll learn how to set up and run a complete AI agent that integrates with Stripe's payment processing API via the [Stripe Agent Toolkit](https://github.com/stripe/agent-toolkit) while using [Galileo](https://galileo.ai) for AI Agent Reliability.
 
-This tutorial is intended for TypeScript developers building AI agents with payment processing capabilities. It assumes you have basic knowledge of:
+This tutorial is intended for TypeScript developers building AI agents with payment processing capabilities.
 
+It assumes you have basic knowledge of:
 - Some familiarity with TypeScript, Node.js, and the command line
 - Node.js 18+ and npm or yarn
 - Code editor of choice (VS Code, Cursor, Warp, etc.)
@@ -22,11 +23,11 @@ By the end of this tutorial, you'll be able to:
 - Track all interactions and performance with Galileo
 - Monitor agent reliability and tool usage patterns
 
-## Background
+## What you'll build
 
-For the sake of jumping right into action — we'll be starting from an [existing application](https://github.com/rungalileo/sdk-examples) and demonstrating how to build a complete AI agent with payment processing capabilities.
+For the sake of jumping right into action — we'll be starting from an [existing TypeScript application](https://github.com/rungalileo/sdk-examples) and demonstrating how to build a complete AI agent with payment processing capabilities.
 
-The app we'll be building is a Stripe AI Agent, a TypeScript-based application that can handle payment operations through natural language conversations. The agent includes:
+The Stripe AI Agent is a TypeScript-based application that can handle payment operations through natural language conversations. The agent includes:
 
 - **Product Management**: List products and prices from Stripe
 - **Payment Processing**: Create payment links for customers
@@ -36,31 +37,17 @@ The app we'll be building is a Stripe AI Agent, a TypeScript-based application t
 
 We'll demonstrate how to observe the agent's performance and evaluate payment processing quality with Galileo's built-in metrics and observability features.
 
-## Understanding the application's structure
+## Prerequisites
 
-The project follows a clean, modular architecture designed for maintainability and observability:
+Before you start, you'll need to set up accounts and get API keys for the services we'll be using.
 
-```
-src/
-├── agents/
-│   └── StripeAgent.ts          # Main agent implementation
-├── config/
-│   └── environment.ts          # Environment configuration
-├── errors/
-│   └── CircularToolError.ts    # Custom error handling
-├── types/
-│   └── index.ts               # TypeScript type definitions
-├── interactive.ts             # CLI interface
-└── server.ts                 # Web server
-```
-
-## Create a new Galileo project
+### Create a new Galileo project
 
 In order to set up agent reliability tracking, we'll need a Galileo project to log interactions to first.
 
 <Steps>
-<Step title="Create a new project from the Galileo Console using the `New Project button`">
-If you haven't already, create a free Galileo account on [app.galileo.ai](https://app.galileo.ai). When prompted, add an organization name. To dive right into this tutorial, you can skip past the onboarding screen by clicking on the Galileo Logo in the upper left hand corner.
+<Step title="Create a new project from the Galileo console using the `New Project` button">
+If you haven't already, create a free Galileo account on [app.galileo.ai](https://app.galileo.ai). When prompted, add an organization name. To dive right into this tutorial, you can skip past the onboarding screen by clicking on the Galileo logo in the upper left hand corner.
 
 Create a new project by clicking on the **New Project** button on the upper right hand screen. You will be prompted to add a project name, as well as a log stream name.
 
@@ -70,11 +57,31 @@ Create a new project by clicking on the **New Project** button on the upper righ
 <Step title="Get your Galileo API Keys">
 Once that is created, click on the profile icon in the upper right hand side of the page, navigate on the drop-down menu to API keys. From the API Keys screen, select **Create New Key**. Save the key within your environment file with the project name and log stream name you've created.
 
-Run your app again, and you'll now be able to see the logs appear within Galileo.
+![A gif showing how to create your API keys within Galileo](/cookbooks/use-cases/custom-metric-startup-sim/2025-07-create-api-key-small.gif)
+</Step>
+
+<Step title="Setting the metrics you want to track">
+Before running your application, set the metrics you want to track in your application by adding metrics to your log stream. 
+
+Navigate to your project home inside of Galileo. 
+
+Look for the name of your project, and open it up to the log stream you've got your traces in.
+
+Click on the **Trace** view and see your most recent runs listed below, it should look something like below.
+
+From this view, navigate to the upper right hand side of your screen and click on the **Configure Metrics** button.  A side panel should appear with a set of different metrics from you to choose from. 
+
+![An image with an arrow pointing to the **Configure Metrics** button from within the log stream interface.](/cookbooks/use-cases/custom-metric-startup-sim/2025-07-configure-metrics-button.webp)
+
+Based on the [Galileo documentation](https://v2docs.galileo.ai/concepts/metrics/overview), here are some suggestions:
+
+- **[Tool Error](https://v2docs.galileo.ai/concepts/metrics/agentic/tool-error)**: Detects errors during tool execution
+- **[Tool Selection Quality](https://v2docs.galileo.ai/concepts/metrics/agentic/tool-selection-quality)**: Determines if the agent selected the correct tool and arguments
+- **[Context Adherence](https://v2docs.galileo.ai/concepts/metrics/response-quality/context-adherence)**: Measures closed-domain hallucinations
 </Step>
 </Steps>
 
-## Create a Stripe Developer Sandbox Account
+### Create a Stripe Developer Sandbox Account
 
 <Steps>
 <Step title="Sign up for a Stripe Developer Account">
@@ -82,13 +89,15 @@ Go to [Stripe Dashboard](https://dashboard.stripe.com/register) and sign up for 
 </Step>
 
 <Step title="Get your Stripe API Keys">
-Navigate to the Developers section in your Stripe dashboard. Copy your test secret key (starts with `sk_test_`) and paste it into your .env file as STRIPE_SECRET_KEY.
+Navigate to the **Developers** section in your Stripe dashboard on the bottom left hand side of the screen. Copy your test secret key (starts with `sk_test_`) and paste it into your .env file as STRIPE_SECRET_KEY.
 
 <Note> Note: Make sure you're using the test keys, not the live keys, for this tutorial. The test environment allows you to simulate payments without processing real transactions. </Note>
 </Step>
 </Steps>
 
 ## Set up the project
+
+Now let's get the code and set up your development environment.
 
 <Steps>
 <Step title="Clone the project in your IDE of choice">
@@ -121,9 +130,9 @@ STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
 OPENAI_API_KEY=your_openai_api_key_here
 
 # Galileo Configuration
-GALILEO_API_KEY=your_galileo_api_key_here           #Your Galileo API Key
+GALILEO_API_KEY=your_galileo_api_key_here        #Your Galileo API Key
 GALILEO_PROJECT=stripe-agent-demo                  #Your Galileo Project Name
-GALILEO_LOG_STREAM=production                      #Your Galileo Log Stream Name    
+GALILEO_LOG_STREAM=production                        #Your Galileo Log Stream Name    
 # OPTIONAL
 # Provide the console URL below if you are using a custom deployment, and not using app.galileo.ai
 # This is most common with enterprise, or on prem deployments where you may have your own custom cluster
@@ -145,7 +154,9 @@ npm run build
 </Step>
 </Steps>
 
-## Running Your Agent
+## Running the agent
+
+Now let's start the agent and see it in action!
 
 <Steps>
 <Step title="Start the interactive CLI mode">
@@ -156,7 +167,7 @@ npm run interactive
 ```
 
 This will:
-- Initialize the agent with Galileo agent reliability
+- Initialize the agent with Galileo's agent reliability tools
 - Start a conversation session
 - Allow you to interact with the agent using natural language
 
@@ -184,110 +195,22 @@ npm run web
 ```
 
 The application will run on `http://localhost:3000`
-
 </Step>
 </Steps>
 
-### Key features
+## Observing your agent in Galileo
 
-#### 1. Direct Galileo Integration
+Now let's see how Galileo tracks your agent's performance and interactions.
 
-The agent uses direct Galileo integration for comprehensive observability:
-
-```typescript
-// Direct Galileo imports
-const { init, flush, GalileoCallback } = require('galileo');
-
-// Initialize in agent
-async init() {
-  try {
-    await init();
-    this.galileoCallback = new GalileoCallback();
-    this.galileoEnabled = true;
-    console.log('✅ Galileo initialized successfully.');
-  } catch (error: any) {
-    console.warn(`⚠️ Galileo initialization failed: ${error.message}`);
-    this.galileoEnabled = false;
-    this.galileoCallback = null;
-  }
-}
-```
-
-#### 2. Loop Prevention
-
-Advanced circular tool usage detection prevents infinite loops:
-
-```typescript
-private detectCircularToolUsage(intermediateSteps: any[]): void {
-  if (!intermediateSteps || intermediateSteps.length < 4) return;
-
-  const recentTools = intermediateSteps
-    .slice(-4)
-    .map(step => step.action?.tool)
-    .filter(tool => tool);
-
-  const [tool1, tool2, tool3, tool4] = recentTools;
-  
-  if (tool1 === tool3 && tool2 === tool4 && tool1 !== tool2) {
-    const pattern = [tool1, tool2];
-    throw new CircularToolError(
-      `Circular tool invocation detected: ${pattern.join(' -> ')} pattern repeated.`,
-      pattern
-    );
-  }
-}
-```
-
-#### 3. Conversation Memory
-
-5-minute caching system for improved performance:
-
-```typescript
-private cachedProducts: any[] = [];
-private cacheTimestamp: number = 0;
-private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-private isCacheValid(): boolean {
-  return Date.now() - this.cacheTimestamp < this.CACHE_DURATION;
-}
-```
-
-#### 4. Session Management
-
-Integrated session tracking for better user experience:
-
-```typescript
-private sessionContext: SessionContext | null = null;
-
-interface SessionContext {
-  sessionId: string;
-  startTime: Date;
-  conversationHistory: AgentMessage[];
-  isActive: boolean;
-  lastActivity: Date;
-  messageCount: number;
-  toolsUsed: Set<string>;
-  metrics: {
-    totalExecutionTime: number;
-    successfulOperations: number;
-    failedOperations: number;
-    averageResponseTime?: number;
-  };
-}
-```
-
-## Galileo Observability
-
-### What's Tracked
+### What's tracked
 
 Your agent automatically tracks:
-- All conversations and tool usage
-- Performance metrics and response times
-- Error rates and failure patterns
-- Session information and user interactions
+- Conversations and tool usage
+- Agent Errors and failure patterns
+- Session information 
 - [Tool selection quality](https://v2docs.galileo.ai/concepts/metrics/agentic/tool-selection-quality) and accuracy
 
-### Viewing Your Data
+### Viewing your data
 
 <Steps>
 <Step title="Navigate to your Galileo Dashboard">
@@ -296,29 +219,290 @@ Go to your [Galileo Dashboard](https://app.galileo.ai) and navigate to your proj
 
 <Step title="View traces and sessions">
 Click on your log stream to view traces, sessions, and metrics. You'll be able to monitor agent performance over time.
-</Step>
 
-<Step title="Monitor agent performance">
-Use the built-in metrics to track:
-- Tool usage patterns
-- Response times
-- Error rates
-- Session duration
-- User interaction patterns
+![Stripe Agent Log Stream](/cookbooks/use-cases/stripe-agent/stripe-agent-images/2025-08-06-stripe-agent-log-stream.webp)
 </Step>
 </Steps>
 
-### Recommended Metrics
 
-Based on the [Galileo documentation](https://v2docs.galileo.ai/concepts/metrics/overview), consider tracking:
+## Understanding the agent architecture
 
-- **[Tool Error](https://v2docs.galileo.ai/concepts/metrics/agentic/tool-error)**: Detects errors during tool execution
-- **[Tool Selection Quality](https://v2docs.galileo.ai/concepts/metrics/agentic/tool-selection-quality)**: Determines if the agent selected the correct tool and arguments
-- **[Context Adherence](https://v2docs.galileo.ai/concepts/metrics/response-quality/context-adherence)**: Measures closed-domain hallucinations
+Now that you've seen the agent in action, let's dive deeper into how it works internally.
+
+### Project structure
+
+The project follows a clean, modular architecture designed for maintainability and observability:
+
+```
+src/
+├── agents/
+│   └── StripeAgent.ts          # Main agent implementation
+├── config/
+│   └── environment.ts          # Environment configuration
+├── errors/
+│   └── CircularToolError.ts    # Custom error handling
+├── types/
+│   └── index.ts               # TypeScript type definitions
+├── interactive.ts             # CLI interface
+└── server.ts                 # Web server
+```
+
+### Key components
+
+The Stripe Agent consists of several key components:
+
+#### 🧠 Agent core (`agents/StripeAgent.ts`)
+
+Handles the main agent logic, coordinates tools, and processes requests. This is where the LangChain agent is initialized with Stripe tools and Galileo callbacks.
+
+#### 🛠️ Tools (Stripe Agent Toolkit)
+
+Specialized modules for specific payment operations:
+
+- **Product Tools**: List products and prices from Stripe
+- **Payment Tools**: Create payment links and process transactions
+- **Customer Tools**: Manage customer data and operations
+- **Subscription Tools**: Handle recurring billing operations
+
+#### 📝 Configuration (`config/environment.ts`)
+
+Defines the agent's environment variables and configuration settings for Stripe, OpenAI, and Galileo integration.
+
+#### 🔍 Instrumentation (`interactive.ts` and `server.ts`)
+
+Wraps the agent with Galileo monitoring for observability. This is where we add tracing and metrics.
+
+#### 📑 Types (`types/index.ts`)
+
+Contains TypeScript type definitions for the agent's data structures and API responses.
+
+### Main agent workflow
+
+The main workflow in `agents/StripeAgent.ts` ties everything together and adds Galileo instrumentation for observability.
+
+**Key Ingredients:**
+
+- Galileo context management
+- LangChain agent with Stripe tools
+- Session tracking
+- Error handling and loop prevention
+
+**How it works:**
+
+1. **Setting up the Galileo Callback:**
+
+   ```typescript
+   await init();
+   this.galileoCallback = new GalileoCallback();
+   ```
+
+   This initializes Galileo and creates a callback handler for tracking agent interactions.
+
+2. **Creating the main agent:**
+
+   ```typescript
+   private async initializeAgent(): Promise<void> {
+     const tools = await this.stripeToolkit.getTools();
+     const prompt = await pull("hwchase17/structured-chat-zero-shot-react");
+     
+     this.agentExecutor = await createStructuredChatAgent({
+       llm: this.llm,
+       tools: allTools,
+       prompt,
+     });
+   }
+   ```
+
+   This creates a LangChain agent with Stripe tools and structured chat capabilities.
+
+3. **Tool execution with tracing:**
+
+   Each tool call is automatically traced by Galileo through the LangChain callback:
+
+   ```typescript
+   const result = await this.agentExecutor.invoke({
+     input: userInput,
+     callbacks: [this.galileoCallback]
+   });
+   ```
+
+4. **Session management:**
+
+   The agent maintains session context for better user experience:
+
+   ```typescript
+   private sessionContext: SessionContext | null = null;
+   
+   interface SessionContext {
+     sessionId: string;
+     startTime: Date;
+     conversationHistory: AgentMessage[];
+     isActive: boolean;
+     lastActivity: Date;
+     messageCount: number;
+     toolsUsed: Set<string>;
+     metrics: {
+       totalExecutionTime: number;
+       successfulOperations: number;
+       failedOperations: number;
+       averageResponseTime?: number;
+     };
+   }
+   ```
+
+**Galileo's role in observability:**
+
+The Galileo-instrumented version of the agent includes several span types. Learn more about spans, the atomic unit of logging in Galileo, [here](/getting-started/logging).
+
+- **Entrypoint span**: Contains the entire conversation session with user inputs
+- **Workflow span**: Tracks the main agent logic and decision-making
+- **Tool spans**: Monitor individual Stripe API calls and success rates
+- **Session spans**: Track conversation context and user interaction patterns
+
+This hierarchical structure lets you analyze the complete payment processing flow and identify bottlenecks, errors, or optimization opportunities.
+
+### The Stripe tools
+
+Let's examine the Stripe tools to understand how they work and where Galileo fits in.
+
+**Key Ingredients:**
+
+- Stripe API integration
+- LangChain tool definitions
+- Error handling
+- Response parsing
+
+**How it works:**
+
+1. **API Integration:**
+   The tools make requests to the Stripe API to perform payment operations.
+
+2. **Tool Definition:**
+
+   ```typescript
+   const tools = await this.stripeToolkit.getTools();
+   ```
+
+   This gets all available Stripe tools from the [Stripe Agent Toolkit](https://github.com/stripe/agent-toolkit).
+
+3. **Request processing:**
+   The tools handle various Stripe operations:
+
+   - **List products**: Fetches available products and pricing
+   - **Create payment links**: Generates payment URLs for customers
+   - **Customer management**: Creates and manages customer records
+   - **Subscription handling**: Processes recurring billing
+
+4. **Error handling:**
+   The tools include robust error handling to gracefully manage API failures and provide meaningful error messages.
+
+**Where Galileo comes In:**
+The tools themselves don't directly use Galileo. Instead, the main agent wraps tool execution with Galileo's LangChain callback:
+
+```typescript
+const result = await this.agentExecutor.invoke({
+  input: userInput,
+  callbacks: [this.galileoCallback]
+});
+```
+
+This creates spans in Galileo that:
+
+- Capture the user's natural language input
+- Record the agent's tool selection and reasoning
+- Track tool execution time and success rates
+- Provide context for debugging and optimization
+
+### The conversation memory system
+
+This system provides intelligent caching and context management for improved user experience.
+
+**Key Ingredients:**
+
+- 5-minute caching system
+- Session context tracking
+- Conversation history management
+- Performance optimization
+
+**How it works:**
+
+1. **Caching strategy:**
+   The agent implements a 5-minute cache for frequently accessed data:
+
+   ```typescript
+   private cachedProducts: any[] = [];
+   private cacheTimestamp: number = 0;
+   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+   private isCacheValid(): boolean {
+     return Date.now() - this.cacheTimestamp < this.CACHE_DURATION;
+   }
+   ```
+
+2. **Session context:**
+   Each conversation session maintains context for better continuity:
+
+   ```typescript
+   interface SessionContext {
+     sessionId: string;
+     startTime: Date;
+     conversationHistory: AgentMessage[];
+     isActive: boolean;
+     lastActivity: Date;
+     messageCount: number;
+     toolsUsed: Set<string>;
+     metrics: {
+       totalExecutionTime: number;
+       successfulOperations: number;
+       failedOperations: number;
+       averageResponseTime?: number;
+     };
+   }
+   ```
+
+3. **Loop prevention:**
+   Advanced circular tool usage detection prevents infinite loops:
+
+   ```typescript
+   private detectCircularToolUsage(intermediateSteps: any[]): void {
+     if (!intermediateSteps || intermediateSteps.length < 4) return;
+
+     const recentTools = intermediateSteps
+       .slice(-4)
+       .map(step => step.action?.tool)
+       .filter(tool => tool);
+
+     const [tool1, tool2, tool3, tool4] = recentTools;
+     
+     if (tool1 === tool3 && tool2 === tool4 && tool1 !== tool2) {
+       const pattern = [tool1, tool2];
+       throw new CircularToolError(
+         `Circular tool invocation detected: ${pattern.join(' -> ')} pattern repeated.`,
+         pattern
+       );
+     }
+   }
+   ```
+
+**Galileo integration:**
+The conversation memory system is traced through session spans that track:
+
+- Session duration and activity patterns
+- Conversation flow and context switches
+- Tool usage patterns across sessions
+- Performance metrics over time
+
+This allows you to analyze:
+
+- How users interact with the payment system
+- Common conversation patterns and pain points
+- Tool selection effectiveness
 
 ## Customization
 
-### Adding New Tools
+Now that you understand how the agent works, let's explore how to customize it for your specific needs.
+
+### Adding new tools
 
 To add new Stripe tools, modify the agent initialization:
 
@@ -350,7 +534,7 @@ private async initializeAgent(): Promise<void> {
 }
 ```
 
-### Modifying Prompts
+### Modifying prompts
 
 To customize the agent's behavior, modify the prompt template:
 
@@ -362,7 +546,7 @@ const customPrompt = ChatPromptTemplate.fromMessages([
 ]);
 ```
 
-### Environment Variables
+### Environment variables
 
 Additional configuration options:
 
@@ -380,7 +564,9 @@ AGENT_DESCRIPTION=Custom agent description
 
 ## Troubleshooting
 
-### Common Issues
+If you encounter issues, here are some common solutions.
+
+### Common issues
 
 <Steps>
 <Step title="Missing environment variables">
