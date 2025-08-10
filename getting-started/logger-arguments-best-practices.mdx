@@ -7,8 +7,6 @@ description: Learn what contexts are and gain further understanding on how to be
 
 This guide helps you understand the different arguments available to you within the Galileo Logger and how to best use them. When working with the Galileo Logger, understanding how to effectively use the various arguments available can significantly enhance your ability to monitor, debug, and optimize your AI applications. This guide will walk you through each argument, explain its purpose, and provide best practices for using them effectively.
 
-New to arguments as a whole? Read more about arguments in [W3 school](https://www.w3schools.com/python/gloss_python_function_arguments.asp).
-
 ## Understanding logger arguments
 
 The Galileo Logger provides several arguments that allow you to capture rich context about your AI operations. These arguments serve different purposes and should be used strategically to create comprehensive observability into your application's behavior.
@@ -57,6 +55,30 @@ logger.start_trace(
 )
 ```
 
+```typescript
+// ✅ Good: Clear, structured input
+logger.startTrace({
+    input: "What are the health benefits of meditation?",
+    name: "Meditation Benefits Query"
+});
+
+// ✅ Good: Structured input for complex operations
+logger.startTrace({
+    input: {
+        query: "What are the health benefits of meditation?",
+        context: "User is a beginner looking for scientific evidence",
+        language: "en"
+    },
+    name: "Meditation Benefits Query"
+});
+
+// ❌ Avoid: Vague or overly verbose input
+logger.startTrace({
+    input: "stuff about meditation and health and benefits and things",
+    name: "Query"
+});
+```
+
 **Why This Matters**: Clear, structured input helps you:
 - Quickly identify what each operation was processing
 - Debug issues by understanding the exact data that caused problems
@@ -97,6 +119,34 @@ logger.start_trace(
 )
 ```
 
+```typescript
+// ✅ Good: Redacting sensitive information
+logger.startTrace({
+    input: "My credit card number is 1234-5678-9012-3456 and I need help",
+    redactedInput: "My credit card number is [REDACTED] and I need help",
+    name: "Payment Support Query"
+});
+
+// ✅ Good: Redacting PII while preserving context
+logger.startTrace({
+    input: {
+        user_message: "Hi, I'm Galileo Galilei and my email is galileo@telescopedude.com",
+        user_id: "user_12345"
+    },
+    redactedInput: {
+        user_message: "Hi, I'm [NAME] and my email is [EMAIL]",
+        user_id: "[REDACTED]"
+    },
+    name: "User Support Interaction"
+});
+
+// ❌ Avoid: Not redacting sensitive data
+logger.startTrace({
+    input: "Password: mysecretpassword123",
+    name: "Login Attempt"
+});
+```
+
 **Why this matters**: Redacted input helps you:
 - Comply with data privacy regulations (GDPR, CCPA, etc.)
 - Share logs with team members without exposing sensitive data
@@ -127,6 +177,26 @@ logger.start_trace(
     input=user_query,
     name="Query"
 )
+```
+
+```typescript
+// ✅ Good: Descriptive, action-oriented names
+logger.startTrace({
+    input: userQuery,
+    name: "RAG Document Retrieval for Medical Query"
+});
+
+// ✅ Good: Hierarchical naming for complex workflows
+logger.startTrace({
+    input: userQuery,
+    name: "Customer Support - Payment Issue Resolution"
+});
+
+// ❌ Avoid: Generic or unclear names
+logger.startTrace({
+    input: userQuery,
+    name: "Query"
+});
 ```
 
 **Naming conventions**:
@@ -162,8 +232,20 @@ logger.start_trace(
     duration_ns=duration_ns,
     name="Document Retrieval"
 )
+```
 
+```typescript
+// ✅ Good: Accurate timing measurement
+const startTime = process.hrtime.bigint();
+// ... perform operation ...
+const endTime = process.hrtime.bigint();
+const durationNs = Number(endTime - startTime);
 
+logger.startTrace({
+    input: query,
+    durationNs: durationNs,
+    name: "Document Retrieval"
+});
 ```
 
 **Why This Matters**: Accurate timing helps you:
@@ -203,6 +285,29 @@ logger.start_trace(
     created_at="2024-01-15 10:30:00",  # String format
     name="User Query Processing"
 )
+```
+
+```typescript
+// ✅ Good: Using precise timestamps
+logger.startTrace({
+    input: query,
+    createdAt: Date.now() * 1000000, // Convert to nanoseconds
+    name: "User Query Processing"
+});
+
+// ✅ Good: Using timezone-aware timestamps
+logger.startTrace({
+    input: query,
+    createdAt: new Date().getTime() * 1000000, // Convert to nanoseconds
+    name: "User Query Processing"
+});
+
+// ❌ Avoid: Inconsistent timestamp formats
+logger.startTrace({
+    input: query,
+    createdAt: "2024-01-15 10:30:00", // String format
+    name: "User Query Processing"
+});
 ```
 
 **Why This Matters**: Proper timestamp handling helps you:
@@ -258,6 +363,49 @@ logger.start_trace(
     },
     name="Agent Decision Making"
 )
+```
+
+```typescript
+// ✅ Good: Structured, meaningful metadata
+logger.startTrace({
+    input: userQuery,
+    metadata: {
+        user_id: "user_12345",
+        session_id: "session_67890",
+        model_version: "gpt-4-0613",
+        temperature: "0.7",
+        max_tokens: "1000",
+        client_version: "1.2.3",
+        environment: "production"
+    },
+    name: "LLM Response Generation"
+});
+
+// ✅ Good: Contextual metadata for different operation types
+// For RAG operations
+logger.startTrace({
+    input: query,
+    metadata: {
+        retriever_type: "vector_search",
+        embedding_model: "text-embedding-ada-002",
+        chunk_size: "512",
+        top_k: "5",
+        similarity_threshold: "0.8"
+    },
+    name: "Document Retrieval"
+});
+
+// For agent operations
+logger.startTrace({
+    input: userRequest,
+    metadata: {
+        agent_type: "customer_support",
+        available_tools: ["search_kb", "create_ticket", "escalate"],
+        conversation_turn: "3",
+        user_satisfaction_score: "4.5"
+    },
+    name: "Agent Decision Making"
+});
 ```
 
 **Metadata best practices**:
@@ -318,6 +466,44 @@ logger.start_trace(
 )
 ```
 
+```typescript
+// ✅ Good: Using external IDs for system integration
+logger.startTrace({
+    input: paymentRequest,
+    externalId: `payment_${paymentId}`,
+    metadata: {
+        payment_id: paymentId,
+        amount: amount,
+        currency: currency
+    },
+    name: "Payment Processing"
+});
+
+// ✅ Good: Correlating with external monitoring systems
+logger.startTrace({
+    input: apiRequest,
+    externalId: `request_${requestId}`,
+    metadata: {
+        request_id: requestId,
+        client_ip: clientIp,
+        user_agent: userAgent
+    },
+    name: "API Request Processing"
+});
+
+// ✅ Good: Linking to business systems
+logger.startTrace({
+    input: customerQuery,
+    externalId: `ticket_${ticketId}`,
+    metadata: {
+        ticket_id: ticketId,
+        customer_id: customerId,
+        priority: priority
+    },
+    name: "Customer Support Query"
+});
+```
+
 **External ID Best Practices**:
 
 - **Use consistent prefixes**: `payment_`, `request_`, `ticket_`, `order_`
@@ -366,6 +552,38 @@ def process_customer_query(user_id: str, message: str, session_id: str):
     )
 ```
 
+```typescript
+function processCustomerQuery(userId: string, message: string, sessionId: string) {
+    // Start trace with comprehensive context
+    const trace = logger.startTrace({
+        input: message,
+        redactedInput: redactPii(message),
+        name: "E-commerce Customer Support",
+        metadata: {
+            user_id: userId,
+            session_id: sessionId,
+            bot_version: "2.1.0",
+            language: detectLanguage(message),
+            intent: classifyIntent(message)
+        },
+        externalId: `session_${sessionId}`
+    });
+    
+    // Process the query...
+    const response = generateResponse(message);
+    
+    // Conclude with results
+    logger.conclude({
+        output: response,
+        durationNs: calculateDuration(),
+        metadata: {
+            response_quality_score: responseQualityScore,
+            resolved_issue: issueResolved
+        }
+    });
+}
+```
+
 ### Example 2: RAG Document Search
 
 ```python
@@ -395,6 +613,36 @@ def search_documents(query: str, user_context: dict):
             "search_latency_ms": search_duration / 1_000_000
         }
     )
+```
+
+```typescript
+function searchDocuments(query: string, userContext: Record<string, any>) {
+    // Start trace for document retrieval
+    const trace = logger.startTrace({
+        input: query,
+        name: "RAG Document Retrieval",
+        metadata: {
+            user_role: userContext.role,
+            search_type: "semantic",
+            embedding_model: "text-embedding-ada-002",
+            max_results: "10"
+        }
+    });
+    
+    // Perform search...
+    const results = vectorSearch(query);
+    
+    // Conclude with search results
+    logger.conclude({
+        output: results,
+        durationNs: searchDuration,
+        metadata: {
+            results_count: results.length,
+            top_similarity_score: maxSimilarity,
+            search_latency_ms: searchDuration / 1_000_000
+        }
+    });
+}
 ```
 
 ### Example 3: Multi-Agent Workflow
@@ -436,6 +684,46 @@ def process_complex_request(request: dict):
             "success_rate": success_rate
         }
     )
+```
+
+```typescript
+function processComplexRequest(request: Record<string, any>) {
+    // Start main workflow trace
+    const trace = logger.startTrace({
+        input: request,
+        name: "Multi-Agent Request Processing",
+        metadata: {
+            request_type: request.type,
+            priority: request.priority || "normal",
+            estimated_complexity: estimateComplexity(request)
+        },
+        externalId: `request_${request.id}`
+    });
+    
+    // Add workflow span for planning
+    const planningSpan = logger.addWorkflowSpan({
+        input: request,
+        name: "Agent Planning Phase",
+        metadata: {
+            agents_involved: ["planner", "executor", "validator"],
+            planning_strategy: "hierarchical"
+        }
+    });
+    
+    // Execute the plan...
+    const result = executePlan(request);
+    
+    // Conclude workflow
+    logger.conclude({
+        output: result,
+        durationNs: totalDuration,
+        metadata: {
+            agents_used: agentsUsed,
+            steps_completed: stepsCompleted,
+            success_rate: successRate
+        }
+    });
+}
 ```
 
 ## Best Practices Summary
