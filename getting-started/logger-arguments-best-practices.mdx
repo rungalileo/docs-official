@@ -1,5 +1,5 @@
 ---
-title: An Introduction to logger arguments
+title: Logger Arguments Best Practices
 description: Learn what contexts are and gain further understanding on how to best use the Galileo Logger. 
 ---
 
@@ -12,11 +12,13 @@ import SnippetMetadataArgument from "/snippets/code/multilingual/concepts/loggin
 import SnippetExternalIdArgument from "/snippets/code/multilingual/concepts/logging/logger-arguments/external-id-argument.mdx";
 import SnippetEcommerceChatbot from "/snippets/code/multilingual/concepts/logging/logger-arguments/examples/ecommerce-chatbot.mdx";
 
-# Logger arguments best practices
+# Understanding Logger Arguments
 
-This guide helps you understand the different arguments available to you within the Galileo Logger and how to best use them. When working with the Galileo Logger, understanding how to effectively use the various arguments available can significantly enhance your ability to monitor, debug, and optimize your AI applications. This guide will walk you through each argument, explain its purpose, and provide best practices for using them effectively.
+This guide helps you understand the different arguments available to you within the Galileo Logger and how to best use them.
 
-## Understanding logger arguments
+When working with the Galileo Logger, understanding how to effectively use the various arguments available can significantly enhance your ability to monitor, debug, and optimize your AI applications. This guide will walk you through each argument, explain its purpose, and provide best practices for using them effectively.
+
+## About the Galileo Logger
 
 The Galileo Logger provides several arguments that allow you to capture rich context about your AI operations. These arguments serve different purposes and should be used strategically to create comprehensive observability into your application's behavior.
 
@@ -38,7 +40,7 @@ Before diving into best practices, let's understand what each argument does:
 
 **Purpose**: The `input` argument captures the primary data that your AI operation processes. This is the foundation of your observability strategy.
 
-**Best Practices**:
+#### Best practices:
 
 <SnippetInputArgument />
 
@@ -52,7 +54,7 @@ Before diving into best practices, let's understand what each argument does:
 
 **Purpose**: The `redacted_input` argument provides a sanitized version of your input data, removing sensitive information while maintaining the structure needed for analysis.
 
-**Best Practices**:
+#### Best practices:
 
 <SnippetRedactedInputArgument />
 
@@ -66,7 +68,7 @@ Before diving into best practices, let's understand what each argument does:
 
 **Purpose**: The `name` argument provides a human-readable identifier that makes it easy to understand what each trace or span represents.
 
-**Best Practices**:
+#### Best practices:
 
 <SnippetNameArgument />
 
@@ -77,17 +79,18 @@ Before diving into best practices, let's understand what each argument does:
 - **Be specific**: "GPT-4 Response Generation" vs "LLM Call"
 - **Use consistent patterns**: "Service - Action - Context" format
 
-**Why This Matters**: Good naming helps you:
+**Why This Matters**: 
+Good naming helps you:
 - Quickly identify the purpose of each operation in logs
 - Filter and group related operations effectively
 - Debug issues by understanding the workflow context
 - Create meaningful dashboards and alerts
 
-### 4. Duration (duration_ns) Argument
+### 4. Duration (duration_ns) argument
 
 **Purpose**: The `duration_ns` argument captures performance timing in nanoseconds, enabling detailed performance analysis.
 
-**Best Practices**:
+#### Best practices:
 
 <SnippetDurationArgument />
 
@@ -101,7 +104,7 @@ Before diving into best practices, let's understand what each argument does:
 
 **Purpose**: The `created_at` argument captures when an operation began, enabling temporal analysis and debugging.
 
-**Best Practices**:
+#### Best practices:
 
 <SnippetCreatedAtArgument />
 
@@ -115,11 +118,11 @@ Before diving into best practices, let's understand what each argument does:
 
 **Purpose**: The `metadata` argument allows you to attach key-value pairs that provide additional context about your operations.
 
-**Best Practices**:
+#### Best practices:
 
 <SnippetMetadataArgument />
 
-**Metadata best practices**:
+#### Metadata best practices:
 
 - **Be consistent**: Use the same keys across similar operations
 - **Include version information**: Model versions, API versions, client versions
@@ -137,11 +140,11 @@ Before diving into best practices, let's understand what each argument does:
 
 **Purpose**: The `external_id` argument provides a bridge between Galileo and external systems, enabling correlation and integration.
 
-**Best Practices**:
+#### Best practices:
 
 <SnippetExternalIdArgument />
 
-**External ID Best Practices**:
+#### External ID best practices:
 
 - **Use consistent prefixes**: `payment_`, `request_`, `ticket_`, `order_`
 - **Include the actual ID**: Make it easy to look up in external systems
@@ -189,7 +192,7 @@ Before diving into best practices, let's understand what each argument does:
 5. **Don't forget to include context** that helps with debugging
 6. **Don't use string timestamps** instead of proper datetime objects
 
-## Next Steps
+## Next steps
 
 Now that you understand how to effectively use logger arguments, you can:
 
