@@ -1,0 +1,78 @@
+```python Python
+def process_complex_request(request: dict):
+    # Start main workflow trace
+    trace = logger.start_trace(
+        input=request,
+        name="Multi-Agent Request Processing",
+        metadata={
+            "request_type": request.get("type"),
+            "priority": request.get("priority", "normal"),
+            "estimated_complexity": estimate_complexity(request)
+        },
+        external_id=f"request_{request.get('id')}"
+    )
+    
+    # Add workflow span for planning
+    planning_span = logger.add_workflow_span(
+        input=request,
+        name="Agent Planning Phase",
+        metadata={
+            "agents_involved": ["planner", "executor", "validator"],
+            "planning_strategy": "hierarchical"
+        }
+    )
+    
+    # Execute the plan...
+    result = execute_plan(request)
+    
+    # Conclude workflow
+    logger.conclude(
+        output=result,
+        duration_ns=total_duration,
+        metadata={
+            "agents_used": agents_used,
+            "steps_completed": steps_completed,
+            "success_rate": success_rate
+        }
+    )
+```
+
+```typescript TypeScript
+function processComplexRequest(request: Record<string, any>) {
+    // Start main workflow trace
+    const trace = logger.startTrace({
+        input: request,
+        name: "Multi-Agent Request Processing",
+        metadata: {
+            request_type: request.type,
+            priority: request.priority || "normal",
+            estimated_complexity: estimateComplexity(request)
+        },
+        externalId: `request_${request.id}`
+    });
+    
+    // Add workflow span for planning
+    const planningSpan = logger.addWorkflowSpan({
+        input: request,
+        name: "Agent Planning Phase",
+        metadata: {
+            agents_involved: ["planner", "executor", "validator"],
+            planning_strategy: "hierarchical"
+        }
+    });
+    
+    // Execute the plan...
+    const result = executePlan(request);
+    
+    // Conclude workflow
+    logger.conclude({
+        output: result,
+        durationNs: totalDuration,
+        metadata: {
+            agents_used: agentsUsed,
+            steps_completed: stepsCompleted,
+            success_rate: successRate
+        }
+    });
+}
+```

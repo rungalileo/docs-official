@@ -1,0 +1,50 @@
+```python Python
+from datetime import datetime
+
+# ✅ Good: Using precise timestamps
+logger.start_trace(
+    input=query,
+    created_at=datetime.utcnow(),
+    name="User Query Processing"
+)
+
+# ✅ Good: Using timezone-aware timestamps
+from datetime import datetime, timezone
+
+logger.start_trace(
+    input=query,
+    created_at=datetime.now(timezone.utc),
+    name="User Query Processing"
+)
+
+# ❌ Avoid: Inconsistent timestamp formats
+logger.start_trace(
+    input=query,
+    created_at="2024-01-15 10:30:00",  # String format
+    name="User Query Processing"
+)
+```
+
+```typescript TypeScript
+// ✅ Good: Using precise timestamps
+logger.startTrace({
+    input: query,
+    createdAt: Date.now() * 1000000, // Convert to nanoseconds
+    name: "User Query Processing"
+});
+
+// ✅ Good: Using timezone-aware timestamps
+logger.startTrace({
+    input: query,
+    createdAt: new Date().getTime() * 1000000, // Convert to nanoseconds
+    name: "User Query Processing"
+});
+
+// ❌ Avoid: Inconsistent timestamp formats
+logger.startTrace({
+    input: query,
+    createdAt: "2024-01-15 10:30:00", // String format
+    name: "User Query Processing"
+});
+```
+
