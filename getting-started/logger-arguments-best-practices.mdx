@@ -1,0 +1,478 @@
+---
+title: An Introduction to logger arguments
+description: Learn what contexts are and gain further understanding on how to best use the Galileo Logger. 
+---
+
+# Logger arguments best practices
+
+This guide helps you understand the different arguments available to you within the Galileo Logger and how to best use them. When working with the Galileo Logger, understanding how to effectively use the various arguments available can significantly enhance your ability to monitor, debug, and optimize your AI applications. This guide will walk you through each argument, explain its purpose, and provide best practices for using them effectively.
+
+New to arguments as a whole? Read more about arguments in [W3 school](https://www.w3schools.com/python/gloss_python_function_arguments.asp).
+
+## Understanding logger arguments
+
+The Galileo Logger provides several arguments that allow you to capture rich context about your AI operations. These arguments serve different purposes and should be used strategically to create comprehensive observability into your application's behavior.
+
+### Core arguments overview
+
+Before diving into best practices, let's understand what each argument does:
+
+- **`input`** - The primary data being processed by your AI operation
+- **`redacted_input`** - A sanitized version of input for sensitive data handling
+- **`name`** - A human-readable identifier for your trace or span
+- **`duration_ns`** - Performance timing in nanoseconds
+- **`created_at`** - Timestamp for when the operation began
+- **`metadata`** - Key-value pairs for additional context
+- **`external_id`** - Integration point for external systems
+
+## Detailed argument guide
+
+### 1. Input Argument
+
+**Purpose**: The `input` argument captures the primary data that your AI operation processes. This is the foundation of your observability strategy.
+
+**Best Practices**:
+
+```python
+# ✅ Good: Clear, structured input
+logger.start_trace(
+    input="What are the health benefits of meditation?",
+    name="Meditation Benefits Query"
+)
+
+# ✅ Good: Structured input for complex operations
+logger.start_trace(
+    input={
+        "query": "What are the health benefits of meditation?",
+        "context": "User is a beginner looking for scientific evidence",
+        "language": "en"
+    },
+    name="Meditation Benefits Query"
+)
+
+# ❌ Avoid: Vague or overly verbose input
+logger.start_trace(
+    input="stuff about meditation and health and benefits and things",
+    name="Query"
+)
+```
+
+**Why This Matters**: Clear, structured input helps you:
+- Quickly identify what each operation was processing
+- Debug issues by understanding the exact data that caused problems
+- Analyze patterns in user queries or system inputs
+- Train better models with high-quality input data
+
+### 2. Redacted input Argument
+
+**Purpose**: The `redacted_input` argument provides a sanitized version of your input data, removing sensitive information while maintaining the structure needed for analysis.
+
+**Best Practices**:
+
+```python
+# ✅ Good: Redacting sensitive information
+logger.start_trace(
+    input="My credit card number is 1234-5678-9012-3456 and I need help",
+    redacted_input="My credit card number is [REDACTED] and I need help",
+    name="Payment Support Query"
+)
+
+# ✅ Good: Redacting PII while preserving context
+logger.start_trace(
+    input={
+        "user_message": "Hi, I'm Galileo Galilei and my email is galileo@telescopedude.com",
+        "user_id": "user_12345"
+    },
+    redacted_input={
+        "user_message": "Hi, I'm [NAME] and my email is [EMAIL]",
+        "user_id": "[REDACTED]"
+    },
+    name="User Support Interaction"
+)
+
+# ❌ Avoid: Not redacting sensitive data
+logger.start_trace(
+    input="Password: mysecretpassword123",
+    name="Login Attempt"
+)
+```
+
+**Why this matters**: Redacted input helps you:
+- Comply with data privacy regulations (GDPR, CCPA, etc.)
+- Share logs with team members without exposing sensitive data
+- Debug issues in production without compromising security
+- Maintain data quality for analysis while protecting user privacy
+
+### 3. Name argument
+
+**Purpose**: The `name` argument provides a human-readable identifier that makes it easy to understand what each trace or span represents.
+
+**Best Practices**:
+
+```python
+# ✅ Good: Descriptive, action-oriented names
+logger.start_trace(
+    input=user_query,
+    name="RAG Document Retrieval for Medical Query"
+)
+
+# ✅ Good: Hierarchical naming for complex workflows
+logger.start_trace(
+    input=user_query,
+    name="Customer Support - Payment Issue Resolution"
+)
+
+# ❌ Avoid: Generic or unclear names
+logger.start_trace(
+    input=user_query,
+    name="Query"
+)
+```
+
+**Naming conventions**:
+
+- **Use action verbs**: "Generate Response", "Retrieve Documents", "Validate Input"
+- **Include context**: "Medical Diagnosis Query", "Payment Processing", "User Authentication"
+- **Be specific**: "GPT-4 Response Generation" vs "LLM Call"
+- **Use consistent patterns**: "Service - Action - Context" format
+
+**Why This Matters**: Good naming helps you:
+- Quickly identify the purpose of each operation in logs
+- Filter and group related operations effectively
+- Debug issues by understanding the workflow context
+- Create meaningful dashboards and alerts
+
+### 4. Duration (duration_ns) Argument
+
+**Purpose**: The `duration_ns` argument captures performance timing in nanoseconds, enabling detailed performance analysis.
+
+**Best Practices**:
+
+```python
+import time
+
+# ✅ Good: Accurate timing measurement
+start_time = time.time_ns()
+# ... perform operation ...
+end_time = time.time_ns()
+duration_ns = end_time - start_time
+
+logger.start_trace(
+    input=query,
+    duration_ns=duration_ns,
+    name="Document Retrieval"
+)
+
+
+```
+
+**Why This Matters**: Accurate timing helps you:
+- Identify performance bottlenecks in your AI pipeline
+- Set appropriate timeouts and SLAs
+- Optimize resource allocation
+- Monitor system health and degradation
+
+### 5. Created at (created_at) argument
+
+**Purpose**: The `created_at` argument captures when an operation began, enabling temporal analysis and debugging.
+
+**Best Practices**:
+
+```python
+from datetime import datetime
+
+# ✅ Good: Using precise timestamps
+logger.start_trace(
+    input=query,
+    created_at=datetime.utcnow(),
+    name="User Query Processing"
+)
+
+# ✅ Good: Using timezone-aware timestamps
+from datetime import datetime, timezone
+
+logger.start_trace(
+    input=query,
+    created_at=datetime.now(timezone.utc),
+    name="User Query Processing"
+)
+
+# ❌ Avoid: Inconsistent timestamp formats
+logger.start_trace(
+    input=query,
+    created_at="2024-01-15 10:30:00",  # String format
+    name="User Query Processing"
+)
+```
+
+**Why This Matters**: Proper timestamp handling helps you:
+- Debug issues by understanding when they occurred
+- Analyze temporal patterns in your application
+- Correlate events across different systems
+- Maintain audit trails for compliance
+
+### 6. Metadata argument
+
+**Purpose**: The `metadata` argument allows you to attach key-value pairs that provide additional context about your operations.
+
+**Best Practices**:
+
+```python
+# ✅ Good: Structured, meaningful metadata
+logger.start_trace(
+    input=user_query,
+    metadata={
+        "user_id": "user_12345",
+        "session_id": "session_67890",
+        "model_version": "gpt-4-0613",
+        "temperature": "0.7",
+        "max_tokens": "1000",
+        "client_version": "1.2.3",
+        "environment": "production"
+    },
+    name="LLM Response Generation"
+)
+
+# ✅ Good: Contextual metadata for different operation types
+# For RAG operations
+logger.start_trace(
+    input=query,
+    metadata={
+        "retriever_type": "vector_search",
+        "embedding_model": "text-embedding-ada-002",
+        "chunk_size": "512",
+        "top_k": "5",
+        "similarity_threshold": "0.8"
+    },
+    name="Document Retrieval"
+)
+
+# For agent operations
+logger.start_trace(
+    input=user_request,
+    metadata={
+        "agent_type": "customer_support",
+        "available_tools": ["search_kb", "create_ticket", "escalate"],
+        "conversation_turn": "3",
+        "user_satisfaction_score": "4.5"
+    },
+    name="Agent Decision Making"
+)
+```
+
+**Metadata best practices**:
+
+- **Be consistent**: Use the same keys across similar operations
+- **Include version information**: Model versions, API versions, client versions
+- **Add operational context**: Environment, user context, session information
+- **Keep it relevant**: Don't add metadata that doesn't help with debugging or analysis
+- **Use appropriate data types**: Strings for most values, numbers for metrics
+
+**Why this matters**: Rich metadata helps you:
+- Debug issues by understanding the full context of operations
+- Analyze performance across different configurations
+- Track user behavior and preferences
+- Maintain operational visibility across complex systems
+
+### 7. External ID argument
+
+**Purpose**: The `external_id` argument provides a bridge between Galileo and external systems, enabling correlation and integration.
+
+**Best Practices**:
+
+```python
+# ✅ Good: Using external IDs for system integration
+logger.start_trace(
+    input=payment_request,
+    external_id=f"payment_{payment_id}",
+    metadata={
+        "payment_id": payment_id,
+        "amount": amount,
+        "currency": currency
+    },
+    name="Payment Processing"
+)
+
+# ✅ Good: Correlating with external monitoring systems
+logger.start_trace(
+    input=api_request,
+    external_id=f"request_{request_id}",
+    metadata={
+        "request_id": request_id,
+        "client_ip": client_ip,
+        "user_agent": user_agent
+    },
+    name="API Request Processing"
+)
+
+# ✅ Good: Linking to business systems
+logger.start_trace(
+    input=customer_query,
+    external_id=f"ticket_{ticket_id}",
+    metadata={
+        "ticket_id": ticket_id,
+        "customer_id": customer_id,
+        "priority": priority
+    },
+    name="Customer Support Query"
+)
+```
+
+**External ID Best Practices**:
+
+- **Use consistent prefixes**: `payment_`, `request_`, `ticket_`, `order_`
+- **Include the actual ID**: Make it easy to look up in external systems
+- **Keep it unique**: Ensure each external ID is unique within your system
+- **Make it searchable**: Use formats that work well with your external systems
+
+**Why This Matters**: External IDs help you:
+- Correlate Galileo data with external monitoring systems
+- Link AI operations to business processes
+- Debug issues across multiple systems
+- Maintain audit trails for compliance and security
+
+## Real-World Examples
+
+### Example 1: E-commerce Chatbot
+
+```python
+def process_customer_query(user_id: str, message: str, session_id: str):
+    # Start trace with comprehensive context
+    trace = logger.start_trace(
+        input=message,
+        redacted_input=redact_pii(message),
+        name="E-commerce Customer Support",
+        metadata={
+            "user_id": user_id,
+            "session_id": session_id,
+            "bot_version": "2.1.0",
+            "language": detect_language(message),
+            "intent": classify_intent(message)
+        },
+        external_id=f"session_{session_id}"
+    )
+    
+    # Process the query...
+    response = generate_response(message)
+    
+    # Conclude with results
+    logger.conclude(
+        output=response,
+        duration_ns=calculate_duration(),
+        metadata={
+            "response_quality_score": response_quality_score,
+            "resolved_issue": issue_resolved
+        }
+    )
+```
+
+### Example 2: RAG Document Search
+
+```python
+def search_documents(query: str, user_context: dict):
+    # Start trace for document retrieval
+    trace = logger.start_trace(
+        input=query,
+        name="RAG Document Retrieval",
+        metadata={
+            "user_role": user_context.get("role"),
+            "search_type": "semantic",
+            "embedding_model": "text-embedding-ada-002",
+            "max_results": "10"
+        }
+    )
+    
+    # Perform search...
+    results = vector_search(query)
+    
+    # Conclude with search results
+    logger.conclude(
+        output=results,
+        duration_ns=search_duration,
+        metadata={
+            "results_count": len(results),
+            "top_similarity_score": max_similarity,
+            "search_latency_ms": search_duration / 1_000_000
+        }
+    )
+```
+
+### Example 3: Multi-Agent Workflow
+
+```python
+def process_complex_request(request: dict):
+    # Start main workflow trace
+    trace = logger.start_trace(
+        input=request,
+        name="Multi-Agent Request Processing",
+        metadata={
+            "request_type": request.get("type"),
+            "priority": request.get("priority", "normal"),
+            "estimated_complexity": estimate_complexity(request)
+        },
+        external_id=f"request_{request.get('id')}"
+    )
+    
+    # Add workflow span for planning
+    planning_span = logger.add_workflow_span(
+        input=request,
+        name="Agent Planning Phase",
+        metadata={
+            "agents_involved": ["planner", "executor", "validator"],
+            "planning_strategy": "hierarchical"
+        }
+    )
+    
+    # Execute the plan...
+    result = execute_plan(request)
+    
+    # Conclude workflow
+    logger.conclude(
+        output=result,
+        duration_ns=total_duration,
+        metadata={
+            "agents_used": agents_used,
+            "steps_completed": steps_completed,
+            "success_rate": success_rate
+        }
+    )
+```
+
+## Best Practices Summary
+
+### Do's ✅
+
+1. **Use descriptive names** that clearly indicate the operation's purpose
+2. **Structure your metadata** consistently across similar operations
+3. **Implement proper redaction** for sensitive data
+4. **Include version information** in metadata for debugging
+5. **Measure timing accurately** for performance analysis
+6. **Use external IDs** to correlate with other systems
+7. **Be consistent** with naming conventions and data formats
+
+### Don'ts ❌
+
+1. **Don't log sensitive data** without proper redaction
+2. **Don't use generic names** like "Query" or "Process"
+3. **Don't overload metadata** with irrelevant information
+4. **Don't skip timing measurements** for performance-critical operations
+5. **Don't forget to include context** that helps with debugging
+6. **Don't use string timestamps** instead of proper datetime objects
+
+## Next Steps
+
+Now that you understand how to effectively use logger arguments, you can:
+
+<Card title="Learn about logging basics" icon="code" href="/how-to-guides/basics/basic-example">
+  Start with basic logging examples to practice these concepts.
+</Card>
+
+<Card title="Explore advanced logging patterns" icon="code" href="/sdk-api/logging/logging-basics">
+  Learn about different logging approaches and patterns.
+</Card>
+
+<Card title="Understand metrics and monitoring" icon="chart" href="/concepts/metrics/overview">
+  Learn how your logged data feeds into metrics and monitoring.
+</Card>
+
+By following these best practices, you'll create a robust observability foundation that will help you build, debug, and optimize your AI applications effectively.
