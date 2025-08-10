@@ -1,0 +1,26 @@
+```python Python
+# ✅ Good: Redacting sensitive information
+logger.start_trace(
+    input="My credit card number is 1234-5678-9012-3456 and I need help",
+    redacted_input="My credit card number is [REDACTED] and I need help",
+    name="Payment Support Query"
+)
+
+# ✅ Good: Redacting PII while preserving context
+logger.start_trace(
+    input={
+        "user_message": "Hi, I'm Galileo Galilei and my email is galileo@telescopedude.com",
+        "user_id": "user_12345"
+    },
+    redacted_input={
+        "user_message": "Hi, I'm [NAME] and my email is [EMAIL]",
+        "user_id": "[REDACTED]"
+    },
+    name="User Support Interaction"
+)
+
+# ❌ Avoid: Not redacting sensitive data
+logger.start_trace(
+    input="Password: mysecretpassword123",
+    name="Login Attempt"
+)

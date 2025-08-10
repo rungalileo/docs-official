@@ -1,0 +1,37 @@
+```typescript TypeScript
+// ✅ Good: Using external IDs for system integration
+logger.startTrace({
+    input: paymentRequest,
+    externalId: `payment_${paymentId}`,
+    metadata: {
+        payment_id: paymentId,
+        amount: amount,
+        currency: currency
+    },
+    name: "Payment Processing"
+});
+
+// ✅ Good: Correlating with external monitoring systems
+logger.startTrace({
+    input: apiRequest,
+    externalId: `request_${requestId}`,
+    metadata: {
+        request_id: requestId,
+        client_ip: clientIp,
+        user_agent: userAgent
+    },
+    name: "API Request Processing"
+});
+
+// ✅ Good: Linking to business systems
+logger.startTrace({
+    input: customerQuery,
+    externalId: `ticket_${ticketId}`,
+    metadata: {
+        ticket_id: ticketId,
+        customer_id: customerId,
+        priority: priority
+    },
+    name: "Customer Support Query"
+});
+```

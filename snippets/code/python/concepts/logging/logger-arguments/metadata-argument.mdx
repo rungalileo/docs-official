@@ -1,0 +1,42 @@
+```python Python
+# ✅ Good: Structured, meaningful metadata
+logger.start_trace(
+    input=user_query,
+    metadata={
+        "user_id": "user_12345",
+        "session_id": "session_67890",
+        "model_version": "gpt-4-0613",
+        "temperature": "0.7",
+        "max_tokens": "1000",
+        "client_version": "1.2.3",
+        "environment": "production"
+    },
+    name="LLM Response Generation"
+)
+
+# ✅ Good: Contextual metadata for different operation types
+# For RAG operations
+logger.start_trace(
+    input=query,
+    metadata={
+        "retriever_type": "vector_search",
+        "embedding_model": "text-embedding-ada-002",
+        "chunk_size": "512",
+        "top_k": "5",
+        "similarity_threshold": "0.8"
+    },
+    name="Document Retrieval"
+)
+
+# For agent operations
+logger.start_trace(
+    input=user_request,
+    metadata={
+        "agent_type": "customer_support",
+        "available_tools": ["search_kb", "create_ticket", "escalate"],
+        "conversation_turn": "3",
+        "user_satisfaction_score": "4.5"
+    },
+    name="Agent Decision Making"
+)
+```
