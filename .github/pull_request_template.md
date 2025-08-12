@@ -6,7 +6,9 @@ What did you change? Why did you change it?
 
 For Galileo internally raised PRs only, please update this with your shortcut ticket.
 
-[SC-]()
+[SC-<number>](link)
+
+> Keep the formatting, replacing `SC-<number>` with the shortcut ticket, e.g. [SC-12345], and adding the link to the ticket correctly in the brackets. This format is important as it allows Shortcut to track the ticket, moving the status to in review, then merged once the ticket is merged.
 
 For external PRs, please add the issue (just put the number after the # below, and GitHub will automatically create a link):
 
@@ -20,5 +22,7 @@ Issue: #number
 - [ ] - I have reviewed the deployed version of my changes
 - [ ] - I have tested any code that is added or updated
 - [ ] - I have verified all images and videos are clear, with appropriate zoom
+- [ ] - I have verified all images and videos match production (or dev for unreleased features)
+- [ ] - I have tested that the content matches the functionality in production (or dev for unreleased features)
 - [ ] - All checks have passed
 - [ ] - This references a feature that is public. If not, add a note and we can schedule the merge for after the feature release
