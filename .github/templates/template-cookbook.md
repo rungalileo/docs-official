@@ -61,8 +61,13 @@ Before you start the tutorial, you should:
 
     {Optional: The result of completing this step.}
 </Step>
-</Step title="{Write the step here. Use a verb to start.}">
+<Step title="{Write the step here. Use a verb to start.}">
 
+    {Optional: Explanatory text}
+
+    {Optional: Code sample or screenshot that helps your users complete this step.}
+
+    {Optional: The result of completing this step.}
 </Step>
 </Steps>
 

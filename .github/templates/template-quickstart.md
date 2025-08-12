@@ -54,7 +54,7 @@ Explanatory text
 (Optional) Code sample or screenshot that helps your users complete this step.
 
 (Optional) Result on completing this step.
-<Step>
+</Step>
 </Steps>
 
 ## Part 2: {Task name}
@@ -62,7 +62,7 @@ Explanatory text
 <Steps>
 <Step title="{Write the step here. Use a verb to start.}">
 ...
-<Step>
+</Step>
 </Steps>
 
 ## Part n: {Task name}
@@ -70,7 +70,7 @@ Explanatory text
 <Steps>
 <Step title="{Write the step here. Use a verb to start.}">
 ...
-<Step>
+</Step>
 </Steps>
 
 ## Next steps
