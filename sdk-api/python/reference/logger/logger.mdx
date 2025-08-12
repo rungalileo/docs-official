@@ -98,7 +98,7 @@ Once this trace is complete, you can close it out by calling conclude()
 - `name` - Optional[str]: Name of the trace.
 - `duration_ns` - Optional[int]: Duration of the trace in nanoseconds.
 - `created_at` - Optional[datetime]: Timestamp of the trace&#x27;s creation.
-- `metadata` - Optional[Dict[str, str]]: Metadata associated with this trace.
+- `metadata` - Optional[dict[str, str]]: Metadata associated with this trace.
 - `tags` - Optional[list[str]]: Tags associated with this trace.
 - `external_id` - Optional[str]: External ID for this trace to connect to external systems.
   
@@ -149,11 +149,11 @@ The trace is automatically concluded.
 - `model` - Optional[str]: Model used for this span. Feedback from April: Good docs about what model names we use.
 - `redacted_input` - Optional[LlmStepAllowedIOType]: Redacted input to the node.
 - `redacted_output` - Optional[LlmStepAllowedIOType]: Redacted output of the node.
-- `tools` - Optional[List[Dict]]: List of available tools passed to LLM on invocation.
+- `tools` - Optional[List[dict]]: List of available tools passed to LLM on invocation.
 - `name` - Optional[str]: Name of the span.
 - `duration_ns` - Optional[int]: duration_ns of the node in nanoseconds.
 - `created_at` - Optional[datetime]: Timestamp of the span&#x27;s creation.
-- `user_metadata` - Optional[Dict[str, str]]: Metadata associated with this span.
+- `metadata` - Optional[dict[str, str]]: Metadata associated with this span.
 - `output`0 - Optional[int]: Number of input tokens.
 - `output`1 - Optional[int]: Number of output tokens.
 - `output`2 - Optional[int]: Total number of tokens.
@@ -203,11 +203,11 @@ Add a new llm span to the current parent.
 - `model` - str: Model used for this span.
 - `redacted_input` - Optional[LlmStepAllowedIOType]: Redacted input to the node.
 - `redacted_output` - Optional[LlmStepAllowedIOType]: Redacted output of the node.
-- `tools` - Optional[List[Dict]]: List of available tools passed to LLM on invocation.
+- `tools` - Optional[list[dict]]: List of available tools passed to LLM on invocation.
 - `name` - Optional[str]: Name of the span.
 - `duration_ns` - Optional[int]: duration_ns of the node in nanoseconds.
 - `created_at` - Optional[datetime]: Timestamp of the span&#x27;s creation.
-- `metadata` - Optional[Dict[str, str]]: Metadata associated with this span.
+- `metadata` - Optional[dict[str, str]]: Metadata associated with this span.
 - `output`0 - Optional[int]: Number of input tokens.
 - `output`1 - Optional[int]: Number of output tokens.
 - `output`2 - Optional[int]: Total number of tokens.
@@ -253,7 +253,7 @@ Add a new retriever span to the current parent.
 - `name` - Optional[str]: Name of the span.
 - `duration_ns` - Optional[int]: duration_ns of the node in nanoseconds.
 - `created_at` - Optional[datetime]: Timestamp of the span&#x27;s creation.
-- `metadata` - Optional[Dict[str, str]]: Metadata associated with this span.
+- `metadata` - Optional[dict[str, str]]: Metadata associated with this span.
 - `status_code` - Optional[int]: Status code of the node execution.
 - `step_number` - Optional[int]: Step number of the span.
 
@@ -293,7 +293,7 @@ Add a new tool span to the current parent.
 - `name` - Optional[str]: Name of the span.
 - `duration_ns` - Optional[int]: duration_ns of the node in nanoseconds.
 - `created_at` - Optional[datetime]: Timestamp of the span&#x27;s creation.
-- `user_metadata` - Optional[Dict[str, str]]: Metadata associated with this span.
+- `metadata` - Optional[dict[str, str]]: Metadata associated with this span.
 - `status_code` - Optional[int]: Status code of the node execution.
 - `tool_call_id` - Optional[str]: Tool call ID.
 - `redacted_input`0 - Optional[int]: Step number of the span.
@@ -302,6 +302,42 @@ Add a new tool span to the current parent.
 
   -------
 - `redacted_input`1 - The created span.
+  
+
+#### add\_protect\_span
+
+```python
+@nop_sync
+def add_protect_span(payload: Payload,
+                     redacted_payload: Optional[Payload] = None,
+                     response: Optional[Response] = None,
+                     redacted_response: Optional[Response] = None,
+                     created_at: Optional[datetime] = None,
+                     metadata: Optional[dict[str, str]] = None,
+                     tags: Optional[list[str]] = None,
+                     status_code: Optional[int] = None,
+                     step_number: Optional[int] = None) -> ToolSpan
+```
+
+Add a new Protect tool span to the current parent.
+
+**Arguments**:
+
+  ----------
+- `payload` - Payload: Input to the node. This is the input to the Protect `invoke` method.
+- `redacted_payload` - Optional[Payload]: Redacted input to the node.
+- `response` - Response: Output of the node. This is the output from the Protect `invoke` method.
+- `redacted_response` - Optional[Response]: Redacted output to the node.
+- `created_at` - Optional[datetime]: Timestamp of the span&#x27;s creation.
+- `metadata` - Optional[dict[str, str]]: Metadata associated with this span.
+- `tags` - Optional[list[str]]: Tags associated with this span.
+- `status_code` - Optional[int]: Status code of the node execution.
+- `invoke`0 - Optional[int]: Step number of the span.
+
+**Returns**:
+
+  -------
+- `invoke`1 - The created Protect tool span.
   
 
 #### add\_workflow\_span
@@ -335,7 +371,7 @@ move out of the nested workflow, use conclude().
 - `name` - Optional[str]: Name of the span.
 - `duration_ns` - Optional[int]: duration_ns of the node in nanoseconds.
 - `created_at` - Optional[datetime]: Timestamp of the span&#x27;s creation.
-- `metadata` - Optional[Dict[str, str]]: Metadata associated with this span.
+- `metadata` - Optional[dict[str, str]]: Metadata associated with this span.
 - `step_number` - Optional[int]: Step number of the span.
 
 **Returns**:
@@ -373,7 +409,7 @@ Add an agent type span to the current parent.
 - `name` - Optional[str]: Name of the span.
 - `duration_ns` - Optional[int]: duration_ns of the node in nanoseconds.
 - `created_at` - Optional[datetime]: Timestamp of the span&#x27;s creation.
-- `metadata` - Optional[Dict[str, str]]: Metadata associated with this span.
+- `metadata` - Optional[dict[str, str]]: Metadata associated with this span.
 - `agent_type` - Optional[AgentType]: Agent type of the span.
 - `step_number` - Optional[int]: Step number of the span.
   
