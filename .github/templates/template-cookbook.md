@@ -1,6 +1,6 @@
 # Title
 
-> If you need more information about how to fill in this template, read the accompanying [guide](./guide_tutorial.md).
+> If you need more information about how to fill in this template, read the accompanying [guide_tutorial.md](https://gitlab.com/tgdp/templates/-/blob/main/how-to/guide_tutorial.md).
 >
 > This template includes writing instructions and boilerplate text that you can customize, use as-is, or completely replace with your own text. This text is indicated in {curly brackets}. Make sure you replace the placeholders with your own text.
 
