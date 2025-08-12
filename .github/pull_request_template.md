@@ -6,9 +6,9 @@ What did you change? Why did you change it?
 
 For Galileo internally raised PRs only, please update this with your shortcut ticket.
 
-[SC-<number>](link)
+[SC-number](link)
 
-> Keep the formatting, replacing `SC-<number>` with the shortcut ticket, e.g. [SC-12345], and adding the link to the ticket correctly in the brackets. This format is important as it allows Shortcut to track the ticket, moving the status to in review, then merged once the ticket is merged.
+> Keep the formatting, replacing `SC-number` with the shortcut ticket, e.g. [SC-12345], and adding the link to the ticket correctly in the brackets. This format is important as it allows Shortcut to track the ticket, moving the status to in review, then merged once the ticket is merged.
 
 For external PRs, please add the issue (just put the number after the # below, and GitHub will automatically create a link):
 
