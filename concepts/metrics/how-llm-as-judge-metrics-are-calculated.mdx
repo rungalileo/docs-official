@@ -1,0 +1,193 @@
+---
+title: How LLM-as-Judge Metrics Are Calculated
+description: Understand how Galileo uses LLM evaluators to calculate metrics for AI system performance assessment
+---
+
+import { Steps, Step } from "/snippets/components/steps.mdx";
+import { Note } from "/snippets/components/note.mdx";
+import { Card, CardGroup } from "/snippets/components/card.mdx";
+
+## Overview
+
+LLM-as-judge metrics use large language models as evaluators to assess AI system performance. This approach leverages the reasoning capabilities of advanced LLMs to provide nuanced, context-aware evaluations that go beyond simple rule-based scoring.
+
+## How LLM-as-Judge Metrics Work
+
+LLM-as-judge metrics follow a systematic evaluation process that ensures consistent, reliable assessments:
+
+<Steps>
+  <Step title="Input Preparation">
+    The system prepares the evaluation context, including the user input, AI response, and any relevant metadata or ground truth information.
+  </Step>
+  
+  <Step title="Prompt Engineering">
+    A specialized evaluation prompt is crafted to guide the LLM evaluator. This prompt includes the metric's definition, evaluation criteria, and specific instructions for the assessment task.
+  </Step>
+  
+  <Step title="Multiple Evaluations">
+    Several evaluation requests are sent to the LLM evaluator (typically using different models or prompts) to ensure reliability and reduce bias from a single evaluation.
+  </Step>
+  
+  <Step title="Response Analysis">
+    Each LLM evaluator produces both a quantitative score and a detailed explanation of their reasoning, following chain-of-thought principles for transparency.
+  </Step>
+  
+  <Step title="Score Aggregation">
+    The final metric score is computed by aggregating the individual evaluations, often using methods like averaging or majority voting, depending on the metric type.
+  </Step>
+</Steps>
+
+## Key Components of LLM-as-Judge Evaluation
+
+### Evaluation Prompts
+
+The evaluation prompt is crucial for consistent and accurate assessments. It typically includes:
+
+- **Metric Definition**: Clear explanation of what the metric measures
+- **Evaluation Criteria**: Specific factors to consider during assessment
+- **Scoring Guidelines**: Instructions for how to assign scores
+- **Context Information**: Relevant background about the task or domain
+
+### Multiple Evaluators
+
+Using multiple LLM evaluators provides several benefits:
+
+- **Reduced Bias**: Multiple perspectives help minimize individual evaluator biases
+- **Improved Reliability**: Consensus among evaluators increases confidence in results
+- **Error Detection**: Disagreements can highlight edge cases or unclear evaluation criteria
+
+### Chain-of-Thought Reasoning
+
+LLM evaluators are instructed to provide detailed explanations of their reasoning, which:
+
+- **Increases Transparency**: Users can understand why a particular score was assigned
+- **Enables Debugging**: Detailed explanations help identify areas for improvement
+- **Builds Trust**: Clear reasoning makes the evaluation process more credible
+
+## Types of LLM-as-Judge Metrics
+
+### Binary Classification Metrics
+
+These metrics produce yes/no judgments that are converted to percentages:
+
+- **Action Advancement**: Did the assistant make progress toward user goals?
+- **Instruction Adherence**: Did the response follow the given instructions?
+- **Safety Compliance**: Is the response safe and appropriate?
+
+### Multi-Scale Metrics
+
+These metrics use rating scales (e.g., 1-5 or 1-10) for more nuanced assessment:
+
+- **Response Quality**: How well-written and helpful is the response?
+- **Relevance**: How relevant is the response to the user's query?
+- **Completeness**: How comprehensive is the response?
+
+### Comparative Metrics
+
+These metrics compare multiple responses or assess relative performance:
+
+- **Preference Ranking**: Which response is better between two options?
+- **A/B Testing**: How does one version compare to another?
+
+## Advantages of LLM-as-Judge Metrics
+
+### Contextual Understanding
+
+LLM evaluators can understand nuanced context that rule-based metrics might miss:
+
+- **Semantic Similarity**: Understanding meaning beyond exact word matches
+- **Intent Recognition**: Grasping user intent even when expressed indirectly
+- **Domain Knowledge**: Applying relevant domain expertise to evaluations
+
+### Flexibility
+
+LLM-as-judge metrics can be adapted to different use cases:
+
+- **Custom Criteria**: Evaluation criteria can be tailored to specific domains
+- **Evolving Standards**: Prompts can be updated as requirements change
+- **Multi-dimensional Assessment**: Single evaluator can assess multiple aspects
+
+### Human-like Judgment
+
+These metrics approximate human evaluation more closely than traditional methods:
+
+- **Nuanced Scoring**: Can distinguish between subtle differences in quality
+- **Context Awareness**: Considers the broader conversation or task context
+- **Reasoning Capability**: Can explain complex evaluation decisions
+
+## Limitations and Considerations
+
+### Cost and Latency
+
+LLM-as-judge metrics require additional API calls, which can impact:
+
+- **Computational Cost**: Multiple evaluations increase processing time
+- **API Costs**: Additional LLM calls may incur higher expenses
+- **Latency**: Evaluation time adds to overall system response time
+
+### Consistency Challenges
+
+While generally reliable, LLM evaluators can show some variability:
+
+- **Model Sensitivity**: Different models may produce slightly different results
+- **Prompt Sensitivity**: Small changes in prompts can affect outcomes
+- **Temporal Drift**: Model behavior may change over time
+
+### Bias and Fairness
+
+LLM evaluators may inherit biases from their training data:
+
+- **Cultural Bias**: Evaluations may reflect cultural assumptions
+- **Domain Bias**: Models may be more familiar with certain topics
+- **Language Bias**: Performance may vary across different languages
+
+## Best Practices for LLM-as-Judge Metrics
+
+<CardGroup cols={2}>
+  <Card title="Use Multiple Evaluators" icon="users">
+    Employ several LLM evaluators to reduce bias and improve reliability. Consider using different models or prompts for diverse perspectives.
+  </Card>
+
+  <Card title="Craft Clear Prompts" icon="edit">
+    Design evaluation prompts that are specific, unambiguous, and aligned with your metric's goals. Test and refine prompts with sample data.
+  </Card>
+
+  <Card title="Monitor Consistency" icon="chart-line">
+    Track evaluation consistency over time and across different evaluators. Investigate significant variations to identify potential issues.
+  </Card>
+
+  <Card title="Combine with Other Metrics" icon="scale-balanced">
+    Use LLM-as-judge metrics alongside traditional metrics for comprehensive assessment. Each approach has strengths that complement the others.
+  </Card>
+</CardGroup>
+
+## Implementation Considerations
+
+### Choosing Evaluation Models
+
+Select LLM evaluators based on your specific needs:
+
+- **Model Size**: Larger models generally provide better reasoning but cost more
+- **Domain Expertise**: Some models may be better suited for specific domains
+- **Latency Requirements**: Consider response time needs for your use case
+
+### Prompt Design Guidelines
+
+Effective evaluation prompts should:
+
+- **Be Specific**: Clearly define what you're measuring and how to measure it
+- **Include Examples**: Provide sample evaluations to guide the model
+- **Request Reasoning**: Ask for explanations to ensure thoughtful assessment
+- **Set Boundaries**: Define acceptable score ranges and criteria
+
+### Quality Assurance
+
+Implement processes to ensure evaluation quality:
+
+- **Regular Auditing**: Periodically review evaluation results for consistency
+- **Human Validation**: Compare LLM evaluations with human judgments
+- **Continuous Improvement**: Refine prompts and processes based on feedback
+
+<Note>
+LLM-as-judge metrics represent a powerful approach to AI evaluation, but they should be used thoughtfully and in combination with other evaluation methods for the most comprehensive assessment of AI system performance.
+</Note>
