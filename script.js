@@ -1,3 +1,233 @@
+// User Identification and Analytics Setup
+(function() {
+  'use strict';
+
+  // Initialize data layer for GTM
+  window.dataLayer = window.dataLayer || [];
+
+  // User identification utilities
+  const UserTracker = {
+    // Generate or retrieve user ID
+    getUserId: function() {
+      let userId = localStorage.getItem('galileo_user_id');
+      if (!userId) {
+        userId = 'user_' + this.generateUUID();
+        localStorage.setItem('galileo_user_id', userId);
+      }
+      return userId;
+    },
+
+    // Generate or retrieve session ID
+    getSessionId: function() {
+      let sessionId = sessionStorage.getItem('galileo_session_id');
+      if (!sessionId) {
+        sessionId = 'session_' + this.generateUUID();
+        sessionStorage.setItem('galileo_session_id', sessionId);
+        
+        // Track session start
+        this.trackSessionStart();
+      }
+      return sessionId;
+    },
+
+    // Generate UUID for unique identifiers
+    generateUUID: function() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    },
+
+    // Get user properties
+    getUserProperties: function() {
+      return {
+        userId: this.getUserId(),
+        sessionId: this.getSessionId(),
+        userAgent: navigator.userAgent,
+        language: navigator.language || navigator.userLanguage,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        screenResolution: screen.width + 'x' + screen.height,
+        viewportSize: window.innerWidth + 'x' + window.innerHeight,
+        referrer: document.referrer,
+        currentUrl: window.location.href,
+        timestamp: new Date().toISOString()
+      };
+    },
+
+    // Track session start
+    trackSessionStart: function() {
+      const userProps = this.getUserProperties();
+      
+      // Push to GTM data layer
+      window.dataLayer.push({
+        'event': 'session_start',
+        'user_id': userProps.userId,
+        'session_id': userProps.sessionId,
+        'user_properties': userProps
+      });
+
+      console.log('Session started:', userProps);
+    },
+
+    // Track page view with user context
+    trackPageView: function() {
+      const userProps = this.getUserProperties();
+      
+      // Push to GTM data layer
+      window.dataLayer.push({
+        'event': 'page_view',
+        'user_id': userProps.userId,
+        'session_id': userProps.sessionId,
+        'page_title': document.title,
+        'page_url': window.location.href,
+        'page_path': window.location.pathname,
+        'user_properties': userProps
+      });
+
+      console.log('Page view tracked:', userProps);
+    },
+
+    // Track custom events
+    trackEvent: function(eventName, eventData = {}) {
+      const userProps = this.getUserProperties();
+      
+      const eventPayload = {
+        'event': eventName,
+        'user_id': userProps.userId,
+        'session_id': userProps.sessionId,
+        'user_properties': userProps,
+        ...eventData
+      };
+
+      // Push to GTM data layer
+      window.dataLayer.push(eventPayload);
+
+      console.log('Custom event tracked:', eventPayload);
+    },
+
+    // Track user engagement
+    trackEngagement: function(action, element = null) {
+      const engagementData = {
+        'action': action,
+        'timestamp': new Date().toISOString()
+      };
+
+      if (element) {
+        engagementData.element_type = element.tagName.toLowerCase();
+        engagementData.element_id = element.id || null;
+        engagementData.element_class = element.className || null;
+        engagementData.element_text = element.textContent?.substring(0, 100) || null;
+      }
+
+      this.trackEvent('user_engagement', engagementData);
+    },
+
+    // Initialize user tracking
+    init: function() {
+      console.log('UserTracker initialized');
+      
+      // Track initial page view
+      this.trackPageView();
+
+      // Set up event listeners for user engagement
+      this.setupEventListeners();
+
+      // Track page visibility changes
+      this.setupVisibilityTracking();
+
+      // Track before unload
+      this.setupBeforeUnloadTracking();
+    },
+
+    // Set up event listeners for user engagement
+    setupEventListeners: function() {
+      // Track clicks on important elements
+      document.addEventListener('click', (e) => {
+        const target = e.target;
+        
+        // Track navigation clicks
+        if (target.tagName === 'A' || target.closest('a')) {
+          this.trackEngagement('navigation_click', target);
+        }
+        
+        // Track button clicks
+        if (target.tagName === 'BUTTON' || target.closest('button')) {
+          this.trackEngagement('button_click', target);
+        }
+
+        // Track form interactions
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+          this.trackEngagement('form_interaction', target);
+        }
+      });
+
+      // Track scroll depth
+      let maxScrollDepth = 0;
+      window.addEventListener('scroll', () => {
+        const scrollDepth = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+        
+        if (scrollDepth > maxScrollDepth) {
+          maxScrollDepth = scrollDepth;
+          
+          // Track scroll milestones
+          if (scrollDepth >= 25 && maxScrollDepth < 50) {
+            this.trackEvent('scroll_depth', { depth: 25 });
+          } else if (scrollDepth >= 50 && maxScrollDepth < 75) {
+            this.trackEvent('scroll_depth', { depth: 50 });
+          } else if (scrollDepth >= 75 && maxScrollDepth < 100) {
+            this.trackEvent('scroll_depth', { depth: 75 });
+          } else if (scrollDepth >= 100) {
+            this.trackEvent('scroll_depth', { depth: 100 });
+          }
+        }
+      });
+    },
+
+    // Set up visibility tracking
+    setupVisibilityTracking: function() {
+      let isVisible = true;
+      let hiddenTime = null;
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          isVisible = false;
+          hiddenTime = new Date();
+          this.trackEvent('page_hidden');
+        } else {
+          if (!isVisible && hiddenTime) {
+            const timeHidden = new Date() - hiddenTime;
+            this.trackEvent('page_visible', { time_hidden_ms: timeHidden });
+          }
+          isVisible = true;
+          hiddenTime = null;
+        }
+      });
+    },
+
+    // Set up before unload tracking
+    setupBeforeUnloadTracking: function() {
+      window.addEventListener('beforeunload', () => {
+        // Track session end
+        this.trackEvent('session_end', {
+          session_duration_ms: Date.now() - performance.timing.navigationStart
+        });
+      });
+    }
+  };
+
+  // Initialize user tracking when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => UserTracker.init());
+  } else {
+    UserTracker.init();
+  }
+
+  // Make UserTracker available globally for manual tracking
+  window.UserTracker = UserTracker;
+
+})();
+
 // REO script
 !(function () {
   var e, t, n;
@@ -82,6 +312,14 @@ document.head.appendChild(script);
         if (tabDiv) {
           const language = tabDiv.textContent.trim();
           console.log(`Tab clicked: ${language}`);
+
+          // Track code language selection
+          if (window.UserTracker) {
+            window.UserTracker.trackEvent('code_language_selected', {
+              language: language,
+              element_id: target.id
+            });
+          }
 
           // Store the selected language
           lastSelectedLanguage = language;
