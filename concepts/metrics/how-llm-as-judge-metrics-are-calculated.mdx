@@ -1,11 +1,13 @@
 ---
-title: How LLM-as-Judge Metrics Are Calculated
-description: Understand how Galileo uses LLM evaluators to calculate metrics for AI system performance assessment
+title: How LLM-as-Judge Metrics are Calculated
+description: Understand how Galileo uses LLM judges to calculate metrics for AI system performance assessment
 ---
 
-LLM-as-judge metrics use large language models as evaluators to assess AI system performance. This approach leverages the reasoning capabilities of advanced LLMs to provide nuanced, context-aware evaluations that go beyond simple rule-based scoring.
+LLM-as-Judge Metrics use large language models as judges to assess AI system performance. This approach leverages the reasoning capabilities of advanced LLMs to provide nuanced, context-aware evaluations that go beyond simple rule-based scoring.
 
-## How LLM-as-Judge Metrics Work
+For a practical guide to creating your own LLM-as-Judge metrics, see [Custom LLM-as-a-Judge Metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm.mdx). To learn about code-based custom metrics, see [Custom Code-Based Metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-code.mdx).
+
+## How LLM-as-Judge Metrics work
 
 LLM-as-judge metrics follow a systematic evaluation process that ensures consistent, reliable assessments:
 
@@ -68,6 +70,8 @@ These metrics produce yes/no judgments that are converted to percentages:
 - **Instruction Adherence**: Did the response follow the given instructions?
 - **Safety Compliance**: Is the response safe and appropriate?
 
+For examples of binary classification metrics in action, see [Agent Efficiency](/concepts/metrics/agentic/agent-efficiency.mdx) and [Conversation Quality](/concepts/metrics/agentic/conversation-quality.mdx).
+
 ### Multi-scale metrics
 
 These metrics use rating scales (e.g., 1-5 or 1-10) for more nuanced assessment:
@@ -76,12 +80,130 @@ These metrics use rating scales (e.g., 1-5 or 1-10) for more nuanced assessment:
 - **Relevance**: How relevant is the response to the user's query?
 - **Completeness**: How comprehensive is the response?
 
+For more information on response quality metrics, see [Response Quality Metrics](/concepts/metrics/response-quality/overview.mdx).
+
 ### Comparative metrics
 
 These metrics compare multiple responses or assess relative performance:
 
 - **Preference Ranking**: Which response is better between two options?
 - **A/B Testing**: How does one version compare to another?
+
+For guidance on running experiments with comparative metrics, see [Running Experiments](/concepts/experiments/running-experiments.mdx).
+
+### Custom metrics
+
+Custom LLM-as-Judge Metrics allow you to create domain-specific evaluations tailored to your specific use case. These metrics enable you to assess AI system performance according to criteria that matter most for your application.
+
+#### When to use custom metrics
+
+Custom metrics are particularly valuable when:
+
+- **Domain-Specific Requirements**: Your application has unique evaluation criteria not covered by standard metrics
+- **Business-Specific Goals**: You need to measure performance against specific business objectives
+- **User Experience Focus**: You want to evaluate aspects of user experience that are critical to your application
+- **Compliance Requirements**: You need to ensure responses meet specific regulatory or compliance standards
+
+#### Creating custom LLM-as-Judge metrics
+
+<Steps>
+  <Step title="Define Your Evaluation Criteria">
+    Start by clearly defining what you want to measure. Consider:
+    
+    - **What aspect** of the response are you evaluating?
+    - **What makes** a response good or bad for your use case?
+    - **What scale** will you use (binary, 1-5, 1-10, etc.)?
+    - **What examples** demonstrate good and poor performance?
+  </Step>
+  
+  <Step title="Design Your Evaluation Prompt">
+    Create a prompt that guides the LLM judge to evaluate according to your criteria:
+    
+    ```text
+    You are evaluating [specific aspect] of AI responses for [your domain/use case].
+    
+    Evaluation Criteria:
+    - [Criterion 1]: [Description and importance]
+    - [Criterion 2]: [Description and importance]
+    - [Criterion 3]: [Description and importance]
+    
+    Scoring Guidelines:
+    - Score 1-5 where 1 = poor and 5 = excellent
+    - Consider [specific factors]
+    - Provide reasoning for your score
+    
+    Examples:
+    - Good response: [Example with explanation]
+    - Poor response: [Example with explanation]
+    ```
+  </Step>
+  
+  <Step title="Test with Sample Data">
+    Validate your metric with representative examples:
+    
+    - Test with known good and bad responses
+    - Verify the metric produces expected scores
+    - Check for consistency across multiple evaluations
+    - Refine the prompt based on results
+  </Step>
+  
+  <Step title="Implement in Galileo">
+    Use Galileo's custom metric creation tools:
+    
+    - Navigate to your project's log streams
+    - Click "Configure Metrics" 
+    - Select "Create Custom Metric"
+    - Choose "LLM-as-Judge" as the metric type
+    - Enter your evaluation prompt and configuration
+    
+    For detailed step-by-step instructions, see [Custom LLM-as-a-Judge Metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm.mdx).
+  </Step>
+</Steps>
+
+#### Custom metric examples
+
+**Customer Support Quality Metric**
+```text
+You are evaluating customer support responses for a technical software company.
+
+Evaluation Criteria:
+- Technical Accuracy: Response provides correct technical information
+- Clarity: Response is clear and easy to understand
+- Helpfulness: Response actually helps solve the customer's problem
+- Professionalism: Response maintains appropriate tone and professionalism
+
+Scoring Guidelines:
+- Score 1-5 where 1 = poor and 5 = excellent
+- Consider the customer's technical level and urgency
+- Provide specific reasoning for your score
+
+Examples:
+- Good response: "I understand you're having trouble with the API authentication. Let me walk you through the OAuth2 setup process step by step..."
+- Poor response: "Try restarting your computer. That usually fixes things."
+```
+
+#### Best practices for custom metrics
+
+<CardGroup cols={2}>
+  <Card title="Be Specific" icon="target">
+    Define evaluation criteria that are specific and measurable. Avoid vague terms like "good" or "bad" without clear definitions.
+  </Card>
+
+  <Card title="Include Examples" icon="lightbulb">
+    Provide clear examples of good and poor responses in your prompt. This helps the LLM judge understand your expectations.
+  </Card>
+
+  <Card title="Test Thoroughly" icon="flask">
+    Validate your metric with diverse test cases before deploying. Include edge cases and boundary conditions.
+  </Card>
+
+  <Card title="Iterate and Improve" icon="refresh">
+    Continuously refine your metric based on real-world performance. Update prompts as you learn what works best.
+  </Card>
+</CardGroup>
+
+For a complete tutorial on creating custom metrics, see [Custom Metric Tutorial](/cookbooks/use-cases/custom-metric-startup-sim/custom-metric-startup-sim.mdx).
+
 
 ## Advantages of LLM-as-Judge Metrics
 
@@ -165,6 +287,8 @@ Select LLM judges based on your specific needs:
 - **Domain Expertise**: Some models may be better suited for specific domains
 - **Latency Requirements**: Consider response time needs for your use case
 
+For information on configuring LLM integrations, see [Integrations](/platform-management/integrations.mdx).
+
 ### Prompt design guidelines
 
 Effective evaluation prompts should:
@@ -174,6 +298,8 @@ Effective evaluation prompts should:
 - **Request Reasoning**: Ask for explanations to ensure thoughtful assessment
 - **Set Boundaries**: Define acceptable score ranges and criteria
 
+For more guidance on prompt engineering, see [Prompt Templates](/sdk-api/experiments/prompts.mdx) and [Optimizing Prompts](/cookbooks/features/prompts/optimizing-prompts.mdx).
+
 ### Quality assurance
 
 Implement processes to ensure evaluation quality:
@@ -182,6 +308,15 @@ Implement processes to ensure evaluation quality:
 - **Human Validation**: Compare LLM evaluations with human judgments
 - **Continuous Improvement**: Refine prompts and processes based on feedback
 
+For guidance on monitoring and analyzing metric results, see [Experiments Overview](/concepts/experiments/overview.mdx) and [Running Experiments in Console](/concepts/experiments/running-experiments-in-console.mdx).
+
 <Note>
 LLM-as-judge metrics represent a powerful approach to AI evaluation, but they should be used thoughtfully and in combination with other evaluation methods for the most comprehensive assessment of AI system performance.
 </Note>
+
+## Related resources
+
+- [Metrics Overview](/concepts/metrics/overview.mdx) - Complete guide to all available metrics
+- [Custom Metrics SDK Reference](/sdk-api/python/reference/metrics.mdx) - Programmatically create and manage metrics
+- [Experiments Guide](/concepts/experiments/running-experiments.mdx) - Run experiments with LLM-as-Judge metrics
+- [Prompt Engineering Best Practices](/cookbooks/features/prompts/optimizing-prompts.mdx) - Improve your evaluation prompts
