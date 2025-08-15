@@ -1,5 +1,5 @@
 ---
-title: How LLM-as-Judge Metrics are Calculated
+title: How LLM-as-a-judge is Calculated
 description: Understand how Galileo uses LLM judges to calculate metrics for AI system performance assessment
 ---
 
@@ -7,9 +7,9 @@ LLM-as-Judge Metrics use large language models as judges to assess AI system per
 
 For a practical guide to creating your own LLM-as-Judge metrics, see [Custom LLM-as-a-Judge Metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm). To learn about code-based custom metrics, see [Custom Code-Based Metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-code).
 
-## How LLM-as-Judge Metrics work
+## How LLM-as-a-judge metrics work
 
-LLM-as-judge metrics follow a systematic evaluation process that ensures consistent, reliable assessments:
+LLM-as-a-judge metrics follow a systematic evaluation process that ensures consistent, reliable assessments:  
 
 <Steps>
   <Step title="Input Preparation">
@@ -33,9 +33,9 @@ LLM-as-judge metrics follow a systematic evaluation process that ensures consist
   </Step>
 </Steps>
 
-## Key Components of LLM-as-Judge Evaluation
+## Key Components of LLM-as-judge evaluation
 
-### Evaluation Prompts
+### Evaluation prompts
 
 The evaluation prompt is crucial for consistent and accurate assessments. It typically includes:
 
@@ -44,7 +44,7 @@ The evaluation prompt is crucial for consistent and accurate assessments. It typ
 - **Scoring Guidelines**: Instructions for how to assign scores
 - **Context Information**: Relevant background about the task or domain
 
-### Using multiple AI judges
+### Number of judges
 
 Using multiple LLM judges provides several benefits:
 
@@ -52,7 +52,7 @@ Using multiple LLM judges provides several benefits:
 - **Improved Reliability**: Consensus among judges increases confidence in results
 - **Error Detection**: Disagreements can highlight edge cases or unclear evaluation criteria
 
-### Chain-of-Thought reasoning
+### Step-by-step reasoning 
 
 LLM judges are instructed to provide detailed explanations of their reasoning, which:
 
@@ -60,25 +60,17 @@ LLM judges are instructed to provide detailed explanations of their reasoning, w
 - **Enables Debugging**: Detailed explanations help identify areas for improvement
 - **Builds Trust**: Clear reasoning makes the evaluation process more credible
 
-## Types of LLM-as-Judge metrics
+## Types of LLM-as-a-judge metrics  
 
 ### Binary classification metrics
 
-These metrics produce yes/no judgments that are converted to percentages:
-
-- **Action Advancement**: Did the assistant make progress toward user goals?
-- **Instruction Adherence**: Did the response follow the given instructions?
-- **Safety Compliance**: Is the response safe and appropriate?
+These metrics produce yes/no judgments that are converted to percentages.
 
 For examples of binary classification metrics in action, see [Agent Efficiency](/concepts/metrics/agentic/agent-efficiency) and [Conversation Quality](/concepts/metrics/agentic/conversation-quality).
 
 ### Multi-scale metrics
 
-These metrics use rating scales (e.g., 1-5 or 1-10) for more nuanced assessment:
-
-- **Response Quality**: How well-written and helpful is the response?
-- **Relevance**: How relevant is the response to the user's query?
-- **Completeness**: How comprehensive is the response?
+These metrics use rating scales (e.g., 1-5 or 1-10) for more nuanced assessment.
 
 For more information on response quality metrics, see [Response Quality Metrics](/concepts/metrics/response-quality/response-quality-overview).
 
@@ -92,97 +84,9 @@ These metrics compare multiple responses or assess relative performance:
 For guidance on running experiments with comparative metrics, see [Running Experiments](/concepts/experiments/running-experiments).
 
 ### Custom metrics
+Custom LLM-as-a-Judge Metrics allow you to create domain-specific evaluations tailored to your specific use case. These metrics enable you to assess AI system performance according to criteria that matter most for your application.  
 
-Custom LLM-as-Judge Metrics allow you to create domain-specific evaluations tailored to your specific use case. These metrics enable you to assess AI system performance according to criteria that matter most for your application.
-
-#### When to use custom metrics
-
-Custom metrics are particularly valuable when:
-
-- **Domain-Specific Requirements**: Your application has unique evaluation criteria not covered by standard metrics
-- **Business-Specific Goals**: You need to measure performance against specific business objectives
-- **User Experience Focus**: You want to evaluate aspects of user experience that are critical to your application
-- **Compliance Requirements**: You need to ensure responses meet specific regulatory or compliance standards
-
-#### Creating custom LLM-as-Judge metrics
-
-<Steps>
-  <Step title="Define Your Evaluation Criteria">
-    Start by clearly defining what you want to measure. Consider:
-    
-    - **What aspect** of the response are you evaluating?
-    - **What makes** a response good or bad for your use case?
-    - **What scale** will you use (binary, 1-5, 1-10, etc.)?
-    - **What examples** demonstrate good and poor performance?
-  </Step>
-  
-  <Step title="Design Your Evaluation Prompt">
-    Create a prompt that guides the LLM judge to evaluate according to your criteria:
-    
-    ```text
-    You are evaluating [specific aspect] of AI responses for [your domain/use case].
-    
-    Evaluation Criteria:
-    - [Criterion 1]: [Description and importance]
-    - [Criterion 2]: [Description and importance]
-    - [Criterion 3]: [Description and importance]
-    
-    Scoring Guidelines:
-    - Score 1-5 where 1 = poor and 5 = excellent
-    - Consider [specific factors]
-    - Provide reasoning for your score
-    
-    Examples:
-    - Good response: [Example with explanation]
-    - Poor response: [Example with explanation]
-    ```
-  </Step>
-  
-  <Step title="Test with Sample Data">
-    Validate your metric with representative examples:
-    
-    - Test with known good and bad responses
-    - Verify the metric produces expected scores
-    - Check for consistency across multiple evaluations
-    - Refine the prompt based on results
-  </Step>
-  
-  <Step title="Implement in Galileo">
-    Use Galileo's custom metric creation tools:
-    
-    - Navigate to your project's log streams
-    - Click "Configure Metrics" 
-    - Select "Create Custom Metric"
-    - Choose "LLM-as-Judge" as the metric type
-    - Enter your evaluation prompt and configuration
-    
-    For detailed step-by-step instructions, see [Custom LLM-as-a-Judge Metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm).
-  </Step>
-</Steps>
-
-#### Best practices for custom metrics
-
-<CardGroup cols={2}>
-  <Card title="Be Specific" icon="radar">
-    Define evaluation criteria that are specific and measurable. Avoid vague terms like "good" or "bad" without clear definitions.
-  </Card>
-
-  <Card title="Include Examples" icon="lightbulb">
-    Provide clear examples of good and poor responses in your prompt. This helps the LLM judge understand your expectations.
-  </Card>
-
-  <Card title="Test Thoroughly" icon="flask">
-    Validate your metric with diverse test cases before deploying. Include edge cases and boundary conditions.
-  </Card>
-
-  <Card title="Iterate and Improve" icon="chart-spline">
-    Continuously refine your metric based on real-world performance. Update prompts as you learn what works best.
-  </Card>
-</CardGroup>
-
-For a complete tutorial on creating custom metrics, see [the Startup Simulator Custom Metric Tutorial](/cookbooks/use-cases/custom-metric-startup-sim/custom-metric-startup-sim).
-
-## Advantages of LLM-as-Judge Metrics
+## Advantages of LLM-as-judge metrics
 
 ### Contextual understanding
 
@@ -234,7 +138,7 @@ LLM judges may inherit biases from their training data:
 - **Domain Bias**: Models may be more familiar with certain topics
 - **Language Bias**: Performance may vary across different languages
 
-## Best practices for LLM-as-Judge metrics
+## Best practices for LLM-as-a-judge metrics  
 
 <CardGroup cols={2}>
   <Card title="Use Multiple Evaluators" icon="users">
@@ -264,7 +168,7 @@ Select LLM judges based on your specific needs:
 - **Domain Expertise**: Some models may be better suited for specific domains
 - **Latency Requirements**: Consider response time needs for your use case
 
-For information on configuring LLM integrations, see [Integrations](/platform-management/integrations).
+For more information on configuring LLM integrations, check out the integrations resources within the sidebar.
 
 ### Prompt design guidelines
 
@@ -288,7 +192,7 @@ Implement processes to ensure evaluation quality:
 For guidance on monitoring and analyzing metric results, see [Experiments Overview](/concepts/experiments/overview) and [Running Experiments in Console](/concepts/experiments/running-experiments-in-console).
 
 <Note>
-LLM-as-judge metrics represent a powerful approach to AI evaluation, but they should be used thoughtfully and in combination with other evaluation methods for the most comprehensive assessment of AI system performance.
+LLM-as-a-judge metrics represent a powerful approach to AI evaluation, but they should be used thoughtfully and in combination with other evaluation methods for the most comprehensive assessment of AI system performance.
 </Note>
 
 ## Related resources
