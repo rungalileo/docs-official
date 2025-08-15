@@ -12,7 +12,7 @@ import { DefinitionCard } from "/snippets/components/definition-card.mdx";
   <strong>Action Advancement</strong> measures whether an assistant successfully accomplishes or makes progress toward at least one user goal in a conversation.
 </DefinitionCard>
 
-Action Advancement addresses the common pain points of unclear agent performance and helps determine if AI agents are actually helping users achieve their objectives. By implementing Action Advancement, you can gain clear insights into whether your AI agents are making meaningful progress toward user goals rather than just providing responses.
+Action Advancement addresses the common pain points of unclear agent performance and helps determine if AI agents are actually helping users achieve their objectives. By implementing Action Advancement, you can gain clear insights into whether your AI agents are making meaningful progress toward user goals rather than just providing responses. 
 
 An assistant successfully advances a user's goal when it:
 
@@ -32,12 +32,12 @@ For an interaction to count as advancing the user's goal, the assistant's respon
 | **Name of Metric** | Action Advancement |
 | **Metric Category** | Agentic Metrics |
 | **Use this metric for** | Evaluating whether AI agents make progress toward user goals in conversations |
-| **Can be applied to** | agent, session, trace, + span |
-| **LLM/Luna Support** | TODO:  |
+| **Can be applied to** | session, trace, all span types (agent, workflow, retriever, llm, and tool)|
+| **LLM/Luna Support** | Supported with both LLM + Luna models  |
 | **Protect Support** | No - Not applicable for this metric |
 | **Constants** | None - Uses dynamic evaluation |
 | **Usage Context** | Agentic workflows, multi-step tasks, tool-using assistants |
-| **Value Type** | Percentage (0.0 to 1.0) - Binary judgment converted to percentage |
+| **Value Type** | Confidence score (0.0 to 1.0) - Confidence that any one action has advanced |
 | **Input/Output Requirements** | Requires conversation context, user goals, and assistant responses |
 
 <Card>
@@ -119,11 +119,11 @@ Action Advancement is calculated by:
   </Step>
   
   <Step title="Score Calculation">
-    The final Action Advancement score is computed as the percentage of positive ('yes') responses out of all evaluation responses.
+    The final Action Advancement score is computed as the confidence score or probability that any one user ask is advanced.
   </Step>
 </Steps>
 
-We display one of the generated explanations alongside the score, always choosing one that aligns with the majority judgment.
+We display one of the generated explanations alongside the score, choosing one that aligns with the majority judgment.
 
 <Note>
   This metric requires multiple LLM calls to compute, which may impact usage and billing.
