@@ -1,0 +1,81 @@
+---
+title: CrewAI
+description: Learn about using the Galileo CrewAI logging integration to log agent traces
+---
+
+import SnippetCrewAIBasicPython from "/snippets/code/python/sdk/wrappers/crewai.mdx";
+import SnippetCrewAICustomLoggerPython from "/snippets/code/python/sdk/wrappers/crewai-custom-logger.mdx";
+
+import SnippetLangChainMetadataPython from "/snippets/code/python/sdk/wrappers/langchain-metadata.mdx";
+
+The Galileo CrewAI integration allows you to automatically log all CrewAI interactions with LLMs, including prompts, responses, and performance metrics. The Galileo SDK has a custom event listener that listens to CrewAI events, and logs these to Galileo.
+
+<CardGroup cols={2}>
+<Card title="CrewAICallback" icon="python" horizontal href="/sdk-api/python/reference/handlers/crewai/handler">
+    The Python Galileo CrewAI SDK reference.
+</Card>
+</CardGroup>
+
+## Basic usage
+
+The integration is based on the `CrewAICallback` class, which implements CrewAI's event listener. To use it, create an instance of the callback. When this is created, it automatically registers event handlers to capture the relevant events.
+
+<CodeGroup>
+  <SnippetCrewAIBasicPython />
+</CodeGroup>
+
+The `CrewAICallback` captures various CrewAI events, including:
+
+- Crew Kickoff events
+- Agent events
+- Task events
+- Tool usage
+- LLM calls
+
+For each of these events, the callback logs relevant information to Galileo, such as:
+
+- Input prompts and messages
+- Output responses
+- Model information
+- Timing data
+- Token usage
+- Error information (if any)
+
+The `CrewAICallback` automatically handles nested crews and agents, creating a hierarchical trace that reflects the structure of your CrewAI application.
+
+## Use a custom logger
+
+When initializing the `CrewAICallback`, you can optionally specify a Galileo logger instance, or control trace behavior:
+
+<CodeGroup>
+  <SnippetCrewAICustomLoggerPython />
+</CodeGroup>
+
+This is particularly useful if you want to call your CrewAI code from inside a function [decorated with the `log` decorator](/sdk-api/logging/log-decorator/log-decorator), or from inside an [experiment](/concepts/experiments/running-experiments#using-langchain-or-langgraph-in-an-experiment).
+
+## Next steps
+
+### Basic logging components
+
+<CardGroup cols={2}>
+<Card title="Galileo logger" icon="code" horizontal href="/sdk-api/logging/galileo-logger">
+    Log with full control over sessions, traces, and spans using the Galileo logger.
+</Card>
+<Card title="Log decorator" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
+    Quickly add logging to your code with the log decorator and wrapper.
+</Card>
+<Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
+    Manage logging using the Galileo context manager.
+</Card>
+</CardGroup>
+
+### How-to guides
+
+<CardGroup cols={2}>
+<Card title="Monitor LangChain Agents with Galileo" icon="code" horizontal href="/cookbooks/use-cases/agent-langchain">
+    Learn how to build and monitor a LangChain AI Agent using Galileo for tracing and observability.
+</Card>
+<Card title="Add evaluations to a multi-agent LangGraph application" icon="code" horizontal href="/cookbooks/use-cases/multi-agent-langgraph/multi-agent-langgraph">
+    Learn how to add evaluations to a multi-agent LangGraph chat bot using Galileo
+</Card>
+</CardGroup>
