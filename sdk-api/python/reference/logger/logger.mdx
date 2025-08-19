@@ -480,6 +480,30 @@ def terminate() -> None
 Terminate the logger and flush all traces to Galileo.
 
 
+#### async\_start\_session
+
+```python
+@nop_async
+async def async_start_session(name: Optional[str] = None,
+                              previous_session_id: Optional[str] = None,
+                              external_id: Optional[str] = None) -> str
+```
+
+Async start a new session or use an existing session if an external ID is provided.
+
+**Arguments**:
+
+  ----------
+- `name` - Optional[str]: Name of the session. Only used to set name for new sessions. If not provided, a session name will be generated automatically.
+- `previous_session_id` - Optional[str]: ID of the previous session.
+- `external_id` - Optional[str]: External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
+
+**Returns**:
+
+  -------
+- `str` - The ID of the session (existing or newly created).
+  
+
 #### start\_session
 
 ```python
@@ -494,14 +518,16 @@ Start a new session or use an existing session if an external ID is provided.
 **Arguments**:
 
   ----------
-- `name` - Optional[str]: Name of the session. Only used to set name for new sessions. If not provided, a session name will be generated automatically.
-- `previous_session_id` - Optional[str]: ID of the previous session.
-- `external_id` - Optional[str]: External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
+- `name` - Optional[str]: Name of the session. If omitted, the server will assign a name.
+- `previous_session_id` - Optional[str]: UUID string of a prior session to link to.
+- `external_id` - Optional[str]: External identifier to dedupe against existing sessions within the same
+  project/log stream or experiment; if found, that session will be reused instead of creating a new one.
+  
 
 **Returns**:
 
   -------
-- `str` - The ID of the newly created session.
+- `str` - The ID of the session (existing or newly created).
   
 
 #### set\_session
