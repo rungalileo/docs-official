@@ -63,29 +63,69 @@ cd typescript/agent/langgraph-fsi-agent
 The Python code for the sample is in a folder called `after`. If you want to learn more about adding logging with Galileo to a LangGraph app, check out the [add evaluations to a multi-agent LangGraph application cookbook](/cookbooks/use-cases/multi-agent-langgraph/multi-agent-langgraph).
 </Note>
 </Step>
+</Steps>
 
-<Step title="Running the app as an experiment">
+### "Running the app as an experiment"
 
 Experiments allow you to take a known set of inputs and evaluate different prompts, LLMs, or versions of your apps. This sample project has a unit test that runs the chatbot against a pre-defined dataset, containing a mixture of sensible and irrelevant questions.
 
+<Steps>
+<Step title="Upload a dataset to Galileo">
 A well-designed dataset is crucial for meaningful RAG experiments. Your dataset should represent the types of queries your system will encounter in production.
 
-Below is a dataset we will be using to run an experiment:
+Let's start by first uploading a dataset to Galileo. 
+
+Use the dataset provided in `dataset.json` (available in both the Python and Typescript examples) to upload to the Galileo Datasets page.
+
+Navigate to the **Datasets** menu within the sidebar menu panel.
+ ![Red arrow pointing to Datasets in the sidebar menu panel](/images/how-to-guides/2025-08-19-Datasets)
+
+ Then upload a dataset via file, or by manually entering the data in the dataset input window.
+
+Once the data is uploaded, and the input and output files determined, make sure to name your dataset something you will remember.  In this case, we're naming the dataset 'langgraph-fsi-unit-test-dataset'.
+
+View the image below to see how your final example will upload.
+    ![Dataset view within Galileo showing the langgraph-fsi-unit-test-dataset](/images/how-to-guides/2025-08-19-langgraph-fsi-unit-test-dataset)
+
+</Step>
+
+<Step title="Parts of an experiment">
+An experiment in Galileo consists of several key components that work together to systematically test your application:
+
+**Dataset**: A collection of test cases with input queries and optional reference outputs. For RAG applications, your dataset should include:
+- **Input queries**: Questions that test different aspects of your RAG system (factual questions, edge cases, out-of-domain queries)
+- **Reference outputs** (optional): Expected answers for metrics like BLEU, ROUGE, or Ground Truth Adherence
+
+**Function or Prompt Template**: The code that processes each dataset row. This can be:
+- A custom function that calls your RAG application
+- A prompt template that gets evaluated against an LLM
+
+**Metrics**: Evaluation criteria that measure your system's performance. For RAG applications, key metrics include:
+- **Correctness**: How accurate are the responses?
+- **Completeness**: How much relevant information is included?
+- **Chunk Attribution**: How well does the system use retrieved documents?
+- **Chunk Relevance**: How relevant are the retrieved documents?
+
+**Project**: The Galileo project where your experiment results are stored and organized.
+
+Here's an example of what a dataset structure looks like for RAG testing:
 
 ```json
 [
-    {"input": "What are the cashback rewards offered by the Orbit Credit Card?"},
-    {"input": "What is my credit score?"},
-    {"input": "What is the APR for balance transfers on the Orbit Credit Card?"},
-    {"input": "What credit cards am I eligible for?"},
-    {"input": "What can I do with my credit score?"},
-    {"input": "Recommend me a good book."}
-    ...
+    {
+        "input": "What are the cashback rewards offered by the Orbit Credit Card?",
+        "output": "The Orbit Credit Card offers 2% cashback on all purchases with no annual fee."
+    },
+    {
+        "input": "What is the APR for balance transfers?",
+        "output": "The APR for balance transfers is 15.99% for the first 12 months."
+    },
+    {
+        "input": "What credit cards am I eligible for?",
+        "output": "Based on your credit profile, you may be eligible for the Orbit Credit Card or Premium Rewards Card."
+    }
 ]
 ```
-</Step>
-<Step title="Parts of an experiment">
-
 
 </Step>
 
@@ -110,7 +150,7 @@ completed and results are available at
 https://app.galileo.ai/project/<id>/experiments/<id>
 ```
 
-Follow this link to see the metrics for the experiment Log stream.
+Follow this link to see the metrics for the experiment log stream.
 
 ![The experiment with low correctness scores for most rows](/getting-started/sample-projects/simple-chatbot-experiment.webp)
 </Step>
@@ -154,14 +194,12 @@ Use the insights from your experiments to make targeted improvements. For exampl
 </Step>
 
 <Step title="Focus on user experience">
-
 For multi-agent systems, consider the end-to-end user experience:
 
 - Test queries that require multiple agents to work together
 - Evaluate how well the supervisor agent handles edge cases
 - Measure response quality when agents need to coordinate
 - Consider the conversational flow and naturalness of responses
-
 </Step>
 </Steps>
 
