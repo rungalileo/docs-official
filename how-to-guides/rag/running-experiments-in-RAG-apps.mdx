@@ -1,0 +1,189 @@
+---
+title: Running Experiments in RAG Apps
+description: Learn how to systematically test and improve your RAG applications using Galileo's experimentation framework
+---
+
+TODO:
+You can also watch the video walkthrough [on the Galileo YouTube channel](https://www.youtube.com/@GalileoAI).
+
+## Overview
+This guide explains how to run experiments with RAG applications to systematically evaluate and improve their performance. RAG systems combine document retrieval with language model generation, making them complex to evaluate and optimize. Galileo's experimentation framework provides the tools you need to test different components of your RAG pipeline and measure their impact on overall system performance.
+
+Experiments are particularly valuable for RAG applications because they allow you to:
+- Test different retrieval strategies and parameters
+- Evaluate prompt variations for better context utilization
+- Compare different embedding models and vector databases
+- Measure the impact of reranking and filtering techniques
+- Validate improvements across consistent datasets
+
+## Before you start
+
+Before you run experiments with your RAG application, ensure you have:
+
+* A working RAG application (we'll be using the [multi-agents example](/getting-started/sample-projects/multi-agent) from the [getting started](/getting-started/how-to-use-galileo) guide)
+* A free Galileo account + API credentials ([create one here](https://galileo.ai/sign-up))
+* A dataset of test queries that represent your use case
+* Access to the LLM integration you want to test with
+* Understanding of the key metrics you want to evaluate
+
+## Setting up your RAG experiment environment
+
+The first step in running RAG experiments is setting up your environment and preparing your application for experimentation.
+
+For the sake of getting started, we'll first start by cloning the FSI Chatbot example, available in our [SDK examples repository](https://github.com/rungalileo/sdk-examples).
+
+If you have a working RAG application, feel free to start there, however, the following steps will be based off of the FSI example provided.
+
+This How-to guide assumes you've already got the app up and running following the setup instructions, and jumps right into the experimentation process. 
+
+<Steps>
+<Step title="Clone the Project">
+
+Get the code for the sample project. You can find this project by cloning the Galileo SDK Examples repo.
+
+```bash
+git clone https://github.com/rungalileo/sdk-examples
+```
+
+The code for this project is in the `/python/agent/langgraph-fsi-agent/after/` or `/typescript/agent/langgraph-fsi-agent/` folder.
+
+Follow the steps in the [getting started](/getting-started/sample-projects/multi-agent) guide to set this app up with examples.
+</Step>
+
+<Step title="Navigate to the project folder">
+Start by navigating to the root folder for the programming language you are using:
+
+<CodeGroup>
+```bash Python
+cd python/agent/langgraph-fsi-agent/after
+```
+```bash TypeScript
+cd typescript/agent/langgraph-fsi-agent
+```
+</CodeGroup>
+
+<Note>
+The Python code for the sample is in a folder called `after`. If you want to learn more about adding logging with Galileo to a LangGraph app, check out the [add evaluations to a multi-agent LangGraph application cookbook](/cookbooks/use-cases/multi-agent-langgraph/multi-agent-langgraph).
+</Note>
+</Step>
+
+<Step title="Running the app as an experiment">
+
+Experiments allow you to take a known set of inputs and evaluate different prompts, LLMs, or versions of your apps. This sample project has a unit test that runs the chatbot against a pre-defined dataset, containing a mixture of sensible and irrelevant questions.
+
+A well-designed dataset is crucial for meaningful RAG experiments. Your dataset should represent the types of queries your system will encounter in production.
+
+Below is a dataset we will be using to run an experiment:
+
+```json
+[
+    {"input": "What are the cashback rewards offered by the Orbit Credit Card?"},
+    {"input": "What is my credit score?"},
+    {"input": "What is the APR for balance transfers on the Orbit Credit Card?"},
+    {"input": "What credit cards am I eligible for?"},
+    {"input": "What can I do with my credit score?"},
+    {"input": "Recommend me a good book."}
+    ...
+]
+```
+
+<Steps>
+
+<Step title="Run the unit test">
+
+Use the following command to run the unit test:
+<CodeGroup>
+```python Python
+python -m pytest test.py
+```
+```typescript TypeScript
+npm run test
+```
+</CodeGroup>
+</Step>
+
+<Step title="Evaluate the experiment">
+The unit test will output a link to the experiment in the Galileo Console:
+
+```output Terminal
+Experiment simple-chatbot-experiment 2025-07-15 at 00:48:11.842 has 
+completed and results are available at 
+https://app.galileo.ai/project/<id>/experiments/<id>
+```
+
+Follow this link to see the metrics for the experiment Log stream.
+
+![The experiment with low correctness scores for most rows](/getting-started/sample-projects/simple-chatbot-experiment.webp)
+</Step>
+
+<Step title="Compare experiment results">
+
+Navigate to your Galileo console and compare the results of different experiments:
+
+1. Go to the **Experiments** section in your project
+2. Select multiple experiments to compare
+3. Review the metrics across different configurations
+4. Look for patterns in performance improvements
+
+Key metrics to focus on for the multi-agent banking chatbot:
+
+- **Correctness**: How accurate are the responses?
+- **Completeness**: How much of the relevant information is included?
+- **Action Advancement**: How well does the supervisor agent route queries to the right specialist agents?
+- **Action Completion**: How successfully do the specialist agents complete their tasks?
+
+For RAG-specific components:
+- **Chunk Attribution**: How well does the credit card information agent use retrieved documents?
+- **Chunk Relevance**: How relevant are the retrieved credit card documents?
+</Step>
+
+<Step title="Identify improvement opportunities">
+
+Based on your experiment results, identify areas for improvement:
+
+- **Low action advancement**: The supervisor agent may not be routing queries correctly
+- **Low action completion**: Specialist agents may not be completing their tasks properly
+- **Low chunk attribution**: The RAG agent may not be using retrieved context effectively
+- **Low chunk relevance**: The retrieval system may need tuning for credit card information
+- **Low completeness**: Responses may be missing important information
+- **Low correctness**: Information may be inaccurate or incomplete
+
+</Step>
+
+<Step title="Iterate and improve">
+
+Use the insights from your experiments to make targeted improvements. For example, if the supervisor agent isn't routing queries properly, you might improve the prompt:
+</Step>
+
+<Step title="Focus on user experience">
+
+For multi-agent systems, consider the end-to-end user experience:
+
+- Test queries that require multiple agents to work together
+- Evaluate how well the supervisor agent handles edge cases
+- Measure response quality when agents need to coordinate
+- Consider the conversational flow and naturalness of responses
+
+</Step>
+</Steps>
+
+## Related resources
+- [Experiments Overview](/concepts/experiments/overview) - Learn about Galileo's experimentation framework
+- [Datasets](/concepts/datasets) - Understand how to create and manage test datasets
+- [Multi-Agent Banking Chatbot Sample](/getting-started/sample-projects/multi-agent) - Explore the complete multi-agent banking chatbot example
+- [RAG Best Practices](/how-to-guides/rag/maximizing-chunk-utilization) - Learn techniques for improving RAG performance
+- [Custom Metrics](/how-to-guides/metrics/create-local-metric/create-local-metric) - Create metrics specific to your use case
+
+## Next steps
+
+<Card title="Continue your RAG experimentation journey" icon="flask" href="/getting-started/sample-projects/multi-agent">
+    Ready to dive deeper into RAG experimentation? Here are the key areas to explore next:
+
+    **🎯 Multi-Agent Banking Chatbot** - Get the complete sample project with RAG capabilities to experiment with real-world scenarios.
+
+    **🔬 Advanced RAG Techniques** - Learn sophisticated techniques for maximizing document utilization and improving retrieval quality.
+
+    **📊 Custom Metrics** - Create evaluation metrics specifically designed for your RAG application's unique requirements.
+
+    **📚 Experiments API Reference** - Explore the complete API reference for running experiments programmatically with Galileo.
+</Card>
