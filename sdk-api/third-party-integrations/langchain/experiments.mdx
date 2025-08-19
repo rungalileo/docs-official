@@ -11,7 +11,10 @@ When using LangChain or LangGraph, Galileo provides a callback class that handle
 
 To work around this, you can tell the callback to not start or flush the trace by detecting if there is already an active trace. If there is, then don't start a new trace or flush it on completion.
 
-The easiest way to do this is to get the current logger from the Galileo context, and check to see if it contains a parent trace. If there is no parent trace, then it is a new logger instance and you can start and flush the trace. If there is a parent trace, then it is an existing logger created from the experiment, and you can create the callback setting parameters to not start or flush the trace.
+The easiest way to do this is to get the current logger from the Galileo context, and check to see if it contains a parent trace.
+
+- If there is no parent trace, then it is a new logger instance and you can start and flush the trace.
+- If there is a parent trace, then it is an existing logger created from the experiment, and you can create the callback setting parameters to not start or flush the trace.
 
 <CodeGroup>
   <SnippetExperimentsLangGraphCallbackPython />

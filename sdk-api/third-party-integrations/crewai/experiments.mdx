@@ -3,16 +3,19 @@ title: Experiments
 description: Learn how to use CrewAI in an experiment
 ---
 
-import SnippetExperimentsCrewAICallbackPython from "/snippets/code/python/sdk/wrappers/crewai-callback.mdx";
+import SnippetExperimentsCrewAIListenerPython from "/snippets/code/python/sdk/wrappers/crewai-listener.mdx";
 
 When using CrewAI, Galileo provides an event listener that handles creating a logger, starting a trace, logging spans, then concluding and flushing the trace. This behavior is inconsistent with that required for experiments, where the logger is created and trace started at the start of the experiment, and the logger is concluded and flushed at the end.
 
-To work around this, you can tell the callback to not start or flush the trace by detecting if there is already an active trace. If there is, then don't start a new trace or flush it on completion.
+To work around this, you can tell the event listener to not start or flush the trace by detecting if there is already an active trace. If there is, then don't start a new trace or flush it on completion.
 
-The easiest way to do this is to get the current logger from the Galileo context, and check to see if it contains a parent trace. If there is no parent trace, then it is a new logger instance and you can start and flush the trace. If there is a parent trace, then it is an existing logger created from the experiment, and you can create the callback setting parameters to not start or flush the trace.
+The easiest way to do this is to get the current logger from the Galileo context, and check to see if it contains a parent trace.
+
+- If there is no parent trace, then it is a new logger instance and you can start and flush the trace.
+- If there is a parent trace, then it is an existing logger created from the experiment, and you can create the event listener setting parameters to not start or flush the trace.
 
 <CodeGroup>
-  <SnippetExperimentsCrewAICallbackPython />
+  <SnippetExperimentsCrewAIListenerPython />
 </CodeGroup>
 
 <Note>
