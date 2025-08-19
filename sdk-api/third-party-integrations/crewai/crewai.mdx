@@ -11,20 +11,20 @@ import SnippetLangChainMetadataPython from "/snippets/code/python/sdk/wrappers/l
 The Galileo CrewAI integration allows you to automatically log all CrewAI interactions with LLMs, including prompts, responses, and performance metrics. The Galileo SDK has a custom event listener that listens to CrewAI events, and logs these to Galileo.
 
 <CardGroup cols={2}>
-<Card title="CrewAICallback" icon="python" horizontal href="/sdk-api/python/reference/handlers/crewai/handler">
+<Card title="CrewAIEventListener" icon="python" horizontal href="/sdk-api/python/reference/handlers/crewai/handler">
     The Python Galileo CrewAI SDK reference.
 </Card>
 </CardGroup>
 
 ## Basic usage
 
-The integration is based on the `CrewAICallback` class, which implements CrewAI's event listener. To use it, create an instance of the callback. When this is created, it automatically registers event handlers to capture the relevant events.
+The integration is based on the `CrewAIEventListener` class, which implements CrewAI's event listener. To use it, create an instance of the callback. When this is created, it automatically registers event handlers to capture the relevant events.
 
 <CodeGroup>
   <SnippetCrewAIBasicPython />
 </CodeGroup>
 
-The `CrewAICallback` captures various CrewAI events, including:
+The `CrewAIEventListener` captures various CrewAI events, including:
 
 - Crew Kickoff events
 - Agent events
@@ -41,11 +41,11 @@ For each of these events, the callback logs relevant information to Galileo, suc
 - Token usage
 - Error information (if any)
 
-The `CrewAICallback` automatically handles nested crews and agents, creating a hierarchical trace that reflects the structure of your CrewAI application.
+The `CrewAIEventListener` automatically handles nested crews and agents, creating a hierarchical trace that reflects the structure of your CrewAI application.
 
 ## Use a custom logger
 
-When initializing the `CrewAICallback`, you can optionally specify a Galileo logger instance, or control trace behavior:
+When initializing the `CrewAIEventListener`, you can optionally specify a Galileo logger instance, or control trace behavior:
 
 <CodeGroup>
   <SnippetCrewAICustomLoggerPython />
