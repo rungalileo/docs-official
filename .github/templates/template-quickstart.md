@@ -1,4 +1,7 @@
-# Title
+---
+title: Quickstart Title in Title Case
+description: Description in sentence case
+---
 
 > If you need more information about how to fill in this template, read the accompanying [guide](https://gitlab.com/tgdp/templates/-/blob/main/quickstart/guide_quickstart.md).
 >
