@@ -8,13 +8,17 @@ import SnippetLangChainCustomLoggerPython from "/snippets/code/python/sdk/wrappe
 import SnippetLangChainAsyncPython from "/snippets/code/python/sdk/wrappers/langchain-async.mdx";
 import SnippetLangChainChainsPython from "/snippets/code/python/sdk/wrappers/langchain-chains.mdx";
 import SnippetLangChainMetadataPython from "/snippets/code/python/sdk/wrappers/langchain-metadata.mdx";
+import SnippetLangChainNewSessionPython from "/snippets/code/python/sdk/wrappers/langchain-new-session.mdx";
+import SnippetLangChainAddToTracePython from "/snippets/code/python/sdk/wrappers/langchain-add-trace.mdx";
 
 import SnippetLangChainBasicTypeScript from "/snippets/code/typescript/sdk/wrappers/langchain.mdx";
 import SnippetLangChainCustomLoggerTypeScript from "/snippets/code/typescript/sdk/wrappers/langchain-custom-logger.mdx";
 import SnippetLangChainChainsTypeScript from "/snippets/code/typescript/sdk/wrappers/langchain-chains.mdx";
 import SnippetLangChainMetadataTypeScript from "/snippets/code/typescript/sdk/wrappers/langchain-metadata.mdx";
+import SnippetLangChainNewSessionTypeScript from "/snippets/code/typescript/sdk/wrappers/langchain-new-session.mdx";
+import SnippetLangChainAddToTraceTypeScript from "/snippets/code/typescript/sdk/wrappers/langchain-add-trace.mdx";
 
-The Galileo LangChain integration allows you to automatically log all LangChain and LangGraph interactions with LLMs, including prompts, responses, and performance metrics. The Galileo SDK has a custom callback that is passed LangChain or LangGraph.
+The Galileo LangChain integration allows you to automatically log all LangChain and LangGraph interactions with LLMs, including prompts, responses, and performance metrics. The Galileo SDK has a custom callback that is passed to LangChain or LangGraph.
 
 <CardGroup cols={2}>
 <Card title="GalileoCallback - Python" icon="python" horizontal href="/sdk-api/python/reference/handlers/langchain/handler">
@@ -67,14 +71,32 @@ In Python, there are separate callbacks for synchronous and asynchronous code. I
 
 ## Use a custom logger
 
-When initializing the `GalileoCallback`, you can optionally specify a Galileo logger instance, or control trace behavior:
+When initializing the `GalileoCallback`, you can optionally specify a Galileo logger instance, either by creating a new logger, or by using the current logger from the Galileo context:
 
 <CodeGroup>
   <SnippetLangChainCustomLoggerPython />
   <SnippetLangChainCustomLoggerTypeScript />
 </CodeGroup>
 
-This is particularly useful if you want to call your LangChain code from inside a function [decorated with the `log` decorator](/sdk-api/logging/log-decorator/log-decorator), or from inside an [experiment](/concepts/experiments/running-experiments#using-langchain-or-langgraph-in-an-experiment).
+This is particularly useful if you want to call your LangChain code from inside a function [decorated with the `log` decorator](/sdk-api/logging/log-decorator/log-decorator), or from inside an [experiment](/sdk-api/third-party-integrations/langchain/experiments).
+
+### Session and trace support
+
+Every time you invoke a chain or an LLM call, a new session and trace is created. If you want to manually manage sessions or traces, you can do this using by passing a Galileo logger instance to the callback.
+
+To add the chain or LLM call invocation as a new trace to an existing session, create the session first using the logger instance that was used to create the callback:
+
+<CodeGroup>
+  <SnippetLangChainNewSessionPython/>
+  <SnippetLangChainNewSessionTypeScript/>
+</CodeGroup>
+
+To add the chain or LLM call invocation to an existing trace, ensure the trace is started, and set the `start_new_trace` parameter to `False`.
+
+<CodeGroup>
+  <SnippetLangChainAddToTracePython/>
+  <SnippetLangChainAddToTraceTypeScript/>
+</CodeGroup>
 
 ## Use with LangChain chains
 
@@ -119,7 +141,7 @@ This metadata will be attached to the logs in Galileo, making it easier to filte
 </Card>
 </CardGroup>
 
-### How-to guides
+### Cookbooks
 
 <CardGroup cols={2}>
 <Card title="Monitor LangChain Agents with Galileo" icon="code" horizontal href="/cookbooks/use-cases/agent-langchain">

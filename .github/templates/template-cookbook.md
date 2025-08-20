@@ -1,4 +1,7 @@
-# Title
+---
+title: Cookbook Title in Title Case
+description: Description in sentence case
+---
 
 > If you need more information about how to fill in this template, read the accompanying [guide_tutorial.md](https://gitlab.com/tgdp/templates/-/blob/main/tutorial/guide_tutorial.md).
 >

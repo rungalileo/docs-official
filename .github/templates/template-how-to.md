@@ -1,4 +1,7 @@
-# Title
+---
+title: How-To Title in Title Case
+description: Description in sentence case
+---
 
 > If you need more information about how to fill in this template, read the accompanying [guide](https://gitlab.com/tgdp/templates/-/blob/main/how-to/guide_how-to.md).
 >
@@ -50,7 +53,7 @@ Before you (insert a brief description of the task), ensure:
 
 * Reference link
 * Concept link
-* Troubleshooting link)
+* Troubleshooting link
 
 ## Next steps (optional)
 

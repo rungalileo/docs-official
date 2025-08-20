@@ -1,0 +1,25 @@
+```python Python
+from galileo import galileo_context
+from galileo.handlers.crewai.handler import CrewAIEventListener
+
+# Get the logger from the current Galileo context
+logger = galileo_context.get_logger_instance()
+
+is_in_experiment = logger.current_parent() is not None
+
+# Create the event listener checking to see if we are in an experiment
+# If we are, set start_new_trace and flush_on_crew_completed to False
+# so that the existing trace is used, and not flushed automatically
+CrewAIEventListener(
+    galileo_logger=logger,
+    start_new_trace=not is_in_experiment,
+    flush_on_crew_completed=not is_in_experiment,
+)
+
+# Run the crew
+inputs = {
+    'topic': 'AI Agents'
+}
+
+MyCrew().crew().kickoff(inputs=inputs)
+```

@@ -1,0 +1,33 @@
+---
+title: Experiments
+description: Learn how to use LangChain or LangGraph in an experiment
+---
+
+import SnippetExperimentsLangGraphCallbackPython from "/snippets/code/python/concepts/experiments/langgraph-callback.mdx";
+
+import SnippetExperimentsLangGraphCallbackTypeScript from "/snippets/code/typescript/concepts/experiments/langgraph-callback.mdx";
+
+When using LangChain or LangGraph, Galileo provides a callback class that handles creating a logger, starting a trace, logging spans, then concluding and flushing the trace. This behavior is inconsistent with that required for experiments, where the logger is created and trace started at the start of the experiment, and the logger is concluded and flushed at the end.
+
+To work around this, you can tell the callback to not start or flush the trace by detecting if there is already an active trace. If there is, then don't start a new trace or flush it on completion.
+
+The easiest way to do this is to get the current logger from the Galileo context, and check to see if it contains a parent trace.
+
+- If there is no parent trace, then it is a new logger instance and you can start and flush the trace.
+- If there is a parent trace, then it is an existing logger created from the experiment, and you can create the callback setting parameters to not start or flush the trace.
+
+<CodeGroup>
+  <SnippetExperimentsLangGraphCallbackPython />
+  <SnippetExperimentsLangGraphCallbackTypeScript />
+</CodeGroup>
+
+<Note>
+This behavior is also useful if you are logging to an existing logger, such as when you want the LangGraph agent to only be a part of a larger trace.
+</Note>
+
+## Troubleshooting
+
+Here are some standard troubleshooting steps:
+
+- If you get the following error: `Error occurred during execution: start_trace: You must conclude the existing trace before adding a new one.`, you need to ensure the `start_new_trace` parameter is set to `False` (Python), or `startNewTrace` is set to `false` (TypeScript).
+- If you get the following error: `Error occurred during execution: _conclude: No existing workflow to conclude`, you need to ensure `flush_on_chain_end` is set to `False` (Python), or `flushOnChainEnd` is set to `false` (TypeScript).
