@@ -19,11 +19,11 @@ This guide explains how to (insert a brief description of the task).
 
 In this guide you will:
 
-(Add the basic steps so the reader knows what is covered)
+(Add the basic steps so the reader knows what is covered. This should link to the tasks in this guide)
 
-1. [Section 1](#section link)
-1. [Section 2](#section link)
-1. [Section 3](#section link)
+1. [Task 1](#task-link)
+1. [Task 2](#task-link)
+1. [Task 3](#task-link)
 
 ## Before you start
 
