@@ -17,6 +17,14 @@ This guide explains how to (insert a brief description of the task).
 
 (Optional: Specify when and why your user might want to perform the task.)
 
+In this guide you will:
+
+(Add the basic steps so the reader knows what is covered)
+
+1. [Section 1](#section link)
+1. [Section 2](#section link)
+1. [Section 3](#section link)
+
 ## Before you start
 
 (This section is optional)
