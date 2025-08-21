@@ -9,9 +9,16 @@
 
 ## Overview
 
+<DefinitionCard>
+	<strong>Title of metric</strong>definition of metric and what it does.
+</DefinitionCard>
+
 {This article explains the basics of {metric} and how it works inside of Galileo.}
 
-{Then include a paragraph with a definition of the the metric you are explaining. If more definitions are needed, include those definitions here as a bulleted list.}
+{Then include a sentence with a definition of the the metric you are explaining}
+
+{Sentence describing when this metric is successful}
+- checklist of times when you should see positive scores on metric. 
 
 Typical wordings to use are:
 * {X} is;
@@ -28,26 +35,49 @@ Typical wordings to use are:
 ### {Metric} at a glance
 
 | Property | Description |
-|----------|-------------|
+|:----------|:-------------|
 | **Name of Metric** | The official name of the metric |
 | **Metric Category** | What category does this metric belong to? |
 | **Use this metric for** | When in short should this metric be used? |
+| **Can be applied to** | session,trace, all span types (agent, workflow, retriever, LLM, and tool)|
 | **LLM/Luna Support** | Whether this metric supports LLM and/or Luna models |
-| **Protect Support** | Whether this metric can be used with Galileo Protect |
+| **Protect Runtime Protection ** | Whether this metric is supported by Galileo Protect |
 | **Constants** | Any predefined constants or configuration options |
 | **Usage Context** | Where and how this metric can be applied |
 | **Value Type** | The data type and allowed values for this metric |
 | **Input/Output Requirements** | Required inputs (e.g., ground truth) and expected outputs |
 
-### What does this {metric} measure?
+### When to use this metric
 
-{Provide a clear, concise definition of what the metric measures. Use the DefinitionCard component if available, if one is not available, create one and add it to the document.}
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>When to Use This Metric</h3>
+  </div>
 
-{Include specific criteria or conditions that must be met for the metric to be calculated properly.}
+	{When is this metric best used and why might it be used}
+
+  <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+    <strong>Use case one:</strong> Describe why this would be helpful for this metric.
+  </div>
+
+  <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 21$
+    <strong>Use case two:</strong> Describe why this would be helpful for this metric.
+  </div>
+
+  <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 21$
+    <strong>Use case three:</strong> Describe why this would be helpful for this metric.
+  </div>
+</card>
 
 ## Calculation method
 
-{Explain how the metric is calculated, including the mathematical formula or algorithm if applicable.}
+{Sentence on what a not perfect score is caused by}
 
 {Use the Steps component to break down the calculation process:}
 
@@ -67,66 +97,16 @@ Typical wordings to use are:
 
 {Include any important notes about the calculation method, such as performance considerations or limitations.}
 
-## Understanding {metric}
+OPTIONAL
+<Note>
+  {Any notes on how many LLM calls to compute or estimated cost/performance calculation considerations.
+</Note>
 
-{Use the Card component to explain when and how to use this metric:}
+## Score interpretation
 
-<Card>
-  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
-    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-        <path d="m9 12 2 2 4-4" />
-      </svg>
-    </div>
-    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>When to Use This Metric</h3>
-  </div>
-</Card>
-
-## Use Cases
-
-Use {metric} to {describe the use case}. This is particularly useful when {metric} is used for {describe the use case}.
-
-{Provide specific examples of when to use this metric, including real-world scenarios and applications.}
-
-<Card>
-  {Metric name} is particularly valuable for evaluating:
-
-  <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-    <strong>Use Case 1:</strong> {Description of the first  use case}
-  </div>
-
-  <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-    <strong>Use Case 2:</strong> {Description of the second use case}
-  </div>
-
-  <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-    <strong>Use Case 3:</strong> {Description of the third  use case}
-  </div>
-
-  <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-    {Summary of how this metric helps users achieve their goals}
-  </div>
-</Card>
-
-## Examples
-
-### Example 1: {Scenario Name}
-
-{Provide a concrete example with sample data and expected results.}
-
-{ Python code example showing how the metrics is used with inputs and outputs }
-{ TypeScript code example showing how the metrics is used with inputs and outputs }
-
-**Expected Score:** {Expected score range and explanation}
-
-### Example 2: {Another Scenario}
-
-{Provide another example with different context or conditions.}
-
-## Score Interpretation
-
-{Use the scale component to show score ranges and their meanings:}
+**Expected Score:** {perfect score} - {Why is it a perfect score}.
+	
+{UPDATE SCALE COMPONENT BELOW}
 
 <Scale 
   low="0.0" 
@@ -135,12 +115,14 @@ Use {metric} to {describe the use case}. This is particularly useful when {metri
   lowLabel="Poor"
   midLabel="Fair" 
   highLabel="Excellent"
-  lowDescription="Indicates significant issues that need immediate attention"
-  midDescription="Shows room for improvement but meets basic requirements"
-  highDescription="Demonstrates excellent performance and best practices"
+  lowDescription="Assistant failed to make any progress toward user goals"
+  midDescription="Assistant made some progress but didn't fully address the user's needs"
+  highDescription="Assistant successfully advanced user goals with clear progress"
 />
 
-### What different scores mean:
+### What different scores mean: 
+
+{Update below with what different scores}
 
 - **0.0 - 0.3 (Poor):** {Explain what poor scores indicate and common causes}
 - **0.4 - 0.7 (Fair):** {Explain what fair scores indicate and areas for improvement}
@@ -153,7 +135,7 @@ Use {metric} to {describe the use case}. This is particularly useful when {metri
 ### Common issues and solutions:
 
 | Issue | Cause | Solution |
-|-------|-------|----------|
+|:-------|:-------|:----------|
 | {Common Issue 1} | {Root cause} | {Specific solution with code example if applicable} |
 | {Common Issue 2} | {Root cause} | {Specific solution with code example if applicable} |
 | {Common Issue 3} | {Root cause} | {Specific solution with code example if applicable} |
@@ -167,53 +149,34 @@ Use {metric} to {describe the use case}. This is particularly useful when {metri
 {Use this section to compare options or alternatives.}
 
 | Property | {Metric 1 Name} | {Metric 2 Name} | {Metric 3 Name} |
-|----------|------------------|------------------|------------------|
+|:----------|:------------------|:------------------|:------------------|
 | **Metric Category** | {Category} | {Category} | {Category} |
 | **Use this metric for** | {Brief use case description} | {Brief use case description} | {Brief use case description} |
 | **Best for** | {Primary use case} | {Primary use case} | {Primary use case} |
 | **LLM/Luna Support** | {Yes/No/Partial} | {Yes/No/Partial} | {Yes/No/Partial} |
-| **Protect Support** | {Yes/No} | {Yes/No} | {Yes/No} |
+| **Protect Runtime Protection** | {Yes/No} | {Yes/No} | {Yes/No} |
 | **Value Type** | {Data type and range} | {Data type and range} | {Data type and range} |
 | **Limitations** | {Key limitations} | {Key limitations} | {Key limitations} |
 
 ## Best practices
 
-<CardGroup cols={2}>
-  <Card title="Practice 1" icon="chart-line">
-    {Description of the first best practice with actionable guidance}
-  </Card>
-
-  <Card title="Practice 2" icon="magnifying-glass">
-    {Description of the second best practice with actionable guidance}
-  </Card>
-
-  <Card title="Practice 3" icon="scale-balanced">
-    {Description of the third best practice with actionable guidance}
-  </Card>
-
-  <Card title="Practice 4" icon="code-branch">
-    {Description of the fourth best practice with actionable guidance}
-  </Card>
-</CardGroup>
+{Singular sentence on hwo to implement and optimize {Metric} in your system}
 
 <Note>
   {Important note about using this metric effectively, including any warnings or considerations}
 </Note>
 
-## Implementation
+### {Best Practice One}
+### {Best Practice Two}
+### {Best Practice Three}
 
-### Basic implementation
+OPTIONAL
+<Note>
+Tip on how to best use with other metrics or other nuance to add in if applicable
+</Note>
 
-{ Python code example (no custom elements or additional arguments/parameters) of how to use the metric }
-{ TypeScript code example  (no custom elements or additional arguments/parameters)of how to use the metric }
-
-### Advanced configuration
-
-{ Python code example (with custom metric elements or additional arguments/parameters) of how to use the metric }
-{ TypeScript code example (with custom metric elements or additional arguments/parameters) of how to use the metric }
 
 ## Related Resources
-
 If you would like to dive deeper or start implementing {metric}, check out the following resources:
 
 ### How-to guides:
@@ -227,6 +190,3 @@ If you would like to dive deeper or start implementing {metric}, check out the f
 ### External Resources:
 - [Link to external resource 1]
 - [Link to external resource 2]
-
-> Explore other templates from [The Good Docs Project](https://thegooddocsproject.dev/). Use our [feedback form](https://thegooddocsproject.dev/feedback/?template=Concept%20template) to give feedback on this template.
-
