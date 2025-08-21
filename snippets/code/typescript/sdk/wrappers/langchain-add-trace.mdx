@@ -1,0 +1,22 @@
+```typescript TypeScript
+import { GalileoCallback, GalileoLogger } from "galileo";
+
+// Create a custom logger
+const logger = new GalileoLogger({
+  projectName: "my-project",
+  logStreamName: "my-log-stream"
+});
+
+// Create a callback with the custom logger
+const callback = new GalileoCallback(
+  logger,
+  false,
+);
+
+// Create a new session
+logger.startSession({ name: "My new session" })
+
+// Add a trace and a span
+logger.startTrace({ name: "My trace" })
+logger.addWorkflowSpan({ name:"Crew workflow" })
+```
