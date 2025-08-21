@@ -12,9 +12,9 @@ Custom metrics allow you to define specific evaluation criteria for your LLM app
 
 Registered custom metrics are stored and run in Galileo's environment and can be used across your organization.
 
-### Creating a registered custom metric
+### Create a registered custom metric
 
-You can create a registered custom metric either through the Python SDK or directly in the Galileo UI. Let's walk through the UI approach:
+You can create a registered custom metric either through the Python SDK or directly in the Galileo Console.
 
 <Steps>
   <Step title="Navigate to the Metrics section">
@@ -49,9 +49,13 @@ From the dialog that appears, choose the **Code-powered metric** type. This opti
 </Step>
 </Steps>
 
-#### 1. The scorer function (`scorer_fn`)
+### Write the code
 
-This function evaluates individual responses and returns a score:
+You need to define 2 functions that are used by the metric, one to score the metric, and one to aggregate the results at an experiment level. You can also optionally define additional functions and properties that are used by the custom metric. In addition you can define whatever additional functions and variables that you need.
+
+#### The scorer function
+
+This function evaluates individual responses and returns a score. The score can be a number (int or float), a boolean, string, or None.
 
 ```python
 def scorer_fn(*,
