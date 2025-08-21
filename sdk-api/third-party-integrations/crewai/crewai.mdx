@@ -1,0 +1,95 @@
+---
+title: Logging
+description: Learn about using the Galileo CrewAI logging integration to log agent traces
+---
+
+import SnippetCrewAIBasicPython from "/snippets/code/python/sdk/wrappers/crewai.mdx";
+import SnippetCrewAICustomLoggerPython from "/snippets/code/python/sdk/wrappers/crewai-custom-logger.mdx";
+import SnippetCrewAINewSession from "/snippets/code/python/sdk/wrappers/crewai-new-session.mdx";
+import SnippetCrewAIAddToTrace from "/snippets/code/python/sdk/wrappers/crewai-add-to-trace.mdx";
+
+
+The Galileo CrewAI integration allows you to automatically log all CrewAI interactions with LLMs, including prompts, responses, and performance metrics. The Galileo SDK has a custom event listener that listens to CrewAI events, and logs these to Galileo.
+
+<CardGroup cols={2}>
+<Card title="CrewAIEventListener" icon="python" horizontal href="/sdk-api/python/reference/handlers/crewai/handler">
+    The Python Galileo CrewAI SDK reference.
+</Card>
+</CardGroup>
+
+## Basic usage
+
+The integration is based on the `CrewAIEventListener` class, which implements CrewAI's event listener. To use it, create an instance of the listener before you kick off your crew, for example in your `run` function. When this listener is created, it automatically registers event handlers to capture the relevant events.
+
+<CodeGroup>
+  <SnippetCrewAIBasicPython />
+</CodeGroup>
+
+The `CrewAIEventListener` captures various CrewAI events, including:
+
+- Crew Kickoff events
+- Agent events
+- Task events
+- Tool usage
+- LLM calls
+
+For each of these events, the callback logs relevant information to Galileo, such as:
+
+- Input prompts and messages
+- Output responses
+- Model information
+- Timing data
+- Token usage
+- Error information (if any)
+
+The `CrewAIEventListener` automatically handles nested crews and agents, creating a hierarchical trace that reflects the structure of your CrewAI application.
+
+## Use a custom logger
+
+When initializing the `CrewAIEventListener`, you can optionally specify a Galileo logger instance, either by creating a new logger, or by using the current logger from the Galileo context:
+
+<CodeGroup>
+  <SnippetCrewAICustomLoggerPython />
+</CodeGroup>
+
+This is particularly useful if you want to call your CrewAI code from inside a function [decorated with the `log` decorator](/sdk-api/logging/log-decorator/log-decorator), or from inside an [experiment](/sdk-api/third-party-integrations/crewai/experiments).
+
+### Session and trace support
+
+Every time you kick off a crew, a new session and trace is created. If you want to manually manage sessions or traces, you can do this using by passing a Galileo logger instance to the listener.
+
+To add the crew kickoff as a new trace to an existing session, create the session first using the logger instance that was used to create the listener:
+
+<CodeGroup>
+  <SnippetCrewAINewSession/>
+</CodeGroup>
+
+To add the crew kickoff to an existing trace, ensure the trace is started, and set the `start_new_trace` parameter to `False`.
+
+<CodeGroup>
+  <SnippetCrewAIAddToTrace/>
+</CodeGroup>
+
+## Next steps
+
+### Basic logging components
+
+<CardGroup cols={2}>
+<Card title="Galileo logger" icon="code" horizontal href="/sdk-api/logging/galileo-logger">
+    Log with full control over sessions, traces, and spans using the Galileo logger.
+</Card>
+<Card title="Log decorator" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
+    Quickly add logging to your code with the log decorator and wrapper.
+</Card>
+<Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
+    Manage logging using the Galileo context manager.
+</Card>
+</CardGroup>
+
+### How-to guides
+
+<CardGroup cols={2}>
+<Card title="Add Galileo to a CrewAI Application" icon="code" horizontal href="/how-to-guides/third-party-integrations/add-galileo-to-crewai/add-galileo-to-crewai">
+    Learn how to add Galileo to an existing CrewAI application
+</Card>
+</CardGroup>

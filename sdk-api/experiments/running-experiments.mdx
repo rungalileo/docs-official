@@ -9,7 +9,6 @@ import SnippetExperimentsExistingDatasetLogDecoratorPython from "/snippets/code/
 import SnippetExperimentsGroundTruthPython from "/snippets/code/python/concepts/experiments/ground-truth.mdx";
 import SnippetExperimentsCustomDatasetPython from "/snippets/code/python/concepts/experiments/custom-dataset.mdx";
 import SnippetExperimentsCustomMetricsPython from "/snippets/code/python/concepts/experiments/custom-metrics.mdx";
-import SnippetExperimentsLangGraphCallbackPython from "/snippets/code/python/concepts/experiments/langgraph-callback.mdx";
 import SnippetExperimentsGetLoggerPython from "/snippets/code/python/concepts/experiments/get-logger.mdx";
 import SnippetExperimentsGetCurrentParentPython from "/snippets/code/python/concepts/experiments/get-current-parent.mdx";
 import SnippetExperimentsLoggingWithParentCheckPython from "/snippets/code/python/concepts/experiments/logging-with-parent-check.mdx";
@@ -22,7 +21,6 @@ import SnippetExperimentsExistingDatasetLogDecoratorTypeScript from "/snippets/c
 import SnippetExperimentsGroundTruthTypeScript from "/snippets/code/typescript/concepts/experiments/ground-truth.mdx";
 import SnippetExperimentsCustomDatasetTypeScript from "/snippets/code/typescript/concepts/experiments/custom-dataset.mdx";
 import SnippetExperimentsCustomMetricsTypeScript from "/snippets/code/typescript/concepts/experiments/custom-metrics.mdx";
-import SnippetExperimentsLangGraphCallbackTypeScript from "/snippets/code/typescript/concepts/experiments/langgraph-callback.mdx";
 import SnippetExperimentsGetLoggerTypeScript from "/snippets/code/typescript/concepts/experiments/get-logger.mdx";
 import SnippetExperimentsGetCurrentParentTypeScript from "/snippets/code/typescript/concepts/experiments/get-current-parent.mdx";
 import SnippetExperimentsLoggingWithParentCheckTypeScript from "/snippets/code/typescript/concepts/experiments/logging-with-parent-check.mdx";
@@ -143,22 +141,12 @@ You can use this to decide if you need to create a new trace in your application
 
 You can then safely call your code from the experiment runner as well as in your normal application logic. When called from the experiment runner, your traces will be logged to that experiment. When called from your application code, the traces will be logged as normal.
 
-#### Using LangChain or LangGraph in an experiment
+#### Using third-party integrations with experiments
 
-When using LangChain or LangGraph, Galileo provides a callback class that handles creating a logger, starting a trace, logging spans, then concluding and flushing the trace. This behavior is inconsistent with that required for experiments, where the logger is created and trace started at the start of the experiment, and the logger is concluded and flushed at the end.
+If you are using third-party integrations, there may be some configuration you need to do to make the integrations work with experiments. See the following documentation for more details:
 
-To work around this, you can tell the callback to not start or flush the trace by detecting if there is already an active trace. If there is, then don't start a new trace or flush it on completion.
-
-The easiest way to do this is to get the current logger from the Galileo context, and check to see if it contains a parent trace. If there is no parent trace, then it is a new logger instance and you can start and flush the trace. If there is a parent trace, then it is an existing logger created from the experiment, and you can create the callback setting parameters to not start or flush the trace.
-
-<CodeGroup>
-  <SnippetExperimentsLangGraphCallbackPython />
-  <SnippetExperimentsLangGraphCallbackTypeScript />
-</CodeGroup>
-
-<Note>
-This behavior is also useful if you are logging to an existing logger, such as when you want the LangGraph agent to only be a part of a larger trace.
-</Note>
+- [CrewAI](/sdk-api/third-party-integrations/crewai/experiments)
+- [LangChain and LangGraph](/sdk-api/third-party-integrations/langchain/experiments)
 
 ### Custom function logging principles
 

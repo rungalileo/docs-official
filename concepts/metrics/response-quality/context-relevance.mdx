@@ -7,17 +7,14 @@ import { Pill } from "/snippets/components/pill.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 
 <DefinitionCard>
-  <strong>Context Relevance</strong> measures how relevant (or similar) the context provided was to the user query.
+  <strong>Context Relevance</strong> measures if the context has enough information to answer the user query.
 </DefinitionCard>
 
 ## Context relevance
 
-Context Relevance measures how relevant (or similar) the context provided was to the user query. This metric requires {context} and {query} slots in your data, as well as embeddings for them (i.e. `{context_embedding}`, `{query_embedding}`.
+Context Relevance measures if the context has enough information to answer the user query.
 
-Context Relevance is a relative metric. High Context Relevance values indicate significant similarity or relevance. Low Context Relevance values are a sign that you need to augment your knowledge base or vector DB with additional documents, modify your retrieval strategy, or use better embeddings. 
-
-## Requirements
-Context and Query Embeddings are required to compute Context Relevance. If you're seeing a _Missing Embeddings_ error, it means you didn't log your embeddings correctly.
+High Context Relevance values indicate strong confidence that there is enough context to answer the question. Low Context Relevance values are a sign that you need to increase your Top K, modify your retrieval strategy, or use better embeddings. 
 
 <Note type="info">
   Context Relevance is differentiated from [Context Adherence](/concepts/metrics/response-quality/context-adherence): Context Relevance evaluates whether the retrieved context is relevant to a user's query whereas Context Adherence determines how well the response aligns to provided context. 

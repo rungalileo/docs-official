@@ -1,0 +1,148 @@
+---
+title: Add Galileo to a CrewAI Application
+description: Learn how to add logging and evaluations with Galileo to an existing CrewAI application
+---
+
+import GalileoEnvVars from "/snippets/code/multilingual/env-galileo.mdx"
+
+import SnippetInstallationPython from "/snippets/code/python/sdk/installation.mdx";
+import SnippetInstallationDotEnvPython from "/snippets/code/python/sdk/install-dotenv.mdx";
+import SnippetLoadEnvPython from "/snippets/code/python/sdk/load-env.mdx";
+import SnippetImportCrewAIListener from "/snippets/code/python/how-to-guides/third-party-integrations/crewai/import-crewai.mdx"
+import SnippetCreateCrewAIListener from "/snippets/code/python/how-to-guides/third-party-integrations/crewai/create-crewai.mdx"
+import SnippetRunCrewAI from "/snippets/code/python/how-to-guides/third-party-integrations/crewai/run-crewai.mdx"
+
+## Overview
+
+This guide explains how to add logging and evaluations with Galileo to an existing CrewAI application. 
+
+## Before you start
+
+To complete this how-to, you will need:
+
+- An agentic application built with [CrewAI](https://www.crewai.com). This guide assumes you have a `run()` function as your entry point.
+  > If you don't have a CrewAI application, you can follow the [**Build your first Crew** guide from the CrewAI documentation](https://docs.crewai.com/en/guides/crews/first-crew).
+- A [Galileo project](/concepts/projects) configured, with [relevant metrics configured](/concepts/metrics/overview)
+- Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
+
+## Install dependencies
+
+To use Galileo, you need to install some package dependencies, and configure environment variables.
+
+<Steps>
+
+<Step title="Install Required Dependencies">
+
+Install the required dependencies for your app. Create a virtual environment using your preferred method, then install dependencies inside that environment using your preferred tool:
+
+<CodeGroup>
+  <SnippetInstallationPython />
+</CodeGroup>
+
+Install `python-dotenv` if you don't already have this installed.
+
+<CodeGroup>
+  <SnippetInstallationDotEnvPython/>
+</CodeGroup>
+
+</Step>
+
+<Step title="Create a .env file if you don't have one already, and add the following values">
+
+<CodeGroup>
+  <GalileoEnvVars/>
+</CodeGroup>
+
+<Note>
+This assumes you are using a free Galileo account. If you are using a custom deployment, then you will also need to add the URL of your Galileo Console:
+
+```ini .env
+GALILEO_CONSOLE_URL=your-Galileo-console-URL
+```
+</Note>
+
+</Step>
+</Steps>
+
+## Load environment variables if necessary
+
+Galileo needs values like the API key and project name set as environment variables. If you are not already loading a `.env` file, then you need to do so.
+
+<Note>
+You can skip this step if you are already loading the `.env` file.
+</Note>
+
+<Steps>
+<Step title="Import the dotenv package">
+
+Add the following code at the top of your `main.py` file to import `dotenv` and load the `.env` file.
+
+<CodeGroup>
+  <SnippetLoadEnvPython/>
+</CodeGroup>
+
+<Note>
+This assumes you are following the same structure as the sample CrewAI applications. If you are not, add this to the top of the file that contains the entry point of your application.
+</Note>
+
+</Step>
+</Steps>
+
+## Add the Galileo event listener
+
+To enable logging with Galileo, you need to create an instance of the `CrewAIEventListener`.
+
+<Steps>
+<Step title="Import the Galileo CrewAI handler package">
+
+Add the following code at the top of your `main.py` file:
+
+<CodeGroup>
+  <SnippetImportCrewAIListener/>
+</CodeGroup>
+
+<Note>
+This assumes you are following the same structure as the sample CrewAI applications. If you are not, add this to the top of the file that contains the entry point of your application.
+</Note>
+
+</Step>
+<Step title="Create the event listener">
+
+At the start of your `run` function, create the event listener:
+
+<CodeGroup>
+  <SnippetCreateCrewAIListener/>
+</CodeGroup>
+
+When you create the listener instance, it is automatically registered with CrewAI.
+
+</Step>
+</Steps>
+
+## Run your crew
+
+You are now ready to run your crew, and see the logged traces in Galileo.
+
+<Steps>
+<Step title="Run your crew">
+
+Run your crew with the CrewAI CLI:
+
+<CodeGroup>
+  <SnippetRunCrewAI/>
+</CodeGroup>
+
+</Step>
+<Step title="View the traces in Galileo">
+
+Once your crew has finished, the traces will be flushed an appear in Galileo.
+
+![THe Galileo console showing a CrewAI trace with metrics](/how-to-guides/third-party-integrations/add-galileo-to-crewai/logged-trace.webp)
+
+</Step>
+</Steps>
+
+## See also
+
+- [Galileo CrewAI event listener](/sdk-api/third-party-integrations/crewai/crewai)
+- [`CrewAIEventListener` Python SDK reference](/sdk-api/python/reference/handlers/crewai/handler)
