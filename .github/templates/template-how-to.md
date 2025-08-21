@@ -17,6 +17,14 @@ This guide explains how to (insert a brief description of the task).
 
 (Optional: Specify when and why your user might want to perform the task.)
 
+In this guide you will:
+
+(Add the basic steps so the reader knows what is covered. This should link to the tasks in this guide)
+
+1. [Task 1](#task-link)
+1. [Task 2](#task-link)
+1. [Task 3](#task-link)
+
 ## Before you start
 
 (This section is optional)

@@ -3,9 +3,8 @@ title: Create Traces and Spans
 description: Learn how to create log traces and spans manually in your AI apps
 ---
 
-import GalileoOpenAIEnvVars from "/snippets/code/multilingual/env-galileo-openai.mdx"
+import InstallDependencies from "/snippets/content/install-dependencies-openai.mdx"
 
-import SnippetInstallPython from "/snippets/code/python/how-to-guides/basics/basic-example/install-packages.mdx";
 import SnippetCreateAppPython from "/snippets/code/python/how-to-guides/basics/basic-logging-with-decorator/create-app.mdx";
 import SnippetImportPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/import.mdx";
 import SnippetCreateLoggerPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/create-logger.mdx";
@@ -20,7 +19,6 @@ import SnippetAddLLMSpanDurationPython from "/snippets/code/python/how-to-guides
 import SnippetLLMCallDurationPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/llm-call-duration.mdx";
 import SnippetTraceDurationPython from "/snippets/code/python/how-to-guides/basics/manual-span-creation/trace-duration.mdx";
 
-import SnippetInstallTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-example/install-packages.mdx";
 import SnippetCreateAppTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-logging-with-decorator/create-app.mdx";
 import SnippetImportTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/import.mdx";
 import SnippetCreateLoggerTypeScript from "/snippets/code/typescript/how-to-guides/basics/manual-span-creation/create-logger.mdx";
@@ -41,7 +39,15 @@ This guide shows you how to log spans to Galileo using the `GalileoLogger`.
 
 The Galileo wrappers and `@log` decorator are the preferred way to create log traces and spans, but there are times when you need to manually create a trace or a span to give you more granular control over the data you are logging.
 
-In this guide you will manually log a number of spans when calling an LLM. This pattern can be used for times with the wrapper or decorator are not applicable, such as when using a unsupported LLM SDK such as the Azure AI inference SDK. You will be using OpenAI for this example.
+This guide shows how to manually log a number of spans when calling an LLM. This pattern can be used for times with the wrapper or decorator are not applicable, such as when using a unsupported LLM SDK such as the Azure AI inference SDK. You will be using OpenAI for this example.
+
+In this guide you will:
+
+1. [Set up a project with Galileo](#install-dependencies)
+1. [Create a basic app to call OpenAI](#create-a-basic-app-to-call-openai)
+1. [Create a new Galileo logger to log traces and spans to](#create-a-new-galileo-logger-to-log-traces-and-spans-to)
+1. [Add spans](#add-spans)
+1. [Add more details to the trace](#add-more-details-to-the-trace)
 
 ## Before you start
 
@@ -51,41 +57,9 @@ To complete this how-to, you will need:
 - A [Galileo project](/concepts/projects) configured
 - Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
 
-## Install dependencies
+<InstallDependencies/>
 
-To use Galileo, you need to install some package dependencies, and configure environment variables.
-
-<Steps>
-
-<Step title="Install Required Dependencies">
-
-Install the required dependencies for your app. If you are using Python, create a virtual environment using your preferred method, then install dependencies inside that environment:
-
-<CodeGroup>
-  <SnippetInstallPython />
-  <SnippetInstallTypeScript />
-</CodeGroup>
-
-</Step>
-
-<Step title="Create a .env file, and add the following values">
-
-<CodeGroup>
-<GalileoOpenAIEnvVars/>
-</CodeGroup>
-
-<Note>
-This assumes you are using a free Galileo account. If you are using a custom deployment, then you will also need to add the URL of your Galileo Console:
-
-```ini .env
-GALILEO_CONSOLE_URL=your-Galileo-console-URL
-```
-</Note>
-
-</Step>
-</Steps>
-
-## Create the basic app to call OpenAI
+## Create a basic app to call OpenAI
 
 <Steps>
 <Step title="Create a file for your application called app.py or app.ts."/>
