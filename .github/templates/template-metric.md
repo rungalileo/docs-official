@@ -1,5 +1,5 @@
 ---
-title: How-To Title in Title Case
+title: Metric Title in Title Case
 description: Description in sentence case
 ---
 
