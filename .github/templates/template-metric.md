@@ -1,11 +1,9 @@
-# {Metric Name}
+---
+title: How-To Title in Title Case
+description: Description in sentence case
+---
 
-> If you need more information about how to fill in this template, read the accompanying [guide][./guide_quickstart.md](https://gitlab.com/tgdp/templates/-/blob/main/concept/guide_concept.md).
->
-> This template includes writing instructions and boilerplate text that you can customize, use as-is, or completely replace with your own text. This text is indicated in {curly brackets}. Make sure you replace the placeholders with your own text.
->
-> This template is based upon the [glossary](https://gitlab.com/tgdp/templates/-/blob/main/glossary/guide_glossary.md) and [concept](https://gitlab.com/tgdp/templates/-/blob/main/concept/guide_concept.md) templates from the [Good Docs Project](https://gitlab.com/tgdp/templates). 
->
+> This template includes writing instructions and boilerplate text that you can customize, use as-is, or completely replace with your own text. This text is indicated in (parentheses). Make sure you replace the placeholders with your own text.
 
 ## Overview
 
@@ -13,26 +11,26 @@
 	<strong>Title of metric</strong>definition of metric and what it does.
 </DefinitionCard>
 
-{This article explains the basics of {metric} and how it works inside of Galileo.}
+(This article explains the basics of (metric) and how it works inside of Galileo.)
 
-{Then include a sentence with a definition of the the metric you are explaining}
+(Then include a sentence with a definition of the the metric you are explaining)
 
-{Sentence describing when this metric is successful}
+(Sentence describing when this metric is successful)
 - checklist of times when you should see positive scores on metric. 
 
 Typical wordings to use are:
-* {X} is;
-* {X} represents
-* {X} is connected to
-* {X} are organized {describe the way how}
-* {X} is similar to
-* {X} addresses the common pain points of ...
-* {X} solves the challenge of ...
-* By implementing {X}, users can ...
-* By using {X}, {specify users/target audience} gain ...
-* To use {X}, you create {Y}
+* (X) is;
+* (X) represents
+* (X) is connected to
+* (X) are organized (describe the way how)
+* (X) is similar to
+* (X) addresses the common pain points of ...
+* (X) solves the challenge of ...
+* By implementing (X), users can ...
+* By using (X), (specify users/target audience) gain ...
+* To use (X), you create (Y)
 
-### {Metric} at a glance
+### (Metric) at a glance
 
 | Property | Description |
 |:----------|:-------------|
@@ -49,64 +47,55 @@ Typical wordings to use are:
 
 ### When to use this metric
 
-<Card>
-  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
-    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-        <path d="m9 12 2 2 4-4" />
-      </svg>
-    </div>
-    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>When to Use This Metric</h3>
-  </div>
-
-	{When is this metric best used and why might it be used}
-
-  <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-    <strong>Use case one:</strong> Describe why this would be helpful for this metric.
-  </div>
-
-  <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 21$
-    <strong>Use case two:</strong> Describe why this would be helpful for this metric.
-  </div>
-
-  <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 21$
-    <strong>Use case three:</strong> Describe why this would be helpful for this metric.
-  </div>
-</card>
+<MetricWhenToUse 
+  description="(When is this metric best used and why might it be used)"
+  useCases={[
+    {
+      title: "Use case one",
+      description: "Describe why this would be helpful for this metric."
+    },
+    {
+      title: "Use case two", 
+      description: "Describe why this would be helpful for this metric."
+    },
+    {
+      title: "Use case three",
+      description: "Describe why this would be helpful for this metric."
+    }
+  ]}
+/>
 
 ## Calculation method
 
-{Sentence on what a not perfect score is caused by}
-
-{Use the Steps component to break down the calculation process:}
+(Sentence on what a not perfect score is caused by)
+(Use the Steps component to break down the calculation process:)
 
 <Steps>
   <Step title="Step 1">
-    {Description of the first step in the calculation process}
+    (Description of the first step in the calculation process)
   </Step>
   
   <Step title="Step 2">
-    {Description of the second step in the calculation process}
+    (Description of the second step in the calculation process)
   </Step>
   
   <Step title="Step 3">
-    {Description of the final step in the calculation process}
+    (Description of the final step in the calculation process)
   </Step>
 </Steps>
 
-{Include any important notes about the calculation method, such as performance considerations or limitations.}
+(Include any important notes about the calculation method, such as performance considerations or limitations.)
 
 OPTIONAL
 <Note>
-  {Any notes on how many LLM calls to compute or estimated cost/performance calculation considerations.
+  (Any notes on how many LLM calls to compute or estimated cost/performance calculation considerations.)
 </Note>
 
 ## Score interpretation
 
-**Expected Score:** {perfect score} - {Why is it a perfect score}.
+**Expected Score:** (perfect score) - (Why is it a perfect score).
 	
-{UPDATE SCALE COMPONENT BELOW}
+(UPDATE SCALE COMPONENT BELOW)
 
 <Scale 
   low="0.0" 
@@ -122,62 +111,62 @@ OPTIONAL
 
 ### What different scores mean: 
 
-{Update below with what different scores}
+(Update below with what different scores)
 
-- **0.0 - 0.3 (Poor):** {Explain what poor scores indicate and common causes}
-- **0.4 - 0.7 (Fair):** {Explain what fair scores indicate and areas for improvement}
-- **0.8 - 1.0 (Excellent):** {Explain what excellent scores indicate and best practices}
+- **0.0 - 0.3 (Poor):** (Explain what poor scores indicate and common causes)
+- **0.4 - 0.7 (Fair):** (Explain what fair scores indicate and areas for improvement)
+- **0.8 - 1.0 (Excellent):** (Explain what excellent scores indicate and best practices)
 
-## How to improve {metric} scores
+## How to improve (metric) scores
 
-{Provide actionable guidance on how to improve scores for this metric.}
+(Provide actionable guidance on how to improve scores for this metric.)
 
 ### Common issues and solutions:
 
 | Issue | Cause | Solution |
 |:-------|:-------|:----------|
-| {Common Issue 1} | {Root cause} | {Specific solution with code example if applicable} |
-| {Common Issue 2} | {Root cause} | {Specific solution with code example if applicable} |
-| {Common Issue 3} | {Root cause} | {Specific solution with code example if applicable} |
+| (Common Issue 1) | (Root cause) | (Specific solution with code example if applicable) |
+| (Common Issue 2) | (Root cause) | (Specific solution with code example if applicable) |
+| (Common Issue 3) | (Root cause) | (Specific solution with code example if applicable) |
 
 ### Best practices for optimization:
 
-{List specific best practices with code examples where relevant.}
+(List specific best practices with code examples where relevant.)
 
-## Comparison to {other metrics}
+## Comparison to (other metrics)
 
-{Use this section to compare options or alternatives.}
+(Use this section to compare options or alternatives.)
 
-| Property | {Metric 1 Name} | {Metric 2 Name} | {Metric 3 Name} |
+| Property | (Metric 1 Name) | (Metric 2 Name) | (Metric 3 Name) |
 |:----------|:------------------|:------------------|:------------------|
-| **Metric Category** | {Category} | {Category} | {Category} |
-| **Use this metric for** | {Brief use case description} | {Brief use case description} | {Brief use case description} |
-| **Best for** | {Primary use case} | {Primary use case} | {Primary use case} |
-| **LLM/Luna Support** | {Yes/No/Partial} | {Yes/No/Partial} | {Yes/No/Partial} |
-| **Protect Runtime Protection** | {Yes/No} | {Yes/No} | {Yes/No} |
-| **Value Type** | {Data type and range} | {Data type and range} | {Data type and range} |
-| **Limitations** | {Key limitations} | {Key limitations} | {Key limitations} |
+| **Metric Category** | (Category) | (Category) | (Category) |
+| **Use this metric for** | (Brief use case description) | (Brief use case description) | (Brief use case description) |
+| **Best for** | (Primary use case) | (Primary use case) | (Primary use case) |
+| **LLM/Luna Support** | (Yes/No/Partial) | (Yes/No/Partial) | (Yes/No/Partial) |
+| **Protect Runtime Protection** | (Yes/No) | (Yes/No) | (Yes/No) |
+| **Value Type** | (Data type and range) | (Data type and range) | (Data type and range) |
+| **Limitations** | (Key limitations) | (Key limitations) | (Key limitations) |
 
 ## Best practices
 
-{Singular sentence on hwo to implement and optimize {Metric} in your system}
+(Singular sentence on how to implement and optimize (Metric) in your system)
 
 <Note>
-  {Important note about using this metric effectively, including any warnings or considerations}
+  (Important note about using this metric effectively, including any warnings or considerations)
 </Note>
 
-### {Best Practice One}
-### {Best Practice Two}
-### {Best Practice Three}
+### (Best Practice One)
+### (Best Practice Two)
+### (Best Practice Three)
 
 OPTIONAL
 <Note>
-Tip on how to best use with other metrics or other nuance to add in if applicable
+(Tip on how to best use with other metrics or other nuance to add in if applicable)
 </Note>
 
 
 ## Related Resources
-If you would like to dive deeper or start implementing {metric}, check out the following resources:
+If you would like to dive deeper or start implementing (metric), check out the following resources:
 
 ### How-to guides:
 - [Link to relevant how-to guide 1]
