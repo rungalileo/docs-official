@@ -3,6 +3,8 @@ title: Metric Title in Title Case
 description: Description in sentence case
 ---
 
+import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
+
 > This template includes writing instructions and boilerplate text that you can customize, use as-is, or completely replace with your own text. This text is indicated in (parentheses). Make sure you replace the placeholders with your own text.
 
 ## Overview
