@@ -3,7 +3,9 @@ title: Metric Title in Title Case
 description: Description in sentence case
 ---
 
+import { DefinitionCard } from '@snippets/components/DefinitionCard';
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
+import { RelatedResources } from '@snippets/components/related-resources';
 
 > This template includes writing instructions and boilerplate text that you can customize, use as-is, or completely replace with your own text. This text is indicated in (parentheses). Make sure you replace the placeholders with your own text.
 
@@ -167,17 +169,18 @@ OPTIONAL
 </Note>
 
 > Related Resources Component, feel free to add in any related resources you think are relevant to the metric.
+> If there are no related resources / assets, the component will not be rendered if the section is deleted.
+
+
 <RelatedResources 
   metricName="(Metric Name)"
   howToGuides={[
-    { title: "How to Implement Action Advancement", url: "/how-to-guides/action-advancement" },
-    { title: "Best Practices for Agent Development", url: "/how-to-guides/agent-best-practices" }
+    { title: "(Title of How to Guide)", url: "(relative path to how to guide)" },
   ]}
   relatedConcepts={[
-    { title: "Agent Efficiency", url: "/concepts/metrics/agentic/agent-efficiency" },
-    { title: "Multi-Agent Systems", url: "/concepts/agents" }
+    { title: "(Concept Doc)", url: "(Relative Path to concept doc)" },
   ]}
   externalResources={[
-    { title: "Agent Development Guide", url: "https://example.com/agent-guide" }
+    { title: "(blog or video could go here)", url: "(link to blog or video)" }
   ]}
 />
