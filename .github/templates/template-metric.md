@@ -166,18 +166,18 @@ OPTIONAL
 (Tip on how to best use with other metrics or other nuance to add in if applicable)
 </Note>
 
-
-## Related Resources
-If you would like to dive deeper or start implementing (metric), check out the following resources:
-
-### How-to guides:
-- [Link to relevant how-to guide 1]
-- [Link to relevant how-to guide 2]
-
-### Related Concepts:
-- [Link to related concept 1]
-- [Link to related concept 2]
-
-### External Resources:
-- [Link to external resource 1]
-- [Link to external resource 2]
+> Related Resources Component, feel free to add in any related resources you think are relevant to the metric.
+<RelatedResources 
+  metricName="(Metric Name)"
+  howToGuides={[
+    { title: "How to Implement Action Advancement", url: "/how-to-guides/action-advancement" },
+    { title: "Best Practices for Agent Development", url: "/how-to-guides/agent-best-practices" }
+  ]}
+  relatedConcepts={[
+    { title: "Agent Efficiency", url: "/concepts/metrics/agentic/agent-efficiency" },
+    { title: "Multi-Agent Systems", url: "/concepts/agents" }
+  ]}
+  externalResources={[
+    { title: "Agent Development Guide", url: "https://example.com/agent-guide" }
+  ]}
+/>

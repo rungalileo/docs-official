@@ -1,0 +1,54 @@
+export const RelatedResources = ({ 
+  howToGuides = [], 
+  relatedConcepts = [], 
+  externalResources = [],
+  metricName = "this metric"
+}) => {
+  return (
+    <div>
+      <h2>Related Resources</h2>
+      <p>
+        If you would like to dive deeper or start implementing {metricName}, check out the following resources:
+      </p>
+
+      {howToGuides.length > 0 && (
+        <div style={{ marginBottom: "1.5rem" }}>
+          <h3>How-to guides:</h3>
+          <ul>
+            {howToGuides.map((guide, index) => (
+              <li key={index}>
+                <a href={guide.url}>{guide.title}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {relatedConcepts.length > 0 && (
+        <div style={{ marginBottom: "1.5rem" }}>
+          <h3>Related Concepts:</h3>
+          <ul>
+            {relatedConcepts.map((concept, index) => (
+              <li key={index}>
+                <a href={concept.url}>{concept.title}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {externalResources.length > 0 && (
+        <div style={{ marginBottom: "1.5rem" }}>
+          <h3>External Resources:</h3>
+          <ul>
+            {externalResources.map((resource, index) => (
+              <li key={index}>
+                <a href={resource.url}>{resource.title}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
