@@ -1,0 +1,36 @@
+```typescript TypeScript
+import { AzureOpenAI } from "openai";
+import { flush, wrapOpenAI } from "galileo";
+import dotenv from "dotenv";
+
+// Load the environment variables
+dotenv.config();
+
+// Create an Azure OpenAI service wrapper
+const openai = wrapOpenAI(new AzureOpenAI({apiVersion:"2024-12-01-preview"}));
+
+// Define a system prompt with guidance
+const systemPrompt = `
+You are a helpful assistant that wants to provide a user
+as much information as possible. be helpful and leverage all
+your knowledge to answer the users question.
+Avoid saying I don't know.
+`
+// Define a user prompt with a question
+const userPrompt = "What real time protections does Galileo offer?"
+
+// Send a request to the LLM
+const response = await openai.chat.completions.create({
+  model: "gpt-4o-mini",
+  messages: [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: userPrompt }
+  ],
+});
+
+// Log the response
+console.log(response.choices[0].message.content);
+
+// Flush logs before exiting
+await flush();
+```

@@ -1,0 +1,33 @@
+```python app.py
+from galileo.openai import openai
+from dotenv import load_dotenv
+
+# Load environment variables from the .env file
+load_dotenv(override=True)
+
+# Initialize the Galileo Azure OpenAI client
+client = openai.AzureOpenAI(api_version="2024-12-01-preview")
+
+# Define a system prompt with guidance
+system_prompt = f"""
+You are a helpful assistant that wants to provide a user
+as much information as possible. be helpful and leverage all
+your knowledge to answer the users question.
+Avoid saying I don't know.
+"""
+
+# Define a user prompt with a question
+user_prompt = "What real time protections does Galileo offer?"
+
+# Send a request to the LLM
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt}
+    ],
+)
+
+# Print the response
+print(response.choices[0].message.content.strip())
+```
