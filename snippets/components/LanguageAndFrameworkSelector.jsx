@@ -63,7 +63,7 @@ export const LanguageAndFrameworkSelector = (props) => {
                                 color: selectedLanguage === lang ? '#fff' : 'inherit',
                                 border: '1px solid #ccc',
                                 borderRadius: 'var(--rounded-xl,.75rem)',
-                                padding: '0.5em 1em',
+                                padding: '0.2em 0.5em',
                                 cursor: 'pointer',
                             }}
                             aria-pressed={selectedLanguage === lang}
@@ -93,7 +93,7 @@ export const LanguageAndFrameworkSelector = (props) => {
                                 color: selectedFramework === fw ? '#fff' : 'inherit',
                                 border: '1px solid #ccc',
                                 borderRadius: 'var(--rounded-xl,.75rem)',
-                                padding: '0.5em 1em',
+                                padding: '0.2em 0.5em',
                                 cursor: 'pointer',
                             }}
                             aria-pressed={selectedFramework === fw}

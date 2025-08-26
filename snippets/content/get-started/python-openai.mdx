@@ -1,27 +1,23 @@
-import SignUp from "/snippets/content/get-started/SignUp.mdx"
-import OpenAIIntegration from "/snippets/content/get-started/openai-integration.mdx"
-import GetAPIKey from "/snippets/content/get-started/api-key.mdx"
-import CreateProject from "/snippets/content/get-started/create-project.mdx"
 import ConfigureMetrics from "/snippets/content/get-started/configure-metrics.mdx"
 import GalileoOpenAIEnvVars from "/snippets/code/multilingual/env-galileo-openai.mdx"
-import SnippetGettingStarted1Python from "/snippets/code/python/getting-started/getting-started-openai.mdx";
+import SnippetGettingStartedOpenAIPython from "/snippets/code/python/getting-started/getting-started-openai.mdx";
+import CheckLogStreamContextAdherenceLow from "/snippets/content/get-started/check-log-stream-context-adherence-low.mdx";
+import SnippetUpdatedSystemPromptPython from "/snippets/code/python/getting-started/reference-data-system-prompt.mdx";
 
 ## Prerequisites
 
 To get started with Galileo using Python and OpenAI, you will need:
 
+- A [Galileo account](/getting-started/sign-up), with an [LLM integration configured](/getting-started/sign-up#set-up-your-llm-integration)
+- Your [Galileo API key](/getting-started/sign-up#get-your-api-key)
 - Your OpenAI API key, and organization Id if applicable
 - Python 3.9 or higher installed
 
-<SignUp/>
-<OpenAIIntegration/>
-<GetAPIKey />
-<CreateProject />
 <ConfigureMetrics />
 
 ## Create your Python project
 
-Now you have Galileo configured, you are ready to create a Python application to log LLM interactions, and evaluate the response for context adherence.
+Now you have your Log stream configured, you are ready to create a Python application to log LLM interactions, and evaluate the response for context adherence.
 <br/><br/>
 The app you will build is intentionally configured to show a low context adherence score. Later in this guide you will 'fix' it and see the improved evaluation score.
 
@@ -95,20 +91,18 @@ In the `.env` file, fill in the values:
 - `OPENAI_API_KEY` : Set your OpenAI API key. If necessary, set `OPENAI_BASE_URL` and `OPENAI_ORGANIZATION`.
 
 </Step>
-
 <Step title="Application Code">
-Copy the code below into your application file:
+Copy the code below into your `app.py` file:
 
 <CodeGroup>
-  <SnippetGettingStarted1Python />
+  <SnippetGettingStartedOpenAIPython />
 </CodeGroup>
 
 <Note>
-This code defaults to using GPT-4o mini. If you want to use a different model, update the `model` in the call to `client.chat.completions.create`. For this get started guide, use the smallest, oldest model possible to get the best results - you want to see the AI behving badly!
+This code defaults to using GPT-4o mini. If you want to use a different model, update the `model` in the call to `client.chat.completions.create`. For this get started guide, use the smallest, oldest model possible to get the best results - you want to see the AI behaving badly!
 </Note>
 
 </Step>
-
 <Step title="Run the Application">
 
 Run your application using the following command in your terminal:
@@ -120,7 +114,6 @@ python app.py
 </CodeGroup>
 
 </Step>
-
 <Step title="View Results in Terminal">
 
 **Congratulations!** You have run your first AI inference using the **Galileo SDK**.
@@ -139,7 +132,7 @@ Galileo is a financial technology platform that enables companies to integrate b
 
 4. **User Authentication and Authorization**: Enhanced verification processes, such as multi-factor authentication (MFA) and OAuth protocols, help ensure that only authorized users can access and perform transactions on their accounts.
 
-5. **Real-Time Alerts**: Galieo provides notifications for transactions that meet certain criteria—such as exceeding a set amount or occurring from a different geographic location—allowing users to respond quickly to potential unauthorized transactions.
+5. **Real-Time Alerts**: Galileo provides notifications for transactions that meet certain criteria—such as exceeding a set amount or occurring from a different geographic location—allowing users to respond quickly to potential unauthorized transactions.
 
 6. **Compliance and Risk Management**: Galileo is equipped to help its clients adhere to various regulatory standards, which includes mechanisms for anti-money laundering (AML) and know your customer (KYC) protocols to authenticate user identities and monitor transactions for compliance.
 
@@ -154,3 +147,54 @@ As you can see from the output, the AI has hallucinated! Galileo is an AI reliab
 
 </Step>
 </Steps>
+
+<CheckLogStreamContextAdherenceLow />
+
+## Improve your application
+
+To improve the context adherence score, you can provide relevant context to the LLM in the system.
+
+<Steps>
+<Step title="Add relevant context to your system prompt">
+To improve the context adherence, you can add relevant context to the system prompt. This is similar to adding extra information from a RAG system.
+<br/><br/>
+Update your code, replacing the code to set the `system_prompt` with the following:
+
+<SnippetUpdatedSystemPromptPython />
+</Step>
+<Step title="Run the Application">
+
+Run your application using the following command in your terminal:
+
+<CodeGroup>
+```bash Terminal
+python app.py
+```
+</CodeGroup>
+
+</Step>
+<Step title="View Results in Terminal">
+Now the results should show relevant information:
+
+```output wrap
+➜  python app.py
+Galileo provides several features that contribute to real-time protections for applications utilizing AI. Here are the key elements:
+
+1. **Automated Evaluations**: Galileo replaces manual reviews with high-accuracy, adaptive metrics, significantly cutting down evaluation time by up to 80%. This automation allows for prompt and consistent assessment of AI models and features, ensuring that any issues are identified and addressed swiftly.
+
+2. **CI/CD Integration**: By incorporating Continuous Integration and Continuous Deployment (CI/CD) principles into your AI workflows, Galileo enables real-time monitoring and testing of AI features. This ensures that any changes or new iterations are evaluated in real-time, reducing the risk of deploying flawed models.
+
+3. **Rapid Iteration on Testing**: Galileo facilitates rapid iteration, allowing you to ship updates and refine models 20% faster. It automates the testing of numerous prompts and models simultaneously, which means you can quickly determine the best-performing configurations and adjust in real time.
+
+4. **Failure Mode Identification**: When issues arise, Galileo assists in pinpointing failure modes and root causes effectively. This capability means that you can react swiftly to fix problems, thereby maintaining the reliability and integrity of your applications.
+
+Overall, these features help safeguard your AI systems against potential risks while enhancing the effectiveness of the development process through rapid and automated evaluations.
+```
+</Step>
+<Step title="Check the new trace">
+A new trace will have been logged. This time, the context adherence score will be higher. Select the trace to see more details.
+
+![The trace details with an explanation of the metric](/snippets/content/get-started/trace-messages-low-context-adherence.webp)
+</Step>
+</Steps>
+
