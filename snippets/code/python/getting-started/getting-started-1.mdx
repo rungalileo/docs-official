@@ -21,9 +21,16 @@ with galileo_context():
     print(response.choices[0].message.content.strip())
         
     # Show Galileo information after the response
+    print("\n" + "="*60)
+    print("🚀 GALILEO TRACE INFORMATION")
+    print("="*60)
+    
     config = GalileoPythonConfig.get()
     logger = galileo_context.get_logger_instance()
     project_url = f"{str(config.console_url).rstrip('/')}/project/{logger.project_id}"
-    print(f"\n🌐 Galileo Project URL: {project_url}")
-    print(f"📊 Trace uploaded to Galileo - view it at the project URL above")
+    
+    print(f"🔗 Project URL: {project_url}")
+    print(f"📝 Log Stream: {logger.log_stream_name}")
+    print(f"📊 Status: Trace uploaded successfully!")
+    print("="*60)
 ```
