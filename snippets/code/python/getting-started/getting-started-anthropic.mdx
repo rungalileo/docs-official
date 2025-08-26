@@ -1,0 +1,69 @@
+```python app.py
+from datetime import datetime
+
+from anthropic import Anthropic
+from galileo import galileo_context
+from dotenv import load_dotenv
+
+# Load environment variables from the .env file
+load_dotenv(override=True)
+
+# Get the Galileo logger instance
+logger = galileo_context.get_logger_instance()
+
+# Start a Galileo session
+logger.start_session()
+
+# Initialize the Anthropic client
+client = Anthropic()
+
+# Define a system prompt with guidance
+system_prompt = f"""
+You are a helpful assistant that wants to provide a user
+as much information as possible. be helpful and leverage all
+your knowledge to answer the users question.
+Avoid saying I don't know.
+"""
+
+# Define a user prompt with a question
+user_prompt = "What real time protections does Galileo offer?"
+
+MODEL_NAME = "claude-3-7-sonnet-latest"
+
+# Start a trace
+logger.start_trace(name="Conversation step", input=user_prompt)
+
+# Define the messages to send
+messages = [
+    {"role": "user", "content": user_prompt}
+]
+
+# Capture the current time in nanoseconds for logging
+start_time_ns = datetime.now().timestamp() * 1_000_000_000
+
+# Send a request to the LLM
+response = client.messages.create(
+        max_tokens=1024,
+        messages=messages,
+        system=system_prompt,
+        model=MODEL_NAME,
+    )
+
+# Log an LLM span using the response from Anthropic
+logger.add_llm_span(
+    input=messages,
+    output=response.content[0].text,
+    model=MODEL_NAME,
+    num_input_tokens=response.usage.input_tokens,
+    num_output_tokens=response.usage.output_tokens,
+    total_tokens=response.usage.input_tokens + response.usage.output_tokens,
+    duration_ns=(datetime.now().timestamp() * 1_000_000_000) - start_time_ns,
+)
+
+# Conclude and flush the logger
+logger.conclude(output=response.content[0].text)
+logger.flush()
+
+# Print the response
+print(response.content[0].text)
+```
