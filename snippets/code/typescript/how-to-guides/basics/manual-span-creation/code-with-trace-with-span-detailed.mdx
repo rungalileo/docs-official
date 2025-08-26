@@ -1,0 +1,59 @@
+```typescript TypeScript
+import { OpenAI } from "openai";
+import dotenv from "dotenv";
+import { GalileoLogger } from "galileo";
+
+dotenv.config();
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
+
+const prompt = "Explain the following topic succinctly: Newton's First Law";
+
+async function promptOpenAI(prompt: string, logger: GalileoLogger) {
+    // Get the start time
+    const start = process.hrtime.bigint();
+
+    const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ content: prompt, role: "user" }],
+    });
+
+    // Calculate the duration
+    const durationNs = process.hrtime.bigint() - start;
+
+    logger.addLlmSpan({
+        input: prompt,
+        output: response.choices[0].message.content,
+        model: "gpt-4o-mini",
+        name: "OpenAI GPT-4o-mini response",
+        // Add details about the tokens
+        numInputTokens: response.usage?.prompt_tokens,
+        numOutputTokens: response.usage?.completion_tokens,
+        totalTokens: response.usage?.total_tokens,
+        // Add the duration
+        durationNs: Number(durationNs),
+    });
+
+    return response.choices[0].message.content;
+}
+
+// Create a logger instance
+const logger = new GalileoLogger();
+// Start a new trace
+logger.startTrace({ input: "Newton's First Law Trace" });
+
+// Get the start time for the trace
+const start = process.hrtime.bigint();
+
+const response = await promptOpenAI(prompt, logger);
+
+console.log(response);
+
+// Calculate the total duration
+const durationNs = process.hrtime.bigint() - start;
+
+logger.conclude({ output: response, durationNs: Number(durationNs) });
+logger.flush();
+```
