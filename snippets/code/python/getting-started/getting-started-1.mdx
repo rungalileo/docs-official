@@ -19,10 +19,11 @@ with galileo_context():
         messages=[{"role": "user", "content": prompt}],
     )
     print(response.choices[0].message.content.strip())
-
+        
+    # Show Galileo information after the response
     config = GalileoPythonConfig.get()
     logger = galileo_context.get_logger_instance()
-    project_url = f"{config.console_url}/project/{logger.project_id}"
+    project_url = f"{str(config.console_url).rstrip('/')}/project/{logger.project_id}"
     print(f"\n🌐 Galileo Project URL: {project_url}")
     print(f"📊 Trace uploaded to Galileo - view it at the project URL above")
 ```
