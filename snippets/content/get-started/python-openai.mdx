@@ -1,0 +1,156 @@
+import SignUp from "/snippets/content/get-started/SignUp.mdx"
+import OpenAIIntegration from "/snippets/content/get-started/openai-integration.mdx"
+import GetAPIKey from "/snippets/content/get-started/api-key.mdx"
+import CreateProject from "/snippets/content/get-started/create-project.mdx"
+import ConfigureMetrics from "/snippets/content/get-started/configure-metrics.mdx"
+import GalileoOpenAIEnvVars from "/snippets/code/multilingual/env-galileo-openai.mdx"
+import SnippetGettingStarted1Python from "/snippets/code/python/getting-started/getting-started-openai.mdx";
+
+## Prerequisites
+
+To get started with Galileo using Python and OpenAI, you will need:
+
+- Your OpenAI API key, and organization Id if applicable
+- Python 3.9 or higher installed
+
+<SignUp/>
+<OpenAIIntegration/>
+<GetAPIKey />
+<CreateProject />
+<ConfigureMetrics />
+
+## Create your Python project
+
+Now you have Galileo configured, you are ready to create a Python application to log LLM interactions, and evaluate the response for context adherence.
+<br/><br/>
+The app you will build is intentionally configured to show a low context adherence score. Later in this guide you will 'fix' it and see the improved evaluation score.
+
+<Steps>
+
+<Step title="Create Project Folder">
+
+Create a new project folder and navigate to it in your terminal:
+
+<CodeGroup>
+```bash Terminal
+mkdir first-AI-evaluation
+cd first-AI-evaluation
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="Install Dependencies">
+
+Install the **Galileo SDK** with OpenAI support, and the dotenv package using the following command in your terminal:
+
+<CodeGroup>
+```bash Terminal
+pip install "galileo[openai]" python-dotenv
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="Create Project Files">
+
+In your project folder, create a new blank application file and `.env` file:
+
+<CodeGroup>
+```python Python
+first-AI-evaluation/
+│── app.py
+│── .env
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="Set Up Environment Variables">
+
+In your `.env` file, add the following credentials:
+
+<CodeGroup>
+<GalileoOpenAIEnvVars/>
+</CodeGroup>
+
+<Note>
+This assumes you are using a free Galileo account. If you are using a custom deployment, then you will also need to add the URL of your Galileo Console:
+
+```ini .env
+GALILEO_CONSOLE_URL=your-Galileo-console-URL
+```
+</Note>
+
+</Step>
+
+<Step title="Set the values in the .env file">
+
+In the `.env` file, fill in the values:
+
+- `GALILEO_API_KEY` : Set this to the Galileo API key you saved earlier
+- `GALILEO_PROJECT` : Set this to the project name you used when creating your new project
+- `GALILEO_LOG_STREAM` : Set this to the name of the Log stream you created. If you left this as the default, then set this to `default`.
+- `GALILEO_CONSOLE_URL` : Optional. If you are using the free version of Galileo then leave this commented out. Otherwise, set this to the URL of your Galileo custom deployment.
+- `OPENAI_API_KEY` : Set your OpenAI API key. If necessary, set `OPENAI_BASE_URL` and `OPENAI_ORGANIZATION`.
+
+</Step>
+
+<Step title="Application Code">
+Copy the code below into your application file:
+
+<CodeGroup>
+  <SnippetGettingStarted1Python />
+</CodeGroup>
+
+<Note>
+This code defaults to using GPT-4o mini. If you want to use a different model, update the `model` in the call to `client.chat.completions.create`. For this get started guide, use the smallest, oldest model possible to get the best results - you want to see the AI behving badly!
+</Note>
+
+</Step>
+
+<Step title="Run the Application">
+
+Run your application using the following command in your terminal:
+
+<CodeGroup>
+```bash Terminal
+python app.py
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="View Results in Terminal">
+
+**Congratulations!** You have run your first AI inference using the **Galileo SDK**.
+
+You can see the model's output in your terminal:
+
+```output wrap
+➜  python app.py
+Galileo is a financial technology platform that enables companies to integrate banking and payment functionalities into their services. In terms of real-time protections, Galileo offers several features aimed at enhancing security and mitigating fraud risks. These may include:
+
+1. **Fraud Detection and Prevention**: Galileo employs advanced algorithms that monitor transactions in real time to identify patterns that may indicate fraudulent activity. This includes the use of machine learning to continuously improve detection effectiveness.
+
+2. **Transaction Monitoring**: The platform tracks transactions as they occur, allowing for immediate response to suspicious behavior. This helps in identifying unusual transaction patterns that could signal fraud or unauthorized access.
+
+3. **Secure API Access**: Communication with Galileo's services is secured through robust API security protocols, ensuring that data exchanged between your application and Galileo is encrypted and protected from interception.
+
+4. **User Authentication and Authorization**: Enhanced verification processes, such as multi-factor authentication (MFA) and OAuth protocols, help ensure that only authorized users can access and perform transactions on their accounts.
+
+5. **Real-Time Alerts**: Galieo provides notifications for transactions that meet certain criteria—such as exceeding a set amount or occurring from a different geographic location—allowing users to respond quickly to potential unauthorized transactions.
+
+6. **Compliance and Risk Management**: Galileo is equipped to help its clients adhere to various regulatory standards, which includes mechanisms for anti-money laundering (AML) and know your customer (KYC) protocols to authenticate user identities and monitor transactions for compliance.
+
+7. **Data Encryption**: Sensitive customer data is encrypted, both at rest and in transit, safeguarding against breaches and unauthorized access.
+
+8. **Access Controls**: Granular controls allow businesses to restrict access to sensitive information based on user roles, ensuring that only those who need to can view or manage sensitive data.
+
+By combining these features, Galileo provides a comprehensive suite of real-time protections designed to enhance security, protect users, and minimize the risk of fraud and data breaches in financial transactions.
+```
+
+As you can see from the output, the AI has hallucinated! Galileo is an AI reliability platform, not a financial services platform.
+
+</Step>
+</Steps>
