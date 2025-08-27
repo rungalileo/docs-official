@@ -1,0 +1,152 @@
+---
+title: Hello Galileo!
+description: Already have Galileo configured? Here's the code to log your first trace
+---
+
+import SnippetGetStartedSimplePython from "/snippets/code/python/getting-started/getting-started-openai-simple.mdx"
+
+import SnippetGetStartedSimpleTypeScript from "/snippets/code/typescript/getting-started/getting-started-openai-simple.mdx"
+
+This guide assumes you have:
+
+- [A Galileo account](https://app.galileo.ai), and an [API key](https://app.galileo.ai/settings/api-keys)
+- An [Open AI API key](https://platform.openai.com/api-keys)
+- Python or TypeScript configured
+
+<Steps>
+<Step title="Add the Galileo SDK">
+
+<CodeGroup>
+```bash Python
+pip install "galileo[openai]" python-dotenv
+```
+
+```bash TypeScript
+npm install galileo
+```
+</CodeGroup>
+</Step>
+<Step title="Create a .env file">
+
+Create a `.env` file with the following settings. Set your Galileo API key, project name, Log stream name, and your OpenAI API key.
+
+If you are using the free version of Galileo, leave the `GALILEO_CONSOLE_URL` as `https://app.galileo.ai`, otherwise update this to your deployment URL.
+
+<CodeGroup>
+```ini .env
+GALILEO_API_KEY="your-galileo-api-key"
+GALILEO_PROJECT="your-galileo-project-name"
+GALILEO_LOG_STREAM="your-galileo-log-stream"
+GALILEO_CONSOLE_URL=https://app.galileo.ai
+
+OPENAI_API_KEY="your-openai-api-key"
+```
+</CodeGroup>
+</Step>
+<Step title="Add the following code">
+
+Create file for your app, and add the following code:
+
+<CodeGroup>
+<SnippetGetStartedSimplePython />
+<SnippetGetStartedSimpleTypeScript />
+</CodeGroup>
+</Step>
+<Step title="Run the app">
+<CodeGroup>
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+npm install tsx
+npx tsx app.ts
+```
+</CodeGroup>
+</Step>
+<Step title="Check your Log stream">
+
+Open the [Galileo console](https://app.galileo.ai), navigate to your project, and view the Log stream.
+
+You will see a trace for your run. If you have configured an LLM integration, and metrics for your Log stream, you will see the calculated value.
+
+</Step>
+</Steps>
+
+**Congratulations** - you've logged your first trace to Galileo.
+
+## Troubleshooting
+
+- **I need a Galileo API key**: Head to [app.galileo.ai](https://app.galileo.ai) and sign up. Then head to the [API keys](https://app.galileo.ai/settings/api-keys) page to get a new API key.
+- **What's my project name and Log stream name?**: The project and Log stream names were set when you created a new project. If you haven't created a new project, head to Galileo and select the **New Project** button.
+- **I don't have an OpenAI key**: Galileo supports any LLM, with the OpenAI SDK the easiest to get started with. You can spin up an [Ollama](https://ollama.com) instance and use the code above with it, or manually log using any LLM. Check out the [logger documentation](/sdk-api/logging/logging-basics) for more details.
+- **I don't see any metrics**: For Galileo to calculate metrics, you need to add an [LLM integration](/getting-started/sign-up#set-up-your-llm-integration), and [turn on metrics for the Log stream](/getting-started/quickstart#configure-metrics-for-your-log-stream). Once done, re-run your app and you will see metrics being calculated.
+
+## Next steps
+
+### Logging with the SDKs
+
+<CardGroup cols={2}>
+<Card title="Learn how to log experiments" icon="flask" horizontal href="/sdk-api/experiments">
+    Learn how to run experiments with multiple data points using datasets and prompt templates
+</Card>
+<Card title="Galileo logger" icon="code" horizontal href="/sdk-api/logging/galileo-logger">
+    Log with full control over sessions, traces, and spans using the Galileo logger.
+</Card>
+<Card title="Log decorator" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
+    Quickly add logging to your code with the log decorator and wrapper.
+</Card>
+<Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
+    Manage logging using the Galileo context manager.
+</Card>
+</CardGroup>
+
+### Integrate with third-party frameworks
+
+<CardGroup cols={2}>
+<Card title="OpenAI wrapper" icon="code" horizontal href="/sdk-api/third-party-integrations/openai/openai">
+    Automatically log calls to the OpenAI SDK with a wrapper.
+</Card>
+<Card title="OpenAI Agents trace processor" icon="code" horizontal href="/sdk-api/third-party-integrations/openai-agents/openai-agents">
+    Automatically log all the steps in your OpenAI Agent SDK apps using the Galileo trace processor.
+</Card>
+<Card title="CrewAI event listener" icon="code" horizontal href="/sdk-api/third-party-integrations/crewai/crewai">
+    Automatically log all the steps in your CrewAI application with the Galileo event listener.
+</Card>
+<Card title="LangChain callback" icon="code" horizontal href="/sdk-api/third-party-integrations/langchain/langchain">
+    Automatically log all the steps in your LangChain or LangGraph application with the Galileo callback.
+</Card>
+</CardGroup>
+
+### How-to guides
+
+<CardGroup cols={2}>
+<Card title="Log Using the OpenAI Wrapper" icon="code" href="/how-to-guides/basics/basic-example" horizontal>
+  Learn how to integrate and use OpenAI's API with Galileo's wrapper client.
+  <br/>
+  **Python**
+</Card>
+
+<Card title="Log Using the @log Decorator" icon="code" href="/how-to-guides/basics/basic-logging-with-decorator/basic-logging-with-decorator" horizontal>
+  Learn how to use the Galileo @log decorator to log functions to traces
+  <br/>
+  **Python**
+</Card>
+
+<Card title="Create Traces and Spans" icon="code" href="/how-to-guides/basics/manual-span-creation/manual-span-creation" horizontal>
+  Learn how to create log traces and spans manually in your AI apps
+  <br/>
+  **Python**
+</Card>
+</CardGroup>
+
+### SDK reference
+
+<CardGroup cols={2}>
+<Card title="Python SDK Reference" icon="python" horizontal href="/sdk-api/python/sdk-reference">
+    The Galileo Python SDK reference.
+</Card>
+<Card title="TypeScript SDK Reference" icon="js" horizontal href="/sdk-api/typescript/sdk-reference">
+    The Galileo TypeScript SDK reference.
+</Card>
+</CardGroup>

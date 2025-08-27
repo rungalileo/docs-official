@@ -1,0 +1,19 @@
+```python Python
+from galileo.openai import openai
+from dotenv import load_dotenv
+load_dotenv()
+
+# Initialize the Galileo OpenAI client wrapper
+client = openai.OpenAI()
+
+# Send a request to the LLM
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "user", "content": "Who was Galileo?"}
+    ],
+)
+
+# Print the response
+print(response.choices[0].message.content.strip())
+```
