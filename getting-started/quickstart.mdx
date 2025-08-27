@@ -1,74 +1,85 @@
 ---
-title: Log and evaluate your first trace
-description: Learn how to get started logging traces and evaluating metrics with Galileo
+title: Hello Galileo!
+description: Already signed up for Galileo? Here's the code to log your first trace
 ---
 
-import PythonOpenAI from "/snippets/content/get-started/python-openai.mdx";
-import PythonAnthropic from "/snippets/content/get-started/python-anthropic.mdx";
-import PythonAzure from "/snippets/content/get-started/python-azure.mdx";
+import SnippetGetStartedSimplePython from "/snippets/code/python/getting-started/getting-started-openai-simple.mdx"
 
-import TypeScriptOpenAI from "/snippets/content/get-started/typescript-openai.mdx";
-import TypeScriptAnthropic from "/snippets/content/get-started/typescript-anthropic.mdx";
-import TypeScriptAzure from "/snippets/content/get-started/typescript-azure.mdx";
+import SnippetGetStartedSimpleTypeScript from "/snippets/code/typescript/getting-started/getting-started-openai-simple.mdx"
 
-import {LanguageAndFrameworkSelector} from '/snippets/components/LanguageAndFrameworkSelector.jsx';
-import {LanguageAndFrameworkSelectorComponent} from '/snippets/components/LanguageAndFrameworkSelectorComponent.jsx';
+This guide assumes you have:
 
-Welcome to Galileo! This quickstart guide will walk you through setting up **your first AI evaluation**. You'll learn how to identify and fix an issue in AI responses using Galileo's powerful metrics.
+- [A Galileo account](https://app.galileo.ai), and an [API key](https://app.galileo.ai/settings/api-keys)
+- An [Open AI API key](https://platform.openai.com/api-keys)
+- Python or TypeScript configured
 
-<CardGroup cols={2}>
-<Card title="Sign up for Galileo" icon="code" horizontal href="/getting-started/sample-projects/sample-projects">
-    Not signed up? Learn how to sign up for Galileo, integrate with an LLM to calculate metrics, and create projects.
-</Card>
-<Card title="Sample Projects" icon="code" horizontal href="/getting-started/sample-projects/sample-projects">
-    Just signed up? Learn how to get started with the Galileo sample projects that are included in every new account.
-</Card>
-</CardGroup>
+<Steps>
+<Step title="Add the Galileo SDK">
 
-This guide works with Python or TypeScript, using OpenAI, Azure OpenAI service, or Anthropic LLMs.
+<CodeGroup>
+```bash Python
+pip install "galileo[openai]" python-dotenv
+```
 
-## What you'll do
+```bash TypeScript
+npm install galileo tsx
+```
+</CodeGroup>
+</Step>
+<Step title="Create a .env file">
 
-In this get started guide, you will:
+Create a `.env` file with the following settings in your application folder. Set your Galileo API key, project name, Log stream name, and your OpenAI API key.
+<br/><br/>
+If you are using the free version of Galileo, leave the `GALILEO_CONSOLE_URL` as `https://app.galileo.ai`, otherwise update this to your deployment URL.
 
-- Configure metrics for your Log stream
-- Create a basic application to send traces to the Log stream from an LLM interaction
-- Evaluate the response from the AI using a metric
-- Improve your app to get a better response from the LLM
-    
-## Select your programming language and LLM
+<CodeGroup>
+```ini .env
+GALILEO_API_KEY="your-galileo-api-key"
+GALILEO_PROJECT="your-galileo-project-name"
+GALILEO_LOG_STREAM="your-galileo-log-stream"
+GALILEO_CONSOLE_URL=https://app.galileo.ai
 
-The Galileo SDK supports Python and TypeScript. We've also customized this guide for the top LLMs. Select your programming language and LLM to continue.
+OPENAI_API_KEY="your-openai-api-key"
+```
+</CodeGroup>
+</Step>
+<Step title="Add the following code">
 
-<LanguageAndFrameworkSelector >
-    <LanguageAndFrameworkSelectorComponent language='Python' framework='OpenAI'>
-        <PythonOpenAI />
-    </LanguageAndFrameworkSelectorComponent>
-    <LanguageAndFrameworkSelectorComponent language='Python' framework='Azure OpenAI Service'>
-        <PythonAzure />
-    </LanguageAndFrameworkSelectorComponent>
-    <LanguageAndFrameworkSelectorComponent language='Python' framework='Anthropic'>
-        <PythonAnthropic />
-    </LanguageAndFrameworkSelectorComponent>
-    <LanguageAndFrameworkSelectorComponent language='TypeScript' framework='OpenAI'>
-        <TypeScriptOpenAI />
-    </LanguageAndFrameworkSelectorComponent>
-    <LanguageAndFrameworkSelectorComponent language='TypeScript' framework='Azure OpenAI Service'>
-        <TypeScriptAzure />
-    </LanguageAndFrameworkSelectorComponent>
-    <LanguageAndFrameworkSelectorComponent language='TypeScript' framework='Anthropic'>
-        <TypeScriptAnthropic />
-    </LanguageAndFrameworkSelectorComponent>
-</LanguageAndFrameworkSelector>
+Create file for your app, and add the following code:
 
-## Summary
+<CodeGroup>
+<SnippetGetStartedSimplePython />
+<SnippetGetStartedSimpleTypeScript />
+</CodeGroup>
+</Step>
+<Step title="Run the app">
+<CodeGroup>
+```bash Python
+python app.py
+```
 
-In this guide you:
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
+</Step>
+<Step title="Check your Log stream">
 
-- Configured metrics for your Log stream, evaluating traces for context adherence
-- Created a basic application to send traces to the Log stream from an LLM interaction
-- Evaluated the response from the AI using a metric
-- Improved your app to get a better response from the LLM
+Open the [Galileo console](https://app.galileo.ai), navigate to your project, and view the Log stream.
+
+You will see a trace for your run. If you have configured an LLM integration, and metrics for your Log stream, you will see the calculated value.
+
+</Step>
+</Steps>
+
+**Congratulations** - you've logged your first trace to Galileo.
+
+## Troubleshooting
+
+- **I need a Galileo API key**: Head to [app.galileo.ai](https://app.galileo.ai) and sign up. Then head to the [API keys](https://app.galileo.ai/settings/api-keys) page to get a new API key.
+- **What's my project name and Log stream name?**: The project and Log stream names were set when you created a new project. If you haven't created a new project, head to Galileo and select the **New Project** button.
+- **I don't have an OpenAI key**: Galileo supports any LLM, with the OpenAI SDK the easiest to get started with. You can spin up an [Ollama](https://ollama.com) instance and use the code above with it, or manually log using any LLM. We have examples with more LLMs in the [log and evaluate your first trace guide](/getting-started/log-and-evaluate-first-trace). Check out the [logger documentation](/sdk-api/logging/logging-basics) for more details.
+- **I don't see any metrics**: For Galileo to calculate metrics, you need to add an [LLM integration](/concepts/metrics/overview#configure-galileo-for-out-of-the-box-and-llm-as-a-judge-metrics), and [turn on metrics for the Log stream](/getting-started/log-and-evaluate-first-trace#configure-metrics-for-your-log-stream). Once done, re-run your app and you will see metrics being calculated.
 
 ## Next steps
 
