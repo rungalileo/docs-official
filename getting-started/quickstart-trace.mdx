@@ -1,0 +1,143 @@
+---
+title: Run Your First Eval
+---
+
+import GalileoOpenAIEnvVars from "/snippets/code/multilingual/env-galileo-openai.mdx"
+
+import SnippetGettingStarted1Python from "/snippets/code/python/getting-started/getting-started-1.mdx";
+import SnippetGettingStarted1TypeScript from "/snippets/code/typescript/getting-started/getting-started-1.mdx";
+
+Get started in minutes — **set up your first AI evaluation** and surface issues with Metrics and Insights.
+
+## Logging your First Trace
+
+This guide uses the **Galileo SDK** to create a simple trace, and the **Galileo Console** to inspect the trace for evaluation.
+
+Follow these **3 steps** to log the first trace with Galileo.
+
+<Steps>
+
+<Step title="Install Galileo SDK">
+
+Install the **Galileo SDK** with OpenAI support.
+
+<CodeGroup>
+```bash Python
+pip install "galileo[openai]"
+```
+
+```bash TypeScript
+npm install galileo --save
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="Create Log stream and Project in the Galileo UI">
+
+Follow these steps to set up your Galileo environment:
+
+1. Go to the [Galileo UI Console](https://app.galileo.ai/) and create an account.
+
+2. After logging in, create an organization (if you haven't done so already!)
+
+3. Within your organization, **create a Project and Log stream**:
+   - Create a new project (e.g., "My First AI Project")
+   - Create a log stream (e.g., "dev", "demo", "experimental")
+
+<Note>
+Set the project and log stream names as environment variables in your dev environment.
+```
+export GALILEO_PROJECT="Your Project Name"
+```
+```
+export GALILEO_LOG_STREAM="Your Log Stream Name"
+```
+</Note>
+
+4. [Generate a Galileo API key](https://app.galileo.ai/settings/api-keys) and set it as an environment variable in your dev environment.
+
+<CodeGroup>
+```
+export GALILEO_API_KEY="YOUR API KEY"
+```
+</CodeGroup>
+
+5. Finally, set your OpenAI API Key. If you don't have one, create one on the [Open AI Developer's Portal](https://platform.openai.com/api-keys).
+<CodeGroup>
+```
+export OPENAI_API_KEY="YOUR OPENAI API KEY"
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="Evaluate a simple OpenAI Request">
+
+Copy the code below into a file.
+
+<CodeGroup>
+  <SnippetGettingStarted1Python />
+  <SnippetGettingStarted1TypeScript />
+</CodeGroup>
+
+<Note title="Tip" type="info">
+If you are using TypeScript, you will also need to configure your code to use ESM. Add the following to your `package.json` file:
+</Note>
+
+```json package.json
+{
+  "type": "module",
+  ... // Existing contents
+}
+```
+
+</Step>
+
+<Step title="See your Results">
+Congratulations 🎉 You just evaluated an LLM request. View your results in the [Galileo console](https://app.galileo.ai/).
+</Step>
+
+</Steps>
+
+### Configure a Metric: Instruction Adherence
+
+Click "Configure Metrics" on the right to open the menu of built-in **Metrics**.
+
+[Metrics](/concepts/metrics) are used to evaluate and track the performance of AI models in your experiments.
+
+![Configure Metrics](/images/console-ui/metrics-open.png)
+
+#### Enabling the Metric
+Click the toggle next to "Instruction Adherence" to add the Metric.
+
+The [instruction adherence](/concepts/metrics/response-quality/instruction-adherence) Metric measures how closely the model's output matches the instructions in the prompt.
+
+![Add Instruction Adherence Metric](/images/console-ui/instruction-adherence-metric.png)
+
+Awesome job on getting this far! You're already an advanced AI Builder. There's a lot more you can do with Galileo. See below.
+
+## Excited to more with Galileo?
+
+<Card title="Build your First App with Galileo" icon="not-equal" href="/getting-started/quickstart" horizontal>
+  Learn how to build an app and do do evaluations and observability with Galileo.
+</Card>
+
+<CardGroup cols={2}>
+<Card title="Create a Dataset" icon="box" href="/concepts/datasets" horizontal>
+  Learn how to create and manage datasets in Galileo.
+
+</Card>
+
+<Card title="Run an Experiment in the Console" icon="hand-pointer" href="/concepts/experiments/running-experiments-in-console" horizontal>
+  Learn how to run experiments in the Galileo Console.
+
+</Card>
+
+<Card title="Run an Experiment with Code" icon="code" href="/concepts/experiments/running-experiments" horizontal>
+  Learn how to run experiments in Galileo.
+</Card>
+<Card title="Compare Experiments with Code" icon="not-equal" href="/concepts/experiments/compare" horizontal>
+  Learn how to compare experiments in Galileo.
+</Card>
+</CardGroup>
