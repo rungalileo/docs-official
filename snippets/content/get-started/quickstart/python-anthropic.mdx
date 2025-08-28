@@ -1,0 +1,79 @@
+import GalileoAnthropicEnvVars from "/snippets/code/multilingual/env-galileo-anthropic-small.mdx"
+import SnippetGettingStartedAnthropicPython from "/snippets/code/python/getting-started/getting-started-anthropic.mdx";
+import LLMOutputNoContext from "/snippets/content/get-started/quickstart/llm-output-no-context.mdx";
+
+## Create your Python project
+
+<Steps>
+
+<Step title="Install dependencies">
+
+Install the **Galileo SDK**, the Anthropic SDK, and the dotenv package using the following command in your terminal:
+
+<CodeGroup>
+```bash Terminal
+pip install galileo python-dotenv anthropic
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="Set up your environment variables">
+
+Create an `.env` file in your project folder, and add your [Galileo API key](https://app.galileo.ai/settings/api-keys), project and Log stream name, as well as your Anthropic credentials.
+
+<CodeGroup>
+  <GalileoAnthropicEnvVars/>
+</CodeGroup>
+
+<Note>
+This assumes you are using a free Galileo account. If you are using a custom deployment, then you will also need to add the URL of your Galileo Console:
+
+```ini .env
+GALILEO_CONSOLE_URL=your-Galileo-console-URL
+```
+</Note>
+</Step>
+<Step title="Create your application code">
+Create a file called `app.py` and add the following code:
+
+<CodeGroup>
+  <SnippetGettingStartedAnthropicPython />
+</CodeGroup>
+
+<Note>
+This code defaults to using Claude 3.7 Sonnet. If you want to use a different model, update the `MODEL_NAME`.
+</Note>
+
+</Step>
+<Step title="Run your application">
+
+Run your application using the following command in your terminal:
+
+<CodeGroup>
+```bash Terminal
+python app.py
+```
+</CodeGroup>
+
+</Step>
+<Step title="View the results in your terminal">
+
+You can see the model's output in your terminal:
+
+<LLMOutputNoContext />
+
+As you can see from the output, the AI has hallucinated! Galileo is an AI reliability platform, not a financial technology platform.
+
+</Step>
+<Step title="See the trace in Galileo">
+
+Open the Log streams for your project in the Galileo console. You will see the trace.
+
+![The first trace in Galileo](/snippets/content/get-started/quickstart/first-trace.webp)
+
+Select the trace, then navigate to the **Messages** tab to see details of the trace.
+
+![The first trace in Galileo](/snippets/content/get-started/quickstart/first-trace-messages.webp)
+</Step>
+</Steps>

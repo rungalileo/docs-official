@@ -75,9 +75,6 @@ export const LanguageAndFrameworkSelector = (props) => {
             </div>
             <div>
                 <div style={{ marginBottom: '0.5em', fontWeight: 'bold' }}>LLM</div>
-                <div style={{ marginBottom: '0.5em' }}>
-                    <span>This LLM will be used for both LLM-as-a-judge metrics, and in your quickstart code.</span>
-                </div>
                 <div>
                     {frameworks.map(fw => (
                         <button
