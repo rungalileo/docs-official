@@ -1,6 +1,6 @@
 ```typescript TypeScript
 import { AzureOpenAI } from "openai";
-import { flush, wrapOpenAI } from "galileo";
+import { flush, wrapOpenAI, getLogger } from "galileo";
 import dotenv from "dotenv";
 
 // Load the environment variables
@@ -32,4 +32,14 @@ console.log(response.choices[0].message.content);
 
 // Flush logs before exiting
 await flush();
+
+// Show Galileo information after the response
+const galileoLogger = getLogger();
+const projectUrl = `${process.env.GALILEO_CONSOLE_URL}/project/${galileoLogger.client.projectId}`;
+const logStreamUrl = `${projectUrl}/log-streams/${galileoLogger.client.logStreamId}`;
+
+console.log();
+console.log("🚀 GALILEO LOG INFORMATION:");
+console.log(`🔗 Project   : ${projectUrl}`);
+console.log(`📝 Log Stream: ${logStreamUrl}`);
 ```

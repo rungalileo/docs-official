@@ -29,4 +29,15 @@ response = client.chat.completions.create(
 
 # Print the response
 print(response.choices[0].message.content.strip())
+
+# Show Galileo information after the response
+config = GalileoPythonConfig.get()
+logger = galileo_context.get_logger_instance()
+project_url = f"{config.console_url}project/{logger.project_id}"
+log_stream_url = f"{project_url}/log-streams/{logger.log_stream_id}"
+
+print()
+print("🚀 GALILEO LOG INFORMATION:")
+print(f"🔗 Project   : {project_url}")
+print(f"📝 Log Stream: {log_stream_url}")
 ```
