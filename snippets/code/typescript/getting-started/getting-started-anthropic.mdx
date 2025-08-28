@@ -6,75 +6,76 @@ import dotenv from "dotenv";
 // Load the environment variables
 dotenv.config();
 
-// Get the Galileo logger instance
-const galileoLogger = getLogger();
-
-// Start a session
-await galileoLogger.startSession();
-
 // Create an Anthropic client
 const client = new Anthropic();
 
 // Define a system prompt with guidance
 const systemPrompt = `
 You are a helpful assistant that wants to provide a user as much information
-as possible. Be helpful and leverage all your knowledge to answer the users
-question. Avoid saying I don't know.
-`
+as possible. Avoid saying I don't know.
+`;
 
 // Define a user prompt with a question
-const userPrompt = "Describe Galileo"
+const userPrompt = "Describe Galileo";
 
-const modelName = "claude-3-7-sonnet-latest"
+const modelName = "claude-3-7-sonnet-latest";
 
-// Start a trace
-galileoLogger.startTrace({name: "Conversation step", input: userPrompt})
+// Get the Galileo logger instance
+const galileoLogger = getLogger();
 
-// Define the messages to send
-const messages: Anthropic.Messages.MessageParam[] = [
-    {"role": "user", "content": userPrompt}
-]
+(async () => {
+    // Start a session
+    await galileoLogger.startSession();
 
-// Capture the current time in nanoseconds for logging
-function getNanoSecTime(): number {
-    var hrTime = process.hrtime();
-    return hrTime[0] * 1000000000 + hrTime[1];
-}
+    // Start a trace
+    galileoLogger.startTrace({name: "Conversation step", input: userPrompt});
 
-const startTimeNs = getNanoSecTime();
+    // Define the messages to send
+    const messages: Anthropic.Messages.MessageParam[] = [
+        {"role": "user", "content": userPrompt}
+    ];
 
-// Send a request to the LLM
-const response = await client.messages.create({
-    max_tokens: 1024,
-    messages: messages,
-    system: systemPrompt,
-    model: modelName,
-});
+    // Capture the current time in nanoseconds for logging
+    function getNanoSecTime(): number {
+        var hrTime = process.hrtime();
+        return hrTime[0] * 1000000000 + hrTime[1];
+    };
 
-// Log an LLM span using the response from Anthropic
-galileoLogger.addLlmSpan({
-    input: messages,
-    output: (response.content[0] as Anthropic.TextBlock).text,
-    model: modelName,
-    numInputTokens: response.usage?.input_tokens,
-    numOutputTokens: response.usage?.output_tokens,
-    totalTokens: (response.usage?.input_tokens ?? 0) + (response.usage?.output_tokens ?? 0),
-    durationNs: getNanoSecTime() - startTimeNs,
-});
+    const startTimeNs = getNanoSecTime();
 
-/// Conclude and flush the logger
-galileoLogger.conclude({output: (response.content[0] as Anthropic.TextBlock).text});
-galileoLogger.flush();
+    // Send a request to the LLM
+    const response = await client.messages.create({
+        max_tokens: 1024,
+        messages: messages,
+        system: systemPrompt,
+        model: modelName,
+    });
 
-// Log the response
-console.log((response.content[0] as Anthropic.TextBlock).text);
+    // Log an LLM span using the response from Anthropic
+    galileoLogger.addLlmSpan({
+        input: userPrompt,
+        output: (response.content[0] as Anthropic.TextBlock).text,
+        model: modelName,
+        numInputTokens: response.usage?.input_tokens,
+        numOutputTokens: response.usage?.output_tokens,
+        totalTokens: (response.usage?.input_tokens ?? 0) + (response.usage?.output_tokens ?? 0),
+        durationNs: getNanoSecTime() - startTimeNs,
+    });
 
-// Show Galileo information after the response
-const projectUrl = `${process.env.GALILEO_CONSOLE_URL}/project/${galileoLogger.client.projectId}`;
-const logStreamUrl = `${projectUrl}/log-streams/${galileoLogger.client.logStreamId}`;
+    /// Conclude and flush the logger
+    galileoLogger.conclude({output: (response.content[0] as Anthropic.TextBlock).text});
+    await galileoLogger.flush();
 
-console.log();
-console.log("🚀 GALILEO LOG INFORMATION:");
-console.log(`🔗 Project   : ${projectUrl}`);
-console.log(`📝 Log Stream: ${logStreamUrl}`);
+    // Log the response
+    console.log((response.content[0] as Anthropic.TextBlock).text);
+
+    // Show Galileo information after the response
+    const projectUrl = `${process.env.GALILEO_CONSOLE_URL}/project/${galileoLogger.client.projectId}`;
+    const logStreamUrl = `${projectUrl}/log-streams/${galileoLogger.client.logStreamId}`;
+
+    console.log();
+    console.log("🚀 GALILEO LOG INFORMATION:");
+    console.log(`🔗 Project   : ${projectUrl}`);
+    console.log(`📝 Log Stream: ${logStreamUrl}`);
+})();
 ```
