@@ -1,17 +1,21 @@
-import GalileoAzureOpenAIEnvVars from "/snippets/code/multilingual/env-galileo-azure-openai.mdx"
-import SnippetGettingStartedAzureOpenAITypeScript from "/snippets/code/typescript/getting-started/getting-started-azure-openai.mdx";
+import GalileoOpenAIEnvVars from "/snippets/code/multilingual/env-galileo-openai-small.mdx"
+import SnippetGettingStartedOpenAIPython from "/snippets/code/python/getting-started/getting-started-openai.mdx";
+import SnippetGettingStartedOpenAITypeScript from "/snippets/code/typescript/getting-started/getting-started-openai.mdx";
 import LLMOutputNoContext from "/snippets/content/get-started/quickstart/llm-output-no-context.mdx";
 
-## Create your TypeScript project
+## Create your project
 
 <Steps>
 
 <Step title="Install dependencies">
 
-Install the **Galileo SDK** using the following command in your terminal:
+Install the **Galileo SDK** with OpenAI support, and the dotenv package using the following command in your terminal:
 
 <CodeGroup>
-```bash Terminal
+```bash Python
+pip install "galileo[openai]" python-dotenv
+```
+```bash TypeScript
 npm install galileo tsx
 ```
 </CodeGroup>
@@ -20,9 +24,10 @@ npm install galileo tsx
 
 <Step title="Set up your environment variables">
 
-Create an `.env` file in your project folder, and add your [Galileo API key](https://app.galileo.ai/settings/api-keys), project and Log stream name, as well as your Azure OpenAI credentials.
+Create an `.env` file in your project folder, and add your [Galileo API key](https://app.galileo.ai/settings/api-keys), project and Log stream name, as well as your OpenAI credentials.
+
 <CodeGroup>
-<GalileoAzureOpenAIEnvVars/>
+  <GalileoOpenAIEnvVars/>
 </CodeGroup>
 
 <Note>
@@ -34,14 +39,15 @@ GALILEO_CONSOLE_URL=your-Galileo-console-URL
 </Note>
 </Step>
 <Step title="Create your application code">
-Create a file called `app.ts` and add the following code:
+Create a file called `app.py` (Python) or `app.ts` (TypeScript) and add the following code:
 
 <CodeGroup>
-  <SnippetGettingStartedAzureOpenAITypeScript />
+  <SnippetGettingStartedOpenAIPython />
+  <SnippetGettingStartedOpenAITypeScript />
 </CodeGroup>
 
 <Note>
-This code defaults to using GPT-4o mini. If you want to use a different model, update the `model` in the call to `chat.completions.create`. For this get started guide, use the smallest, oldest model possible to get the best results - you want to see the AI behaving badly!
+This code defaults to using GPT-4o mini. If you want to use a different model, update the `model` in the call to `chat.completions.create`.
 </Note>
 
 </Step>
@@ -50,7 +56,10 @@ This code defaults to using GPT-4o mini. If you want to use a different model, u
 Run your application using the following command in your terminal:
 
 <CodeGroup>
-```bash Terminal
+```bash Python
+python app.py
+```
+```bash TypeScript
 npx tsx app.ts
 ```
 </CodeGroup>
