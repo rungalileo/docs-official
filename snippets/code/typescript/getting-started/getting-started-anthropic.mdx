@@ -1,10 +1,18 @@
 ```typescript TypeScript
 import Anthropic from '@anthropic-ai/sdk';
-import { getLogger } from "galileo";
+import { getLogger, init } from "galileo";
 import dotenv from "dotenv";
 
 // Load the environment variables
 dotenv.config();
+
+// Set the project and log stream, these are created if they don't exist.
+// You can also set these using the GALILEO_PROJECT and GALILEO_LOG_STREAM
+// environment variables.
+init({
+    projectName: "MyFirstEvaluation",
+    logStreamName: "MyFirstLogStream"
+});
 
 // Create an Anthropic client
 const client = new Anthropic();

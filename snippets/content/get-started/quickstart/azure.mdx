@@ -1,4 +1,3 @@
-import GalileoAzureOpenAIEnvVars from "/snippets/code/multilingual/getting-started/env-galileo-azure-openai-small.mdx"
 import SnippetGettingStartedAzureOpenAIPython from "/snippets/code/python/getting-started/getting-started-azure-openai.mdx";
 import SnippetGettingStartedAzureOpenAITypeScript from "/snippets/code/typescript/getting-started/getting-started-azure-openai.mdx";
 import LLMOutputNoContext from "/snippets/content/get-started/quickstart/llm-output-no-context.mdx";
@@ -22,12 +21,17 @@ npm install galileo tsx dotenv
 
 <Step title="Set up your environment variables">
 
-Create an `.env` file in your project folder, and add your [Galileo API key](https://app.galileo.ai/settings/api-keys), as well as your Azure OpenAI credentials.
-
-This will create a new project in Galileo called **MyFirstEvaluation**, with a Log stream called **MyFirstLogStream**.
+Create an `.env` file in your project folder, and set:
+- Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
+- Your Azure OpenAI Service API key
+- Your Azure OpenAI Service endpoint
 
 <CodeGroup>
-  <GalileoAzureOpenAIEnvVars/>
+```ini .env
+GALILEO_API_KEY="your-galileo-api-key"
+AZURE_OPENAI_API_KEY="your-azure-openai-api-key"
+AZURE_OPENAI_ENDPOINT="your-azure-openai-api-key" 
+```
 </CodeGroup>
 
 </Step>
@@ -38,6 +42,8 @@ Create a file called `app.py` (Python) or `app.ts` (TypeScript) and add the foll
   <SnippetGettingStartedAzureOpenAIPython />
   <SnippetGettingStartedAzureOpenAITypeScript />
 </CodeGroup>
+
+This will create a new project in Galileo called **MyFirstEvaluation**, with a Log stream called **MyFirstLogStream**. It will then log a trace using the call to the LLM.
 
 <Note>
 This code defaults to using GPT-4o mini. If you want to use a different model, update the `model` in the call to `chat.completions.create`.

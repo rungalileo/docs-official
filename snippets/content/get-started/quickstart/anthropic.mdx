@@ -1,4 +1,3 @@
-import GalileoAnthropicEnvVars from "/snippets/code/multilingual/getting-started/env-galileo-anthropic-small.mdx"
 import SnippetGettingStartedAnthropicPython from "/snippets/code/python/getting-started/getting-started-anthropic.mdx";
 import SnippetGettingStartedAnthropicTypeScript from "/snippets/code/typescript/getting-started/getting-started-anthropic.mdx";
 import LLMOutputNoContext from "/snippets/content/get-started/quickstart/llm-output-no-context.mdx";
@@ -22,12 +21,15 @@ npm install galileo tsx  dotenv @anthropic-ai/sdk
 
 <Step title="Set up your environment variables">
 
-Create an `.env` file in your project folder, and add your [Galileo API key](https://app.galileo.ai/settings/api-keys) as well as your [Anthropic credentials](https://console.anthropic.com/settings/keys).
-
-This will create a new project in Galileo called **MyFirstEvaluation**, with a Log stream called **MyFirstLogStream**.
+Create an `.env` file in your project folder, and set:
+- Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
+- Your [Anthropic API key](https://console.anthropic.com/settings/keys)
 
 <CodeGroup>
-  <GalileoAnthropicEnvVars/>
+```ini .env
+GALILEO_API_KEY="your-galileo-api-key"
+ANTHROPIC_API_KEY="your-anthropic-api-key"
+```
 </CodeGroup>
 
 </Step>
@@ -38,6 +40,8 @@ Create a file called `app.py` (Python) or `app.ts` (TypeScript) and add the foll
   <SnippetGettingStartedAnthropicPython />
   <SnippetGettingStartedAnthropicTypeScript />
 </CodeGroup>
+
+This will create a new project in Galileo called **MyFirstEvaluation**, with a Log stream called **MyFirstLogStream**. It will then log a trace using the call to the LLM.
 
 <Note>
 This code defaults to using Claude 3.7 Sonnet. If you want to use a different model, update the `MODEL_NAME`.

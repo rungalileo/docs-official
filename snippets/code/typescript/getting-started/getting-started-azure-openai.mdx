@@ -1,10 +1,18 @@
 ```typescript TypeScript
 import { AzureOpenAI } from "openai";
-import { flush, wrapOpenAI, getLogger } from "galileo";
+import { flush, getLogger, init, wrapOpenAI } from "galileo";
 import dotenv from "dotenv";
 
 // Load the environment variables
 dotenv.config();
+
+// Set the project and log stream, these are created if they don't exist.
+// You can also set these using the GALILEO_PROJECT and GALILEO_LOG_STREAM
+// environment variables.
+init({
+    projectName: "MyFirstEvaluation",
+    logStreamName: "MyFirstLogStream"
+});
 
 // Create an Azure OpenAI service wrapper
 const openai = wrapOpenAI(new AzureOpenAI({apiVersion:"2024-12-01-preview"}));
