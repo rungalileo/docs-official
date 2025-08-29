@@ -15,7 +15,7 @@ init({
 });
 
 // Create an Azure OpenAI service wrapper
-const openai = wrapOpenAI(new AzureOpenAI({apiVersion:"2024-12-01-preview"}));
+const openai = wrapOpenAI(new AzureOpenAI({ apiVersion: "2024-12-01-preview" }));
 
 // Define a system prompt with guidance
 const systemPrompt = `
@@ -27,29 +27,29 @@ as possible. Avoid saying I don't know.
 const userPrompt = "Describe Galileo";
 
 (async () => {
-  // Send a request to the LLM
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt }
-    ],
-  });
+    // Send a request to the LLM
+    const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+        ],
+    });
 
-  // Log the response
-  console.log(response.choices[0].message.content);
+    // Log the response
+    console.log(response.choices[0].message.content);
 
-  // Flush logs before exiting
-  await flush();
+    // Flush logs before exiting
+    await flush();
 
-  // Show Galileo information after the response
-  const galileoLogger = getLogger();
-  const projectUrl = `${process.env.GALILEO_CONSOLE_URL}/project/${galileoLogger.client.projectId}`;
-  const logStreamUrl = `${projectUrl}/log-streams/${galileoLogger.client.logStreamId}`;
+    // Show Galileo information after the response
+    const galileoLogger = getLogger();
+    const projectUrl = `${process.env.GALILEO_CONSOLE_URL}/project/${galileoLogger.client.projectId}`;
+    const logStreamUrl = `${projectUrl}/log-streams/${galileoLogger.client.logStreamId}`;
 
-  console.log();
-  console.log("🚀 GALILEO LOG INFORMATION:");
-  console.log(`🔗 Project   : ${projectUrl}`);
-  console.log(`📝 Log Stream: ${logStreamUrl}`);
+    console.log();
+    console.log("🚀 GALILEO LOG INFORMATION:");
+    console.log(`🔗 Project   : ${projectUrl}`);
+    console.log(`📝 Log Stream: ${logStreamUrl}`);
 })();
 ```
