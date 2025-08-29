@@ -1,0 +1,171 @@
+---
+title: Evaluate your Traces
+description: Learn how to evaluating metrics for your logged trace with Galileo, and improve your application
+---
+
+import SnippetUpdatedSystemPromptPython from "/snippets/code/python/getting-started/reference-data-system-prompt.mdx";
+import SnippetUpdatedSystemPromptTypeScript from "/snippets/code/typescript/getting-started/reference-data-system-prompt.mdx";
+
+In the [log to Galileo guide](/getting-started/quickstart), you logged your first trace to Galileo. In this guide, you will evaluate the response from the LLM using the [context adherence metric](/concepts/metrics/response-quality/context-adherence), then improve the prompt, and re-evaluate your application.
+
+## Configure metrics for your Log stream
+
+To evaluate metrics, you need to set up an LLM integration, then configure which metrics are evaluated against each logged trace.
+
+<Steps>
+<Step title="Open the integrations page">
+Navigate to the [LLM integrations page](https://app.galileo.ai/settings/integrations). Select the user menu in the top right, then select **Integrations**.
+
+<Columns cols={2}>
+![The integrations menu](/concepts/metrics/integrations/user-menu-integrations.webp)
+</Columns>
+</Step>
+<Step title="Add an integration">
+Locate the option for the LLM platform you are using, then select the **+Add Integration** button.
+
+![The add integration button](/concepts/metrics/integrations/openai-integration-selected.webp)
+</Step>
+<Step title="Add the settings">
+
+Set the relevant settings for your integration, such as your API keys or endpoints. Then select **Save**.
+
+<Columns cols={2}>
+![The OpenAI integrations pane](/concepts/metrics/integrations/openai-integration-api-key.webp)
+</Columns>
+</Step>
+
+<Step title="Open your project">
+From the [Galileo console](https://app.galileo.ai), select your project.
+</Step>
+<Step title="Open the Log stream">
+Open the Log stream for your project by selecting the **View all logs** button.
+
+![The view all logs](/getting-started/evaluate-and-improve/view-all-logs-button.webp)
+</Step>
+<Step title="Open the configure metrics pane">
+Open the configure metrics pane by selecting the **Configure Metrics** button.
+
+![The view all logs](/getting-started/evaluate-and-improve/configure-metrics-button.webp)
+</Step>
+<Step title="Turn on Context Adherence">
+For this get started guide, you will be using [Context Adherence](/concepts/metrics/response-quality/context-adherence) to evaluate an AI response. Search for this metric and turn it on.
+
+![The context adherence metric turned on](/getting-started/evaluate-and-improve/context-adherence-turned-on.webp)
+
+Once this is on, select the **Save and close** button.
+</Step>
+</Steps>
+
+Your Log stream is now configured. Every time a trace is logged with an LLM span, this will be evaluated for context adherence. You can read more about context adherence in our [metrics guide](/concepts/metrics/response-quality/context-adherence).
+
+## Log a trace with the calculated metric
+
+<Steps>
+<Step title="Run your application">
+Now that you have metrics turned on for your Log stream, re-run your application to generate another trace. This time the context adherence metric will be calculated.
+
+<CodeGroup>
+```bash Python
+python app.py
+```
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
+
+</Step>
+<Step title="Open the Log stream in the Galileo console">
+In the Galileo console, select your project, choose the Log stream, and select **View all logs**.
+</Step>
+<Step title="Select the Traces tab">
+You can see the trace that was just logged in the **Traces** tab. The context adherence metric will be calculated, showing  low score.
+
+![A logged trace with a 0% context adherence](/getting-started/evaluate-and-improve/log-stream-traces-low-context-adherence.webp)
+</Step>
+<Step title="Get more information on the evaluation">
+Select the trace to drill down for more information. Select the LLM span, and use the arrow next to the context adherence score to see an explanation of the metric.
+
+![The trace details with an explanation of the metric](/getting-started/evaluate-and-improve/trace-messages-low-context-adherence.webp)
+</Step>
+</Steps>
+
+This shows a typical problem with an AI application - the LLM doesn't have enough relevant context to answer a question correctly, so hallucinates, or uses irrelevant information from its training data. Let's now fix this, and show the fix with an improved evaluation score.
+
+## Improve your application
+
+To improve the context adherence score, you can provide relevant context to the LLM in the system.
+
+<Steps>
+<Step title="Add relevant context to your system prompt">
+To improve the context adherence, you can add relevant context to the system prompt. This is similar to adding extra information from a RAG system.
+<br/><br/>
+Update your code, replacing the code to set the system prompt with the following:
+
+<CodeGroup>
+    <SnippetUpdatedSystemPromptPython />
+    <SnippetUpdatedSystemPromptTypeScript />
+</CodeGroup>
+</Step>
+<Step title="Run your application">
+
+Run your application again to log a new trace.
+
+</Step>
+<Step title="View the results in your terminal">
+Now the results should show relevant information:
+
+<CodeGroup>
+```output Terminal wrap
+Galileo is an advanced platform designed to streamline the development and deployment of reliable AI applications. It focuses on enhancing the efficiency of AI evaluations through automation and insightful metrics. Here are some of the key features and benefits of using Galileo:
+
+1. **Automated Evaluations**: Galileo significantly reduces the time spent on manual reviews by automating the evaluation process. This can eliminate up to 80% of evaluation time through the use of high-accuracy, adaptive metrics. Both offline and online testing of AI features are supported, allowing for a more structured and rigorous CI/CD (Continuous Integration/Continuous Delivery) approach within AI workflows.
+
+2. **Rapid Iteration**: The platform accelerates the iteration process, enabling teams to ship new features 20% faster. It automates the testing of multiple prompts and models, helping teams quickly identify the best performance for different test sets. When issues arise, Galileo aids in pinpointing failure modes and root causes, which streamlines the troubleshooting process.
+
+3. **CI/CD Integration**: By introducing CI/CD rigor to AI workflows, Galileo ensures that AI models undergo continuous testing and improvement, ultimately boosting the quality and reliability of applications being deployed.
+
+In summary, Galileo is a powerful tool for teams seeking to enhance their AI app development capabilities by utilizing automation and insightful metrics for evaluations, leading to faster iterations and improved reliability.
+```
+</CodeGroup>
+</Step>
+<Step title="Check the new trace">
+A new trace will have been logged. This time, the context adherence score will be higher. Select the trace to see more details.
+
+![The trace details with an explanation of the metric](/getting-started/evaluate-and-improve/trace-messages-high-context-adherence.webp)
+</Step>
+</Steps>
+
+🎉 **Congratulations**, you have evaluated a trace, and used the results of the evaluation to improve your AI application.
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="Sample projects" icon="code" horizontal href="/getting-started/sample-projects/sample-projects">
+    Learn how to get started with the Galileo sample projects that are included in every new account.
+</Card>
+<Card title="Integrate with third-party frameworks" icon="code" horizontal href="/sdk-api/third-party-integrations/overview">
+    Learn about the Galileo integrations with third-party SDKs to automatically log your applications
+</Card>
+</CardGroup>
+
+### How-to guides
+
+<CardGroup cols={2}>
+<Card title="How-to guides" icon="code" horizontal href="/how-to-guides/overview">
+    Learn how to perform common tasks with Galileo, work with third-party integrations, and use evaluations to solve AI problems
+</Card>
+<Card title="Cookbooks" icon="book" horizontal href="/cookbooks/overview">
+    Learn how to perform common tasks with Galileo, work with third-party integrations, and use evaluations to solve AI problems
+</Card>
+</CardGroup>
+
+### SDK reference
+
+<CardGroup cols={2}>
+<Card title="Python SDK Reference" icon="python" horizontal href="/sdk-api/python/sdk-reference">
+    The Galileo Python SDK reference.
+</Card>
+<Card title="TypeScript SDK Reference" icon="js" horizontal href="/sdk-api/typescript/sdk-reference">
+    The Galileo TypeScript SDK reference.
+</Card>
+</CardGroup>

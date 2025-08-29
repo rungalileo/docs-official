@@ -1,0 +1,76 @@
+import GalileoOpenAIEnvVars from "/snippets/code/multilingual/getting-started/env-galileo-openai-small.mdx"
+import SnippetGettingStartedOpenAIPython from "/snippets/code/python/getting-started/getting-started-openai.mdx";
+import SnippetGettingStartedOpenAITypeScript from "/snippets/code/typescript/getting-started/getting-started-openai.mdx";
+import LLMOutputNoContext from "/snippets/content/get-started/quickstart/llm-output-no-context.mdx";
+
+<Steps>
+
+<Step title="Install dependencies">
+
+Install the **Galileo SDK** with OpenAI support, and the dotenv package using the following command in your terminal:
+
+<CodeGroup>
+```bash Python
+pip install "galileo[openai]" python-dotenv
+```
+```bash TypeScript
+npm install galileo tsx dotenv
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="Set up your environment variables">
+
+Create an `.env` file in your project folder, and add your [Galileo API key](https://app.galileo.ai/settings/api-keys), as well as your [OpenAI credentials](https://platform.openai.com/settings/organization/api-keys).
+
+This will create a new project in Galileo called **MyFirstEvaluation**, with a Log stream called **MyFirstLogStream**.
+
+<CodeGroup>
+  <GalileoOpenAIEnvVars/>
+</CodeGroup>
+
+</Step>
+<Step title="Create your application code">
+Create a file called `app.py` (Python) or `app.ts` (TypeScript) and add the following code:
+
+<CodeGroup>
+  <SnippetGettingStartedOpenAIPython />
+  <SnippetGettingStartedOpenAITypeScript />
+</CodeGroup>
+
+<Note>
+This code defaults to using GPT-4o mini. If you want to use a different model, update the `model` in the call to `chat.completions.create`.
+</Note>
+
+</Step>
+<Step title="Run your application">
+
+Run your application using the following command in your terminal:
+
+<CodeGroup>
+```bash Python
+python app.py
+```
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
+
+</Step>
+<Step title="View the results in your terminal">
+
+<LLMOutputNoContext />
+
+</Step>
+<Step title="See the trace in Galileo">
+
+Open the Log stream for your project in the Galileo console using the URL output to your terminal. You will see the logged trace.
+
+![The first trace in Galileo](/snippets/content/get-started/quickstart/first-trace.webp)
+
+Select the trace, then navigate to the **Messages** tab to see details of the trace.
+
+![The first trace in Galileo](/snippets/content/get-started/quickstart/first-trace-messages.webp)
+</Step>
+</Steps>
