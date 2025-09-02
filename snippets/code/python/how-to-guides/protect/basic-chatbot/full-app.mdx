@@ -1,46 +1,76 @@
 ```python app.py
+"""
+app.py — Interactive chat demo with a Galileo Protect Stage.
+"""
+
+import os
+from dotenv import load_dotenv
+
 from galileo.openai import openai
 from galileo.protect import invoke_protect
-
-from galileo_core.schemas.protect.execution_status import (
-    ExecutionStatus
-)
+from galileo.stages import get_protect_stage
+from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload
 
-from dotenv import load_dotenv
+# Load env var
 load_dotenv()
+project_name = os.environ.get("GALILEO_PROJECT")
+if not project_name:
+    raise RuntimeError("Please set GALILEO_PROJECT in your environment or .env file.")
 
+# Ensure stage exists
+try:
+    stage = get_protect_stage(project_name=project_name, stage_name="Toxicity Stage")
+    print(f"✅ Using stage '{stage.name}' (id={stage.id}) in project '{project_name}'")
+except Exception:
+    raise RuntimeError(
+        "Stage 'Toxicity Stage' not found. Run create_central_stage.py first."
+    )
+
+# Initialize OpenAI client
 client = openai.OpenAI()
+print("\nConversation started. Press Ctrl-C to exit.\n")
 
 while True:
-    # Get the input from the user
-    user_input = input("User: ")
-
-    if user_input.lower() in ["bye", "goodbye", ""]:
+    try:
+        user_input = input("🧑 User: ").strip()
+    except KeyboardInterrupt:
+        print("\nSession ended.")
         break
 
-    # Create the payload
-    payload = Payload(
-        input=user_input
-    )
+    if not user_input:
+        continue
 
-    # Invoke the runtime protection
-    protection_response = invoke_protect(
+    payload = Payload(input=user_input)
+
+    # 1. Run Protect check
+    resp = invoke_protect(
+        project_name=project_name,
         stage_name="Toxicity Stage",
-        payload=payload
+        payload=payload,
     )
 
-    # Check the runtime protection status
-    if protection_response.status == ExecutionStatus.triggered:
-        # If the ruleset is triggered, print the action result
-        print(f"Assistant: {protection_response.action_result['value']}")
-        # Skip the LLM call and end the conversation
-        break
+    # 2. Handle Protect results
+    if resp.status == ExecutionStatus.triggered:
+        print(f"🤖 Assistant (guardrail): {resp.action_result['value']}")
+        # Show why it triggered (metric evaluations)
+        for rs in resp.model_dump().get("ruleset_results", []):
+            for rr in rs.get("rule_results", []):
+                print(
+                    f"   ↳ {rr['metric']} = {rr['value']} "
+                    f"(threshold {rr['operator']} {rr['target_value']}) "
+                    f"=> {rr['status']}"
+                )
+        continue
 
-    response = client.chat.completions.create(
-        model="gpt-4.1-mini",
-        messages=[{"role": "user", "content": user_input}],
-    )
-
-    print(f"Assistant: {response.choices[0].message.content.strip()}")
+    if resp.status == ExecutionStatus.not_triggered:
+        print("(Guardrail passed ✅ — sending to LLM)")
+        response = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[{"role": "user", "content": user_input}],
+        )
+        print(f"🤖 Assistant: {response.choices[0].message.content.strip()}")
+    else:
+        print(f"⚠️ Protect returned unexpected status: {resp.status}")
+        print(resp.model_dump())
 ```

@@ -23,13 +23,17 @@ import SnippetFullAppPython from "/snippets/code/python/how-to-guides/protect/ba
 
 This guide explains how to add runtime protection to a simple chatbot.
 
+<Note>
+Luna-2 is only available in the Enterprise tier of Galileo. If you’d like access to Luna‑2 for enterprise runtime protection, please [contact us](https://galileo.ai/contact-sales).
+</Note>
+
 You will be running a basic chatbot, detecting toxicity in the users input, and if this is detected, ending the conversation. You will start by creating a central stage, as if you were an AI governance team. You will then use this stage in a simple chatbot.
 
 In a real-world scenario, you could use this detection to redirect a user from an AI chatbot to a human representative.
 
 In this guide you will:
 
-1. [Set up your project with Galileo](#install-dependencies)
+1. [Set up a project with Galileo](#install-dependencies)
 1. [Create a central stage](#create-a-central-stage)
 1. [Create a basic chatbot](#create-a-basic-chatbot)
 1. [Add runtime protection to your basic chatbot](#add-runtime-protection-to-your-basic-chatbot)
@@ -50,7 +54,7 @@ You first need to create a central stage. In a real-world scenario, these centra
 
 <Steps>
 <Step title="Create a Python file to create the stage called `create_central_stage.py`">
-This file will define a rule that is triggered if the input toxicity is evaluated to greater than 0.1. This will then be added to a ruleset with an override action with 3 choices of response.
+This file will define a rule that is triggered if the input toxicity is evaluated to greater than 0.01. This will then be added to a ruleset with an override action with 3 choices of response.
 
 This ruleset will be added to a central stage, registered in your project.
 </Step>
@@ -62,7 +66,7 @@ Start by adding import directives to import all the functions and types needed f
 </CodeGroup>
 </Step>
 <Step title="Create the rule">
-Add code to create a rule. This rule is triggered if the input toxicity is greater than 0.1.
+Add code to create a rule. This rule is triggered if the input toxicity is greater than 0.01.
 
 <CodeGroup>
 <SnippetCreateRulePython/>
@@ -97,6 +101,12 @@ Run your code to create the central stage.
 python create_central_stage.py
 ```
 </CodeGroup>
+
+```output Terminal wrap
+➜ python create_central_stage.py
+👋 You have logged into 🔭 Galileo (<your-galileo-console-url>) as <your-email>.
+✅ Created stage: Toxicity Stage (id=<stage-id>) in project '<your-project-name>'.
+```
 
 <Note>
 If you get errors showing the stage has already been created (for example, someone else working through this on the same project), then change the name of the stage and run this again.
@@ -137,15 +147,20 @@ python app.py
 
 ```output Terminal wrap
 ➜ python app.py
-User: Who was Galileo
-Assistant: Galileo Galilei was an Italian astronomer, physicist and engineer, sometimes described as a polymath. Galileo has been called the "father of observational astronomy", the "father of modern physics", the "father of the scientific method", and the "father of modern science". He is known for his works in areas like improvements to the telescope and consequent astronomical observations, and his support for Copernicanism—the idea that the Earth revolves around the Sun. His works and contributions have deeply impacted modern scientific methods. He was born on February 15, 1564, and died on January 8, 1642.
+Conversation started. Press Ctrl-C to exit.
+
+🧑 User: Who was Galileo?
+👋 You have logged into 🔭 Galileo (<your-galileo-console-url>) as <your-email>.
+🤖 Assistant: Galileo Galilei was an Italian astronomer and physicist, often called the "father of modern science."
+🧑 User: ^C
+Session ended.
 ```
 </Step>
 </Steps>
 
 ## Add runtime protection to your basic chatbot
 
-Now you have a chatbot, you can add runtime protection. In this case, you will be checking the input for toxicity, and if the input is toxic, ending the conversation.
+Now you’ll add runtime protection. In this case, the chatbot will check each user input for toxicity. If an input is toxic, Protect will trigger and return an override response instead of sending the input to the LLM. The conversation continues, but the toxic input never reaches the model.
 
 <Steps>
 <Step title="Add import directives">
@@ -176,7 +191,8 @@ The response will tell you if the rule has been triggered. If it is triggered, i
 <SnippetCheckProtectResponsePython/>
 </CodeGroup>
 
-If the stage is triggered, this code prints out the selected choice from the override action, and breaks out of the `while` loop, ending the conversation.
+If the stage is triggered, this code prints out the selected choice from the override action, shows which rule triggered (including the score vs threshold), and prevents the toxic input from being forwarded to the LLM.
+The conversation will continue for further safe inputs.
 </Step>
 
 <Step title="Run your code">
@@ -190,14 +206,36 @@ python app.py
 
 ```output Terminal
 ➜ python app.py
-User: You are a terrible AI and I hate you
-Assistant: This is not appropriate. I'm ending this conversation.
+👋 You have logged into 🔭 Galileo (<your-galileo-console-url>) as <your-email>.
+✅ Using stage 'Toxicity Stage' (id=<stage-id>) in project '<your-project-name>'
+
+Conversation started. Press Ctrl-C to exit.
+
+🧑 User: Who is Galileo?
+(Guardrail passed ✅ — sending to LLM)
+🤖 Assistant: Galileo Galilei was an Italian astronomer and physicist, often called the "father of modern science."
+
+🧑 User: You are a terrible AI and I hate you
+🤖 Assistant (guardrail): Content flagged: please rephrase your input.
+   ↳ input_toxicity = 0.1669 (threshold gt 0.01) => TRIGGERED
+
+🧑 User: Are you stupid?
+🤖 Assistant (guardrail): Content flagged: please rephrase your input.
+   ↳ input_toxicity = 0.9937 (threshold gt 0.01) => TRIGGERED
+
+🧑 User: Why do some people exercise hate speech?
+(Guardrail passed ✅ — sending to LLM)
+🤖 Assistant: People may engage in hate speech for reasons such as prejudice, ignorance, peer influence, or ideology. Addressing it often involves education and fostering inclusive environments.
+
+🧑 User: ^C
+Session ended.
 ```
 
 <Accordion title="The full app.py code">
 <SnippetFullAppPython/>
 </Accordion>
 </Step>
+
 </Steps>
 
 You've successfully added runtime protection to a basic chatbot.
