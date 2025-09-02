@@ -1,0 +1,21 @@
+```python Python
+from galileo.projects import get_project, create_project
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+project_name = os.environ.get("GALILEO_PROJECT")
+if not project_name:
+    raise RuntimeError("Please set a project name in your .env file under GALILEO_PROJECT.")
+
+# For this tutorial, require that it’s a fresh project
+if get_project(name=project_name):
+    raise RuntimeError(
+        f"A project named '{project_name}' already exists.\n"
+        "Update GALILEO_PROJECT in your .env to a new, unused name and re-run."
+    )
+
+project = create_project(name=project_name)
+print(f"✅ Created new project: {project.name} (id={project.id})")
+```

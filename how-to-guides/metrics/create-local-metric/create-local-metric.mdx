@@ -8,9 +8,11 @@ import InstallDependencies from "/snippets/content/install-dependencies-openai-p
 import SnippetScorerFunctionPython from "/snippets/code/python/how-to-guides/metrics/local-metric/scorer-function.mdx";
 import SnippetAggregatorFunctionPython from "/snippets/code/python/how-to-guides/metrics/local-metric/aggregator-function.mdx";
 import SnippetCreateConfigPython from "/snippets/code/python/how-to-guides/metrics/local-metric/create-config.mdx";
+import SnippetCreateProjectPython from "/snippets/code/python/how-to-guides/metrics/local-metric/create-project.mdx";
 import SnippetCreateDatasetPython from "/snippets/code/python/how-to-guides/metrics/local-metric/create-dataset.mdx";
 import SnippetLLMCallPython from "/snippets/code/python/how-to-guides/metrics/local-metric/llm-call.mdx";
 import SnippetRunExperimentPython from "/snippets/code/python/how-to-guides/metrics/local-metric/run-experiment.mdx";
+import SnippetFullExperimentPython from "/snippets/code/python/how-to-guides/metrics/local-metric/full-experiment.mdx";
 
 ## Overview
 
@@ -73,6 +75,18 @@ For this example, we'll ask the LLM to specify the continent of four countries, 
 
 <Steps>
 
+<Step title="Create a new project">
+Every experiment in Galileo must live inside a **project**, which contains your datasets, experiments, and metrics.  
+
+For this tutorial, set a project name in your `.env` file under the variable `GALILEO_PROJECT`.  
+If the project does not already exist, the script will create it automatically.  
+If the name is already in use, you’ll see a clear error instructing you to update `GALILEO_PROJECT` to a new value.
+
+<CodeGroup>
+<SnippetCreateProjectPython/>
+</CodeGroup>
+</Step>
+
 <Step title="Create a dataset">
 
 Create a dataset of inputs to the experiment by adding this code to your `experiment.py` file.
@@ -120,15 +134,21 @@ Experiment terseness-local-metric has completed and results are available
 at https://console.galileo.ai//project/xxx/experiments/xxx
 ```
 
+<Accordion title="The full experiment.py code">
+<SnippetFullExperimentPython/>
+</Accordion>
+
 </Step>
 
 <Step title="View the experiment">
 
 Follow the link in your terminal to view the results of the experiment. This experiment has 4 rows - one per item in the dataset.
 
+![A table of traces showing a terseness metric. Three are terse, one is temperate](/how-to-guides/metrics/create-local-metric/create-local-metric.webp)
+
 The new Terseness metric is available in both the **Traces** table, and from the metrics pane when selecting a row.
 
-![A table of traces showing a terseness metric. Three are terse, one is temperate](/how-to-guides/metrics/create-local-metric/create-local-metric.webp)
+![Expanded trace showing the Terseness metric in the metrics pane](/how-to-guides/metrics/create-local-metric/expanded-trace-metrics-pane.webp)
 
 </Step>
 
