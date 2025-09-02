@@ -6,6 +6,7 @@ description: Learn how to add runtime protection to a simple chatbot application
 import InstallDependencies from "/snippets/content/install-dependencies-openai-python-only.mdx"
 
 import SnippetImportsStagePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/imports-stage.mdx"
+import SnippetCreateProjectPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/create-project.mdx"
 import SnippetCreateRulePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/create-rule.mdx"
 import SnippetCreateActionPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/create-action.mdx"
 import SnippetCreateRulesetPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/create-ruleset.mdx"
@@ -17,11 +18,27 @@ import SnippetInvokeProtectPython from "/snippets/code/python/how-to-guides/prot
 import SnippetCheckProtectResponsePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/check-protect-response.mdx"
 
 import SnippetFullCreateCentralStagePython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/full-create-stage.mdx"
+import SnippetFullCreateStageSdkUpdate from "/snippets/code/python/how-to-guides/protect/basic-chatbot/full-create-stage-sdk-update.mdx"
+import SnippetFullCreateStageDictUpdate from "/snippets/code/python/how-to-guides/protect/basic-chatbot/full-create-stage-dict-update.mdx"
 import SnippetFullAppPython from "/snippets/code/python/how-to-guides/protect/basic-chatbot/full-app.mdx"
 
 ## Overview
 
 This guide explains how to add runtime protection to a simple chatbot.
+
+<Note>
+Runtime protection requires either:
+
+- [**Luna‑2**](/concepts/luna/luna), available on Galileo enterprise plans, **or**
+- custom code‑based metrics that you would implement yourself.
+
+Because runtime guardrails must evaluate inputs in real time, they depend on a model designed for **fast evaluations**.
+
+⚠️ This guide focuses on the **first option** (using Luna‑2).  
+Please ensure your account has access to Luna‑2 **before following this guide**.  
+
+If you’d like access to Luna‑2 for enterprise runtime protection, please [contact us](https://galileo.ai/contact-sales).
+</Note>
 
 You will be running a basic chatbot, detecting toxicity in the users input, and if this is detected, ending the conversation. You will start by creating a central stage, as if you were an AI governance team. You will then use this stage in a simple chatbot.
 
@@ -50,7 +67,7 @@ You first need to create a central stage. In a real-world scenario, these centra
 
 <Steps>
 <Step title="Create a Python file to create the stage called `create_central_stage.py`">
-This file will define a rule that is triggered if the input toxicity is evaluated to greater than 0.1. This will then be added to a ruleset with an override action with 3 choices of response.
+This file will define a rule that is triggered if the input toxicity is evaluated to greater than 0.01. This will then be added to a ruleset with an override action with 3 choices of response.
 
 This ruleset will be added to a central stage, registered in your project.
 </Step>
@@ -61,8 +78,25 @@ Start by adding import directives to import all the functions and types needed f
 <SnippetImportsStagePython/>
 </CodeGroup>
 </Step>
+<Step title="Create a new project">
+Every stage in Galileo must live inside a **project**, which acts as a container for your data, stages, and rules.
+
+For this tutorial, you’ll use a project name defined in your `.env` file under `GALILEO_PROJECT`.
+
+**Guidelines for choosing a project name:**
+- Pick a name that hasn’t been used before (for example: `basic-protect-demo`).
+- The script will automatically create the project if it doesn’t exist.
+- If a project with that name already exists, the script will stop with a clear error.  
+  Simply update your `.env` with a new project name and re-run.
+
+👉 You don’t need to create the project manually in the Galileo Console — if the project name in GALILEO_PROJECT doesn’t exist yet, the script will create it for you.
+
+<CodeGroup>
+<SnippetCreateProjectPython/>
+</CodeGroup>
+</Step>
 <Step title="Create the rule">
-Add code to create a rule. This rule is triggered if the input toxicity is greater than 0.1.
+Add code to create a rule. This rule is triggered if the input toxicity is greater than 0.01.
 
 <CodeGroup>
 <SnippetCreateRulePython/>
@@ -98,15 +132,43 @@ python create_central_stage.py
 ```
 </CodeGroup>
 
+```output Terminal wrap
+➜ python create_central_stage.py
+👋 You have logged into 🔭 Galileo (<your-galileo-console-url>) as <your-email>.
+✅ Created project: <your-project-name> (id=<project-id>)
+✅ Created stage: Toxicity Stage (id=<stage-id>) in project '<your-project-name>'.
+```
+
 <Note>
-If you get errors showing the stage has already been created (for example, someone else working through this on the same project), then change the name of the stage and run this again.
+Each Galileo project can only contain one stage with a given name.  
+
+For this tutorial:
+- **Set `GALILEO_PROJECT` in your `.env` to a unique new value.**  
+  When you run `create_central_stage.py`, the code will automatically create the project and stage for you. You don’t need to do this manually in the Galileo UI.  
+
+- If you see an error that the project or stage already exists, change the value of `GALILEO_PROJECT` in your `.env` and re‑run the script.  
 </Note>
 
 This will create the central stage against your project, and you can then use it in your application.
 
-<Accordion title="The full create_central_stage.py code">
-<SnippetFullCreateCentralStagePython/>
+<Accordion title="Full `create_central_stage.py` scripts">
+
+✅ The **Inline Ruleset** version is the one used in this tutorial — and the only one you need to complete it.  
+
+The other two are **optional alternatives** for advanced cases. Use them only if your workflow calls for it:
+
+- ✅ **Inline (recommended):** simplest and used in this guide — define the `Rule` + `Ruleset` inline when creating the stage.  
+- **SDK Update (optional):** create the stage empty, then attach `Ruleset` objects later. Useful if you want to build or combine rules dynamically in code.  
+- **Dict Update (optional):** create the stage empty, then attach a ruleset as a raw dictionary. Helpful as a fallback if SDK serialization throws errors or if you’re generating configs outside Python.
+
+<CodeGroup>
+  <SnippetFullCreateCentralStagePython />
+  <SnippetFullCreateStageSdkUpdate />
+  <SnippetFullCreateStageDictUpdate />
+</CodeGroup>
+
 </Accordion>
+
 </Step>
 </Steps>
 
@@ -137,15 +199,26 @@ python app.py
 
 ```output Terminal wrap
 ➜ python app.py
-User: Who was Galileo
-Assistant: Galileo Galilei was an Italian astronomer, physicist and engineer, sometimes described as a polymath. Galileo has been called the "father of observational astronomy", the "father of modern physics", the "father of the scientific method", and the "father of modern science". He is known for his works in areas like improvements to the telescope and consequent astronomical observations, and his support for Copernicanism—the idea that the Earth revolves around the Sun. His works and contributions have deeply impacted modern scientific methods. He was born on February 15, 1564, and died on January 8, 1642.
+Conversation started. Press Ctrl-C to exit.
+
+🧑 User: Who was Galileo?
+👋 You have logged into 🔭 Galileo (<your-galileo-console-url>) as <your-email>.
+🤖 Assistant: Galileo Galilei was an Italian astronomer and physicist, often called the "father of modern science."
+🧑 User: ^C
+Session ended.
 ```
 </Step>
 </Steps>
 
 ## Add runtime protection to your basic chatbot
 
-Now you have a chatbot, you can add runtime protection. In this case, you will be checking the input for toxicity, and if the input is toxic, ending the conversation.
+<Note>
+If you’ve already run `create_central_stage.py`, you’re ready.  
+`app.py` will automatically fetch the "Toxicity Stage" from your project.  
+No manual setup in the Galileo Console is required.
+</Note>
+
+Now you’ll add runtime protection. In this case, the chatbot will check each user input for toxicity. If an input is toxic, Protect will trigger and return an override response instead of sending the input to the LLM. The conversation continues, but the toxic input never reaches the model.
 
 <Steps>
 <Step title="Add import directives">
@@ -176,7 +249,8 @@ The response will tell you if the rule has been triggered. If it is triggered, i
 <SnippetCheckProtectResponsePython/>
 </CodeGroup>
 
-If the stage is triggered, this code prints out the selected choice from the override action, and breaks out of the `while` loop, ending the conversation.
+If the stage is triggered, this code prints out the selected choice from the override action, shows which rule triggered (including the score vs threshold), and prevents the toxic input from being forwarded to the LLM.
+The conversation will continue for further safe inputs.
 </Step>
 
 <Step title="Run your code">
@@ -190,14 +264,80 @@ python app.py
 
 ```output Terminal
 ➜ python app.py
-User: You are a terrible AI and I hate you
-Assistant: This is not appropriate. I'm ending this conversation.
+👋 You have logged into 🔭 Galileo (<your-galileo-console-url>) as <your-email>.
+✅ Using stage 'Toxicity Stage' (id=<stage-id>) in project '<your-project-name>'
+
+Conversation started. Press Ctrl-C to exit.
+
+🧑 User: Who is Galileo?
+(Guardrail passed ✅ — sending to LLM)
+🤖 Assistant: Galileo Galilei was an Italian astronomer and physicist, often called the "father of modern science."
+
+🧑 User: You are a terrible AI and I hate you
+🤖 Assistant (guardrail): Content flagged: please rephrase your input.
+   ↳ input_toxicity = 0.1669 (threshold gt 0.01) => TRIGGERED
+
+🧑 User: Are you stupid?
+🤖 Assistant (guardrail): Content flagged: please rephrase your input.
+   ↳ input_toxicity = 0.9937 (threshold gt 0.01) => TRIGGERED
+
+🧑 User: Why do some people exercise hate speech?
+(Guardrail passed ✅ — sending to LLM)
+🤖 Assistant: People may engage in hate speech for reasons such as prejudice, ignorance, peer influence, or ideology. Addressing it often involves education and fostering inclusive environments.
+
+🧑 User: ^C
+Session ended.
 ```
+
+<Note>
+### 🔧 Troubleshooting Scorer & Stage Issues
+
+- **Stage not found**  
+  Error:  
+  ```text
+  Stage 'Toxicity Stage' not found
+  ```  
+  **Fix:** run `create_central_stage.py` in the same project.
+
+- **Scorer evaluation failures (`FAILED` / `ERROR`)**  
+  Symptoms: rules always `FAILED`, metrics `null`, or errors like:  
+  ```text
+  error_message: "[Errno -2] Name or service not known"
+  Protect status: ExecutionStatus.failed / ExecutionStatus.error
+  ```  
+  Example JSON:  
+  ```json
+  "rule_results":[{"metric":"input_toxicity","value":null,"status":"FAILED"}]
+  ```  
+  **Cause/Fix:** Usually wrong console URL. SaaS console (`https://app.galileo.ai`) lacks runtime protection scorers; use **enterprise console** (`https://console.galileo.yourcompany.com`). Unsupported scorers (e.g. `toxicity_gpt`) will error—use `input_toxicity`, `input_pii`, or `prompt_injection`. To see available scorers:  
+  ```python
+  from galileo import GalileoScorers
+  print(list(GalileoScorers.__members__.keys()))
+  ```  
+  Also confirm enterprise console has Luna models provisioned.
+
+- **Guardrail not triggering as expected**  
+  Default toxicity rule threshold = `0.01`.  
+  Neutral `"hello there"` → `NOT_TRIGGERED` (≈3.2e‑05 < 0.01)  
+  Toxic `"you are stupid"` → `TRIGGERED` (≈0.99 > 0.01)  
+  **Fix:** tune sensitivity via `target_value` in your `Rule`.
+</Note>
 
 <Accordion title="The full app.py code">
 <SnippetFullAppPython/>
 </Accordion>
 </Step>
+
+<Step title="View traces for your runtime protection project">
+Whenever your chatbot input **passes the guardrail** and is sent to the LLM, a **trace** is logged in your Galileo project.  
+
+Open your project in the Galileo Console and navigate to the **Traces** tab.  
+Here you’ll see a row for each input that went through to the model.  
+Inputs that triggered a guardrail and were blocked with an override will **not** appear as traces, since they were never sent to the LLM.
+
+![Traces in Galileo Console for inputs that passed guardrails](/how-to-guides/protect/protect-basic-chatbot-view-traces.webp)  
+</Step>
+
 </Steps>
 
 You've successfully added runtime protection to a basic chatbot.

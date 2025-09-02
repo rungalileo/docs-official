@@ -1,8 +1,23 @@
 ```python app.py
 # Check the guardrail status
 if guardrail_response.status == ExecutionStatus.triggered:
-    # If the guardrail is triggered, print the action result
-    print(guardrail_response.action_result["value"])
-    # Skip the LLM call and end the conversation
-    break
+    print(f"🤖 Assistant (guardrail): {guardrail_response.action_result['value']}")
+    # Show why it triggered (metric evaluations)
+    for rs in guardrail_response.model_dump().get("ruleset_results", []):
+        for rr in rs.get("rule_results", []):
+            print(
+                f"   ↳ {rr['metric']} = {rr['value']} "
+                f"(threshold {rr['operator']} {rr['target_value']}) "
+                f"=> {rr['status']}"
+            )
+elif guardrail_response.status == ExecutionStatus.not_triggered:
+    print("(Guardrail passed ✅ — sending to LLM)")
+    response = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[{"role": "user", "content": user_input}],
+    )
+    print(f"🤖 Assistant: {response.choices[0].message.content.strip()}")
+else:
+    print(f"⚠️ Protect returned unexpected status: {guardrail_response.status}")
+    print(guardrail_response.model_dump())
 ```

@@ -1,11 +1,13 @@
-```python inline (recommended)
-"""create_central_stage.py – complete script for creating a project and a toxicity guardrail stage"""
+```python sdk-update
+"""create_central_stage.py – complete script for creating a project, an empty Protect Stage,
+and then attaching a toxicity guardrail using SDK Ruleset objects
+"""
 
 import os
 from dotenv import load_dotenv
 
 from galileo.projects import get_project, create_project
-from galileo.stages import create_protect_stage
+from galileo.stages import create_protect_stage, update_protect_stage
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 from galileo_core.schemas.protect.ruleset import Ruleset
 from galileo_core.schemas.protect.action import OverrideAction
@@ -40,16 +42,23 @@ action = OverrideAction(
     ],
 )
 
-# Create a ruleset from the toxicity rule and action
+# Create a ruleset object
 ruleset = Ruleset(rules=[toxicity_rule], action=action)
 
-# Create a central Protect Stage with the ruleset
+# Create a central Protect Stage without rulesets
 stage = create_protect_stage(
     project_name=project_name,
     name="Toxicity Stage",
     stage_type=StageType.central,
+)
+print(f"✅ Created empty stage: {stage.name} (id={stage.id}) in project '{project_name}'.")
+
+# Update the stage with SDK Ruleset objects
+update_protect_stage(
+    project_name=project_name,
+    stage_name="Toxicity Stage",
     prioritized_rulesets=[ruleset],
 )
 
-print(f"✅ Created stage: {stage.name} (id={stage.id}) in project '{project_name}'.")
+print("✅ Updated stage with SDK Ruleset objects.")
 ```

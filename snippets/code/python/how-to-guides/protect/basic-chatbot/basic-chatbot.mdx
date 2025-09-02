@@ -1,22 +1,26 @@
 ```python app.py
 from galileo.openai import openai
-
 from dotenv import load_dotenv
-load_dotenv()
 
+load_dotenv()
 client = openai.OpenAI()
 
-while True:
-    # Get the input from the user
-    user_input = input("User: ")
+print("Conversation started. Press Ctrl-C to exit.\n")
 
-    if user_input.lower() in ["bye", "goodbye", ""]:
+while True:
+    try:
+        user_input = input("🧑 User: ").strip()
+    except KeyboardInterrupt:
+        print("\nSession ended.")
         break
 
+    if not user_input:
+        continue
+
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4.1-mini",
         messages=[{"role": "user", "content": user_input}],
     )
 
-    print(f"Assistant: {response.choices[0].message.content.strip()}")
+    print(f"🤖 Assistant: {response.choices[0].message.content.strip()}")
 ```
