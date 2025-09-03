@@ -9,6 +9,12 @@ from dotenv import load_dotenv
 # Load environment variables from the .env file
 load_dotenv()
 
+# Set the project and log stream, these are created if they don't exist.
+# You can also set these using the GALILEO_PROJECT and GALILEO_LOG_STREAM
+# environment variables.
+galileo_context.init(project="MyFirstEvaluation",
+                     log_stream="MyFirstLogStream")
+
 # Get the Galileo logger instance
 logger = galileo_context.get_logger_instance()
 
@@ -20,8 +26,8 @@ client = Anthropic()
 
 # Define a system prompt with guidance
 system_prompt = f"""
-You are a helpful assistant that wants to provide a user as much information
-as possible. Avoid saying I don't know.
+You are a helpful assistant that wants to provide a user as much
+information as possible. Avoid saying I don't know.
 """
 
 # Define a user prompt with a question

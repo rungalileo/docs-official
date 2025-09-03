@@ -1,10 +1,18 @@
 ```typescript TypeScript
 import Anthropic from '@anthropic-ai/sdk';
-import { getLogger } from "galileo";
+import { getLogger, init } from "galileo";
 import dotenv from "dotenv";
 
 // Load the environment variables
 dotenv.config();
+
+// Set the project and log stream, these are created if they don't exist.
+// You can also set these using the GALILEO_PROJECT and GALILEO_LOG_STREAM
+// environment variables.
+init({
+    projectName: "MyFirstEvaluation",
+    logStreamName: "MyFirstLogStream"
+});
 
 // Create an Anthropic client
 const client = new Anthropic();
@@ -28,11 +36,11 @@ const galileoLogger = getLogger();
     await galileoLogger.startSession();
 
     // Start a trace
-    galileoLogger.startTrace({name: "Conversation step", input: userPrompt});
+    galileoLogger.startTrace({ name: "Conversation step", input: userPrompt });
 
     // Define the messages to send
     const messages: Anthropic.Messages.MessageParam[] = [
-        {"role": "user", "content": userPrompt}
+        { "role": "user", "content": userPrompt }
     ];
 
     // Capture the current time in nanoseconds for logging
@@ -63,14 +71,14 @@ const galileoLogger = getLogger();
     });
 
     /// Conclude and flush the logger
-    galileoLogger.conclude({output: (response.content[0] as Anthropic.TextBlock).text});
+    galileoLogger.conclude({ output: (response.content[0] as Anthropic.TextBlock).text });
     await galileoLogger.flush();
 
     // Log the response
     console.log((response.content[0] as Anthropic.TextBlock).text);
 
     // Show Galileo information after the response
-    const projectUrl = `${process.env.GALILEO_CONSOLE_URL}/project/${galileoLogger.client.projectId}`;
+    const projectUrl = `https://app.galileo.ai/project/${galileoLogger.client.projectId}`;
     const logStreamUrl = `${projectUrl}/log-streams/${galileoLogger.client.logStreamId}`;
 
     console.log();

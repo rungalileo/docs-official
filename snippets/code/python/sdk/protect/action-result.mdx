@@ -1,5 +1,5 @@
 ```python Python
-from galileo.protect import ainvoke
+from galileo.protect import ainvoke_protect, create_protect_stage
 
 from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload
@@ -30,7 +30,7 @@ ruleset = Ruleset(
 )
 
 # Create a central stage
-stage = create_stage(
+stage = create_protect_stage(
      name="My stage",
      stage_type=StageType.central,
      prioritized_rulesets=[ruleset],
@@ -43,7 +43,7 @@ payload = Payload(
 )
 
 # Invoke runtime protection
-response = await ainvoke(
+response = await ainvoke_protect(
     payload=payload,
     stage_name="My stage"
 )
