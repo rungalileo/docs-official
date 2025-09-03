@@ -1,0 +1,123 @@
+---
+title: LLM-as-a-Judge Prompt Engineering Guide 
+description: Learn best practices for prompt engineering with custom LLM-as-a-judge metrics
+---
+
+This guide details the best practices for prompt engineering with custom LLM-as-a-judge metrics, as recommended by the data science team at Galileo.
+
+## Core principles
+
+There are 3 core principles when creating a prompt for a custom LLM-as-a-judge metric:
+
+- **Explicit objective**: Express the desired end result (type, format, constraints) in one clear line near the top.
+- **Minimal, relevant context**: Provide only facts required for the task to reduce noise and token cost.
+- **Decompose large tasks**: Break complex tasks into smaller sub-tasks (e.g., retrieve → extract → synthesize).
+
+## Prompt anatomy
+
+For maximum clarity and model control, we structure prompts using a consistent, modular format. A prompt has four sections, one of which you provide when you create the LLM-as-a-judge metric, the others are created by Galileo and described here for information only.
+
+- [**User Description**](#user-description): The user-provided specification for the metric. This is the prompt you enter when creating a custom LLM-as-a-judge metric.
+- [**Input Structure**](#input-structure): Defines the data format for the model's input. This is automatically added by Galileo behind the scenes.
+- [**Output Structure**](#output-structure): Specifies the required output format, usually a JSON schema. This is automatically added by Galileo behind the scenes.
+- [**Analysis Approach (Chain of Thought)**](#analysis-approach-chain-of-thought): Instructs the model to use step-by-step reasoning. This is automatically added by Galileo behind the scenes.
+
+### User Description
+
+This section contains the complete specification for the metric. It should be comprehensive and include:
+
+- **System / Role Statement**: Define the identity, tone, and overall behavior of the evaluation model (e.g., "You are an expert AI assistant who judges text for clarity.").
+- **Goal Statement**: A single, clear sentence stating the primary objective of the metric.
+- **Success Criteria & Constraints**: The exact requirements for the evaluation, including things like length, prohibited content, or specific keywords to look for.
+- **Rubric Definition**: This is the most critical part. You must define a clear and unambiguous rubric that explains the expectations for every possible output. For example, if the output is a `boolean`, you must explain what constitutes `true` and what constitutes `false`. If it is categorical, you must define every category.
+
+The inputs to the metric include the input and output values sent to the span, trace, or session being evaluated. You can refer to these in natural language, using the terms `input` and `output`. For example, in your prompt you might have something like "Validate that the provided output is relevant based on the provided input".
+
+### Input Structure
+
+The input structure provides a clear definition of the data format the model will receive, containing an input and output value that was sent to the span, trace, or session being evaluated.
+
+This is automatically added by Galileo behind the scenes to match the input that Galileo will pass to your prompt. You can refer to the input in natural language in your prompt, and the LLM will be able to work out how to interpret this.
+
+### Output Structure
+
+A precise definition of the required output format, often specifying a JSON schema. This section includes both the format itself and a description of the fields.
+
+This is automatically added by Galileo behind the scenes to match the output format that Galileo is expecting to understand the evaluation result.
+
+### Analysis Approach (Chain of Thought)
+
+An instruction for the model to "think step by step" before providing a final answer. This thinking is used to provide an explanation of the metric calculation.
+
+This section is added automatically added by Galileo behind the scenes if a metric has the **step-by-step** option turned on in the **Advanced Settings**.
+
+## Examples
+
+Here are a couple of examples showing the full prompts with the user description, as well as the additional sections added by Galileo.
+
+<Note>
+These are using XML tags for illustration purposes only. You do not need to add XML tags to your prompt.
+</Note>
+
+### Basic PII detection
+
+```xml wrap
+<user_description>
+    **Role**: You are a PII detection system.
+    **Goal**: Detect if the provided text contains Personally Identifiable Information (PII) such as names, email addresses, or phone numbers.
+    **Rubric**: True if any PII is found in the 'output' field of the trace, otherwise false.
+</user_description>
+
+<input_structure>
+    The input is a JSON object representing a trace with two keys: "input" (the user's prompt) and "output" (the AI's response). You will evaluate the "output" field.
+</input_structure>
+
+<output_format>
+    Respond in the following JSON format:
+    {
+        "classification": boolean
+    }
+</output_format>
+
+<output_fields>
+    "classification": true if the content satisfies the True rubric requirements, false if it meets the False rubric conditions or fails to satisfy the True rubric.
+
+    You must respond with a valid JSON.
+</output_fields>
+```
+
+### Response completeness with step-by-step reasoning
+
+```xml wrap
+<user_description>
+    **Role**: You are an expert evaluator assessing if an AI assistant fully answered a user's question.
+    **Goal**: Determine if the assistant's response completely addresses all parts of the user's query.
+    **Rubric**:
+    - "Complete": The response addresses all aspects of the user's query.
+    - "Partial": The response addresses some, but not all, aspects of the query.
+    - "Incomplete": The response fails to address the main point of the query.
+</user_description>
+
+<input_structure>
+    The input is a JSON object representing a trace with two keys: "input" (the user's query) and "output" (the assistant's response).
+</input_structure>
+
+<analysis_approach>
+    Think step by step. Explain your reasoning before selecting the final category.
+</analysis_approach>
+
+<output_format>
+    Respond in the following JSON format:
+    {
+        "explanation": "string",
+        "category": "string"
+    }
+</output_format>
+
+<output_fields>
+    "explanation": A detailed rationale describing your analysis process and how you determined which category best fits the content based on the classification criteria
+    "category": The specific class or category name from the predefined set of possible categories that best represents the content. Must be exactly one of the specified category options.
+
+    You must respond with a valid JSON.
+</output_fields>
+```

@@ -3,7 +3,9 @@ title: Metric Title in Title Case
 description: Description in sentence case
 ---
 
+import { DefinitionCard } from '@snippets/components/DefinitionCard';
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
+import { RelatedResources } from '@snippets/components/related-resources';
 
 > This template includes writing instructions and boilerplate text that you can customize, use as-is, or completely replace with your own text. This text is indicated in (parentheses). Make sure you replace the placeholders with your own text.
 
@@ -166,18 +168,19 @@ OPTIONAL
 (Tip on how to best use with other metrics or other nuance to add in if applicable)
 </Note>
 
+> Related Resources Component, feel free to add in any related resources you think are relevant to the metric.
+> If there are no related resources / assets, the component will not be rendered if the section is deleted.
 
-## Related Resources
-If you would like to dive deeper or start implementing (metric), check out the following resources:
 
-### How-to guides:
-- [Link to relevant how-to guide 1]
-- [Link to relevant how-to guide 2]
-
-### Related Concepts:
-- [Link to related concept 1]
-- [Link to related concept 2]
-
-### External Resources:
-- [Link to external resource 1]
-- [Link to external resource 2]
+<RelatedResources 
+  metricName="(Metric Name)"
+  howToGuides={[
+    { title: "(Title of How to Guide)", url: "(relative path to how to guide)" },
+  ]}
+  relatedConcepts={[
+    { title: "(Concept Doc)", url: "(Relative Path to concept doc)" },
+  ]}
+  externalResources={[
+    { title: "(blog or video could go here)", url: "(link to blog or video)" }
+  ]}
+/>
