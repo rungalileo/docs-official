@@ -1,5 +1,5 @@
 ```typescript TypeScript
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenAI } from "@google/genai";
 import { getLogger, init } from "galileo";
 import dotenv from "dotenv";
 
@@ -14,8 +14,8 @@ init({
     logStreamName: "MyFirstLogStream"
 });
 
-// Create an Anthropic client
-const client = new Anthropic();
+// Create a Gemini client
+const client = new GoogleGenAI({});
 
 // Define a system prompt with guidance
 const systemPrompt = `
@@ -26,7 +26,7 @@ as possible. Avoid saying I don't know.
 // Define a user prompt with a question
 const userPrompt = "Describe Galileo";
 
-const modelName = "claude-3-7-sonnet-latest";
+const modelName = "gemini-2.5-flash";
 
 // Get the Galileo logger instance
 const galileoLogger = getLogger();
@@ -38,11 +38,6 @@ const galileoLogger = getLogger();
     // Start a trace
     galileoLogger.startTrace({ name: "Conversation step", input: userPrompt });
 
-    // Define the messages to send
-    const messages: Anthropic.Messages.MessageParam[] = [
-        { "role": "user", "content": userPrompt }
-    ];
-
     // Capture the current time in nanoseconds for logging
     function getNanoSecTime(): number {
         var hrTime = process.hrtime();
@@ -52,33 +47,34 @@ const galileoLogger = getLogger();
     const startTimeNs = getNanoSecTime();
 
     // Send a request to the LLM
-    const response = await client.messages.create({
-        max_tokens: 1024,
-        messages: messages,
-        system: systemPrompt,
+    const response = await client.models.generateContent({
         model: modelName,
+        contents: userPrompt,
+        config: {
+            systemInstruction: systemPrompt,
+        },
     });
 
-    // Log an LLM span using the response from Anthropic
+    // Log an LLM span using the response from Gemini
     galileoLogger.addLlmSpan({
         input: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt }
         ],
-        output: (response.content[0] as Anthropic.TextBlock).text,
+        output: response.text,
         model: modelName,
-        numInputTokens: response.usage?.input_tokens,
-        numOutputTokens: response.usage?.output_tokens,
-        totalTokens: (response.usage?.input_tokens ?? 0) + (response.usage?.output_tokens ?? 0),
+        numInputTokens: response.usageMetadata?.promptTokenCount ?? 0,
+        numOutputTokens: response.usageMetadata?.candidatesTokenCount ?? 0,
+        totalTokens: response.usageMetadata?.totalTokenCount ?? 0,
         durationNs: getNanoSecTime() - startTimeNs,
     });
 
     /// Conclude and flush the logger
-    galileoLogger.conclude({ output: (response.content[0] as Anthropic.TextBlock).text });
+    galileoLogger.conclude({ output: response.text });
     await galileoLogger.flush();
 
     // Log the response
-    console.log((response.content[0] as Anthropic.TextBlock).text);
+    console.log(response.text);
 
     // Show Galileo information after the response
     const galileoConsoleUrl = (process.env.GALILEO_CONSOLE_URL ?? "https://app.galileo.ai").replace(/\/+$/, "");
