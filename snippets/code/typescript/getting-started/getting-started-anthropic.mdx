@@ -61,7 +61,10 @@ const galileoLogger = getLogger();
 
     // Log an LLM span using the response from Anthropic
     galileoLogger.addLlmSpan({
-        input: userPrompt,
+        input: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+        ],
         output: (response.content[0] as Anthropic.TextBlock).text,
         model: modelName,
         numInputTokens: response.usage?.input_tokens,
