@@ -3,7 +3,7 @@ from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 from galileo_core.schemas.protect.ruleset import Ruleset
 
-from galileo.protect import ainvoke
+from galileo.protect import ainvoke_protect
 
 # Create a rule
 rule = Rule(
@@ -23,7 +23,7 @@ payload = Payload(
 )
 
 # Invoke runtime protection
-response = await ainvoke(
+response = await ainvoke_protect(
     payload=payload,
     stage_name="My stage",
     prioritized_rulesets=[ruleset]
