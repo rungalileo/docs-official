@@ -1,11 +1,14 @@
 ```python create_central_stage.py
 from galileo import GalileoScorers
-from galileo.stages import create_stage
+from galileo.stages import create_protect_stage
 
 from galileo_core.schemas.protect.action import OverrideAction
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 from galileo_core.schemas.protect.ruleset import Ruleset
 from galileo_core.schemas.protect.stage import StageType
+
+from dotenv import load_dotenv
+load_dotenv()
 
 # Create a rule for toxicity
 toxicity_rule = Rule(
@@ -30,7 +33,7 @@ ruleset = Ruleset(
 )
 
 # Create a stage with the ruleset
-stage = create_stage(
+stage = create_protect_stage(
     name="Toxicity Stage",
     stage_type=StageType.central,
     prioritized_rulesets=[ruleset]

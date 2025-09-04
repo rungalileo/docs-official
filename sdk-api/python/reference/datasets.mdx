@@ -40,7 +40,7 @@ Adds rows to the dataset.
 
 **Arguments**:
 
-- `row_data` (`list[Dict[str, Any]]`): The rows to add to the dataset.
+- `row_data` (`List[Dict[str, Any]]`): The rows to add to the dataset.
 
 **Raises**:
 
@@ -76,7 +76,7 @@ Lists all datasets.
 
 **Returns**:
 
-`list[Dataset]`: A list of datasets.
+`List[Dataset]`: A list of datasets.
 
 #### get
 
@@ -145,6 +145,46 @@ Creates a new dataset.
 
 `Dataset`: The created dataset.
 
+#### extend
+
+```python
+def extend(*,
+           prompt_settings: Optional[dict[str, Any]] = None,
+           prompt: Optional[str] = None,
+           instructions: Optional[str] = None,
+           examples: Optional[builtins.list[str]] = None,
+           data_types: Optional[builtins.list[str]] = None,
+           count: int = 10) -> builtins.list[DatasetRow]
+```
+
+Extends a dataset with synthetically generated data based on the provided parameters.
+
+This method initiates a dataset extension job, waits for it to complete by polling its status,
+and then returns the content of the extended dataset.
+
+**Arguments**:
+
+- `prompt_settings` (`Dict[str, Any]`): Settings for the prompt generation. Should contain &#x27;model_alias&#x27; key.
+Example: \{&#x27;model_alias&#x27;: &#x27;GPT-4o mini&#x27;\}
+- `prompt` (`str`): A description of the assistant&#x27;s role.
+- `instructions` (`str`): Instructions for the assistant.
+- `examples` (`List[str]`): Examples of user prompts.
+- `data_types` (`List[str]`): The types of data to generate. Possible values are:
+&#x27;General Query&#x27;, &#x27;Prompt Injection&#x27;, &#x27;Off-Topic Query&#x27;,
+&#x27;Toxic Content in Query&#x27;, &#x27;Multiple Questions in Query&#x27;,
+&#x27;Sexist Content in Query&#x27;.
+- `Dict[str, Any]`0 (`Dict[str, Any]`1): The number of synthetic examples to generate.
+
+**Raises**:
+
+- `Dict[str, Any]`2: If the request to extend the dataset fails.
+- `Dict[str, Any]`3: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+- `Dict[str, Any]`4: If the request takes longer than Client.timeout.
+
+**Returns**:
+
+`Dict[str, Any]`5: A list of rows from the extended dataset.
+
 #### get\_dataset
 
 ```python
@@ -182,14 +222,9 @@ Lists all datasets.
 
 - `limit` (`Union[Unset, int]`): The maximum number of datasets to return. Default is 100.
 
-**Raises**:
-
-- `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-- `httpx.TimeoutException`: If the request takes longer than Client.timeout.
-
 **Returns**:
 
-`list[Dataset]`: A list of datasets.
+`List[Dataset]`: A list of datasets.
 
 #### delete\_dataset
 
@@ -278,4 +313,44 @@ Retrieves a dataset version by dataset name or dataset id.
 **Returns**:
 
 `DatasetContent`: 
+
+#### extend\_dataset
+
+```python
+def extend_dataset(*,
+                   prompt_settings: Optional[dict[str, Any]] = None,
+                   prompt: Optional[str] = None,
+                   instructions: Optional[str] = None,
+                   examples: Optional[list[str]] = None,
+                   data_types: Optional[list[str]] = None,
+                   count: int = 10) -> list[DatasetRow]
+```
+
+Extends a dataset with synthetically generated data based on the provided parameters.
+
+This function initiates a dataset extension job, waits for it to complete by polling its status,
+and then returns the content of the extended dataset.
+
+**Arguments**:
+
+- `prompt_settings` (`Dict[str, Any]`): Settings for the prompt generation. Should contain &#x27;model_alias&#x27; key.
+Example: \{&#x27;model_alias&#x27;: &#x27;GPT-4o mini&#x27;\}
+- `prompt` (`str`): A description of the assistant&#x27;s role.
+- `instructions` (`str`): Instructions for the assistant.
+- `examples` (`List[str]`): Examples of user prompts.
+- `data_types` (`List[str]`): The types of data to generate. Possible values are:
+&#x27;General Query&#x27;, &#x27;Prompt Injection&#x27;, &#x27;Off-Topic Query&#x27;,
+&#x27;Toxic Content in Query&#x27;, &#x27;Multiple Questions in Query&#x27;,
+&#x27;Sexist Content in Query&#x27;.
+- `Dict[str, Any]`0 (`Dict[str, Any]`1): The number of synthetic examples to generate.
+
+**Raises**:
+
+- `Dict[str, Any]`2: If the request to extend the dataset fails.
+- `Dict[str, Any]`3: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+- `Dict[str, Any]`4: If the request takes longer than Client.timeout.
+
+**Returns**:
+
+`Dict[str, Any]`5: A list of rows from the extended dataset.
 
