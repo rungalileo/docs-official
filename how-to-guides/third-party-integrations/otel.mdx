@@ -1,12 +1,53 @@
 ---
-title: Log Using OpenTelemetry and OpenInference
-description: "This guide explains how to send OpenTelemetry (OTel) traces to Galileo using OpenInference"
+title: Add OpenTelemetry to Galileo using OpenInference
+description: Working with OpenTelemetry and OpenInference and and the Galileo Application.
 ---
 
-## Installation
+## What is OpenTelemetry (OTel)?
 
-Install the required OpenTelemetry and OpenInference dependencies:
+[OpenTelemetry (OTel)](https://opentelemetry.io/) is an open source, vendor-agnostic standard that provides a set of tools for collecting, processing, and exporting telemetry data. 
 
+The OTel specification provides a standard way to represent:
+
+- Traces – distributed request data, capturing spans of work across services
+- Metrics – numerical measurements about system performance (e.g., latency, throughput)
+- Logs – event-based records that help with debugging and auditing
+- Resources – metadata about the service or environment generating telemetry
+
+With these primitives, OTel makes observability vendor-neutral and consistent across applications and languages.
+
+## What is OpenInference?
+
+OpenInference extends OTel for AI/ML workloads by introducing domain-specific schemas. These schemas enrich OTel primitives with fields that are meaningful for AI applications, including:
+
+- Prompt and response capture within traces
+- Model metadata (model type, version, parameters) as resource attributes
+- Evaluation results (e.g., hallucination detection, toxicity, grounding) as span events or metrics
+
+Where OTel gives you the foundation, OpenInference ensures telemetry reflects AI-specific behavior and is interoperable across tools.
+
+### How does OTel work work within the AI ecosystem?
+
+In the AI ecosystem, OTel has been adopted by libraries like:
+
+- Vercel AI SDK – adds tracing to LLM-powered apps
+- LlamaIndex – instruments retrieval-augmented generation pipelines
+- Mastra.ai - TypeScript Agent framework
+- CrewAI - Python Agent framework
+
+## Galileo as an OTel collector
+
+Galileo as an OTel Collector
+
+In the OTel architecture, the Collector is a central component that receives telemetry, processes it, and exports it. Galileo serves this role for AI observability:
+
+- Collector of OTel data – Galileo ingests OTel-compliant traces, metrics, and logs from instrumented AI applications.
+- OpenInference-native – Galileo understands AI-specific schemas so prompts, responses, and evaluation data are properly structured.
+- Processing and enrichment – Galileo enhances raw telemetry with real-time AI evaluations (quality, reliability, safety).
+
+This alignment means you don’t need proprietary instrumentation. If your system already emits OTel data, Galileo can act as the collector and processor for OTel data.
+
+<!-- 
 ```bash
 pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation
 ```
@@ -243,4 +284,4 @@ with tracer.start_as_current_span("test-span"):
 🔗 [LiteLLM + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_LiteLLM_Notebook.ipynb)
 🔗 [Mistral + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Mistral_Notebook.ipynb)
 🔗 [OpenAI + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_OpenAI_Notebook.ipynb)
-🔗 [Vertex AI + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Vertexai_Notebook.ipynb)
+🔗 [Vertex AI + Galileo + OTel Notebook](https://colab.research.google.com/github/rungalileo/examples/blob/main/examples/open-telemetry/Galileo_OTEL_Vertexai_Notebook.ipynb) -->
