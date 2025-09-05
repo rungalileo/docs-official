@@ -44,7 +44,8 @@ const userPrompt = "Describe Galileo";
 
     // Show Galileo information after the response
     const galileoLogger = getLogger();
-    const projectUrl = `https://app.galileo.ai/project/${galileoLogger.client.projectId}`;
+    const galileoConsoleUrl = (process.env.GALILEO_CONSOLE_URL ?? "https://app.galileo.ai").replace(/\/+$/, "");
+    const projectUrl = `${galileoConsoleUrl}/project/${galileoLogger.client.projectId}`;
     const logStreamUrl = `${projectUrl}/log-streams/${galileoLogger.client.logStreamId}`;
 
     console.log();
