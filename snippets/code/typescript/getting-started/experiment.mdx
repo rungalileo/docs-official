@@ -1,0 +1,91 @@
+```typescript TypeScript
+import { 
+    createDataset,
+    createPrompt,
+    GalileoScorers,
+    getDataset,
+    getPrompt,
+    runExperiment
+} from "galileo";
+import { 
+    MessageRole, 
+    PromptTemplate, 
+    PromptTemplateVersion
+} from "galileo/types";
+import dotenv from "dotenv";
+
+// Load the environment variables
+dotenv.config();
+
+(async () => {
+    // Create a prompt template, or load it if it already exists
+    let prompt: PromptTemplate | PromptTemplateVersion;
+    try {
+        prompt = await getPrompt({ name: "My Prompt" });
+    } catch (e) {
+        prompt = await createPrompt({
+            name: "My Prompt",
+            template: [
+                {
+                    role: MessageRole.system,
+                    content: `
+You are a helpful assistant that wants to provide a user as much information
+as possible. Avoid saying I don't know.
+
+Here is some relevant information:
+
+Galileo is the fastest way to ship reliable apps.
+Galileo brings automation and insight to AI evaluations so you can
+ship with confidence.
+
+Galileo has Automated evaluations
+Eliminate 80% of evaluation time by replacing manual reviews
+with high-accuracy, adaptive metrics. Test your AI features,
+offline and online, and bring CI/CD rigor to your AI workflows.
+
+Galileo allows Rapid iteration
+Ship iterations 20% faster by automating testing numerous
+prompts and models. Find the best performance for any given
+test set. When something breaks, Galileo helps identify
+failure modes and root cause.
+`
+                },
+                {
+                    role: MessageRole.user,
+                    content: "{{input}}"
+                },
+            ]
+        });
+    }
+
+    // Create a dataset, or load it if it already exists
+    let dataset = await getDataset({ name: "My Dataset" });
+    if (!dataset) {
+        dataset = await createDataset(
+            [
+                { "input": "What is Galileo?" },
+                { "input": "What is Copernicus?" }
+            ],
+            "My Dataset",
+        );
+    }
+
+    // Run the experiment
+    const experiment = await runExperiment({
+        name: "My Experiment",
+        promptTemplate: prompt,
+        dataset: dataset,
+        metrics: [GalileoScorers.ContextAdherence],
+        projectName: process.env.GALILEO_PROJECT,
+        promptSettings: { model_alias: "GPT-4o" }
+    });
+
+    const galileoConsoleUrl = (process.env.GALILEO_CONSOLE_URL ?? "https://app.galileo.ai").replace(/\/+$/, "");
+    const datasetUrl = `${galileoConsoleUrl}/datasets/${dataset.id}`;
+
+    console.log();
+    console.log("🚀 GALILEO LOG INFORMATION:");
+    console.log(`🔗 Dataset    : ${datasetUrl}`);
+    console.log(`🔬 Experiment : ${experiment.link}`);
+})();
+```
