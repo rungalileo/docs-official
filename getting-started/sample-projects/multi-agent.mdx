@@ -1,6 +1,6 @@
 ---
 title: Multi-agent banking chatbot sample
-description: Get started with the multi-agent banking chatbot sample project powered by LangGraph, with RAG using Pinecone as a vector database
+description: Get started with the multi-agent banking chatbot sample project powered by LangGraph, with RAG using Pinecone
 ---
 
 The multi-agent banking chatbot sample project is a demo of a multi-agent chatbot powered by LangGraph, with RAG using Pinecone as a vector database. You can have a conversation with the chatbot, and it will bring back information on your (fictional) credit score, as well as give you details of credit cards available from a fictional bank.
@@ -73,9 +73,9 @@ You can run the sample app to generate more traces, and test out different agent
 To run the code yourself to generate more traces, you will need:
 
 - Access to an OpenAI compatible API, such as
-    - An OpenAI API key
-    - Access to an OpenAI compatible API, such as Google Vertex
-    - Ollama installed locally with a model downloaded
+  - An OpenAI API key
+  - Access to an OpenAI compatible API, such as Google Vertex
+  - Ollama installed locally with a model downloaded
 - A [Pinecone account](https://www.pinecone.io). The free Starter tier is more than enough for this project. You will need your Pinecone API key.
 - Either Python 3.9 or later, or Node installed
 
@@ -112,12 +112,15 @@ git clone https://github.com/rungalileo/sdk-examples
 Start by navigating to the root folder for the programming language you are using:
 
 <CodeGroup>
+
 ```bash Python
 cd python/agent/langgraph-fsi-agent/after
 ```
+
 ```bash TypeScript
 cd typescript/agent/langgraph-fsi-agent
 ```
+
 </CodeGroup>
 
 <Note>
@@ -148,12 +151,15 @@ In each project folder is a `.env.example` file. Rename this file to `.env` and 
 There is a helper script in the `scripts` folder. Run this script to create a new index in Pinecone and upload the documents.
 
 <CodeGroup>
+
 ```python Python
 python ./scripts/setup_pinecone.py
 ```
+
 ```typescript TypeScript
 npm run upload-docs
 ```
+
 </CodeGroup>
 
 This will take a few seconds, and a successful run should look like:
@@ -163,6 +169,7 @@ Loading documents for credit-card-information folder...
 ...
 ✅ Document processing and upload complete!
 ```
+
 </Step>
 </Steps>
 
@@ -174,12 +181,15 @@ Loading documents for credit-card-information folder...
 From the project folder, Install the required dependencies. For Python, make sure to create and activate a virtual environment before installing the dependencies.
 
 <CodeGroup>
+
 ```bash Python
 pip install -r requirements.txt
 ```
+
 ```bash TypeScript
 npm install
 ```
+
 </CodeGroup>
 
 </Step>
@@ -212,12 +222,15 @@ Next populate the values for your LLM:
 Run the project with the following command:
 
 <CodeGroup>
+
 ```bash Python
 chainlit run app.py -w
 ```
+
 ```bash TypeScript
 npm run start
 ```
+
 </CodeGroup>
 
 If you are using the Python version, the app will be running at [localhost:8000](http://localhost:8000), so open it in your browser.
@@ -227,6 +240,7 @@ If you are using the Python version, the app will be running at [localhost:8000]
 If you are using TypeScript, the app will run in your terminal:
 
 <CodeGroup>
+
 ```output Terminal
 You: What credit cards do you offer?
 Assistant: Brahe Bank offers the Orbit Basic Credit Card, which features no
@@ -239,9 +253,11 @@ Assistant: Brahe Bank offers the Orbit Basic Credit Card, which features no
   and a fair credit history with a credit score over 500.
   Would you like information on eligibility or application process?
 ```
+
 </CodeGroup>
 
 You can ask the agent questions about:
+
 - The different credit cards offered by the bank
 - Your credit score
 
@@ -262,17 +278,21 @@ Despite there being an agent to get the users credit score, it is not always use
 To improve the agent, have a look at the agent prompt defined in the following file:
 
 <CodeGroup>
+
 ```output Python
 src/galileo_langgraph_fsi_agent/agents/supervisor_agent.py
 ```
+
 ```output TypeScript
 agents/supervisorAgent.ts
 ```
+
 </CodeGroup>
 
 In this file is the current agent prompt:
 
 <CodeGroup>
+
 ```python Python
 bank_supervisor_agent = create_supervisor(
     model=ChatOpenAI(model=os.environ["MODEL_NAME"], name="Supervisor"),
@@ -284,7 +304,7 @@ bank_supervisor_agent = create_supervisor(
           information about credit cards to this agent
         Otherwise, only respond with 'I don't know' or 'I cannot answer
         that question'.
-        If you need to ask the user for more information, do so in a 
+        If you need to ask the user for more information, do so in a
         concise manner.
         """
     ),
@@ -293,6 +313,7 @@ bank_supervisor_agent = create_supervisor(
     supervisor_name="brahe-bank-supervisor-agent",
 ).compile()
 ```
+
 ```typescript TypeScript
 const bankSupervisorAgent = createSupervisor({
     llm: new ChatOpenAI({ model: process.env.MODEL_NAME }),
@@ -311,11 +332,13 @@ const bankSupervisorAgent = createSupervisor({
     supervisorName: "brahe-bank-supervisor-agent",
 }).compile();
 ```
+
 </CodeGroup>
 
 This supervisor agent prompt explicitly mentions the credit card agent, but not the credit score agent. You can encourage the supervisor agent to use the credit score agent to get better results:
 
 <CodeGroup>
+
 ```python Python
 """
 You are a supervisor managing the following agents:
@@ -324,10 +347,11 @@ You are a supervisor managing the following agents:
 - a credit score agent. Use this to get the users credit score.
 Otherwise, only respond with 'I don't know' or 'I cannot answer
 that question'.
-If you need to ask the user for more information, do so in a 
+If you need to ask the user for more information, do so in a
 concise manner.
 """
 ```
+
 ```typescript TypeScript
 `
 You are a supervisor managing the following agents:
@@ -340,6 +364,7 @@ If you need to ask the user for more information, do so in a
 concise manner.
 `
 ```
+
 </CodeGroup>
 
 Try this new prompt out and see how the agent responds.
@@ -378,12 +403,15 @@ You can use this unit test to evaluate different supervisor agent prompts for yo
 
 Use the following command to run the unit test:
 <CodeGroup>
+
 ```python Python
 python -m pytest test.py
 ```
+
 ```typescript TypeScript
 npm run test
 ```
+
 </CodeGroup>
 </Step>
 
