@@ -87,20 +87,6 @@ jobs:
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           echo "Running markdownlint on all markdown files (excluding generated SDK references)"
-          
-          # Create a temporary ignore file for this run
-          cat > .markdownlint-cli2.jsonc << 'EOF'
-          {
-            "config": ".markdownlint.jsonc",
-            "ignores": [
-              "sdk-api/**/reference/**/*.md",
-              "sdk-api/**/reference/**/*.mdx",
-              "api-reference/**/*.md",
-              "api-reference/**/*.mdx"
-            ]
-          }
-          EOF
-          
           markdownlint-cli2 "**/*.{md,mdx}"
 
       - name: Upload markdownlint results
