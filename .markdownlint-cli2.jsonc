@@ -1,0 +1,33 @@
+{
+  // markdownlint-cli2 configuration file
+  // This file configures markdownlint-cli2 to use the existing .markdownlint.jsonc rules
+  // and excludes generated/auto-generated content that shouldn't be linted
+  
+  "config": ".markdownlint.jsonc",
+  
+  "ignores": [
+    // Exclude generated SDK reference documentation
+    "sdk-api/**/reference/**/*.md",
+    "sdk-api/**/reference/**/*.mdx",
+    
+    // Exclude auto-generated API reference (created during CI)
+    "api-reference/**/*.md",
+    "api-reference/**/*.mdx",
+    
+    // Exclude node_modules and other common directories
+    "node_modules/**",
+    ".git/**",
+    
+    // Exclude package lock files that might contain markdown-like content
+    "package-lock.json"
+  ],
+  
+  // Configure custom fixes if needed
+  "customRules": [],
+  
+  // Output format - can be "detailed" or "compact"
+  "outputFormatters": [
+    ["markdownlint-cli2-formatter-default"]
+  ]
+  
+}
