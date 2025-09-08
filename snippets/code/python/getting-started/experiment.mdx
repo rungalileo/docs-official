@@ -8,9 +8,9 @@ from galileo.experiments import run_experiment
 from galileo.prompts import create_prompt, get_prompt
 from galileo.resources.models.prompt_run_settings import PromptRunSettings
 
+# Load the environment variables
 from dotenv import load_dotenv
-
-load_dotenv(override=True)
+load_dotenv()
 
 # Create a prompt template, or load it if it already exists
 prompt = get_prompt(name="My Prompt")
@@ -21,25 +21,9 @@ if not prompt:
             Message(
                 role=MessageRole.system,
                 content="""
-You are a helpful assistant that wants to provide a user as much information
-as possible. Avoid saying I don't know.
-
-Here is some relevant information:
-
 Galileo is the fastest way to ship reliable apps.
 Galileo brings automation and insight to AI evaluations so you can
 ship with confidence.
-
-Galileo has Automated evaluations
-Eliminate 80% of evaluation time by replacing manual reviews
-with high-accuracy, adaptive metrics. Test your AI features,
-offline and online, and bring CI/CD rigor to your AI workflows.
-
-Galileo allows Rapid iteration
-Ship iterations 20% faster by automating testing numerous
-prompts and models. Find the best performance for any given
-test set. When something breaks, Galileo helps identify
-failure modes and root cause.
 """,
             ),
             Message(role=MessageRole.user, content="{{input}}"),
