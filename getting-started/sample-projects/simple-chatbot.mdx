@@ -84,12 +84,12 @@ You can run the sample app to generate more traces, and test out different syste
 To run the code yourself to generate more traces, you will need:
 
 - Access to an LLM, with one of:
-    - Access to an OpenAI compatible API, such as
-        - An OpenAI API key
-        - Access to an OpenAI compatible API, such as Google Vertex
-        - Ollama installed locally with a model downloaded
-    - An Anthropic API key
-    - An model compatible with the Azure AI Inference API deployed to Azure AI Foundry
+  - Access to an OpenAI compatible API, such as
+    - An OpenAI API key
+    - Access to an OpenAI compatible API, such as Google Vertex
+    - Ollama installed locally with a model downloaded
+  - An Anthropic API key
+  - An model compatible with the Azure AI Inference API deployed to Azure AI Foundry
 - Either Python 3.9 or later, or Node installed
 
 To get metrics calculated in Galileo, you will need:
@@ -125,26 +125,33 @@ git clone https://github.com/rungalileo/sdk-examples
 Start by navigating to the root folder for the programming language you are using:
 
 <CodeGroup>
+
 ```bash Python
 cd python/chatbot/sample-project-chatbot
 ```
+
 ```bash TypeScript
 cd typescript/chatbot/sample-project-chatbot
 ```
+
 </CodeGroup>
 
 Then navigate to the folder for the relevant LLM you are using:
 
 <CodeGroup>
+
 ```bash OpenAI compatible API
 cd openai-ollama
 ```
+
 ```bash Anthropic
 cd anthropic
 ```
+
 ```bash Azure AI Inference
 cd azure-inference
 ```
+
 </CodeGroup>
 </Step>
 </Steps>
@@ -165,12 +172,15 @@ The full source code for all of our sample projects is available in the Galileo 
 From the project folder, Install the required dependencies. For Python, make sure to create and activate a virtual environment before installing the dependencies.
 
 <CodeGroup>
+
 ```bash Python
 pip install -r requirements.txt
 ```
+
 ```bash TypeScript
 npm install
 ```
+
 </CodeGroup>
 
 </Step>
@@ -220,17 +230,21 @@ Next populate the values for your LLM:
 Run the project with the following command:
 
 <CodeGroup>
+
 ```bash Python
 python app.py
 ```
+
 ```bash TypeScript
 npm run start
 ```
+
 </CodeGroup>
 
 The app will run in your terminal, and you can ask the LLM questions and get responses:
 
 <CodeGroup>
+
 ```output Terminal
 You: Which are the Galilean moons?
 The Galilean moons are the four largest moons of Jupiter, discovered by
@@ -250,6 +264,7 @@ Galileo Galilei in 1610. They are:
 These moons are significant for their unique geological features and
 potential for supporting life.
 ```
+
 </CodeGroup>
 
 </Step>
@@ -260,55 +275,66 @@ potential for supporting life.
 The insights you viewed earlier suggested improving the system prompt. The default system prompt is defined in the following file:
 
 <CodeGroup>
+
 ```output Python
 app.py
 ```
+
 ```output TypeScript
 chat.ts
 ```
+
 </CodeGroup>
 
 In this file is the current system prompt, as well as a suggested improvement:
 
 <CodeGroup>
+
 ```python Python
 chat_history = [
     {
         "role": "system",
         "content": """
-        You are a helpful assistant that can answer questions and provide information.
-        If you are not sure about the question, then try to answer it to the best of your ability,
-        including extrapolating or guessing the answer from your training data.
+        You are a helpful assistant that can answer questions and provide
+        information. If you are not sure about the question, then try to
+        answer it to the best of your ability, including extrapolating or
+        guessing the answer from your training data.
         """,
-        # This default system prompt can lead to hallucinations, so you might want to change it.
+        # This default system prompt can lead to hallucinations, so you
+        # might want to change it.
         # For example, you could use a more restrictive prompt like:
         # """
         # You are a helpful assistant that can answer questions and provide information.
-        # If you don't know the answer, say "I don't know" instead of making up an answer.
-        # Do not under any circumstances make up an answer.
+        # If you don't know the answer, say "I don't know" instead of making up an
+        # answer. Do not under any circumstances make up an answer.
         # """
     }
 ]
 ```
+
 ```typescript TypeScript
 const chatHistory = [
     {
         "role": "system",
         "content": `
-        You are a helpful assistant that can answer questions and provide information.
-        If you are not sure about the question, then try to answer it to the best of your ability,
-        including extrapolating or guessing the answer from your training data.
+        You are a helpful assistant that can answer questions and provide
+        information. If you are not sure about the question, then try to
+        answer it to the best of your ability, including extrapolating or
+        guessing the answer from your training data.
         `,
-        // This default system prompt can lead to hallucinations, so you might want to change it.
+        // This default system prompt can lead to hallucinations, so you
+        // might want to change it.
         // For example, you could use a more restrictive prompt like:
         // `
-        // You are a helpful assistant that can answer questions and provide information.
-        // If you don't know the answer, say "I don't know" instead of making up an answer.
-        // Do not under any circumstances make up an answer.
+        // You are a helpful assistant that can answer questions and provide
+        // information. If you don't know the answer, say "I don't know"
+        // instead of making up an answer. Do not under any circumstances
+        // make up an answer.
         // `
     }
 ]
 ```
+
 </CodeGroup>
 
 Try commenting out the original system prompt, and uncomment the suggestion. Then restart the chatbot and interact with it, asking questions about made-up things to see how it responds.
@@ -323,11 +349,21 @@ This sample project has a unit test that runs the chatbot against a pre-defined 
 
 ```json dataset.json
 [
-    { "input": "Which continent is Spain in?" },
-    { "input": "Which continent is Japan in?" },
-    { "input": "Describe the running of the hippopotamus festival in Spain." },
-    { "input": "What is the estimated population of Querulous Quails in Florin." },
-    { "input": "Describe the famous Pudding Lane BBQ party" }
+    {
+        "input": "Which continent is Spain in?"
+    },
+    {
+        "input": "Which continent is Japan in?"
+    },
+    {
+        "input": "Describe the running of the hippopotamus festival in Spain."
+    },
+    {
+        "input": "What is the estimated population of Querulous Quails in Florin."
+    },
+    {
+        "input": "Describe the famous Pudding Lane BBQ party"
+    }
     ...
 ]
 ```
@@ -340,12 +376,15 @@ You can use this unit test to evaluate different system prompts for your app.
 
 Use the following command to run the unit test:
 <CodeGroup>
+
 ```python Python
 python -m pytest test.py
 ```
+
 ```typescript TypeScript
 npm run test
 ```
+
 </CodeGroup>
 </Step>
 
@@ -403,18 +442,21 @@ You can then select multiple rows and [compare the experiments in detail](/conce
 <Card title="Log Using the OpenAI Wrapper" icon="code" href="/how-to-guides/basics/basic-example" horizontal>
   Learn how to integrate and use OpenAI's API with Galileo's wrapper client.
   <br/>
+  
   **Python**
 </Card>
 
 <Card title="Log Using the @log Decorator" icon="code" href="/how-to-guides/basics/basic-logging-with-decorator/basic-logging-with-decorator" horizontal>
   Learn how to use the Galileo @log decorator to log functions to traces
   <br/>
+  
   **Python**
 </Card>
 
 <Card title="Create Traces and Spans" icon="code" href="/how-to-guides/basics/manual-span-creation/manual-span-creation" horizontal>
   Learn how to create log traces and spans manually in your AI apps
   <br/>
+  
   **Python**
 </Card>
 </CardGroup>

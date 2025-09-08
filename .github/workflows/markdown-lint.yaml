@@ -1,0 +1,142 @@
+name: Markdown Lint
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+      - "release/**"
+    paths:
+      - "**.md"
+      - "**.mdx"
+      - ".markdownlint.jsonc"
+      - ".github/workflows/markdown-lint.yaml"
+  push:
+    branches:
+      - main
+    paths:
+      - "**.md"
+      - "**.mdx"
+      - ".markdownlint.jsonc"
+      - ".github/workflows/markdown-lint.yaml"
+
+jobs:
+  markdown-lint:
+    name: Markdown Lint Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Full history for better context in error messages
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache markdownlint-cli2
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-markdownlint-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-markdownlint-
+
+      - name: Install markdownlint-cli2
+        run: npm install -g markdownlint-cli2
+
+      - name: Get changed files
+        id: changed-files
+        if: github.event_name == 'pull_request'
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            **.md
+            **.mdx
+          separator: " "
+
+      - name: Run markdownlint on changed files (PR)
+        if: github.event_name == 'pull_request' && steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "Running markdownlint on changed files:"
+          echo "${{ steps.changed-files.outputs.all_changed_files }}"
+          
+          # Filter out generated SDK reference files and run markdownlint
+          FILTERED_FILES=""
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            # Skip generated SDK reference files
+            if [[ ! "$file" =~ ^sdk-api/.*/reference/.* ]]; then
+              if [[ -f "$file" ]]; then
+                FILTERED_FILES="$FILTERED_FILES $file"
+              fi
+            fi
+          done
+          
+          if [[ -n "$FILTERED_FILES" ]]; then
+            echo "Linting files: $FILTERED_FILES"
+            markdownlint-cli2 $FILTERED_FILES
+          else
+            echo "No markdown files to lint after filtering"
+          fi
+
+      - name: Run markdownlint on all files (push to main)
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Running markdownlint on all markdown files (excluding generated SDK references)"
+          markdownlint-cli2 "**/*.{md,mdx}"
+
+      - name: Upload markdownlint results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: markdownlint-results
+          path: |
+            .markdownlint-cli2.jsonc
+            markdownlint-results.txt
+          retention-days: 5
+
+      - name: Comment on PR with markdown issues
+        if: failure() && github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: markdown-lint
+          message: |
+            ## ❌ Markdown Lint Issues Found
+            
+            Markdownlint found issues in the changed markdown files. Please review and fix them:
+            
+            ### Files checked:
+            ${{ steps.changed-files.outputs.all_changed_files }}
+            
+            ### To fix locally:
+            
+            1. Install markdownlint-cli2:
+               ```bash
+               npm install -g markdownlint-cli2
+               ```
+            
+            2. Run on specific files:
+               ```bash
+               markdownlint-cli2 path/to/your/file.md
+               ```
+            
+            3. Or run on all files:
+               ```bash
+               markdownlint-cli2 "**/*.{md,mdx}" --config .markdownlint.jsonc
+               ```
+            
+            See the [markdownlint rules documentation](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md) for details on each rule.
+
+      - name: Comment success on PR
+        if: success() && github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: markdown-lint
+          message: |
+            ## ✅ Markdown Lint Passed
+            
+            All markdown files meet the linting standards! 🎉
