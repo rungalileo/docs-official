@@ -1,6 +1,7 @@
 ---
 title: Instrument LangGraph Agents with OpenTelemetry
 description: Learn how to add comprehensive observability to your LangGraph agents using OpenTelemetry and Galileo
+tag: "Python"
 ---
 
 import SnippetMainWorkflow from "/snippets/code/python/cookbooks/langgraph-otel/main-workflow.mdx";
@@ -14,11 +15,9 @@ import SnippetAttributes from "/snippets/code/python/cookbooks/langgraph-otel/at
 import SnippetEvents from "/snippets/code/python/cookbooks/langgraph-otel/events.mdx";
 import SnippetCleanup from "/snippets/code/python/cookbooks/langgraph-otel/cleanup.mdx";
 
-> This cookbook demonstrates how to instrument LangGraph agents with OpenTelemetry (OTel) for comprehensive observability and monitoring in Galileo.
-
 ## Overview
 
-In this cookbook, you'll learn how to instrument a LangGraph agent with OpenTelemetry to capture detailed traces, spans, and metrics. This approach provides deep visibility into your agent's execution flow, including tool calls, LLM interactions, and decision-making processes.
+In this cookbook, you'll learn how to instrument a LangGraph agent with OpenTelemetry and OpenInference to capture detailed traces, spans, and metrics. This approach provides deep visibility into your agent's execution flow, including tool calls, LLM interactions, and decision-making processes.
 
 This tutorial is intended for developers who want to add observability to their LangGraph applications. It assumes you have basic knowledge of:
 
@@ -36,7 +35,7 @@ By the end of this tutorial, you'll be able to:
 
 ## Background
 
-**OpenTelemetry (OTel)** is an open*source observability framework that provides a standardized way to collect, process, and export telemetry data (traces, metrics, and logs). When combined with **LangGraph**, it enables comprehensive monitoring of agent workflows, tool executions, and LLM interactions.
+**[OpenTelemetry (OTel)](https://opentelemetry.io/docs/what-is-opentelemetry/)** is an open-source observability framework that provides a standardized way to collect, process, and export telemetry data (traces, metrics, and logs). When combined with **[LangGraph](https://docs.langchain.com/langgraph-platform)**, it enables comprehensive monitoring of agent workflows, tool executions, and LLM interactions.
 
 **Why use OpenTelemetry with LangGraph?**
 
@@ -74,8 +73,8 @@ For the sake of jumping right into action — we'll be starting from an [existin
 <Step title="Clone the repository">
 
 ```bash Terminal
-git clone https://github.com/rungalileo/sdk*examples
-cd sdk*examples/python/agent/langgraph*otel
+git clone https://github.com/rungalileo/sdk-examples
+cd sdk-examples/python/agent/langgraph-otel
 ```
 
 </Step>
@@ -153,8 +152,6 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 ## Understanding the example
 
-### What this example shows
-
 This example demonstrates:
 
 - **Automatic tracing**: OpenInference automatically traces your LangGraph workflow
@@ -162,7 +159,7 @@ This example demonstrates:
 - **Multiple destinations**: Traces go to both your console (for debugging - optional) and Galileo (for analysis)
 - **Real-world setup**: Proper authentication and configuration for production use
 
-### 🤔 What are these tools
+### What are these tools?
 
 #### OpenTelemetry (OTel)
 
@@ -221,7 +218,7 @@ Sends detailed traces to both console and Galileo
 **Console Output:**
 
 ```text Terminal Output
-OTel Headers: Galileo*API*Key=your_key,project=YourProject,logstream=development
+OTel Headers: Galileo-API-Key=your_key,project=YourProject,logstream=development
 ✓ LangGraph instrumentation applied * automatic spans will be created
 LangGraph result: {'query': 'hello world', 'response': 'Processed: HELLO WORLD'}
 ✓ Execution complete * check Galileo for traces in your project/log stream
@@ -241,17 +238,17 @@ You'll see traces for:
 
 Each trace shows:
 
-- ⏱️ **Timing**: How long each operation took
-- 🏷️ **Attributes**: Key*value data (like input text)
-- 📝 **Events**: Breadcrumb*style log messages
-- 🧵 **Relationships**: Parent*child span connections
+- **Timing**: How long each operation took
+- **Attributes**: Key-value data (like input text)
+- **Events**: Breadcrumb-style log messages
+- *Relationships**: Parent-child span connections
 
 ## Code structure
 
 ### Main components
 
 ```text Project Structure
-langgraph*otel/
+langgraph-otel/
 ├── main.py           # Main workflow implementation
 ├── pyproject.toml    # Project dependencies and metadata
 ├── .env.example      # Environment variable template
@@ -260,7 +257,7 @@ langgraph*otel/
 
 ### Workflow architecture
 
-The example implements a simple two*node LangGraph workflow:
+The example implements a simple two-node LangGraph workflow:
 
 <Steps>
 <Step title="Initial Node">
@@ -335,7 +332,7 @@ Click on any trace to see:
 **Pro tip**: Traces may take 30-60 seconds to appear in Galileo after execution.
 Refresh the screen to see recent changes and updates.
 
-![A set of traces showing LangGraph agent execution with timing and span details](/getting-started/sample-projects/multi-agent-traces.webp)
+![OTel Span displayed within the Galileo Traces interface](/images/integrations/2025-09-05-OTEL-Langgraph-Span.webp)
 
 ### 2. Understanding the trace structure
 
@@ -346,7 +343,7 @@ Your traces will show:
 - **Custom Spans**: Any custom spans you've created with attributes and events
 - **Error Spans**: Any errors that occurred during execution
 
-![Detailed trace view showing span hierarchy and attributes](/images/concepts/logging/session**trace*detail.webp)
+![OTel Trace visualized in the Galileo Trace Visualized view](/images/integrations/2025-09-09-OTel-Trace-Visualized-Summary.webp)
 
 ### 3. Key metrics to monitor
 
@@ -500,25 +497,18 @@ In this cookbook, you learned how to:
 - Troubleshoot common instrumentation issues
 - Follow best practices for observability and development
 
-## Related documentation
-
-- [LangGraph Documentation](https://langchain*ai.github.io/langgraph/)
-- [OpenTelemetry Python Guide](https://opentelemetry.io/docs/instrumentation/python/)
-- [Galileo Documentation](https://v2docs.galileo.ai/)
-- [uv Package Manager](https://docs.astral.sh/uv/)
-
 ## Next steps
 
 Consider exploring these related topics to enhance your observability:
 
 <CardGroup cols={2}>
-<Card title="OpenTelemetry Guide" icon="book" horizontal href="/how*to*guides/third*party*integrations/otel">
+<Card title="OpenTelemetry Guide" icon="book" horizontal href="/how-to-guides/third-party-integrations/otel">
     Learn more about OpenTelemetry integration with Galileo
 </Card>
-<Card title="LangGraph Experiments" icon="flask" horizontal href="/sdk*api/third*party*integrations/langchain/experiments">
+<Card title="LangGraph Experiments" icon="flask" horizontal href="/sdk-api/third-party*integrations/langchain/experiments">
     Run experiments with your instrumented LangGraph agents
 </Card>
-<Card title="Multi*Agent Systems" icon="users" horizontal href="/cookbooks/use*cases/multi*agent*langgraph">
+<Card title="Multi*Agent Systems" icon="users" horizontal href="/cookbooks/use-cases/multi-agent-langgraph">
     Scale your observability to multi*agent systems
 </Card>
 <Card title="Custom Metrics" icon="chart" horizontal href="/concepts/metrics/overview">
