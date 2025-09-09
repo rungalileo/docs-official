@@ -31,9 +31,9 @@ In this guide you will:
 
 Before you (insert a brief description of the task), ensure:
 
-* Prerequisite 1
-* Prerequisite 2
-* Prerequisite 3
+- Prerequisite 1
+- Prerequisite 2
+- Prerequisite 3
 
 ## (Task name )
 
@@ -43,12 +43,11 @@ Before you (insert a brief description of the task), ensure:
 
 <Steps>
 <Step title="(Write the step here. Use a verb to start.)">
+(Optional: Explanatory text)
 
-    (Optional: Explanatory text)
+(Optional: Code sample or screenshot that helps your users complete this step.)
 
-    (Optional: Code sample or screenshot that helps your users complete this step.)
-
-    (Optional: The result of completing this step.)
+(Optional: The result of completing this step.)
 </Step>
 <Step title="(Write the step here. Use a verb to start.)">
 ...
@@ -59,9 +58,9 @@ Before you (insert a brief description of the task), ensure:
 
 (Include references and/or links to other related documentation such as other how-to guides, conceptual topics, troubleshooting information, and limitation details if any.
 
-* Reference link
-* Concept link
-* Troubleshooting link
+- Reference link
+- Concept link
+- Troubleshooting link
 
 ## Next steps (optional)
 
