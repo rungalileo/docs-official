@@ -9,7 +9,7 @@ import SnippetAdvancedSpans from "/snippets/code/python/cookbooks/langgraph-otel
 import SnippetErrorHandling from "/snippets/code/python/cookbooks/langgraph-otel/error-handling.mdx";
 import SnippetCustomExporter from "/snippets/code/python/cookbooks/langgraph-otel/custom-exporter.mdx";
 import SnippetBatchProcessor from "/snippets/code/python/cookbooks/langgraph-otel/batch-processor.mdx";
-import SnippetSpanNaming from "/snippets/code/python/cookbooks/langgraph-otel/ span-naming.mdx";
+import SnippetSpanNaming from "/snippets/code/python/cookbooks/langgraph-otel/span-naming.mdx";
 import SnippetAttributes from "/snippets/code/python/cookbooks/langgraph-otel/attributes.mdx";
 import SnippetEvents from "/snippets/code/python/cookbooks/langgraph-otel/events.mdx";
 import SnippetCleanup from "/snippets/code/python/cookbooks/langgraph-otel/cleanup.mdx";
@@ -22,38 +22,38 @@ In this cookbook, you'll learn how to instrument a LangGraph agent with OpenTele
 
 This tutorial is intended for developers who want to add observability to their LangGraph applications. It assumes you have basic knowledge of:
 
-* Python programming
-* LangGraph framework
-* OpenTelemetry concepts
-* Galileo platform basics
+- Python programming
+- LangGraph framework
+- OpenTelemetry concepts
+- Galileo platform basics
 
 By the end of this tutorial, you'll be able to:
 
-* Set up OpenTelemetry instrumentation for LangGraph agents
-* Configure proper tracing and span creation
-* Monitor agent execution in Galileo
-* Troubleshoot common instrumentation issues
+- Set up OpenTelemetry instrumentation for LangGraph agents
+- Configure proper tracing and span creation
+- Monitor agent execution in Galileo
+- Troubleshoot common instrumentation issues
 
 ## Background
 
-**OpenTelemetry (OTel)** is an open-source observability framework that provides a standardized way to collect, process, and export telemetry data (traces, metrics, and logs). When combined with **LangGraph**, it enables comprehensive monitoring of agent workflows, tool executions, and LLM interactions.
+**OpenTelemetry (OTel)** is an open*source observability framework that provides a standardized way to collect, process, and export telemetry data (traces, metrics, and logs). When combined with **LangGraph**, it enables comprehensive monitoring of agent workflows, tool executions, and LLM interactions.
 
 **Why use OpenTelemetry with LangGraph?**
 
-* **Deep Visibility**: Track every step of your agent's execution, from initial input to final output
-* **Tool Monitoring**: Monitor tool calls, their parameters, and execution times
-* **LLM Observability**: Capture detailed information about model calls, tokens, and costs
-* **Error Tracking**: Identify and debug issues in your agent's decision-making process
-* **Performance Analysis**: Understand bottlenecks and optimize your agent's performance
+- **Deep Visibility**: Track every step of your agent's execution, from initial input to final output
+- **Tool Monitoring**: Monitor tool calls, their parameters, and execution times
+- **LLM Observability**: Capture detailed information about model calls, tokens, and costs
+- **Error Tracking**: Identify and debug issues in your agent's decision-making process
+- **Performance Analysis**: Understand bottlenecks and optimize your agent's performance
 
 ## Before you start
 
 Before you start this tutorial, you should:
 
-* Have a Galileo account and API key
-* Have Python 3.8+ installed
-* Be familiar with LangGraph concepts
-* Have a basic understanding of OpenTelemetry
+- Have a Galileo account and API key
+- Have Python 3.8+ installed
+- Be familiar with LangGraph concepts
+- Have a basic understanding of OpenTelemetry
 
 ## Prerequisites
 
@@ -63,10 +63,10 @@ For the sake of jumping right into action — we'll be starting from an [existin
 
 **Prerequisites:**
 
-* **Python 3.12+**: [Download from python.org](https://www.python.org/downloads/)
-* **uv Package Manager**: [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
-* **Galileo Account**: [Sign up for free](https://app.galileo.ai)
-* **OpenAI API Key**: [Get your API key](https://openai.com/api/)
+- **Python 3.12+**: [Download from python.org](https://www.python.org/downloads/)
+- **uv Package Manager**: [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
+- **Galileo Account**: [Sign up for free](https://app.galileo.ai)
+- **OpenAI API Key**: [Get your API key](https://openai.com/api/)
 
 **Installation Steps:**
 
@@ -74,8 +74,8 @@ For the sake of jumping right into action — we'll be starting from an [existin
 <Step title="Clone the repository">
 
 ```bash Terminal
-git clone https://github.com/rungalileo/sdk-examples
-cd sdk-examples/python/agent/langgraph-otel
+git clone https://github.com/rungalileo/sdk*examples
+cd sdk*examples/python/agent/langgraph*otel
 ```
 
 </Step>
@@ -86,13 +86,14 @@ cd sdk-examples/python/agent/langgraph-otel
 uv sync
 ```
 
-   This will install all required dependencies including:
+This will install all required dependencies including:
 
-   * `langgraph` for state graph workflows
-   * `opentelemetry-*` packages for instrumentation
-   * `python-dotenv` for environment variable management</Step>
+- `langgraph` for state graph workflows
+- `opentelemetry-*` packages for instrumentation
+- `python-dotenv` for environment variable management
 
-
+</Step>
+</Steps>
 
 <Steps>
 <Step title="Create a free Galileo account">
@@ -103,17 +104,17 @@ Create a free Galileo account at [app.galileo.ai](https://app.galileo.ai) if you
 
 <Step title="Get your API key">
 
-* Log into Galileo dashboard
-* Click on your profile/settings
-* Generate or copy your API key
+- Log into Galileo dashboard
+- Click on your profile/settings
+- Generate or copy your API key
 
 </Step>
 
 <Step title="Create a project">
 
-* In the Galileo dashboard, create a new project
-* Give it a name like "LangGraph-OTel"
-* Note the project name - you'll use this in your `.env` file
+- In the Galileo dashboard, create a new project
+- Give it a name like "LangGraph*OTel"
+- Note the project name * you'll use this in your `.env` file
 
 </Step>
 
@@ -146,9 +147,9 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 > **Important Notes:**
 >
-> * **Never commit your `.env` file** - it contains your API keys!
-> * **Project names are case-sensitive** - use exactly what you created in Galileo
-> * **Log streams** help organize traces (like folders) - create any name you want
+> - **Never commit your `.env` file** - it contains your API keys!
+> - **Project names are case-sensitive** - use exactly what you created in Galileo
+> - **Log streams** help organize traces (like folders) - create any name you want
 
 ## Understanding the example
 
@@ -156,21 +157,21 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 This example demonstrates:
 
-* **Automatic tracing**: OpenInference automatically traces your LangGraph workflow
-* **Custom tracing**: How to add your own detailed spans with attributes and events
-* **Multiple destinations**: Traces go to both your console (for debugging - optional) and Galileo (for analysis)
-* **Real-world setup**: Proper authentication and configuration for production use
+- **Automatic tracing**: OpenInference automatically traces your LangGraph workflow
+- **Custom tracing**: How to add your own detailed spans with attributes and events
+- **Multiple destinations**: Traces go to both your console (for debugging - optional) and Galileo (for analysis)
+- **Real-world setup**: Proper authentication and configuration for production use
 
-### 🤔 What are these tools?
+### 🤔 What are these tools
 
 #### OpenTelemetry (OTel)
 
 OpenTelemetry is like a **diagnostic system** for your code. It creates "traces" that show:
 
-* What functions/operations ran
-* How long each step took
-* What data flowed through your system
-* Where errors occurred
+- What functions/operations ran
+- How long each step took
+- What data flowed through your system
+- Where errors occurred
 
 Think of a trace like a detailed timeline of everything that happened when processing a user request.
 
@@ -182,10 +183,10 @@ OpenInference is a **specialized version** of OpenTelemetry that understands AI 
 
 Galileo is an AI Reliability and Observability tool that helps developers at scale build reliable AI tooling. Instead of traces just being printed to your terminal, Galileo gives you:
 
-* Visual workflow execution flow
-* Performance bottleneck analysis
-* System behavior monitoring over time
-* Debugging capabilities for failed executions
+- Visual workflow execution flow
+- Performance bottleneck analysis
+- System behavior monitoring over time
+- Debugging capabilities for failed executions
 
 ## Running the example
 
@@ -220,10 +221,10 @@ Sends detailed traces to both console and Galileo
 **Console Output:**
 
 ```text Terminal Output
-OTel Headers: Galileo-API-Key=your_key,project=YourProject,logstream=development
-✓ LangGraph instrumentation applied - automatic spans will be created
+OTel Headers: Galileo*API*Key=your_key,project=YourProject,logstream=development
+✓ LangGraph instrumentation applied * automatic spans will be created
 LangGraph result: {'query': 'hello world', 'response': 'Processed: HELLO WORLD'}
-✓ Execution complete - check Galileo for traces in your project/log stream
+✓ Execution complete * check Galileo for traces in your project/log stream
 
 # Followed by detailed JSON trace data...
 ```
@@ -232,25 +233,25 @@ LangGraph result: {'query': 'hello world', 'response': 'Processed: HELLO WORLD'}
 
 You'll see traces for:
 
-* **LangGraph**: The main workflow execution
-* **initial**: The first node (validates input)
-* **process**: The second node (transforms input)
-* **initial_node**: Your custom span with attributes
-* **processing_node**: Your custom span with events
+- **LangGraph**: The main workflow execution
+- **initial**: The first node (validates input)
+- **process**: The second node (transforms input)
+- **initial_node**: Your custom span with attributes
+- **processing_node**: Your custom span with events
 
 Each trace shows:
 
-* ⏱️ **Timing**: How long each operation took
-* 🏷️ **Attributes**: Key-value data (like input text)
-* 📝 **Events**: Breadcrumb-style log messages
-* 🧵 **Relationships**: Parent-child span connections
+- ⏱️ **Timing**: How long each operation took
+- 🏷️ **Attributes**: Key*value data (like input text)
+- 📝 **Events**: Breadcrumb*style log messages
+- 🧵 **Relationships**: Parent*child span connections
 
 ## Code structure
 
 ### Main components
 
 ```text Project Structure
-langgraph-otel/
+langgraph*otel/
 ├── main.py           # Main workflow implementation
 ├── pyproject.toml    # Project dependencies and metadata
 ├── .env.example      # Environment variable template
@@ -259,7 +260,7 @@ langgraph-otel/
 
 ### Workflow architecture
 
-The example implements a simple two-node LangGraph workflow:
+The example implements a simple two*node LangGraph workflow:
 
 <Steps>
 <Step title="Initial Node">
@@ -273,9 +274,9 @@ Transforms the query (converts to uppercase)
 
 Each node is instrumented with OpenTelemetry spans that capture:
 
-* Input parameters as span attributes
-* Processing events and milestones
-* Execution timing and metadata
+- Input parameters as span attributes
+- Processing events and milestones
+- Execution timing and metadata
 
 ### OpenTelemetry integration
 
@@ -317,16 +318,17 @@ Click on the project you created (e.g., "LangGraph Demo") and then the relevant 
 <Step title="Find your traces">
 Look for traces with names like:
 
-* `langgraph_agent_execution`
-* `initial_node`
-* `processing_node`
+- `langgraph_agent_execution`
+- `initial_node`
+- `processing_node`
 </Step>
 
 <Step title="Explore the timeline">
 Click on any trace to see:
 
-* Detailed attributes and events
-* Hierarchical span relationships
+- Detailed attributes and events
+- Hierarchical span relationships
+
 </Step>
 </Steps>
 
@@ -339,19 +341,19 @@ Refresh the screen to see recent changes and updates.
 
 Your traces will show:
 
-* **Root Span**: The main agent execution
-* **Node Spans**: Individual workflow nodes with timing and data
-* **Custom Spans**: Any custom spans you've created with attributes and events
-* **Error Spans**: Any errors that occurred during execution
+- **Root Span**: The main agent execution
+- **Node Spans**: Individual workflow nodes with timing and data
+- **Custom Spans**: Any custom spans you've created with attributes and events
+- **Error Spans**: Any errors that occurred during execution
 
-![Detailed trace view showing span hierarchy and attributes](/images/concepts/logging/session--trace-detail.webp)
+![Detailed trace view showing span hierarchy and attributes](/images/concepts/logging/session**trace*detail.webp)
 
 ### 3. Key metrics to monitor
 
-* **Execution Time**: How long your agent takes to complete
-* **Node Performance**: Individual node execution times
-* **Error Rate**: Frequency of errors in your agent
-* **Data Flow**: How data moves through your workflow
+- **Execution Time**: How long your agent takes to complete
+- **Node Performance**: Individual node execution times
+- **Error Rate**: Frequency of errors in your agent
+- **Data Flow**: How data moves through your workflow
 
 ## Troubleshooting
 
@@ -373,9 +375,9 @@ Error: Failed to export traces
 
 **Solution**:
 
-* Verify internet connectivity
-* Check `GALILEO_CONSOLE_URL` if using custom deployment
-* Ensure firewall allows OTLP exports
+- Verify internet connectivity
+- Check `GALILEO_CONSOLE_URL` if using custom deployment
+- Ensure firewall allows OTLP exports
 
 #### 3. Authentication errors
 
@@ -385,8 +387,8 @@ Error: 403 Forbidden
 
 **Solution**:
 
-* Verify `GALILEO_API_KEY` is correct and active
-* Check project permissions in Galileo dashboard
+- Verify `GALILEO_API_KEY` is correct and active
+- Check project permissions in Galileo dashboard
 
 #### 4. Import errors
 
@@ -446,7 +448,7 @@ Add meaningful attributes to your spans:
 
 ### 3. Span events
 
-Events provide breadcrumb-style logging within spans:
+Events provide breadcrumb*style logging within spans:
 
 <SnippetEvents />
 
@@ -482,42 +484,42 @@ Update state schema if needed
 
 ### Development best practices
 
-* **Span Naming**: Use descriptive, consistent names
-* **Attribute Limits**: Keep attribute values small for optimal indexing
-* **Error Handling**: Add span status and error information for failed operations
-* **Resource Cleanup**: Ensure proper span closure in all execution paths
+- **Span Naming**: Use descriptive, consistent names
+- **Attribute Limits**: Keep attribute values small for optimal indexing
+- **Error Handling**: Add span status and error information for failed operations
+- **Resource Cleanup**: Ensure proper span closure in all execution paths
 
 ## Summary
 
 In this cookbook, you learned how to:
 
-* Set up OpenTelemetry instrumentation for LangGraph agents using the existing SDK example
-* Configure proper tracing with Galileo using environment variables
-* Understand the workflow architecture and span structure
-* View and analyze traces in the Galileo console
-* Troubleshoot common instrumentation issues
-* Follow best practices for observability and development
+- Set up OpenTelemetry instrumentation for LangGraph agents using the existing SDK example
+- Configure proper tracing with Galileo using environment variables
+- Understand the workflow architecture and span structure
+- View and analyze traces in the Galileo console
+- Troubleshoot common instrumentation issues
+- Follow best practices for observability and development
 
 ## Related documentation
 
-* [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
-* [OpenTelemetry Python Guide](https://opentelemetry.io/docs/instrumentation/python/)
-* [Galileo Documentation](https://v2docs.galileo.ai/)
-* [uv Package Manager](https://docs.astral.sh/uv/)
+- [LangGraph Documentation](https://langchain*ai.github.io/langgraph/)
+- [OpenTelemetry Python Guide](https://opentelemetry.io/docs/instrumentation/python/)
+- [Galileo Documentation](https://v2docs.galileo.ai/)
+- [uv Package Manager](https://docs.astral.sh/uv/)
 
 ## Next steps
 
 Consider exploring these related topics to enhance your observability:
 
 <CardGroup cols={2}>
-<Card title="OpenTelemetry Guide" icon="book" horizontal href="/how-to-guides/third-party-integrations/otel">
+<Card title="OpenTelemetry Guide" icon="book" horizontal href="/how*to*guides/third*party*integrations/otel">
     Learn more about OpenTelemetry integration with Galileo
 </Card>
-<Card title="LangGraph Experiments" icon="flask" horizontal href="/sdk-api/third-party-integrations/langchain/experiments">
+<Card title="LangGraph Experiments" icon="flask" horizontal href="/sdk*api/third*party*integrations/langchain/experiments">
     Run experiments with your instrumented LangGraph agents
 </Card>
-<Card title="Multi-Agent Systems" icon="users" horizontal href="/cookbooks/use-cases/multi-agent-langgraph">
-    Scale your observability to multi-agent systems
+<Card title="Multi*Agent Systems" icon="users" horizontal href="/cookbooks/use*cases/multi*agent*langgraph">
+    Scale your observability to multi*agent systems
 </Card>
 <Card title="Custom Metrics" icon="chart" horizontal href="/concepts/metrics/overview">
     Add custom metrics to track agent performance
