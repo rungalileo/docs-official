@@ -52,7 +52,7 @@ Experiments take a dataset, and can either pass it to a prompt template to run d
 For each row in a dataset, a new trace is created, and either the prompt template is logged as an LLM span, or every span created in the custom function is logged to that trace.
 
 <Note>
-When you call your application code from an experiment, the experiment runner will start a new trace for every row in your dataset. You will need to ensure your application code doesn't start a new trace manually.
+When you call your application code from an experiment, the experiment runner will start a new session and trace for every row in your dataset. You will need to ensure your application code doesn't start a new session or trace manually, or conclude or flush the trace.
 
 If you are using the `log` wrapper or a third-party integration, this is handed for you. If you are logging manually you will need to check to see if an experiment is in progress.
 
