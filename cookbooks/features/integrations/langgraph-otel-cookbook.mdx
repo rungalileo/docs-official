@@ -3,6 +3,17 @@ title: Instrument LangGraph Agents with OpenTelemetry
 description: Learn how to add comprehensive observability to your LangGraph agents using OpenTelemetry and Galileo
 ---
 
+import SnippetMainWorkflow from "/snippets/code/python/cookbooks/langgraph-otel/main-workflow.mdx";
+import SnippetTracerConfig from "/snippets/code/python/cookbooks/langgraph-otel/tracer-config.mdx";
+import SnippetAdvancedSpans from "/snippets/code/python/cookbooks/langgraph-otel/advanced-spans.mdx";
+import SnippetErrorHandling from "/snippets/code/python/cookbooks/langgraph-otel/error-handling.mdx";
+import SnippetCustomExporter from "/snippets/code/python/cookbooks/langgraph-otel/custom-exporter.mdx";
+import SnippetBatchProcessor from "/snippets/code/python/cookbooks/langgraph-otel/batch-processor.mdx";
+import SnippetSpanNaming from "/snippets/code/python/cookbooks/langgraph-otel/span-naming.mdx";
+import SnippetAttributes from "/snippets/code/python/cookbooks/langgraph-otel/attributes.mdx";
+import SnippetEvents from "/snippets/code/python/cookbooks/langgraph-otel/events.mdx";
+import SnippetCleanup from "/snippets/code/python/cookbooks/langgraph-otel/cleanup.mdx";
+
 > This cookbook demonstrates how to instrument LangGraph agents with OpenTelemetry (OTel) for comprehensive observability and monitoring in Galileo.
 
 ## Overview
@@ -59,59 +70,79 @@ For the sake of jumping right into action — we'll be starting from an [existin
 
 **Installation Steps:**
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/rungalileo/sdk-examples
-   cd sdk-examples/python/agent/langgraph-otel
-   ```
+<Steps>
+<Step title="Clone the repository">
 
-2. **Install dependencies using uv**:
-   ```bash
-   uv sync
-   ```
+```bash Terminal
+git clone https://github.com/rungalileo/sdk-examples
+cd sdk-examples/python/agent/langgraph-otel
+```
+
+</Step>
+
+<Step title="Install dependencies using uv">
+
+```bash Terminal
+uv sync
+```
 
    This will install all required dependencies including:
 
    * `langgraph` for state graph workflows
    * `opentelemetry-*` packages for instrumentation
-   * `python-dotenv` for environment variable management
+   * `python-dotenv` for environment variable management</Step>
 
-### 2. Set up Galileo authentication
 
-1. **Create a free Galileo account** at [app.galileo.ai](https://app.galileo.ai) if you haven't already
 
-2. **Get your API key**:
+<Steps>
+<Step title="Create a free Galileo account">
 
-   * Log into Galileo dashboard
-   * Click on your profile/settings
-   * Generate or copy your API key
+Create a free Galileo account at [app.galileo.ai](https://app.galileo.ai) if you haven't already.
 
-3. **Create a project**:
+</Step>
 
-   * In the Galileo dashboard, create a new project
-   * Give it a name like "LangGraph-OTel"
-   * Note the project name - you'll use this in your `.env` file
+<Step title="Get your API key">
 
-4. **Create your `.env` file**:
-   ```bash
-   cp .env.example .env
-   ```
+* Log into Galileo dashboard
+* Click on your profile/settings
+* Generate or copy your API key
 
-5. **Edit your `.env` file** with your actual values:
+</Step>
 
-   ```bash
-   # Replace with YOUR actual API key from Galileo dashboard
-   GALILEO_API_KEY=your_actual_api_key_here
-   
-   # Replace with YOUR project name from step 3
-   GALILEO_PROJECT=LangGraph Demo
-   
-   # This organizes traces within your project (you can use any name)
-   GALILEO_LOG_STREAM=development
-   
-   # Your OpenAI API key
-   OPENAI_API_KEY=your_openai_api_key_here
-   ```
+<Step title="Create a project">
+
+* In the Galileo dashboard, create a new project
+* Give it a name like "LangGraph-OTel"
+* Note the project name - you'll use this in your `.env` file
+
+</Step>
+
+<Step title="Create your .env file">
+
+```bash Terminal
+cp .env.example .env
+```
+
+</Step>
+
+<Step title="Edit your .env file with your actual values">
+
+```bash Terminal
+# Replace with YOUR actual API key from Galileo dashboard
+GALILEO_API_KEY=your_actual_api_key_here
+
+# Replace with YOUR project name from step 3
+GALILEO_PROJECT=LangGraph Demo
+
+# This organizes traces within your project (you can use any name)
+GALILEO_LOG_STREAM=development
+
+# Your OpenAI API key
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+</Step>
+</Steps>
 
 > **Important Notes:**
 >
@@ -160,7 +191,7 @@ Galileo is an AI Reliability and Observability tool that helps developers at sca
 
 ### Step 3: Run it
 
-```bash
+```bash Terminal
 uv run python main.py
 ```
 
@@ -168,14 +199,27 @@ uv run python main.py
 
 The program does several things:
 
-1. Sets up OpenTelemetry with your Galileo credentials
-2. Applies automatic instrumentation to LangGraph
-3. Runs a simple workflow: "hello world" → "PROCESSED: HELLO WORLD"
-4. Sends detailed traces to both console and Galileo
+<Steps>
+<Step title="Set up OpenTelemetry with your Galileo credentials">
+Sets up OpenTelemetry with your Galileo credentials
+</Step>
+
+<Step title="Apply automatic instrumentation to LangGraph">
+Applies automatic instrumentation to LangGraph
+</Step>
+
+<Step title="Run a simple workflow">
+Runs a simple workflow: "hello world" → "PROCESSED: HELLO WORLD"
+</Step>
+
+<Step title="Send detailed traces">
+Sends detailed traces to both console and Galileo
+</Step>
+</Steps>
 
 **Console Output:**
 
-```text
+```text Terminal Output
 OTel Headers: Galileo-API-Key=your_key,project=YourProject,logstream=development
 ✓ LangGraph instrumentation applied - automatic spans will be created
 LangGraph result: {'query': 'hello world', 'response': 'Processed: HELLO WORLD'}
@@ -205,7 +249,7 @@ Each trace shows:
 
 ### Main components
 
-```text
+```text Project Structure
 langgraph-otel/
 ├── main.py           # Main workflow implementation
 ├── pyproject.toml    # Project dependencies and metadata
@@ -217,8 +261,15 @@ langgraph-otel/
 
 The example implements a simple two-node LangGraph workflow:
 
-1. **Initial Node**: Receives and validates the input query
-2. **Processing Node**: Transforms the query (converts to uppercase)
+<Steps>
+<Step title="Initial Node">
+Receives and validates the input query
+</Step>
+
+<Step title="Processing Node">
+Transforms the query (converts to uppercase)
+</Step>
+</Steps>
 
 Each node is instrumented with OpenTelemetry spans that capture:
 
@@ -230,28 +281,11 @@ Each node is instrumented with OpenTelemetry spans that capture:
 
 #### Span structure
 
-```python
-def initial_node(state: AgentState):
-    # Child of any current span; here we start a dedicated one per node
-    with tracer.start_as_current_span("initial_node") as span:
-        q = state.get("query", "")
-        span.set_attribute("input.query", q)
-        # span events are great for breadcrumbs
-        span.add_event("received_query", {"len": len(q)})
-        # Must return a partial state update
-        return {"query": q}
-```
+<SnippetMainWorkflow />
 
 #### Tracer configuration
 
-```python
-# Configure OpenTelemetry
-resource = Resource.create({"service.name": "langgraph-agent"})
-provider = TracerProvider(resource=resource)
-provider.add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter()))
-trace.set_tracer_provider(provider)
-tracer = trace.get_tracer(__name__)
-```
+<SnippetTracerConfig />
 
 ## Advanced instrumentation patterns
 
@@ -259,89 +293,47 @@ tracer = trace.get_tracer(__name__)
 
 You can create custom spans to track specific parts of your agent's logic:
 
-```python
-def advanced_agent_with_custom_spans():
-    """Advanced agent with custom span instrumentation"""
-    
-    tracer = trace_api.get_tracer(__name__)
-    
-    with tracer.start_as_current_span("advanced_agent_workflow") as root_span:
-        root_span.set_attribute("workflow.type", "advanced_langgraph")
-        
-        # Custom span for input processing
-        with tracer.start_as_current_span("input_processing") as input_span:
-            user_input = "What's the weather like today?"
-            input_span.set_attribute("input.length", len(user_input))
-            input_span.set_attribute("input.type", "weather_query")
-        
-        # Custom span for agent execution
-        with tracer.start_as_current_span("agent_execution") as agent_span:
-            initial_state = {
-                "messages": [{"role": "user", "content": user_input}],
-                "current_step": "start"
-            }
-            
-            result = app.invoke(initial_state)
-            agent_span.set_attribute("execution.success", True)
-            agent_span.set_attribute("response.length", len(result["messages"][-1]["content"]))
-        
-        return result
-```
+<SnippetAdvancedSpans />
 
 ### Error handling and tracing
 
 Add proper error handling with tracing:
 
-```python
-def robust_agent_with_error_tracing():
-    """Agent with comprehensive error handling and tracing"""
-    
-    tracer = trace_api.get_tracer(__name__)
-    
-    try:
-        with tracer.start_as_current_span("robust_agent_execution") as span:
-            span.set_attribute("agent.version", "1.0")
-            
-            # Your agent logic here
-            result = app.invoke({
-                "messages": [{"role": "user", "content": "Test message"}],
-                "current_step": "start"
-            })
-            
-            span.set_attribute("execution.status", "success")
-            return result
-            
-    except Exception as e:
-        # Create an error span
-        with tracer.start_as_current_span("agent_error") as error_span:
-            error_span.set_attribute("error.type", type(e).__name__)
-            error_span.set_attribute("error.message", str(e))
-            error_span.set_attribute("execution.status", "error")
-            
-        raise e
-```
+<SnippetErrorHandling />
 
 ## 🔍 Viewing traces in Galileo
 
 ### 1. Access your traces
 
-1. **Open Galileo**: Go to [app.galileo.ai](https://app.galileo.ai) and log in
+<Steps>
+<Step title="Open Galileo">
+Go to [app.galileo.ai](https://app.galileo.ai) and log in
+</Step>
 
-2. **Navigate to your project**: Click on the project you created (e.g., "LangGraph Demo") and then the relevant Log stream name.
+<Step title="Navigate to your project">
+Click on the project you created (e.g., "LangGraph Demo") and then the relevant Log stream name.
+</Step>
 
-3. **Find your traces**: Look for traces with names like:
+<Step title="Find your traces">
+Look for traces with names like:
 
-   * `langgraph_agent_execution`
-   * `initial_node`
-   * `processing_node`
+* `langgraph_agent_execution`
+* `initial_node`
+* `processing_node`
+</Step>
 
-4. **Explore the timeline**: Click on any trace to see:
+<Step title="Explore the timeline">
+Click on any trace to see:
 
-   * Detailed attributes and events
-   * Hierarchical span relationships
+* Detailed attributes and events
+* Hierarchical span relationships
+</Step>
+</Steps>
 
 **Pro tip**: Traces may take 30-60 seconds to appear in Galileo after execution.
 Refresh the screen to see recent changes and updates.
+
+![A set of traces showing LangGraph agent execution with timing and span details](/getting-started/sample-projects/multi-agent-traces.webp)
 
 ### 2. Understanding the trace structure
 
@@ -351,6 +343,8 @@ Your traces will show:
 * **Node Spans**: Individual workflow nodes with timing and data
 * **Custom Spans**: Any custom spans you've created with attributes and events
 * **Error Spans**: Any errors that occurred during execution
+
+![Detailed trace view showing span hierarchy and attributes](/images/concepts/logging/session--trace-detail.webp)
 
 ### 3. Key metrics to monitor
 
@@ -365,7 +359,7 @@ Your traces will show:
 
 #### 1. Missing environment variables
 
-```text
+```text Error Output
 Error: GALILEO_API_KEY not found
 ```
 
@@ -373,7 +367,7 @@ Error: GALILEO_API_KEY not found
 
 #### 2. Network connectivity
 
-```text
+```text Error Output
 Error: Failed to export traces
 ```
 
@@ -385,7 +379,7 @@ Error: Failed to export traces
 
 #### 3. Authentication errors
 
-```text
+```text Error Output
 Error: 403 Forbidden
 ```
 
@@ -396,7 +390,7 @@ Error: 403 Forbidden
 
 #### 4. Import errors
 
-```text
+```text Error Output
 ModuleNotFoundError: No module named 'langgraph'
 ```
 
@@ -404,10 +398,23 @@ ModuleNotFoundError: No module named 'langgraph'
 
 ### Debugging tips
 
-1. **Enable Console Export**: The example includes console span output for local debugging
-2. **Check Environment Loading**: Add print statements to verify `.env` variables are loaded
-3. **Validate Network**: Test OTLP endpoint connectivity independently
-4. **Review Logs**: Check both console output and Galileo dashboard for error details
+<Steps>
+<Step title="Enable Console Export">
+The example includes console span output for local debugging
+</Step>
+
+<Step title="Check Environment Loading">
+Add print statements to verify `.env` variables are loaded
+</Step>
+
+<Step title="Validate Network">
+Test OTLP endpoint connectivity independently
+</Step>
+
+<Step title="Review Logs">
+Check both console output and Galileo dashboard for error details
+</Step>
+</Steps>
 
 ## Advanced configuration
 
@@ -415,27 +422,13 @@ ModuleNotFoundError: No module named 'langgraph'
 
 To use different observability backends, modify the tracer setup:
 
-```python
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-
-# Replace ConsoleSpanExporter with OTLP exporter
-otlp_exporter = OTLPSpanExporter(
-    endpoint="https://your-backend.com/v1/traces",
-    headers={"Authorization": "Bearer your-token"}
-)
-provider.add_span_processor(SimpleSpanProcessor(otlp_exporter))
-```
+<SnippetCustomExporter />
 
 ### Additional span processors
 
 For production use, consider batch span processing:
 
-```python
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-
-# More efficient for high-volume tracing
-provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
-```
+<SnippetBatchProcessor />
 
 ## Best practices
 
@@ -443,46 +436,25 @@ provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
 
 Use consistent, descriptive names for your spans:
 
-```python
-# Good span names
-"langgraph_agent_execution"
-"initial_node"
-"processing_node"
-"error_handling"
-
-# Avoid generic names
-"span1"
-"function"
-"process"
-```
+<SnippetSpanNaming />
 
 ### 2. Attribute management
 
 Add meaningful attributes to your spans:
 
-```python
-span.set_attribute("input.query", user_input)
-span.set_attribute("processed.preview", response[:50])
-span.set_attribute("execution.success", True)
-```
+<SnippetAttributes />
 
 ### 3. Span events
 
 Events provide breadcrumb-style logging within spans:
 
-```python
-span.add_event("received_query", {"len": len(q)})
-span.add_event("computed_response", {"preview": response[:20]})
-```
+<SnippetEvents />
 
 ### 4. Resource management
 
 Properly manage your tracer provider:
 
-```python
-# At application shutdown
-tracer_provider.shutdown()
-```
+<SnippetCleanup />
 
 ## Development
 
@@ -490,10 +462,23 @@ tracer_provider.shutdown()
 
 To add new nodes to the LangGraph workflow:
 
-1. **Define the node function** with OpenTelemetry instrumentation
-2. **Add the node** to the StateGraph
-3. **Configure edges** between nodes
-4. **Update state schema** if needed
+<Steps>
+<Step title="Define the node function">
+Define the node function with OpenTelemetry instrumentation
+</Step>
+
+<Step title="Add the node">
+Add the node to the StateGraph
+</Step>
+
+<Step title="Configure edges">
+Configure edges between nodes
+</Step>
+
+<Step title="Update state schema">
+Update state schema if needed
+</Step>
+</Steps>
 
 ### Development best practices
 

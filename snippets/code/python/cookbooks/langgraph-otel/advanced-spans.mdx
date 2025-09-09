@@ -1,0 +1,29 @@
+```python advanced_example.py
+def advanced_agent_with_custom_spans():
+    """Advanced agent with custom span instrumentation"""
+    
+    tracer = trace_api.get_tracer(__name__)
+    
+    with tracer.start_as_current_span("advanced_agent_workflow") as root_span:
+        root_span.set_attribute("workflow.type", "advanced_langgraph")
+        
+        # Custom span for input processing
+        with tracer.start_as_current_span("input_processing") as input_span:
+            user_input = "What's the weather like today?"
+            input_span.set_attribute("input.length", len(user_input))
+            input_span.set_attribute("input.type", "weather_query")
+        
+        # Custom span for agent execution
+        with tracer.start_as_current_span("agent_execution") as agent_span:
+            initial_state = {
+                "messages": [{"role": "user", "content": user_input}],
+                "current_step": "start"
+            }
+            
+            result = app.invoke(initial_state)
+            agent_span.set_attribute("execution.success", True)
+            agent_span.set_attribute("response.length", len(result["messages"][-1]["content"]))
+        
+        return result
+```
+

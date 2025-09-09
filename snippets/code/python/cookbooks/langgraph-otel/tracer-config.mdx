@@ -1,0 +1,9 @@
+```python main.py
+# Configure OpenTelemetry
+resource = Resource.create({"service.name": "langgraph-agent"})
+provider = TracerProvider(resource=resource)
+provider.add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter()))
+trace.set_tracer_provider(provider)
+tracer = trace.get_tracer(__name__)
+```
+

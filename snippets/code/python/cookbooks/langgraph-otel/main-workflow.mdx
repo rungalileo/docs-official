@@ -1,0 +1,12 @@
+```python main.py
+def initial_node(state: AgentState):
+    # Child of any current span; here we start a dedicated one per node
+    with tracer.start_as_current_span("initial_node") as span:
+        q = state.get("query", "")
+        span.set_attribute("input.query", q)
+        # span events are great for breadcrumbs
+        span.add_event("received_query", {"len": len(q)})
+        # Must return a partial state update
+        return {"query": q}
+```
+
