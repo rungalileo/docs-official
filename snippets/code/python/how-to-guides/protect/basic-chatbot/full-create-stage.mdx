@@ -1,6 +1,4 @@
 ```python create_central_stage.py
-"""create_central_stage.py – complete script for creating a project and a toxicity guardrail stage"""
-
 import os
 from dotenv import load_dotenv
 
@@ -15,18 +13,6 @@ load_dotenv()
 project_name = os.environ.get("GALILEO_PROJECT")
 if not project_name:
     raise RuntimeError("Please set GALILEO_PROJECT in your environment or .env file.")
-
-# Ensure the project name is new for this tutorial
-if get_project(name=project_name):
-    raise RuntimeError(
-        f"Project '{project_name}' already exists.\n"
-        "➡️ For this tutorial, edit your .env and set GALILEO_PROJECT to a new, unused name.\n"
-        "This script will create a new project with that name automatically."
-    )
-
-# Create the project
-project = create_project(name=project_name)
-print(f"✅ Created project: {project.name} (id={project.id})")
 
 # Define the toxicity guardrail: rule + override action
 toxicity_rule = Rule(metric="input_toxicity", operator=RuleOperator.gt, target_value=0.01)
