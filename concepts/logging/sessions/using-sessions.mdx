@@ -68,7 +68,7 @@ Let's take a moment to prepare the development environment. If you already have 
 
         <CodeGroup>
             ```bash Python
-            pip install "galileo[openai]" langchain langchain-openai langgraph python-dotenv 
+            pip install "galileo[openai]" langchain langchain-openai langgraph python-dotenv
             ```
             ```bash TypeScript
             npm i -s galileo openai @langchain/langgraph @langchain/core dotenv
@@ -83,7 +83,7 @@ Let's take a moment to prepare the development environment. If you already have 
     </Step>
 
     <Step title="Create your application logic file">
-        Finally, create a main script file (e.g. `main.py` or `main.ts`) where you'll add and run your application logic. 
+        Finally, create a main script file (e.g. `main.py` or `main.ts`) where you'll add and run your application logic.
     </Step>
 </Steps>
 
@@ -92,7 +92,7 @@ Now we can dive in.
 
 ## Manage a session
 
-Recall our objectives from earlier? We'll build a simple application and use it to work through each step. If you're in a hurry, you jump to the [full code sample here](#full-code-sample), then return to see how it was put together. 
+Recall our objectives from earlier? We'll build a simple application and use it to work through each step. If you're in a hurry, you jump to the [full code sample here](#full-code-sample), then return to see how it was put together.
 
 ### Steps
 
@@ -138,8 +138,8 @@ Recall our objectives from earlier? We'll build a simple application and use it 
     </Step>
 
     <Step title="Add your LLM logic">
-        Now you can interact with your LLM. Our very simple application will invoke the LLM with two questions: each question will be a question/answer exchange that generates a `Trace` with child spans in our session. We will also pass a callback handler, which will be called by `LangChain` after each LLM invocation. 
-        
+        Now you can interact with your LLM. Our very simple application will invoke the LLM with two questions: each question will be a question/answer exchange that generates a `Trace` with child spans in our session. We will also pass a callback handler, which will be called by `LangChain` after each LLM invocation.
+
         Here's our full `main` function: you can make this part as complex as you like!
 
         <CodeGroup>
@@ -166,9 +166,9 @@ GalileoCallback(
 ```typescript TypeScript
 new GalileoCallback(
     /** A `GalileoLogger` instance. Defaults to a global singleton */
-    galileoLogger?: GalileoLogger, 
+    galileoLogger?: GalileoLogger,
     /** Start a new trace on next invocation. Defaults to "true" */
-    startNewTrace?: boolean, 
+    startNewTrace?: boolean,
     /** Flush captured traces after invocation. Defaults to "true" */
     flushOnChainEnd?: boolean
 )
@@ -190,11 +190,11 @@ Here's everything we have done so far:
 ### Run your script
 That's all the code: we have now learned to use `logger.start_session` before starting LLM chat session, and supply `GalileoCallback` to ensure your traces get sent to the Galileo Console.
 
-Now let's run the script: 
+Now let's run the script:
 
 <CodeGroup>
     ```bash Python
-    python main.py 
+    python main.py
     ```
 
     ```bash TypeScript
@@ -207,26 +207,26 @@ You should see the LLM's response in your terminal! You can also head to the [Ga
 
 ## View your session
 
-Now that you've logged a session, it's time to view results. 
+Now that you've logged a session, it's time to view results.
 
 <ViewSessionsInConsole />
 
 
 ## Additional considerations
 
-Remember to always use the same `GalileoLogger` instance across your project. This ensures that all captured events are placed in the same session. You can achieve this in a few ways: 
+Remember to always use the same `GalileoLogger` instance across your project. This ensures that all captured events are placed in the same session. You can achieve this in a few ways:
 
-1. Export your `logger` instance from a separate module, so that your application uses a singleton instance. 
+1. Export your `logger` instance from a separate module, so that your application uses a singleton instance.
 1. Use the TypeScript SDK's `getLogger` function, or the Python SDK's `galileo_context` context manager for a consistent reference:
     <CodeGroup>
         ```python Python
         from galileo import galileo_context
-        
+
         # Create a new session
         galileo_context.start_session(""" ...optional args """)
-        
+
         # Application logic follows
-        
+
         # Flush the session (if you are not using galileo callback or "with galileo_context()")
         galileo_context.flush()
         ```
@@ -234,12 +234,12 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
         ```typescript TypeScript
         import { getLogger } from 'galileo';
         const logger = getLogger();
-        
+
         // Create a new session
         logger.startSession(/* ...optional args */);
-        
+
         // Application logic follows
-        
+
         // Flush the session (if you are not using GalileoCallback)
         logger.flush()
         ```
@@ -247,17 +247,17 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
 1. You can also add `Traces` wherever you see fit. A `Trace` might represent a question asked to your LLM, and the response generated for it &mdash; as well as any tools used! Galileo will generate traces for you, but you can also create new ones by using your logger instance:
     <CodeGroup>
     ```python Python
-    question = "What is the meaning of plenipotentiary?" 
+    question = "What is the meaning of plenipotentiary?"
     logger.start_trace(input=question)
     logger.add_llm_span(
-        input=question, 
+        input=question,
         output="Plenipotentiary means 'Invested with full power'"
     )
     logger.conclude() # end the trace
     ```
 
     ```typescript TypeScript
-    const question = "What is the meaning of plenipotentiary?" 
+    const question = "What is the meaning of plenipotentiary?"
     logger.startTrace({ input: question })
     logger.addLlmSpan({ input: question, output: "Plenipotentiary means 'Invested with full power'" })
     logger.conclude(); // end the trace
@@ -270,13 +270,13 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
 
 In this tutorial, you learned how to:
 
-1. Create a logging session with the `GalileoLogger` class 
+1. Create a logging session with the `GalileoLogger` class
 2. Manually start your own session with the `logger.start_session()` method
 3. View your sessions in the Galileo Console.
 
 ## Next steps
 
-For a more detailed walkthrough of a multi-agent application, take a look at [Monitoring LangChain Agents with Galileo](/cookbooks/use-cases/agent-langchain). You can also learn more about using [Galileo's metrics](/concepts/metrics/overview) to gain more insight about your AI application. 
+For a more detailed walkthrough of a multi-agent application, take a look at [Monitoring LangChain Agents with Galileo](/cookbooks/use-cases/agent-langchain). You can also learn more about using [Galileo's metrics](/concepts/metrics/overview) to gain more insight about your AI application.
 
 
 ## Related resources

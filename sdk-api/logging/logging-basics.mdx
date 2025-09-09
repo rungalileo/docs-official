@@ -31,7 +31,7 @@ Metrics are configured at the Log stream level, allowing different metrics for d
 ```mermaid
 flowchart LR
     metrics[Metrics] --> trace
-    
+
     subgraph trace[" "]
         logstreams --> project[Project]
         sessions --> logstreams[Log streams]
@@ -107,12 +107,12 @@ The typical logging flow follows these steps:
 ```mermaid
 flowchart LR
     startSession[Start Session] --> trace[Traces]
-    
+
     subgraph trace[Traces]
         createTrace[Create Trace] --> addSpan[Add Spans]
         addSpan --> concludeTrace[Conclude Trace]
     end
-    
+
     trace[Traces] --> flushLogs[Flush Logs]
 ```
 

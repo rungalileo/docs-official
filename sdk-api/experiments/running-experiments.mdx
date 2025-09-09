@@ -155,7 +155,7 @@ There are a few important principles to understand when logging experiments in c
 - When running an experiment, a new logger is created for you and set in the Galileo context. If you create a new logger manually in the application code used in your experiment, this logger will not be used in the experiment.
 - To access the logger to manually add traces inside the experiment code, you can call `galileo_context.get_logger_instance()` (Python) or `getLogger()` (TypeScript) to get the current logger.
 - To detect if there is an active trace, use the `current_parent()` (Python) or `currentParent` (TypeScript) method on the logger. This will return `None`/`undefined` if there isn't an active trace.
-- Be sure to handle cases in your application code where a logger is created or a trace is started, and make sure this doesn't happen in an experiment, and the experiment logger and trace is used instead. 
+- Be sure to handle cases in your application code where a logger is created or a trace is started, and make sure this doesn't happen in an experiment, and the experiment logger and trace is used instead.
 - Every row in a dataset is a new trace. If you create new traces manually, they will not be used.
 - Do not conclude or flush the logger in your experiment, the experiment will do this for you.
 

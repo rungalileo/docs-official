@@ -7,7 +7,7 @@ from galileo.schema.metrics import GalileoScorers
 
 dataset = get_dataset(name="fictional_character_names")
 
-# Define a custom "runner" function for your experiment. 
+# Define a custom "runner" function for your experiment.
 def my_custom_llm_runner(input):
   client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
   return client.chat.completions.create(
@@ -24,11 +24,11 @@ results = run_experiment(
 	project="my-test-project-1",
 	dataset=dataset,
 	function=my_custom_llm_runner,
-	metrics=[ 
+	metrics=[
         # List metrics here
         GalileoScorers.action_advancement,
         GalileoScorers.completeness,
         GalileoScorers.instruction_adherence
-    ], 
+    ],
 )
 ```
