@@ -1,0 +1,89 @@
+```typescript TypeScript
+import { GoogleGenAI } from "@google/genai";
+import { getLogger, init } from "galileo";
+import dotenv from "dotenv";
+
+// Load the environment variables
+dotenv.config();
+
+// Set the project and log stream, these are created if they don't exist.
+// You can also set these using the GALILEO_PROJECT and GALILEO_LOG_STREAM
+// environment variables.
+init({
+    projectName: "MyFirstEvaluation",
+    logStreamName: "MyFirstLogStream"
+});
+
+// Create a Gemini client
+const client = new GoogleGenAI({});
+
+// Define a system prompt with guidance
+const systemPrompt = `
+You are a helpful assistant that wants to provide a user as much information
+as possible. Avoid saying I don't know.
+`;
+
+// Define a user prompt with a question
+const userPrompt = "Describe Galileo";
+
+const modelName = "gemini-2.5-flash";
+
+// Get the Galileo logger instance
+const galileoLogger = getLogger();
+
+(async () => {
+    // Start a session
+    await galileoLogger.startSession();
+
+    // Start a trace
+    galileoLogger.startTrace({ name: "Conversation step", input: userPrompt });
+
+    // Capture the current time in nanoseconds for logging
+    function getNanoSecTime(): number {
+        var hrTime = process.hrtime();
+        return hrTime[0] * 1000000000 + hrTime[1];
+    };
+
+    const startTimeNs = getNanoSecTime();
+
+    // Send a request to the LLM
+    const response = await client.models.generateContent({
+        model: modelName,
+        contents: userPrompt,
+        config: {
+            systemInstruction: systemPrompt,
+        },
+    });
+
+    // Log an LLM span using the response from Gemini
+    galileoLogger.addLlmSpan({
+        input: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+        ],
+        output: response.text,
+        model: modelName,
+        numInputTokens: response.usageMetadata?.promptTokenCount ?? 0,
+        numOutputTokens: response.usageMetadata?.candidatesTokenCount ?? 0,
+        totalTokens: response.usageMetadata?.totalTokenCount ?? 0,
+        durationNs: getNanoSecTime() - startTimeNs,
+    });
+
+    /// Conclude and flush the logger
+    galileoLogger.conclude({ output: response.text });
+    await galileoLogger.flush();
+
+    // Log the response
+    console.log(response.text);
+
+    // Show Galileo information after the response
+    const galileoConsoleUrl = (process.env.GALILEO_CONSOLE_URL ?? "https://app.galileo.ai").replace(/\/+$/, "");
+    const projectUrl = `${galileoConsoleUrl}/project/${galileoLogger.client.projectId}`;
+    const logStreamUrl = `${projectUrl}/log-streams/${galileoLogger.client.logStreamId}`;
+
+    console.log();
+    console.log("🚀 GALILEO LOG INFORMATION:");
+    console.log(`🔗 Project   : ${projectUrl}`);
+    console.log(`📝 Log Stream: ${logStreamUrl}`);
+})();
+```

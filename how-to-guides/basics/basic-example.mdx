@@ -3,81 +3,71 @@ title: Log Using the OpenAI Wrapper
 description: Learn how to integrate and use OpenAI's API with Galileo's wrapper client
 ---
 
-import GalileoOpenAIEnvVars from "/snippets/code/multilingual/env-galileo-openai.mdx"
+import InstallDependencies from "/snippets/content/install-dependencies-openai.mdx"
 
-import SnippetInstallPython from "/snippets/code/python/how-to-guides/basics/basic-example/install-packages.mdx";
 import SnippetCreateAppPython from "/snippets/code/python/how-to-guides/basics/basic-example/create-app.mdx";
 
-import SnippetInstallTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-example/install-packages.mdx";
 import SnippetCreateAppTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-example/create-app.mdx";
 
+
+## Overview
+
 When working with OpenAI's API, it's important to set up your environment and client correctly to ensure secure and efficient API calls. This guide shows you how to create a basic integration using Galileo's OpenAI client wrapper.
+
+In this guide you will:
+
+1. [Set up a project with Galileo](#install-dependencies)
+1. [Create a chat client using the Galileo OpenAI wrapper](#create-a-chat-client-using-the-galileo-openai-wrapper)
 
 <Note>
   The Galileo OpenAI wrapper currently only supports the synchronous chat completions API.
 </Note>
 
-### What you'll need
+## Before you start
 
-- OpenAI API key
-- Galileo API key
-- Python or TypeScript environment
-- Required packages installed
+To complete this how-to, you will need:
 
-### Basic setup requirements
+- An [OpenAI API key](https://openai.com/api/)
+- A [Galileo project](/concepts/projects) configured
+- Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
 
-- **Environment Variables**: Secure storage of API keys
-- **Required Packages**: Galileo and OpenAI clients
-- **Python Environment**: 3.9 or higher recommended
+<InstallDependencies/>
 
-## Implementation steps
+## Create a chat client using the Galileo OpenAI wrapper
 
 <Steps>
-<Step title="Set Up Environment Variables">
+<Step title="Create a file for your application called app.py or app.ts."/>
 
-Create a `.env` file in your project root:
+<Step title="Add code to call OpenAI">
 
-<CodeGroup>
-<GalileoOpenAIEnvVars/>
-</CodeGroup>
-
-<Note>
-This assumes you are using a free Galileo account. If you are using a custom deployment, then you will also need to add the URL of your Galileo Console:
-
-```ini .env
-GALILEO_CONSOLE_URL=your-Galileo-console-URL
-```
-</Note>
-
-</Step>
-
-<Step title="Install Required Dependencies">
-
-Install the required dependencies for your app. If you are using Python, create a virtual environment using your preferred method, then install dependencies inside that environment:
-
-<CodeGroup>
-  <SnippetInstallPython />
-  <SnippetInstallTypeScript />
-</CodeGroup>
-
-</Step>
-<Step title="Initialize the Client">
-
-- Import required packages
-- Load environment variables
-- Create OpenAI client instance with Galileo wrapper
-
-</Step>
-<Step title="Create a Chat Completion">
-
-- Structure your prompt
-- Call the API using the client
-- Process and use the response
+Add the following code to your application file:
 
 <CodeGroup>
   <SnippetCreateAppPython />
   <SnippetCreateAppTypeScript />
 </CodeGroup>
+
+</Step>
+
+<Step title="Run the app">
+
+<CodeGroup>
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
+
+When the app runs, the span will be logged automatically, with the input as the `prompt`, the output as the returned `response`. The duration and number of tokens will also be logged.
+
+</Step>
+
+<Step title="View the logged trace">
+
+From the [Galileo Console](https://app.galileo.ai), open the Log stream for your project. You will see a trace with a single span containing the logged function call.
 
 </Step>
 </Steps>

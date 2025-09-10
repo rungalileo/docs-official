@@ -50,6 +50,35 @@ Lists all projects.
 
 `list[Project]`: A list of projects.
 
+#### get\_with\_env\_fallbacks
+
+```python
+def get_with_env_fallbacks(*,
+                           id: Optional[str] = None,
+                           name: Optional[str] = None) -> Optional[Project]
+```
+
+Retrieves a project by id or name.
+
+Either `id` or `name` must be provided, but not both. If neither is provided,
+the method will attempt to read from the environment variables `GALILEO_PROJECT_ID`
+and `GALILEO_PROJECT`. If both environment variables are set, a ValueError is raised.
+
+**Arguments**:
+
+- `id` (`str`): The id of the project.
+- `name` (`str`): The name of the project.
+
+**Raises**:
+
+- `ValueError`: If neither or both `id` and `name` are provided.
+- `name`1: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+- `name`2: If the request takes longer than Client.timeout.
+
+**Returns**:
+
+`name`3: The project.
+
 #### get
 
 ```python

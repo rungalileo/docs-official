@@ -13,6 +13,7 @@ def run_experiment(experiment_name: str,
                    prompt_template: Optional[PromptTemplate] = None,
                    prompt_settings: Optional[PromptRunSettings] = None,
                    project: Optional[str] = None,
+                   project_id: Optional[str] = None,
                    dataset: Optional[Union[Dataset, list[dict[str, str]],
                                            str]] = None,
                    dataset_id: Optional[str] = None,
@@ -31,12 +32,15 @@ There are two ways to run an experiment:
 
 When using a runner function, you can also pass a list of dictionaries to the function to act as a dataset.
 
+The project can be specified by providing exactly one of the project name (via the &#x27;project&#x27; parameter or the GALILEO_PROJECT environment variable) or the project ID (via the &#x27;project_id&#x27; parameter or the GALILEO_PROJECT_ID environment variable).
+
 **Arguments**:
 
 - `experiment_name`: Name of the experiment
 - `prompt_template`: Template for prompts
 - `prompt_settings`: Settings for prompt runs
-- `project`: Project name
+- `project`: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
+- `project_id`: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
 - `dataset`: Dataset object, list of records, or dataset name
 - `dataset_id`: ID of the dataset
 - `dataset_name`: Name of the dataset
@@ -45,7 +49,7 @@ When using a runner function, you can also pass a list of dictionaries to the fu
 
 **Raises**:
 
-- `ValueError`: If required parameters are missing or invalid
+- `prompt_template`0: If required parameters are missing or invalid
 
 **Returns**:
 

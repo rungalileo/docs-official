@@ -6,6 +6,7 @@ description: Learn how to create and manage datasets for use in your experiments
 import SnippetSdkDatasetsCreatePython from "/snippets/code/python/sdk/datasets/create.mdx";
 import SnippetSdkDatasetsGetPython from "/snippets/code/python/sdk/datasets/get.mdx";
 import SnippetSdkDatasetsAddRowsPython from "/snippets/code/python/sdk/datasets/add-rows.mdx";
+import SnippetSdkDatasetsExtendPython from "/snippets/code/python/sdk/datasets/extend.mdx";
 import SnippetSdkDatasetsListPython from "/snippets/code/python/sdk/datasets/list.mdx";
 import SnippetSdkDatasetsDeletePython from "/snippets/code/python/sdk/datasets/delete.mdx";
 import SnippetSdkDatasetsVersionsPython from "/snippets/code/python/sdk/datasets/versions.mdx";
@@ -14,6 +15,7 @@ import SnippetSdkDatasetsExperimentsPython from "/snippets/code/python/sdk/datas
 import SnippetSdkDatasetsCreateTypeScript from "/snippets/code/typescript/sdk/datasets/create-dataset.mdx";
 import SnippetSdkDatasetsGetTypeScript from "/snippets/code/typescript/sdk/datasets/get.mdx";
 import SnippetSdkDatasetsAddRowsTypeScript from "/snippets/code/typescript/sdk/datasets/add-rows.mdx";
+import SnippetSdkDatasetsExtendTypeScript from "/snippets/code/typescript/sdk/datasets/extend.mdx";
 import SnippetSdkDatasetsListTypeScript from "/snippets/code/typescript/sdk/datasets/list.mdx";
 import SnippetSdkDatasetsDeleteTypeScript from "/snippets/code/typescript/sdk/datasets/delete.mdx";
 import SnippetSdkDatasetsVersionsTypeScript from "/snippets/code/typescript/sdk/datasets/versions.mdx";
@@ -23,7 +25,7 @@ Datasets allow you to store and reuse well-defined data for use in experiments. 
 
 ## Dataset fields
 
-Each record in a Galileo dataset can have three top-level fields: 
+Each record in a Galileo dataset can have three top-level fields:
 
 1. **`input`** - Input variables that can be passed to your application to recreate a test case.
 1. **`output`** - Reference outputs to evaluate your application. These can be the ground truth for [BLEU, ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge), and [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence) metrics, or reference outputs for manual reference.
@@ -53,12 +55,27 @@ See the [`get_dataset` Python SDK docs](/sdk-api/python/reference/datasets#get-d
 
 ## Add rows to existing datasets
 
+Once a dataset has been created, you can manually add rows to it.
+
 <CodeGroup>
   <SnippetSdkDatasetsAddRowsPython />
   <SnippetSdkDatasetsAddRowsTypeScript />
 </CodeGroup>
 
 See the [`add_rows` Python SDK docs](/sdk-api/python/reference/datasets#add-rows) or [`addRowsToDataset` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/addRowsToDataset) for more details.
+
+## Generate synthetic data to extend a dataset
+
+Galileo can use an LLM integration to generate rows of synthetic data that you can then add to a dataset. This synthetic data is generated using a mixture of prompts, instructions, few-shot examples, and data types.
+
+Once these rows have been generated, they can be added to a new or existing dataset.
+
+<CodeGroup>
+  <SnippetSdkDatasetsExtendPython />
+  <SnippetSdkDatasetsExtendTypeScript />
+</CodeGroup>
+
+See the [`extend_dataset` Python SDK docs](/sdk-api/python/reference/datasets#extend_dataset) or [`extendDataset` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/extendDataset) for more details.
 
 ## List datasets
 

@@ -230,6 +230,13 @@ How-to guides are task oriented, and show a user how to solve a particular probl
 
 When creating a how-to guide, follow [this guide](https://www.thegooddocsproject.dev/template/how-to). This gives details on best practices for creating a how-to guide. The actual template adjusted for the Galileo standards is available in [this repo](./templates/template-how-to.md).
 
+
+##### Metrics
+
+Metric concept guides are a special kind of documentation that has a well-defined structure that needs to be followed to keep consistency.
+
+If you are creating a metric concept guide, use [this template](./templates/template-metric.md). If you need to change a metric guide to break away from this template, then please first update the template and update all metric guides to match.
+
 ## Documenting integrations
 
 When working on documenting integrations between Galileo and other platforms, follow this standard:
