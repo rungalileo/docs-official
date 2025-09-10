@@ -15,6 +15,7 @@ import SnippetAttributes from "/snippets/code/python/cookbooks/langgraph-otel/at
 import SnippetEvents from "/snippets/code/python/cookbooks/langgraph-otel/events.mdx";
 import SnippetEnvironment from "/snippets/code/multilingual/env-galileo.mdx";
 import SnippetCleanup from "/snippets/code/python/cookbooks/langgraph-otel/cleanup.mdx";
+import { ImportantNotes } from "/snippets/components/important-notes.mdx";
 
 ## Overview
 
@@ -64,6 +65,7 @@ For the sake of jumping right into action — we'll be starting from an [existin
 - **uv Package Manager**: [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
 - **Galileo Account**: [Sign up for free](https://app.galileo.ai)
 - **OpenAI API Key**: [Get your API key](https://openai.com/api/)
+
 <Steps>
 <Step title="Clone the repository">
 
@@ -129,11 +131,11 @@ cp .env.example .env
 </Step>
 </Steps>
 
-> **Important Notes:**
->
-> - **Never commit your `.env` file** - it contains your API keys!
-> - **Project names are case-sensitive** - use exactly what you created in Galileo
-> - **Log streams** help organize traces (like folders) - create any name you want
+<ImportantNotes>
+- **Never commit your `.env` file** - it contains your API keys!
+- **Project names are case-sensitive** - use exactly what you created in Galileo
+- **Log streams** help organize traces (like folders) - create any name you want
+</ImportantNotes>
 
 ## Understand the example
 
@@ -285,9 +287,7 @@ Add proper error handling with tracing:
 
 <SnippetErrorHandling />
 
-## 🔍 Viewing traces in Galileo
-
-### 1. Access your traces
+## View traces in Galileo
 
 <Steps>
 <Step title="Open Galileo">
@@ -320,7 +320,7 @@ Refresh the screen to see recent changes and updates.
 
 ![OTel Span displayed within the Galileo Traces interface](/images/integrations/2025-09-05-OTEL-Langgraph-Span.webp)
 
-### 2. Understanding the trace structure
+### Understand the trace structure
 
 Your traces will show:
 
@@ -331,7 +331,7 @@ Your traces will show:
 
 ![OTel Trace visualized in the Galileo Trace Visualized view](/images/integrations/2025-09-09-OTel-Trace-Visualized-Summary.webp)
 
-### 3. Key metrics to monitor
+### Key metrics to monitor
 
 - **Execution Time**: How long your agent takes to complete
 - **Node Performance**: Individual node execution times
@@ -342,7 +342,7 @@ Your traces will show:
 
 ### Common issues and solutions
 
-#### 1. Missing environment variables
+#### Missing environment variables
 
 ```text Error Output
 Error: GALILEO_API_KEY not found
@@ -350,7 +350,7 @@ Error: GALILEO_API_KEY not found
 
 **Solution**: Ensure your `.env` file is properly configured and located in the project root.
 
-#### 2. Network connectivity
+#### Network connectivity
 
 ```text Error Output
 Error: Failed to export traces
@@ -362,7 +362,7 @@ Error: Failed to export traces
 - Check `GALILEO_CONSOLE_URL` if using custom deployment
 - Ensure firewall allows OTLP exports
 
-#### 3. Authentication errors
+#### Authentication errors
 
 ```text Error Output
 Error: 403 Forbidden
@@ -417,25 +417,25 @@ For production use, consider batch span processing:
 
 ## Best practices
 
-### 1. Span naming conventions
+### Span naming conventions
 
 Use consistent, descriptive names for your spans:
 
 <SnippetSpanNaming />
 
-### 2. Attribute management
+### Attribute management
 
 Add meaningful attributes to your spans:
 
 <SnippetAttributes />
 
-### 3. Span events
+###  Span events
 
 Events provide breadcrumb*style logging within spans:
 
 <SnippetEvents />
 
-### 4. Resource management
+### Resource management
 
 Properly manage your tracer provider:
 
