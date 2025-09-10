@@ -13,16 +13,17 @@ import SnippetBatchProcessor from "/snippets/code/python/cookbooks/langgraph-ote
 import SnippetSpanNaming from "/snippets/code/python/cookbooks/langgraph-otel/span-naming.mdx";
 import SnippetAttributes from "/snippets/code/python/cookbooks/langgraph-otel/attributes.mdx";
 import SnippetEvents from "/snippets/code/python/cookbooks/langgraph-otel/events.mdx";
+import SnippetEnvironment from "/snippets/code/multilingual/env-galileo.mdx";
 import SnippetCleanup from "/snippets/code/python/cookbooks/langgraph-otel/cleanup.mdx";
 
 ## Overview
 
-In this cookbook, you'll learn how to instrument a LangGraph agent with OpenTelemetry and OpenInference to capture detailed traces, spans, and metrics. This approach provides deep visibility into your agent's execution flow, including tool calls, LLM interactions, and decision-making processes.
+In this cookbook, you'll learn how to instrument a LangGraph agent with OpenTelemetry and OpenInference to capture detailed traces, spans, and metrics. This can be instrumented manually or through the LangGraph callback. This approach provides deep visibility into your agent's execution flow, including tool calls, LLM interactions, and decision-making processes.
 
 This tutorial is intended for developers who want to add observability to their LangGraph applications. It assumes you have basic knowledge of:
 
 - Python programming
-- LangGraph framework
+- The LangGraph framework
 - OpenTelemetry concepts
 - Galileo platform basics
 
@@ -50,25 +51,19 @@ By the end of this tutorial, you'll be able to:
 Before you start this tutorial, you should:
 
 - Have a Galileo account and API key
-- Have Python 3.8+ installed
+- Have Python 3.9+ installed
 - Be familiar with LangGraph concepts
 - Have a basic understanding of OpenTelemetry
 
 ## Prerequisites
 
-### 1. Install required dependencies
+### Install required dependencies
 
 For the sake of jumping right into action — we'll be starting from an [existing Python application](https://github.com/rungalileo/sdk-examples/tree/main/python/agent/langgraph-otel).
 
-**Prerequisites:**
-
-- **Python 3.12+**: [Download from python.org](https://www.python.org/downloads/)
 - **uv Package Manager**: [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
 - **Galileo Account**: [Sign up for free](https://app.galileo.ai)
 - **OpenAI API Key**: [Get your API key](https://openai.com/api/)
-
-**Installation Steps:**
-
 <Steps>
 <Step title="Clone the repository">
 
@@ -103,7 +98,7 @@ Create a free Galileo account at [app.galileo.ai](https://app.galileo.ai) if you
 
 <Step title="Get your API key">
 
-- Log into Galileo dashboard
+- Log into [Galileo dashboard](https://app.galileo.ai/settings/api-keys) and get your API Keys
 - Click on your profile/settings
 - Generate or copy your API key
 
@@ -127,19 +122,9 @@ cp .env.example .env
 
 <Step title="Edit your .env file with your actual values">
 
-```bash Terminal
-# Replace with YOUR actual API key from Galileo dashboard
-GALILEO_API_KEY=your_actual_api_key_here
+<>
 
-# Replace with YOUR project name from step 3
-GALILEO_PROJECT=LangGraph Demo
-
-# This organizes traces within your project (you can use any name)
-GALILEO_LOG_STREAM=development
-
-# Your OpenAI API key
-OPENAI_API_KEY=your_openai_api_key_here
-```
+< SnippetEnvironment />
 
 </Step>
 </Steps>
@@ -150,7 +135,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 > - **Project names are case-sensitive** - use exactly what you created in Galileo
 > - **Log streams** help organize traces (like folders) - create any name you want
 
-## Understanding the example
+## Understand the example
 
 This example demonstrates:
 
@@ -163,7 +148,7 @@ This example demonstrates:
 
 #### OpenTelemetry (OTel)
 
-OpenTelemetry is like a **diagnostic system** for your code. It creates "traces" that show:
+[OpenTelemetry](https://opentelemetry.io) is like a **diagnostic system** for your code. It creates "traces" that show:
 
 - What functions/operations ran
 - How long each step took
@@ -176,18 +161,9 @@ Think of a trace like a detailed timeline of everything that happened when proce
 
 OpenInference is a **specialized version** of OpenTelemetry that understands AI frameworks like LangChain and LangGraph. It automatically creates meaningful traces for AI operations without you having to write extra code.
 
-#### Galileo
+## Run the example
 
-Galileo is an AI Reliability and Observability tool that helps developers at scale build reliable AI tooling. Instead of traces just being printed to your terminal, Galileo gives you:
-
-- Visual workflow execution flow
-- Performance bottleneck analysis
-- System behavior monitoring over time
-- Debugging capabilities for failed executions
-
-## Running the example
-
-### Step 3: Run it
+### Run it
 
 ```bash Terminal
 uv run python main.py
@@ -226,7 +202,7 @@ LangGraph result: {'query': 'hello world', 'response': 'Processed: HELLO WORLD'}
 # Followed by detailed JSON trace data...
 ```
 
-### Understanding the traces
+### Understand the traces
 
 You'll see traces for:
 
@@ -259,15 +235,25 @@ langgraph-otel/
 
 The example implements a simple two-node LangGraph workflow:
 
-<Steps>
-<Step title="Initial Node">
-Receives and validates the input query
-</Step>
-
-<Step title="Processing Node">
-Transforms the query (converts to uppercase)
-</Step>
-</Steps>
+```mermaid
+graph TD
+    A[Input Query] --> B[Initial Node]
+    B --> C[Processing Node]
+    C --> D[Output Response]
+    
+    B --> E[OTel Span: initial_node]
+    C --> F[OTel Span: processing_node]
+    
+    E --> G[Attributes:<br/>- input query<br/>- validation status]
+    F --> H[Events:<br/>- processing start<br/>- transformation complete]
+    
+    style A fill:#e1f5fe
+    style D fill:#e8f5e8
+    style E fill:#fff3e0
+    style F fill:#fff3e0
+    style G fill:#f3e5f5
+    style H fill:#f3e5f5
+```
 
 Each node is instrumented with OpenTelemetry spans that capture:
 
@@ -308,7 +294,7 @@ Add proper error handling with tracing:
 Go to [app.galileo.ai](https://app.galileo.ai) and log in
 </Step>
 
-<Step title="Navigate to your project">
+<Step title="Access your traces">
 Click on the project you created (e.g., "LangGraph Demo") and then the relevant Log stream name.
 </Step>
 
@@ -387,7 +373,7 @@ Error: 403 Forbidden
 - Verify `GALILEO_API_KEY` is correct and active
 - Check project permissions in Galileo dashboard
 
-#### 4. Import errors
+#### Import errors
 
 ```text Error Output
 ModuleNotFoundError: No module named 'langgraph'
