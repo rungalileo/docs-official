@@ -4,8 +4,11 @@ description: Learn how to add comprehensive observability to your LangGraph agen
 tag: "Python"
 ---
 
-import SnippetMainWorkflow from "/snippets/code/python/cookbooks/langgraph-otel/main-workflow.mdx";
-import SnippetTracerConfig from "/snippets/code/python/cookbooks/langgraph-otel/tracer-config.mdx";
+import SnippetMainImports from "/snippets/code/python/cookbooks/langgraph-otel/main-imports.mdx";
+import SnippetAuthConfig from "/snippets/code/python/cookbooks/langgraph-otel/auth-config.mdx";
+import SnippetLangGraphWorkflow from "/snippets/code/python/cookbooks/langgraph-otel/langgraph-workflow.mdx";
+import SnippetRunWorkflow from "/snippets/code/python/cookbooks/langgraph-otel/run-workflow.mdx";
+import SnippetInstallPackages from "/snippets/code/python/cookbooks/langgraph-otel/install-packages.mdx";
 import SnippetAdvancedSpans from "/snippets/code/python/cookbooks/langgraph-otel/advanced-spans.mdx";
 import SnippetErrorHandling from "/snippets/code/python/cookbooks/langgraph-otel/error-handling.mdx";
 import SnippetCustomExporter from "/snippets/code/python/cookbooks/langgraph-otel/custom-exporter.mdx";
@@ -13,7 +16,6 @@ import SnippetBatchProcessor from "/snippets/code/python/cookbooks/langgraph-ote
 import SnippetSpanNaming from "/snippets/code/python/cookbooks/langgraph-otel/span-naming.mdx";
 import SnippetAttributes from "/snippets/code/python/cookbooks/langgraph-otel/attributes.mdx";
 import SnippetEvents from "/snippets/code/python/cookbooks/langgraph-otel/events.mdx";
-import SnippetEnvironment from "/snippets/code/multilingual/env-galileo.mdx";
 import SnippetCleanup from "/snippets/code/python/cookbooks/langgraph-otel/cleanup.mdx";
 import { ImportantNotes } from "/snippets/components/important-notes.mdx";
 
@@ -109,8 +111,8 @@ Create a free Galileo account at [app.galileo.ai](https://app.galileo.ai) if you
 <Step title="Create a project">
 
 - In the Galileo dashboard, create a new project
-- Give it a name like "LangGraph*OTel"
-- Note the project name * you'll use this in your `.env` file
+- Give it a name like "LangGraph-OTel"
+- Note the project name - you'll use this in your `.env` file
 
 </Step>
 
@@ -123,8 +125,6 @@ cp .env.example .env
 </Step>
 
 <Step title="Edit your .env file with your actual values">
-
-<>
 
 < SnippetEnvironment />
 
@@ -141,10 +141,10 @@ cp .env.example .env
 
 This example demonstrates:
 
-- **Automatic tracing**: OpenInference automatically traces your LangGraph workflow
-- **Custom tracing**: How to add your own detailed spans with attributes and events
-- **Multiple destinations**: Traces go to both your console (for debugging - optional) and Galileo (for analysis)
-- **Real-world setup**: Proper authentication and configuration for production use
+- **Automatic tracing**: OpenInference automatically traces your LangGraph workflow without requiring LLM API calls
+- **Simplified workflow**: A streamlined text processing pipeline that showcases OpenTelemetry instrumentation
+- **Production configuration**: Proper authentication and BatchSpanProcessor setup for efficient trace export
+- **Clean span structure**: Focused on LangGraph nodes without additional complexity from LLM interactions
 
 ### What are these tools
 
@@ -196,12 +196,20 @@ Sends detailed traces to both console and Galileo
 **Console Output:**
 
 ```text Terminal Output
-OTel Headers: Galileo-API-Key=your_key,project=YourProject,logstream=development
-✓ LangGraph instrumentation applied * automatic spans will be created
-LangGraph result: {'query': 'hello world', 'response': 'Processed: HELLO WORLD'}
-✓ Execution complete * check Galileo for traces in your project/log stream
+✓ OpenAI client configured
+OTEL Headers: Galileo-API-Key=lukvRtWj1ApPZGRHst1Gw_eAhijJ2bBjyuTj27ywJVA,project=OTEL,logstream=langgraph
+✓ LangGraph instrumentation applied - automatic spans will be created
+✓ OpenAI instrumentation applied - LLM calls will be traced
+📥 Validating input: 'what moons did galileo discover'
+⚙️ Calling OpenAI with: 'what moons did galileo discover'
+✓ Received response: 'Galileo Galilei discovered four moons of Jupiter, which are now known as the Galilean moons. They ar...'
+✨ Parsed answer: 'Galileo Galilei discovered four moons of Jupiter, which are now known as the Galilean moons.'
 
-# Followed by detailed JSON trace data...
+=== FINAL RESULT ===
+Question: what moons did galileo discover
+LLM Response: Galileo Galilei discovered four moons of Jupiter, which are now known as the Galilean moons. They are Io, Europa, Ganymede, and Callisto.
+Parsed Answer: Galileo Galilei discovered four moons of Jupiter, which are now known as the Galilean moons.
+✓ Execution complete - check Galileo for traces in your project/log stream
 ```
 
 ### Understand the traces
@@ -219,7 +227,7 @@ Each trace shows:
 - **Timing**: How long each operation took
 - **Attributes**: Key-value data (like input text)
 - **Events**: Breadcrumb-style log messages
-- *Relationships**: Parent-child span connections
+- **Relationships**: Parent-child span connections
 
 ## Code structure
 
@@ -235,19 +243,19 @@ langgraph-otel/
 
 ### Workflow architecture
 
-The example implements a simple two-node LangGraph workflow:
+The example implements a simple two-node LangGraph workflow with automatic OpenTelemetry tracing:
 
 ```mermaid
 graph TD
-    A[Input Query] --> B[Initial Node]
+    A[User Input: "hello world"] --> B[Initial Node]
     B --> C[Processing Node]
-    C --> D[Output Response]
+    C --> D[Final Output: "Processed: HELLO WORLD"]
     
-    B --> E[OTel Span: initial_node]
-    C --> F[OTel Span: processing_node]
+    B --> E[OpenTelemetry Span: initial_node]
+    C --> F[OpenTelemetry Span: processing_node]
     
-    E --> G[Attributes:<br/>- input query<br/>- validation status]
-    F --> H[Events:<br/>- processing start<br/>- transformation complete]
+    E --> G[Automatic Tracing:<br/>- Input validation<br/>- State management]
+    F --> H[Automatic Tracing:<br/>- Text transformation<br/>- Output generation]
     
     style A fill:#e1f5fe
     style D fill:#e8f5e8
@@ -265,13 +273,23 @@ Each node is instrumented with OpenTelemetry spans that capture:
 
 ### OpenTelemetry integration
 
-#### Span structure
+The updated main.py file is structured into five clear steps:
 
-<SnippetMainWorkflow />
+#### Step 1: Imports and Environment Setup
 
-#### Tracer configuration
+<SnippetMainImports />
 
-<SnippetTracerConfig />
+#### Step 2: Galileo Authentication & OpenTelemetry Configuration
+
+<SnippetAuthConfig />
+
+#### Step 3: LangGraph Workflow Definition
+
+<SnippetLangGraphWorkflow />
+
+#### Step 4: Running the Workflow
+
+<SnippetRunWorkflow />
 
 ## Advanced instrumentation patterns
 
@@ -429,9 +447,9 @@ Add meaningful attributes to your spans:
 
 <SnippetAttributes />
 
-###  Span events
+### Span events
 
-Events provide breadcrumb*style logging within spans:
+Events provide breadcrumb-style logging within spans:
 
 <SnippetEvents />
 
@@ -440,8 +458,6 @@ Events provide breadcrumb*style logging within spans:
 Properly manage your tracer provider:
 
 <SnippetCleanup />
-
-
 
 ### Development best practices
 
@@ -469,11 +485,11 @@ Consider exploring these related topics to enhance your observability:
 <Card title="OpenTelemetry Guide" icon="book" horizontal href="/how-to-guides/third-party-integrations/otel">
     Learn more about OpenTelemetry integration with Galileo
 </Card>
-<Card title="LangGraph Experiments" icon="flask" horizontal href="/sdk-api/third-party*integrations/langchain/experiments">
+<Card title="LangGraph Experiments" icon="flask" horizontal href="/sdk-api/third-party-integrations/langchain/experiments">
     Run experiments with your instrumented LangGraph agents
 </Card>
-<Card title="Multi*Agent Systems" icon="users" horizontal href="/cookbooks/use-cases/multi-agent-langgraph">
-    Scale your observability to multi*agent systems
+<Card title="Multi-Agent Systems" icon="users" horizontal href="/cookbooks/use-cases/multi-agent-langgraph">
+    Scale your observability to multi-agent systems
 </Card>
 <Card title="Custom Metrics" icon="chart" horizontal href="/concepts/metrics/overview">
     Add custom metrics to track agent performance

@@ -1,0 +1,44 @@
+```python path=/Users/erinmikail/GitHub-Local/sdk-examples/python/agent/langgraph-otel/main.py start=72
+# ============================================================================
+# STEP 4: DEFINE THE LANGGRAPH STATE AND NODES
+# ============================================================================
+# LangGraph uses a shared state object (a dict) that flows through nodes. Each
+# node reads from the state and can write updates back to it.
+class AgentState(TypedDict, total=False):
+    query: str  # The user's input
+    response: str  # The processed response
+
+
+# Node 1: Validate/record the input
+# OpenInference will automatically create spans for this function
+# We rely on automatic instrumentation instead of manual spans to keep traces clean
+def initial_node(state: AgentState):
+    q = state.get("query", "")
+    print(f"📥 Processing input: '{q}'")
+    return {"query": q}
+
+
+# Node 2: Perform business logic
+# OpenInference automatically traces this - no manual spans needed for cleaner output
+def processing_node(state: AgentState):
+    q = state["query"]
+    processed = f"Processed: {q.upper()}"
+    print(f"⚙️ Transformed: '{q}' → '{processed}'")
+    return {"response": processed}
+
+
+# ============================================================================
+# STEP 5: BUILD AND RUN THE LANGGRAPH WORKFLOW
+# ============================================================================
+workflow = StateGraph(AgentState)
+workflow.add_node("initial", initial_node)
+workflow.add_node("process", processing_node)
+
+# Entry point and edges define the control flow of the graph
+workflow.set_entry_point("initial")
+workflow.add_edge("initial", "process")
+workflow.add_edge("process", END)
+
+# Compile builds the runnable app
+app = workflow.compile()
+```
