@@ -17,6 +17,7 @@ import SnippetSpanNaming from "/snippets/code/python/cookbooks/langgraph-otel/sp
 import SnippetAttributes from "/snippets/code/python/cookbooks/langgraph-otel/attributes.mdx";
 import SnippetEvents from "/snippets/code/python/cookbooks/langgraph-otel/events.mdx";
 import SnippetCleanup from "/snippets/code/python/cookbooks/langgraph-otel/cleanup.mdx";
+import SnippetEnvironmentOpenAI from "/snippets/code/multilingual/env-galileo-openai.mdx";
 import { ImportantNotes } from "/snippets/components/important-notes.mdx";
 
 ## Overview
@@ -62,7 +63,8 @@ Before you start this tutorial, you should:
 
 ### Install required dependencies
 
-For the sake of jumping right into action — we'll be starting from an [existing Python application](https://github.com/rungalileo/sdk-examples/tree/main/python/agent/langgraph-otel).
+For the sake of jumping right into action — we'll be starting from an 
+[existing Python application](https://github.com/rungalileo/sdk-examples/tree/main/python/agent/langgraph-otel).
 
 - **uv Package Manager**: [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
 - **Galileo Account**: [Sign up for free](https://app.galileo.ai)
@@ -126,7 +128,7 @@ cp .env.example .env
 
 <Step title="Edit your .env file with your actual values">
 
-< SnippetEnvironment />
+<SnippetEnvironmentOpenAI />
 
 </Step>
 </Steps>
@@ -141,10 +143,14 @@ cp .env.example .env
 
 This example demonstrates:
 
-- **Automatic tracing**: OpenInference automatically traces your LangGraph workflow without requiring LLM API calls
-- **Simplified workflow**: A streamlined text processing pipeline that showcases OpenTelemetry instrumentation
-- **Production configuration**: Proper authentication and BatchSpanProcessor setup for efficient trace export
-- **Clean span structure**: Focused on LangGraph nodes without additional complexity from LLM interactions
+- **Automatic tracing**: OpenInference automatically traces both your LangGraph 
+  workflow and OpenAI API calls
+- **Complex workflow**: A three-node pipeline that validates input, calls OpenAI, 
+  and formats the response
+- **Production configuration**: Proper authentication and BatchSpanProcessor 
+  setup for efficient trace export
+- **LLM observability**: Complete visibility into OpenAI API calls, tokens, 
+  and response processing
 
 ### What are these tools
 
@@ -176,20 +182,20 @@ uv run python main.py
 The program does several things:
 
 <Steps>
-<Step title="Set up OpenTelemetry with your Galileo credentials">
-Sets up OpenTelemetry with your Galileo credentials
+<Step title="Configure OpenAI and Galileo authentication">
+Sets up both OpenAI client and Galileo tracing credentials
 </Step>
 
-<Step title="Apply automatic instrumentation to LangGraph">
-Applies automatic instrumentation to LangGraph
+<Step title="Apply automatic instrumentation">
+Instruments both LangGraph workflows and OpenAI API calls
 </Step>
 
-<Step title="Run a simple workflow">
-Runs a simple workflow: "hello world" → "PROCESSED: HELLO WORLD"
+<Step title="Run the astronomy Q&A workflow">
+Processes the question "what moons did galileo discover" through a 3-node pipeline
 </Step>
 
-<Step title="Send detailed traces">
-Sends detailed traces to both console and Galileo
+<Step title="Export detailed traces">
+Sends comprehensive traces to Galileo showing the full LLM interaction
 </Step>
 </Steps>
 
@@ -197,30 +203,35 @@ Sends detailed traces to both console and Galileo
 
 ```text Terminal Output
 ✓ OpenAI client configured
-OTEL Headers: Galileo-API-Key=lukvRtWj1ApPZGRHst1Gw_eAhijJ2bBjyuTj27ywJVA,project=OTEL,logstream=langgraph
+OTEL Headers: Galileo-API-Key=your-galileo-api-key,project=your-project-name,
+logstream=your-logstream-name
 ✓ LangGraph instrumentation applied - automatic spans will be created
 ✓ OpenAI instrumentation applied - LLM calls will be traced
 📥 Validating input: 'what moons did galileo discover'
 ⚙️ Calling OpenAI with: 'what moons did galileo discover'
-✓ Received response: 'Galileo Galilei discovered four moons of Jupiter, which are now known as the Galilean moons. They ar...'
-✨ Parsed answer: 'Galileo Galilei discovered four moons of Jupiter, which are now known as the Galilean moons.'
+✓ Received response: 'Galileo Galilei discovered four moons of Jupiter, 
+which are now known as the Galilean moons. They ar...'
+✨ Parsed answer: 'Galileo Galilei discovered four moons of Jupiter, 
+which are now known as the Galilean moons.'
 
 === FINAL RESULT ===
 Question: what moons did galileo discover
-LLM Response: Galileo Galilei discovered four moons of Jupiter, which are now known as the Galilean moons. They are Io, Europa, Ganymede, and Callisto.
-Parsed Answer: Galileo Galilei discovered four moons of Jupiter, which are now known as the Galilean moons.
-✓ Execution complete - check Galileo for traces in your project/log stream
+LLM Response: Galileo Galilei discovered four moons of Jupiter, which are 
+now known as the Galilean moons. They are Io, Europa, Ganymede, and Callisto.
+Parsed Answer: Galileo Galilei discovered four moons of Jupiter, which are 
+now known as the Galilean moons.
+✓ Execution complete - check Galileo for traces in your project
 ```
 
 ### Understand the traces
 
 You'll see traces for:
 
-- **LangGraph**: The main workflow execution
-- **initial**: The first node (validates input)
-- **process**: The second node (transforms input)
-- **initial_node**: Your custom span with attributes
-- **processing_node**: Your custom span with events
+- **astronomy_qa_session**: The session-level span grouping all operations
+- **validate_input**: The first node that validates user input
+- **generate_response**: The OpenAI API call node with detailed LLM traces
+- **format_answer**: The response formatting and parsing node
+- **OpenAI API spans**: Detailed traces of the GPT-3.5-turbo call
 
 Each trace shows:
 
@@ -243,26 +254,36 @@ langgraph-otel/
 
 ### Workflow architecture
 
-The example implements a simple two-node LangGraph workflow with automatic OpenTelemetry tracing:
+The example implements a three-node LangGraph workflow with comprehensive 
+OpenTelemetry tracing:
 
 ```mermaid
 graph TD
-    A[User Input: "hello world"] --> B[Initial Node]
-    B --> C[Processing Node]
-    C --> D[Final Output: "Processed: HELLO WORLD"]
+    A["User Question: 'what moons did galileo discover'"] --> B[validate_input]
+    B --> C[generate_response]
+    C --> D[format_answer] 
+    D --> E["Final Answer: 'Galileo discovered four moons...'"] 
     
-    B --> E[OpenTelemetry Span: initial_node]
-    C --> F[OpenTelemetry Span: processing_node]
+    B --> F[OpenTelemetry Span: validate_input]
+    C --> G[OpenTelemetry Span: generate_response]
+    C --> H[OpenAI API Span: GPT-3.5-turbo]
+    D --> I[OpenTelemetry Span: format_answer]
     
-    E --> G[Automatic Tracing:<br/>- Input validation<br/>- State management]
-    F --> H[Automatic Tracing:<br/>- Text transformation<br/>- Output generation]
+    F --> J[Tracing:<br/>- Input validation<br/>- Span attributes]
+    G --> K[Tracing:<br/>- API call timing<br/>- Request/response]
+    H --> L[LLM Tracing:<br/>- Token usage<br/>- Model parameters]
+    I --> M[Tracing:<br/>- Response parsing<br/>- Answer formatting]
     
     style A fill:#e1f5fe
-    style D fill:#e8f5e8
-    style E fill:#fff3e0
+    style E fill:#e8f5e8
     style F fill:#fff3e0
-    style G fill:#f3e5f5
-    style H fill:#f3e5f5
+    style G fill:#fff3e0
+    style H fill:#ffeb3b
+    style I fill:#fff3e0
+    style J fill:#f3e5f5
+    style K fill:#f3e5f5
+    style L fill:#fff59d
+    style M fill:#f3e5f5
 ```
 
 Each node is instrumented with OpenTelemetry spans that capture:
@@ -319,9 +340,11 @@ Click on the project you created (e.g., "LangGraph Demo") and then the relevant 
 <Step title="Find your traces">
 Look for traces with names like:
 
-- `langgraph_agent_execution`
-- `initial_node`
-- `processing_node`
+- `astronomy_qa_session`
+- `validate_input`
+- `generate_response`
+- `format_answer`
+- OpenAI API call traces
 </Step>
 
 <Step title="Explore the timeline">

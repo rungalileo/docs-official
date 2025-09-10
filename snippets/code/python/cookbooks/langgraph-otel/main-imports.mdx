@@ -1,4 +1,4 @@
-```python path=/Users/erinmikail/GitHub-Local/sdk-examples/python/agent/langgraph-otel/main.py start=1
+```python path=null start=1
 import os
 from typing import TypedDict
 
@@ -17,14 +17,21 @@ dotenv.load_dotenv()
 # Core OpenTelemetry imports
 from opentelemetry.sdk import trace as trace_sdk  # SDK for creating traces
 from opentelemetry import trace as trace_api  # API for interacting with traces
-from opentelemetry.sdk.trace.export import BatchSpanProcessor  # Efficiently batches spans before export
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter  # Sends traces via HTTP
-from opentelemetry.sdk.trace.export import ConsoleSpanExporter  # Prints traces to console (for debugging)
+# Efficiently batches spans before export
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+# Sends traces via HTTP  
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+# Prints traces to console (for debugging)
+from opentelemetry.sdk.trace.export import ConsoleSpanExporter
 
 # OpenInference is a specialized instrumentation library that understands AI frameworks
 # It automatically creates meaningful spans for LangChain/LangGraph operations
 from openinference.instrumentation.langchain import LangChainInstrumentor
+from openinference.instrumentation.openai import OpenAIInstrumentor
 
 # LangGraph imports - this is what we're actually instrumenting
 from langgraph.graph import StateGraph, END
+
+# OpenAI imports for LLM integration
+import openai
 ```
