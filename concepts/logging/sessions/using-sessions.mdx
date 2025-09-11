@@ -153,6 +153,7 @@ Recall our objectives from earlier? We'll build a simple application and use it 
 <Accordion title="GalileoCallback optional parameters (click to expand)">
 `GalileoCallback` has a few optional parameters:
 <CodeGroup>
+
 ```python Python
 GalileoCallback(
     galileo_logger: Optional[GalileoLogger] = None,
@@ -163,6 +164,7 @@ GalileoCallback(
     """ Flush captured traces after invocation. Defaults to "true" """
 )
 ```
+
 ```typescript TypeScript
 new GalileoCallback(
     /** A `GalileoLogger` instance. Defaults to a global singleton */
@@ -173,10 +175,9 @@ new GalileoCallback(
     flushOnChainEnd?: boolean
 )
 ```
+
 </CodeGroup>
 </Accordion>
-
-
 
 ### Full code sample
 
@@ -193,13 +194,15 @@ That's all the code: we have now learned to use `logger.start_session` before st
 Now let's run the script:
 
 <CodeGroup>
-    ```bash Python
-    python main.py
-    ```
 
-    ```bash TypeScript
-    npx tsx main.ts
-    ```
+```bash Python
+python main.py
+```
+
+```bash TypeScript
+npx tsx main.ts
+```
+
 </CodeGroup>
 
 You should see the LLM's response in your terminal! You can also head to the [Galileo Console](https://app.galileo.ai) to view the newly-created session. (Shown below)
@@ -219,33 +222,36 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
 1. Export your `logger` instance from a separate module, so that your application uses a singleton instance.
 1. Use the TypeScript SDK's `getLogger` function, or the Python SDK's `galileo_context` context manager for a consistent reference:
     <CodeGroup>
-        ```python Python
-        from galileo import galileo_context
 
-        # Create a new session
-        galileo_context.start_session(""" ...optional args """)
+    ```python Python
+    from galileo import galileo_context
 
-        # Application logic follows
+    # Create a new session
+    galileo_context.start_session(""" ...optional args """)
 
-        # Flush the session (if you are not using galileo callback or "with galileo_context()")
-        galileo_context.flush()
-        ```
+    # Application logic follows
 
-        ```typescript TypeScript
-        import { getLogger } from 'galileo';
-        const logger = getLogger();
+    # Flush the session (if you are not using galileo callback or "with galileo_context()")
+    galileo_context.flush()
+    ```
 
-        // Create a new session
-        logger.startSession(/* ...optional args */);
+    ```typescript TypeScript
+    import { getLogger } from 'galileo';
+    const logger = getLogger();
 
-        // Application logic follows
+    // Create a new session
+    logger.startSession(/* ...optional args */);
 
-        // Flush the session (if you are not using GalileoCallback)
-        logger.flush()
-        ```
+    // Application logic follows
+
+    // Flush the session (if you are not using GalileoCallback)
+    logger.flush()
+    ```
+
     </CodeGroup>
 1. You can also add `Traces` wherever you see fit. A `Trace` might represent a question asked to your LLM, and the response generated for it &mdash; as well as any tools used! Galileo will generate traces for you, but you can also create new ones by using your logger instance:
     <CodeGroup>
+
     ```python Python
     question = "What is the meaning of plenipotentiary?"
     logger.start_trace(input=question)
@@ -262,6 +268,7 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
     logger.addLlmSpan({ input: question, output: "Plenipotentiary means 'Invested with full power'" })
     logger.conclude(); // end the trace
     ```
+    
     </CodeGroup>
 
     <Note>You can learn more about traces and how to use them [here](/concepts/logging/traces).</Note>
