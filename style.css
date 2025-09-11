@@ -40,3 +40,35 @@ div[id]:target {
     background: linear-gradient(to right, rgba(74, 47, 249, 0.1), rgba(2, 255, 187, 0.1));
   }
 }
+
+/* API Reference icon styling using CSS custom properties */
+:root {
+  --api-icon-color: #3D3A3A; /* Light mode: official brand color */
+}
+
+/* Dark mode selectors - try multiple approaches */
+[data-theme="dark"],
+.dark,
+[data-theme="dark"] img[src*="api-reference.svg"],
+.dark img[src*="api-reference.svg"],
+.dark-mode img[src*="api-reference.svg"],
+html[data-theme="dark"] img[src*="api-reference.svg"],
+body.dark img[src*="api-reference.svg"] {
+  --api-icon-color: #7C7979; /* Dark mode: official brand color */
+}
+
+/* Apply the custom property to API Reference icons */
+img[src*="api-reference.svg"] {
+  --icon-color: var(--api-icon-color);
+}
+
+/* Fallback: Direct targeting for dark mode */
+.dark img[src*="api-reference.svg"] {
+  color: #7C7979 !important;
+}
+
+/* Alternative fallback: CSS filters for dark mode */
+[data-theme="dark"] img[src*="api-reference.svg"],
+.dark img[src*="api-reference.svg"] {
+  filter: brightness(0) saturate(100%) invert(48%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%) !important;
+}
