@@ -187,3 +187,6 @@ document.head.appendChild(script);
     init();
   }
 })();
+
+// API Reference icon theming is now handled by CSS custom properties
+// No JavaScript needed - the SVG uses var(--icon-color) and CSS handles the theme switching

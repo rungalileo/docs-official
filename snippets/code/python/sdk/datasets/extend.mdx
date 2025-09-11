@@ -1,0 +1,20 @@
+```python Python
+from galileo.datasets import extend_dataset
+
+# Generate synthetic data
+dataset = extend_dataset(
+    prompt_settings={'model_alias': 'GPT-4o'},
+    prompt="Nutrition and health chatbot",
+    instructions="Questions that an average-health person would be interested in",
+    examples=[
+        "Is cereal for breakfast healthy?",
+        "How many cups of coffee is unhealthy?",
+    ],
+    data_types=['General Query'],
+    count=10,
+)
+
+# Print the generated dataset contents
+for row in dataset:  
+    print(row.values_dict.additional_properties["input"])
+```

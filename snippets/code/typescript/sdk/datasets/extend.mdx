@@ -1,0 +1,21 @@
+```typescript TypeScript
+import { extendDataset } from "galileo";
+
+// Generate synthetic data
+const datasetContents = await extendDataset({
+    prompt_settings: { model_alias: 'GPT-4o' },
+    prompt: "Nutrition and health chatbot",
+    instructions: "Questions that an average-health person would be interested in",
+    examples: [
+        "Is cereal for breakfast healthy?",
+        "How many cups of coffee is unhealthy?",
+    ],
+    data_types: ['General Query'],
+    count: 10,
+});
+
+// Print the generated dataset contents
+datasetContents.forEach(row => {
+    console.log(row.values_dict.input);
+});
+```
