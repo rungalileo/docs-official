@@ -1,0 +1,78 @@
+```typescript TypeScript
+import { 
+    createDataset,
+    createPrompt,
+    GalileoScorers,
+    getDataset,
+    getPrompt,
+    runExperiment
+} from "galileo";
+import { 
+    MessageRole, 
+    PromptTemplate, 
+    PromptTemplateVersion
+} from "galileo/types";
+import dotenv from "dotenv";
+
+// Load the environment variables
+dotenv.config();
+
+(async () => {
+    // Create a prompt template, or load it if it already exists
+    let prompt: PromptTemplate | PromptTemplateVersion;
+    try {
+        prompt = await getPrompt({ name: "My Prompt" });
+    } catch (e) {
+        prompt = await createPrompt({
+            name: "My Prompt",
+            template: [
+                {
+                    role: MessageRole.system,
+                    content: `
+Galileo is the fastest way to ship reliable apps.
+Galileo brings automation and insight to AI evaluations so you can
+ship with confidence.
+`
+                },
+                {
+                    role: MessageRole.user,
+                    content: "{{input}}"
+                },
+            ]
+        });
+    }
+
+    // Create a dataset, or load it if it already exists
+    let dataset = await getDataset({ name: "My Dataset" });
+    if (!dataset) {
+        dataset = await createDataset(
+            [
+                { "input": "What is Galileo?" },
+                { "input": "What is Copernicus?" }
+            ],
+            "My Dataset",
+        );
+    }
+
+    // Run the experiment
+    const experiment = await runExperiment({
+        name: "My Experiment",
+        promptTemplate: prompt,
+        dataset: dataset,
+        metrics: [GalileoScorers.ContextAdherence],
+        projectName: process.env.GALILEO_PROJECT,
+        promptSettings: { model_alias: "GPT-4o" }
+    });
+
+    const galileoConsoleUrl = (
+        process.env.GALILEO_CONSOLE_URL ?? "https://app.galileo.ai")
+        .replace(/\/+$/, ""
+    );
+    const datasetUrl = `${galileoConsoleUrl}/datasets/${dataset.id}`;
+
+    console.log();
+    console.log("🚀 GALILEO LOG INFORMATION:");
+    console.log(`🔗 Dataset    : ${datasetUrl}`);
+    console.log(`🔬 Experiment : ${experiment.link}`);
+})();
+```

@@ -1,85 +1,152 @@
 ---
-title: Use Experiments
-description: From Spot Testing to Systematic Evaluation
+title: Run an Experiment
+description: Learn how to run your first experiment in code using prompts and datasets
 ---
 
-{/* This is a duplicate of concepts/experiments/overview.mdx. If you update this, please sync your changes there.
-At some point this should be re-written as a separate get started guide. */}
+import SnippetExperimentPython from "/snippets/code/python/getting-started/experiment.mdx"
+import SnippetExperimentTypeScript from "/snippets/code/typescript/getting-started/experiment.mdx"
 
-When you start working with your application, you'll naturally progress from basic testing to more comprehensive evaluation. This journey helps you build confidence in your application's performance and systematically improve its behavior. As you advance, you'll find that organizing your test cases into **datasets** becomes essential for effective **experimentation** - allowing you to track performance, identify patterns, and measure improvements over time.
+Experiments allow you to evaluate prompts, models, and your application code, using well-defined inputs, against metrics of your choice.
+
+## Configure an LLM integration
+
+To run an experiment using [prompts](/sdk-api/experiments/prompts) and a [dataset](/sdk-api/experiments/datasets), you need to set up an LLM integration. This can be used both to run the prompt using your dataset, and to evaluate the response against a metric.
 
 <Steps>
-  <Step title="Initial Testing">
-    Run your application with simple test cases to get a feel for how it performs. This is like taking your first steps:
+<Step title="Open the integrations page">
+Navigate to the [LLM integrations page](https://app.galileo.ai/settings/integrations). Select the user menu in the top right, then select **Integrations**.
 
-    - Test with straightforward, expected inputs
-    - Watch how your application behaves in ideal conditions
-    - Look for any immediate issues or unexpected behaviors
-    - Get comfortable with your metrics and what they tell you
-
-    This phase helps you establish a baseline for what "good" looks like.
-
+<Columns cols={2}>
+![The integrations menu](/concepts/metrics/integrations/user-menu-integrations.webp)
+</Columns>
 </Step>
+<Step title="Add an integration">
+Locate the option for the LLM platform you are using, then select the **+Add Integration** button.
 
-  <Step title="Expanding Test Coverage">
-    Once you're comfortable with basic testing, it's time to broaden your horizons. This is where Galileo's dataset features become valuable:
-
-    - Introduce more complex and varied inputs
-    - Use Galileo's [datasets](/concepts/datasets) to organize and maintain test cases
-    - Or bring your own dataset if you already have test data
-    - Run [experiments](/concepts/experiments/running-experiments-in-console) to look for patterns in how your application handles different types of inputs
-
-    Think of this as stress-testing your application across a wide range of scenarios.
-
+![The add integration button](/concepts/metrics/integrations/openai-integration-selected.webp)
 </Step>
+<Step title="Add the settings">
+Set the relevant settings for your integration, such as your API keys or endpoints. Then select **Save**.
 
-  <Step title="Finding and Fixing Issues">
-    As you test more extensively, you'll discover areas where your application needs improvement:
-
-    - Identify specific inputs that cause problems
-    - Add these inputs to a [datasets](/concepts/datasets)
-    - Look for patterns in problematic cases
-    - Track how your fixes perform against these problem cases
-    - Build a library of test cases for regression testing
-
-    This systematic approach helps you not only fix issues but also prevent them from recurring.
-
-</Step>
-
-  <Step title="Continuous Improvement">
-    Now you're in a cycle of continuous improvement:
-
-    - Regularly run tests against your datasets
-    - Monitor for new issues or patterns
-    - Quickly identify when changes cause problems
-    - Maintain datasets that represent your key test cases
-    - Track your app's improving performance over time
-
-    This ongoing process helps ensure your application keeps getting better while maintaining quality.
-
+<Columns cols={2}>
+![The OpenAI integrations pane](/concepts/metrics/integrations/openai-integration-api-key.webp)
+</Columns>
 </Step>
 </Steps>
+
+## Run your experiment with a prompt template and dataset
+
+<Steps>
+<Step title="Install dependencies">
+Install the **Galileo SDK**, and the dotenv package using the following command in your terminal:
+
+<CodeGroup>
+
+```bash Python
+pip install galileo python-dotenv
+```
+
+```bash TypeScript
+npm install galileo tsx dotenv
+```
+
+</CodeGroup>
+</Step>
+<Step title="Set up your environment variables">
+Create an `.env` file in your project folder, and set:
+
+- Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
+- Your Galileo project name
+
+<CodeGroup>
+
+```ini .env
+GALILEO_API_KEY="your-galileo-api-key"
+GALILEO_PROJECT="your-galileo-project-name"
+```
+
+</CodeGroup>
+</Step>
+<Step title="Create your application code">
+Create a file called `app.py` (Python) or `app.ts` (TypeScript) and add the following code:
+<CodeGroup>
+<SnippetExperimentPython />
+<SnippetExperimentTypeScript />
+</CodeGroup>
+
+<Note>
+This code defaults to using GPT-4o. If you want to use a different model, update the `model_alias` in the prompt settings passed to the call to run experiment.
+</Note>
+
+This code creates a prompt containing a system prompt and user prompt, and the user prompt has a mustache template to inject rows from the dataset. It also creates a dataset.
+
+It then uses these to run an experiment, measuring context adherence.
+
+If the prompt or dataset already exist, they are loaded instead of being recreated.
+</Step>
+<Step title="Run your application">
+Run your application using the following command in your terminal:
+
+<CodeGroup>
+
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+npx tsx app.ts
+```
+
+</CodeGroup>
+</Step>
+<Step title="View the results in your terminal">
+<CodeGroup>
+
+```output Terminal
+Experiment My Experiment has started and is currently processing.
+Results will be available at https://app.galileo.ai/project/.../experiments/...
+
+🚀 GALILEO LOG INFORMATION:
+🔗 Prompt     : https://app.galileo.ai/prompts/...
+🔗 Dataset    : https://app.galileo.ai/datasets/...
+🔗 Experiment : https://app.galileo.ai/project/.../experiments/...
+```
+
+</CodeGroup>
+</Step>
+<Step title="See the experiment in Galileo">
+Open the experiment in the Galileo console using the URL output to your terminal. You will see the logged experiment with 2 rows, one for each entry in the dataset.
+
+![The experiment in Galileo with 2 traces](/getting-started/experiments/experiment-traces.webp)
+
+Select a trace to see more details, including an explanation of the metric score.
+
+![The first trace in the experiment in Galileo with a 0% context adherence](/getting-started/experiments/experiment-trace.webp)
+</Step>
+</Steps>
+
+## Troubleshooting
+
+- **I need a Galileo API key**: Head to [app.galileo.ai](https://app.galileo.ai) and sign up. Then head to the [API keys](https://app.galileo.ai/settings/api-keys) page to get a new API key.
+- **What's my project name ?**: The project name was set when you created a new project. If you haven't created a new project, head to Galileo and select the **New Project** button.
 
 ## Next steps
 
 <CardGroup cols={2}>
-<Card title="Create a Dataset" icon="box" href="/concepts/datasets" horizontal>
+<Card title="Create a dataset" icon="box" href="/concepts/datasets" horizontal>
   Learn how to create and manage datasets in Galileo.
 
 </Card>
 
-<Card title="Run an Experiment in the Console" icon="hand-pointer" href="/concepts/experiments/running-experiments-in-console" horizontal>
-  Learn how to run experiments in the Galileo Console.
-
+<Card title="Run experiments in playgrounds" icon="hand-pointer" href="/concepts/experiments/running-experiments-in-console" horizontal>
+  Learn about running experiments in the Galileo console using playgrounds and datasets.
 </Card>
 
-<Card title="Run an Experiment with Code" icon="code" href="/concepts/experiments/running-experiments" horizontal>
+<Card title="Run experiments with code" icon="code" href="/concepts/experiments/running-experiments" horizontal>
   Learn how to run experiments in Galileo.
-
 </Card>
 
-<Card title="Compare Experiments with Code" icon="not-equal" href="/concepts/experiments/compare" horizontal>
+<Card title="Compare experiments" icon="not-equal" href="/concepts/experiments/compare" horizontal>
   Learn how to compare experiments in Galileo.
-
 </Card>
 </CardGroup>
