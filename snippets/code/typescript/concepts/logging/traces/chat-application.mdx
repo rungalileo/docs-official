@@ -20,7 +20,9 @@ async function processChatMessage(userId: string, message: string, conversationH
 
   try {
     // Add an LLM span for generating the response
-    const prompt = `Conversation history: ${conversationHistory.join("\n")}\nUser: ${message}\nAssistant:`;
+    const prompt = `
+    Conversation history: ${conversationHistory.join("\n")}\nUser: ${message}\nAssistant:
+    `;
 
     logger.addLlmSpan({
       input: [{ role: "user", content: prompt }],
