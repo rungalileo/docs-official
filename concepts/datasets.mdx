@@ -55,9 +55,9 @@ You can also create a dataset from a **Playground** page. Click the **Add Datase
 
 You can choose to create a dataset by:
 
-  - [Uploading a dataset file](#dataset-file-uploads)
-  - [Auto-generating a synthetic dataset](#synthetic-data-generation)
-  - [Creating a dataset manually](#manual-dataset-creation)
+- [Uploading a dataset file](#dataset-file-uploads)
+- [Auto-generating a synthetic dataset](#synthetic-data-generation)
+- [Creating a dataset manually](#manual-dataset-creation)
 
 ![Dataset dialog options](/images/dataset-dialog-options.png)
 
@@ -85,11 +85,12 @@ After data generation is completed, select **Save Dataset** to continue working 
 
 You can also customize the generated data by setting:
 
-  - The number of rows that you ask the LLM to generate.
-  - The LLM model that you're utilizing.
-  - **Your AI app's use case** (Optional): What task is your AI app doing? For example, chatbot to answer customer service questions.
-  - **Special instructions** (Optional): Additional guidance to further refine the generated output.
-  - **The generated data types** (Optional): Customize data types that the generated data should follow.
+- The number of rows that you ask the LLM to generate.
+- The LLM model that you're utilizing.
+- **Your AI app's use case** (Optional): What task is your AI app doing? For example, chatbot to answer customer service questions.
+- **Special instructions** (Optional): Additional guidance to further refine the generated output.
+- **The generated data types** (Optional): Customize data types that the generated data should follow.
+
     > Data types can be used for testing specific scenarios. For example, testing your app's resilience to prompt injection scenarios where attackers try to get your app to produce harmful output.
 
 ![Synthetic data generation - Customized Data](/images/dataset-synthetic-customized.jpg)
@@ -195,63 +196,63 @@ When working with datasets consider these tips:
 
 1. **Start Small and Representative**
 
-  - **Why**: Beginning with a core set of representative test cases helps you quickly validate your workflow and catch obvious issues before scaling up.
-  - **How**: Select a handful of diverse, meaningful examples that reflect the range of inputs your model will see.
+    - **Why**: Beginning with a core set of representative test cases helps you quickly validate your workflow and catch obvious issues before scaling up.
+    - **How**: Select a handful of diverse, meaningful examples that reflect the range of inputs your model will see.
 
 2. **Grow Incrementally**
 
-  - **Why**: Add new test cases as you discover edge cases or failure modes. This ensures your dataset evolves alongside your understanding of the problem.
-  - **How**: Whenever you encounter a new bug, edge case, or user scenario, add it to your dataset.
+    - **Why**: Add new test cases as you discover edge cases or failure modes. This ensures your dataset evolves alongside your understanding of the problem.
+    - **How**: Whenever you encounter a new bug, edge case, or user scenario, add it to your dataset.
 
 3. **Version Thoughtfully**
 
-  - **Why**: Versioning lets you track major changes, reproduce past experiments, and understand how your test suite evolves.
-  - **How**: Create a new version when you make significant changes, and use version history to compare results over time.
+    - **Why**: Versioning lets you track major changes, reproduce past experiments, and understand how your test suite evolves.
+    - **How**: Create a new version when you make significant changes, and use version history to compare results over time.
 
 4. **Document Changes**
 
-  - **Why**: Keeping a record of why you added certain test cases or created new versions helps future you (and your teammates) understand the reasoning behind your dataset's evolution.
-  - **How**: Use comments, changelogs, or dataset descriptions to note the purpose of additions or modifications.
+    - **Why**: Keeping a record of why you added certain test cases or created new versions helps future you (and your teammates) understand the reasoning behind your dataset's evolution.
+    - **How**: Use comments, changelogs, or dataset descriptions to note the purpose of additions or modifications.
 
 5. **Organize by Purpose**
 
-  - **Why**: Separate datasets for different types of tests (e.g., basic functionality, edge cases, regression tests) make it easier to target specific goals and analyze results.
-  - **How**: Create and name datasets according to their intended use.
+    - **Why**: Separate datasets for different types of tests (e.g., basic functionality, edge cases, regression tests) make it easier to target specific goals and analyze results.
+    - **How**: Create and name datasets according to their intended use.
 
 6. **Choose the Right Approach**
 
-  - **Why**: The console is great for quick edits and visual exploration, while code is better for automation and bulk operations.
-  -  **How**: Use both as needed. Use the console for ad hoc changes, SDK for systematic or large-scale updates.
+    - **Why**: The console is great for quick edits and visual exploration, while code is better for automation and bulk operations.
+    - **How**: Use both as needed. Use the console for ad hoc changes, SDK for systematic or large-scale updates.
 
 7. **Track Progress**
 
-  - **Why**: Monitoring how changes affect both specific issues and overall performance helps you measure improvement and catch regressions.
-  - **How**: Use metrics, dashboards, or manual review to assess the impact of dataset and prompt changes.
+    - **Why**: Monitoring how changes affect both specific issues and overall performance helps you measure improvement and catch regressions.
+    - **How**: Use metrics, dashboards, or manual review to assess the impact of dataset and prompt changes.
 
 8. **Keep History**
 
-  - **Why**: Saving problematic inputs and maintaining version history prevents regressions and helps you understand past issues.
-  - **How**: Never delete old test cases—archive or version them instead.
+    - **Why**: Saving problematic inputs and maintaining version history prevents regressions and helps you understand past issues.
+    - **How**: Never delete old test cases—archive or version them instead.
 
 9. **Keep Your Dataset Schema Consistent**
 
-  - **Why**: Inconsistent schemas (e.g., missing fields) can cause prompt rendering errors or unexpected results.
-  - **How**: Ensure every row contains all fields referenced in your prompt templates.
+    - **Why**: Inconsistent schemas (e.g., missing fields) can cause prompt rendering errors or unexpected results.
+    - **How**: Ensure every row contains all fields referenced in your prompt templates.
 
 10. **Use Nested Access for Dictionaries**
 
-  - **Why**: Many real-world datasets have nested structures. Dot notation (e.g., `input.metadata.days`) lets you access these fields cleanly in your prompt templates.
-  - **How**: Reference nested fields using dot notation in your prompt templates.
+    - **Why**: Many real-world datasets have nested structures. Dot notation (e.g., `input.metadata.days`) lets you access these fields cleanly in your prompt templates.
+    - **How**: Reference nested fields using dot notation in your prompt templates.
 
 11. **Test Your Prompt Templates**
 
-  - **Why**: Testing ensures that variables are replaced as expected and helps catch typos or missing fields before running large experiments.
-  - **How**: Render your prompt with a row input to verify correct variable substitution.
+    - **Why**: Testing ensures that variables are replaced as expected and helps catch typos or missing fields before running large experiments.
+    - **How**: Render your prompt with a row input to verify correct variable substitution.
 
 12. **Document Your Prompt Templates**
 
-  - **Why**: Clear documentation of which fields are used in your prompt templates helps maintainers and collaborators understand dependencies between your data and prompts.
-  - **How**: Add comments or documentation near your prompt templates explaining expected input fields.
+    - **Why**: Clear documentation of which fields are used in your prompt templates helps maintainers and collaborators understand dependencies between your data and prompts.
+    - **How**: Add comments or documentation near your prompt templates explaining expected input fields.
 
 By following these practices and using Galileo's dataset management features, you can build a robust and maintainable test suite that grows with your application's needs.
 
