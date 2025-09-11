@@ -4,6 +4,8 @@ icon: "paper-plane"
 description: Recent updates and enhancements to Galileo
 ---
 
+{/*<!-- markdownlint-disable MD024 --> Repeated headings*/}
+
 <Update label="2025-09-05" description="">
 
 ## Key new features and improvements
@@ -22,6 +24,7 @@ Both the **Python SDK** [`extend_dataset`](/sdk-api/python/reference/datasets#ex
 ## Key new features and improvements
 
 ### New custom metric creation flow
+
 Enhanced Agent monitoring with Galileo's new custom metric creation flow This feature allows users to create custom metrics at session, trace, and span levels for different output types including boolean, categorical, discrete, count, and percentages.
 
 This new testing flow enables users to test metrics on past logs and experiments, allowing for quick iteration and validation to ensure the metric is working as expected before deploying to production.
@@ -60,9 +63,9 @@ Use synthetic data generation to:
 
 The Log Stream Insights feature has been optimized for better performance and user experience:
 
-- **Reduced processing overhead**: Insights backend processing is now disabled by default for enterprise customers, reducing unnecessary costs and improving system performance. 
-- **On-demand insights**: Users can now trigger Log Stream Insights manually through the UI when needed, providing more control over when insights are generated.  
-- **Enhanced reliability**: Improved error handling and processing stability to reduce the frequency of issues encountered by customers.  
+- **Reduced processing overhead**: Insights backend processing is now disabled by default for enterprise customers, reducing unnecessary costs and improving system performance.
+- **On-demand insights**: Users can now trigger Log Stream Insights manually through the UI when needed, providing more control over when insights are generated.
+- **Enhanced reliability**: Improved error handling and processing stability to reduce the frequency of issues encountered by customers.
 These changes make the Insights feature more robust and cost-effective while maintaining its powerful analysis capabilities for agent debugging and optimization.
 
 ### Documentation and content enhancements
@@ -71,107 +74,133 @@ Continued improvements to documentation around [role-based access control (RBAC)
 </Update>
 
 <Update label="2025-08-15" description="Addition of GPT-5 Models, Updated Documentation">
+
 ## Key new features and improvements
+
 ### Support for GPT-5, GPT-5-mini, and GPT-5-nano
+
 Galileo now supports OpenAI's latest GPT-5 family of models, including GPT-5, GPT-5-mini, and GPT-5-nano. These models are now available across all Galileo features including the Playground, Metrics creation, and Prompt store.
 
-    ![Screenshot of the Galileo AI Evaluation Playground with a model selection dropdown, input variable, loaded CSV file, and control buttons.](/images/release-notes/2025-08-15/2025-08-15-gpt5-playground.png)
+![Screenshot of the Galileo AI Evaluation Playground with a model selection dropdown, input variable, loaded CSV file, and control buttons.](/images/release-notes/2025-08-15/2025-08-15-gpt5-playground.png)
 
 ### Documentation and content enhancements
+
 Documentation improvements around [role-based access control (RBAC)](/concepts/access-control) as well as improved documentation navigation.
 
 </Update>
 
 <Update label="2025-08-01" description="Aggregate Agent Graph View">
+
 ## Key new features
+
 ### Aggregate agent graph view
+
 Galileo's agent reliability suite now includes an Aggregate Agent Graph View, letting you visualize the most common paths your agent takes across [sessions](/concepts/logging/sessions/sessions-overview). This feature helps surface usage trends, component performance, and outlier behaviors that are otherwise hard to spot in individual traces or spans.
 
 With agent-based architectures becoming more complex and non-deterministic, having an aggregated DAG (Directed Acyclic Graph) view is crucial for debugging, optimizing, and validating agent workflows at scale.
 
-    ![Screenshot of Galileo's Aggregate Agent Graph View showing a visual DAG of an agent's execution paths over a 6-month period.](/images/release-notes/2025-08-01/2025-08-01-multi-agent-graph-view-v2.webp)
+![Screenshot of Galileo's Aggregate Agent Graph View showing a visual DAG of an agent's execution paths over a 6-month period.](/images/release-notes/2025-08-01/2025-08-01-multi-agent-graph-view-v2.webp)
 
 </Update>
 
 <Update label="2025-07-25" description="Build Your Own Evaluation Metrics and Track Agent Workflows">
+
 ## Key new features
-### Build custom evaluation metrics with your own prompt 
-Define your own evaluation metrics by providing a custom prompt. This gives you full control to evaluate outputs based on specific criteria, allowing for tailored evaluations based on your needs. 
+
+### Build custom evaluation metrics with your own prompt
+
+Define your own evaluation metrics by providing a custom prompt. This gives you full control to evaluate outputs based on specific criteria, allowing for tailored evaluations based on your needs.
 
 Apply these metrics at span, trace, or session levels, or create agentic metrics to evaluate complete workflows.  Currently, outputs are binary only (e.g., Pass/Fail) but support for numerical, categorical, and text-based outputs are on the roadmap.
 
 ### Agentic metrics for workflow evaluations
-Galileo has four new metrics specifically designed for agent workflows. Use these metrics to track efficiency, quality, and intent across multi-step agent processes. 
+
+Galileo has four new metrics specifically designed for agent workflows. Use these metrics to track efficiency, quality, and intent across multi-step agent processes.
 
 These metrics include:
-- **Agent Flow** – Ensures the agent followed the ideal execution path.
-- **Agent Efficiency** – Rewards concise, goal-oriented behavior while avoiding redundant steps or unnecessary tool calls.
-- **Conversation Quality** – Session-level metric for evaluating overall conversation quality. Uses multi-trace inputs/outputs and does not require thinking logs or tool logs.
-- **Intent Change** – Detects user intent shifts throughout a conversation, helping identify changes in user goals.
+
+- **Agent Flow** - Ensures the agent followed the ideal execution path.
+- **Agent Efficiency** - Rewards concise, goal-oriented behavior while avoiding redundant steps or unnecessary tool calls.
+- **Conversation Quality** - Session-level metric for evaluating overall conversation quality. Uses multi-trace inputs/outputs and does not require thinking logs or tool logs.
+- **Intent Change** - Detects user intent shifts throughout a conversation, helping identify changes in user goals.
 
 Apply these metrics at [span](/concepts/logging/spans#spans), [trace](/concepts/logging/traces#traces), or [session levels](/concepts/logging/sessions/sessions-overview), or create agentic metrics to evaluate complete workflows.
 
-These metrics pair well with Galileo's high-signal agent-centric [metrics](/concepts/metrics/overview#metrics-overview) including [tool selection](/concepts/metrics/agentic/tool-error), [action advancement](/concepts/metrics/agentic/action-advancement#understanding-action-advancement), and [instruction adherence](/concepts/metrics/response-quality/instruction-adherence). 
+These metrics pair well with Galileo's high-signal agent-centric [metrics](/concepts/metrics/overview#metrics-overview) including [tool selection](/concepts/metrics/agentic/tool-error), [action advancement](/concepts/metrics/agentic/action-advancement#understanding-action-advancement), and [instruction adherence](/concepts/metrics/response-quality/instruction-adherence).
 
 ### Export logs
 
-Export selected or all logs from log streams and experiments in either CSV or JSON format with the columns of your choosing. This allows you to upload them into datalakes, add them to an archive, further explore the data, maintain them for compliance purposes, or whatever else may fit your needs. 
+Export selected or all logs from log streams and experiments in either CSV or JSON format with the columns of your choosing. This allows you to upload them into datalakes, add them to an archive, further explore the data, maintain them for compliance purposes, or whatever else may fit your needs.
 
-    ![A GIF of logs being exported from a log stream](/images/release-notes/2025-07-25/2025-07-25-log-stream-exports.gif)
+![A GIF of logs being exported from a log stream](/images/release-notes/2025-07-25/2025-07-25-log-stream-exports.gif)
 
 ### Columns in all experiments table
+
 View more information around the dataset, model, or prompt used in an experiment from within the all experiments table. Navigate via links to the relevant dataset or prompt to explore deeper within the project.
 
 
 </Update>
 
 <Update label="2025-07-11" description="Alerting, Prompt Versioning, and GenAI Protection">
+
 ## Key new features
-### Slack and email alerts on your applications 
+
+### Slack and email alerts on your applications
+
 Keep close tabs on your AI apps and agents with the ability to create Slack or email alerts on your log streams. Get notified on the metrics that matter most to you and your team — whether its [correctness](/concepts/metrics/response-quality/correctness), output [PII](/concepts/metrics/safety-and-compliance/pii), [context relevance](/concepts/metrics/response-quality/context-relevance), or more. Leverage flexible thresholds and conditions to optimize for the right balance between signal and noise.
 
-    ![Galileo Release Notes](/images/release-notes/2025-07-11/2025-07-create-alert.webp)
+![Galileo Release Notes](/images/release-notes/2025-07-11/2025-07-create-alert.webp)
 
 ### Save and version prompts in the prompt store
-Save your prompts in a central prompt store with built-in version control. From within the playground, load an existing prompt from the prompt store, edit the prompt and save as either a new prompt or new version of existing prompt.  Check out different versions of the prompt or even rollback to previous versions as needed. 
 
-    ![Galileo Prompt Store and versioning view](/images/release-notes/2025-07-11/2025-07-prompt-store.webp)
+Save your prompts in a central prompt store with built-in version control. From within the playground, load an existing prompt from the prompt store, edit the prompt and save as either a new prompt or new version of existing prompt.  Check out different versions of the prompt or even rollback to previous versions as needed.
+
+![Galileo Prompt Store and versioning view](/images/release-notes/2025-07-11/2025-07-prompt-store.webp)
 
 ### Proactive GenAI security with updated Protect safeguards
-Protect has been added to the latest version of the [Galileo Python SDK](/sdk-api/python/reference/protect) to intercept prompts and outputs to proactively safeguard your organization and your end-users from unwanted or even dangerous outputs. Get started with Protect’s safeguards through [Galileo Metrics](/concepts/metrics/overview). Protect is specifically designed to defend your application against:
- - Harmful requests and security threats (e.g. [Prompt Injections](/concepts/metrics/safety-and-compliance/prompt-injection), toxic language)
- - Data Privacy protection (e.g. PII leakage)
- - [Hallucinations](/how-to-guides/conversational-ai/fixing-hallucinations-and-factual-errors)
+
+Protect has been added to the latest version of the [Galileo Python SDK](/sdk-api/python/reference/protect) to intercept prompts and outputs to proactively safeguard your organization and your end-users from unwanted or even dangerous outputs. Get started with Protect's safeguards through [Galileo Metrics](/concepts/metrics/overview). Protect is specifically designed to defend your application against:
+
+- Harmful requests and security threats (e.g. [Prompt Injections](/concepts/metrics/safety-and-compliance/prompt-injection), toxic language)
+- Data Privacy protection (e.g. PII leakage)
+- [Hallucinations](/how-to-guides/conversational-ai/fixing-hallucinations-and-factual-errors)
+
 </Update>
 
 <Update label="2025-06-25" description="Improve your agents with Agent Insights">
 
 ## Key new features
+
 ### Galileo agent insight engine
+
 Get insights into how to improve your agent: Galileo now analyzes your logs, identifies potential problems and provides them on your project dashboard. Agents can fail in numerous ways that are different from traditional software. The Galileo agent [Insights Engine](https://galileo.ai/insights-engine) knows what to look for, classifies them and even provides suggested actions to remediate them.
 
-    ![Galileo agent Insights Engine](/images/release-notes/2025-06-25/2025-06-Galileo-Insights-Engine.webp)
+![Galileo agent Insights Engine](/images/release-notes/2025-06-25/2025-06-Galileo-Insights-Engine.webp)
 
-#### Identify trends within log metrics 
-Keep your eyes on trends happening within your project’s log stream metrics over a period of time to easily identify anomalies or find patterns. Dive deeper into patterns with additional views, filtering and groups of trend lines based on available parameters. 
+#### Identify trends within log metrics
 
-    ![Trends in log metrics](/images/release-notes/2025-06-25/2025-06-Trends-In-Log-Metrics.webp)
+Keep your eyes on trends happening within your project's log stream metrics over a period of time to easily identify anomalies or find patterns. Dive deeper into patterns with additional views, filtering and groups of trend lines based on available parameters.
+
+![Trends in log metrics](/images/release-notes/2025-06-25/2025-06-Trends-In-Log-Metrics.webp)
 
 #### Chart view for experiments
 
-You can now view the results of any experiment in an easy-to-digest chart view, allowing you to gain further meaning behind metric performance.  Further explore the charts with the help of filters to examine metric samples by clicking into the visualization. 
+You can now view the results of any experiment in an easy-to-digest chart view, allowing you to gain further meaning behind metric performance.  Further explore the charts with the help of filters to examine metric samples by clicking into the visualization.
 
-        ![Chart view for experiments](/images/release-notes/2025-06-25/2025-06-Chart-View-For-Experiments.webp)
+![Chart view for experiments](/images/release-notes/2025-06-25/2025-06-Chart-View-For-Experiments.webp)
 
 ### Retriever node visualization
-Parse through and debug the output of your retriever node with ease as each chunk and it’s attribution and utilization metrics are distinctly represented.
 
-    ![Retriever node visualization](/images/release-notes/2025-06-25/2025-06-Retriever-Node-Visualization.webp)
+Parse through and debug the output of your retriever node with ease as each chunk and it's attribution and utilization metrics are distinctly represented.
+
+![Retriever node visualization](/images/release-notes/2025-06-25/2025-06-Retriever-Node-Visualization.webp)
 
 ### Metric versioning and customization per log stream
-Now, you can view and restore previous versions of metrics directly in the metrics hub interface.  Test out different versions of a metric, or use different versions of a metric across different log streams and experiments.  Helpful for scenarios where you may want to explore different changes without impacting existing logs or charts. 
+
+Now, you can view and restore previous versions of metrics directly in the metrics hub interface.  Test out different versions of a metric, or use different versions of a metric across different log streams and experiments.  Helpful for scenarios where you may want to explore different changes without impacting existing logs or charts.
 
 ### Automatic session naming
+
 Sessions are now named automatically using available session data if no custom name is provided.
 
 </Update>
@@ -179,10 +208,13 @@ Sessions are now named automatically using available session data if no custom n
 <Update label="2025-06-18" description="Luna-2 Now available in Galileo enterprise">
 
 ## Key new features
+
 ### Luna-2 available for use for enterprise users
+
 [Luna-2](/concepts/luna/luna#luna-2-overview) is now available for Enterprise Customers. Luna-2 is a major upgrade that brings purpose-built intelligence to every evaluation and guardrail use case. With a redesigned architecture and rigorous RLAIF training pipelines, Luna-2 delivers:
+
 - **Higher-quality evaluation across 8+ dimensions**, including helpfulness, correctness, coherence, verbosity, maliciousness, hallucination, and more.
-- **Granular binary and scalar scoring**: Flexible outputs for both detection (binary pass/fail) and precise scoring (e.g., 1–5 scale), ready to plug into your pipelines or dashboards.
+- **Granular binary and scalar scoring**: Flexible outputs for both detection (binary pass/fail) and precise scoring (e.g., 1-5 scale), ready to plug into your pipelines or dashboards.
 - **Context-aware comparisons**: Optimized for pairwise and multi-turn comparisons, with better discernment in edge cases.
 - **Consistency and reproducibility**: More stable than traditional LLM-as-judge methods, with high agreement across similar prompts and contexts.
 
@@ -192,7 +224,8 @@ Sessions are now named automatically using available session data if no custom n
 
 <Update label="2025-06-13" description="Sessions as Graph, Log Stream Insights, Playground History, and Local Metrics">
 
-## Key new features 
+## Key new features
+
 More powerful agent observability with updates to three complementary views—Timeline, Conversation, and Graph—designed to help you debug faster, detect issues earlier, and understand agent performance from every angle.
 
 ### Trace agent execution in real-time with timeline view
@@ -202,7 +235,7 @@ No more digging through scattered logs—see how long each tool or agent step ta
 
 Click on any step to inspect metadata, inputs/outputs, and nested actions, giving you full visibility into what's slowing things down.
 
-    ![Timeline View Updates](/images/release-notes/2025-06-16/2025-06-16-Timeline-Quick.gif)
+![Timeline View Updates](/images/release-notes/2025-06-16/2025-06-16-Timeline-Quick.gif)
 
 
 ### Debug from the user's perspective with conversation view
@@ -210,22 +243,24 @@ Click on any step to inspect metadata, inputs/outputs, and nested actions, givin
 The new **Conversation View** recreates the exact exchange your users experienced—from inputs to outputs—side by side with system decisions. This helps you debug how your agent logic feels in practice, not just how it functions under the hood.
 
 Use it to:
+
 - Spot confusing or off-track responses
 - Validate that the system matches user intent
 - Reproduce and resolve edge cases faster
 
-    ![Conversation View Updates](/images/release-notes/2025-06-16/2025-06-16-Conversation-View-sm.gif)
+![Conversation View Updates](/images/release-notes/2025-06-16/2025-06-16-Conversation-View-sm.gif)
 
 ### Combine with graph view for end-to-end observability
 
 These new views pair well with last week's Graph view release, which transforms traditional logs into interactive, inspectable agent flows.
 
 Use the full trio to:
+
 - Graph View: Visualize decision paths and tool usage
 - Timeline View: Identify performance issues and slowdowns
 - Conversation View: Understand the user experience start to finish
 
-With these improvements, you can get a more holistic view of agent behavior. 
+With these improvements, you can get a more holistic view of agent behavior.
 
 </Update>
 
@@ -236,16 +271,19 @@ With these improvements, you can get a more holistic view of agent behavior.
 Faster debugging, smarter issue detection, seamless experiment saving, and custom metric support for streamlined GenAI evaluation.
 
 ### Visualize sessions with graph view
+
 Galileo's new **Graph View** replaces traditional tree-based log visualization, enabling you to **analyze complex sessions quickly**. Instead of digging through a deeply nested tree with hundreds of logs, you can now explore each trace as an interactive graph.
 
 Click any node to inspect inputs, outputs, metrics, and intermediate actions, making it easier to identify bottlenecks, trace failures, and debug long-running workflows.
 
-    ![A Single Session node](/images/release-notes/2025-06-05/2025-06-05-Single-Sessions-Node.webp)
+![A Single Session node](/images/release-notes/2025-06-05/2025-06-05-Single-Sessions-Node.webp)
 
-    ![A Single Session node showing metrics](/images/release-notes/2025-06-05/2025-06-05-Single-Sessions-Node-Metrics.webp)
+![A Single Session node showing metrics](/images/release-notes/2025-06-05/2025-06-05-Single-Sessions-Node-Metrics.webp)
 
 ### Detect issues automatically with Log stream insights (Beta)
+
 Galileo's **Log Stream Insights** automatically scans your logs to **surface common failure patterns and recurring issues**, saving you hours of manual review. For each surfaced issue, users receive:
+
 - Descriptions of the detected pattern
 - Concrete examples across traces
 - Suggested remediation strategies
@@ -253,64 +291,71 @@ Galileo's **Log Stream Insights** automatically scans your logs to **surface com
 
 This helps teams reduce MTTD (mean time to detect) and rapidly address performance regressions.
 
-   ![A GIF showing Log stream insights](/images/release-notes/2025-06-05/2025-06-05-Log-Stream-Insights-s.gif)
+![A GIF showing Log stream insights](/images/release-notes/2025-06-05/2025-06-05-Log-Stream-Insights-s.gif)
 
 ### Preserve work and experiment freely with playground saving & history
+
 Galileo now **automatically saves your Playground session state**, so you never lose work in progress. You can:
+
 - Resume where you left off without manual saves
 - Save multiple sessions to explore variations in prompts and workflows
 - Access run history and log experiments for repeatability
 
-This feature enables your team to **iterate faster and collaborate more effectively** within a single project environment. 
+This feature enables your team to **iterate faster and collaborate more effectively** within a single project environment.
 
-   ![A GIF showing new playground persistence feature](/images/release-notes/2025-06-05/2025-06-05-Playground-Updates.gif)
+![A GIF showing new playground persistence feature](/images/release-notes/2025-06-05/2025-06-05-Playground-Updates.gif)
 
 ### Evaluate with your own metrics using local scorers
+
 With **Local Custom Metrics**, you can now define and compute **custom evaluation metrics locally** using your existing Python workflows and evaluation logic. These metrics can be uploaded directly into your Galileo experiments for side-by-side comparison with built-in metrics.
 
 This gives you complete control over your evaluation criteria while centralizing metric tracking inside Galileo experiments.
 Use it to:
+
 - Seamlessly integrate with local libraries and tools
 - Rapidly iterate on evaluation logic
 - Gain full metric visibility within your evaluations
 - Compare experiments at a glance to determine the best results
 
-</Update> 
+</Update>
 
 <Update label="2025-05-13" description="Sessions, CLHF, and Playground improvements">
 
 ## Key new features
 
 ### Sessions
+
 The free version of Galileo now has support for Sessions. Sessions provide users a coherent view of multi-turn interactions. The traces from each turn of the conversation can be viewed under the session.
 
-    To create a session, developers can use the Galileo Logger, using the `start_session` method in Python ot the `startSession` method in TypeScript.
+To create a session, developers can use the Galileo Logger, using the `start_session` method in Python ot the `startSession` method in TypeScript.
 
-    Here is a multi-turn conversation about state capitals of the US:
+Here is a multi-turn conversation about state capitals of the US:
 
-    ![A multi turn conversation about state capitals](/images/release-notes/2025-5-13/sessions.png)
+![A multi turn conversation about state capitals](/images/release-notes/2025-5-13/sessions.png)
 
 ### Adapting LLM metrics with CLHF
+
 The free Galileo offering now supports [**Continuous Learning for Human Feedback** (CLHF)](concepts/metrics/custom-metrics/continuous-learning-via-human-feedback) which helps users easily adapt LLM metrics for their app by providing human feedback.  As you start using Galileo Preset LLM-powered metrics (e.g. Context Adherence or Instruction Adherence), or start creating your own LLM-powered metrics, you might not always agree with the results. This capability helps you solve this problem.
 
-    As you identify mistakes in your metrics, you can provide ‘feedback' to ‘auto-improve' your metrics. Your feedback gets translated (by LLMs) into few-shot examples that are appended to the Metric's prompt.
+As you identify mistakes in your metrics, you can provide ‘feedback' to ‘auto-improve' your metrics. Your feedback gets translated (by LLMs) into few-shot examples that are appended to the Metric's prompt.
 
-    This process has shown to increase accuracy of metrics by 20-30%.
+This process has shown to increase accuracy of metrics by 20-30%.
 
-    <iframe
-    width="560"
-    height="315"
-    src="https://www.youtube.com/embed/Rl8YLFCyoiw"
-    title="YouTube video player"
-    frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowfullscreen
-    ></iframe>
+<iframe
+width="560"
+height="315"
+src="https://www.youtube.com/embed/Rl8YLFCyoiw"
+title="YouTube video player"
+frameborder="0"
+allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+allowfullscreen
+></iframe>
 
 ### Playground improvements
+
 The playground now has an updated layout and shows a preview of the input prompt that will be run when using variable slots in your prompt template which are filled in by manually entering variables or getting them from a dataset.
 
-    ![The new playground layout](/images/release-notes/2025-5-13/playground.png)
+![The new playground layout](/images/release-notes/2025-5-13/playground.png)
 
 </Update>
 
@@ -319,19 +364,23 @@ The playground now has an updated layout and shows a preview of the input prompt
 ## Key new features
 
 ### Metrics on experiments UI
+
 You can now compute additional metrics for logged experiments directly within the experiments UI. Until now, users didn't have a way to compute more metrics for logged experiments from the UI or SDK.
 
 ![Metrics on experiments UI](images/AddingMetricstoExperimentsinUI-ezgif.com-optimize.gif)
 
 ### Public APIs
+
 Released [public APIs](/api-reference/) to allow developers to manage Log streams, experiments, and trace data programmatically. While these can already be managed through the TypeScript and Python SDK, public APIs allow users to programmatically interact with these components in any language. Sample use cases include logging data from a production AI app, running experiments, and retrieving evaluation result
 
 ### Aggregate metrics and ranking criteria for experiments
+
 Added to All Experiments page. Aggregate metrics compile the metric values from individual traces in an experiment to show a combined value for each metric on the all experiments page. This enables you to quickly assess the performance of the underlying traces in an experiment. Ranking criteria allow you to determine which experiments were most successful by specifying a weighted average of the underlying metrics for each experiment.
 
 ![Ranking Criteria Interface](images/Added-aggregate-metrics.png)
 
 ### Reference output and metadata availability
+
 The reference output and metadata from the datasets are now available in the corresponding experiment traces so it can easily referenced.
 
 ![Reference Output Interface](images/Reference-output-and-metadata-from-datasets.png)
@@ -339,31 +388,39 @@ The reference output and metadata from the datasets are now available in the cor
 ## Datasets and playground
 
 ### Enhanced playground inputs
+
 to show complete dataset input rather than only variables so you can more flexibly define variable inputs.
 
 ![Enhanced Playground Inputs](images/playground-enhanced-inputs.png)
 
 ### Flatten to text in dataset upload
+
 When uploading datasets from a CSV or JSON file, the contents of a column are automatically flattened to text instead of being stored as JSON when there's only one file column mapped to an input, output or dataset column.
 
 ![Flatten to Text Dataset Upload](images/flatten-to-text-dataset-upload.png)
 
 ### New model in playground and metrics
+
 Added Support for new GPT 4.1 model in playground and metrics.
 
 ## SDK
 
 ### G2.0 TypeScript SDK improvements
+
 Supporting Export types at the top-level (galileo/types), added a method to access the singleton logger.
 
 ## General usability
 
 ### Performance optimization
+
 Resolved performance issues causing occasional UI slowdowns, ensuring smoother and faster navigation.
 
 ### Extended session durations
+
 Reduce repetitive Google sign-ins, improving user convenience.
 
 ### Support chat icon control
+
 You now have the option to show or hide the support chat icon, customizing your interface according to your preferences. Previously, the support chat icon would overlap and cover key user interface elements. This change makes it easier to access the full user interface without the chat icon getting in the way.
+
 </Update>
