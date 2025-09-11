@@ -9,7 +9,7 @@ client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 dataset = get_dataset(name="countries")
 
 def llm_call(input):
-	return client.chat.completions.create(
+    return client.chat.completions.create(
         model="gpt-4o",
         messages=[
           {
@@ -26,10 +26,10 @@ def llm_call(input):
     ).choices[0].message.content
 
 results = run_experiment(
-	"geography-experiment",
-	dataset=dataset,
-	function=llm_call,
-	metrics=[GalileoScorers.correctness],
-	project="my-project",
+    "geography-experiment",
+    dataset=dataset,
+    function=llm_call,
+    metrics=[GalileoScorers.correctness],
+    project="my-project",
 )
 ```
