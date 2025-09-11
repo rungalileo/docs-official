@@ -41,6 +41,16 @@ div[id]:target {
   }
 }
 
-/* API Reference icon styling - colors are now baked into the SVG files */
-/* Light mode: #3D3A3A (official brand color) */
-/* Dark mode: #7C7979 (official brand color) */
+/* API Reference icon styling using CSS custom properties */
+:root {
+  --api-icon-color: #3D3A3A; /* Light mode: official brand color */
+}
+
+[data-theme="dark"] {
+  --api-icon-color: #7C7979; /* Dark mode: official brand color */
+}
+
+/* Apply the custom property to API Reference icons */
+img[src*="api-reference.svg"] {
+  --icon-color: var(--api-icon-color);
+}
