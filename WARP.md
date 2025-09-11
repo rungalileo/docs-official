@@ -10,7 +10,7 @@ This is the Galileo documentation repository built with [Mintlify](https://mintl
 
 The documentation is structured as follows:
 
-```
+```tree
 ├── docs.json                 # Mintlify configuration and navigation structure
 ├── getting-started/          # Quickstarts and onboarding content
 ├── how-to-guides/           # Task-oriented instructional guides
@@ -30,6 +30,7 @@ The `docs.json` file is the central configuration that maps file structure to th
 ## Development Commands
 
 ### Environment Setup
+
 ```bash
 # Install Node.js dependencies
 npm install
@@ -42,6 +43,7 @@ npm install -g mint
 ```
 
 ### Documentation Development
+
 ```bash
 # Start local development server
 mint dev
@@ -57,10 +59,12 @@ npm run build
 mint broken-links
 
 # Generate API reference (when needed)
-npx --yes @mintlify/scraping@latest openapi-file https://api.galileo.ai/public/v2/openapi.json -o api-reference
+npx --yes @mintlify/scraping@latest \
+   openapi-file https://api.galileo.ai/public/v2/openapi.json -o api-reference
 ```
 
 ### Content Quality Checks
+
 ```bash
 # Install Vale for spell checking
 brew install vale
@@ -137,15 +141,18 @@ tag: "Python"  # For cookbooks only
 ## Pull Request Process
 
 ### Small Changes (spelling, minor formatting)
+
 - Create PR directly, no issue needed
 - Use pull request template checklist
 
 ### Large Changes (new pages, major rewrites, cookbooks)
+
 - **Galileo employees**: Create Shortcut ticket (team: devrel, workflow: engineering, area: docs)
 - **External contributors**: Create GitHub issue first
 - Large PRs without corresponding tickets will be closed
 
 ### PR Checklist Requirements
+
 - [ ] Changes deployed to staging successfully
 - [ ] Reviewed final changes and deployed version  
 - [ ] Tested all code snippets
@@ -175,6 +182,7 @@ When documenting integrations with third-party platforms:
 ## Development Container Support
 
 The repository includes a devcontainer configuration with:
+
 - Python 3.12 base environment
 - Node.js LTS with npm, yarn, pnpm
 - Auto-installation of Vale, Mintlify CLI, and mdx2vast
