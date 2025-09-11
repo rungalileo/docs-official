@@ -262,31 +262,20 @@ OpenTelemetry tracing:
 
 ```mermaid
 graph TD
-    A["User Question: 'what moons did galileo discover'"] --> B[validate_input]
+    A["User Question:<br/>'what moons did galileo discover'"] --> B[validate_input]
     B --> C[generate_response]
     C --> D[format_answer] 
-    D --> E["Final Answer: 'Galileo discovered four moons...'"] 
+    D --> E["Final Answer:<br/>'Galileo discovered four moons...'"] 
     
-    B --> F[OpenTelemetry Span: validate_input]
-    C --> G[OpenTelemetry Span: generate_response]
-    C --> H[OpenAI API Span: GPT-3.5-turbo]
-    D --> I[OpenTelemetry Span: format_answer]
+    B --> F["OpenTelemetry Span:<br/>validate_input"]
+    C --> G["OpenTelemetry Span:<br/>generate_response"]
+    C --> H["OpenAI API Span:<br/>GPT-3.5-turbo"]
+    D --> I["OpenTelemetry Span:<br/>format_answer"]
     
-    F --> J[Tracing:<br/>- Input validation<br/>- Span attributes]
-    G --> K[Tracing:<br/>- API call timing<br/>- Request/response]
-    H --> L[LLM Tracing:<br/>- Token usage<br/>- Model parameters]
-    I --> M[Tracing:<br/>- Response parsing<br/>- Answer formatting]
-    
-    style A fill:#e1f5fe
-    style E fill:#e8f5e8
-    style F fill:#fff3e0
-    style G fill:#fff3e0
-    style H fill:#ffeb3b
-    style I fill:#fff3e0
-    style J fill:#f3e5f5
-    style K fill:#f3e5f5
-    style L fill:#fff59d
-    style M fill:#f3e5f5
+    F --> J["Tracing Details:<br/>• Input validation<br/>• Span attributes"]
+    G --> K["Tracing Details:<br/>• API call timing<br/>• Request/response"]
+    H --> L["LLM Tracing Details:<br/>• Token usage<br/>• Model parameters"]
+    I --> M["Tracing Details:<br/>• Response parsing<br/>• Answer formatting"]
 ```
 
 Each node is instrumented with OpenTelemetry spans that capture:
@@ -298,7 +287,7 @@ Each node is instrumented with OpenTelemetry spans that capture:
 
 ### OpenTelemetry integration
 
-The updated main.py file is structured into five clear steps:
+The updated main.py file is structured into the following steps:
 
 <Steps>
 
