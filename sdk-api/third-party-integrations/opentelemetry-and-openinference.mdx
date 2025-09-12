@@ -131,13 +131,12 @@ LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
 OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
 ```
 </Step>
+</Steps>
 
-
-<Step title="OpenInference semantic conventions">
-
+### OpenInference semantic conventions
 Galileo automatically applies OpenInference semantic conventions to your traces. Here are the key attributes you should use:
-
-### Span attributes
+<Steps>
+<Step title="Span attributes">
 
 ```python
 # Model information
@@ -155,7 +154,9 @@ span.set_attribute("gen_ai.usage.completion_tokens", 75)
 span.set_attribute("gen_ai.usage.total_tokens", 225)
 ```
 
-### Events
+</Step>
+
+<Step title="Events">
 
 ```python
 # Add events to spans for additional context
@@ -181,7 +182,7 @@ span.add_event("inference.completed", {
 
 ### Common OTel-specific issues
 
-**Headers not formatted correctly**
+#### Headers not formatted correctly
 
    ```python
    # ❌ Wrong - this won't work
@@ -191,7 +192,7 @@ span.add_event("inference.completed", {
    os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = "Galileo-API-Key=your-key,project=your-project"
    ```
 
- **Wrong endpoint**
+ #### Wrong endpoint**
 
    ```python
    # ❌ Wrong - this is the native SDK endpoint
