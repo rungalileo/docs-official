@@ -1,40 +1,51 @@
 ---
-title: "OpenTelemetry and OpenInference"
+title: "Running a Langgraph app with OpenAI, OpenTelemetry, OpenInference,"
 description: "Learn how to integrate Galileo with OpenTelemetry and OpenInference for comprehensive observability and tracing."
 ---
 
 ## Overview
 
-Galileo provides an integration with **OpenTelemetry** and **OpenInference** standards, enabling you to capture, trace, and analyze your AI/ML workflows with industry-standard observability tools.
+This guide shows you how to run a **LangGraph application** with **OpenAI**, **OpenTelemetry**, and **OpenInference** to achieve comprehensive observability in Galileo. You'll learn how to instrument your LangGraph workflows to capture detailed traces of AI operations, LLM calls, and workflow execution.
 
-### What is OpenTelemetry
+### What you'll build
 
-[OpenTelemetry](https://opentelemetry.io/), or OTel, is a collection of APIs, SDKs, and tools that provide observability for cloud-native software. It allows you to collect telemetry data (traces, metrics, and logs) from your applications and send it to various backends for analysis.
+A complete LangGraph application that:
 
-### What is OpenInference
+- Uses OpenAI's GPT models for AI inference
+- Implements a multi-node workflow with validation, generation, and formatting
+- Captures detailed traces using OpenTelemetry and OpenInference
+- Sends observability data to Galileo for analysis and monitoring
 
-[OpenInference](https://github.com/Arize-ai/openinference) is an open standard for AI/ML observability that extends OpenTelemetry with specialized semantic conventions for AI/ML workloads. It provides structured schemas for capturing AI-specific telemetry data.
+### Why use OpenTelemetry with LangGraph
 
-## Benefits of integration
+[OpenTelemetry](https://opentelemetry.io/) provides industry-standard observability for your LangGraph applications:
 
-- **Standardized Observability**: Use industry-standard tools and practices
-- **Vendor Neutrality**: Avoid vendor lock-in with open standards
-- **Rich Context**: Capture detailed AI/ML specific telemetry
-- **Tool Ecosystem**: Leverage the vast OpenTelemetry ecosystem
-- **Compliance**: Meet observability requirements with proven standards
+- **Workflow visibility**: See exactly how your graph nodes execute
+- **LLM monitoring**: Track OpenAI API calls, tokens, and costs
+- **Error tracking**: Identify issues in your agent's decision-making process
+- **Performance analysis**: Understand bottlenecks and optimize execution
+
+### OpenInference for AI observability
+
+[OpenInference](https://github.com/Arize-ai/openinference) extends OpenTelemetry with AI-specific semantic conventions:
+
+- **Automatic instrumentation**: Captures LangGraph and OpenAI operations without manual coding
+- **AI-specific attributes**: Tracks model parameters, token usage, and response quality
+- **Standardized schemas**: Ensures consistent observability across different AI frameworks
 
 ## Before you start
 
-Before you integrate Galileo with OpenTelemetry and OpenInference, ensure:
+Before you run your LangGraph app with OpenTelemetry and OpenInference, ensure:
 
 - Python 3.9+ installed
 - Galileo account and API key
 - OpenAI API key
-- Basic understanding of OpenTelemetry concepts
+- Basic understanding of LangGraph concepts
+- Familiarity with OpenTelemetry basics
 
-## Set up OpenTelemetry integration in a Python application with OpenAI
+## Set up your LangGraph app with OpenTelemetry
 
-When integrating with Galileo using OpenTelemetry and OpenInference, there are specific configuration differences compared to using Galileo's native SDK.
+This section shows you how to configure your LangGraph application to work with OpenTelemetry and OpenInference for comprehensive observability in Galileo.
 
 <Steps>
 <Step title="Install required dependencies">
@@ -44,6 +55,7 @@ pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp \
   openinference-instrumentation-langchain openinference-instrumentation-openai \
   langgraph openai python-dotenv
 ```
+
 </Step>
 
 <Step title="Configuring OTel endpoints">
@@ -59,6 +71,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 exporter = OTLPSpanExporter(endpoint=endpoint)
 span_processor = BatchSpanProcessor(exporter)
 ```
+
 </Step>
 
 <Step title="Creating headers for OTel">
@@ -81,6 +94,7 @@ os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(
 )
 print(f"OTEL Headers: {os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS']}")
 ```
+
 </Step>
 
 <Step title="Configure OpenTelemetry tracing">
@@ -130,11 +144,13 @@ from openinference.instrumentation.openai import OpenAIInstrumentor
 LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
 OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
 ```
+
 </Step>
 </Steps>
 
-### OpenInference semantic conventions
-Galileo automatically applies OpenInference semantic conventions to your traces. Here are the key attributes you should use:
+### OpenInference semantic conventions for LangGraph
+
+When running your LangGraph app with OpenInference, Galileo automatically applies semantic conventions to your traces. Here are the key attributes you should use in your LangGraph nodes:
 <Steps>
 <Step title="Span attributes">
 
@@ -180,7 +196,9 @@ span.add_event("inference.completed", {
 </Step>
 </Steps>
 
-### Common OTel-specific issues
+## Troubleshooting your LangGraph app
+
+### Common issues when running LangGraph with OpenTelemetry
 
 #### Headers not formatted correctly
 
@@ -192,7 +210,7 @@ span.add_event("inference.completed", {
    os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = "Galileo-API-Key=your-key,project=your-project"
    ```
 
- #### Wrong endpoint
+#### Wrong endpoint
 
    ```python
    # ❌ Wrong - this is the native SDK endpoint
@@ -202,10 +220,40 @@ span.add_event("inference.completed", {
    endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
    ```
 
+#### Missing LangGraph instrumentation
+
+   ```python
+   # ❌ Wrong - LangGraph operations won't be traced
+   # Only OpenAI instrumentation applied
+   OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
+   
+   # ✅ Correct - both LangGraph and OpenAI instrumentation
+   LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
+   OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
+   ```
+
+## What you've accomplished
+
+By following this guide, you've learned how to:
+
+- **Set up OpenTelemetry** with Galileo for your LangGraph applications
+- **Configure proper authentication** using OTel-specific header formatting
+- **Instrument LangGraph workflows** with OpenInference for automatic tracing
+- **Apply semantic conventions** for comprehensive AI observability
+- **Troubleshoot common issues** when running LangGraph with OpenTelemetry
+
+Your LangGraph app now sends detailed traces to Galileo, giving you complete visibility into:
+
+- Workflow execution flow and timing
+- OpenAI API calls and token usage
+- Node-level performance and errors
+- AI-specific metrics and attributes
+
 ## Related documentation
 
 - [OpenTelemetry Documentation](https://opentelemetry.io/docs/)
 - [OpenInference Specification](https://github.com/Arize-ai/openinference)
+- [LangGraph Documentation](https://docs.langchain.com/langgraph)
 - [Galileo SDK Documentation](/sdk-api/overview)
 - [LangGraph OTel Cookbook](/cookbooks/features/integrations/langgraph-otel-cookbook)
 
@@ -213,12 +261,15 @@ span.add_event("inference.completed", {
 
 <CardGroup cols={2}>
 <Card title="LangGraph OTel Cookbook" icon="book" horizontal href="/cookbooks/features/integrations/langgraph-otel-cookbook">
-    Learn how to instrument LangGraph agents with OpenTelemetry
+    Complete tutorial with working LangGraph example
 </Card>
 <Card title="LangChain Integration" icon="link" horizontal href="/sdk-api/third-party-integrations/langchain/langchain">
     Integrate with LangChain using Galileo callbacks
 </Card>
 <Card title="Custom Metrics" icon="chart" horizontal href="/concepts/metrics/overview">
-    Add custom metrics to track AI performance
+    Add custom metrics to track your LangGraph app performance
+</Card>
+<Card title="Experiments" icon="flask" horizontal href="/sdk-api/experiments/experiments">
+    Run experiments on your instrumented LangGraph workflows
 </Card>
 </CardGroup>
