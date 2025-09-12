@@ -14,7 +14,7 @@ It assumes you have basic knowledge of:
 - Some familiarity with TypeScript, Node.js, and the command line
 - Node.js 18+ and npm or yarn
 - Code editor of choice (VS Code, Cursor, Warp, etc.)
-- API keys for: 
+- API keys for:
     - [Galileo](https://app.galileo.ai) (free developer account), [Stripe](https://docs.stripe.com/sandboxes) (free developer sandbox), and [OpenAI](https://platform.openai.com/docs/overview) (should cost less than $5 to run)
 
 By the end of this tutorial, you'll be able to:
@@ -61,15 +61,15 @@ Once that is created, click on the profile icon in the upper right hand side of 
 </Step>
 
 <Step title="Setting the metrics you want to track">
-Before running your application, set the metrics you want to track in your application by adding metrics to your log stream. 
+Before running your application, set the metrics you want to track in your application by adding metrics to your log stream.
 
-Navigate to your project home inside of Galileo. 
+Navigate to your project home inside of Galileo.
 
 Look for the name of your project, and open it up to the log stream you've got your traces in.
 
 Click on the **Trace** view and see your most recent runs listed below, it should look something like below.
 
-From this view, navigate to the upper right hand side of your screen and click on the **Configure Metrics** button.  A side panel should appear with a set of different metrics from you to choose from. 
+From this view, navigate to the upper right hand side of your screen and click on the **Configure Metrics** button.  A side panel should appear with a set of different metrics from you to choose from.
 
 ![An image with an arrow pointing to the **Configure Metrics** button from within the log stream interface.](/cookbooks/use-cases/custom-metric-startup-sim/2025-07-configure-metrics-button.webp)
 
@@ -101,9 +101,9 @@ Now let's get the code and set up your development environment.
 
 <Steps>
 <Step title="Clone the project in your IDE of choice">
-The starter project is in the `sdk-examples/typescript/agent/stripe-agent-tool` folder in the cloned repo. 
+The starter project is in the `sdk-examples/typescript/agent/stripe-agent-tool` folder in the cloned repo.
 
-Navigate to the folder using the command line: 
+Navigate to the folder using the command line:
 ```bash
 git clone https://github.com/rungalileo/sdk-examples
 cd typescript/agent/stripe-agent-tool
@@ -132,7 +132,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 # Galileo Configuration
 GALILEO_API_KEY=your_galileo_api_key_here        #Your Galileo API Key
 GALILEO_PROJECT=stripe-agent-demo                  #Your Galileo Project Name
-GALILEO_LOG_STREAM=production                        #Your Galileo Log Stream Name    
+GALILEO_LOG_STREAM=production                        #Your Galileo Log Stream Name
 # OPTIONAL
 # Provide the console URL below if you are using a custom deployment, and not using app.galileo.ai
 # This is most common with enterprise, or on prem deployments where you may have your own custom cluster
@@ -207,7 +207,7 @@ Now let's see how Galileo tracks your agent's performance and interactions.
 Your agent automatically tracks:
 - Conversations and tool usage
 - Agent Errors and failure patterns
-- Session information 
+- Session information
 - [Tool selection quality](https://v2docs.galileo.ai/concepts/metrics/agentic/tool-selection-quality) and accuracy
 
 ### Viewing your data
@@ -304,7 +304,7 @@ The main workflow in `agents/StripeAgent.ts` ties everything together and adds G
    private async initializeAgent(): Promise<void> {
      const tools = await this.stripeToolkit.getTools();
      const prompt = await pull("hwchase17/structured-chat-zero-shot-react");
-     
+
      this.agentExecutor = await createStructuredChatAgent({
        llm: this.llm,
        tools: allTools,
@@ -332,7 +332,7 @@ The main workflow in `agents/StripeAgent.ts` ties everything together and adds G
 
    ```typescript
    private sessionContext: SessionContext | null = null;
-   
+
    interface SessionContext {
      sessionId: string;
      startTime: Date;
@@ -473,7 +473,7 @@ This system provides intelligent caching and context management for improved use
        .filter(tool => tool);
 
      const [tool1, tool2, tool3, tool4] = recentTools;
-     
+
      if (tool1 === tool3 && tool2 === tool4 && tool1 !== tool2) {
        const pattern = [tool1, tool2];
        throw new CircularToolError(
@@ -510,7 +510,7 @@ To add new Stripe tools, modify the agent initialization:
 private async initializeAgent(): Promise<void> {
   // Get tools from Stripe toolkit
   const tools = await this.stripeToolkit.getTools();
-  
+
   // Add custom tools if needed
   const customTool = new DynamicTool({
     name: 'custom_tool',
@@ -520,12 +520,12 @@ private async initializeAgent(): Promise<void> {
       return 'Custom tool result';
     },
   });
-  
+
   const allTools = [...tools, customTool];
-  
+
   // Create the agent
   const prompt = await pull("hwchase17/structured-chat-zero-shot-react");
-  
+
   this.agentExecutor = await createStructuredChatAgent({
     llm: this.llm,
     tools: allTools,
@@ -650,4 +650,4 @@ In this tutorial, you learned how to:
 - Explore how to create custom metrics in [Galileo using code](/concepts/metrics/custom-metrics/custom-metrics-ui-code)
 - Learn more about the different [out-of-the-box-metrics available](/concepts/metrics/overview) in Galileo
 - Extend your agent with additional Stripe operations (refunds, subscriptions, etc.)
-- Implement user authentication and payment webhook handling 
+- Implement user authentication and payment webhook handling

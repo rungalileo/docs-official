@@ -1,6 +1,6 @@
 ```python Python
 from galileo import Message, MessageRole
-from galileo.prompts import create_prompt 
+from galileo.prompts import create_prompt
 from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
 from galileo.schema.metrics import GalileoScorers
@@ -11,7 +11,7 @@ project = "my-project"
 prompt = create_prompt(
 	name="geography-prompt",
 	template=[
-		Message(role=MessageRole.system, 
+		Message(role=MessageRole.system,
 				content="""
 				You are a geography expert.
 				Respond with only the continent name.
@@ -21,13 +21,13 @@ prompt = create_prompt(
 )
 
 # 1b. (OPTIONAL) If the prompt  already exists, fetch it:
-# prompt = get_prompt(name="geography-prompt")  
+# prompt = get_prompt(name="geography-prompt")
 
 # 2. Run the experiment and get results
 results = run_experiment(
 	"geography-experiment",
 	# Name of a dataset you created
-	dataset=get_dataset(name="countries"), 
+	dataset=get_dataset(name="countries"),
 	prompt_template=prompt,
 	# Optional
 	prompt_settings={
