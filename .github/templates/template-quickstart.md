@@ -15,17 +15,17 @@ You can also watch the video walkthrough [on the Galileo YouTube]((link here)).
 
 This quickstart guides you through:
 
-* [Part 1](#part-1-task-name)
-* [Part 2](#part-2-task-name)
-* [Part n](#part-n-task-name)
+- [Part 1](#part-1-task-name)
+- [Part 2](#part-2-task-name)
+- [Part n](#part-n-task-name)
 
 :information_source: (Optional) Link each part to its corresponding section for easy access.
 
 It is intended for (audience). It assumes that you have basic knowledge of:
 
-* Concept 1
-* Concept 2
-* Concept 3
+- Concept 1
+- Concept 2
+- Concept 3
 
 :information_source: Link each concept to its corresponding content that helps users understand the concepts and ideas behind your software.
 
@@ -35,9 +35,9 @@ It is intended for (audience). It assumes that you have basic knowledge of:
 
 Before running this quickstart, complete the following prerequisites:
 
-* Prerequisite 1
-* Prerequisite 2
-* Prerequisite 3
+- Prerequisite 1
+- Prerequisite 2
+- Prerequisite 3
 
 ## Install
 

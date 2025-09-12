@@ -12,7 +12,7 @@ import { RelatedResources } from '@snippets/components/related-resources';
 ## Overview
 
 <DefinitionCard>
-	<strong>Title of metric</strong>definition of metric and what it does.
+<strong>Title of metric</strong>definition of metric and what it does.
 </DefinitionCard>
 
 (This article explains the basics of (metric) and how it works inside of Galileo.)
@@ -20,19 +20,21 @@ import { RelatedResources } from '@snippets/components/related-resources';
 (Then include a sentence with a definition of the the metric you are explaining)
 
 (Sentence describing when this metric is successful)
-- checklist of times when you should see positive scores on metric. 
+
+- checklist of times when you should see positive scores on metric.
 
 Typical wordings to use are:
-* (X) is;
-* (X) represents
-* (X) is connected to
-* (X) are organized (describe the way how)
-* (X) is similar to
-* (X) addresses the common pain points of ...
-* (X) solves the challenge of ...
-* By implementing (X), users can ...
-* By using (X), (specify users/target audience) gain ...
-* To use (X), you create (Y)
+
+- (X) is;
+- (X) represents
+- (X) is connected to
+- (X) are organized (describe the way how)
+- (X) is similar to
+- (X) addresses the common pain points of ...
+- (X) solves the challenge of ...
+- By implementing (X), users can ...
+- By using (X), (specify users/target audience) gain ...
+- To use (X), you create (Y)
 
 ### (Metric) at a glance
 
@@ -41,9 +43,9 @@ Typical wordings to use are:
 | **Name of Metric** | The official name of the metric |
 | **Metric Category** | What category does this metric belong to? |
 | **Use this metric for** | When in short should this metric be used? |
-| **Can be applied to** | session,trace, all span types (agent, workflow, retriever, LLM, and tool)|
+| **Can be applied to** | session,trace, all span types (agent, workflow, retriever, LLM, and tool) |
 | **LLM/Luna Support** | Whether this metric supports LLM and/or Luna models |
-| **Protect Runtime Protection ** | Whether this metric is supported by Galileo Protect |
+| **Protect Runtime Protection** | Whether this metric is supported by Galileo Protect |
 | **Constants** | Any predefined constants or configuration options |
 | **Usage Context** | Where and how this metric can be applied |
 | **Value Type** | The data type and allowed values for this metric |
@@ -51,7 +53,7 @@ Typical wordings to use are:
 
 ### When to use this metric
 
-<MetricWhenToUse 
+<MetricWhenToUse
   description="(When is this metric best used and why might it be used)"
   useCases={[
     {
@@ -59,7 +61,7 @@ Typical wordings to use are:
       description: "Describe why this would be helpful for this metric."
     },
     {
-      title: "Use case two", 
+      title: "Use case two",
       description: "Describe why this would be helpful for this metric."
     },
     {
@@ -98,22 +100,22 @@ OPTIONAL
 ## Score interpretation
 
 **Expected Score:** (perfect score) - (Why is it a perfect score).
-	
+
 (UPDATE SCALE COMPONENT BELOW)
 
-<Scale 
-  low="0.0" 
-  mid="0.5" 
+<Scale
+  low="0.0"
+  mid="0.5"
   high="1.0"
   lowLabel="Poor"
-  midLabel="Fair" 
+  midLabel="Fair"
   highLabel="Excellent"
   lowDescription="Assistant failed to make any progress toward user goals"
   midDescription="Assistant made some progress but didn't fully address the user's needs"
   highDescription="Assistant successfully advanced user goals with clear progress"
 />
 
-### What different scores mean: 
+### What different scores mean:
 
 (Update below with what different scores)
 
@@ -160,7 +162,9 @@ OPTIONAL
 </Note>
 
 ### (Best Practice One)
+
 ### (Best Practice Two)
+
 ### (Best Practice Three)
 
 OPTIONAL
