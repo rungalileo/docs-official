@@ -3,7 +3,7 @@ title: Action Completion
 description: Understand how to measure whether your agent actually accomplished a user's goals
 ---
 
-import { DefinitionCard } from "/snippets/components/definition-card.mdx";  
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
 
 ## Overview
@@ -37,7 +37,7 @@ Action Completion is successful when all of the below are true: :
 | **Value Type** | Confidence score denoted as a percentage. |
 | **Input/Output Requirements** | Requires agent responses and user goals for evaluation |
 
-<MetricWhenToUse 
+<MetricWhenToUse
   description="Action Completion is the single best measure of whether an agent is truly useful, particularly valuable for agentic workflows and multi-step tasks."
   useCases={[
     {
@@ -45,7 +45,7 @@ Action Completion is successful when all of the below are true: :
       description: "When an AI agent must decide on a course of action and select tools to accomplish tasks."
     },
     {
-      title: "Multi-step Tasks", 
+      title: "Multi-step Tasks",
       description: "When completing a user's request requires multiple steps or decisions."
     },
     {
@@ -63,17 +63,17 @@ If the response does not achieve an Action Completion score of 100%, it indicate
   <Step title="Additional Requests">
     Multiple requests are sent to an LLM using a carefully designed chain-of-thought prompt that adheres to the definition above.
   </Step>
-  
+
   <Step title="Judgment Responses">
     The LLM generates multiple distinct responses, each containing:
     - An explanation
     - A final judgment: "Yes" (goal accomplished) or "No" (goal not accomplished)
   </Step>
-  
+
   <Step title="Score Computation">
     Action Completion Score = (Number of "Yes" Responses) / (Total Number of Responses)
   </Step>
-  
+
   <Step title="Explanation Surfacing">
     One explanation is surfaced, chosen to align with the majority judgment among the responses.
   </Step>
@@ -89,19 +89,19 @@ Galileo displays a generated explanation alongside the score, choosing the one t
 
 **Expected Score:** 100% - A perfect score indicates the agent successfully accomplished all user goals with complete, accurate, and comprehensive responses.
 
-<Scale 
-  low="0%" 
-  mid="50%" 
+<Scale
+  low="0%"
+  mid="50%"
   high="100%"
   lowLabel="Poor"
-  midLabel="Fair" 
+  midLabel="Fair"
   highLabel="Excellent"
   lowDescription="Agent failed to accomplish any user goals"
   midDescription="Agent made some progress but didn't fully address user needs"
   highDescription="Agent successfully accomplished all user goals completely"
 />
 
-### What different scores mean: 
+### What different scores mean:
 
 - **0.0 - 0.3 (Poor):** Agent completely failed to accomplish user goals, provided incomplete answers, or contradicted tool outputs. Common causes include insufficient tool usage, incomplete responses, or factual inaccuracies.
 - **0.4 - 0.7 (Fair):** Agent made progress toward user goals but didn't fully address all aspects of the request. Areas for improvement include ensuring comprehensive coverage of all user requirements and better tool utilization.

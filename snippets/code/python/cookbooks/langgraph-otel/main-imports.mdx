@@ -1,0 +1,37 @@
+```python
+import os
+from typing import TypedDict
+
+# Load environment variables first (contains API keys and project settings)
+import dotenv
+
+dotenv.load_dotenv()
+
+# ============================================================================
+# OPENTELEMETRY & GALILEO IMPORTS
+# ============================================================================
+# OpenTelemetry (OTel) is an observability framework that helps you collect
+# traces, metrics, and logs from your applications. Think of it as a way to
+# "instrument" your code so you can see exactly what's happening during execution.
+
+# Core OpenTelemetry imports
+from opentelemetry.sdk import trace as trace_sdk  # SDK for creating traces
+from opentelemetry import trace as trace_api  # API for interacting with traces
+# Efficiently batches spans before export
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+# Sends traces via HTTP  
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+# Prints traces to console (for debugging)
+from opentelemetry.sdk.trace.export import ConsoleSpanExporter
+
+# OpenInference is a specialized instrumentation library that understands AI frameworks
+# It automatically creates meaningful spans for LangChain/LangGraph operations
+from openinference.instrumentation.langchain import LangChainInstrumentor
+from openinference.instrumentation.openai import OpenAIInstrumentor
+
+# LangGraph imports - this is what we're actually instrumenting
+from langgraph.graph import StateGraph, END
+
+# OpenAI imports for LLM integration
+import openai
+```

@@ -9,9 +9,9 @@ tag: "Python"
 In this tutorial, you'll learn how to add custom evaluations to a comedy multi-agent LLM app using Galileo. This tutorial is intended for Python developers building domain-specific AI applications. It assumes you have basic knowledge of:
 
 - Some familiarity with Python/Flask
-- Python Package Manager of choice (we’ll be using [uv](https://docs.astral.sh/uv/)) 
+- Python Package Manager of choice (we’ll be using [uv](https://docs.astral.sh/uv/))
 - Code editor of choice (VS Code, Cursor, Warp, etc.)
-- API keys for: 
+- API keys for:
     - [OpenAI](https://platform.openai.com/docs/overview), [NewsAPI (free!)](https://newsapi.org/), and [Galileo (free!)](https://app.galileo.ai)
 
 By the end of this tutorial, you'll be able to:
@@ -20,7 +20,7 @@ By the end of this tutorial, you'll be able to:
 
 ## Background
 
-For the sake of jumping right into action — we’ll be starting from an [existing application](https://github.com/rungalileo/sdk-examples) and demonstrating how to add custom metrics to an existing application. 
+For the sake of jumping right into action — we’ll be starting from an [existing application](https://github.com/rungalileo/sdk-examples) and demonstrating how to add custom metrics to an existing application.
 
 The app we'll be building off of is the Startup Sim 3000, an LLM-based Python application that generates either serious or silly startup pitches using OpenAI and real-time data. The app includes two agent chains:
 
@@ -31,11 +31,11 @@ We'll demonstrate how to observe the agent’s performance and evaluate humor or
 
 ## Create a new Galileo project
 
-In order to set up custom metrics, we'll need a Galileo project to log evaluations to first. 
+In order to set up custom metrics, we'll need a Galileo project to log evaluations to first.
 
 <Steps>
 <Step title="Create a new project from the Galileo Console using the `New Project button`">
-If you haven't already, create a free Galileo account on [app.galileo.ai](https://app.galileo.ai). When prompted, add an organization name.  To dive right into this tutorial, you can skip past the onboarding screen by clicking on the Galileo Logo in the upper left hand corner. 
+If you haven't already, create a free Galileo account on [app.galileo.ai](https://app.galileo.ai). When prompted, add an organization name.  To dive right into this tutorial, you can skip past the onboarding screen by clicking on the Galileo Logo in the upper left hand corner.
 
 ![A red arrow pointing at the Galileo logo in the upper left hand corner of the screen](/cookbooks/use-cases/custom-metric-startup-sim/galileo-logo-project.webp)
 
@@ -49,7 +49,7 @@ Once that is created.  Click on the profile icon in the upper right hand side of
 
 ![A gif showing how to create your API keys within Galileo](/cookbooks/use-cases/custom-metric-startup-sim/2025-07-create-api-key-small.gif)
 
-Run your app again, and you'll now be able to see the logs appear within Galileo. 
+Run your app again, and you'll now be able to see the logs appear within Galileo.
 </Step>
 </Steps>
 
@@ -60,7 +60,7 @@ Run your app again, and you'll now be able to see the logs appear within Galileo
 The starter project is in the `sdk-examples/python/agent/startup-simulator-3000` folder in the cloned repo.
 ```bash
 git clone https://github.com/rungalileo/sdk-examples
-``` 
+```
 </Step>
 
 <Step title="Set up a virtual environment and install dependencies.">
@@ -84,21 +84,21 @@ This creates and activates a virtual environment for your project, then installs
 </Step>
 
 <Step title="Configure your .env file.">
-Take the `.example.env` file, copy it, renaming it to `.env` and add in your own variables. Be sure the variables are added to your `.gitignore` file. 
+Take the `.example.env` file, copy it, renaming it to `.env` and add in your own variables. Be sure the variables are added to your `.gitignore` file.
 
-When complete, it should look something like this: 
+When complete, it should look something like this:
 
 ```ini .env
 # Example .env file — copy this file to .env and fill in the values. 
 # Be sure to add the .env file to your .gitignore file.
-  
+
 # LLM API Key (required)
 # For regular keys: sk-...
 # For project-based keys: sk-proj-...
 OPENAI_API_KEY=your-openai-api-key-here
 # OpenAI Project ID (optional for project-based keys; will be auto-extracted if not set)
 # OPENAI_PROJECT_ID=your-openai-project-id-here
-  
+
 # Galileo Details (required for Galileo observability)
 GALILEO_API_KEY=your-galileo-api-key-here
 GALILEO_PROJECT=your project name here
@@ -124,17 +124,17 @@ ENABLE_TOOL_SELECTION=true
 <Step title="Start the Flask app and test out the application">
 After your environment variables are set, you are all set to run the application.  The application is designed as a Flask Application, with a JavaScript frontend, and Python backend.
 
-Run the application locally by running the following in the terminal. 
+Run the application locally by running the following in the terminal.
 
 ```
 python web_server.py
 ```
 
-Your application will be running at http://localhost:2021 — open that within your browser and start exploring. 
+Your application will be running at http://localhost:2021 — open that within your browser and start exploring.
 
 Try generating both "Silly" and "Serious" mode pitches.
 
-The standard flow of the application is as follows: 
+The standard flow of the application is as follows:
 User Input → Flask Route → Agent Coordinator → Tool Chain → AI Model → Response
 </Step>
 </Steps>
@@ -143,7 +143,7 @@ User Input → Flask Route → Agent Coordinator → Tool Chain → AI Model →
 
 <Steps>
 <Step title="Add metrics to your log stream in Galileo">
-Navigate to your project home inside of Galileo. 
+Navigate to your project home inside of Galileo.
 
 Look for the name of your project, and open it up to the log stream you've got your traces in.
 
@@ -151,7 +151,7 @@ Click on the **Trace** view and see your most recent runs listed below, it shoul
 
 ![A view of log streams within the Galileo Console](/cookbooks/use-cases/custom-metric-startup-sim/galileo-logo-project.webp)
 
-From this view, navigate to the upper right hand side of your screen and click on the **Configure Metrics** button.  A side panel should appear with a set of different metrics from you to choose from. 
+From this view, navigate to the upper right hand side of your screen and click on the **Configure Metrics** button.  A side panel should appear with a set of different metrics from you to choose from.
 
 ![An image with an arrow pointing to the **Configure Metrics** button from within the log stream interface.](/cookbooks/use-cases/custom-metric-startup-sim/2025-07-configure-metrics-button.webp)
 </Step>
@@ -169,10 +169,10 @@ A window will appear where you will be able to generate a metric prompt. A metri
 
 When writing a good prompt, remember that the goal is to transform **subjective evaluation criteria** into a consistent, repeatable process that a language model can assess.
 
-Use a specific, structured metric for best results.  For this example, I've provided a sample custom metric below. 
+Use a specific, structured metric for best results.  For this example, I've provided a sample custom metric below.
 
 ```markdown
-You are an expert humor judge specializing in startup culture satire and tech industry parody. Your role is to evaluate the humor and effectiveness of startup-related content generated by an AI system. 
+You are an expert humor judge specializing in startup culture satire and tech industry parody. Your role is to evaluate the humor and effectiveness of startup-related content generated by an AI system.
 EVALUATION CRITERIA:
 For each criterion, answer TRUE if the content meets the standard, FALSE if it doesn't.
 1. SATIRE EFFECTIVENESS
@@ -213,11 +213,11 @@ For each criterion, answer TRUE if the content meets the standard, FALSE if it d
    - [ ] Content maintains appropriate tone throughout
 ```
 
-When added, press **Save** then test your metric.  The evaluation prompt will then be generated for you to see within a preview window. 
+When added, press **Save** then test your metric.  The evaluation prompt will then be generated for you to see within a preview window.
 </Step>
 
 <Step title="Test your metric">
-From within the Custom Metric pane, select **Test Metric**. 
+From within the Custom Metric pane, select **Test Metric**.
 
 ![A screenshot showing where to test the metric within the Custom Metric UI](/cookbooks/use-cases/custom-metric-startup-sim/2025-07-test-metric.webp)
 
@@ -244,7 +244,8 @@ In this tutorial, you learned how to:
 - Translate your domain expertise into a measurable AI quality rubric
 - Build a custom metric with LLM-as-a-Judge to evaluate startup pitches
 
-## Next steps 
+## Next steps
+
 - Check out other cookbooks in the [Galileo cookbook library](/cookbooks/overview)
 - Explore how to create custom metrics in [Galileo using code](/concepts/metrics/custom-metrics/custom-metrics-ui-code). 
-- Learn more about the different [out-of-the-box-metrics available](/concepts/metrics/overview) in Galileo. 
+- Learn more about the different [out-of-the-box-metrics available](/concepts/metrics/overview) in Galileo.

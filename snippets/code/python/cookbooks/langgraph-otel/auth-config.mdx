@@ -1,0 +1,93 @@
+```python path=null start=31
+# ============================================================================
+# STEP 1: CONFIGURE API AUTHENTICATION
+# ============================================================================
+# Configure OpenAI API key
+openai_api_key = os.environ.get("OPENAI_API_KEY")
+if not openai_api_key:
+    raise ValueError("OPENAI_API_KEY environment variable is required")
+
+# Initialize OpenAI client
+client = openai.OpenAI(api_key=openai_api_key)
+print("✓ OpenAI client configured")
+
+# Galileo is an AI observability platform that helps you monitor and debug
+# AI applications. It receives and visualizes the traces we'll generate.
+
+# Set up authentication headers for Galileo
+# These tell Galileo who you are and which project to store traces in
+headers = {
+    "Galileo-API-Key": os.environ.get("GALILEO_API_KEY"),  # Your unique API key
+    "project": os.environ.get("GALILEO_PROJECT"),  # Which Galileo project to use
+    # Organize traces within the project
+    "logstream": os.environ.get("GALILEO_LOG_STREAM", "default"),
+}
+
+# OpenTelemetry requires headers in a specific format: "key1=value1,key2=value2"
+# This converts our dictionary to that format
+os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join([
+    f"{k}={v}" for k, v in headers.items()
+])
+
+# Debug: Print the formatted headers to verify they're correct
+print(f"OTEL Headers: {os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS']}")
+
+# ============================================================================
+# STEP 2: CONFIGURE OPENTELEMETRY TRACING
+# ============================================================================
+# OpenTelemetry works by creating "spans" - units of work that represent operations
+# in your application. Spans are organized into "traces" that show the full flow
+# of a request through your system.
+
+# Define where to send the traces - Galileo's OpenTelemetry endpoint
+endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
+
+# Create a TracerProvider with descriptive resource information
+# This helps identify these traces as coming from OpenTelemetry in Galileo
+from opentelemetry.sdk.resources import Resource
+
+resource = Resource.create({
+    "service.name": "LangGraph-OpenTelemetry-Demo", 
+    "service.version": "1.0.0", 
+    "deployment.environment": "development"
+})
+tracer_provider = trace_sdk.TracerProvider(resource=resource)
+
+# Add a span processor that sends traces to Galileo
+# BatchSpanProcessor is more efficient than SimpleSpanProcessor for production
+# because it batches multiple spans together before sending
+# OTLP = OpenTelemetry Protocol
+tracer_provider.add_span_processor(
+    BatchSpanProcessor(OTLPSpanExporter(endpoint))
+)
+
+# OPTIONAL: Console output disabled to reduce noise in Galileo
+# Uncomment the next 3 lines if you want local console debugging:
+# tracer_provider.add_span_processor(
+#     BatchSpanProcessor(ConsoleSpanExporter())
+# )
+
+# Register our tracer provider as the global one
+# This means all OpenTelemetry operations will use our configuration
+trace_api.set_tracer_provider(tracer_provider=tracer_provider)
+
+# ============================================================================
+# STEP 3: APPLY OPENINFERENCE INSTRUMENTATION
+# ============================================================================
+# OpenInference automatically instruments LangChain/LangGraph to create spans
+# for AI operations. This gives us detailed visibility into:
+# - LangGraph workflow execution
+# - Individual node processing
+# - State transitions
+# - Input/output data
+LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
+print("✓ LangGraph instrumentation applied - automatic spans will be created")
+
+# Also instrument OpenAI calls to capture LLM input/output
+OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
+print("✓ OpenAI instrumentation applied - LLM calls will be traced")
+
+# Get a tracer for creating custom spans manually
+# We'll use this in our node functions below
+tracer = trace_api.get_tracer(__name__)
+```
