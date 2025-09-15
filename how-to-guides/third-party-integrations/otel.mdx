@@ -1,41 +1,30 @@
 ---
-title: "Running a LangGraph app with OpenAI, OpenTelemetry, OpenInference,"
+title: "Logging with OpenTelemetry,  Langgraph, and OpenAI"
 description: "Learn how to integrate Galileo with OpenTelemetry and OpenInference for comprehensive observability and tracing."
 ---
 
 ## Overview
 
-This guide shows you how to run a **LangGraph application** with **OpenAI**, **OpenTelemetry**, and **OpenInference** to achieve comprehensive observability in Galileo. You'll learn how to instrument your LangGraph workflows to capture detailed traces of AI operations, LLM calls, and workflow execution.
+This guide walks you through running a LangGraph app with OpenAI, OTEL, and OpenInference. In 5 steps, you’ll instrument workflows to capture your AI traces and LLM calls.
 
-### What you'll build
+### In this guide you will:
 
-A complete LangGraph application that:
-
-- Uses OpenAI's GPT models for AI inference
-- Implements a multi-node workflow with validation, generation, and formatting
-- Captures detailed traces using OpenTelemetry and OpenInference
-- Sends observability data to Galileo for analysis and monitoring
-
-### Why use OpenTelemetry with LangGraph
-
-[OpenTelemetry](https://opentelemetry.io/) provides industry-standard observability for your LangGraph applications:
-
-- **Workflow visibility**: See exactly how your graph nodes execute
-- **LLM monitoring**: Track OpenAI API calls, tokens, and costs
-- **Error tracking**: Identify issues in your agent's decision-making process
-- **Performance analysis**: Understand bottlenecks and optimize execution
-
-### OpenInference for AI observability
-
-[OpenInference](https://github.com/Arize-ai/openinference) extends OpenTelemetry with AI-specific semantic conventions:
-
-- **Automatic instrumentation**: Captures LangGraph and OpenAI operations without manual coding
-- **AI-specific attributes**: Tracks model parameters, token usage, and response quality
-- **Standardized schemas**: Ensures consistent observability across different AI frameworks
+- [Overview](#overview)
+  - [In this guide you will:](#in-this-guide-you-will)
+- [Before you start](#before-you-start)
+- [Set up your LangGraph app with OpenTelemetry](#set-up-your-langgraph-app-with-opentelemetry)
+  - [OpenInference semantic conventions for LangGraph](#openinference-semantic-conventions-for-langgraph)
+- [Troubleshooting your LangGraph app](#troubleshooting-your-langgraph-app)
+  - [Common issues when running LangGraph with OpenTelemetry](#common-issues-when-running-langgraph-with-opentelemetry)
+    - [Headers not formatted correctly](#headers-not-formatted-correctly)
+    - [Wrong endpoint](#wrong-endpoint)
+    - [Missing LangGraph instrumentation](#missing-langgraph-instrumentation)
+- [Related documentation](#related-documentation)
+- [Next steps](#next-steps)
 
 ## Before you start
 
-Before you run your LangGraph app with OpenTelemetry and OpenInference, ensure:
+Before you integrate Galileo with OpenTelemetry and OpenInference, ensure:
 
 - Python 3.9+ installed
 - Galileo account and API key
@@ -43,9 +32,11 @@ Before you run your LangGraph app with OpenTelemetry and OpenInference, ensure:
 - Basic understanding of LangGraph concepts
 - Familiarity with OpenTelemetry basics
 
+**Why use this integration?** [OpenTelemetry](https://opentelemetry.io/) provides industry-standard observability, while [OpenInference](https://github.com/Arize-ai/openinference) extends it with AI-specific semantic conventions. Together, they give you complete visibility into your LangGraph workflows, LLM calls, and performance metrics.
+
 ## Set up your LangGraph app with OpenTelemetry
 
-This section shows you how to configure your LangGraph application to work with OpenTelemetry and OpenInference for comprehensive observability in Galileo.
+Configure your LangGraph application to work with OpenTelemetry and OpenInference for comprehensive observability in Galileo.
 
 <Steps>
 <Step title="Install required dependencies">
@@ -231,23 +222,6 @@ span.add_event("inference.completed", {
    LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
    OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
    ```
-
-## What you've accomplished
-
-By following this guide, you've learned how to:
-
-- **Set up OpenTelemetry** with Galileo for your LangGraph applications
-- **Configure proper authentication** using OTel-specific header formatting
-- **Instrument LangGraph workflows** with OpenInference for automatic tracing
-- **Apply semantic conventions** for comprehensive AI observability
-- **Troubleshoot common issues** when running LangGraph with OpenTelemetry
-
-Your LangGraph app now sends detailed traces to Galileo, giving you complete visibility into:
-
-- Workflow execution flow and timing
-- OpenAI API calls and token usage
-- Node-level performance and errors
-- AI-specific metrics and attributes
 
 ## Related documentation
 
