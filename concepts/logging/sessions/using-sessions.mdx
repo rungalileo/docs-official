@@ -3,6 +3,8 @@ title: Create and Use Sessions
 description: Learn to create and use Sessions in Galileo
 ---
 
+{/*<!-- markdownlint-disable MD044 -->*/}
+
 import CreateLoggerSnippet from "/snippets/code/multilingual/concepts/logging/create-logger.mdx"
 import EnvironmentSnippet from "/snippets/code/multilingual/env-galileo-openai.mdx"
 import LoggerOptionalArgs from "/snippets/code/multilingual/concepts/logging/logger-optional-args.mdx"
@@ -12,6 +14,7 @@ import SimpleAgentSnippet from "/snippets/code/multilingual/concepts/logging/ses
 import StartSessionSnippet from "/snippets/code/multilingual/concepts/logging/sessions/start-session.mdx"
 import ViewSessionsInConsole from "/snippets/content/view-sessions-in-console.mdx"
 
+{/*<!-- markdownlint-enable MD044 -->*/}
 
 ## Overview
 
@@ -63,7 +66,7 @@ In addition, this tutorial assumes you are familiar with:
 Let's take a moment to prepare the development environment. If you already have a project setup with `Galileo`, `LangChain`, and `LangGraph`, you can skip right to [Manage a Session](#manage-a-session). If not, here's an abbreviated quickstart:
 
 <Steps>
-    <Step title="Install dependences">
+    <Step title="Install dependencies">
         We'll need the Galileo [Python](/sdk-api/python/sdk-reference) or [TypeScript](/sdk-api/python/sdk-reference) SDK, LangChain, LangGraph, OpenAI, and `dotenv` to pull in variables from your `.env` file. Let's start by installing them:
 
         <CodeGroup>
@@ -219,33 +222,36 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
 1. Export your `logger` instance from a separate module, so that your application uses a singleton instance.
 1. Use the TypeScript SDK's `getLogger` function, or the Python SDK's `galileo_context` context manager for a consistent reference:
     <CodeGroup>
-        ```python Python
-        from galileo import galileo_context
 
-        # Create a new session
-        galileo_context.start_session(""" ...optional args """)
+    ```python Python
+    from galileo import galileo_context
 
-        # Application logic follows
+    # Create a new session
+    galileo_context.start_session(""" ...optional args """)
 
-        # Flush the session (if you are not using galileo callback or "with galileo_context()")
-        galileo_context.flush()
-        ```
+    # Application logic follows
 
-        ```typescript TypeScript
-        import { getLogger } from 'galileo';
-        const logger = getLogger();
+    # Flush the session (if you are not using galileo callback or "with galileo_context()")
+    galileo_context.flush()
+    ```
 
-        // Create a new session
-        logger.startSession(/* ...optional args */);
+    ```typescript TypeScript
+    import { getLogger } from 'galileo';
+    const logger = getLogger();
 
-        // Application logic follows
+    // Create a new session
+    logger.startSession(/* ...optional args */);
 
-        // Flush the session (if you are not using GalileoCallback)
-        logger.flush()
-        ```
+    // Application logic follows
+
+    // Flush the session (if you are not using GalileoCallback)
+    logger.flush()
+    ```
+
     </CodeGroup>
 1. You can also add `Traces` wherever you see fit. A `Trace` might represent a question asked to your LLM, and the response generated for it &mdash; as well as any tools used! Galileo will generate traces for you, but you can also create new ones by using your logger instance:
     <CodeGroup>
+
     ```python Python
     question = "What is the meaning of plenipotentiary?"
     logger.start_trace(input=question)
@@ -262,6 +268,7 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
     logger.addLlmSpan({ input: question, output: "Plenipotentiary means 'Invested with full power'" })
     logger.conclude(); // end the trace
     ```
+    
     </CodeGroup>
 
     <Note>You can learn more about traces and how to use them [here](/concepts/logging/traces).</Note>
