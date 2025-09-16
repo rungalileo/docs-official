@@ -16,7 +16,7 @@ dataset = [
 ]
 
 def llm_call(input):
-	return openai.chat.completions.create(
+    return openai.chat.completions.create(
         model="gpt-4o",
         messages=[
           {
@@ -33,10 +33,10 @@ def llm_call(input):
     ).choices[0].message.content
 
 results = run_experiment(
-	"geography-experiment",
-	dataset=dataset,
-	function=llm_call,
-	metrics=[GalileoScorers.prompt_injection],
-	project=os.environ["GALILEO_PROJECT"]
+    "geography-experiment",
+    dataset=dataset,
+    function=llm_call,
+    metrics=[GalileoScorers.prompt_injection],
+    project=os.environ["GALILEO_PROJECT"]
 )
 ```
