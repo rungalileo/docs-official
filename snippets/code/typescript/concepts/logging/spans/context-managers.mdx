@@ -20,11 +20,10 @@ const response = await openai.chat.completions.create({
 console.log(response.choices[0].message.content);
 
 // Create a function with logging
-const processQuery = log({ name: "Process Query", spanType: "workflow" },
-  (query) => {
-    // Your processing logic here
-    return `Processed: ${query}`;
-  });
+const processQuery = log({ name: "Process Query", spanType: "workflow" }, (query) => {
+  // Your processing logic here
+  return `Processed: ${query}`;
+});
 
 // This will create a trace for the function call
 const result = processQuery("What is the capital of France?");
