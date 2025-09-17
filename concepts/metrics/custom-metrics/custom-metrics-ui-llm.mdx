@@ -17,11 +17,15 @@ LLM-as-a-judge metrics leverage the capabilities of large language models to eva
 
 LLM-as-a-judge metrics are natural language prompts that are run against an LLM, using the input and output from a span, trace, or session. When the span, trace, or session is logged, all the details including inputs and outputs are sent to the LLM along with a prompt, and the response from the prompt is used to score the metric.
 
-The response needs to be a fixed type for the metric to be evaluated correctly. Currently the following response types are supported:
+The response needs to be a fixed type for the metric to be evaluated correctly. Currently the following output types are supported:
 
-| Type    | Allowed return values | Description |
-| :------ | :-------------------- | :---------- |
-| Boolean | `true`,`false`        | A true or false prompt. The prompt must return `true` or `false` only. |
+| Output type | Allowed return values                              | Description |
+| :---------- | :------------------------------------------------- | :---------- |
+| Boolean     | `true`,`false`                                     | A true or false prompt. The prompt must return `true` or `false` only. |
+| Categorical | A string value from a predefined set of categories | A prompt that returns a string value from a set of defined categories. The prompt must also define the possible category values. |
+| Count.      | A positive integer                                 | A positive integer, from 0 upwards that represents the count of something |
+| Discrete.   | An integer in a defined range                      | A prompt that returns a integer in a defined range, that can be defined in the prompt. For example, a score from 0-5. |
+| Percentage  | `0.0` - `1.0`                                      | A prompt that returns a percentage value, scored from 0.0 to 1.0, with 0.0 being 0%, and 1.0 being 100% |
 
 ## Create a new LLM-as-a-judge metric
 
@@ -70,6 +74,8 @@ In the **Prompt Editor**, configure the following fields:
 
 In the **Prompt** dialog, enter your prompt. Ensure your prompt returns the right response type. For example:
 
+{/*<!-- markdownlint-disable MD013 -->*/}
+
 ```output wrap
 You are an impartial evaluator, ensuring that other LLMs are aligning with our corporate guidance.
 
@@ -83,6 +89,8 @@ Return true if the guidance is completely followed
 Return false if the guidance is not completely followed
 ```
 
+{/*<!-- markdownlint-enable MD013 -->*/}
+
 In this example, there is an explicit instruction to return a boolean type:
 
 ```output
@@ -95,10 +103,44 @@ See our [prompt engineering guide](/concepts/metrics/custom-metrics/prompt-engin
 </Info>
 
 </Step>
-<Step title="Optional - get help writing a prompt for an LLM span metric">
-If you are creating an LLM span metric, you can use the **Help me write** option. In this case, describe what you want the prompt to evaluate in natural language, then select the **Auto-Generate Prompt** button to have Galileo create a prompt for you using the selected model.
-</Step>
+<Step title="Optional - get help writing a prompt using Prompt Assist">
+To help you create a metric prompt, you can use the **Prompt assist** feature. This allows you to define how you want the metric to work in natural language, and Galileo will create the metric prompt for you.
 
+To use prompt assist, select the **Show prompt assist** button.
+
+![The show prompt assist button](/concepts/metrics/custom-metrics/show-prompt-assist.webp)
+
+Provide a natural language description of what the metric to measure, including:
+
+- The output you would like, e.g. binary, categories or a number range.
+- The criteria you would like the metric to use to decide the output values.
+
+You can also select which LLM you want to use to generate the prompt.
+
+![The prompt assist with a prompt description](/concepts/metrics/custom-metrics/prompt-assist-with-prompt.webp)
+
+Once done, select the **Generate prompt** button to generate the metric prompt.
+</Step>
+<Step title="Test your metric">
+When you have your metric configured, it is important to test the metric against multiple inputs and outputs. You can then use the results of the tests to iterate on the metric prompt and configuration, for example experimenting with different models, or number of judges.
+
+To test your metric, head to the **Test Metric** tab. You can either test the metric by passing in a manual input, or by using logged sessions, traces, spans, or experiments.
+
+Due to the complex structure of sessions and traces, manual input is only supported for metrics that apply to spans only. To test session and trace level metrics, you need to test with existing logged sessions or traces, or experiments.
+
+For manual input testing, provide the input and output you want to test against, then select the **Test** button. You will see the result of the metric, and an explanation if you have step-by-step reasoning turned on.
+
+![A manual metric test showing a fail score and an explanation](/concepts/metrics/custom-metrics/test-metric-manual.webp)
+
+To test against current logs or experiments, select the project, then select the source type, then select the relevant Log stream or experiment.
+
+You can then run your metric against the last 5 logged sessions, traces, spans, or experiments by selecting the **Test Metric** button. The metric will be calculated, along with an explanation if you have step-by-step reasoning turned on.
+
+![A test run against 5 log stream rows showing they all pass with 100%](/concepts/metrics/custom-metrics/test-metric-logs.webp)
+
+After the metrics are calculated, select each row to see more details on the explanation if available.
+
+</Step>
 <Step title="Save your metric">
 Once you are happy with your metric, select the **Create metric** button to save your metric. You can now enable this metric for your log streams.
 
