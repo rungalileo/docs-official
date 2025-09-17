@@ -17,13 +17,11 @@ Registered custom metrics are stored and run in Galileo's environment and can be
 You can create a registered custom metric either through the Python SDK or directly in the Galileo UI. Let's walk through the UI approach:
 
 <Steps>
-  <Step title="Navigate to the Metrics section">
-    In the Galileo platform, go to the Metrics section and select the **Create New Metric** button in the top right corner.
+<Step title="Navigate to the Metrics section">
+In the Galileo platform, go to the Metrics section and select the **Create New Metric** button in the top right corner.
 
-    ![Create a new metric](/concepts/metrics/custom-metrics/create-metric-button.webp)
-
+![Create a new metric](/concepts/metrics/custom-metrics/create-metric-button.webp)
 </Step>
-
 <Step title="Select the Code metric type">
 From the dialog that appears, choose the **Code-powered metric** type. This option allows you to write custom Python code to evaluate your LLM outputs.
 
@@ -31,21 +29,17 @@ From the dialog that appears, choose the **Code-powered metric** type. This opti
 ![Select the Code metric type](/concepts/metrics/custom-metrics/create-code-metric.webp)
 </Columns>
 </Step>
+<Step title="Write your custom metric">
+Use the code editor to write your custom metric. The editor provides a template with the required functions and helpful comments to guide you.
 
-  <Step title="Write your custom metric">
-    Use the code editor to write your custom metric. The editor provides a template with the required functions and helpful comments to guide you.
+![Code editor](/images/g2/custom-metrics-code-editor.png)
 
-    ![Code editor](/images/g2/custom-metrics-code-editor.png)
-
-    The code editor allows you to write and test your metric directly in the browser. You'll need to define at least the `scorer_fn` and `aggregator_fn` functions as described below.
-
+The code editor allows you to write and test your metric directly in the browser. You'll need to define at least the `scorer_fn` and `aggregator_fn` functions as described below.
 </Step>
+<Step title="Save your metric">
+After writing your custom metric code, select the **Save** button in the top right corner of the code editor. Your metric will be validated and, if there are no errors, it will be saved and become available for use across your organization.
 
-  <Step title="Save your metric">
-    After writing your custom metric code, select the **Save** button in the top right corner of the code editor. Your metric will be validated and, if there are no errors, it will be saved and become available for use across your organization.
-
-    You can now select this metric when running evaluations.
-
+You can now select this metric when running evaluations.
 </Step>
 </Steps>
 
@@ -176,7 +170,7 @@ def scoreable_node_types_fn() -> List[str]:
 
 Registered custom metrics run in a Python 3.10 environment with these libraries:
 
-```
+```output
 numpy~=1.26.4
 pandas~=2.2.2
 pydantic~=2.7.1
@@ -309,7 +303,25 @@ You can easily extend this with more sophisticated sentiment analysis techniques
 
 ## Next steps
 
+
+<CardGroup cols={2}>
+<Card title="Create custom LLM-as-a-judge metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code">
+    Learn how to create custom LLM-as-a-judge metrics in the Galileo console.
+</Card>
+<Card title="Create custom LLM-as-a-judge metrics in code" icon="code" horizontal href="/sdk-api/metrics/create-custom-llm-metrics">
+    Learn how to create custom LLM-as-a-judge metrics in code.
+</Card>
+<Card title="LLM-as-a-Judge Prompt Engineering Guide " icon="wrench" horizontal href="/concepts/metrics/custom-metrics/prompt-engineering">
+    Learn best practices for prompt engineering with custom LLM-as-a-judge metrics.
+</Card>
+<Card title="Metrics overview" icon="chart-bar" horizontal href="/concepts/metrics/overview">
+    Explore Galileo's comprehensive metrics framework for evaluating and improving AI system performance across multiple dimensions.
+</Card>
 <Card title="Create a local metric" icon="code" href="/how-to-guides/metrics/create-local-metric/create-local-metric" horizontal>
   Learn how to create a local metric in Python to use in your experiments
-
 </Card>
+<Card title="Run experiments" icon="code" horizontal href="/sdk-api/experiments/running-experiments#set-the-metrics-for-your-experiment">
+    Learn how to run experiments in Galileo using the Galileo SDKs and custom metrics.
+</Card>
+</CardGroup>
+
