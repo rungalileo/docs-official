@@ -249,7 +249,18 @@ def main(argv: List[str] | None = None) -> int:
         print(f"Total broken: {len(broken)} | Checked external links in {dur:.1f}s")
         return 1
     else:
-        print(f"No broken links found. Checked external links in {dur:.1f}s")
+        # Success path: optionally emit a GitHub notice and write a summary file
+        success_msg = f"✅ No broken Card links found. Checked external links in {dur:.1f}s"
+        if args.github_annotations:
+            print(f"::notice::{success_msg}")
+        if args.summary_file:
+            try:
+                with open(args.summary_file, "w", encoding="utf-8") as f:
+                    f.write("# Card links check\n\n")
+                    f.write(success_msg + "\n")
+            except (OSError, IOError) as e:
+                print(f"Warning: failed to write summary file '{args.summary_file}': {e}")
+        print(success_msg)
         return 0
 
 
