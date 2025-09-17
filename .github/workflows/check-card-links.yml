@@ -1,10 +1,10 @@
 name: Check Card Links
 
 on:
-  push:
-    branches: ["**"]
   pull_request:
-    branches: ["**"]
+    branches:
+      - main
+      - "release/**"
 
 jobs:
   link-check:
@@ -19,5 +19,27 @@ jobs:
           python-version: '3.11'
 
       - name: Run link checker
+        id: run-check
         run: |
-          python .github/workflows/check_card_links.py --root . --timeout 10 --verbose
+          set -e
+          SUMMARY_PATH="card-links-summary.md"
+          python .github/workflows/check_card_links.py --root . --timeout 10 --verbose --github-annotations --summary-file "$SUMMARY_PATH" || echo "exit_code=$?" >> $GITHUB_OUTPUT
+          echo "summary_path=$SUMMARY_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload summary artifact (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-links-summary
+          path: ${{ steps.run-check.outputs.summary_path }}
+
+      - name: Comment on PR with summary
+        if: ${{ github.event_name == 'pull_request' && always() }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: ${{ steps.run-check.outputs.summary_path }}
+
+      - name: Fail if errors detected
+        if: ${{ steps.run-check.outputs.exit_code != '' }}
+        run: exit 1

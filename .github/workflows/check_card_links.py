@@ -168,6 +168,8 @@ def main(argv: List[str] | None = None) -> int:
     parser.add_argument("--timeout", type=float, default=10.0, help="HTTP timeout seconds (default: 10)")
     parser.add_argument("--max-workers", type=int, default=12, help="Max concurrent HTTP checks (default: 12)")
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
+    parser.add_argument("--github-annotations", action="store_true", help="Emit GitHub Actions annotations (::error) for broken links")
+    parser.add_argument("--summary-file", default=None, help="Write a markdown summary of broken links to this file")
     args = parser.parse_args(argv)
 
     repo_root = os.path.abspath(args.root)
@@ -209,10 +211,41 @@ def main(argv: List[str] | None = None) -> int:
     dur = time.time() - start
 
     if broken:
+        broken_sorted = sorted(broken, key=lambda x: (x.file, x.line, x.href))
         print("Broken links found:")
-        for b in sorted(broken, key=lambda x: (x.file, x.line, x.href)):
+        for b in broken_sorted:
             rel_file = os.path.relpath(b.file, repo_root)
             print(f"- {rel_file}:{b.line}: [{b.kind}] {b.href} -> {b.reason}")
+
+        # Emit GitHub annotations for inline PR reporting
+        if args.github_annotations:
+            for b in broken_sorted:
+                rel_file = os.path.relpath(b.file, repo_root)
+                # GitHub Actions annotation format
+                # ::error file=app.js,line=10,col=15::Something went wrong
+                print(f"::error file={rel_file},line={b.line}::[{b.kind}] {b.href} -> {b.reason}")
+
+        # Optionally write a markdown summary for PR comment
+        if args.summary_file:
+            try:
+                lines = [
+                    "# Broken Card links report\n",
+                    f"Checked external links in {dur:.1f}s.\n\n",
+                ]
+                current_file = None
+                for b in broken_sorted:
+                    rel_file = os.path.relpath(b.file, repo_root)
+                    if rel_file != current_file:
+                        if current_file is not None:
+                            lines.append("\n")
+                        lines.append(f"## {rel_file}\n\n")
+                        current_file = rel_file
+                    lines.append(f"- Line {b.line}: `{b.href}` ({b.kind}) — {b.reason}\n")
+                with open(args.summary_file, "w", encoding="utf-8") as f:
+                    f.writelines(lines)
+            except (OSError, IOError) as e:
+                print(f"Warning: failed to write summary file '{args.summary_file}': {e}")
+
         print(f"Total broken: {len(broken)} | Checked external links in {dur:.1f}s")
         return 1
     else:
