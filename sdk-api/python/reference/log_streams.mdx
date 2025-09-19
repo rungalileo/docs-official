@@ -27,10 +27,52 @@ analyze and monitor specific parts of your application or different environments
 - `datetime.datetime`0 (`datetime.datetime`): The timestamp when the log stream was last updated.
 - `datetime.datetime`2 (`datetime.datetime`3): Additional properties associated with the log stream.
 
+#### enable\_metrics
+
+```python
+def enable_metrics(
+    metrics: builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig,
+                                 str]]
+) -> builtins.list[LocalMetricConfig]
+```
+
+Enable metrics directly on this log stream instance.
+
+This is the most intuitive and clean way to enable metrics when you already have a
+LogStream object. The method leverages the log stream&#x27;s existing project_id and id
+attributes, eliminating the need for redundant parameter specification and reducing
+the potential for errors.
+
+This approach is ideal for object-oriented workflows where you&#x27;re working with LogStream
+instances directly, and it provides the clearest semantic meaning: &quot;enable these metrics
+on this specific log stream.&quot;
+
+**Arguments**:
+
+- `metrics` (`builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]`): List of metrics to enable on this log stream. Supports multiple input formats:
+
+- **GalileoScorers enum values**: Built-in metrics like `GalileoScorers.correctness`
+- **Metric objects**: Custom metrics with optional version specifications
+- **LocalMetricConfig objects**: Client-side metrics with custom scoring functions
+- **String names**: Built-in metric names like &quot;correctness&quot; or &quot;toxicity&quot;
+
+**Raises**:
+
+- `ValueError`: - If this LogStream instance lacks required `id` or `project_id` attributes
+- If any specified metrics are unknown or unavailable
+- If there are issues with metric configuration or registration
+- `GalileoHTTPException`: If there are network or API errors when communicating with Galileo services
+
+**Returns**:
+
+`builtins.list[LocalMetricConfig]`: List of local metric configurations that must be computed client-side.
+Server-side metrics are automatically registered with Galileo and don&#x27;t
+need to be returned since users don&#x27;t interact with them.
+
 ## LogStreams Objects
 
 ```python
-class LogStreams(BaseClientModel, DecorateAllMethods)
+class LogStreams(DecorateAllMethods)
 ```
 
 #### list
@@ -116,6 +158,44 @@ Creates a new log stream. Exactly one of `project_id` or `project_name` must be 
 
 `project_name`4: The created log stream.
 
+#### enable\_metrics
+
+```python
+def enable_metrics(
+    *,
+    log_stream_name: Optional[str] = None,
+    project_name: Optional[str] = None,
+    metrics: builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig,
+                                 str]]
+) -> builtins.list[LocalMetricConfig]
+```
+
+Enable metrics for a log stream by configuring scorers.
+
+The project name can be provided via the &#x27;project_name&#x27; parameter or the
+GALILEO_PROJECT environment variable.
+
+The log stream name can be provided via the &#x27;log_stream_name&#x27; parameter or the
+GALILEO_LOG_STREAM environment variable.
+
+**Arguments**:
+
+- `log_stream_name` (`Optional[str]`): The name of the log stream. Takes precedence over the GALILEO_LOG_STREAM environment variable. Defaults to None.
+- `project_name` (`Optional[str]`): The name of the project. Takes precedence over the GALILEO_PROJECT environment variable. Defaults to None.
+- `metrics` (`builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]`): List of metrics to enable. Can include:
+- GalileoScorers enum values (e.g., GalileoScorers.correctness)
+- Metric objects with name and optional version
+- LocalMetricConfig objects for custom local metrics
+- String names of built-in metrics
+
+**Raises**:
+
+- `ValueError`: If log stream or project cannot be found, or if metrics are unknown.
+
+**Returns**:
+
+`tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]`: A tuple containing the configured scorer configs and local metric configs.
+
 #### get\_log\_stream
 
 ```python
@@ -189,4 +269,57 @@ Creates a new log stream. Exactly one of `project_id` or `project_name` must be 
 **Returns**:
 
 `LogStream`: The created project.
+
+#### enable\_metrics
+
+```python
+def enable_metrics(
+    *,
+    log_stream_name: Optional[str] = None,
+    project_name: Optional[str] = None,
+    metrics: builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig,
+                                 str]]
+) -> builtins.list[LocalMetricConfig]
+```
+
+Enable metrics for a log stream with flexible parameter and environment variable support.
+
+This unified function supports both explicit parameters and environment variable fallbacks,
+making it perfect for all use cases - from production CI/CD pipelines to development testing.
+
+**Flexible Usage Patterns:**
+- **Environment-only**: Just pass metrics, names from env vars (production/CI)
+- **Explicit parameters**: Specify project/log stream names directly (development)
+- **Mixed approach**: Combine explicit params with environment fallbacks
+
+Environment Variables (Optional Fallbacks)
+------------------------------------------
+GALILEO_PROJECT : str
+    The name of the Galileo project (used when project_name not provided)
+GALILEO_LOG_STREAM : str
+    The name of the log stream (used when log_stream_name not provided)
+
+**Arguments**:
+
+- `log_stream_name` (`Optional[str]`): The name of the log stream. Takes precedence over GALILEO_LOG_STREAM environment variable.
+If None, will use GALILEO_LOG_STREAM env var. Defaults to None.
+- `project_name` (`Optional[str]`): The name of the project. Takes precedence over GALILEO_PROJECT environment variable.
+If None, will use GALILEO_PROJECT env var. Defaults to None.
+- `metrics` (`builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]`): List of metrics to enable on the log stream. Can include:
+- GalileoScorers enum values (e.g., GalileoScorers.correctness)
+- Metric objects with name and optional version for custom metrics
+- LocalMetricConfig objects for client-side custom scoring functions
+- String names of built-in metrics (e.g., &quot;correctness&quot;, &quot;toxicity&quot;)
+
+**Raises**:
+
+- `ValueError`: If log stream or project cannot be found, or if any specified metrics are unknown.
+- `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+- `httpx.TimeoutException`: If the request takes longer than Client.timeout.
+
+**Returns**:
+
+`builtins.list[LocalMetricConfig]`: List of local metric configurations that must be computed client-side.
+Server-side metrics are automatically registered with Galileo and don&#x27;t
+need to be returned since users don&#x27;t interact with them.
 
