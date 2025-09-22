@@ -11,11 +11,126 @@ This guide explains how to integrate Galileo with [OpenTelemetry](https://opente
 
 To implement OpenTelemetry with Galileo, you'll need to complete these essential steps:
 
-1. **Install dependencies** - Add OpenTelemetry packages and AI instrumentation libraries
-2. **Configure the OTel endpoint** - Set up the exporter to send traces to Galileo's OTel endpoint
-3. **Set up authentication headers** - Format your Galileo API key and project information for OTel
-4. **Configure the tracer provider** - Assemble the complete observability system with service metadata
-5. **Apply AI instrumentation** - Enable automatic tracing for LangChain and OpenAI operations
+### 1. Install dependencies
+
+Add OpenTelemetry packages and AI instrumentation libraries to your project:
+
+```bash
+pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp \
+  openinference-instrumentation-langchain openinference-instrumentation-openai \
+  langgraph openai python-dotenv
+```
+
+**Why these packages matter:**
+- `opentelemetry-api` and `opentelemetry-sdk` provide the core OpenTelemetry functionality
+- `opentelemetry-exporter-otlp` enables sending traces to Galileo's OTLP endpoint
+- `openinference-instrumentation-*` packages add AI-specific semantic conventions for LangChain and OpenAI
+- The other packages are framework-specific dependencies for your AI application
+
+### 2. Configure the OTel endpoint
+
+Set up the exporter to send traces to Galileo's OTel endpoint. The OTel endpoint is different from Galileo's regular API endpoint and is specifically designed to receive telemetry data in the OTLP format.
+
+```python
+# Galileo's OpenTelemetry endpoint
+endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
+
+# Configure OTLP exporter
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+exporter = OTLPSpanExporter(endpoint=endpoint)
+span_processor = BatchSpanProcessor(exporter)
+```
+
+**Important:** If you're using a self-hosted or custom Galileo deployment, replace `app.galileo.ai` with your deployment URL.
+
+### 3. Set up authentication headers
+
+Format your Galileo API key and project information for OpenTelemetry. OpenTelemetry requires headers to be set in the `OTEL_EXPORTER_OTLP_TRACES_HEADERS` environment variable in a specific comma-separated format.
+
+```python
+import os
+
+# Standard dictionary format (what you might expect)
+headers = {
+    "Galileo-API-Key": os.environ.get("GALILEO_API_KEY"),
+    "project": os.environ.get("GALILEO_PROJECT"),
+    "logstream": os.environ.get("GALILEO_LOG_STREAM", "default"),
+}
+
+# OpenTelemetry requires headers in this specific format
+os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(
+    [f"{k}={v}" for k, v in headers.items()]
+)
+print(f"OTEL Headers: {os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS']}")
+```
+
+**Why this format is required:** OpenTelemetry's OTLP exporter expects headers as a single comma-separated string, not as a dictionary. This conversion ensures your authentication and metadata are properly formatted for transmission.
+
+### 4. Configure the tracer provider
+
+Assemble the complete observability system with service metadata. This creates the pipeline that batches and exports traces to the OTel endpoint.
+
+```python
+from opentelemetry.sdk import trace as trace_sdk
+from opentelemetry import trace as trace_api
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import Resource
+
+# Set up headers (as shown above)
+headers = {
+    "Galileo-API-Key": os.environ.get("GALILEO_API_KEY"),
+    "project": os.environ.get("GALILEO_PROJECT"),
+    "logstream": os.environ.get("GALILEO_LOG_STREAM", "default"),
+}
+os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(
+    [f"{k}={v}" for k, v in headers.items()]
+)
+
+# Configure OpenTelemetry
+endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
+resource = Resource.create({
+    "service.name": "your-service-name",
+    "service.version": "1.0.0",
+})
+
+# Create tracer provider
+tracer_provider = trace_sdk.TracerProvider(resource=resource)
+
+# Add span processor for Galileo
+tracer_provider.add_span_processor(
+    BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint))
+)
+trace_api.set_tracer_provider(tracer_provider=tracer_provider)
+```
+
+**What this accomplishes:**
+- Creates a `Resource` that identifies your service with metadata
+- Sets up a `TracerProvider` that manages trace creation and processing
+- Configures a `BatchSpanProcessor` that efficiently batches traces before sending them to Galileo
+- Registers the tracer provider globally so all instrumentation can use it
+
+### 5. Apply AI instrumentation
+
+Enable automatic tracing for LangChain and OpenAI operations using OpenInference instrumentors. These add AI-specific semantic conventions to your traces.
+
+```python
+from openinference.instrumentation.langchain import LangChainInstrumentor
+from openinference.instrumentation.openai import OpenAIInstrumentor
+
+LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
+OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
+```
+
+**What OpenInference adds:**
+- Automatic capture of LLM calls, token usage, and model performance metrics
+- AI-specific span attributes like `gen_ai.request.model`, `gen_ai.response.content`, and `gen_ai.usage.*`
+- Semantic conventions that make your traces more meaningful in Galileo's dashboard
+- Framework-specific instrumentation for LangChain workflows and OpenAI API calls
+
+**Result:** With these steps complete, your application will automatically capture and send observability data to Galileo with every run, providing complete traces of your AI workflows, detailed LLM call breakdowns, and performance insights organized by project and log stream.
 
 Galileo supports multiple ways to instrument OpenTelemetry with different AI frameworks or LLMs. Choose the method that best fits your application:
 
