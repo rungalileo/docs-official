@@ -30,14 +30,15 @@ Set the authentication headers in your environment:
 import os
 
 headers = {
-    "Galileo-API-Key": "<YOUR_API_KEY>",           # Replace with your actual API key
-    "project": "<YOUR_PROJECT_NAME>",         # Replace with your project name
-    "logstream": "<YOUR_RUN_NAME>",          # Must match the Log stream name in Galileo
+    "Galileo-API-Key": "<YOUR_API_KEY>", # Replace with your actual API key
+    "project": "<YOUR_PROJECT_NAME>",    # Replace with your project name
+    "logstream": "<YOUR_RUN_NAME>",      # Must match the Log stream name
 }
 
 # Format headers as a comma-separated key=value string
 # Example: Galileo-API-Key=abc123,project=my_project,logstream=my_run
-os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS'] = ",".join([f"{k}={v}" for k, v in headers.items()])
+os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS'] = \
+    ",".join([f"{k}={v}" for k, v in headers.items()])
 ```
 
 ---
@@ -172,7 +173,7 @@ from openinference.instrumentation.instructor import InstructorInstrumentor
 from openinference.instrumentation.anthropic import AnthropicInstrumentor
 ```
 
-#### Instructor example with client:
+#### Instructor example with client
 
 ```python
 from openinference.instrumentation.instructor import InstructorInstrumentor
@@ -189,7 +190,7 @@ client = instructor.from_openai(OpenAI())
 
 Use the Galileo API base URL with the `/otel/traces` path:
 
-```
+```text
 https://app.galileo.ai/api/galileo/otel/traces
 or cluster your custom cluster
 http://api.YOUR_CLUSTER_URL/otel/traces
