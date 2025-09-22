@@ -1,7 +1,9 @@
 ---
-title: Run Experiments
+title: Run Experiments in Code
 description: Learn how to run experiments in Galileo using the Galileo SDKs
 ---
+
+{/*<!-- markdownlint-disable MD044 -->*/}
 
 import SnippetExperimentsPromptPython from "/snippets/code/python/concepts/experiments/prompt.mdx";
 import SnippetExperimentsExistingDatasetPython from "/snippets/code/python/concepts/experiments/existing-dataset.mdx";
@@ -27,6 +29,8 @@ import SnippetExperimentsLoggingWithParentCheckTypeScript from "/snippets/code/t
 import SnippetExperimentCustomMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/custom-metric.mdx";
 import SnippetExperimentOOTBMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/ootb-metric.mdx";
 
+{/*<!-- markdownlint-enable MD044 -->*/}
+
 As you progress from initial testing to systematic evaluation, you'll want to run experiments to validate your application's performance and behavior. Here are several ways to structure your experiments, starting from the simplest approaches and moving to more sophisticated implementations.
 
 Experiments fit both into the initial prompt engineering and model selection phases of your app, as well as during application development time, such as during testing or in a CI/CD pipeline. This allows you to fit experiments into your SDLC for evaluation-driven development.
@@ -48,6 +52,26 @@ The entry point for running experiments is a call to the run experiments functio
 Experiments take a dataset, and can either pass it to a prompt template, or to a custom function. This custom function can go from a simple call to an LLM right up to a full agentic workflow. Experiments also take a list of one or more metrics to use to evaluate the traces. This can be one of the [out-of-the-box metrics](/sdk-api/metrics/metrics) using the constants provided by the Galileo SDK, or the name of a custom metric.
 
 For each row in a dataset, a new trace is created, and either the prompt template is logged as an LLM span, or every span created in the custom function is logged to that trace.
+
+<Note>
+When you call your application code from an experiment, the experiment runner will start a new session and trace for every row in your dataset. You will need to ensure your application code doesn't start a new session or trace manually, or conclude or flush the trace.
+
+If you are using the `log` wrapper or a third-party integration, this is handed for you. If you are logging manually you will need to check to see if an experiment is in progress.
+
+See the [Experiment SDK docs](/sdk-api/experiments/running-experiments#get-an-existing-logger-and-check-for-an-existing-trace) for details on how to do this.
+</Note>
+
+```mermaid
+flowchart TD
+    A[Dataset] --> B[Experiment Runner]
+    B --> C[Prompt Template + LLM]
+    B --> D[Existing Application Logic]
+    C --> E[Results Logged to Galileo]
+    D --> E[Results Logged to Galileo]
+    E --> F[Metrics Evaluated]
+```
+
+All the traces logged to Galileo can then be evaluated using the [metrics of your choice](/sdk-api/metrics/metrics).
 
 If you are building experiments into your production application, you will need to enable a way to call the experiment runner. For example, you can do this inside a unit test.
 

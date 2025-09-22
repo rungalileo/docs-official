@@ -3,6 +3,10 @@ title: Log Stream Metrics
 description: Learn how to configure metrics for Log streams, including managing sampling rates
 ---
 
+import SnippetStartTraceWithMetadataPython from "/snippets/code/python/concepts/logging/metrics/start-trace-metadata.mdx"
+
+import SnippetStartTraceWithMetadataTypeScript from "/snippets/code/typescript/concepts/logging/metrics/start-trace-metadata.mdx"
+
 Once you have traces feeding in to a Log stream, you can configure the metrics that you want to evaluate. Metrics are managed at organizational level, including the creation of custom metrics, then are used to evaluate traces at the Log stream level.
 
 ## Configure metrics for a Log stream
@@ -27,9 +31,9 @@ You can also create new custom metrics from this pane, either using an [LLM as a
 
 Every evaluation interacts with an LLM (unless you are only using custom code-based metrics), and therefore has an associated cost.
 
-When your application is in development you will probably want to evaluate every trace that is captured, but once your application is in production and is scaling to hundreds, thousands, or even millions of users you most likely want to reduce your evaluation costs by only evaluating a small sample of the traces that are captured.
+When your application is in development you will probably want to evaluate every trace that is captured, but once your application is in production and is scaling to hundreds, thousands, or even millions of users you most likely want to reduce your evaluation costs by only evaluating a small sample of the traces that are captured. You can configure metric sampling at a Log stream level.
 
-To configure metric sampling rate rules, select the **Metric Sampling** button.
+To configure metric sampling rate rules, select the **Metric Sampling** button from the **Configure metrics** pane.
 
 ![The metrics sampling button](/concepts/logging/configure-metrics/metric-sampling-button.webp)
 
@@ -45,17 +49,41 @@ When you configure the sample rates, all traces are captured and visible in Gali
 For example, if you set the sampling to 10% and create 100 traces, then all 100 traces will be visible in Galileo, with metrics evaluated for just 10 of them.
 </Note>
 
-{/*
-
-Commented out till the functionality is working - https://app.shortcut.com/galileo/story/34033/
-
 ### Metric sampling rates
 
 The most basic way to set sampling rates is by a percentage for all incoming logs. When you set a percentage, all traces are stored and available in Galileo, but only that percentage of traces will be evaluated. A trace is either evaluated for all configured metrics, or not evaluated.
 
-You can configure sampling at a more granular level by adding additional rules based off metadata. For example, if you are onboarding a new customer and want to evaluate all of their logs during the onboarding process, you can add the customer name to your metadata, and set a rule to evaluate 100% of traces that have that customer name in their metadata.
+You can configure sampling at a more granular level by adding additional rules based off metadata set at a trace level. For example, if you are onboarding a new customer and want to evaluate all of their logs during the onboarding process, you can add the customer name to your metadata, and set a rule to evaluate 100% of traces that have that customer name in their metadata.
 
-These rules are applied in a top-down approach, so the first rule is evaluated and if the metadata matches, then the percentage is used, if not the next rule is evaluated, and so on. Finally if no rules match, the default sampling rate for all traces is used. */}
+![The metric sampling dialog showing 100% sampling if customer is set to important customer, otherwise 10%](/concepts/logging/configure-metrics/metric-sampling-metadata.webp)
+
+This metadata is set when you start a trace with the Galileo logger.
+
+<CodeGroup>
+  <SnippetStartTraceWithMetadataPython />
+  <SnippetStartTraceWithMetadataTypeScript />
+</CodeGroup>
+
+These rules are applied in a top-down approach, so the first rule is evaluated and if the metadata matches, then the percentage is used, if not the next rule is evaluated, and so on. Finally if no rules match, the default sampling rate for all traces is used.
+
+## Metric filters
+
+Sometimes metrics only make sense for certain spans. For example, if you have a custom metric for verifying the final response to a user from a multi-agent system with multiple LLM spans, you might only want to calculate the metric on the final LLM span that summarizes the results from all the agents.
+
+You can filter the spans that a metric is calculated for, based off the span name or span metadata. Metric filtering is configured at the project level, with filtering applying to all log streams in a project.
+
+To configure metric filters, select **Apply filter** from the menu for the metric you want to filter on the **Configure metrics** pane:
+
+![The apply filter menu option](/concepts/logging/configure-metrics/apply-filter-menu.webp)
+
+Use the **Add Condition** button to add a condition based off a span name, or span metadata for the span type that the metric evaluates.
+
+- For metadata, set the field, the comparison operator, and the value
+- For the span name, set the comparison operator and the value
+
+You can set multiple conditions, and these are combined with an **And** clause, so condition 1 **And** condition 2.
+
+![The apply filter dialog with a metadata filter for agent is equal to summary agent](/concepts/logging/configure-metrics/add-filter.webp)
 
 ## Next steps
 

@@ -2,10 +2,14 @@
 title: Annotations Overview
 ---
 
+{/*<!-- markdownlint-disable MD044 -->*/}
+
 import SnippetAnnotationsOverviewPython1 from '/snippets/code/python/annotations/overview/overview-py-1.mdx';
 import SnippetAnnotationsOverviewPython2 from '/snippets/code/python/annotations/overview/overview-py-2.mdx';
 import SnippetAnnotationsOverviewTypeScript1 from '/snippets/code/typescript/annotations/overview/overview-ts-1.mdx';
 import SnippetAnnotationsOverviewTypeScript2 from '/snippets/code/typescript/annotations/overview/overview-ts-2.mdx';
+
+{/*<!-- markdownlint-enable MD044 -->*/}
 
 Galileo's **Annotations** feature helps teams label, categorize, and analyze model outputs more effectively. Annotations provide a structured way to add human-in-the-loop feedback, highlight model behavior patterns, and guide future improvements to datasets and models.
 
@@ -13,7 +17,7 @@ Galileo's **Annotations** feature helps teams label, categorize, and analyze mod
 
 **Annotations** are tags and metadata that can be used to label predictions, inputs, or other artifacts during model development and evaluation. They help **organize, classify, and track model behavior** during experimentation and production.
 
-You can see the tags and metadata in the [Log Streams](/concepts/logging/logstreams) section of the [Galileo Console](https://app.galileo.ai/).
+You can see the tags and metadata in the [Log Streams](/sdk-api/logging/logging-basics) section of the [Galileo Console](https://app.galileo.ai/).
 
 These labels can represent:
 
@@ -37,19 +41,21 @@ Annotations are particularly useful for:
 Annotations are added to logged Traces and Spans in the form of **tags** and **metadata**.
 
 **Tags** - short, flat labels (strings) you assign to a trace or span to make them easy to group and filter.
-* Unlimited number of tags per trace/span (practical limit ≈ 50)
-* Case-sensitive strings ≤ 50 chars each
-* Ideal for boolean-style filters (e.g., “show me all traces tagged physics”)
+
+- Unlimited number of tags per trace/span (practical limit ≈ 50)
+- Case-sensitive strings ≤ 50 chars each
+- Ideal for boolean-style filters (e.g., “show me all traces tagged physics”)
 
 **Metadata** - key-value dictionaries that travel with a trace or a span, perfect for structured information like user IDs, experiment hashes, timestamps, or numeric metrics.
-* Keys and values are strings ≤ 256 chars
-* Appears in Log Streams as new columns
-* Ideal for structured attributes you can filter, group, and aggregate
+
+- Keys and values are strings ≤ 256 chars
+- Appears in Log Streams as new columns
+- Ideal for structured attributes you can filter, group, and aggregate
 
 
 ## Adding annotations to traces
 
-To add annotations to your [Traces](/concepts/logging/traces), initialize the Galileo Logger, and then include tags and metadata when you start your Trace.
+To add annotations to your [Traces](/sdk-api/logging/galileo-logger#start-a-trace), initialize the Galileo Logger, and then include tags and metadata when you start your Trace.
 
 <CodeGroup>
 <SnippetAnnotationsOverviewPython1 />
@@ -59,7 +65,7 @@ To add annotations to your [Traces](/concepts/logging/traces), initialize the Ga
 
 ## Adding annotations to spans
 
-Attach annotations to your [Spans](/concepts/logging/spans) by including tags and metadata when you add your Span.
+Attach annotations to your [Spans](/sdk-api/logging/galileo-logger#add-spans) by including tags and metadata when you add your Span.
 
 <CodeGroup>
 <SnippetAnnotationsOverviewPython2 />
@@ -81,12 +87,11 @@ Additionally, metadata appears as **new columns in the Log Stream**.
 
 ## Best practices
 
-* Tag early. Start the trace yourself and pass tags before the first LLM call; otherwise auto-spans may end up in an untagged trace.
-* Keep tags coarse-grained. A handful of well-chosen tags beat hundreds of one-offs.
-* Standardize metadata keys. Stick to a naming convention (`experiment`, `user_id`, etc.) so dashboards stay tidy.
-* Avoid sensitive data. Never put PII or keys in either tags or metadata; they become queryable in the UI.
+- Tag early. Start the trace yourself and pass tags before the first LLM call; otherwise auto-spans may end up in an untagged trace.
+- Keep tags coarse-grained. A handful of well-chosen tags beat hundreds of one-offs.
+- Standardize metadata keys. Stick to a naming convention (`experiment`, `user_id`, etc.) so dashboards stay tidy.
+- Avoid sensitive data. Never put PII or keys in either tags or metadata; they become queryable in the UI.
 
-
-## Next steps:
+## Next steps
 
 Get started using **Annotations** with the [Adding Annotations](/concepts/annotations/annotations-walkthrough) step-by-step guide.

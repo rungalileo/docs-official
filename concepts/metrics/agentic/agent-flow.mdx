@@ -57,7 +57,9 @@ This prompt needs to be customized based on your application, and the inputs and
 
 For example, imagine you were creating an agent to provide advice on exercises for different body parts, such as for a physical therapy application. This has multiple tools, including `list_by_target_muscle_for_exercised`, `list_by_body_part_for_exercised`, `list_of_bodyparts_for_exercised`. Some user tests might be:
 
-```output
+{/*<!-- markdownlint-disable MD013 -->*/}
+
+```output wrap
 1. If a call to "list_by_target_muscle_for_exercised" returns an error that contains the text "target not found", the agent should subsequently attempt an alternative lookup by calling either "list_by_body_part_for_exercised" or "list_of_bodyparts_for_exercised"
 2. When the user asks for exercises that target leg muscles, the agent must call at least one of the tools ["list_by_target_muscle_for_exercised", "list_by_body_part_for_exercised"] during the conversation
 3. After receiving a successful response from "list_by_body_part_for_exercised", the agent's following natural-language message must contain at least one exercise name, the corresponding equipment, and an animated demonstration URL taken from the tool output
@@ -66,6 +68,8 @@ For example, imagine you were creating an agent to provide advice on exercises f
 6. No assistant message should include more than one tool invocation
 7. The agent should conclude the conversation with a human-readable answer that summarizes the requested leg exercises using data returned from the tools
 ```
+
+{/*<!-- markdownlint-enable MD013 -->*/}
 
 </Step>
 
