@@ -1,8 +1,11 @@
-## Overview
+---
+title: OpenTelemetry and OpenInference
+description: Learn how to integrate Galileo with OpenTelemetry and OpenInference for comprehensive observability and tracing
+---
 
 This guide explains how to integrate Galileo with [OpenTelemetry](https://opentelemetry.io/) and [OpenInference](https://github.com/Arize-ai/openinference) for comprehensive observability and tracing of your AI/ML workflows using industry-standard tools.
 
-### Installation
+## Installation
 
 Add OpenTelemetry packages and AI instrumentation libraries to your project:
 
@@ -13,25 +16,25 @@ pip install opentelemetry-api opentelemetry-sdk \
 
 The `opentelemetry-api` and `opentelemetry-sdk` packages provide the core OpenTelemetry functionality. The `opentelemetry-exporter-otlp` package enables sending traces to Galileo's OTLP endpoint
 
-You can then add the relevant OpenTelemetry packages for the framework or LLM that you are using. For example, to add the packages for LangChain and OpenAI, install the following:
+You can then add the relevant OpenInferencepackages for the framework or LLM that you are using. For example, to add the packages for LangChain and OpenAI, install the following:
 
 ```bash
 pip install openinference-instrumentation-langchain \
             openinference-instrumentation-openai
 ```
 
-### Configure the OTel endpoint
+## Configure the OTel endpoint
 
 Set up the exporter to send traces to Galileo's OTel endpoint. The OTel endpoint is different from Galileo's regular API endpoint and is specifically designed to receive telemetry data in the OTLP format.
 
 ```python
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
 # Galileo's OpenTelemetry endpoint
 endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
 
 # Configure OTLP exporter
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-
 exporter = OTLPSpanExporter(endpoint=endpoint)
 span_processor = BatchSpanProcessor(exporter)
 ```
@@ -40,7 +43,7 @@ span_processor = BatchSpanProcessor(exporter)
 If you're using a self-hosted or custom Galileo deployment, replace `app.galileo.ai` with your deployment URL.  
 </Note>  
 
-### Set up authentication headers
+## Set up authentication headers
 
 Format your Galileo API key and project information for OpenTelemetry. OpenTelemetry requires headers to be set in the `OTEL_EXPORTER_OTLP_TRACES_HEADERS` environment variable in a specific comma-separated format.
 
@@ -63,7 +66,7 @@ print(f"OTEL Headers: {os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS']}")
 
 OpenTelemetry's OTLP exporter expects headers as a single comma-separated string, not as a dictionary. This conversion ensures your authentication and metadata are properly formatted for transmission.
 
-### Configure the tracer provider
+## Configure the tracer provider
 
 Assemble the complete observability system with service metadata. This creates the pipeline that batches and exports traces to the OTel endpoint.
 
@@ -108,7 +111,7 @@ This code:
 - Configures a `BatchSpanProcessor` that efficiently batches traces before sending them to Galileo
 - Registers the tracer provider globally so all instrumentation can use it
 
-### Apply AI instrumentation
+## Apply AI instrumentation
 
 Now you can enable automatic tracing for your framework and LLM operations using OpenInference instrumentors. These add AI-specific semantic conventions to your traces.
 
