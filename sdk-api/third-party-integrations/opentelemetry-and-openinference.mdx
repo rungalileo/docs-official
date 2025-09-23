@@ -1,34 +1,26 @@
----
-title: "OpenTelemetry and OpenInference"
-description: "Learn how to integrate Galileo with OpenTelemetry and OpenInference for comprehensive observability and tracing"
----
-
 ## Overview
 
 This guide explains how to integrate Galileo with [OpenTelemetry](https://opentelemetry.io/) and [OpenInference](https://github.com/Arize-ai/openinference) for comprehensive observability and tracing of your AI/ML workflows using industry-standard tools.
 
-## OpenTelemetry instrumentation steps
-
-To implement OpenTelemetry with Galileo, you'll need to complete these essential steps:
-
-### 1. Install dependencies
+### Installation
 
 Add OpenTelemetry packages and AI instrumentation libraries to your project:
 
 ```bash
-pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp \
-  openinference-instrumentation-langchain openinference-instrumentation-openai \
-  langgraph openai python-dotenv
+pip install opentelemetry-api opentelemetry-sdk \
+            opentelemetry-exporter-otlp
 ```
 
-**Why these packages matter:**
+The `opentelemetry-api` and `opentelemetry-sdk` packages provide the core OpenTelemetry functionality. The `opentelemetry-exporter-otlp` package enables sending traces to Galileo's OTLP endpoint
 
-- `opentelemetry-api` and `opentelemetry-sdk` provide the core OpenTelemetry functionality
-- `opentelemetry-exporter-otlp` enables sending traces to Galileo's OTLP endpoint
-- `openinference-instrumentation-*` packages add AI-specific semantic conventions for LangChain and OpenAI
-- The other packages are framework-specific dependencies for your AI application
+You can then add the relevant OpenTelemetry packages for the framework or LLM that you are using. For example, to add the packages for LangChain and OpenAI, install the following:
 
-### 2. Configure the OTel endpoint
+```bash
+pip install openinference-instrumentation-langchain \
+            openinference-instrumentation-openai
+```
+
+### Configure the OTel endpoint
 
 Set up the exporter to send traces to Galileo's OTel endpoint. The OTel endpoint is different from Galileo's regular API endpoint and is specifically designed to receive telemetry data in the OTLP format.
 
@@ -44,9 +36,11 @@ exporter = OTLPSpanExporter(endpoint=endpoint)
 span_processor = BatchSpanProcessor(exporter)
 ```
 
-**Important:** If you're using a self-hosted or custom Galileo deployment, replace `app.galileo.ai` with your deployment URL.
+<Note>  
+If you're using a self-hosted or custom Galileo deployment, replace `app.galileo.ai` with your deployment URL.  
+</Note>  
 
-### 3. Set up authentication headers
+### Set up authentication headers
 
 Format your Galileo API key and project information for OpenTelemetry. OpenTelemetry requires headers to be set in the `OTEL_EXPORTER_OTLP_TRACES_HEADERS` environment variable in a specific comma-separated format.
 
@@ -67,9 +61,9 @@ os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(
 print(f"OTEL Headers: {os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS']}")
 ```
 
-**Why this format is required:** OpenTelemetry's OTLP exporter expects headers as a single comma-separated string, not as a dictionary. This conversion ensures your authentication and metadata are properly formatted for transmission.
+OpenTelemetry's OTLP exporter expects headers as a single comma-separated string, not as a dictionary. This conversion ensures your authentication and metadata are properly formatted for transmission.
 
-### 4. Configure the tracer provider
+### Configure the tracer provider
 
 Assemble the complete observability system with service metadata. This creates the pipeline that batches and exports traces to the OTel endpoint.
 
@@ -107,33 +101,34 @@ tracer_provider.add_span_processor(
 trace_api.set_tracer_provider(tracer_provider=tracer_provider)
 ```
 
-**What this accomplishes:**
-
+This code:
 - Creates a `Resource` that identifies your service with metadata
 - Sets up a `TracerProvider` that manages trace creation and processing
 - Configures a `BatchSpanProcessor` that efficiently batches traces before sending them to Galileo
 - Registers the tracer provider globally so all instrumentation can use it
 
-### 5. Apply AI instrumentation
+### Apply AI instrumentation
 
-Enable automatic tracing for LangChain and OpenAI operations using OpenInference instrumentors. These add AI-specific semantic conventions to your traces.
+Now you can enable automatic tracing for your framework and LLM operations using OpenInference instrumentors. These add AI-specific semantic conventions to your traces.
+
+For example, to instrument LangChain and OpenAI, use the following code:
 
 ```python
-from openinference.instrumentation.langchain import LangChainInstrumentor
+from openinference.instrumentation.langgraph import LangGraphInstrumentor
 from openinference.instrumentation.openai import OpenAIInstrumentor
 
-LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
+LangGraphInstrumentor().instrument(tracer_provider=tracer_provider)
 OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
 ```
 
-**What OpenInference adds:**
+OpenInference adds:
 
 - Automatic capture of LLM calls, token usage, and model performance metrics
 - AI-specific span attributes like `gen_ai.request.model`, `gen_ai.response.content`, and `gen_ai.usage.*`
 - Semantic conventions that make your traces more meaningful in Galileo's dashboard
-- Framework-specific instrumentation for LangChain workflows and OpenAI API calls
+- Framework-specific instrumentation for LangGraph workflows and OpenAI API calls
 
-**Result:** With these steps complete, your application will automatically capture and send observability data to Galileo with every run, providing complete traces of your AI workflows, detailed LLM call breakdowns, and performance insights organized by project and log stream.
+Once OpenTelemetry and OpenInference is set up your application will automatically capture and send observability data to Galileo with every run, providing complete traces of your AI workflows, detailed LLM call breakdowns, and performance insights organized by project and log stream.
 
 Galileo supports multiple ways to instrument OpenTelemetry with different AI frameworks or LLMs. Choose the method that best fits your application:
 
@@ -144,12 +139,12 @@ Galileo supports multiple ways to instrument OpenTelemetry with different AI fra
 <Card title="LangGraph and OpenAI with OpenTelemetry" icon="book" horizontal href="/cookbooks/features/integrations/langgraph-otel-cookbook">
     Complete tutorial for instrumenting LangGraph workflows with OpenAI and OpenInference
 </Card>
-<Card title="Mastra.ai and OpenTelemetry" icon="file-code" horizontal href="https://github.com/rungalileo/sdk-examples/blob/main/typescript/agent/mastra-template-csv-to-questions/README.md">
+<Card title="Mastra.ai and OpenTelemetry" icon="file-code" horizontal href="https://github.com/rungalileo/sdk-examples/blob/main/typescript/agent/mastra-template-csv-to-questions">
     Sample application for instrumenting Galileo using OpenTelemetry in a Mastra.ai agent.
 </Card>
 </CardGroup>
 
-## Related tutorials
+## Next steps
 
 <CardGroup cols={2}>
   <Card title="Galileo logger" icon="code" horizontal href="/sdk-api/logging/galileo-logger">

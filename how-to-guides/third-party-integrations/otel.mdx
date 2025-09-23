@@ -1,11 +1,11 @@
 ---
-title: "Logging with OpenTelemetry, LangGraph, and OpenAI"
+title: "Log with OpenTelemetry, LangGraph, and OpenAI"
 description: "Learn how to integrate Galileo with OpenTelemetry and OpenInference for comprehensive observability and tracing."
 ---
 
 ## Overview
 
-This guide walks you through running a LangGraph app with OpenAI, OTel, and OpenInference. In five steps, you'll instrument workflows to capture your AI traces and LLM calls. [OpenTelemetry](https://opentelemetry.io/) provides industry-standard observability, while [OpenInference](https://github.com/Arize-ai/openinference) extends it with AI-specific semantic conventions. Together, they give you complete visibility into your LangGraph workflows, LLM calls, and performance metrics.
+This guide walks you through running a LangGraph app with OpenAI, OTel, and OpenInference. In this guide, you'll instrument workflows to capture your AI traces and LLM calls. [OpenTelemetry](https://opentelemetry.io/) provides industry-standard observability, while [OpenInference](https://github.com/Arize-ai/openinference) extends it with AI-specific semantic conventions. Together, they give you complete visibility into your LangGraph workflows, LLM calls, and performance metrics.
 
 ### In this guide you will
 
@@ -19,8 +19,6 @@ Below, you'll find instructions on the key parts that come into play when using 
 - Python 3.9+ installed
 - A free [Galileo account](https://app.galileo.ai/sign-up) and [API key](https://app.galileo.ai/settings/api-keys)
 - An [OpenAI API key](https://platform.openai.com/api-keys)
-- A free [Galileo account](https://app.galileo.ai/sign-up) and [API key](https://app.galileo.ai/settings/api-keys)
-- An [OpenAI](https://platform.openai.com/api-keys) API key
 - Basic understanding of LangGraph concepts
 - Familiarity with OpenTelemetry basics
 
@@ -43,11 +41,15 @@ pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp \
 
 </Step>
 
-<Step title="Configuring OTel endpoints">
+<Step title="Configure OTel endpoints">
 
-In order for OTel logs to properly send to Galileo, you'll need to configure the proper OTel endpoint. The OTel endpoint is different from Galileo's regular API endpoint, and is specifically designed to receive telemetry data in the OTLP format.  This is handled by the `OTLPSpanExporter` which is the component responsible for taking your traces and sending them to Galileo, converting them to Galileo in the process.  These items are then batched to optimize performance.
+In order for OTel logs to properly send to Galileo, you'll need to configure the proper OTel endpoint. The OTel endpoint is different from Galileo's regular API endpoint, and is specifically designed to receive telemetry data in the OTLP format.
 
-NOTE: If you're using a self-hosted or Galileo deployment other than app.galileo.ai, be sure to replace`app.galileo.ai` with your custom deployment URL.
+This is handled by the `OTLPSpanExporter` which is the component responsible for taking your traces and sending them to Galileo, converting them to Galileo in the process.  These items are then batched to optimize performance.
+
+<Note>  
+If you're using a self-hosted or Galileo deployment other than app.galileo.ai, be sure to replace`app.galileo.ai` with your custom deployment URL.  
+</Note>  
 
 ```python
 # Galileo's OpenTelemetry endpoint
@@ -63,9 +65,11 @@ span_processor = BatchSpanProcessor(exporter)
 
 </Step>
 
-<Step title="Creating headers for OTel">
+<Step title="Create headers for OTel">
 
-Before any data is sent to Galileo, the application must ensure that the data is headed to the right place, and in a secure manner.  OpenTelemetry has specific requirements for how authentication and metadata needs to be formatted. OpenTelemetry requires headers to be set in the `OTEL_EXPORTER_OTLP_TRACES_HEADERS` environment variable.
+Before any data is sent to Galileo, the application must ensure that the data is headed to the right place, and in a secure manner. OpenTelemetry has specific requirements for how authentication and metadata needs to be formatted.
+
+OpenTelemetry requires headers to be set in the `OTEL_EXPORTER_OTLP_TRACES_HEADERS` environment variable.
 
 ```python
 import os
@@ -88,7 +92,9 @@ print(f"OTEL Headers: {os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS']}")
 
 <Step title="Configure OpenTelemetry tracing">
 
-We'll now need to assemble the complete OTel system together by creating a tracer provider, configuring it with your service metadata and the setting up a pipeline that batches and exports the traces to the OTel endpoint.  Without this OpenTelemetry has no way of knowing where to send your traces or how to identify your service.
+We'll now need to assemble the complete OTel system together by creating a tracer provider, configuring it with your service metadata and the setting up a pipeline that batches and exports the traces to the OTel endpoint.
+
+Without this OpenTelemetry has no way of knowing where to send your traces or how to identify your service.
 
 ```python
 from opentelemetry.sdk import trace as trace_sdk
@@ -140,7 +146,7 @@ OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
 
 **What this enables automatically:**
 
-- LangChain operations and OpenAI API calls are traced
+- LangGraph operations and OpenAI API calls are traced
 - Token usage and model information is captured
 - Performance metrics and errors are recorded
 
@@ -166,9 +172,11 @@ The trace graph displays:
 
 With OpenTelemetry correctly configured, your application will now automatically capture and send observability data to Galileo with every run. You'll see complete traces of your LangGraph workflows, detailed LLM call breakdowns with token counts, and performance insights organized by project and log stream in your Galileo dashboard. This provides consistent, well-structured logging across all your AI applications without requiring additional code changes, enabling effective monitoring, debugging, and optimization at scale.
 
+<img src="/images/integrations/2025-09-23-OTel-Conversation-View.webp" alt="Galileo dashboard showing OpenTelemetry conversation view with detailed LLM call breakdowns and token usage" />
+
 ## OpenInference semantic conventions for LangGraph
 
-When running your LangGraph app with OpenInference, Galileo automatically applies semantic conventions to your traces, making it easier to digest within your code. Here are the key attributes you should use in your LangGraph nodes:
+When running your LangGraph app with OpenInference, Galileo automatically applies semantic conventions to your traces, capturing model information, token usage, and performance metrics without any additional code. For advanced use cases, you can also manually add custom attributes to enhance your traces with domain-specific information:
 <Steps>
 <Step title="Span attributes">
 
@@ -216,14 +224,19 @@ span.add_event("inference.completed", {
 
 ## Troubleshooting your LangGraph app
 
+Here are some common troubleshooting steps when using OpenTelemetry and OpenInference.  
+
 ### Headers not formatted correctly
 
+Not seeing your OTel traces in Galileo? Double checker your header formatting. OpenTelemetry requires headers in a specific comma-separated string format, not as a dictionary.
+
 ```python
-# ❌ Wrong - this won't work
+# ❌ Wrong - dictionary format won't work with OTel
 headers = {"Galileo-API-Key": "your-key", "project": "your-project"}
 
-# ✅ Correct - must be in this format
-os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = "Galileo-API-Key=your-key,project=your-project"
+# ✅ Correct - must be comma-separated string format
+os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = \
+    "Galileo-API-Key=your-key,project=your-project,logstream=default"
 ```
 
 ### Wrong endpoint
@@ -250,13 +263,17 @@ endpoint = "https://your-custom-domain.com/api/galileo/otel/traces"
 
 ### Missing LangGraph instrumentation
 
+Not seeing your LangGraph workflow traces? Ensure you're instrumenting both LangGraph and the underlying LLM providers. LangGraph workflows require instrumentation at multiple levels to capture the complete execution flow.
+
 ```python
-# ❌ Wrong - LangGraph operations won't be traced
-# Only OpenAI instrumentation applied
+# ❌ Wrong - only instrumenting OpenAI, missing LangGraph workflow tracing
 OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
 
-# ✅ Correct - both LangGraph and OpenAI instrumentation
-LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
+# ✅ Correct - instrument both LangGraph workflows and LLM providers
+from openinference.instrumentation.langgraph import LangGraphInstrumentor
+from openinference.instrumentation.openai import OpenAIInstrumentor
+
+LangGraphInstrumentor().instrument(tracer_provider=tracer_provider)
 OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
 ```
 
