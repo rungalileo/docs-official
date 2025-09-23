@@ -20,6 +20,7 @@ import os
 import re
 import sys
 import time
+import random
 from dataclasses import dataclass
 from typing import List, Tuple
 from urllib.parse import urlsplit
@@ -94,47 +95,51 @@ def is_external_url(href: str) -> bool:
     return href.startswith("http://") or href.startswith("https://")
 
 
-def check_external(href: str, timeout: float) -> Tuple[bool, str]:
-    """Return (ok, reason)."""
-    # Try HEAD first, then fallback to GET on 405/403/other failures
+def check_external(href: str, timeout: float, max_retries: int = 5, backoff_base: float = 0.5) -> Tuple[bool, str]:
+    """Return (ok, reason). Retries up to max_retries with exponential backoff."""
     headers = {
         "User-Agent": "Mozilla/5.0 (compatible; LinkChecker/1.0; +https://github.com/)",
         "Accept": "*/*",
         "Connection": "close",
     }
-    try:
-        req = Request(href, method="HEAD", headers=headers)
-        with urlopen(req, timeout=timeout) as resp:
-            code = getattr(resp, "status", getattr(resp, "code", 0))
-            if 200 <= code < 400:
-                return True, f"HTTP {code}"
-            # Some hosts return 405 for HEAD; plan to try GET
-            if code in (405,):
-                # fall through to GET below
-                pass
-            else:
-                return False, f"HTTP {code}"
-    except HTTPError as e:
-        # On 403,405 try GET; otherwise report error
-        if e.code not in (403, 405):
-            return False, f"HTTPError {e.code}: {e.reason}"
-    except URLError as e:
-        return False, f"URLError: {getattr(e, 'reason', e)}"
-    except (OSError, ValueError, TimeoutError) as e:
-        return False, f"Error: {e}"
+    last_reason = ""
+    for attempt in range(max_retries):
+        try:
+            req = Request(href, method="HEAD", headers=headers)
+            with urlopen(req, timeout=timeout) as resp:
+                code = getattr(resp, "status", getattr(resp, "code", 0))
+                if 200 <= code < 400:
+                    return True, f"HTTP {code}"
+                if code in (405,):
+                    pass
+                else:
+                    return False, f"HTTP {code}"
+        except HTTPError as e:
+            if e.code not in (403, 405):
+                last_reason = f"HTTPError {e.code}: {e.reason}"
+                break
+        except URLError as e:
+            last_reason = f"URLError: {getattr(e, 'reason', e)}"
+        except (OSError, ValueError, TimeoutError) as e:
+            last_reason = f"Error: {e}"
 
-    # Fallback to GET for HEAD 403/405 or explicit 405 above
-    try:
-        headers_get = dict(headers)
-        headers_get["Range"] = "bytes=0-0"
-        req = Request(href, method="GET", headers=headers_get)
-        with urlopen(req, timeout=timeout) as resp:
-            code = getattr(resp, "status", getattr(resp, "code", 0))
-            if 200 <= code < 400:
-                return True, f"HTTP {code}"
-            return False, f"HTTP {code}"
-    except (HTTPError, URLError, OSError, ValueError, TimeoutError) as e:  # type: ignore[reportGeneralTypeIssues]
-        return False, f"GET failed: {e}"
+        # Fallback to GET for HEAD 403/405 or explicit 405 above
+        try:
+            headers_get = dict(headers)
+            headers_get["Range"] = "bytes=0-0"
+            req = Request(href, method="GET", headers=headers_get)
+            with urlopen(req, timeout=timeout) as resp:
+                code = getattr(resp, "status", getattr(resp, "code", 0))
+                if 200 <= code < 400:
+                    return True, f"HTTP {code}"
+                last_reason = f"HTTP {code}"
+        except (HTTPError, URLError, OSError, ValueError, TimeoutError) as e:
+            last_reason = f"GET failed: {e}"
+
+        # Exponential backoff before next retry
+        sleep_time = backoff_base * (2 ** attempt) + random.uniform(0, 0.2)
+        time.sleep(sleep_time)
+    return False, f"Failed after {max_retries} retries: {last_reason}"
 
 
 def normalize_internal_path(href: str) -> str:
@@ -197,7 +202,7 @@ def main(argv: List[str] | None = None) -> int:
             print(f"Checking {len(externals_to_check)} external links...")
         with concurrent.futures.ThreadPoolExecutor(max_workers=args.max_workers) as executor:
             fut_to_item = {
-                executor.submit(check_external, href, args.timeout): (href, file_path, line)
+                executor.submit(check_external, href, args.timeout, 5): (href, file_path, line)
                 for href, file_path, line in externals_to_check
             }
             for fut in concurrent.futures.as_completed(fut_to_item):

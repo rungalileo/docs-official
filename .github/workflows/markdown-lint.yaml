@@ -81,7 +81,19 @@ jobs:
             markdownlint-cli2 $FILTERED_FILES
           else
             echo "No markdown files to lint after filtering"
+            # Explicitly succeed and set output for next step
+            echo "no_files_to_lint=true" >> $GITHUB_ENV
+            exit 0
           fi
+      - name: Comment success on PR (no files to lint)
+        if: github.event_name == 'pull_request' && env.no_files_to_lint == 'true'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: markdown-lint
+          message: |
+            ## ✅ Markdown Lint Passed
+            
+            No markdown files needed linting in this PR! 🎉
 
       - name: Run markdownlint on all files (push to main)
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
