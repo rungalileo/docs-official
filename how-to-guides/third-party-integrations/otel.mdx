@@ -218,47 +218,47 @@ span.add_event("inference.completed", {
 
 ### Headers not formatted correctly
 
-   ```python
-   # ❌ Wrong - this won't work
-   headers = {"Galileo-API-Key": "your-key", "project": "your-project"}
-   
-   # ✅ Correct - must be in this format
-   os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = "Galileo-API-Key=your-key,project=your-project"
-   ```
+```python
+# ❌ Wrong - this won't work
+headers = {"Galileo-API-Key": "your-key", "project": "your-project"}
+
+# ✅ Correct - must be in this format
+os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = "Galileo-API-Key=your-key,project=your-project"
+```
 
 ### Wrong endpoint
 
-   ```python
-   # ❌ Wrong - this is the native SDK endpoint
-   endpoint = "https://api.galileo.ai/v2/otlp"
-   
-   # ✅ Correct - this is the OTel endpoint
-   endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
-   ```
+```python
+# ❌ Wrong - this is the native SDK endpoint
+endpoint = "https://api.galileo.ai/v2/otlp"
+
+# ✅ Correct - this is the OTel endpoint
+endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
+```
 
 ### Console URL incorrect
 
 For custom Galileo deployments, replace `app.galileo.ai` with your deployment URL.
 
-   ```python
-   # ❌ Wrong - using default URL for custom deployment
-   endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
-   
-   # ✅ Correct - using your custom deployment URL
-   endpoint = "https://your-custom-domain.com/api/galileo/otel/traces"
-   ``` 
+```python
+# ❌ Wrong - using default URL for custom deployment
+endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
+
+# ✅ Correct - using your custom deployment URL
+endpoint = "https://your-custom-domain.com/api/galileo/otel/traces"
+```
 
 ### Missing LangGraph instrumentation
 
-   ```python
-   # ❌ Wrong - LangGraph operations won't be traced
-   # Only OpenAI instrumentation applied
-   OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
-   
-   # ✅ Correct - both LangGraph and OpenAI instrumentation
-   LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
-   OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
-   ```
+```python
+# ❌ Wrong - LangGraph operations won't be traced
+# Only OpenAI instrumentation applied
+OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
+
+# ✅ Correct - both LangGraph and OpenAI instrumentation
+LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
+OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
+```
 
 ## Next steps
 
