@@ -64,12 +64,22 @@ You would pass this to an experiment like this:
 </CodeGroup>
 
 </Step>
+<Step title="Define what this metric applies to">
+In the **Apply to** box, select what level this metric applies to.
 
+| Level          | Description |
+| :------------- | :---------- |
+| Session        | A session can include multiple traces. Apply your metric to a session when you want to evaluate a multiple-step interaction, including multiple RAG retrievals, tool calls, or LLM calls. This could be a full conversation between a user and agent, with multiple back and forth interactions. |
+| Trace          | A trace is typically one single interaction. Apply your metric to a trace when you want to evaluate a single step interaction, or a single step in a session. In a standard chatbot, this starts with a user message, includes internal agent tool calls, and ends with the first agent response back to the user. |
+| Retriever span | When building a RAG application, retriever spans consists of the user query as input, and the retrieved docs as output. Apply your metric to a retriever span when you are evaluating document retrieval and processing steps. |
+| LLM span       | An LLM Span is a single LLM call, it's input will contain the entire chat history upto that point, and the output would be the latest output. Apply your metric to an LLM span when you want to evaluate how the LLM processes the input and generates the output. |
+| Tool span      | A tool span logs a tool call. The input here is the arguments being passed to a tool, and the output is the tool output. Apply your metric to a tool span when you are evaluating tools. |
+
+</Step>
 <Step title="Configure the metric">
 In the **Prompt Editor**, configure the following fields:
 
 - **LLM Model** - select the model from the available integrations that you want to use to evaluate this metric.
-- **Apply to** - select what you want this metric to apply to, either an entire session, a trace, or an individual LLM, retriever, or tool span
 - **Step-by-step reasoning** - turn this on to see metric explanations, giving a reasoning behind the score. This will use more LLM tokens, and have a corresponding increase in cost.
 - **No. of judges** - select the number of judges to use. The metric is run against each judge, and an average score is returned. The more judges you use, the more accurate the score, but with a higher cost.
 </Step>
