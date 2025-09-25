@@ -1,0 +1,42 @@
+```python Python
+import os
+
+from galileo import GalileoScorers, Message, MessageRole
+from galileo.datasets import create_dataset
+from galileo.experiments import run_experiment
+from galileo.prompts import create_prompt
+from galileo.resources.models.prompt_run_settings import PromptRunSettings
+
+os.environ["GALILEO_API_KEY"] = "<YOUR_API_KEY>"  # find at https://app.galileo.ai/galileo-v2/settings/api-keys
+os.environ["GALILEO_PROJECT"] = "new_project"
+
+prompt = create_prompt(
+    name="Intro Prompt",
+    template=[
+        Message(
+            role=MessageRole.system,
+            content="Galileo brings automation and insight to AI evaluations so you can ship with confidence.",
+        ),
+        Message(role=MessageRole.user, content="{{input}}"),
+    ],
+)
+
+dataset = create_dataset(
+    "Intro Dataset",
+    content=[
+        {"input": "What is Galileo?"},
+        {"input": "What is Copernicus?"}
+    ],
+)
+
+experiment = run_experiment(
+    experiment_name="Intro Experiment",
+    prompt_template=prompt,
+    dataset=dataset,
+    metrics=[GalileoScorers.context_adherence],
+    project=os.environ.get("GALILEO_PROJECT"),
+    prompt_settings=PromptRunSettings(model_alias="GPT-4o"),
+)
+
+print(f"View experiment at: {experiment['link']}")
+```
