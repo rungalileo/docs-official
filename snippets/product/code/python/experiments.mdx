@@ -7,7 +7,7 @@ from galileo.experiments import run_experiment
 from galileo.prompts import create_prompt
 from galileo.resources.models.prompt_run_settings import PromptRunSettings
 
-os.environ["GALILEO_API_KEY"] = "<YOUR_API_KEY>"  # find at https://app.galileo.ai/galileo-v2/settings/api-keys
+os.environ["GALILEO_API_KEY"] = "<YOUR_API_KEY>"  # find at https://app.galileo.ai/settings/api-keys
 os.environ["GALILEO_PROJECT"] = "new_project"
 
 prompt = create_prompt(
@@ -35,6 +35,7 @@ experiment = run_experiment(
     dataset=dataset,
     metrics=[GalileoScorers.context_adherence],
     project=os.environ.get("GALILEO_PROJECT"),
+    # Add an integration to your model provider of choice at https://app.galileo.ai/galileo-v2/settings/integrations
     prompt_settings=PromptRunSettings(model_alias="GPT-4o"),
 )
 
