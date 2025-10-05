@@ -1,5 +1,5 @@
 ---
-title: Run Experiments
+title: Run Experiments in Code
 description: Learn how to run experiments in Galileo using the Galileo SDKs
 ---
 
@@ -52,6 +52,26 @@ The entry point for running experiments is a call to the run experiments functio
 Experiments take a dataset, and can either pass it to a prompt template, or to a custom function. This custom function can go from a simple call to an LLM right up to a full agentic workflow. Experiments also take a list of one or more metrics to use to evaluate the traces. This can be one of the [out-of-the-box metrics](/sdk-api/metrics/metrics) using the constants provided by the Galileo SDK, or the name of a custom metric.
 
 For each row in a dataset, a new trace is created, and either the prompt template is logged as an LLM span, or every span created in the custom function is logged to that trace.
+
+<Note>
+When you call your application code from an experiment, the experiment runner will start a new session and trace for every row in your dataset. You will need to ensure your application code doesn't start a new session or trace manually, or conclude or flush the trace.
+
+If you are using the `log` wrapper or a third-party integration, this is handed for you. If you are logging manually you will need to check to see if an experiment is in progress.
+
+See the [Experiment SDK docs](/sdk-api/experiments/running-experiments#get-an-existing-logger-and-check-for-an-existing-trace) for details on how to do this.
+</Note>
+
+```mermaid
+flowchart TD
+    A[Dataset] --> B[Experiment Runner]
+    B --> C[Prompt Template + LLM]
+    B --> D[Existing Application Logic]
+    C --> E[Results Logged to Galileo]
+    D --> E[Results Logged to Galileo]
+    E --> F[Metrics Evaluated]
+```
+
+All the traces logged to Galileo can then be evaluated using the [metrics of your choice](/sdk-api/metrics/metrics).
 
 If you are building experiments into your production application, you will need to enable a way to call the experiment runner. For example, you can do this inside a unit test.
 

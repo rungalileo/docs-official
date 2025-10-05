@@ -27,7 +27,9 @@ class HomeworkOutput(BaseModel):
     reasoning: str
 
 guardrail_agent = Agent(
-    name="Guardrail check", instructions="Check if the user is asking about homework.", output_type=HomeworkOutput
+    name="Guardrail check",
+    instructions="Check if the user is asking about homework.",
+    output_type=HomeworkOutput
 )
 
 math_tutor_agent = Agent(
@@ -51,7 +53,10 @@ async def homework_guardrail(ctx, agent, input_data):
 
 triage_agent = Agent(
     name="Triage Agent",
-    instructions="Determine which specialist agent (Math or History) to use based on the user's question. If it's not clearly Math or History, say you cannot help.",
+    instructions="""
+    Determine which specialist agent (Math or History)
+    to use based on the user's question. If it's not clearly
+    Math or History, say you cannot help.""",
     handoffs=[history_tutor_agent, math_tutor_agent],
     input_guardrails=[InputGuardrail(guardrail_function=homework_guardrail)],
 )
@@ -59,7 +64,8 @@ triage_agent = Agent(
 # --- 4. Run the Agent Workflow ---
 async def main():
     print("Running agent for a history question...")
-    result_history = await Runner.run(triage_agent, "Who was the first president of the United States?")
+    result_history = await Runner.run(triage_agent,
+        "Who was the first president of the United States?")
     print("\n--- History Result ---")
     print(result_history.final_output)
 

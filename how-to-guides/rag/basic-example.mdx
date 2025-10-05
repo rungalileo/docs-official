@@ -1,6 +1,7 @@
 ---
 title: Basic RAG Example
 description: Learn how to implement a basic Retrieval-Augmented Generation (RAG) system using Galileo and OpenAI
+tag: "Python"
 ---
 
 {/*<!-- markdownlint-disable MD044 -->*/}
@@ -112,7 +113,10 @@ def retrieve_documents(query: str):
     documents = [
         {
             "id": "doc1",
-            "text": "Galileo is an observability platform for LLM applications. It helps developers monitor, debug, and improve their AI systems by tracking inputs, outputs, and performance metrics.",
+            "text": """
+Galileo is an observability platform for LLM applications. It helps developers
+monitor, debug, and improve their AI systems by tracking inputs, outputs,
+and performance metrics.""",
             "metadata": {
                 "source": "galileo_docs",
                 "category": "product_overview"
@@ -120,7 +124,10 @@ def retrieve_documents(query: str):
         },
         {
             "id": "doc2",
-            "text": "RAG (Retrieval-Augmented Generation) is a technique that enhances LLM responses by retrieving relevant information from external knowledge sources before generating an answer.",
+            "text": """
+RAG (Retrieval-Augmented Generation) is a technique that enhances LLM responses
+by retrieving relevant information from external knowledge sources before
+generating an answer.""",
             "metadata": {
                 "source": "ai_techniques",
                 "category": "methodology"
@@ -128,7 +135,10 @@ def retrieve_documents(query: str):
         },
         {
             "id": "doc3",
-            "text": "Common RAG challenges include hallucinations, retrieval quality issues, and context window limitations. Proper evaluation metrics include relevance, faithfulness, and answer correctness.",
+            "text": """
+Common RAG challenges include hallucinations, retrieval quality issues,
+and context window limitations. Proper evaluation metrics include relevance,
+faithfulness, and answer correctness.""",
             "metadata": {
                 "source": "ai_techniques",
                 "category": "challenges"
@@ -136,7 +146,10 @@ def retrieve_documents(query: str):
         },
         {
             "id": "doc4",
-            "text": "Vector databases like Pinecone, Weaviate, and Chroma are optimized for storing embeddings and performing similarity searches, making them ideal for RAG applications.",
+            "text": """
+Vector databases like Pinecone, Weaviate, and Chroma are optimized for
+storing embeddings and performing similarity searches, making them
+ideal for RAG applications.""",
             "metadata": {
                 "source": "tech_stack",
                 "category": "databases"
@@ -144,7 +157,10 @@ def retrieve_documents(query: str):
         },
         {
             "id": "doc5",
-            "text": "Prompt engineering is crucial for RAG systems. Well-crafted prompts should instruct the model to use retrieved context, avoid making up information, and cite sources when possible.",
+            "text": """
+Prompt engineering is crucial for RAG systems. Well-crafted prompts
+should instruct the model to use retrieved context, avoid making up
+information, and cite sources when possible.""",
             "metadata": {
                 "source": "best_practices",
                 "category": "prompting"
@@ -175,7 +191,8 @@ def rag(query: str):
         formatted_docs += f"Document {i+1} (Source: {doc['metadata']['source']}):\n{doc['text']}\n\n"
 
     prompt = f"""
-    Answer the following question based on the context provided. If the answer is not in the context, say you don't know.
+    Answer the following question based on the context provided.
+    If the answer is not in the context, say you don't know.
 
     Question: {query}
 
@@ -188,8 +205,16 @@ def rag(query: str):
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that answers questions based only on the provided context."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system", 
+                    "content": """
+You are a helpful assistant that answers questions based only on the 
+provided context."""
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
             ],
         )
         return response.choices[0].message.content.strip()
@@ -212,7 +237,7 @@ The main application interface:
 ```python app.py
 def main():
     console.print(Panel.fit(
-        "[bold]RAG Demo[/bold]\nThis demo uses a simulated RAG system to answer your questions.",
+        "RAG Demo\nThis demo uses a simulated RAG system to answer your questions.",
         title="Galileo RAG Terminal Demo",
         border_style="blue"
     ))

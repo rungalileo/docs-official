@@ -1,6 +1,7 @@
 ---
 title: Maximizing Chunk Utilization
 description: Learn how to boost your AI model's performance by fully leveraging retrieved text chunks
+tag: "Python"
 ---
 
 Imagine you've built a retrieval-augmented generation (RAG) system that does a decent job finding relevant texts, yet the final answers often remain disappointingly shallow. The system might pick up on a simple definition but ignore deeper nuances, skip over chunks that are clearly relevant, or fail to combine ideas from multiple sources. All that potential remains untapped.
@@ -76,16 +77,19 @@ def _rerank_documents(self, docs: List[Dict], query: str) -> List[Dict]:
 
     reranked_docs = []
     for doc, score in zip(docs, cross_scores):
-        normalized_score = (score - min_score) / score_range if score_range > 0 else 0.5
+        normalized_score = (score - min_score) / score_range \
+                           if score_range > 0 else 0.5
 
         if normalized_score >= self.reranking_threshold:
             doc['metadata']['combined_score'] = normalized_score
-            doc['metadata']['relevance'] = 'high' if normalized_score > 0.8 else \
-                                         'medium' if normalized_score > 0.6 else 'low'
+            doc['metadata']['relevance'] = 'high' \
+                if normalized_score > 0.8 else 'medium' \
+                if normalized_score > 0.6 else 'low'
             reranked_docs.append(doc)
 
     # Sort and return top k documents
-    reranked_docs.sort(key=lambda x: x['metadata']['combined_score'], reverse=True)
+    reranked_docs.sort(key=lambda x: x['metadata']['combined_score'], 
+                       reverse=True)
     return reranked_docs[:self.k]
 ```
 
@@ -103,16 +107,23 @@ The reranking code adds extra metadata, like `combined_score` and `relevance`, w
 If you want the model to combine details from multiple chunks, you need to tell it how to do so:
 
 ```python
-SYSTEM_PROMPT = """You are a knowledgeable assistant tasked with providing comprehensive answers by analyzing and synthesizing information from multiple provided documents.
+SYSTEM_PROMPT = """You are a knowledgeable assistant tasked with providing
+comprehensive answers by analyzing and synthesizing information from multiple
+provided documents.
 
 IMPORTANT INSTRUCTIONS:
-1. Cross-reference information between documents - identify and connect complementary or contrasting information.
-2. For each concept you discuss, cite the specific documents that support your explanation.
-3. When multiple documents contain related information, explicitly connect their content.
-4. If documents present different aspects of a concept, synthesize them into a cohesive explanation.
+1. Cross-reference information between documents - identify and connect
+    complementary or contrasting information.
+2. For each concept you discuss, cite the specific documents that support
+    your explanation.
+3. When multiple documents contain related information, explicitly connect
+    their content.
+4. If documents present different aspects of a concept, synthesize them into
+    a cohesive explanation.
 5. Pay attention to the relevance scores of documents.
 6. Ensure you consider and utilize information from all relevant documents.
-7. Structure your response to build from foundational concepts to more advanced applications."""
+7. Structure your response to build from foundational concepts to more advanced
+    applications."""
 ```
 
 This system prompt:
@@ -134,7 +145,8 @@ def format_documents_enhanced(documents: list) -> str:
     return "\n\n".join(
         f"Document {i+1} (Source: {doc['metadata']['source']}, "
         f"Relevance: {doc['metadata']['relevance']}, "
-        f"Score: {doc['metadata'].get('combined_score', doc['metadata'].get('score', 'N/A')):.3f}"
+        f"Score: {doc['metadata'].get('combined_score',
+            doc['metadata'].get('score', 'N/A')):.3f}"
         f"):\n{doc['text']}"
         for i, doc in enumerate(documents)
     )

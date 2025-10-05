@@ -12,7 +12,7 @@ title: extendDataset
 function extendDataset(params: object): Promise<object[]>;
 ```
 
-Defined in: [src/utils/datasets.ts:446](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts#L446)
+Defined in: [src/utils/datasets.ts:466](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts#L466)
 
 Extends a dataset with synthetically generated data based on the provided parameters.
 
@@ -74,12 +74,15 @@ Prompt
 `deployment_name?`: `null` \| `string`;
 `echo?`: `boolean`;
 `frequency_penalty?`: `number`;
+`input?`: `null` \| `string`;
+`instructions?`: `null` \| `string`;
 `known_models?`: `object`[];
 `logprobs?`: `boolean`;
 `max_tokens?`: `number`;
 `model_alias?`: `string`;
 `n?`: `number`;
 `presence_penalty?`: `number`;
+`reasoning_effort?`: `string`;
 `response_format?`: \| `null`
 \| \{
 [`key`: `string`]: `string`;
@@ -98,6 +101,7 @@ Prompt
 `top_k?`: `number`;
 `top_logprobs?`: `number`;
 `top_p?`: `number`;
+`verbosity?`: `string`;
 \}
 
 **Description**
@@ -133,6 +137,18 @@ Frequency Penalty
 ```ts
 0;
 ```
+
+#### prompt_settings.input?
+
+`null` \| `string`
+
+Input
+
+#### prompt_settings.instructions?
+
+`null` \| `string`
+
+Instructions
 
 #### prompt_settings.known_models?
 
@@ -173,7 +189,7 @@ Model Alias
 **Default**
 
 ```ts
-gpt - 4.1 - mini;
+GPT-4o
 ```
 
 #### prompt_settings.n?
@@ -198,6 +214,18 @@ Presence Penalty
 
 ```ts
 0;
+```
+
+#### prompt_settings.reasoning_effort?
+
+`string`
+
+Reasoning Effort
+
+**Default**
+
+```ts
+medium;
 ```
 
 #### prompt_settings.response_format?
@@ -280,6 +308,18 @@ Top P
 
 ```ts
 1;
+```
+
+#### prompt_settings.verbosity?
+
+`string`
+
+Verbosity
+
+**Default**
+
+```ts
+medium;
 ```
 
 #### source_dataset?

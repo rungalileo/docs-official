@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 // Load the environment variables
 dotenv.config();
 
-// Set the project and log stream, these are created if they don't exist.
+// Set the project and Log stream, these are created if they don't exist.
 // You can also set these using the GALILEO_PROJECT and GALILEO_LOG_STREAM
 // environment variables.
 init({
@@ -77,7 +77,8 @@ const galileoLogger = getLogger();
     console.log(response.text);
 
     // Show Galileo information after the response
-    const galileoConsoleUrl = (process.env.GALILEO_CONSOLE_URL ?? "https://app.galileo.ai").replace(/\/+$/, "");
+    const galileoConsoleUrl = (process.env.GALILEO_CONSOLE_URL ??
+                               "https://app.galileo.ai").replace(/\/+$/, "");
     const projectUrl = `${galileoConsoleUrl}/project/${galileoLogger.client.projectId}`;
     const logStreamUrl = `${projectUrl}/log-streams/${galileoLogger.client.logStreamId}`;
 
