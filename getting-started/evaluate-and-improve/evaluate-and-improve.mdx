@@ -6,7 +6,10 @@ description: Learn how to evaluating metrics for your logged trace with Galileo,
 {/*<!-- markdownlint-disable MD044 -->*/}
 
 import SnippetUpdatedSystemPromptPython from "/snippets/code/python/getting-started/reference-data-system-prompt.mdx";
+import SnippetEnableMetricsPython from "/snippets/code/python/getting-started/enable-metrics.mdx";
+
 import SnippetUpdatedSystemPromptTypeScript from "/snippets/code/typescript/getting-started/reference-data-system-prompt.mdx";
+import SnippetEnableMetricsTypeScript from "/snippets/code/typescript/getting-started/enable-metrics.mdx";
 
 import SnippetConfigureIntegrationSteps from "/snippets/content/configure-integration-steps.mdx"
 
@@ -20,39 +23,32 @@ To evaluate metrics, you need to set up an LLM integration for the LLM that will
 
 <SnippetConfigureIntegrationSteps/>
 
-## Configure metrics for your Log stream
-
-The next step is to configure which metrics are evaluated against each logged trace.
-
-<Steps>
-<Step title="Open your project">
-From the [Galileo console](https://app.galileo.ai), select your project.
-</Step>
-<Step title="Open the Log stream">
-Open the Log stream for your project by selecting the Log stream from the list in your project's dashboard.
-
-![The Log stream on the dashboard](/getting-started/evaluate-and-improve/dashboard-log-stream-list.webp)
-</Step>
-<Step title="Open the configure metrics pane">
-Open the configure metrics pane by selecting the **Configure Metrics** button.
-
-![The configure metrics button](/getting-started/evaluate-and-improve/configure-metrics-button.webp)
-</Step>
-<Step title="Turn on Context Adherence">
-For this get started guide, you will be using [Context Adherence](/concepts/metrics/response-quality/context-adherence) to evaluate an AI response. Search for this metric and turn it on.
-
-![The context adherence metric turned on](/getting-started/evaluate-and-improve/context-adherence-turned-on.webp)
-
-Once this is on, close the metrics hub with the X in the top right.
-</Step>
-</Steps>
-
 ## Log a trace with an evaluated metric
 
 <Steps>
-<Step title="Add the context adherence metric to your log stream">
+<Step title="Enable the context adherence metric on your Log stream">
 To evaluate the Log stream against context adherence, you need to turn this on for your Log stream.
 
+Add the following import statements to the top of your app file:
+
+<CodeGroup>
+```python Python
+from galileo import GalileoScorers
+from galileo.log_streams import enable_metrics
+```
+```typescript TypeScript
+import { enableMetrics, GalileoScorers } from "galileo";
+```
+</CodeGroup>
+
+Next add the following code to your app file. If you are using Python, add this after the call to `galileo_context.init()`. If you are using TypeScript, add this as the first line in the `async` block.
+
+<CodeGroup>
+<SnippetEnableMetricsPython/>
+<SnippetEnableMetricsTypeScript/>
+</CodeGroup>
+
+This code will enable the context adherence metric for your log stream, and this metric will then be calculated for all LLM spans that are logged.
 
 </Step>
 <Step title="Run your application">
