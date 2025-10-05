@@ -6,8 +6,12 @@ description: "Learn how to create evaluation metrics using LLMs to judge the qua
 {/*<!-- markdownlint-disable MD044 -->*/}
 
 import SnippetExperimentCustomMetricNamePython from "/snippets/code/python/sdk/experiments/custom-metric.mdx";
+import SnippetPythonCreateMetric from "/snippets/code/python/sdk/metrics/create-metric.mdx"
+// import SnippetPythonDeleteMetric from "/snippets/code/python/sdk/metrics/delete-metric.mdx"
 
 import SnippetExperimentCustomMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/custom-metric.mdx";
+import SnippetTypeScriptCreateMetric from "/snippets/code/typescript/sdk/metrics/create-metric.mdx"
+import SnippetTypeScriptDeleteMetric from "/snippets/code/typescript/sdk/metrics/delete-metric.mdx"
 
 {/*<!-- markdownlint-enable MD044 -->*/}
 
@@ -27,9 +31,9 @@ The response needs to be a fixed type for the metric to be evaluated correctly. 
 | Discrete.   | An integer in a defined range                      | A prompt that returns a integer in a defined range, that can be defined in the prompt. For example, a score from 0-5. |
 | Percentage  | `0.0` - `1.0`                                      | A prompt that returns a percentage value, scored from 0.0 to 1.0, with 0.0 being 0%, and 1.0 being 100% |
 
-## Create a new LLM-as-a-judge metric
+You can create and manage LLM-as-a-judge metrics from the [Galileo console](#create-a-new-llm-as-a-judge-metric-in-the-galileo-console), or in [code](#create-a-new-llm-as-a-judge-metric-in-code).
 
-You can create and manage LLM-as-a-judge metrics from the Galileo console.
+## Create a new LLM-as-a-judge metric in the Galileo console
 
 <Steps>
 <Step title="Navigate to the Metrics section">
@@ -60,12 +64,22 @@ You would pass this to an experiment like this:
 </CodeGroup>
 
 </Step>
+<Step title="Define what this metric applies to">
+In the **Apply to** box, select what level this metric applies to.
 
+| Level          | Description |
+| :------------- | :---------- |
+| Session        | A session can include multiple traces. Apply your metric to a session when you want to evaluate a multiple-step interaction, including multiple RAG retrievals, tool calls, or LLM calls. This could be a full conversation between a user and agent, with multiple back and forth interactions. |
+| Trace          | A trace is typically one single interaction. Apply your metric to a trace when you want to evaluate a single step interaction, or a single step in a session. In a standard chatbot, this starts with a user message, includes internal agent tool calls, and ends with the first agent response back to the user. |
+| Retriever span | When building a RAG application, retriever spans consists of the user query as input, and the retrieved docs as output. Apply your metric to a retriever span when you are evaluating document retrieval and processing steps. |
+| LLM span       | An LLM Span is a single LLM call, it's input will contain the entire chat history up to that point, and the output would be the latest output. Apply your metric to an LLM span when you want to evaluate how the LLM processes the input and generates the output. |
+| Tool span      | A tool span logs a tool call. The input here is the arguments being passed to a tool, and the output is the tool output. Apply your metric to a tool span when you are evaluating tools. |
+
+</Step>
 <Step title="Configure the metric">
 In the **Prompt Editor**, configure the following fields:
 
 - **LLM Model** - select the model from the available integrations that you want to use to evaluate this metric.
-- **Apply to** - select what you want this metric to apply to, either an entire session, a trace, or an individual LLM, retriever, or tool span
 - **Step-by-step reasoning** - turn this on to see metric explanations, giving a reasoning behind the score. This will use more LLM tokens, and have a corresponding increase in cost.
 - **No. of judges** - select the number of judges to use. The metric is run against each judge, and an average score is returned. The more judges you use, the more accurate the score, but with a higher cost.
 </Step>
@@ -136,17 +150,43 @@ To test against current logs or experiments, select the project, then select the
 
 You can then run your metric against the last 5 logged sessions, traces, spans, or experiments by selecting the **Test Metric** button. The metric will be calculated, along with an explanation if you have step-by-step reasoning turned on.
 
-![A test run against 5 log stream rows showing they all pass with 100%](/concepts/metrics/custom-metrics/test-metric-logs.webp)
+![A test run against 5 Log stream rows showing they all pass with 100%](/concepts/metrics/custom-metrics/test-metric-logs.webp)
 
 After the metrics are calculated, select each row to see more details on the explanation if available.
 
 </Step>
 <Step title="Save your metric">
-Once you are happy with your metric, select the **Create metric** button to save your metric. You can now enable this metric for your log streams.
+Once you are happy with your metric, select the **Create metric** button to save your metric. You can now enable this metric for your Log streams.
 
 ![A complete metric ready to be saved](/concepts/metrics/custom-metrics/save-llm-metric.webp)
 </Step>
 </Steps>
+
+## Create a new LLM-as-a-judge metric in code
+
+In addition to creating custom LLM-as-a-judge metrics through the Galileo console, you can also create these in code.
+
+### Create a custom metric
+
+When you create a custom metric, you need to provide a name and the prompt to use. You can optionally also provide the output type, what it applies to, span, trace, or session, the model to use, if reasoning should be generated, the number of LLM judges to use, and any tags.
+
+<CodeGroup>
+
+<SnippetPythonCreateMetric />
+<SnippetTypeScriptCreateMetric />
+
+</CodeGroup>
+
+### Delete a custom metric
+
+You can also delete a metric by name.
+
+<CodeGroup>
+
+{/*<SnippetPythonDeleteMetric />*/}
+<SnippetTypeScriptDeleteMetric />
+
+</CodeGroup>
 
 ## Metric versions
 
@@ -164,7 +204,7 @@ From the version history, you can tag different versions as the default, or rest
 
 When you add a metric to a Log stream, you can configure which version is used - either the default, or a specific version. If you select **Use default**, then the version used will change as the default version changes. If you select a specific version, then only that version will be used.
 
-![The version selector for a metric for a log stream](/concepts/metrics/custom-metrics/version-history-logstream.webp)
+![The version selector for a metric for a Log stream](/concepts/metrics/custom-metrics/version-history-logstream.webp)
 
 ## Best practices for LLM-as-a-Judge metrics
 
@@ -200,9 +240,6 @@ While powerful, LLM-as-a-Judge metrics have some limitations to keep in mind:
 <CardGroup cols={2}>
 <Card title="LLM-as-a-Judge Prompt Engineering Guide " icon="wrench" horizontal href="/concepts/metrics/custom-metrics/prompt-engineering">
     Learn best practices for prompt engineering with custom LLM-as-a-judge metrics.
-</Card>
-<Card title="Create custom LLM-as-a-judge metrics in code" icon="code" horizontal href="/sdk-api/metrics/create-custom-llm-metrics">
-    Learn how to create custom LLM-as-a-judge metrics in code.
 </Card>
 <Card title="Metrics overview" icon="chart-bar" horizontal href="/concepts/metrics/overview">
     Explore Galileo's comprehensive metrics framework for evaluating and improving AI system performance across multiple dimensions.

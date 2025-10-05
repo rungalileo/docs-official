@@ -1,6 +1,7 @@
 ---
 title: Basic Agentic AI Example
 description: Learn how to implement a basic agentic AI system using Galileo and OpenAI
+tag: "Python"
 ---
 
 {/*<!-- markdownlint-disable MD044 -->*/}
@@ -49,7 +50,9 @@ pydantic
 
 Create a `tools.json` file with tool definitions:
 
-```json tools.json
+{/*<!-- markdownlint-disable MD013 -->*/}
+
+```json tools.json wrap
 [
   {
     "type": "function",
@@ -87,6 +90,8 @@ Create a `tools.json` file with tool definitions:
   }
 ]
 ```
+
+{/*<!-- markdownlint-enable MD013 -->*/}
 
 </Step>
 
@@ -167,12 +172,16 @@ Key points:
 The agent has two main tools, each decorated with Galileo's logging:
 
 ```python app.py
-# Tool: Convert text numbers to numerical values using LLM with structured output
-@log(span_type="tool")  # Galileo integration: Log this function as a tool
+# Tool: Convert text numbers to numerical values using LLM
+# with structured output
+
+# Galileo integration: Log this function as a tool
+@log(span_type="tool")
 def convert_text_to_number(text):
     prompt = f"""
 Convert the text number "{text}" to a numerical value.
-Return the result as a JSON object with a 'number' field containing only the integer value.
+Return the result as a JSON object with a 'number' field
+containing only the integer value.
 For example, for "twenty-five", return: {{"number": 25}}
 """
     response = client.chat.completions.create(
@@ -238,11 +247,14 @@ def process_query(query):
     # Ask LLM to process the query with a clear plan
     messages = [{
         "role": "system",
-        "content": """You are an agent that processes numerical queries using these tools:
+        "content": """
+You are an agent that processes numerical queries using these tools:
 1. convert_text_to_number: Converts text numbers (like "seven") to digits (7)
 2. calculate: Performs arithmetic with numerical expressions ("4 + 7")
 
-For ANY query containing arithmetic operations (+, -, *, / or plus, minus, times, divide):
+For ANY query containing arithmetic operations
+(+, -, *, / or plus, minus, times, divide):
+
 1. You MUST first convert any text numbers to digits
 2. You MUST then perform the calculation with the converted numbers
 3. Both steps are required - never stop after just converting numbers"""
@@ -286,62 +298,63 @@ This section:
 The agent processes tool calls and manages the conversation flow:
 
 ```python app.py
-    # Process function calls
-    results = []
-    converted_values = {}
-    has_arithmetic = any(op in query.lower() for op in ['+', '-', '*', '/', 'plus', 'minus', 'times', 'divide'])
-    calculation_done = False
+# Process function calls
+results = []
+converted_values = {}
+has_arithmetic = any(op in query.lower() for op in 
+                     ['+', '-', '*', '/', 'plus', 'minus', 'times', 'divide'])
+calculation_done = False
 
-    # Process all tool calls in sequence
-    tool_calls = response.choices[0].message.tool_calls
-    if tool_calls:
-        # Add the assistant's response to the message history
-        messages.append({
-            "role": "assistant",
-            "content": response.choices[0].message.content or "",
-            "tool_calls": [
-                {
-                    "id": call.id,
-                    "type": "function",
-                    "function": {
-                        "name": call.function.name,
-                        "arguments": call.function.arguments
-                    }
-                } for call in tool_calls
-            ]
-        })
+# Process all tool calls in sequence
+tool_calls = response.choices[0].message.tool_calls
+if tool_calls:
+    # Add the assistant's response to the message history
+    messages.append({
+        "role": "assistant",
+        "content": response.choices[0].message.content or "",
+        "tool_calls": [
+            {
+                "id": call.id,
+                "type": "function",
+                "function": {
+                    "name": call.function.name,
+                    "arguments": call.function.arguments
+                }
+            } for call in tool_calls
+        ]
+    })
 
-        # Process each tool call and add tool messages to the history
-        for call in tool_calls:
-            if call.function.name == "convert_text_to_number":
-                text = json.loads(call.function.arguments)["text"]
-                console.print(f"[yellow]Converting:[/yellow] {text}")
-                number_str = convert_text_to_number(text)
-                number = int(number_str) if number_str.isdigit() else None
-                if number is not None:
-                    console.print(f"[green]Converted to:[/green] {number}")
-                    results.append(f"Converted '{text}' to {number}")
-                    converted_values[text] = number
-                    # Add the tool response to message history
-                    messages.append({
-                        "role": "tool",
-                        "tool_call_id": call.id,
-                        "content": str(number)
-                    })
-
-            elif call.function.name == "calculate":
-                expression = json.loads(call.function.arguments)["expression"]
-                console.print(f"[yellow]Calculating:[/yellow] {expression}")
-                result = calculate(expression)
-                console.print(f"[green]Result:[/green] {result}")
-                results.append(result)
-                calculation_done = True
+    # Process each tool call and add tool messages to the history
+    for call in tool_calls:
+        if call.function.name == "convert_text_to_number":
+            text = json.loads(call.function.arguments)["text"]
+            console.print(f"[yellow]Converting:[/yellow] {text}")
+            number_str = convert_text_to_number(text)
+            number = int(number_str) if number_str.isdigit() else None
+            if number is not None:
+                console.print(f"[green]Converted to:[/green] {number}")
+                results.append(f"Converted '{text}' to {number}")
+                converted_values[text] = number
                 # Add the tool response to message history
                 messages.append({
                     "role": "tool",
                     "tool_call_id": call.id,
-                    "content": result
+                    "content": str(number)
                 })
+
+        elif call.function.name == "calculate":
+            expression = json.loads(call.function.arguments)["expression"]
+            console.print(f"[yellow]Calculating:[/yellow] {expression}")
+            result = calculate(expression)
+            console.print(f"[green]Result:[/green] {result}")
+            results.append(result)
+            calculation_done = True
+            # Add the tool response to message history
+            messages.append({
+                "role": "tool",
+                "tool_call_id": call.id,
+                "content": result
+            })
 ```
 
 This section:
@@ -356,59 +369,62 @@ This section:
 The agent ensures that calculations are completed:
 
 ```python app.py
-        # If we have arithmetic but no calculation was done, ask LLM to complete the sequence
-        if has_arithmetic and not calculation_done:
-            console.print("[yellow]Calculation step missing - requesting completion...[/yellow]")
+# If we have arithmetic but no calculation was done, ask LLM to complete the sequence
+if has_arithmetic and not calculation_done:
+    console.print("[yellow]Calculation step missing - requesting completion...[/yellow]")
 
-            # Add a message requesting completion of the sequence
-            messages.append({
-                "role": "user",
-                "content": f"Now you must calculate the result using the converted numbers. The original query was: '{query}'"
-            })
+    # Add a message requesting completion of the sequence
+    messages.append({
+        "role": "user",
+        "content": f"""Now you must calculate the result using the converted numbers.
+        The original query was: '{query}'"""
+    })
 
-            follow_up = client.chat.completions.create(
-                model="gpt-4o",
-                messages=messages,
-                tools=tools,
-            )
+    follow_up = client.chat.completions.create(
+        model="gpt-4o",
+        messages=messages,
+        tools=tools,
+    )
 
-            # Process any additional tool calls
-            if follow_up.choices[0].message.tool_calls:
-                # Add the assistant's response to the message history
+    # Process any additional tool calls
+    if follow_up.choices[0].message.tool_calls:
+        # Add the assistant's response to the message history
+        messages.append({
+            "role": "assistant",
+            "content": follow_up.choices[0].message.content or "",
+            "tool_calls": [
+                {
+                    "id": call.id,
+                    "type": "function",
+                    "function": {
+                        "name": call.function.name,
+                        "arguments": call.function.arguments
+                    }
+                } for call in follow_up.choices[0].message.tool_calls
+            ]
+        })
+
+        for call in follow_up.choices[0].message.tool_calls:
+            if call.function.name == "calculate":
+                expression = json.loads(call.function.arguments)["expression"]
+                console.print(f"[yellow]Calculating:[/yellow] {expression}")
+                result = calculate(expression)
+                console.print(f"[green]Result:[/green] {result}")
+                results.append(result)
+                # Add the tool response to message history
                 messages.append({
-                    "role": "assistant",
-                    "content": follow_up.choices[0].message.content or "",
-                    "tool_calls": [
-                        {
-                            "id": call.id,
-                            "type": "function",
-                            "function": {
-                                "name": call.function.name,
-                                "arguments": call.function.arguments
-                            }
-                        } for call in follow_up.choices[0].message.tool_calls
-                    ]
+                    "role": "tool",
+                    "tool_call_id": call.id,
+                    "content": result
                 })
+else:
+    console.print("[bold yellow]No tool calls detected in the response[/bold yellow]")
+    return "I couldn't process your query. Please try again with a clearer request."
 
-                for call in follow_up.choices[0].message.tool_calls:
-                    if call.function.name == "calculate":
-                        expression = json.loads(call.function.arguments)["expression"]
-                        console.print(f"[yellow]Calculating:[/yellow] {expression}")
-                        result = calculate(expression)
-                        console.print(f"[green]Result:[/green] {result}")
-                        results.append(result)
-                        # Add the tool response to message history
-                        messages.append({
-                            "role": "tool",
-                            "tool_call_id": call.id,
-                            "content": result
-                        })
-    else:
-        console.print("[bold yellow]No tool calls detected in the response[/bold yellow]")
-        return "I couldn't process your query. Please try again with a clearer request."
-
-    console.print(f"[dim]Final results: {results}[/dim]")
-    return "\n".join(results) if results else "I couldn't process your query. Please try again with a clearer request."
+console.print(f"[dim]Final results: {results}[/dim]")
+if results:
+    return "\n".join(results)
+return "I couldn't process your query. Please try again with a clearer request."
 ```
 
 This section:

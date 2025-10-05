@@ -22,7 +22,7 @@ def create_custom_llm_metric(
     model_name: str = "gpt-4.1-mini",
     num_judges: int = 3,
     description: str = "",
-    tags: list[str] = [],
+    tags: Optional[list[str]] = None,
     output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN
 ) -> BaseScorerVersionResponse
 ```
@@ -56,7 +56,7 @@ def create_custom_llm_metric(
     model_name: str = "gpt-4.1-mini",
     num_judges: int = 3,
     description: str = "",
-    tags: list[str] = [],
+    tags: Optional[list[str]] = None,
     output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN
 ) -> BaseScorerVersionResponse
 ```
@@ -78,4 +78,34 @@ Create a custom LLM metric.
 **Returns**:
 
 `str`8: Response containing the created metric details.
+
+#### get\_metrics
+
+```python
+def get_metrics(project_id: str,
+                start_time: datetime.datetime,
+                end_time: datetime.datetime,
+                experiment_id: Optional[str] = None,
+                log_stream_id: Optional[str] = None,
+                filters: Optional[list[FilterType]] = None,
+                group_by: Optional[str] = None,
+                interval: int = 5) -> LogRecordsMetricsResponse
+```
+
+Queries for metrics in a project.
+
+**Arguments**:
+
+- `project_id`: The unique identifier of the project.
+- `start_time`: The start of the time range for the query.
+- `end_time`: The end of the time range for the query.
+- `experiment_id`: Filter records by a specific experiment ID.
+- `log_stream_id`: Filter records by a specific run ID.
+- `filters`: A list of filters to apply to the query.
+- `group_by`: The field to group the results by.
+- `interval`: The time interval for the query in seconds.
+
+**Returns**:
+
+A LogRecordsMetricsResponse object containing the query results, or None if the query fails.
 

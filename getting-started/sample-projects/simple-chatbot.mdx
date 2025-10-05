@@ -3,6 +3,8 @@ title: Simple Chatbot
 description: Get started with the simple chatbot sample project
 ---
 
+import SnippetConfigureIntegrationSteps from "/snippets/content/configure-integration-steps.mdx"
+
 The simple chatbot sample project is a demo of a simplistic terminal-based LLM chatbot where you can have a back-and-forth conversation with an LLM. This project comes pre-populated with a Log stream with traces and evaluated metrics, as well as insights to help you improve this project.
 
 <CardGroup cols={1}>
@@ -12,8 +14,6 @@ Get the code for the sample project. You can find this project by cloning the Ga
 The code for this project is in the `/python/chatbot/sample-project-chatbot/` or `/typescript/chatbot/sample-project-chatbot/` folder.
 </Card>
 </CardGroup>
-
-![The project page for the simple chatbot with setup instructions and an insight](/getting-started/sample-projects/simple-chatbot-project-page.webp)
 
 The code for this sample is available in Python and TypeScript, and you can run this code using a range of LLM providers to generate more traces, and experiment with improving the app based off the evaluations.
 
@@ -29,11 +29,9 @@ The sample project comes with a Log stream pre-populated with a set of traces fo
 
 ### Investigate the Log stream
 
-Navigate to the **Default Log Stream** by ensuring it is selected, and selecting the **View all logs** button.
+Navigate to the **Default Log stream** by selecting this project, and selecting the **Default Log stream** in the dashboard.
 
-<Columns cols={2}>
-  ![The view all logs button](/getting-started/sample-projects/simple-chatbot-view-all-logs-button.webp)
-</Columns>
+![The default Log stream in the project dashboard](/getting-started/sample-projects/simple-chatbot-view-all-logs-button.webp)
 
 The Log stream is configured to evaluate the following metrics:
 
@@ -48,19 +46,21 @@ Select different rows to see more details, including the input and output data, 
 
 ### Get insights
 
-Galileo has an Insights Engine that continuously reviews your traces and metrics, and gives suggestions to improve your application. Navigate back to the project page by selecting the **Simple Chatbot** from the top navigation bar.
+Galileo has an Insights Engine that reviews your traces and metrics, and gives suggestions to improve your application. To generate insights, select the **Log Stream Insights** button.
 
-Insights will be showing on the right-hand side:
+![The Log Stream Insights button](/getting-started/sample-projects/simple-chatbot-insights-button.webp)
+
+The insights will be generated, and show on a pane on the right-hand side:
 
 ![A list of insights](/getting-started/sample-projects/simple-chatbot-insights.webp)
 
 Review the generated insights, and think about ways to improve the chatbot. For example, the system prompt for the chatbot is:
 
 ```output
-You are a helpful assistant that can answer questions and provide information.
-If you are not sure about the question, then try to answer it to the best of
-your ability, including extrapolating or guessing the answer from your
-training data.
+You are a helpful assistant that can answer questions and provide
+information. If you are not sure about the question, then try to answer
+it to the best of your ability, including extrapolating or guessing the
+answer from your training data.
 ```
 
 This will likely cause the chatbot to mislead users. The insights will say something like this:
@@ -96,18 +96,7 @@ To get metrics calculated in Galileo, you will need:
 
 - An integration with an LLM configured. If you don't have an integration configured, then:
 
-    <Steps>
-    <Step title="Open the integrations page">
-    Select the menu in the top right, and select **Integrations**
-
-    ![The integrations menu item](/getting-started/sample-projects/integrations.webp)
-    </Step>
-    <Step title="Add an integration">
-    Select **+ Add Integration** for the LLM you are using and add the relevant details, such as an API key or endpoint.
-
-    ![The integrations menu item](/getting-started/sample-projects/integrations-list.webp)
-    </Step>
-    </Steps>
+    <SnippetConfigureIntegrationSteps/>
 
 ### Get the code
 
@@ -192,7 +181,7 @@ In each project folder is a `.env.example` file. Rename this file to `.env` and 
 | :-------------------- | :---- |
 | `GALILEO_API_KEY`     | Your API key |
 | `GALILEO_PROJECT`     | The name of your Galileo project - this is preset to `Simple Chatbot` |
-| `GALILEO_LOG_STREAM`  | The name of your Log stream - this is preset to `Default Log Stream` |
+| `GALILEO_LOG_STREAM`  | The name of your Log stream - this is preset to `Default Log stream` |
 | `GALILEO_CONSOLE_URL` | Optional. The URL of your Galileo console for custom deployments. For the fre tier, you don't need to set this. |
 
 <Note>
@@ -343,7 +332,7 @@ Once you have asked a few questions, head back to the Galileo Console and examin
 
 ### Run the sample app as an experiment
 
-Galileo allows you to run [experiments](/concepts/experiments/overview) against [datasets](/concepts/datasets) of known data, generating traces in an experiment Log stream and evaluating these for different metrics. Experiments allow you to take a known set of inputs and evaluate different prompts, LLMs, or versions of your apps.
+Galileo allows you to run [experiments](/sdk-api/experiments/experiments) against [datasets](/sdk-api/experiments/datasets) of known data, generating traces in an experiment Log stream and evaluating these for different metrics. Experiments allow you to take a known set of inputs and evaluate different prompts, LLMs, or versions of your apps.
 
 This sample project has a unit test that runs the chatbot against a pre-defined dataset, containing a mixture of sensible and nonsense questions:
 

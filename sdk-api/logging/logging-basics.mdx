@@ -18,17 +18,17 @@ import SnippetSdkLoggingContextGetLoggerTypeScript from "/snippets/code/typescri
 **Log streams** are the core building blocks used for evaluations. Log streams belong to a **project**, with one project containing one or more Log streams. The way you structure this varies depending on your organizational preferences or standards, but a typical model would be:
 
 - A **[project](/concepts/projects)** represents a distinct application. For example - a customer facing chatbot and an internal HR chatbot would be 2 separate projects.
-- A **[Log stream](/concepts/logging/logstreams)** represents a distinct environment in that project that you want to monitor. For example, a dev Log stream for your development work, a staging Log stream for your staging environment, and a production Log stream for your production application.
+- A **[Log stream](/sdk-api/logging/logging-basics)** represents a distinct environment in that project that you want to monitor. For example, a dev Log stream for your development work, a staging Log stream for your staging environment, and a production Log stream for your production application.
 
-This allows you to evaluate each separate deployment of each application separately, such as to compare changed in your staging environment to production before a rollout, or to add different metrics to a dev environment to reflect new capabilities.
+This allows you to evaluate each separate deployment of each application separately, such as to compare changes in your staging environment to production before a rollout, or to add different metrics to a dev environment to reflect new capabilities.
 
 ## Structure of Log streams
 
 When logging applications, **Log streams** are made up of zero or more **sessions**, which are in turn made up of **traces**, which contain **spans**. **Experiments** can be thought of as a single session, containing multiple traces made up of spans.
 
 - **[Sessions](/concepts/logging/sessions/sessions-overview)** represent logical groupings of traces for actions involving an AI that may contain multiple steps. For example, in a chatbot, the entire conversation with a single user would be a session.
-- **[Traces](/concepts/logging/traces)** represent one complete interaction with an AI that may contain multiple calls and interactions. For example, inside a chatbot app sending a single message, having the AI handle it using tool calls or RAG, then returning a response, would be a single trace.
-- **[Spans](/concepts/logging/spans)** represent distinct operations inside a trace. Each LLM call, tool call, or step in an agentic workflow would be an individual span. For example, in a chatbot app the initial message sent to the LLM, calls to tools based off the LLM response, follow and up LLM calls would all be separate spans.
+- **[Traces](/sdk-api/logging/galileo-logger#start-a-trace)** represent one complete interaction with an AI that may contain multiple calls and interactions. For example, inside a chatbot app sending a single message, having the AI handle it using tool calls or RAG, then returning a response, would be a single trace.
+- **[Spans](/sdk-api/logging/galileo-logger#add-spans)** represent distinct operations inside a trace. Each LLM call, tool call, or step in an agentic workflow would be an individual span. For example, in a chatbot app the initial message sent to the LLM, calls to tools based off the LLM response, follow and up LLM calls would all be separate spans.
 
 Metrics are configured at the Log stream level, allowing different metrics for different Log streams.
 
@@ -68,6 +68,8 @@ If you are using the free version of Galileo, there is no need to set the `GALIL
 
 Both the project and Log stream can be configured as environment variables, or directly in code.
 
+Log streams can be created up front in the Galileo console, or automatically in code. If you log to a Log stream that doesn't exist, it will be created automatically for you.
+
 #### Set the project and Log stream using environment variables
 
 The advantage of using environment variables to set your project and Log stream is that you can share code across deployments and configure those deployments separately, for example to share the same project but log to different Log streams.
@@ -75,7 +77,7 @@ The advantage of using environment variables to set your project and Log stream 
 | Environment variable  | Description |
 | :-------------------- | :---------- |
 | `GALILEO_PROJECT`     | The [Galileo project](/concepts/projects) to log to. If this is not set, you will need to pass the project name in code. |
-| `GALILEO_LOG_STREAM`  | The [default Log stream](/concepts/logging/logstreams) to log to. If this is not set, you will need to pass the Log stream name in code. |
+| `GALILEO_LOG_STREAM`  | The [default Log stream](/sdk-api/logging/logging-basics) to log to. If this is not set, you will need to pass the Log stream name in code. |
 
 #### Set the project and Log stream in code
 

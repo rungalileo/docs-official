@@ -1,0 +1,94 @@
+---
+title: SSO Integration
+description: Learn how to setup SSO for your Galileo cluster
+---
+
+Galileo provides Single sign-on capabilities for various providers using the OIDC protocol when using your own cluster.
+
+- [Google](#google)
+- [Microsoft Entra ID](#microsoft-entra-id)
+- [Okta](#okta)
+- [PingFederate](#pingfederate)
+- [Custom OIDC provider](#custom-oidc-provider)
+
+If your provider is not listed above, additional SSO providers can be added on-demand. Contact Galileo to enable this.
+
+<Note>
+Single sign-on is only supported when you are using your own Galileo cluster. This is not available in the free version of Galileo, or a paid version running on [app.galileo.ai](https://app.galileo.ai).
+</Note>
+
+## Google
+
+1. Follow [this guide](https://support.google.com/cloud/answer/6158849?hl=en#zippy=) to set up your **OAuth credentials**
+
+    - **User Type** is `Internal`
+    - **Scopes** are `.../auth/userinfo.profile` and `openid`
+    - **Authorized domains** is your domain for Galileo console
+
+1. When creating a new client ID, set:
+
+    - **type** to `Web application`
+    - **Authorized redirect URIs** to `https://{CONSOLE_URL}/api/auth/callback/google`, replacing `{CONSOLE_URL}` with the URL of your Galileo console
+
+1. Share your **Client ID** and **Client Secret** with Galileo
+
+## Microsoft Entra ID
+
+1. Follow [this guide](https://learn.microsoft.com/entra/identity-platform/quickstart-register-app) to create a new application
+
+1. Under **Redirect URI**, set:
+
+    - The **type** to **Web**
+    - The **URI** to `https://{CONSOLE_URL}/api/auth/callback/azure-ad`, replacing `{CONSOLE_URL}` with the URL of your Galileo console
+
+1. Go to **Token configuration** page, **Add Optional Claim**, choose the **ID** token and **email** claim.
+
+    Ensure each user has their **email** set in the **Contact Information** properties. Galileo will use this email as the account.
+
+1. Go to the **Certificates & secrets** page, select **New Client Secret**, and create a new secret
+
+1. Share the **Tenant ID**, **Client ID**, and **Client Secret** with Galileo
+
+## Okta
+
+1. Follow [this guide](https://help.okta.com/en-us/content/topics/apps/apps_app_integration_wizard_oidc.htm) to create a new application
+
+1. Select:
+
+    - **OIDC - OpenID Connect** as the **Sign-in method**
+    - **Web Application** as the application type
+    - **Authorization Code** as the **Grant Type**
+
+1. Set **Sign-in redirect URIs** to `https://{CONSOLE_URL}/api/auth/callback/okta`, and **Sign-out redirect URIs** to `https://{CONSOLE_URL}`, replacing `{CONSOLE_URL}` with the URL of your Galileo console
+
+1. Share the **Issuer URL**, **Client ID**, and **Client Secret** with Galileo. You can find the **Issuer URL** in Security -> API in the admin panel. The audience should be `api://default`.
+
+## PingFederate
+
+1. Follow [this guide](https://docs.pingidentity.com/r/pingone/pingone_edit_application_oidc) to create an application
+
+1. Set the **Application Type** to **OIDC Web App**
+
+1. Go to the app **configuration** page, and set the **Redirect URIs** to `https://{CONSOLE_URL}/api/auth/callback/custom`, replacing `{CONSOLE_URL}` with the URL of your Galileo console
+
+1. Share the **Environment ID**, **Client ID**, and **Client Secret** with Galileo
+
+## Custom OIDC Provider
+
+1. Create an application/client with **OIDC** as the protocol, **Web Application** as the application type, and **Authorization Code** as the Grant Type
+
+    1. Ensure an **email** claim is returned as part of the **ID Token**
+
+1. Set **Sign-in redirect URIs** to `https://{CONSOLE_URL}/api/auth/callback/custom`, **Sign-out redirect URIs** to `https://{CONSOLE_URL}`, and **Web origins** to `https://{CONSOLE_URL}`, replacing `{CONSOLE_URL}` with the URL of your Galileo console
+
+1. Create a **Client Secret**
+
+1. Share all these with Galileo:
+
+    1. `CLIENT_ID`
+    1. `CLIENT_SECRET`
+    1. `TOKEN_URL` (e.g. `https://{BASE_URL}/token`)
+    1. `USERINFO_URL` (e.g. `https://{BASE_URL}/userinfo`)
+    1. `ISSUER`
+    1. `JWKS_URL` (e.g. `https://{BASE_URL}/certs`)
+    1. `AUTHORIZATION_URL` (e.g. `https://{BASE_URL}/auth?response_type=code`)

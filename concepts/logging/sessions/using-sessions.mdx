@@ -66,28 +66,31 @@ In addition, this tutorial assumes you are familiar with:
 Let's take a moment to prepare the development environment. If you already have a project setup with `Galileo`, `LangChain`, and `LangGraph`, you can skip right to [Manage a Session](#manage-a-session). If not, here's an abbreviated quickstart:
 
 <Steps>
-    <Step title="Install dependencies">
-        We'll need the Galileo [Python](/sdk-api/python/sdk-reference) or [TypeScript](/sdk-api/python/sdk-reference) SDK, LangChain, LangGraph, OpenAI, and `dotenv` to pull in variables from your `.env` file. Let's start by installing them:
+<Step title="Install dependencies">
+We'll need the Galileo [Python](/sdk-api/python/sdk-reference) or [TypeScript](/sdk-api/python/sdk-reference) SDK, LangChain, LangGraph, OpenAI, and `dotenv` to pull in variables from your `.env` file. Let's start by installing them:
 
-        <CodeGroup>
-            ```bash Python
-            pip install "galileo[openai]" langchain langchain-openai langgraph python-dotenv
-            ```
-            ```bash TypeScript
-            npm i -s galileo openai @langchain/langgraph @langchain/core dotenv
-            ```
-        </CodeGroup>
-    </Step>
+<CodeGroup>
 
-    <Step title="Create a .env file">
-        Next, create a `.env` file and add in the following variables:
+```bash Python
+pip install "galileo[openai]" langchain langchain-openai langgraph python-dotenv
+```
 
-        <EnvironmentSnippet />
-    </Step>
+```bash TypeScript
+npm i -s galileo openai @langchain/langgraph @langchain/core dotenv
+```
 
-    <Step title="Create your application logic file">
-        Finally, create a main script file (e.g. `main.py` or `main.ts`) where you'll add and run your application logic.
-    </Step>
+</CodeGroup>
+</Step>
+
+<Step title="Create a .env file">
+Next, create a `.env` file and add in the following variables:
+
+<EnvironmentSnippet />
+</Step>
+
+<Step title="Create your application logic file">
+Finally, create a main script file (e.g. `main.py` or `main.ts`) where you'll add and run your application logic.
+</Step>
 </Steps>
 
 Now we can dive in.
@@ -100,58 +103,59 @@ Recall our objectives from earlier? We'll build a simple application and use it 
 ### Steps
 
 <Steps>
-    <Step title="Create a simple agent">
-        In your main script, import the following dependencies. Let's begin by creating a very simple agent using LangGraph and OpenAI:
+<Step title="Create a simple agent">
+In your main script, import the following dependencies. Let's begin by creating a very simple agent using LangGraph and OpenAI:
 
-        <CodeGroup>
-            <SimpleAgentSnippet />
-        </CodeGroup>
+<CodeGroup>
+<SimpleAgentSnippet />
+</CodeGroup>
 
-         We'll see `GalileoCallback` and `RunnableConfig` in action later. For now, let's move on to the next step.
-    </Step>
+We'll see `GalileoCallback` and `RunnableConfig` in action later. For now, let's move on to the next step.
+</Step>
 
-    <Step title="Create a Logger Instance">
-        We'll be using the `GalileoLogger` to manage our logging session. Let's create one next:
+<Step title="Create a Logger Instance">
+We'll be using the `GalileoLogger` to manage our logging session. Let's create one next:
 
-        <CodeGroup>
-            <CreateLoggerSnippet />
-        </CodeGroup>
+<CodeGroup>
+<CreateLoggerSnippet />
+</CodeGroup>
 
-        <Accordion title="Optional arguments for GalileoLogger">
-            `GalileoLogger` takes some optional arguments: you don't have to provide any of them, but they are listed below so that you can see what is available.
+<Accordion title="Optional arguments for GalileoLogger">
+`GalileoLogger` takes some optional arguments: you don't have to provide any of them, but they are listed below so that you can see what is available.
 
-            <CodeGroup>
-                <LoggerOptionalArgs />
-            </CodeGroup>
-        </Accordion>
-    </Step>
+<CodeGroup>
+    <LoggerOptionalArgs />
+</CodeGroup>
+</Accordion>
+</Step>
 
-    <Step title="Start a logging session">
-        Our simple application will have a `main` function where everything happens. The first thing we will do in this function is start up a logging session. This will prepare the logger to group all captured events under a single session.
+<Step title="Start a logging session">
+Our simple application will have a `main` function where everything happens. The first thing we will do in this function is start up a logging session. This will prepare the logger to group all captured events under a single session.
 
-        Below, we give the session a unique `name` and `external id`. The name helps us find the session more easily in the Galileo Console. The `external id` is to link this session to external tracing: for example, linking to a conversation ID in your chatbot app by an ID created inside that app.
+Below, we give the session a unique `name` and `external id`. The name helps us find the session more easily in the Galileo Console. The `external id` is to link this session to external tracing: for example, linking to a conversation ID in your chatbot app by an ID created inside that app.
 
-        <CodeGroup>
-            <StartSessionSnippet />
-        </CodeGroup>
+<CodeGroup>
+<StartSessionSnippet />
+</CodeGroup>
 
-        <Note>
-            Treat `logger.start_session` like a lifecycle event, and call it before any code you want to monitor. The `name` and `external id` arguments are optional but recommended.
-        </Note>
-    </Step>
+<Note>
+Treat `logger.start_session` like a lifecycle event, and call it before any code you want to monitor. The `name` and `external id` arguments are optional but recommended.
+</Note>
+</Step>
 
-    <Step title="Add your LLM logic">
-        Now you can interact with your LLM. Our very simple application will invoke the LLM with two questions: each question will be a question/answer exchange that generates a `Trace` with child spans in our session. We will also pass a callback handler, which will be called by `LangChain` after each LLM invocation.
+<Step title="Add your LLM logic">
+Now you can interact with your LLM. Our very simple application will invoke the LLM with two questions: each question will be a question/answer exchange that generates a `Trace` with child spans in our session. We will also pass a callback handler, which will be called by `LangChain` after each LLM invocation.
 
-        Here's our full `main` function: you can make this part as complex as you like!
+Here's our full `main` function: you can make this part as complex as you like!
 
-        <CodeGroup>
-            <SessionMain />
-        </CodeGroup>
-    </Step>
+<CodeGroup>
+<SessionMain />
+</CodeGroup>
+</Step>
 </Steps>
 
 ### The GalileoCallback handler
+
 `GalileoCallback` is a callback handler specifically for `LangChain`. It sends the most-recent captured traces to Galileo Console when it is called behind the scenes: your LLM logic determines what traces are generated and/or captured.
 <Accordion title="GalileoCallback optional parameters (click to expand)">
 `GalileoCallback` has a few optional parameters:
@@ -192,6 +196,7 @@ Here's everything we have done so far:
 </Accordion>
 
 ### Run your script
+
 That's all the code: we have now learned to use `logger.start_session` before starting LLM chat session, and supply `GalileoCallback` to ensure your traces get sent to the Galileo Console.
 
 Now let's run the script:
@@ -268,13 +273,16 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
     ```typescript TypeScript
     const question = "What is the meaning of plenipotentiary?"
     logger.startTrace({ input: question })
-    logger.addLlmSpan({ input: question, output: "Plenipotentiary means 'Invested with full power'" })
+    logger.addLlmSpan({ 
+        input: question,
+        output: "Plenipotentiary means 'Invested with full power'"
+    })
     logger.conclude(); // end the trace
     ```
-    
+
     </CodeGroup>
 
-    <Note>You can learn more about traces and how to use them [here](/concepts/logging/traces).</Note>
+    <Note>You can learn more about traces and how to use them [in our logging guide](/sdk-api/logging/galileo-logger#start-a-trace).</Note>
 
 ## Conclusion
 

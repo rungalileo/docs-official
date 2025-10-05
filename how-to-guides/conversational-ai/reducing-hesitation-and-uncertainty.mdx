@@ -1,13 +1,14 @@
 ---
 title: Reducing Hesitation and Uncertainty
 description: Learn how to reduce hesitation and uncertainty in your AI models
+tag: "Python, TypeScript"
 ---
 
 Some models struggle to confidently generate responses, leading to hesitation, incomplete answers, or repeated disclaimers.
 
 For example, consider this prompt and response:
 
-```
+```text
 Prompt: "Tell me about climate change."
 ```
 
@@ -24,7 +25,7 @@ Prompt: "Tell me about climate change."
 - The model allowed too much randomness in token selection
 - The prompt was ambiguous in the response it expected
 
-### How it showed up in metrics:
+### How it showed up in metrics
 
 - **High Uncertainty**: The model hesitated in its response
 - **High Prompt Perplexity**: The model struggled with predicting the next token
@@ -50,7 +51,6 @@ model="gpt-4o",
 messages=[{"role": "system", "content": prompt}],
 )
 print(response.choices[0].message.content.strip())
-
 ```
 
 ```typescript example.ts
@@ -78,22 +78,22 @@ await callOpenAI(prompt);
 <Step title="Provide Stronger Context in Prompts">
 Include explicit guiding statements, for example:
 
-  <CodeGroup>
-  ```python example.py
+<CodeGroup>
+```python example.py
   prompt = """Tell me about climate change.
     Assume the following is true:
     1. Climate change is driven by human activity.
     2. Provide an explanation based on scientific evidence."""
-  ```
+```
 
 ```typescript example.ts
 const prompt = `Tell me about climate change.
-Assume the following is true:
-1. Climate change is driven by human activity.
-2. Provide an explanation based on scientific evidence.`;
+  Assume the following is true:
+  1. Climate change is driven by human activity.
+  2. Provide an explanation based on scientific evidence.`;
 ```
 
-  </CodeGroup>
+</CodeGroup>
 
 This should reduce the uncertaincy and perplexity in your metrics on Galileo.
 
@@ -102,14 +102,15 @@ This should reduce the uncertaincy and perplexity in your metrics on Galileo.
 
 Lower **temperature** to make the model more deterministic, for example:
 
-  <CodeGroup>
-  ```python example.py
-  response = client.chat.completions.create(
-      model="gpt-4o",
-      messages=[{"role": "user", "content": "Tell me a joke."}],
-      temperature=0.3  # Reduced temperature for more predictable responses
-  )
-  ```
+<CodeGroup>
+
+```python example.py
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Tell me a joke."}],
+    temperature=0.3  # Reduced temperature for more predictable responses
+)
+```
 
 ```typescript example.ts
 const response = await openai.chat.completions.create({
@@ -119,11 +120,12 @@ const response = await openai.chat.completions.create({
 });
 ```
 
-  </CodeGroup>
+</CodeGroup>
 
 Use **top-k sampling** to limit options and prevent hesitation, for example:
 
-  <CodeGroup>
+<CodeGroup>
+
   ```python example.py
   response = client.chat.completions.create(
       model="gpt-4o",
@@ -144,7 +146,7 @@ const response = await openai.chat.completions.create({
 });
 ```
 
-  </CodeGroup>
+</CodeGroup>
 
 Lowering the `temperature` and decreasing `top_k` both generally increase the prompt adherence.
 
@@ -175,8 +177,6 @@ const prompt = "What are the primary causes of climate change according to scien
 <Step title="Apply Uncertainty-Based Filtering">
 
 Automatically reject responses with an **Uncertainty** score above a set threshold
-
-{/* TODO: Add an example of how to use Galileo to evaluate the Uncertainty, then trigger a change in response (ex. retrying) */}
 
 </Step>
 </Steps>

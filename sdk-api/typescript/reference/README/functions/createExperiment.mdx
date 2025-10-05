@@ -12,10 +12,15 @@ title: createExperiment
 function createExperiment(
   name: string,
   projectName: string,
+  dataset?: null | {
+    dataset_id: string;
+    version_index: number;
+  },
+  metrics?: (string | Metric)[],
 ): Promise<Experiment>;
 ```
 
-Defined in: [src/utils/experiments.ts:88](https://github.com/rungalileo/galileo-js/blob/main/src/utils/experiments.ts#L88)
+Defined in: [src/utils/experiments.ts:101](https://github.com/rungalileo/galileo-js/blob/main/src/utils/experiments.ts#L101)
 
 ## Parameters
 
@@ -26,6 +31,32 @@ Defined in: [src/utils/experiments.ts:88](https://github.com/rungalileo/galileo-
 ### projectName
 
 `string`
+
+### dataset?
+
+`null` |
+
+\{
+`dataset_id`: `string`;
+`version_index`: `number`;
+\}
+
+#### dataset_id
+
+`string`
+
+Dataset Id
+Format: uuid4
+
+#### version_index
+
+`number`
+
+Version Index
+
+### metrics?
+
+(`string` \| [`Metric`](/sdk-api/typescript/reference/types/interfaces/Metric))[]
 
 ## Returns
 
