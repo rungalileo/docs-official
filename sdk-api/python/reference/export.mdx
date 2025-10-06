@@ -8,15 +8,15 @@ title: export
 #### export\_records
 
 ```python
-def export_records(
-        project_id: str,
-        root_type: RootType,
-        filters: list[FilterType],
-        sort: LogRecordsSortClause,
-        export_format: LLMExportFormat = LLMExportFormat.JSONL,
-        log_stream_id: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        column_ids: Optional[list[str]] = None) -> Iterator[dict[str, Any]]
+def export_records(project_id: str,
+                   root_type: RootType,
+                   filters: list[FilterType],
+                   sort: LogRecordsSortClause,
+                   export_format: LLMExportFormat = LLMExportFormat.JSONL,
+                   log_stream_id: Optional[str] = None,
+                   experiment_id: Optional[str] = None,
+                   column_ids: Optional[list[str]] = None,
+                   redact: bool = True) -> Iterator[dict[str, Any]]
 ```
 
 Exports records from a Galileo project.
@@ -31,6 +31,7 @@ Exports records from a Galileo project.
 - `filters`: A list of filters to apply to the export.
 - `column_ids`: A list of column IDs to include in the export.
 - `sort`: A sort clause to order the exported records.
+- `redact`: Redact sensitive data from the response.
 
 **Returns**:
 
