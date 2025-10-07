@@ -20,19 +20,21 @@ A typical set up for unit testing with evals is to have:
 
 - A [dataset](/sdk-api/experiments/datasets) with a set of well-defined inputs to your application.
 
-    When you initially develop your application, your dataset can be defined by a product expert or data science team, augmented with [synthetic data](/sdk-api/experiments/datasets#synthetic-data-generation). After your application is in production, you can then export real-world data from Log streams into your dataset.
+  When you initially develop your application, your dataset can be defined by a product expert or data science team, augmented with [synthetic data](/sdk-api/experiments/datasets#synthetic-data-generation). After your application is in production, you can then export real-world data from Log streams into your dataset.
+
 - A set of metrics that you want to evaluate in the experiment.
 
-    These can be [out-of-the-box metrics](/concepts/metrics/metric-comparison), or custom metrics, either using [LLM-as-a-judge](/concepts/metrics/custom-metrics/custom-metrics-ui-llm), or [code](/concepts/metrics/custom-metrics/custom-metrics-ui-code). For out-of-the-box or LLM-as-a-judge metrics, you will need an LLM integration configured to evaluate the metric.
+  These can be [out-of-the-box metrics](/concepts/metrics/metric-comparison), or custom metrics, either using [LLM-as-a-judge](/concepts/metrics/custom-metrics/custom-metrics-ui-llm), or [code](/concepts/metrics/custom-metrics/custom-metrics-ui-code). For out-of-the-box or LLM-as-a-judge metrics, you will need an LLM integration configured to evaluate the metric.
+
 - An application to unit test.
 
-    This should be configured to use an actual LLM for the code under test, using the same LLM as production. Other parts of your application can be mocked as required.
+  This should be configured to use an actual LLM for the code under test, using the same LLM as production. Other parts of your application can be mocked as required.
 
-    You may need to configure the way you start, conclude, and flush sessions and traces differently in your application to support running this code using experiments. See our [run experiments with custom functions guide](/sdk-api/experiments/running-experiments#run-experiments-with-custom-functions) for more details.
+  You may need to configure the way you start, conclude, and flush sessions and traces differently in your application to support running this code using experiments. See our [run experiments with custom functions guide](/sdk-api/experiments/running-experiments#run-experiments-with-custom-functions) for more details.
 
-    <Note>
-    Although it can be tempting to use a different LLM (such as a cheaper one) during unit testing, using a different LLM to production will give unit test results that do not match the actual behavior of your production system.
-    </Note>
+  <Note>
+  Although it can be tempting to use a different LLM (such as a cheaper one) during unit testing, using a different LLM to production will give unit test results that do not match the actual behavior of your production system.
+  </Note>
 
 ## Run the experiment
 
