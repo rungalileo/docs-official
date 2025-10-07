@@ -3,6 +3,11 @@ title: Run Experiments in Unit Tests
 description: Learn how to run experiments in unit tests that you can use during development, or in your CI/CD pipelines
 ---
 
+import SnippetPythonRunExperiment from "/snippets/code/python/sdk/experiments/unit-tests/run-experiment.mdx"
+import SnippetPythonGetExperiment from "/snippets/code/python/sdk/experiments/unit-tests/get-experiment.mdx"
+import SnippetPythonPollExperiment from "/snippets/code/python/sdk/experiments/unit-tests/poll-experiment.mdx"
+import SnippetPythonAssertExperiment from "/snippets/code/python/sdk/experiments/unit-tests/assert-experiment.mdx"
+
 Experiments are not only useful to evaluate your app manually, you can also use them in unit tests. This allows you to test your application code against known datasets, both at development time, and in your CI/CD pipelines.
 
 A typical pattern is to write one or more unit tests against the relevant parts of your application, running an experiment using a well-defined dataset of test cases in each unit test. Once the experiment is complete, you can assert based on the average value of the metrics used in the experiment.
@@ -36,20 +41,7 @@ To run the experiment, create a unit test using the framework of your choice. Yo
 When you run the experiment, you provide an experiment name. This needs to be unique, but if you set a non-unique name, the SDK will add the run date and time to the name in the created experiment to make it unique. This new name is returned in the response.
 
 <CodeGroup>
-```python python
-from galileo import GalileoScorers
-from galileo.experiments import run_experiment
-
-def test_run_experiment():
-    experiment_response = run_experiment(
-        experiment_name="test_run_experiment",
-        dataset_name="my-unit-test-dataset",
-        function=my_llm_function,
-        metrics=[
-            GalileoScorers.correctness,
-        ]
-    )
-```
+<SnippetPythonRunExperiment/>
 </CodeGroup>
 
 You can learn more about running functions in experiments in our [run experiments with custom functions guide](/sdk-api/experiments/running-experiments#run-experiments-with-custom-functions).
@@ -61,15 +53,7 @@ When you run an experiment, it starts running in the background. You can then po
 To poll the experiment, you retrieve it by name. If you used a non-unique name when running the experiment, then the actual name that is used with the date and time added is returned from the call to the run experiment function.
 
 <CodeGroup>
-```python Python
-from galileo.experiments import get_experiment
-
-# Get the experiment name from the response from run_experiment
-experiment_name = experiment_response["experiment"].name
-
-# Load the experiment by name
-experiment = get_experiment(experiment_name=experiment_name)
-```
+<SnippetPythonGetExperiment/>
 </CodeGroup>
 
 The returned experiment has an aggregate metrics property that will be set when the metrics have been calculated. This is a dictionary containing the average values, keyed off of `average_<metric_name>`, where `<metric_name>` is the value of the metric used, such as the value of a `GalileoScorers`, or the name of a custom metric.
@@ -77,32 +61,13 @@ The returned experiment has an aggregate metrics property that will be set when 
 You can check the returned experiment for this property, and the metrics. If these are not yet set, wait a few seconds, re-get the experiment and check again.
 
 <CodeGroup>
-```python Python
-# Get the name of the average metric
-average_metric_name = f"average_{GalileoScorers.instruction_adherence.value}"
-
-# Poll till the metrics are calculated
-while (
-    experiment.aggregate_metrics is None
-    or average_metric_name
-        not in experiment.aggregate_metrics
-):
-    # If we don't have the metrics calculated,
-    # sleep for 5 seconds before polling again
-    time.sleep(5)
-
-    # Reload the experiment to see if we now have the metrics
-    experiment = get_experiment(experiment_name=experiment_name)
-```
+<SnippetPythonPollExperiment/>
 </CodeGroup>
 
 Once the metrics have been calculated, you can assert against the average value.
 
 <CodeGroup>
-```python Python
-# Assert that the average metric exceeds a certain threshold
-assert experiment.aggregate_metrics[average_metric_name] >= 0.95
-```
+<SnippetPythonAssertExperiment/>
 </CodeGroup>
 
 ## Sample projects
