@@ -1,0 +1,131 @@
+---
+title: Run Experiments in Unit Tests
+description: Learn how to run experiments in unit tests that you can use during development, or in your CI/CD pipelines
+---
+
+Experiments are not only useful to evaluate your app manually, you can also use them in unit tests. This allows you to test your application code against known datasets, both at development time, and in your CI/CD pipelines.
+
+A typical pattern is to write one or more unit tests against the relevant parts of your application, running an experiment using a well-defined dataset of test cases in each unit test. Once the experiment is complete, you can assert based on the average value of the metrics used in the experiment.
+
+These unit tests typically lean more towards integration level tests, as these are run using your application code and an LLM.
+
+## Set up your unit test
+
+A typical set up for unit testing with evals is to have:
+
+- A [dataset](/sdk-api/experiments/datasets) with a set of well-defined inputs to your application.
+
+    When you initially develop your application, your dataset can be defined by a product expert or data science team, augmented with [synthetic data](/sdk-api/experiments/datasets#synthetic-data-generation). After your application is in production, you can then export real-world data from Log streams into your dataset.
+- A set of metrics that you want to evaluate in the experiment.
+
+    These can be [out-of-the-box metrics](/concepts/metrics/metric-comparison), or custom metrics, either using [LLM-as-a-judge](/concepts/metrics/custom-metrics/custom-metrics-ui-llm), or [code](/concepts/metrics/custom-metrics/custom-metrics-ui-code). For out-of-the-box or LLM-as-a-judge metrics, you will need an LLM integration configured to evaluate the metric.
+- An application to unit test.
+
+    This should be configured to use an actual LLM for the code under test, using the same LLM as production. Other parts of your application can be mocked as required.
+
+    You may need to configure the way you start, conclude, and flush sessions and traces differently in your application to support running this code using experiments. See our [run experiments with custom functions guide](/sdk-api/experiments/running-experiments#run-experiments-with-custom-functions) for more details.
+
+    <Note>
+    Although it can be tempting to use a different LLM (such as a cheaper one) during unit testing, using a different LLM to production will give unit test results that do not match the actual behavior of your production system.
+    </Note>
+
+## Run the experiment
+
+To run the experiment, create a unit test using the framework of your choice. You can then run an experiment using the run experiment function, passing in a named dataset, and calling your application code.
+
+When you run the experiment, you provide an experiment name. This needs to be unique, but if you set a non-unique name, the SDK will add the run date and time to the name in the created experiment to make it unique. This new name is returned in the response.
+
+<CodeGroup>
+```python python
+from galileo import GalileoScorers
+from galileo.experiments import run_experiment
+
+def test_run_experiment():
+    experiment_response = run_experiment(
+        experiment_name="test_run_experiment",
+        dataset_name="my-unit-test-dataset",
+        function=my_llm_function,
+        metrics=[
+            GalileoScorers.correctness,
+        ]
+    )
+```
+</CodeGroup>
+
+You can learn more about running functions in experiments in our [run experiments with custom functions guide](/sdk-api/experiments/running-experiments#run-experiments-with-custom-functions).
+
+## Check the results
+
+When you run an experiment, it starts running in the background. You can then poll for the status of the experiment, and when it is finished and all metrics are evaluated, check for the average values of each metric against the entire dataset. You can then assert against these values, for example failing the unit test if the average is less than a defined threshold.
+
+To poll the experiment, you retrieve it by name. If you used a non-unique name when running the experiment, then the actual name that is used with the date and time added is returned from the call to the run experiment function.
+
+<CodeGroup>
+```python Python
+from galileo.experiments import get_experiment
+
+# Get the experiment name from the response from run_experiment
+experiment_name = experiment_response["experiment"].name
+
+# Load the experiment by name
+experiment = get_experiment(experiment_name=experiment_name)
+```
+</CodeGroup>
+
+The returned experiment has an aggregate metrics property that will be set when the metrics have been calculated. This is a dictionary containing the average values, keyed off of `average_<metric_name>`, where `<metric_name>` is the value of the metric used, such as the value of a `GalileoScorers`, or the name of a custom metric.
+
+You can check the returned experiment for this property, and the metrics. If these are not yet set, wait a few seconds, re-get the experiment and check again.
+
+<CodeGroup>
+```python Python
+# Get the name of the average metric
+average_metric_name = f"average_{GalileoScorers.instruction_adherence.value}"
+
+# Poll till the metrics are calculated
+while (
+    experiment.aggregate_metrics is None
+    or average_metric_name
+        not in experiment.aggregate_metrics
+):
+    # If we don't have the metrics calculated,
+    # sleep for 5 seconds before polling again
+    time.sleep(5)
+
+    # Reload the experiment to see if we now have the metrics
+    experiment = get_experiment(experiment_name=experiment_name)
+```
+</CodeGroup>
+
+Once the metrics have been calculated, you can assert against the average value.
+
+<CodeGroup>
+```python Python
+# Assert that the average metric exceeds a certain threshold
+assert experiment.aggregate_metrics[average_metric_name] >= 0.95
+```
+</CodeGroup>
+
+## Sample projects
+
+The sample projects that are created when you create a new Galileo organization all contain unit tests that run experiments. Check out these projects for more details.
+
+<CardGroup cols={2}>
+<Card title="Simple Chatbot" icon="message" horizontal href="/getting-started/sample-projects/simple-chatbot">
+    Learn more about the simple chatbot sample project
+</Card>
+<Card title="Multi-Agent Banking Chatbot With LangGraph" icon="dollar-sign" horizontal href="/getting-started/sample-projects/multi-agent">
+    Learn more about the multi-agent banking chatbot with LangGraph sample project
+</Card>
+</CardGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="Run experiments in code" icon="code" horizontal href="/sdk-api/experiments/running-experiments">
+    Learn how to run experiments in Galileo using the Galileo SDKs
+</Card>
+<Card title="Datasets" icon="database" horizontal href="/sdk-api/experiments/datasets">
+    Learn about more datasets, the data driving your experiments.
+</Card>
+</CardGroup>
+
