@@ -14,16 +14,26 @@ class Scorers()
 #### list
 
 ```python
-def list(types: Optional[list[ScorerTypes]] = None) -> list[ScorerResponse]
+def list(name: Optional[str] = None,
+         types: Optional[list[ScorerTypes]] = None) -> list[ScorerResponse]
 ```
+
+Lists scorers, optionally filtering by name and/or type.
+
+The filters are combined with an AND condition, while the values within the `types`
+list are combined with an OR condition.
+
+For example, calling `list(name="my_scorer", types=[ScorerTypes.llm, ScorerTypes.code])`
+will return scorers where the name is &quot;my_scorer&quot; AND the type is either &quot;llm&quot; OR &quot;code&quot;.
 
 **Arguments**:
 
+- `name`: Name of the scorer to filter by.
 - `types`: List of scorer types to filter by. Defaults to all scorers.
 
 **Returns**:
 
-List of scorers
+A list of scorers that match the filter criteria.
 
 #### get\_scorer\_version
 
