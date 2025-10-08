@@ -125,6 +125,16 @@ Creates a new project.
 
 `Project`: The created project.
 
+#### delete\_project
+
+```python
+def delete_project(id: Optional[str] = None,
+                   name: Optional[str] = None) -> bool
+```
+
+Internal method to handle project deletion logic.
+
+
 #### get\_project
 
 ```python
@@ -192,4 +202,101 @@ Creates a new project.
 **Returns**:
 
 `Project`: The created project.
+
+#### share\_project\_with\_user
+
+```python
+def share_project_with_user(
+        project_id: str,
+        user_id: str,
+        role: CollaboratorRole = CollaboratorRole.VIEWER) -> UserCollaborator
+```
+
+Share a project with a user.
+
+**Arguments**:
+
+- `project_id` (`str`): The ID of the project.
+- `user_id` (`str`): The ID of the user.
+- `role` (`CollaboratorRole`): The role to assign to the user.
+
+**Returns**:
+
+`UserCollaborator`: The created user collaborator object.
+
+#### unshare\_project\_with\_user
+
+```python
+def unshare_project_with_user(project_id: str, user_id: str) -> None
+```
+
+Unshare a project with a user.
+
+**Arguments**:
+
+- `project_id` (`str`): The ID of the project.
+- `user_id` (`str`): The ID of the user.
+
+#### list\_user\_project\_collaborators
+
+```python
+def list_user_project_collaborators(project_id: str) -> list[UserCollaborator]
+```
+
+List all users that a project is shared with.
+
+**Arguments**:
+
+- `project_id` (`str`): The ID of the project.
+
+**Returns**:
+
+`List[UserCollaborator]`: A list of users that the project is shared with.
+
+#### update\_user\_project\_collaborator
+
+```python
+def update_user_project_collaborator(
+        project_id: str,
+        user_id: str,
+        role: CollaboratorRole = CollaboratorRole.VIEWER) -> UserCollaborator
+```
+
+Update a user&#x27;s role for a project.
+
+**Arguments**:
+
+- `project_id` (`str`): The ID of the project.
+- `user_id` (`str`): The ID of the user.
+- `role` (`CollaboratorRole`): The new role to assign to the user.
+
+**Returns**:
+
+`UserCollaborator`: The updated user collaborator object.
+
+#### delete\_project
+
+```python
+def delete_project(*,
+                   id: Optional[str] = None,
+                   name: Optional[str] = None) -> bool
+```
+
+Deletes a gen_ai project by ID or name (exactly one of `id` or `name` must be provided).
+
+**Arguments**:
+
+- `id` (`str`): The ID of the project to delete.
+- `name` (`str`): The name of the project to delete.
+
+**Raises**:
+
+- `ValueError`: If neither or both `id` and `name` are provided.
+- `ProjectsAPIException`: If the server returns an error response or if the project is not a gen_ai project.
+- `name`0: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+- `name`1: If the request takes longer than Client.timeout.
+
+**Returns**:
+
+`name`2: True if the project was successfully deleted, False otherwise.
 
