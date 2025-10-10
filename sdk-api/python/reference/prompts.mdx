@@ -17,6 +17,83 @@ class PromptTemplate(BasePromptTemplateResponse)
 class GlobalPromptTemplates()
 ```
 
+#### list
+
+```python
+def list(*,
+         name_filter: Optional[str] = None,
+         project_id: Optional[str] = None,
+         project_name: Optional[str] = None,
+         limit: Union[Unset, int] = 100,
+         starting_token: int = 0) -> builtins.list[PromptTemplate]
+```
+
+List global prompt templates with optional filtering.
+
+**Arguments**:
+
+- `name_filter` (`Optional[str]`): Filter templates by name containing this string. Defaults to None.
+- `project_id` (`Optional[str]`): Filter templates by project ID. Returns templates used in the specified project. Defaults to None.
+- `project_name` (`Optional[str]`): Filter templates by project name. Returns templates used in the specified project. Defaults to None.
+Cannot be used together with project_id.
+- `limit` (`Union[Unset, int]`): Maximum number of templates to return. Defaults to 100.
+- `starting_token` (`int`): Starting token for pagination. Defaults to 0.
+
+**Raises**:
+
+- `Optional[str]`0: If both project_id and project_name are provided, or if project_name doesn&#x27;t exist.
+
+**Returns**:
+
+`Optional[str]`1: List of prompt templates matching the criteria.
+
+#### delete
+
+```python
+def delete(*,
+           template_id: Optional[str] = None,
+           name: Optional[str] = None) -> None
+```
+
+Delete a global prompt template by ID or name.
+
+**Arguments**:
+
+- `template_id` (`Optional[str]`): The unique identifier of the template to delete. Defaults to None.
+- `name` (`Optional[str]`): The name of the template to delete. Defaults to None.
+
+**Raises**:
+
+- `ValueError`: If neither or both template_id and name are provided, or if the template is not found.
+
+#### create
+
+```python
+def create(name: str,
+           template: Union[builtins.list[Message], str],
+           project_id: Optional[str] = None,
+           project_name: Optional[str] = None) -> PromptTemplate
+```
+
+Create a new global prompt template.
+
+**Arguments**:
+
+- `name` (`str`): The name for the new template.
+- `template` (`Union[list[Message], str]`): The template content. Can be either a list of Message objects or a JSON string.
+- `project_id` (`Optional[str]`): The project ID to associate with this template. Defaults to None.
+- `project_name` (`Optional[str]`): The project name to associate with this template. Defaults to None.
+Cannot be used together with project_id.
+
+**Raises**:
+
+- `PromptTemplateAPIException`: If the API request fails or returns an error.
+- `ValueError`: If both project_id and project_name are provided, or if project_name doesn&#x27;t exist.
+
+**Returns**:
+
+`str`0: The created prompt template.
+
 #### update
 
 ```python
@@ -70,7 +147,9 @@ Render a template with provided data.
 ```python
 def get_prompt(*,
                id: Optional[str] = None,
-               name: Optional[str] = None) -> Optional[PromptTemplate]
+               name: Optional[str] = None,
+               project_id: Optional[str] = None,
+               project_name: Optional[str] = None) -> Optional[PromptTemplate]
 ```
 
 Retrieves a global prompt template.
@@ -81,6 +160,8 @@ You must provide either &#x27;id&#x27; or &#x27;name&#x27;, but not both.
 
 - `id` (`str`): The unique identifier of the template to retrieve. Defaults to None.
 - `name` (`str`): The name of the template to retrieve. Defaults to None.
+- `project_id` (`str`): Use get_prompts(project_id=...) to filter templates by project. Defaults to None.
+- `project_name` (`str`): Use get_prompts(project_name=...) to filter templates by project. Defaults to None.
 
 **Raises**:
 
@@ -95,15 +176,21 @@ You must provide either &#x27;id&#x27; or &#x27;name&#x27;, but not both.
 ```python
 def delete_prompt(*,
                   id: Optional[str] = None,
-                  name: Optional[str] = None) -> None
+                  name: Optional[str] = None,
+                  project_id: Optional[str] = None,
+                  project_name: Optional[str] = None) -> None
 ```
 
 Delete a global prompt template by ID or name.
+
+You must provide either &#x27;id&#x27; or &#x27;name&#x27;, but not both.
 
 **Arguments**:
 
 - `id` (`str`): The unique identifier of the template to delete. Defaults to None.
 - `name` (`str`): The name of the template to delete. Defaults to None.
+- `project_id` (`str`): None
+- `project_name` (`str`): None
 
 **Raises**:
 
@@ -139,11 +226,37 @@ Update a global prompt template by ID or name.
 
 `PromptTemplate`: The updated prompt template.
 
+#### create\_prompt\_template
+
+```python
+def create_prompt_template(name: str, project: str,
+                           messages: builtins.list[Message]) -> PromptTemplate
+```
+
+Create a new global prompt template.
+
+**Arguments**:
+
+- `name` (`str`): The name for the new template.
+- `project` (`str`): The project name to associate with this template.
+- `messages` (`list[Message]`): The template content as a list of Message objects.
+
+**Raises**:
+
+- `PromptTemplateAPIException`: If the API request fails or returns an error.
+- `ValueError`: If project doesn&#x27;t exist.
+
+**Returns**:
+
+`PromptTemplate`: The created prompt template.
+
 #### create\_prompt
 
 ```python
-def create_prompt(name: str, template: Union[list[Message],
-                                             str]) -> PromptTemplate
+def create_prompt(name: str,
+                  template: Union[builtins.list[Message], str],
+                  project_id: Optional[str] = None,
+                  project_name: Optional[str] = None) -> PromptTemplate
 ```
 
 Create a new global prompt template.
@@ -153,20 +266,29 @@ Create a new global prompt template.
 - `name` (`str`): The name for the new template.
 - `template` (`Union[list[Message], str]`): The template content. Can be either a list of Message objects or a JSON string
 representing the message structure.
+- `project_id` (`Optional[str]`): The project ID to associate with this template. When provided, the template
+will be linked to the specified project. Defaults to None.
+- `project_name` (`Optional[str]`): The project name to associate with this template. When provided, the template
+will be linked to the specified project. Defaults to None.
+Cannot be used together with project_id.
 
 **Raises**:
 
 - `PromptTemplateAPIException`: If the API request fails or returns an error.
+- `ValueError`: If both project_id and project_name are provided, or if project_name doesn&#x27;t exist.
 
 **Returns**:
 
-`PromptTemplate`: The created prompt template.
+`str`0: The created prompt template.
 
 #### get\_prompts
 
 ```python
-def get_prompts(name_filter: Optional[str] = None,
-                limit: Union[Unset, int] = 100) -> list[PromptTemplate]
+def get_prompts(
+        name_filter: Optional[str] = None,
+        project_id: Optional[str] = None,
+        project_name: Optional[str] = None,
+        limit: Union[Unset, int] = 100) -> builtins.list[PromptTemplate]
 ```
 
 List global prompt templates with optional filtering.
@@ -174,7 +296,14 @@ List global prompt templates with optional filtering.
 **Arguments**:
 
 - `name_filter` (`Optional[str]`): Filter templates by name containing this string. Defaults to None (no filtering).
+- `project_id` (`Optional[str]`): Filter templates by project ID. Returns templates used in the specified project. Defaults to None.
+- `project_name` (`Optional[str]`): Filter templates by project name. Returns templates used in the specified project. Defaults to None.
+Cannot be used together with project_id.
 - `limit` (`Union[Unset, int]`): Maximum number of templates to return. Defaults to 100.
+
+**Raises**:
+
+- `ValueError`: If both project_id and project_name are provided, or if project_name doesn&#x27;t exist.
 
 **Returns**:
 
