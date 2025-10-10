@@ -9,9 +9,10 @@ title: export
 
 ```python
 def export_records(project_id: str,
-                   root_type: RootType,
-                   filters: list[FilterType],
-                   sort: LogRecordsSortClause,
+                   root_type: RootType = RootType.TRACE,
+                   filters: Optional[list[FilterType]] = None,
+                   sort: LogRecordsSortClause = LogRecordsSortClause(
+                       column_id="created_at", ascending=False),
                    export_format: LLMExportFormat = LLMExportFormat.JSONL,
                    log_stream_id: Optional[str] = None,
                    experiment_id: Optional[str] = None,
@@ -20,6 +21,8 @@ def export_records(project_id: str,
 ```
 
 Exports records from a Galileo project.
+
+Defaults to the first logstream if `log_stream_id` and `experiment_id` are not provided.
 
 **Arguments**:
 
@@ -31,7 +34,7 @@ Exports records from a Galileo project.
 - `filters`: A list of filters to apply to the export.
 - `column_ids`: A list of column IDs to include in the export.
 - `sort`: A sort clause to order the exported records.
-- `redact`: Redact sensitive data from the response.
+- `experiment_id`0: Redact sensitive data from the response.
 
 **Returns**:
 
