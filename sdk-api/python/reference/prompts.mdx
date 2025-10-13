@@ -160,8 +160,8 @@ You must provide either &#x27;id&#x27; or &#x27;name&#x27;, but not both.
 
 - `id` (`str`): The unique identifier of the template to retrieve. Defaults to None.
 - `name` (`str`): The name of the template to retrieve. Defaults to None.
-- `project_id` (`str`): Use get_prompts(project_id=...) to filter templates by project. Defaults to None.
-- `project_name` (`str`): Use get_prompts(project_name=...) to filter templates by project. Defaults to None.
+- `project_id` (`str`): **Deprecated.** This parameter is ignored. Use get_prompts(project_id=...) to filter templates by project.
+- `project_name` (`str`): **Deprecated.** This parameter is ignored. Use get_prompts(project_name=...) to filter templates by project.
 
 **Raises**:
 
@@ -189,8 +189,8 @@ You must provide either &#x27;id&#x27; or &#x27;name&#x27;, but not both.
 
 - `id` (`str`): The unique identifier of the template to delete. Defaults to None.
 - `name` (`str`): The name of the template to delete. Defaults to None.
-- `project_id` (`str`): None
-- `project_name` (`str`): None
+- `project_id` (`str`): **Deprecated.** This parameter is ignored.
+- `project_name` (`str`): **Deprecated.** This parameter is ignored.
 
 **Raises**:
 
@@ -339,4 +339,104 @@ Render a template with provided data.
 **Returns**:
 
 `Optional[RenderTemplateResponse]`: The rendered template response if successful, None otherwise.
+
+#### list\_prompt\_templates
+
+```python
+def list_prompt_templates(project: str) -> builtins.list[PromptTemplate]
+```
+
+List prompt templates for a project.
+
+**Arguments**:
+
+- `project` (`str`): The project name to filter templates by.
+
+**Returns**:
+
+`list[PromptTemplate]`: List of prompt templates associated with the project.
+
+#### get\_prompt\_template
+
+```python
+def get_prompt_template(name: str, project: str) -> Optional[PromptTemplate]
+```
+
+Get a prompt template by name from a specific project.
+
+**Arguments**:
+
+- `name` (`str`): The name of the template.
+- `project` (`str`): The project name (ignored - templates are now global).
+
+**Returns**:
+
+`Optional[PromptTemplate]`: The template if found, None otherwise.
+
+## PromptTemplates Objects
+
+```python
+class PromptTemplates()
+```
+
+Class for managing project-specific prompt templates.
+
+
+#### list
+
+```python
+def list() -> builtins.list[PromptTemplate]
+```
+
+List templates for this project.
+
+**Returns**:
+
+`list[PromptTemplate]`: List of templates associated with the project.
+
+#### get
+
+```python
+def get(*, name: str) -> Optional[PromptTemplate]
+```
+
+Get a template by name from this project.
+
+**Arguments**:
+
+- `name` (`str`): The template name.
+
+**Returns**:
+
+`Optional[PromptTemplate]`: The template if found, None otherwise.
+
+#### create
+
+```python
+def create(name: str, template: Union[builtins.list[Message],
+                                      str]) -> PromptTemplate
+```
+
+Create a template in this project.
+
+**Arguments**:
+
+- `name` (`str`): The template name.
+- `template` (`Union[list[Message], str]`): The template content.
+
+**Returns**:
+
+`PromptTemplate`: The created template.
+
+#### delete
+
+```python
+def delete(*, name: str) -> None
+```
+
+Delete a template by name from this project.
+
+**Arguments**:
+
+- `name` (`str`): The template name.
 
