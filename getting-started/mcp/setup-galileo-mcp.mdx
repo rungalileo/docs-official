@@ -13,7 +13,7 @@ The Galileo Model Context Protocol (MCP) server enables seamless integration bet
 - Creating and managing datasets
 - Running experiments
 - Setting up prompt templates
-- Getting insights on log streams
+- Getting insights on Log streams
 - Integrating Galileo with your code
 
 ## Prerequisites
@@ -22,15 +22,15 @@ Before you begin, ensure you have the following:
 
 <Steps>
   <Step title="AI-enabled IDE">
-    Install an AI-enabled IDE such as [Cursor](https://cursor.sh) or [VS Code](https://code.visualstudio.com) with AI capabilities
+  Install an AI-enabled IDE such as [Cursor](https://cursor.sh) or [VS Code](https://code.visualstudio.com) with AI capabilities
   </Step>
   
   <Step title="Galileo Account">
-    Create a free Galileo account at [galileo.ai/sign-up](https://galileo.ai/sign-up)
+  Create a free Galileo account at [galileo.ai/sign-up](https://galileo.ai/sign-up)
   </Step>
   
   <Step title="API Keys">
-    Generate your Galileo API key from the [API keys page](https://app.galileo.ai/settings/api-keys)
+  Generate your Galileo API key from the [API keys page](https://app.galileo.ai/settings/api-keys)
   </Step>
 </Steps>
 
@@ -52,31 +52,36 @@ The Galileo MCP server works with both Cursor and VS Code. Follow the steps belo
 
 <Steps>
   <Step title="Open IDE Settings">
-    Open the Settings tab by pressing `Cmd + ,` (Mac) or `Ctrl + ,` (Windows/Linux)
+  Open the Settings tab by pressing `Cmd + ,` (Mac) or `Ctrl + ,` (Windows/Linux)
   </Step>
   
   <Step title="Navigate to MCP Tools">
-    Navigate to **MCP Tools** and select **New MCP Server**
+  Navigate to **MCP Tools** and select **New MCP Server**
   </Step>
   
   <Step title="Add Galileo MCP Configuration">
-    Copy and paste the configuration below. Ensure you add your actual Galileo API key.
-    
-    <CursorConfig />
+  Copy and paste the configuration below. Ensure you add your actual
+  Galileo API key.
+
+  <CursorConfig />
   </Step>
-  
+
   <Step title="Save and Restart">
-    Save the configuration and restart your IDE for the changes to take effect
+  Save the configuration and restart your IDE for the changes to take
+  effect
   </Step>
 </Steps>
 
 <Tip>
-  The configuration is the same for both Cursor and VS Code. Make sure to replace `YOUR-API-KEY` with your actual Galileo API key from the [API keys page](https://app.galileo.ai/settings/api-keys).
+  The configuration is the same for both Cursor and VS Code. Make sure to
+  replace `YOUR-API-KEY` with your actual Galileo API key from the
+  [API keys page](https://app.galileo.ai/settings/api-keys).
 </Tip>
 
 ## Verify Your Setup
 
-Once configured, you can verify your MCP setup by asking your AI assistant in your IDE:
+Once configured, you can verify your MCP setup by asking your AI assistant
+in your IDE:
 
 <CodeGroup>
 ```text Example Query
@@ -90,166 +95,224 @@ Help me create a synthetic dataset for customer support queries
 ```text Integration Query
 How do I integrate Galileo with LangChain?
 ```
+
 </CodeGroup>
 
-Your AI assistant should now be able to access Galileo's capabilities and respond with information from your Galileo account.
+Your AI assistant should now be able to access Galileo's capabilities and
+respond with information from your Galileo account.
 
 ## Tools
 
-The Galileo MCP server provides the following tools that you can use directly through your AI assistant:
+The Galileo MCP server provides the following tools that you can use
+directly through your AI assistant:
 
 <AccordionGroup>
   <Accordion title="create_galileo_dataset">
-    Create a new Galileo dataset with multiple data source options including synthetic generation, CSV upload, or JSON data.
-    
-    **Required Parameters:**
-    - `description` (string): Description of the dataset and instructions for synthetic generation
-    
-    **Optional Parameters:**
-    - `data_source_type` (string): Type of data source - "synthetic", "csv", or "json" (default: "synthetic")
-    - `count` (integer): Number of synthetic samples to generate, 1-100 (default: 10)
-    - `data_types` (array): Types of data to generate - "General Query", "Prompt Injection", "Off-Topic Query", "Toxic Content in Query", "Multiple Questions in Query", "Sexist Content in Query"
-    - `model` (string): Model for synthetic generation (default: "gpt-4.1-mini")
-    - `sample_data` (string): Sample data to use as reference during generation
-    - `csv_content` (string): CSV file content as string (for CSV data source)
-    - `json_data` (string): JSON data as string or array of objects (for JSON data source)
-    - `name` (string): Name for the dataset (default: "New Dataset")
-    - `project_id` (string): Specific project ID to create dataset in
-    
-    **Example:**
-    ```
-    Create a dataset with 20 customer support queries about product returns
-    ```
+  Create a new Galileo dataset with multiple data source options including
+  synthetic generation, CSV upload, or JSON data.
+
+  **Required Parameters:**
+
+  - `description` (string): Description of the dataset and instructions
+    for synthetic generation
+
+  **Optional Parameters:**
+
+  - `data_source_type` (string): Type of data source - "synthetic",
+    "csv", or "json" (default: "synthetic")
+  - `count` (integer): Number of synthetic samples to generate, 1-100
+    (default: 10)
+  - `data_types` (array): Types of data to generate - "General Query",
+    "Prompt Injection", "Off-Topic Query", "Toxic Content in Query",
+    "Multiple Questions in Query", "Sexist Content in Query"
+  - `model` (string): Model for synthetic generation
+    (default: "gpt-4.1-mini")
+  - `sample_data` (string): Sample data to use as reference during
+    generation
+  - `csv_content` (string): CSV file content as string
+    (for CSV data source)
+  - `json_data` (string): JSON data as string or array of objects
+    (for JSON data source)
+  - `name` (string): Name for the dataset (default: "New Dataset")
+  - `project_id` (string): Specific project ID to create dataset in
+
+  **Example:**
+
+  ```text
+  Create a dataset with 20 customer support queries about product returns
+  ```
   </Accordion>
   
   <Accordion title="validate_dataset">
-    Check the status of a synthetic dataset generation job and view dataset contents. Shows the first 10 rows for preview.
-    
-    **Required Parameters:**
-    - `dataset_id` (string): The ID of the dataset to check
-    
-    **Returns:**
-    - Current status and progress of the generation job
-    - Preview of the first 10 rows with column names and values
-    - Total number of rows in the dataset
-    
-    **Example:**
-    ```
-    Check the status of my dataset generation job for dataset ID abc-123
-    ```
+  Check the status of a synthetic dataset generation job and view dataset
+  contents. Shows the first 10 rows for preview.
+
+  **Required Parameters:**
+
+  - `dataset_id` (string): The ID of the dataset to check
+
+  **Returns:**
+
+  - Current status and progress of the generation job
+  - Preview of the first 10 rows with column names and values
+  - Total number of rows in the dataset
+
+  **Example:**
+
+  ```text
+  Check the status of my dataset generation job for dataset ID abc-123
+  ```
   </Accordion>
   
   <Accordion title="create_prompt_template">
-    Create a new global prompt template that can be used across all projects.
-    
-    **Required Parameters:**
-    - `name` (string): A descriptive name for the prompt template
-    - `template` (string): The prompt template content (plain text or JSON format for chat templates)
-    
-    **Optional Parameters:**
-    - `raw` (boolean): Whether this is a raw template (default: false)
-    - `output_type` (string): Expected output type for the template
-    - `model_alias` (string): Model to use with this template (default: "gpt-4.1-mini")
-    - `temperature` (number): Controls randomness, 0.0 to 2.0 (default: 0.7)
-    - `max_tokens` (integer): Maximum number of tokens in response (default: 1000)
-    - `top_p` (number): Controls diversity, 0.0 to 1.0 (default: 1.0)
-    - `frequency_penalty` (number): Penalty for frequent tokens, -2.0 to 2.0 (default: 0.0)
-    - `presence_penalty` (number): Penalty for repeated tokens, -2.0 to 2.0 (default: 0.0)
-    - `project_id` (string): Specific project ID for the template
-    
-    **Example:**
-    ```
-    Create a prompt template named "Customer Support Response" for handling customer inquiries
-    ```
+  Create a new global prompt template that can be used across all
+  projects.
+
+  **Required Parameters:**
+
+  - `name` (string): A descriptive name for the prompt template
+  - `template` (string): The prompt template content (plain text or JSON
+    format for chat templates)
+
+  **Optional Parameters:**
+
+  - `raw` (boolean): Whether this is a raw template (default: false)
+  - `output_type` (string): Expected output type for the template
+  - `model_alias` (string): Model to use with this template
+    (default: "gpt-4.1-mini")
+  - `temperature` (number): Controls randomness, 0.0 to 2.0
+    (default: 0.7)
+  - `max_tokens` (integer): Maximum number of tokens in response
+    (default: 1000)
+  - `top_p` (number): Controls diversity, 0.0 to 1.0 (default: 1.0)
+  - `frequency_penalty` (number): Penalty for frequent tokens, -2.0 to
+    2.0 (default: 0.0)
+  - `presence_penalty` (number): Penalty for repeated tokens, -2.0 to
+    2.0 (default: 0.0)
+  - `project_id` (string): Specific project ID for the template
+
+  **Example:**
+
+  ```text
+  Create a prompt template named "Customer Support Response" for handling
+  customer inquiries
+  ```
   </Accordion>
   
   <Accordion title="setup_galileo_experiment">
-    Get complete setup and creation guide for Galileo experiments using the Galileo SDK.
-    
-    **Optional Parameters:**
-    - `language` (string): Programming language for experiment setup guide (default: "python")
-    
-    **Provides:**
-    - Complete experiment setup code examples and instructions
-    - Step-by-step guide for creating and running experiments
-    - Dataset preparation and metrics configuration
-    - Integration with existing application code
-    - Advanced usage patterns for agentic/RAG workflows
-    
-    **Example:**
-    ```
-    How do I set up a Galileo experiment in Python?
-    ```
+  Get complete setup and creation guide for Galileo experiments using the
+  Galileo SDK.
+
+  **Optional Parameters:**
+
+  - `language` (string): Programming language for experiment setup guide
+    (default: "python")
+
+  **Provides:**
+
+  - Complete experiment setup code examples and instructions
+  - Step-by-step guide for creating and running experiments
+  - Dataset preparation and metrics configuration
+  - Integration with existing application code
+  - Advanced usage patterns for agentic/RAG workflows
+
+  **Example:**
+
+  ```text
+  How do I set up a Galileo experiment in Python?
+  ```
   </Accordion>
   
   <Accordion title="get_logstream_insights">
-    Get insights for a log stream in a given project to identify issues, patterns, and receive improvement suggestions.
-    
-    **Required Parameters:**
-    - `project` (string): The name of the project
-    - `log_stream` (string): The name of the log stream
-    
-    **Returns:**
-    - List of insights about the log stream
-    - Identified issues and patterns
-    - Suggestions for improvements
-    
-    **Example:**
-    ```
-    Get insights about my log stream "production" in the "customer-support" project
-    ```
+  Get insights for a Log stream in a given project to identify issues,
+  patterns, and receive improvement suggestions.
+
+  **Required Parameters:**
+
+  - `project` (string): The name of the project
+  - `log_stream` (string): The name of the Log stream
+
+  **Returns:**
+
+  - List of insights about the Log stream
+  - Identified issues and patterns
+  - Suggestions for improvements
+
+  **Example:**
+
+  ```text
+  Get insights about my Log stream "production" in the
+  "customer-support" project
+  ```
   </Accordion>
   
   <Accordion title="integrate_galileo_with_openai">
-    Get complete integration guide for adding Galileo observability to OpenAI API applications.
-    
-    **Optional Parameters:**
-    - `language` (string): Programming language for integration guide - "python" or "typescript" (default: "python")
-    
-    **Provides:**
-    - Complete integration code examples and setup instructions
-    - Automatic logging of prompts, responses, model parameters, and token usage
-    - Environment configuration templates
-    - Language-specific best practices
-    
-    **Example:**
-    ```
-    How do I integrate Galileo with my OpenAI application in TypeScript?
-    ```
+  Get complete integration guide for adding Galileo observability to
+  OpenAI API applications.
+
+  **Optional Parameters:**
+
+  - `language` (string): Programming language for integration guide -
+    "python" or "typescript" (default: "python")
+
+  **Provides:**
+
+  - Complete integration code examples and setup instructions
+  - Automatic logging of prompts, responses, model parameters, and token
+    usage
+  - Environment configuration templates
+  - Language-specific best practices
+
+  **Example:**
+
+  ```text
+  How do I integrate Galileo with my OpenAI application in TypeScript?
+  ```
   </Accordion>
   
   <Accordion title="integrate_galileo_with_langchain">
-    Get complete integration guide for adding Galileo observability to LangChain applications.
-    
-    **Optional Parameters:**
-    - `language` (string): Programming language for integration guide (default: "python")
-    
-    **Provides:**
-    - Complete integration code examples and setup instructions
-    - Automatic logging of prompts, responses, model parameters, and token usage
-    - Environment configuration templates
-    - Language-specific best practices
-    
-    **Example:**
-    ```
-    How do I integrate Galileo with LangChain in Python?
-    ```
+  Get complete integration guide for adding Galileo observability to
+  LangChain applications.
+
+  **Optional Parameters:**
+
+  - `language` (string): Programming language for integration guide
+    (default: "python")
+
+  **Provides:**
+
+  - Complete integration code examples and setup instructions
+  - Automatic logging of prompts, responses, model parameters, and token
+    usage
+  - Environment configuration templates
+  - Language-specific best practices
+
+  **Example:**
+
+  ```text
+  How do I integrate Galileo with LangChain in Python?
+  ```
   </Accordion>
   
   <Accordion title="search_docs">
-    Search across the Galileo documentation to find relevant information, code examples, API references, and guides.
-    
-    **Required Parameters:**
-    - `query` (string): The search query to find relevant documentation
-    
-    **Returns:**
-    - Relevant documentation content and links based on the search query
-    - Contextual content with titles and direct links to documentation pages
-    
-    **Example:**
-    ```
-    Search for how to set up data logging in Galileo
-    ```
+  Search across the Galileo documentation to find relevant information,
+  code examples, API references, and guides.
+
+  **Required Parameters:**
+
+  - `query` (string): The search query to find relevant documentation
+
+  **Returns:**
+
+  - Relevant documentation content and links based on the search query
+  - Contextual content with titles and direct links to documentation
+    pages
+
+  **Example:**
+
+  ```text
+  Search for how to set up data logging in Galileo
+  ```
   </Accordion>
 </AccordionGroup>
 
@@ -260,11 +323,12 @@ The Galileo MCP server provides the following tools that you can use directly th
 Ask your AI assistant:
 
 ```text
-Create a synthetic dataset with 20 customer service queries about product returns. 
-Include both general queries and off-topic queries.
+Create a synthetic dataset with 20 customer service queries about product
+returns. Include both general queries and off-topic queries.
 ```
 
-The MCP server will guide you through the dataset creation process and provide a dataset ID to track progress.
+The MCP server will guide you through the dataset creation process and
+provide a dataset ID to track progress.
 
 ### Get Integration Help
 
@@ -274,38 +338,39 @@ Ask your AI assistant:
 How do I integrate Galileo with my LangChain application in Python?
 ```
 
-The MCP server will provide complete integration code examples and setup instructions.
+The MCP server will provide complete integration code examples and setup
+instructions.
 
 ### Analyze Your Application
 
 Ask your AI assistant:
 
 ```text
-Get insights about my log stream in the customer-support project
+Get insights about my Log stream in the customer-support project
 ```
 
-The MCP server will analyze your log stream and suggest improvements.
+The MCP server will analyze your Log stream and suggest improvements.
 
 ## Troubleshooting
 
 <AccordionGroup>
   <Accordion title="MCP server not responding">
-    - Verify your Galileo API key is correct and active
-    - Check that the MCP server URL is set to `https://api.galileo.ai/evals_in_ide/http/mcp`
-    - Ensure the `Accept` header is set to `text/event-stream`
-    - Restart your IDE after making configuration changes
+  - Verify your Galileo API key is correct and active
+  - Check that the MCP server URL is set to `https://api.galileo.ai/evals_in_ide/http/mcp`
+  - Ensure the `Accept` header is set to `text/event-stream`
+  - Restart your IDE after making configuration changes
   </Accordion>
   
   <Accordion title="API key errors">
-    - Confirm your API key is properly set in the configuration
-    - Check that your API key has not expired
-    - Generate a new API key from the [API keys page](https://app.galileo.ai/settings/api-keys)
+  - Confirm your API key is properly set in the configuration
+  - Check that your API key has not expired
+  - Generate a new API key from the [API keys page](https://app.galileo.ai/settings/api-keys)
   </Accordion>
   
   <Accordion title="Connection issues">
-    - Verify your internet connection
-    - Check if you're behind a corporate firewall that might block the connection
-    - Try accessing [app.galileo.ai](https://app.galileo.ai) in your browser to confirm connectivity
+  - Verify your internet connection
+  - Check if you're behind a corporate firewall that might block the connection
+  - Try accessing [app.galileo.ai](https://app.galileo.ai) in your browser to confirm connectivity
   </Accordion>
 </AccordionGroup>
 
@@ -313,16 +378,16 @@ The MCP server will analyze your log stream and suggest improvements.
 
 <CardGroup cols={2}>
   <Card title="Log Your First Trace" icon="code" horizontal href="/getting-started/quickstart">
-    Learn how to log your first trace with Galileo
+  Learn how to log your first trace with Galileo
   </Card>
   <Card title="Run Your First Experiment" icon="flask" horizontal href="/getting-started/experiments">
-    Set up and run experiments to evaluate your AI applications
+  Set up and run experiments to evaluate your AI applications
   </Card>
   <Card title="Explore Integrations" icon="plug" horizontal href="/sdk-api/third-party-integrations/overview">
-    Learn about Galileo integrations with third-party frameworks
+  Learn about Galileo integrations with third-party frameworks
   </Card>
   <Card title="Browse Cookbooks" icon="book" horizontal href="/cookbooks/overview">
-    Follow step-by-step tutorials for common AI tasks
+  Follow step-by-step tutorials for common AI tasks
   </Card>
 </CardGroup>
 
