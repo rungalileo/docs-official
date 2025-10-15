@@ -464,6 +464,16 @@ Async upload all traces to Galileo.
 
 - `List[Trace]`: The list of uploaded workflows.
 
+### async_ingest_traces
+
+```python
+async def async_ingest_traces(self, ingest_request: TracesIngestRequest) -> None
+```
+
+Async ingest traces to Galileo.
+
+Can be used in combination with the `ingestion_hook` to ingest modified traces.
+
 ### async_start_session
 
 ```python
@@ -529,6 +539,16 @@ Upload all traces to Galileo.
 
 - `List[Trace]`: The list of uploaded traces.
 
+### ingest_traces
+
+```python
+def ingest_traces(self, ingest_request: TracesIngestRequest) -> None
+```
+
+Ingest traces to Galileo.
+
+Can be used in combination with the `ingestion_hook` to ingest modified traces.
+
 ### set_session
 
 ```python
@@ -593,41 +613,29 @@ Once this trace is complete, you can close it out by calling conclude().
 
 - `input` (`StepAllowedInputType`): Input to the node.
     Expected format: String or sequence of Message objects.
+    Examples -
+        - String: "User query: What is the weather today?"
+        - Messages: `[Message(content="Hello", role=MessageRole.user)]`
+- `redacted_input` (`Optional[StepAllowedInputType]`): Redacted input to the node.
+    Same format as input parameter.
+- `name` (`Optional[str]`): Name of the trace.
+    Example: "weather_query_trace", "customer_support_session"
+- `duration_ns` (`Optional[int]`): Duration of the trace in nanoseconds.
+- `created_at` (`Optional[datetime]`): Timestamp of the trace's creation.
+- `metadata` (`Optional[dict[str, str]]`): Metadata associated with this trace.
+    Expected format: `{"key1": "value1", "key2": "value2"}`
+- `tags` (`Optional[list[str]]`): Tags associated with this trace.
+    Expected format: `["tag1", "tag2", "tag3"]`
+- `dataset_input` (`Optional[str]`): Input from the associated dataset.
+- `dataset_output` (`Optional[str]`): Expected output from the associated dataset.
+- `dataset_metadata` (`Optional[dict[str, str]]`): Metadata from the associated dataset.
+    Expected format: `{"key1": "value1", "key2": "value2"}`
+- `external_id` (`Optional[str]`): External ID for this trace to connect to external systems.
+    Expected format: Unique identifier string.
 
 **Returns**
 
 - `Trace`: The created trace.
-
-**Examples**
-
-- String: "User query: What is the weather today?"
-        - Messages: `[Message(content="Hello", role=MessageRole.user)]`
-redacted_input: Optional[StepAllowedInputType]
-    Redacted input to the node.
-    Same format as input parameter.
-name: Optional[str]
-    Name of the trace.
-    Example: "weather_query_trace", "customer_support_session"
-duration_ns: Optional[int]
-    Duration of the trace in nanoseconds.
-created_at: Optional[datetime]
-    Timestamp of the trace's creation.
-metadata: Optional[dict[str, str]]
-    Metadata associated with this trace.
-    Expected format: `{"key1": "value1", "key2": "value2"}`
-tags: Optional[list[str]]
-    Tags associated with this trace.
-    Expected format: `["tag1", "tag2", "tag3"]`
-dataset_input: Optional[str]
-    Input from the associated dataset.
-dataset_output: Optional[str]
-    Expected output from the associated dataset.
-dataset_metadata: Optional[dict[str, str]]
-    Metadata from the associated dataset.
-    Expected format: `{"key1": "value1", "key2": "value2"}`
-external_id: Optional[str]
-    External ID for this trace to connect to external systems.
-    Expected format: Unique identifier string.
 
 ### terminate
 
