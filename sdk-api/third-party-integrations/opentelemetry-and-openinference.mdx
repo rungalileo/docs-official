@@ -32,7 +32,7 @@ from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExport
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 # Galileo's OpenTelemetry endpoint
-endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
+endpoint = "https://api.galileo.ai/otel/traces"
 
 # Configure OTLP exporter
 exporter = OTLPSpanExporter(endpoint=endpoint)
@@ -40,7 +40,7 @@ span_processor = BatchSpanProcessor(exporter)
 ```
 
 <Note>  
-If you're using a self-hosted or custom Galileo deployment, replace `app.galileo.ai` with your deployment URL.  
+If you're using a self-hosted or custom Galileo deployment, replace `api.galileo.ai` with your deployment URL.
 </Note>  
 
 ## Set up authentication headers
@@ -88,7 +88,7 @@ os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(
 )
 
 # Configure OpenTelemetry
-endpoint = "https://app.galileo.ai/api/galileo/otel/traces"
+endpoint = "https://api.galileo.ai/otel/traces"
 resource = Resource.create({
     "service.name": "your-service-name",
     "service.version": "1.0.0",
