@@ -46,23 +46,52 @@ Also refreshes the content of the local dataset instance.
 
 - `Union[None, DatasetContent]`: The content of the dataset
 
+### list_projects
+
+```python
+def list_projects(self, limit: Union[Unset, int]=100) -> list
+```
+
+Lists all projects that this dataset is associated with.
+
+**Arguments**
+
+- `limit` (`Union[Unset, int]`): The maximum number of projects to return. Default is 100.
+
+**Raises**
+
+- `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+- `httpx.TimeoutException`: If the request takes longer than Client.timeout.
+
+**Returns**
+
+- `List[DatasetProject]`: A list of projects this dataset is used in.
+
 ## Datasets
 
 ### create
 
 ```python
-def create(self, name: str, content: DatasetType) -> Dataset
+def create(self,
+           name: str,
+           content: DatasetType,
+           *,
+           project_id: Optional[str]=None,
+           project_name: Optional[str]=None) -> Dataset
 ```
 
-Creates a new dataset.
+Creates a new dataset, optionally associating it with a project.
 
 **Arguments**
 
 - `name` (`str`): The name of the dataset.
 - `content` (`DatasetType`): The content of the dataset.
+- `project_id` (`str`): Associate the dataset with this project by ID. Mutually exclusive with project_name.
+- `project_name` (`str`): Associate the dataset with this project by name. Mutually exclusive with project_id.
 
 **Raises**
 
+- `ValueError`: If both project_id and project_name are provided, or if the specified project does not exist.
 - `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
 - `httpx.TimeoutException`: If the request takes longer than Client.timeout.
 
@@ -73,18 +102,32 @@ Creates a new dataset.
 ### delete
 
 ```python
-def delete(self, *, id: Optional[str]=None, name: Optional[str]=None) -> None
+def delete(self,
+           *,
+           id: Optional[str]=None,
+           name: Optional[str]=None,
+           project_id: Optional[str]=None,
+           project_name: Optional[str]=None) -> None
 ```
 
 Deletes a dataset by id or name.
+
+Optionally validates that the dataset is used in a specific project before deletion.
 
 **Arguments**
 
 - `id` (`str`): The id of the dataset.
 - `name` (`str`): The name of the dataset.
+- `project_id` (`str`): Validate that the dataset is used in this project by ID before deletion.
+    Mutually exclusive with project_name.
+- `project_name` (`str`): Validate that the dataset is used in this project by name before deletion.
+    Mutually exclusive with project_id.
 
 **Raises**
 
+- `ValueError`: If neither or both `id` and `name` are provided, if both project_id and project_name
+are provided, or if the specified project does not exist, or if the dataset is not
+used in the specified project.
 - `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
 - `httpx.TimeoutException`: If the request takes longer than Client.timeout.
 
@@ -136,20 +179,28 @@ def get(self,
         *,
         id: Optional[str]=None,
         name: Optional[str]=None,
-        with_content: bool=False) -> Optional[Dataset]
+        with_content: bool=False,
+        project_id: Optional[str]=None,
+        project_name: Optional[str]=None) -> Optional[Dataset]
 ```
 
 Retrieves a dataset by id or name (exactly one of `id` or `name` must be provided).
+
+Optionally validates that the dataset is used in a specific project.
 
 **Arguments**
 
 - `id` (`str`): The id of the dataset.
 - `name` (`str`): The name of the dataset.
 - `with_content` (`bool`): Whether to return the content of the dataset. Default is False.
+- `project_id` (`str`): Validate that the dataset is used in this project by ID. Mutually exclusive with project_name.
+- `project_name` (`str`): Validate that the dataset is used in this project by name. Mutually exclusive with project_id.
 
 **Raises**
 
-- `ValueError`: If neither or both `id` and `name` are provided.
+- `ValueError`: If neither or both `id` and `name` are provided, if both project_id and project_name
+are provided, or if the specified project does not exist, or if the dataset is not
+used in the specified project.
 - `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
 - `httpx.TimeoutException`: If the request takes longer than Client.timeout.
 
@@ -160,17 +211,25 @@ Retrieves a dataset by id or name (exactly one of `id` or `name` must be provide
 ### list
 
 ```python
-def list(self, limit: Union[Unset, int]=100) -> list[Dataset]
+def list(self,
+         limit: Union[Unset, int]=100,
+         *,
+         project_id: Optional[str]=None,
+         project_name: Optional[str]=None) -> list[Dataset]
 ```
 
-Lists all datasets.
+Lists all datasets, optionally filtered by project.
 
 **Arguments**
 
 - `limit` (`Union[Unset, int]`): The maximum number of datasets to return. Default is 100.
+- `project_id` (`str`): Filter datasets used in this project by ID. Mutually exclusive with project_name.
+- `project_name` (`str`): Filter datasets used in this project by name. Mutually exclusive with project_id.
 
 **Raises**
 
+- `ValueError`: If both project_id and project_name are provided, or if the specified project
+does not exist.
 - `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
 - `httpx.TimeoutException`: If the request takes longer than Client.timeout.
 
@@ -178,21 +237,48 @@ Lists all datasets.
 
 - `List[Dataset]`: A list of datasets.
 
+## convert_dataset_row_to_record
+
+```python
+def convert_dataset_row_to_record(dataset_row: DatasetRow) -> DatasetRecord
+```
+
+Converts a DatasetRow to a DatasetRecord.
+
+**Arguments**
+
+- `dataset_row` (`DatasetRow`): The dataset row to convert.
+
+**Raises**
+
+- `ValueError`: If the dataset row does not have an input field.
+
+**Returns**
+
+- `DatasetRecord`: The converted dataset record.
+
 ## create_dataset
 
 ```python
-def create_dataset(name: str, content: DatasetType) -> Dataset
+def create_dataset(name: str,
+                   content: DatasetType,
+                   *,
+                   project_id: Optional[str]=None,
+                   project_name: Optional[str]=None) -> Dataset
 ```
 
-Creates a new dataset.
+Creates a new dataset, optionally associating it with a project.
 
 **Arguments**
 
 - `name` (`str`): The name of the dataset.
 - `content` (`DatasetType`): The content of the dataset.
+- `project_id` (`str`): Associate the dataset with this project by ID. Mutually exclusive with project_name.
+- `project_name` (`str`): Associate the dataset with this project by name. Mutually exclusive with project_id.
 
 **Raises**
 
+- `ValueError`: If both project_id and project_name are provided, or if the specified project does not exist.
 - `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
 - `httpx.TimeoutException`: If the request takes longer than Client.timeout.
 
@@ -203,18 +289,31 @@ Creates a new dataset.
 ## delete_dataset
 
 ```python
-def delete_dataset(*, id: Optional[str]=None, name: Optional[str]=None) -> None
+def delete_dataset(*,
+                   id: Optional[str]=None,
+                   name: Optional[str]=None,
+                   project_id: Optional[str]=None,
+                   project_name: Optional[str]=None) -> None
 ```
 
 Deletes a dataset by id or name (exactly one of `id` or `name` must be provided).
+
+Optionally validates that the dataset is used in a specific project before deletion.
 
 **Arguments**
 
 - `id` (`str`): The id of the dataset.
 - `name` (`str`): The name of the dataset.
+- `project_id` (`str`): Validate that the dataset is used in this project by ID before deletion.
+    Mutually exclusive with project_name.
+- `project_name` (`str`): Validate that the dataset is used in this project by name before deletion.
+    Mutually exclusive with project_id.
 
 **Raises**
 
+- `ValueError`: If neither or both `id` and `name` are provided, if both project_id and project_name
+are provided, or if the specified project does not exist, or if the dataset is not
+used in the specified project.
 - `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
 - `httpx.TimeoutException`: If the request takes longer than Client.timeout.
 
@@ -258,39 +357,32 @@ and then returns the content of the extended dataset.
 
 - `List[DatasetRow]`: A list of rows from the extended dataset.
 
-**Examples**
-
-```python
-extended_dataset = extend_dataset(
-    prompt_settings={'model_alias': 'GPT-4o mini'},
-    prompt='Financial planning assistant that helps clients design an investment strategy.',
-    instructions='You are a financial planning assistant that helps clients design an investment strategy.',
-    examples=['I want to invest $1000 per month.'],
-    data_types=['Prompt Injection'],
-    count=3
-)
-print('Extended dataset:', extended_dataset)
-```
-
-
 ## get_dataset
 
 ```python
 def get_dataset(*,
                 id: Optional[str]=None,
-                name: Optional[str]=None) -> Optional[Dataset]
+                name: Optional[str]=None,
+                project_id: Optional[str]=None,
+                project_name: Optional[str]=None) -> Optional[Dataset]
 ```
 
 Retrieves a dataset by id or name (exactly one of `id` or `name` must be provided).
+
+Optionally validates that the dataset is used in a specific project.
 
 **Arguments**
 
 - `id` (`str`): The id of the dataset.
 - `name` (`str`): The name of the dataset.
-- `with_content` (`bool`): Whether to return the content of the dataset. Default is False.
+- `project_id` (`str`): Validate that the dataset is used in this project by ID. Mutually exclusive with project_name.
+- `project_name` (`str`): Validate that the dataset is used in this project by name. Mutually exclusive with project_id.
 
 **Raises**
 
+- `ValueError`: If neither or both `id` and `name` are provided, if both project_id and project_name
+are provided, or if the specified project does not exist, or if the dataset is not
+used in the specified project.
 - `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
 - `httpx.TimeoutException`: If the request takes longer than Client.timeout.
 
@@ -342,17 +434,56 @@ Retrieves a dataset version history by dataset name or dataset id.
 
 - `ListDatasetVersionResponse`: 
 
+## list_dataset_projects
+
+```python
+def list_dataset_projects(*,
+                          dataset_id: Optional[str]=None,
+                          dataset_name: Optional[str]=None,
+                          limit: Union[Unset, int]=100) -> list
+```
+
+Lists all projects that a dataset is associated with.
+
+**Arguments**
+
+- `dataset_id` (`str`): The ID of the dataset.
+- `dataset_name` (`str`): The name of the dataset.
+- `limit` (`Union[Unset, int]`): The maximum number of projects to return. Default is 100.
+
+**Raises**
+
+- `ValueError`: If neither or both `dataset_id` and `dataset_name` are provided, or if the dataset does not exist.
+- `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+- `httpx.TimeoutException`: If the request takes longer than Client.timeout.
+
+**Returns**
+
+- `List[DatasetProject]`: A list of projects the dataset is used in.
+
 ## list_datasets
 
 ```python
-def list_datasets(limit: Union[Unset, int]=100) -> list[Dataset]
+def list_datasets(limit: Union[Unset, int]=100,
+                  *,
+                  project_id: Optional[str]=None,
+                  project_name: Optional[str]=None) -> list[Dataset]
 ```
 
-Lists all datasets.
+Lists all datasets, optionally filtered by project.
 
 **Arguments**
 
 - `limit` (`Union[Unset, int]`): The maximum number of datasets to return. Default is 100.
+- `project_id` (`str`): Filter datasets used in this project by ID. Mutually exclusive with project_name.
+- `project_name` (`str`): Filter datasets used in this project by name. Mutually exclusive with project_id.
+
+**Raises**
+
+- `ValueError`: If both project_id and project_name are provided, or if the specified project
+does not exist.
+- `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+- `httpx.TimeoutException`: If the request takes longer than Client.timeout.
 
 **Returns**
 
