@@ -3,8 +3,7 @@ title: Set Up Galileo MCP Server
 description: Learn how to integrate Galileo's Model Context Protocol (MCP) server with AI-enabled IDEs like Cursor and VS Code
 ---
 
-import CursorConfig from "/snippets/code/mcp/cursor-config.mdx";
-import EnvVars from "/snippets/code/mcp/env-vars.mdx";
+import Config from "/snippets/code/mcp/mcp-config.mdx";
 
 ## What is Galileo MCP?
 
@@ -38,39 +37,61 @@ Before you begin, ensure you have the following:
 
 ## Set Up Environment Variables
 
-Configure the required environment variables for Galileo and your LLM provider.
+Configure the required environment variables for Galileo.
 
 <EnvVars />
 
 <Note>
-  Replace `YOUR-API-KEY` and `YOUR-OPENAI-API-KEY` with your actual API keys. You can use other LLM providers by setting the appropriate environment variables.
+  Replace `YOUR-API-KEY` with your actual API key. You can use other LLM providers by setting the appropriate environment variables.
 </Note>
 
 ## Configure your IDE
 
 The Galileo MCP server works with both Cursor and VS Code. Follow the steps below for your IDE:
 
-### Cursor or VS Code
+### Cursor
 
 <Steps>
-  <Step title="Open IDE Settings">
-  Open the Settings tab by pressing `Cmd + ,` (Mac) or `Ctrl + ,` (Windows/Linux)
+  <Step title="Open Cursor Settings">
+   Open the Settings tab by pressing `Cmd + ,` (Mac) or `Ctrl + ,` (Windows/Linux)
   </Step>
   
   <Step title="Navigate to MCP Tools">
-  Navigate to **MCP Tools** and select **New MCP Server**
+   Navigate to **MCP Tools** and select **New MCP Server**
   </Step>
   
   <Step title="Add Galileo MCP Configuration">
-  Copy and paste the configuration below. Ensure you add your actual
-  Galileo API key.
+   Copy and paste the configuration below. Ensure you add your actual
+   Galileo API key.
 
-  <CursorConfig />
+   <CursorConfig />
   </Step>
 
   <Step title="Save and Restart">
-  Save the configuration and restart your IDE for the changes to take
-  effect
+   Save the configuration and restart Cursor for the changes to take effect
+  </Step>
+</Steps>
+
+### VS Code
+
+<Steps>
+  <Step title="Install GitHub Copilot Extension">
+   Install the [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension if you haven't already
+  </Step>
+
+  <Step title="Open MCP Settings">
+   Open the Command Palette (`Cmd + Shift + P` on Mac or `Ctrl + Shift + P` on Windows/Linux) and search for **"MCP: Edit MCP Settings"**
+  </Step>
+  
+  <Step title="Add Galileo MCP Configuration">
+   Add the Galileo MCP server configuration to your MCP settings file.
+   Ensure you add your actual Galileo API key.
+
+   <CursorConfig />
+  </Step>
+
+  <Step title="Reload VS Code">
+   Reload VS Code by opening the Command Palette and running **"Developer: Reload Window"** for the changes to take effect
   </Step>
 </Steps>
 
