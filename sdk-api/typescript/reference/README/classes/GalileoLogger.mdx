@@ -45,62 +45,90 @@ Defined in: [src/utils/galileo-logger.ts:74](https://github.com/rungalileo/galil
 ### addAgentSpan()
 
 ```ts
-addAgentSpan(__namedParameters: object): AgentSpan;
+addAgentSpan(options: object): AgentSpan;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:627](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L627)
+Defined in: [src/utils/galileo-logger.ts:733](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L733)
+
+Add an agent span to the current parent. Agent spans can contain child spans (like workflow spans).
 
 #### Parameters
 
-##### \_\_namedParameters
+##### options
+
+Configuration for the agent span. Only `input` is required. This creates a parent span that can contain child spans.
 
 ###### agentType?
 
 [`AgentType`](/sdk-api/typescript/reference/types/enumerations/AgentType)
 
+(Optional) The type of agent. One of: 'default', 'planner', 'react', 'reflection', 'router', 'classifier', 'supervisor', 'judge'. Defaults to 'default'.
+
 ###### createdAt?
 
 `Date`
+
+(Optional) The timestamp when the span was created.
 
 ###### durationNs?
 
 `number`
 
+(Optional) Duration of the span in nanoseconds.
+
 ###### input
 
 `string`
+
+The input content for the agent.
 
 ###### metadata?
 
 `Record`\<`string`, `string`\>
 
+(Optional) Additional metadata as key-value pairs.
+
 ###### name?
 
 `string`
+
+(Optional) Name for the span (e.g., 'Planning Agent', 'Router Agent').
 
 ###### output?
 
 `string`
 
+(Optional) The output result from the agent.
+
 ###### redactedInput?
 
 `string`
+
+(Optional) Redacted version of the input.
 
 ###### redactedOutput?
 
 `string`
 
+(Optional) Redacted version of the output.
+
 ###### stepNumber?
 
 `number`
+
+(Optional) The step number in a multi-step process.
 
 ###### tags?
 
 `string`[]
 
+(Optional) Array of tags to categorize the span.
+
 #### Returns
 
 [`AgentSpan`](/sdk-api/typescript/reference/types/classes/AgentSpan)
+
+The created agent span.
 
 ---
 
@@ -110,7 +138,10 @@ Defined in: [src/utils/galileo-logger.ts:627](https://github.com/rungalileo/gali
 addChildSpanToParent(span: Span): void;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:206](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L206)
+Defined in: [src/utils/galileo-logger.ts:212](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L212)
+
+Add a child span to the current parent (trace or workflow/agent span).
+This method automatically propagates dataset information from the parent to the child span.
 
 #### Parameters
 
@@ -118,387 +149,574 @@ Defined in: [src/utils/galileo-logger.ts:206](https://github.com/rungalileo/gali
 
 [`Span`](/sdk-api/typescript/reference/types/type-aliases/Span)
 
+The span to add as a child to the current parent.
+
 #### Returns
 
 `void`
+
+#### Throws
+
+Error if no trace or parent span exists.
 
 ---
 
 ### addLlmSpan()
 
 ```ts
-addLlmSpan(__namedParameters: object): LlmSpan;
+addLlmSpan(options: object): LlmSpan;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:417](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L417)
+Defined in: [src/utils/galileo-logger.ts:471](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L471)
+
+Add a new LLM span to the current parent.
 
 #### Parameters
 
-##### \_\_namedParameters
+##### options
+
+Configuration for the LLM span. All parameters are optional except `input` and `output`.
 
 ###### createdAt?
 
 `Date`
 
+(Optional) The timestamp when the span was created. Defaults to current time if not provided.
+
 ###### durationNs?
 
 `number`
+
+(Optional) Duration of the span in nanoseconds.
 
 ###### input
 
 [`LlmSpanAllowedInputType`](/sdk-api/typescript/reference/types/type-aliases/LlmSpanAllowedInputType)
 
+The input content for the LLM span. Accepts string, Message, or arrays of these.
+
 ###### metadata?
 
 `Record`\<`string`, `string`\>
+
+(Optional) Additional metadata as key-value pairs.
 
 ###### model?
 
 `string`
 
+(Optional) The name or identifier of the LLM model used (e.g., 'gpt-4o', 'claude-3-sonnet').
+
 ###### name?
 
 `string`
+
+(Optional) Name for the span.
 
 ###### numInputTokens?
 
 `number`
 
+(Optional) Number of tokens in the input.
+
 ###### numOutputTokens?
 
 `number`
+
+(Optional) Number of tokens in the output.
 
 ###### output
 
 [`LlmSpanAllowedOutputType`](/sdk-api/typescript/reference/types/type-aliases/LlmSpanAllowedOutputType)
 
+The output content from the LLM span. Accepts string, Message, or arrays of these.
+
 ###### redactedInput?
 
 [`LlmSpanAllowedInputType`](/sdk-api/typescript/reference/types/type-aliases/LlmSpanAllowedInputType)
+
+(Optional) Redacted version of the input content.
 
 ###### redactedOutput?
 
 [`LlmSpanAllowedOutputType`](/sdk-api/typescript/reference/types/type-aliases/LlmSpanAllowedOutputType)
 
+(Optional) Redacted version of the output content.
+
 ###### statusCode?
 
 `number`
+
+(Optional) HTTP status code or execution status (e.g., 200 for success).
 
 ###### stepNumber?
 
 `number`
 
+(Optional) The step number in a multi-step process.
+
 ###### tags?
 
 `string`[]
+
+(Optional) Array of tags to categorize the span.
 
 ###### temperature?
 
 `number`
 
+(Optional) The temperature parameter used for the LLM (typically 0.0-2.0).
+
 ###### timeToFirstTokenNs?
 
 `number`
+
+(Optional) Time to first token in nanoseconds (for streaming responses).
 
 ###### tools?
 
 `any`[]
 
+(Optional) Array of tool definitions available to the LLM.
+
 ###### totalTokens?
 
 `number`
 
+(Optional) Total number of tokens used (input + output).
+
 #### Returns
 
 [`LlmSpan`](/sdk-api/typescript/reference/types/classes/LlmSpan)
+
+The created LLM span, which is automatically added to the current parent.
 
 ---
 
 ### addRetrieverSpan()
 
 ```ts
-addRetrieverSpan(__namedParameters: object): RetrieverSpan;
+addRetrieverSpan(options: object): RetrieverSpan;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:486](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L486)
+Defined in: [src/utils/galileo-logger.ts:553](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L553)
+
+Add a new retriever span to the current parent.
 
 #### Parameters
 
-##### \_\_namedParameters
+##### options
+
+Configuration for the retriever span. All parameters are optional except `input` and `output`.
 
 ###### createdAt?
 
 `Date`
 
+(Optional) The timestamp when the span was created.
+
 ###### durationNs?
 
 `number`
+
+(Optional) Duration of the span in nanoseconds.
 
 ###### input
 
 `string`
 
+The input query for the retriever.
+
 ###### metadata?
 
 `Record`\<`string`, `string`\>
+
+(Optional) Additional metadata as key-value pairs.
 
 ###### name?
 
 `string`
 
+(Optional) Name for the span.
+
 ###### output
 
 [`RetrieverSpanAllowedOutputType`](/sdk-api/typescript/reference/types/type-aliases/RetrieverSpanAllowedOutputType)
+
+The output documents or results. Accepts string, Record\<string, string\>, Document, or arrays of these. Document has properties: \{ content: string, metadata?: Record\<string, string | number | boolean\> \}.
 
 ###### redactedInput?
 
 `string`
 
+(Optional) Redacted version of the input query.
+
 ###### redactedOutput?
 
 [`RetrieverSpanAllowedOutputType`](/sdk-api/typescript/reference/types/type-aliases/RetrieverSpanAllowedOutputType)
+
+(Optional) Redacted version of the output.
 
 ###### statusCode?
 
 `number`
 
+(Optional) HTTP status code or execution status (e.g., 200 for success).
+
 ###### stepNumber?
 
 `number`
+
+(Optional) The step number in a multi-step process.
 
 ###### tags?
 
 `string`[]
 
+(Optional) Array of tags to categorize the span.
+
 #### Returns
 
 [`RetrieverSpan`](/sdk-api/typescript/reference/types/classes/RetrieverSpan)
+
+The created retriever span.
 
 ---
 
 ### addSingleLlmSpanTrace()
 
 ```ts
-addSingleLlmSpanTrace(__namedParameters: object): Trace;
+addSingleLlmSpanTrace(options: object): Trace;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:306](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L306)
+Defined in: [src/utils/galileo-logger.ts:340](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L340)
+
+Create a new trace with a single LLM span. This is a convenience method that combines trace creation
+and LLM span creation in one call. The trace is automatically concluded, so no need to call conclude().
 
 #### Parameters
 
-##### \_\_namedParameters
+##### options
+
+Configuration for the single LLM span trace. All parameters are optional except `input` and `output`.
 
 ###### createdAt?
 
 `Date`
 
+(Optional) The timestamp when the span was created.
+
 ###### datasetInput?
 
 `string`
+
+(Optional) Input data for dataset evaluation.
 
 ###### datasetMetadata?
 
 `Record`\<`string`, `string`\>
 
+(Optional) Metadata for dataset evaluation.
+
 ###### datasetOutput?
 
 `string`
+
+(Optional) Expected output for dataset evaluation.
 
 ###### durationNs?
 
 `number`
 
+(Optional) Duration of the span in nanoseconds.
+
 ###### input
 
 [`LlmSpanAllowedInputType`](/sdk-api/typescript/reference/types/type-aliases/LlmSpanAllowedInputType)
+
+The input content for the LLM span.
 
 ###### metadata?
 
 `Record`\<`string`, `string`\>
 
+(Optional) Additional metadata as key-value pairs.
+
 ###### model?
 
 `string`
+
+(Optional) The name or identifier of the LLM model used (e.g., 'gpt-4o', 'claude-3-sonnet').
 
 ###### name?
 
 `string`
 
+(Optional) Name for the span.
+
 ###### numInputTokens?
 
 `number`
+
+(Optional) Number of tokens in the input.
 
 ###### numOutputTokens?
 
 `number`
 
+(Optional) Number of tokens in the output.
+
 ###### output
 
 [`LlmSpanAllowedOutputType`](/sdk-api/typescript/reference/types/type-aliases/LlmSpanAllowedOutputType)
+
+The output content from the LLM span.
 
 ###### redactedInput?
 
 [`LlmSpanAllowedInputType`](/sdk-api/typescript/reference/types/type-aliases/LlmSpanAllowedInputType)
 
+(Optional) Redacted version of the input content.
+
 ###### redactedOutput?
 
 [`LlmSpanAllowedOutputType`](/sdk-api/typescript/reference/types/type-aliases/LlmSpanAllowedOutputType)
+
+(Optional) Redacted version of the output content.
 
 ###### spanStepNumber?
 
 `number`
 
+(Optional) The step number for the span in a multi-step process.
+
 ###### statusCode?
 
 `number`
+
+(Optional) HTTP status code or execution status (e.g., 200 for success).
 
 ###### tags?
 
 `string`[]
 
+(Optional) Array of tags to categorize the span.
+
 ###### temperature?
 
 `number`
+
+(Optional) The temperature parameter used for the LLM (typically 0.0-2.0).
 
 ###### timeToFirstTokenNs?
 
 `number`
 
+(Optional) Time to first token in nanoseconds (for streaming).
+
 ###### tools?
 
 `any`[]
+
+(Optional) Array of tool definitions. Expected format: Array\<\{ type: 'function', function: \{ name: string, description?: string, parameters?: object \} \}\>.
 
 ###### totalTokens?
 
 `number`
 
+(Optional) Total number of tokens used (input + output).
+
 #### Returns
 
 [`Trace`](/sdk-api/typescript/reference/types/classes/Trace)
+
+The created trace containing the single LLM span.
+
+#### Throws
+
+Error if a trace or span is already in progress.
 
 ---
 
 ### addToolSpan()
 
 ```ts
-addToolSpan(__namedParameters: object): ToolSpan;
+addToolSpan(options: object): ToolSpan;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:532](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L532)
+Defined in: [src/utils/galileo-logger.ts:613](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L613)
+
+Add a new tool span to the current parent.
 
 #### Parameters
 
-##### \_\_namedParameters
+##### options
+
+Configuration for the tool span. Only `input` is required.
 
 ###### createdAt?
 
 `Date`
 
+(Optional) The timestamp when the span was created.
+
 ###### durationNs?
 
 `number`
+
+(Optional) Duration of the span in nanoseconds.
 
 ###### input
 
 `string`
 
+The input parameters for the tool.
+
 ###### metadata?
 
 `Record`\<`string`, `string`\>
+
+(Optional) Additional metadata as key-value pairs.
 
 ###### name?
 
 `string`
 
+(Optional) Name for the span (e.g., the tool name or function name).
+
 ###### output?
 
 `string`
+
+(Optional) The output result from the tool.
 
 ###### redactedInput?
 
 `string`
 
+(Optional) Redacted version of the input.
+
 ###### redactedOutput?
 
 `string`
+
+(Optional) Redacted version of the output.
 
 ###### statusCode?
 
 `number`
 
+(Optional) HTTP status code or execution status (e.g., 200 for success).
+
 ###### stepNumber?
 
 `number`
+
+(Optional) The step number in a multi-step process.
 
 ###### tags?
 
 `string`[]
 
+(Optional) Array of tags to categorize the span.
+
 ###### toolCallId?
 
 `string`
 
+(Optional) Unique identifier for the tool call, typically from LLM tool_calls (e.g., 'call_abc123').
+
 #### Returns
 
 [`ToolSpan`](/sdk-api/typescript/reference/types/classes/ToolSpan)
+
+The created tool span.
 
 ---
 
 ### addWorkflowSpan()
 
 ```ts
-addWorkflowSpan(__namedParameters: object): WorkflowSpan;
+addWorkflowSpan(options: object): WorkflowSpan;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:581](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L581)
+Defined in: [src/utils/galileo-logger.ts:676](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L676)
+
+Add a workflow span to the current parent. This is useful when you want to create a nested workflow span
+within the trace or current workflow span. The next span you add will be a child of the current parent. To
+move out of the nested workflow, use conclude().
 
 #### Parameters
 
-##### \_\_namedParameters
+##### options
+
+Configuration for the workflow span. Only `input` is required. This creates a parent span that can contain child spans.
 
 ###### createdAt?
 
 `Date`
 
+(Optional) The timestamp when the span was created.
+
 ###### durationNs?
 
 `number`
+
+(Optional) Duration of the span in nanoseconds.
 
 ###### input
 
 `string`
 
+The input content for the workflow.
+
 ###### metadata?
 
 `Record`\<`string`, `string`\>
+
+(Optional) Additional metadata as key-value pairs.
 
 ###### name?
 
 `string`
 
+(Optional) Name for the span (e.g., 'Data Processing Workflow').
+
 ###### output?
 
 `string`
+
+(Optional) The output result from the workflow.
 
 ###### redactedInput?
 
 `string`
 
+(Optional) Redacted version of the input.
+
 ###### redactedOutput?
 
 `string`
+
+(Optional) Redacted version of the output.
 
 ###### stepNumber?
 
 `number`
 
+(Optional) The step number in a multi-step process.
+
 ###### tags?
 
 `string`[]
 
+(Optional) Array of tags to categorize the span.
+
 #### Returns
 
 [`WorkflowSpan`](/sdk-api/typescript/reference/types/classes/WorkflowSpan)
+
+The created workflow span.
 
 ---
 
@@ -508,7 +726,7 @@ Defined in: [src/utils/galileo-logger.ts:581](https://github.com/rungalileo/gali
 clearSession(): void;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:248](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L248)
+Defined in: [src/utils/galileo-logger.ts:254](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L254)
 
 #### Returns
 
@@ -524,7 +742,7 @@ conclude(__namedParameters: object):
   | StepWithChildSpans;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:714](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L714)
+Defined in: [src/utils/galileo-logger.ts:820](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L820)
 
 #### Parameters
 
@@ -594,7 +812,7 @@ Defined in: [src/utils/galileo-logger.ts:202](https://github.com/rungalileo/gali
 flush(): Promise<Trace[]>;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:747](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L747)
+Defined in: [src/utils/galileo-logger.ts:853](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L853)
 
 #### Returns
 
@@ -624,7 +842,7 @@ Check if logging is disabled
 setSessionId(sessionId: string): void;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:243](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L243)
+Defined in: [src/utils/galileo-logger.ts:249](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L249)
 
 #### Parameters
 
@@ -644,7 +862,7 @@ Defined in: [src/utils/galileo-logger.ts:243](https://github.com/rungalileo/gali
 startSession(__namedParameters: object): Promise<string>;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:217](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L217)
+Defined in: [src/utils/galileo-logger.ts:223](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L223)
 
 #### Parameters
 
@@ -674,7 +892,7 @@ Defined in: [src/utils/galileo-logger.ts:217](https://github.com/rungalileo/gali
 startTrace(__namedParameters: object): Trace;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:253](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L253)
+Defined in: [src/utils/galileo-logger.ts:259](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L259)
 
 #### Parameters
 
@@ -740,7 +958,7 @@ Defined in: [src/utils/galileo-logger.ts:253](https://github.com/rungalileo/gali
 terminate(): Promise<void>;
 ```
 
-Defined in: [src/utils/galileo-logger.ts:788](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L788)
+Defined in: [src/utils/galileo-logger.ts:894](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts#L894)
 
 #### Returns
 
