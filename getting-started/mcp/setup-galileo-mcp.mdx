@@ -1,11 +1,10 @@
 ---
-title: Set Up Galileo MCP Server
+title: Galileo MCP Server
 description: Learn how to integrate Galileo's Model Context Protocol (MCP) server with AI-enabled IDEs like Cursor and VS Code
 ---
 
-import Config from "/snippets/code/mcp/mcp-config.mdx";
-
-## What is Galileo MCP?
+import CursorConfig from "/snippets/code/mcp/mcp-config-cursor.mdx";
+import VSCodeConfig from "/snippets/code/mcp/mcp-config-vscode.mdx";
 
 The Galileo Model Context Protocol (MCP) server enables seamless integration between AI-powered IDEs, such as Cursor, or VS Code with GitHub Copilot, and Galileo's evaluation and observability platform.
 
@@ -22,83 +21,60 @@ With MCP, you can access Galileo's capabilities directly from your development e
 Before you begin, ensure you have the following:
 
 <Steps>
-  <Step title="AI-enabled IDE">
-  Install an AI-enabled IDE such as [Cursor](https://cursor.sh) or [VS Code](https://code.visualstudio.com) with AI capabilities
-  </Step>
-  
-  <Step title="Galileo Account">
-  Create a free Galileo account at [galileo.ai/sign-up](https://galileo.ai/sign-up)
-  </Step>
-  
-  <Step title="API Keys">
-  Generate your Galileo API key from the [API keys page](https://app.galileo.ai/settings/api-keys)
-  </Step>
+<Step title="AI-enabled IDE">
+Install an AI-enabled IDE such as [Cursor](https://cursor.sh) or [VS Code](https://code.visualstudio.com) with AI capabilities
+</Step>
+
+<Step title="API key">
+Generate your Galileo API key from the [API keys page](https://app.galileo.ai/settings/api-keys)
+</Step>
 </Steps>
-
-## Set Up Environment Variables
-
-Configure the required environment variables for Galileo.
-
-<EnvVars />
-
-<Note>
-  Replace `YOUR-API-KEY` with your actual API key. You can use other LLM providers by setting the appropriate environment variables.
-</Note>
 
 ## Configure your IDE
 
 The Galileo MCP server works with both Cursor and VS Code. Follow the steps below for your IDE:
 
-### Cursor
-
+<Tabs>
+<Tab title="VS Code">
 <Steps>
-  <Step title="Open Cursor Settings">
-   Open the Settings tab by pressing `Cmd + ,` (Mac) or `Ctrl + ,` (Windows/Linux)
-  </Step>
-  
-  <Step title="Navigate to MCP Tools">
-   Navigate to **MCP Tools** and select **New MCP Server**
-  </Step>
-  
-  <Step title="Add Galileo MCP Configuration">
-   Copy and paste the configuration below. Ensure you add your actual
-   Galileo API key.
+<Step title="Install GitHub Copilot">
+Install the [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension if you haven't already
+</Step>
+<Step title="Open MCP settings">
+Open the Command Palette (`Ctrl + Shift + P` on Windows/Linux, or `Cmd + Shift + P` on Mac) and search for **"MCP: Open User Configuration"**
+</Step>
+<Step title="Add the Galileo MCP server configuration">
+Copy and paste the configuration below. Replace `YOUR-API-KEY` with your actual Galileo API key.
 
-   <CursorConfig />
-  </Step>
-
-  <Step title="Save and Restart">
-   Save the configuration and restart Cursor for the changes to take effect
-  </Step>
+<VSCodeConfig />
+</Step>
+<Step title="Reload VS Code">
+Reload VS Code by opening the Command Palette and running **"Developer: Reload Window"** for the changes to take effect
+</Step>
 </Steps>
-
-### VS Code
-
+</Tab>
+<Tab title="Cursor">
 <Steps>
-  <Step title="Install GitHub Copilot Extension">
-   Install the [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension if you haven't already
-  </Step>
+<Step title="Open the Tools & MCP settings">
+Open the Cursor command palette (`Ctrl + Shift + P` on Windows/Linux, or `Cmd + Shift + P` on Mac), then choose"Open MCP Settings".
+</Step>
+<Step title="Open the MCP server configuration file">
+Select **New MCP Server** to open the `mcp.json` MCP configuration file.
+</Step>
+<Step title="Add the Galileo MCP server configuration">
+Copy and paste the configuration below. Replace `YOUR-API-KEY` with your actual Galileo API key.
 
-  <Step title="Open MCP Settings">
-   Open the Command Palette (`Cmd + Shift + P` on Mac or `Ctrl + Shift + P` on Windows/Linux) and search for **"MCP: Edit MCP Settings"**
-  </Step>
-  
-  <Step title="Add Galileo MCP Configuration">
-   Add the Galileo MCP server configuration to your MCP settings file.
-   Ensure you add your actual Galileo API key.
-
-   <CursorConfig />
-  </Step>
-
-  <Step title="Reload VS Code">
-   Reload VS Code by opening the Command Palette and running **"Developer: Reload Window"** for the changes to take effect
-  </Step>
+<CursorConfig />
+</Step>
+<Step title="Save and restart">
+Save the configuration and restart Cursor for the changes to take effect
+</Step>
 </Steps>
+</Tab>
+</Tabs>
 
 <Tip>
-  The configuration is the same for both Cursor and VS Code. Make sure to
-  replace `YOUR-API-KEY` with your actual Galileo API key from the
-  [API keys page](https://app.galileo.ai/settings/api-keys).
+The configuration is the same for both Cursor and VS Code. Make sure to replace `YOUR-API-KEY` with your actual Galileo API key from the [API keys page](https://app.galileo.ai/settings/api-keys).
 </Tip>
 
 ## Verify your setup
@@ -107,6 +83,7 @@ Once configured, you can verify your MCP setup by asking your AI assistant
 in your IDE:
 
 <CodeGroup>
+
 ```text Example Query
 Can you show me how to add Galileo logging to my agent bot?
 ```
@@ -131,179 +108,239 @@ natural conversation with your AI assistant. Simply ask questions or make
 requests, and the AI will use these tools to help you.
 
 <AccordionGroup>
-  <Accordion title="Create Datasets">
-   Generate synthetic datasets or upload your own data to test and evaluate
-   your AI applications. The tool supports creating datasets with various
-   types of queries including general queries, prompt injections, off-topic
-   content, and toxic content scenarios.
+<Accordion title="Create Datasets">
+Generate synthetic datasets or upload your own data to test and evaluate your AI applications. The tool supports creating datasets with various types of queries including general queries, prompt injections, off-topic content, and toxic content scenarios.
 
-   **What you can ask:**
+**What you can ask:**
 
-   ```text
-   Create a dataset with 50 customer service queries about billing issues
-   ```
+<CodeGroup>
 
-   ```text
-   Generate a dataset of 30 chatbot queries, including some prompt
-   injection attempts
-   ```
+```text Query wrap
+Create a dataset with 50 customer service queries about billing issues
+```
 
-   ```text
-   Make a dataset with product recommendation queries and include
-   off-topic questions
-   ```
+</CodeGroup>
 
-  </Accordion>
+<CodeGroup>
 
-  <Accordion title="Check Dataset Status">
-   Track the progress of your dataset generation and preview the generated
-   content. You'll see the first 10 rows of data along with generation
-   status and progress updates.
+```text Query wrap
+Generate a dataset of 30 chatbot queries, including some prompt injection attempts
+```
 
-   **What you can ask:**
+</CodeGroup>
 
-   ```text
-   Check the status of my dataset that's currently generating
-   ```
+<CodeGroup>
 
-   ```text
-   Show me the preview of dataset abc-123
-   ```
+```text Query wrap
+Make a dataset with product recommendation queries and include off-topic questions
+```
 
-   ```text
-   Is my customer service dataset ready yet?
-   ```
+</CodeGroup>
 
-  </Accordion>
+</Accordion>
+<Accordion title="Check Dataset Status">
+Track the progress of your dataset generation and preview the generated content. You'll see the first 10 rows of data along with generation status and progress updates.
 
-  <Accordion title="Create Prompt Templates">
-   Build reusable prompt templates that you can use across all your
-   projects. Set up model configurations, temperature settings, and other
-   parameters for consistent prompt behavior.
+**What you can ask:**
 
-   **What you can ask:**
+<CodeGroup>
 
-   ```text
-   Create a prompt template called "Friendly Assistant" for customer
-   support responses
-   ```
+```text Query wrap
+Check the status of my dataset that's currently generating
+```
 
-   ```text
-   Make a prompt template for summarizing technical documentation with
-   lower temperature
-   ```
+</CodeGroup>
 
-   ```text
-   Set up a chat template for a code review assistant
-   ```
+<CodeGroup>
 
-  </Accordion>
+```text Query wrap
+Show me the preview of dataset abc-123
+```
 
-  <Accordion title="Set Up Experiments">
-   Get complete guidance on setting up and running Galileo experiments,
-   including dataset preparation, metrics configuration, and integration
-   with your existing code. Available for Python and other supported
-   languages.
+</CodeGroup>
 
-   **What you can ask:**
+<CodeGroup>
 
-   ```text
-   How do I set up a Galileo experiment in Python?
-   ```
+```text Query wrap
+Is my customer service dataset ready yet?
+```
 
-   ```text
-   Show me how to run an experiment with my RAG application
-   ```
+</CodeGroup>
+</Accordion>
+<Accordion title="Create Prompt Templates">
+Build reusable prompt templates that you can use across all your projects. Set up model configurations, temperature settings, and other parameters for consistent prompt behavior.
 
-   ```text
-   Guide me through creating an experiment for my agentic workflow
-   ```
+**What you can ask:**
 
-  </Accordion>
+<CodeGroup>
 
-  <Accordion title="Get Log Stream Insights">
-   Analyze your application's Log streams to identify issues, patterns, and
-   opportunities for improvement. Get specific recommendations based on
-   your logged data.
+```text Query wrap
+Create a prompt template called "Friendly Assistant" for customer support responses
+```
 
-   **What you can ask:**
+</CodeGroup>
 
-   ```text
-   What issues do you see in my production Log stream?
-   ```
+<CodeGroup>
 
-   ```text
-   Analyze the customer-support project Log stream and suggest improvements
-   ```
+```text Query wrap
+Make a prompt template for summarizing technical documentation with lower temperature
+```
 
-   ```text
-   Get insights about my chatbot Log stream from last week
-   ```
+</CodeGroup>
 
-  </Accordion>
+<CodeGroup>
 
-  <Accordion title="Integrate with OpenAI">
-   Get step-by-step integration guides for adding Galileo observability to
-   your OpenAI applications. Automatically log prompts, responses, model
-   parameters, and token usage with minimal code changes.
+```text Query wrap
+Set up a chat template for a code review assistant
+```
 
-   **What you can ask:**
+</CodeGroup>
+</Accordion>
+<Accordion title="Set Up Experiments">
+Get complete guidance on setting up and running Galileo experiments, including dataset preparation, metrics configuration, and integration with your existing code. Available for Python and other supported languages.
 
-   ```text
-   How do I add Galileo logging to my OpenAI application?
-   ```
+**What you can ask:**
 
-   ```text
-   Show me how to integrate Galileo with OpenAI in TypeScript
-   ```
+<CodeGroup>
 
-   ```text
-   Help me set up Galileo observability for my GPT-4 chatbot
-   ```
+```text Query wrap
+How do I set up a Galileo experiment in Python?
+```
 
-  </Accordion>
+</CodeGroup>
 
-  <Accordion title="Integrate with LangChain">
-   Get complete integration instructions for adding Galileo to your
-   LangChain applications. Capture full traces of your chains, agents, and
-   tools with automatic logging.
+<CodeGroup>
 
-   **What you can ask:**
+```text Query wrap
+Show me how to run an experiment with my RAG application
+```
 
-   ```text
-   How do I integrate Galileo with my LangChain application?
-   ```
+</CodeGroup>
 
-   ```text
-   Show me how to add Galileo tracing to my LangChain agent
-   ```
+<CodeGroup>
 
-   ```text
-   Help me log my LangChain RAG pipeline with Galileo
-   ```
+```text Query wrap
+Guide me through creating an experiment for my agentic workflow
+```
 
-  </Accordion>
+</CodeGroup>
+</Accordion>
+<Accordion title="Get Log Stream Insights">
+Analyze your application's Log streams to identify issues, patterns, and opportunities for improvement. Get specific recommendations based on your logged data.
 
-  <Accordion title="Search Documentation">
-   Find relevant information, code examples, API references, and
-   implementation guides across all Galileo documentation. Get direct links
-   to the pages you need.
+**What you can ask:**
 
-   **What you can ask:**
+<CodeGroup>
 
-   ```text
-   How do I set up data logging in Galileo?
-   ```
+```text Query wrap
+What issues do you see in my production Log stream?
+```
 
-   ```text
-   Find documentation about custom metrics
-   ```
+</CodeGroup>
 
-   ```text
-   Search for examples of agentic AI evaluation
-   ```
+<CodeGroup>
 
-  </Accordion>
+```text Query wrap
+Analyze the customer-support project Log stream and suggest improvements
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```text Query wrap
+Get insights about my chatbot Log stream from last week
+```
+
+</CodeGroup>
+</Accordion>
+<Accordion title="Integrate with OpenAI">
+Get step-by-step integration guides for adding Galileo observability to your OpenAI applications. Automatically log prompts, responses, model parameters, and token usage with minimal code changes.
+
+**What you can ask:**
+
+<CodeGroup>
+
+```text Query wrap
+How do I add Galileo logging to my OpenAI application?
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```text Query wrap
+Show me how to integrate Galileo with OpenAI in TypeScript
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```text Query wrap
+Help me set up Galileo observability for my GPT-4 chatbot
+```
+
+</CodeGroup>
+</Accordion>
+<Accordion title="Integrate with LangChain">
+Get complete integration instructions for adding Galileo to your LangChain applications. Capture full traces of your chains, agents, and tools with automatic logging.
+
+**What you can ask:**
+
+<CodeGroup>
+
+```text Query wrap
+How do I integrate Galileo with my LangChain application?
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```text Query wrap
+Show me how to add Galileo tracing to my LangChain agent
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```text Query wrap
+Help me log my LangChain RAG pipeline with Galileo
+```
+
+</CodeGroup>
+</Accordion>
+<Accordion title="Search Documentation">
+Find relevant information, code examples, API references, and implementation guides across all Galileo documentation. Get direct links to the pages you need.
+
+**What you can ask:**
+
+<CodeGroup>
+
+```text Query wrap
+How do I set up data logging in Galileo?
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```text Query wrap
+Find documentation about custom metrics
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```text Query wrap
+Search for examples of agentic AI evaluation
+```
+
+</CodeGroup>
+</Accordion>
 </AccordionGroup>
 
 ## Example use cases
@@ -312,10 +349,14 @@ requests, and the AI will use these tools to help you.
 
 Ask your AI assistant:
 
-```text
+<CodeGroup>
+
+```text Query wrap
 Create a synthetic dataset with 20 customer service queries about product
 returns. Include both general queries and off-topic queries.
 ```
+
+</CodeGroup>
 
 The MCP server will guide you through the dataset creation process and
 provide a dataset ID to track progress.
@@ -324,9 +365,13 @@ provide a dataset ID to track progress.
 
 Ask your AI assistant:
 
-```text
+<CodeGroup>
+
+```text Query wrap
 How do I integrate Galileo with my LangChain application in Python?
 ```
+
+</CodeGroup>
 
 The MCP server will provide complete integration code examples and setup
 instructions.
@@ -335,39 +380,42 @@ instructions.
 
 Ask your AI assistant:
 
-```text
+<CodeGroup>
+
+```text Query wrap
 Get insights about my Log stream in the customer-support project
 ```
+
+</CodeGroup>
 
 The MCP server will analyze your Log stream and suggest improvements.
 
 ## Troubleshooting
 
 <AccordionGroup>
-  <Accordion title="Error connecting to Galileo MCP Server">
-  - Check that the MCP server URL is set to `https://api.galileo.ai/mcp/http/mcp`
-  - Ensure the `Accept` header is set to `text/event-stream`
-  - Restart your IDE MCP connection after making configuration changes
-  </Accordion>
-  
-  <Accordion title="API key errors">
-  - Confirm your API key is properly set in the configuration
-  - Check that your API key has not expired
-  - Generate a new API key from the [API keys page](https://app.galileo.ai/settings/api-keys)
-  </Accordion>
+<Accordion title="Error connecting to Galileo MCP Server">
+- Check that the MCP server URL is set to `https://api.galileo.ai/mcp/http/mcp`
+- Ensure the `Accept` header is set to `text/event-stream`
+- Restart your IDE MCP connection after making configuration changes
+</Accordion>
+
+<Accordion title="API key errors">
+- Confirm your API key is properly set in the configuration
+- Check that your API key has not expired
+- Generate a new API key from the [API keys page](https://app.galileo.ai/settings/api-keys)
+</Accordion>
 </AccordionGroup>
 
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Log your first trace" icon="code" horizontal href="/getting-started/quickstart">
-  Learn how to log your first trace with Galileo
-  </Card>
-  <Card title="Run your first experiment" icon="flask" horizontal href="/getting-started/experiments">
-  Set up and run experiments to evaluate your AI applications
-  </Card>
-  <Card title="Explore integrations" icon="plug" horizontal href="/sdk-api/third-party-integrations/overview">
-  Learn about Galileo integrations with third-party frameworks
-  </Card>
+<Card title="Log your first trace" icon="code" horizontal href="/getting-started/quickstart">
+Learn how to log your first trace with Galileo
+</Card>
+<Card title="Run your first experiment" icon="flask" horizontal href="/getting-started/experiments">
+Set up and run experiments to evaluate your AI applications
+</Card>
+<Card title="Explore integrations" icon="plug" horizontal href="/sdk-api/third-party-integrations/overview">
+Learn about Galileo integrations with third-party frameworks
+</Card>
 </CardGroup>
-
