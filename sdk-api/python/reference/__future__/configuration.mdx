@@ -8,9 +8,57 @@ title: configuration
 
 Metadata for a configuration key.
 
+Defines a single configuration option with its properties, validation rules,
+and relationship to environment variables. Used by the ConfigurationMeta
+metaclass to enable dynamic attribute access.
+
+**Arguments**
+
+- `name` (`str`): The attribute name used in the Configuration class (e.g., "galileo_api_key").
+
+- `env_var` (`str`): The corresponding environment variable name (e.g., "GALILEO_API_KEY").
+
+- `description` (`str`): Human-readable description of the configuration key's purpose.
+
+- `required` (`bool`): Whether this key must be set for the configuration to be considered complete.
+    Default: False.
+
+- `sensitive` (`bool`): Whether this key contains sensitive information (e.g., API keys, passwords).
+    Sensitive values are masked in get_configuration() output. Default: False.
+
+- `default` (`Any`): The default value if no explicit value or environment variable is set.
+    Default: None.
+
+- `value_type` (`type`): The expected Python type for this configuration value. Default: str.
+
+- `parser` (`Optional[Callable[[str], Any]]`): Optional function to convert string values from environment variables
+    to the appropriate type. Default: None (no conversion).
+
 ## ConfigurationMeta
 
 Metaclass for dynamic attribute handling based on CONFIGURATION_KEYS.
+
+This metaclass enables the Configuration class to provide dynamic attribute access
+with automatic resolution from multiple sources. When accessing a configuration
+attribute (e.g., `Configuration.galileo_api_key`), the metaclass:
+
+1. Checks if the attribute is in _CONFIGURATION_KEYS
+2. Resolves the value from: explicit value → environment variable → .env file → default
+3. Applies type conversion and validation if a parser is defined
+4. Returns the resolved value
+
+When setting a configuration attribute (e.g., `Configuration.galileo_api_key = "key"`),
+the metaclass:
+
+1. Stores the value internally (with underscore prefix: `_galileo_api_key`)
+2. Automatically updates the corresponding environment variable
+3. Ensures compatibility with libraries that read from os.environ
+
+This pattern provides:
+- Extensibility: New configuration keys can be added to _CONFIGURATION_KEYS
+- Consistency: All configuration uses the same resolution pattern
+- Compatibility: Environment variables are kept in sync for third-party libraries
+- Transparency: Configuration sources are clearly prioritized
 
 Reference: https://docs.python.org/3/reference/datamodel.html#customizing-attribute-access
 
@@ -18,8 +66,38 @@ Reference: https://docs.python.org/3/reference/datamodel.html#customizing-attrib
 
 Single source of truth for SDK configuration.
 
-Uses a data-driven approach with keys defined in CONFIGURATION_KEYS.
-Automatically syncs with environment variables and loads .env files.
+This class uses a metaclass pattern to provide dynamic attribute access to configuration
+keys defined in _CONFIGURATION_KEYS. Each configuration key can be accessed as a class
+attribute, with values resolved in the following priority order:
+
+1. Explicitly set value (via `Configuration.key = value`)
+2. Environment variable (e.g., GALILEO_API_KEY)
+3. .env file (loaded automatically on first access)
+4. Default value (defined in the key configuration)
+
+The metaclass automatically:
+- Syncs attribute assignments to environment variables
+- Loads .env files on first configuration access
+- Provides type conversion and validation via parsers
+
+**Arguments**
+
+- `Configuration attributes are dynamically provided based on _CONFIGURATION_KEYS`: galileo_api_key (str): API key for Galileo authentication (sensitive)
+    console_url (str): URL of the Galileo console
+    openai_api_key (str): OpenAI API key for SDK interoperability (sensitive)
+    default_project_name (str): Default project name
+    default_project_id (str): Default project ID
+    default_logstream_name (str): Default log stream name
+    default_logstream_id (str): Default log stream ID
+    logging_disabled (bool): Disable all logging to Galileo
+
+**Notes**
+
+- The Configuration class should not be instantiated; use it as a static class
+- Direct attribute access (e.g., `Configuration.galileo_api_key`) is the recommended pattern
+- The `get_configuration()` method masks sensitive values for safe display/logging
+- Setting an attribute automatically updates the corresponding environment variable
+- This design maintains compatibility with third-party libraries expecting env vars
 
 ### connect
 
