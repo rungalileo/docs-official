@@ -1,0 +1,86 @@
+<Steps>
+<Step title="Installation">
+
+Add the OpenTelemetry packages to your project:
+
+<CodeGroup>
+```bash Terminal
+pip install opentelemetry-api opentelemetry-sdk \
+            opentelemetry-exporter-otlp
+```
+</CodeGroup>
+
+The `opentelemetry-api` and `opentelemetry-sdk` packages provide the core OpenTelemetry functionality. The `opentelemetry-exporter-otlp` package enables sending traces to Galileo's OTLP endpoint.
+</Step>
+<Step title="Get the authentication headers">
+The OTel headers is a dictionary containing your API key, project name, and Log stream name. The convention for OTel is to store this header as a single string of key=value pairs in the `OTEL_EXPORTER_OTLP_HEADERS` environment variable.
+
+<CodeGroup>
+```python Python
+import os
+
+# Create a dictionary of headers
+headers = {
+    "Galileo-API-Key": os.environ.get("GALILEO_API_KEY"),
+    "project": os.environ.get("GALILEO_PROJECT"),
+    "logstream": os.environ.get("GALILEO_LOG_STREAM", "default"),
+}
+
+# Set this as an environment variable
+os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(
+    [f"{k}={v}" for k, v in headers.items()]
+)
+```
+</CodeGroup>
+</Step>
+<Step title="Get your endpoint">
+The OTel endpoint is different from Galileo's regular API endpoint and is specifically designed to receive telemetry data in the OTLP format.
+
+If you are using [app.galileo.ai](https://app.galileo.ai), then the OTel endpoint is `https://api.galileo.ai/otel/traces`.
+
+If you're using a self-hosted Galileo deployment, replace the `https://api.galileo.ai/otel/traces` endpoint with your deployment URL. The format of this URL is based on your console URL, replacing `console` with `api` and appending `/otel/traces`.
+
+For example:
+
+- if your console URL is `https://console.galileo.example.com`, the OTel endpoint would be `https://api.galileo.example.com/otel/traces`
+- if your console URL is `https://console-galileo.apps.mycompany.com`, the OTel endpoint would be `https://api-galileo.apps.mycompany.com/otel/traces`
+
+The convention is to store this in the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. For example:
+
+<CodeGroup>
+```python Python
+os.environ["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"] = \
+    "https://api.galileo.ai/otel/traces"
+```
+</CodeGroup>
+</Step>
+<Step title="Create a span processor">
+
+You can now create the span processor. This will use an OTel exporter configured by loading the headers and endpoint from the environment variables.
+
+<CodeGroup>
+```python Python
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
+    OTLPSpanExporter
+)
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+# Create a span process
+span_processor = BatchSpanProcessor(OTLPSpanExporter())
+```
+</CodeGroup>
+</Step>
+<Step title="Register the span processor">
+
+The span processor can now be registered with an OTel trace provider.
+
+<CodeGroup>
+```python Python
+from opentelemetry.sdk import trace as trace_sdk
+
+tracer_provider = trace_sdk.TracerProvider()
+tracer_provider.add_span_processor(span_processor)
+```
+</CodeGroup>
+</Step>
+</Steps>
