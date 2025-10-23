@@ -4,10 +4,12 @@
 Add the OpenTelemetry packages to your project:
 
 <CodeGroup>
+
 ```bash Terminal
 pip install opentelemetry-api opentelemetry-sdk \
             opentelemetry-exporter-otlp
 ```
+
 </CodeGroup>
 
 The `opentelemetry-api` and `opentelemetry-sdk` packages provide the core OpenTelemetry functionality. The `opentelemetry-exporter-otlp` package enables sending traces to Galileo's OTLP endpoint.
@@ -16,6 +18,7 @@ The `opentelemetry-api` and `opentelemetry-sdk` packages provide the core OpenTe
 The OTel headers is a dictionary containing your API key, project name, and Log stream name. The convention for OTel is to store this header as a single string of key=value pairs in the `OTEL_EXPORTER_OTLP_HEADERS` environment variable.
 
 <CodeGroup>
+
 ```python Python
 import os
 
@@ -31,6 +34,7 @@ os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(
     [f"{k}={v}" for k, v in headers.items()]
 )
 ```
+
 </CodeGroup>
 </Step>
 <Step title="Get your endpoint">
@@ -48,10 +52,12 @@ For example:
 The convention is to store this in the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. For example:
 
 <CodeGroup>
+
 ```python Python
 os.environ["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"] = \
     "https://api.galileo.ai/otel/traces"
 ```
+
 </CodeGroup>
 </Step>
 <Step title="Create a span processor">
@@ -59,6 +65,7 @@ os.environ["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"] = \
 You can now create the span processor. This will use an OTel exporter configured by loading the headers and endpoint from the environment variables.
 
 <CodeGroup>
+
 ```python Python
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
     OTLPSpanExporter
@@ -68,6 +75,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 # Create a span process
 span_processor = BatchSpanProcessor(OTLPSpanExporter())
 ```
+
 </CodeGroup>
 </Step>
 <Step title="Register the span processor">
@@ -75,12 +83,14 @@ span_processor = BatchSpanProcessor(OTLPSpanExporter())
 The span processor can now be registered with an OTel trace provider.
 
 <CodeGroup>
+
 ```python Python
 from opentelemetry.sdk import trace as trace_sdk
 
 tracer_provider = trace_sdk.TracerProvider()
 tracer_provider.add_span_processor(span_processor)
 ```
+
 </CodeGroup>
 </Step>
 </Steps>
