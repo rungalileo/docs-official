@@ -4,46 +4,87 @@ description: Learn how to measure the correctness and coherence of an agentic tr
 ---
 
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
-
-import SnippetPrompt from "/snippets/prompts/metrics/agent-flow.mdx"
-
-**Agent flow** is a custom LLM-as-a-judge session-level metric, based around a pre-created prompt available from Galileo with user customizations.
+import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
+import { Scale } from "/snippets/components/scale.mdx"
 
 <DefinitionCard>
-<strong>Agent Flow</strong> is a binary evaluation metric that measures the correctness and coherence of an agentic trajectory by validating it against user-specified natural language tests.
+<strong>Agent Flow</strong> is a binary metric that checks if an agent's behavior satisfies all user-defined natural language conditions.
 </DefinitionCard>
 
+Agent Flow is a binary evaluation metric that measures the correctness and coherence of an agentic trajectory by validating it against user-specified natural language tests.
 A trajectory is said to pass the Agent Flow metric if and only if all the user-defined natural language conditions are successfully satisfied by the agent's realized behavior or output.
 
 <Note>
-When you create this metric, you will need to provide the flow conditions in the prompt.
+To use this metric, you will need to create a copy and edit the prompt to provide your natural language tests.
 </Note>
 
-This is a **boolean** metric, returning either 0% (false) or 100% (true) - 0% means the agent is not correct based on **all** the user defined tests, 100% means it is correct. If you use multiple judges, then the score will be a percentage based on the number of judges who scored true vs false. For example, if 4 out of 5 scored the metric as true, the score would be 80%.
+This is a **boolean** metric, returning a confidence score that the agent flow satisfies all conditions. The score ranges from 0% (no confidence the agent flow satisfies all conditions) to 100% (complete confidence that the agent flow satisfies all conditions).
 
-## Create the agent flow metric
+## Agent Flow at a glance
 
-This metric needs to be manually created, using a prompt defined by Galileo.
+| Property                       | Description |
+| :----------------------------- | :------------- |
+| **Name**                       | Agent Flow |
+| **Category**                   | Agentic AI |
+| **Can be applied to**          | Session |
+| **LLM-as-a-judge Support**     | ✅ |
+| **Luna Support**               | ❌ |
+| **Protect Runtime Protection** | ❌ |
+| **Value Type**                 | Boolean shown as a percentage confidence score |
+
+## When to use this metric
+
+<MetricWhenToUse
+  description="Agent Flow is useful when measuring multi-agent systems that have well-defined paths or interactions"
+  useCases={[
+    {
+      title: "Agents with multiple possible paths",
+      description: "Agent Flow can evaluate an agentic application that has multiple possible paths where you know the expected behavior for each user response. You can validate that the agent performs the expected behavior."
+    },
+    {
+      title: "Agents with specific intention views",
+      description: "Agent flow can validate specific interaction rules. For example, ensuring the agent asks for confirmation before completing a purchase."
+    },
+    {
+      title: "Agents with unconditional behaviors",
+      description: "Agent flow can check for unconditional behaviors, such as verifying that the agent always calls the authentication tool during a conversation."
+    }
+  ]}
+/>
+
+## Score interpretation
+
+**Expected Score:** 80%-100%.
+
+<Scale
+  low="0"
+  mid="60%"
+  high="100%"
+  lowLabel="Poor"
+  midLabel="Fair"
+  highLabel="Excellent"
+/>
+
+## Configure Agent Flow
+
+This metric needs to be manually customized to include your own natural language tests.
 
 <Steps>
-<Step title="Create a new LLM-as-a-judge metric">
-Create a new LLM-as-a-judge metric by following the instructions in our [LLM-as-a-judge concept guide](/concepts/metrics/custom-metrics/custom-metrics-ui-llm).
+<Step title="Create a copy of the Agent Flow metric">
+From the **Metrics Hub**, select the **Agent Flow** metric. You will get a popup asking you to duplicate the metric. Select **Duplicate metric** to create a copy.
 
-Use the following settings:
-
-| Setting           | Value |
-| :---------------- | ----- |
-| Name              | `Agent flow` |
-| LLM Model         | Select your preferred model |
-| Apply to          | **Session** |
-| Advanced Settings | Configure these as required for your needs |
+![The agent flow metric with the duplicate metric popup](/concepts/metrics/agentic/configure-agent-flow.webp)
 
 </Step>
-<Step title="Set the prompt">
+<Step title="Locate the user defined tests section">
 
-Set the prompt to the following:
+Locate the user defined tests section in the prompt.
 
-<SnippetPrompt/>
+```xml
+<user-defined-tests>
+{{ Add your tests here }}
+</user-defined-tests>
+```
 
 </Step>
 <Step title="Customize the prompt by adding your user-defined tests">
@@ -78,4 +119,17 @@ Save the metric, then turn it on for your Log stream.
 </Step>
 </Steps>
 
-Your metric is now ready to use in your project.
+## Best practices
+
+Trajectory tests are similar to unit tests for the agents trajectory, to check if certain conditions are followed during the agents path.
+
+You should write all the tests in a numbered list. For example:
+
+```md
+1. If X happens then ask the user Y and call tool Z.
+2. X tool is always called before Y tool.
+3. When user asks X reply with Y
+4. The tool Y should be called once in the conversation.
+```
+
+Each test should check for one single condition only. Tests should be logically consistent, and well defined.
