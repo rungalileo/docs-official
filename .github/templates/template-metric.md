@@ -35,21 +35,21 @@ Typical wordings to use are:
 - By using (X), (specify users/target audience) gain ...
 - To use (X), you create (Y)
 
-### (Metric) at a glance
+## (Metric) at a glance
 
 | Property                       | Description |
 | :----------------------------- | :------------- |
 | **Name**                       | The official name of the metric |
 | **Category**                   | What category does this metric belong to? |
-| **Use this metric for**        | When in short should this metric be used? |
 | **Can be applied to**          | session,trace, all span types (agent, workflow, retriever, LLM, and tool) |
-| **LLM/Luna Support**           | Whether this metric supports LLM and/or Luna models |
-| **Protect Runtime Protection** | Whether this metric is supported by Galileo Protect |
+| **LLM-as-a-judge Support**     | Whether this metric supports LLM as a judge, ✅ or ❌ |
+| **Luna Support**               | Whether this metric supports Luna models, ✅ or ❌ |
+| **Protect Runtime Protection** | Whether this metric is supported by Galileo Protect, ✅ or ❌ |
 | **Constants**                  | Any predefined constants or configuration options |
 | **Value Type**                 | The data type and allowed values for this metric |
 | **Input/Output Requirements**  | Required inputs (e.g., ground truth) and expected outputs |
 
-### When to use this metric
+## When to use this metric
 
 <MetricWhenToUse
   description="(When is this metric best used and why might it be used)"
