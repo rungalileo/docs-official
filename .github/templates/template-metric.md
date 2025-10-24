@@ -5,11 +5,10 @@ description: Description in sentence case
 
 import { DefinitionCard } from '@snippets/components/DefinitionCard';
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
-import { RelatedResources } from '@snippets/components/related-resources';
+
+To make this easier to fill in - we have a form to complete as each new metric comes available. [Please fill in this form and transpose into this template](https://docs.google.com/forms/d/e/1FAIpQLSfhyUzXnt1aSWR7Ql8wKHh4khVvxl2OBl5VZsnp0Un9gUnkrg/viewform?usp=sharing&ouid=101498790361770020061)
 
 > This template includes writing instructions and boilerplate text that you can customize, use as-is, or completely replace with your own text. This text is indicated in (parentheses). Make sure you replace the placeholders with your own text.
-
-## Overview
 
 <DefinitionCard>
 <strong>Title of metric</strong>definition of metric and what it does.
@@ -36,22 +35,21 @@ Typical wordings to use are:
 - By using (X), (specify users/target audience) gain ...
 - To use (X), you create (Y)
 
-### (Metric) at a glance
+## (Metric) at a glance
 
-| Property | Description |
-|:----------|:-------------|
-| **Name of Metric** | The official name of the metric |
-| **Metric Category** | What category does this metric belong to? |
-| **Use this metric for** | When in short should this metric be used? |
-| **Can be applied to** | session,trace, all span types (agent, workflow, retriever, LLM, and tool) |
-| **LLM/Luna Support** | Whether this metric supports LLM and/or Luna models |
-| **Protect Runtime Protection** | Whether this metric is supported by Galileo Protect |
-| **Constants** | Any predefined constants or configuration options |
-| **Usage Context** | Where and how this metric can be applied |
-| **Value Type** | The data type and allowed values for this metric |
-| **Input/Output Requirements** | Required inputs (e.g., ground truth) and expected outputs |
+| Property                       | Description |
+| :----------------------------- | :------------- |
+| **Name**                       | The official name of the metric |
+| **Category**                   | What category does this metric belong to? |
+| **Can be applied to**          | session,trace, all span types (agent, workflow, retriever, LLM, and tool) |
+| **LLM-as-a-judge Support**     | Whether this metric supports LLM as a judge, ✅ or ❌ |
+| **Luna Support**               | Whether this metric supports Luna models, ✅ or ❌ |
+| **Protect Runtime Protection** | Whether this metric is supported by Galileo Protect, ✅ or ❌ |
+| **Constants**                  | Any predefined constants or configuration options |
+| **Value Type**                 | The data type and allowed values for this metric |
+| **Input/Output Requirements**  | Required inputs (e.g., ground truth) and expected outputs |
 
-### When to use this metric
+## When to use this metric
 
 <MetricWhenToUse
   description="(When is this metric best used and why might it be used)"
@@ -161,30 +159,17 @@ OPTIONAL
   (Important note about using this metric effectively, including any warnings or considerations)
 </Note>
 
-### (Best Practice One)
+### (Best practice 0ne)
 
-### (Best Practice Two)
+### (Best practice two)
 
-### (Best Practice Three)
+### (Best practice three)
 
 OPTIONAL
 <Note>
 (Tip on how to best use with other metrics or other nuance to add in if applicable)
 </Note>
 
-> Related Resources Component, feel free to add in any related resources you think are relevant to the metric.
-> If there are no related resources / assets, the component will not be rendered if the section is deleted.
+## Related resources
 
-
-<RelatedResources 
-  metricName="(Metric Name)"
-  howToGuides={[
-    { title: "(Title of How to Guide)", url: "(relative path to how to guide)" },
-  ]}
-  relatedConcepts={[
-    { title: "(Concept Doc)", url: "(Relative Path to concept doc)" },
-  ]}
-  externalResources={[
-    { title: "(blog or video could go here)", url: "(link to blog or video)" }
-  ]}
-/>
+Add in any related resources you think are relevant to the metric.

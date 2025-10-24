@@ -4,46 +4,77 @@ description: Learn how to measure the quality of a conversation that a user has 
 ---
 
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
-
-import SnippetPrompt from "/snippets/prompts/metrics/conversation-quality.mdx"
-
-**Conversation quality** is a custom LLM-as-a-judge trace-level metric, with a pre-created prompt available from Galileo.
+import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
+import { Scale } from "/snippets/components/scale.mdx"
 
 <DefinitionCard>
-<strong>Conversation Quality</strong> is a binary evaluation metric that assesses whether a chatbot interaction left the user feeling satisfied and positive, or frustrated and dissatisfied, based on tone, engagement, and overall experience.
+<strong>Conversation Quality</strong> is a binary metric that assesses whether a chatbot interaction left the user feeling satisfied and positive or frustrated and dissatisfied, based on tone, engagement, and overall experience.
 </DefinitionCard>
 
-This is a **boolean** metric, returning either 0% (false) or 100% (true) - 0% means the interaction left the user feeling frustrated and dissatisfied, 100% means it left the user feeling satisfied and positive. If you use multiple judges, then the score will be a percentage based on the number of judges who scored true vs false. For example, if 4 out of 5 scored the metric as true, the score would be 80%.
+The Conversation Quality metric evaluates user satisfaction across an entire chatbot session by analyzing tone, engagement, and sentiment. It classifies each conversation as GOOD or BAD depending on whether the user’s overall experience reflects positive engagement or frustration directed at the bot.
 
-## Create the agent efficiency metric
+The metric focuses on conversational flow rather than task success, emphasizing how naturally and politely the user and bot interact. It excludes non-textual or purely action-based agent outputs (e.g., button clicks).
 
-This metric needs to be manually created, using a prompt defined by Galileo.
+This is a **boolean** metric, returning a confidence score that the conversation quality is good. The score ranges from 0% (no confidence the conversation quality is good) to 100% (complete confidence that the conversation quality is good).
 
-<Steps>
-<Step title="Create a new LLM-as-a-judge metric">
-Create a new LLM-as-a-judge metric by following the instructions in our [LLM-as-a-judge concept guide](/concepts/metrics/custom-metrics/custom-metrics-ui-llm).
+## Conversation Quality at a glance
 
-Use the following settings:
+| Property                       | Description |
+| :----------------------------- | :------------- |
+| **Name**                       | Conversation Quality |
+| **Category**                   | Agentic AI |
+| **Can be applied to**          | Session |
+| **LLM-as-a-judge Support**     | ✅ |
+| **Luna Support**               | ❌ |
+| **Protect Runtime Protection** | ❌ |
+| **Value Type**                 | Boolean shown as a percentage confidence score |
 
-| Setting           | Value |
-| :---------------- | ----- |
-| Name              | `Conversation quality` |
-| LLM Model         | Select your preferred model |
-| Apply to          | **Session** |
-| Advanced Settings | Configure these as required for your needs |
+## When to use this metric
 
-</Step>
-<Step title="Set the prompt">
+<MetricWhenToUse
+  description="Conversation Quality is a useful metric when working with chat bots or other tools with lots of user interaction"
+  useCases={[
+    {
+      title: "Chat tools where sentiment is critical",
+      description: "Evaluating chatbot performance where capturing user sentiment is critical, such as customer support or counseling applications."
+    },
+    {
+      title: "Customer satisfaction",
+      description: "Monitoring and improving overall user satisfaction in conversational AI systems."
+    },
+    {
+      title: "User experience quality",
+      description: "Comparing different models or system versions based on experience quality rather than task completion."
+    }
+  ]}
+/>
 
-Set the prompt to the following:
+## Score interpretation
 
-<SnippetPrompt/>
+**Expected Score:** 80%-100%.
 
-</Step>
+<Scale
+  low="0"
+  mid="60%"
+  high="100%"
+  lowLabel="Poor"
+  midLabel="Fair"
+  highLabel="Excellent"
+  lowDescription="Many conversations indicate frustration, impatience, or dissatisfaction directed at the bot"
+  highDescription="Most conversations reflect positive user sentiment, polite engagement, and satisfaction"
+/>
 
-<Step title="Save the metric">
-Save the metric, then turn it on for your Log stream.
-</Step>
-</Steps>
+## How to improve Conversation Quality scores
 
-Your metric is now ready to use in your project.
+Some techniques to improve Conversation Quality scores are:
+
+- Ensure bots provide clear, empathetic, and concise responses
+- Detect and mitigate repeated clarification loops
+- Train models to de-escalate external frustration effectively
+- Log complete sessions to allow accurate tone assessment
+
+Common issues that can cause low scores are:
+
+- Mislabeling external frustration as bot-directed
+- Incomplete logs
+- Abrupt session truncation
