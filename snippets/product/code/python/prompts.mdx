@@ -1,0 +1,19 @@
+```python Python
+# pip install galileo
+import os
+from galileo import Message, MessageRole
+from galileo.prompts import create_prompt
+
+os.environ["GALILEO_API_KEY"] = "<YOUR_API_KEY>"  # find it at https://app.galileo.ai/settings/api-keys
+
+prompt = create_prompt(
+    name="Intro Prompt",
+    template=[
+        Message(
+            role=MessageRole.system,
+            content="Galileo brings automation and insight to AI evaluations.",
+        ),
+        Message(role=MessageRole.user, content="{{input}}"),
+    ],
+)
+```

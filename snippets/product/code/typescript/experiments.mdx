@@ -1,0 +1,52 @@
+```typescript TypeScript
+// npm install galileo@latest
+import {
+    createDataset,
+    createPrompt,
+    GalileoScorers,
+    runExperiment
+} from "galileo";
+import {
+    MessageRole
+} from "galileo/types";
+
+process.env.GALILEO_API_KEY = "<YOUR_API_KEY>";  // find it at https://app.galileo.ai/settings/api-keys
+process.env.GALILEO_PROJECT = "<YOUR_PROJECT_NAME>";
+
+(async () => {
+    let prompt = await createPrompt({
+        name: "Prompt for experiment",
+        template: [
+            {
+                role: MessageRole.system,
+                content:`Galileo brings automation and insight to AI evaluations.`
+            },
+            {
+                role: MessageRole.user,
+                content: "{{input}}"
+            },
+        ]
+    });
+
+    let dataset = await createDataset(
+        [
+            { "input": "What is Galileo?" },
+            { "input": "What is Copernicus?" }
+        ],
+        "Dataset for experiment",
+    );
+
+    // Run the experiment
+    const experiment = await runExperiment({
+        name: "Intro Experiment",
+        promptTemplate: prompt,
+        dataset: dataset,
+        metrics: [GalileoScorers.ContextAdherence],
+        projectName: process.env.GALILEO_PROJECT,
+        // Add an integration to your model provider of choice at https://app.galileo.ai/settings/integrations
+        promptSettings: { model_alias: "GPT-4o" }
+    });
+
+    console.log(`View experiment at : ${experiment.link}`);
+})();
+```
