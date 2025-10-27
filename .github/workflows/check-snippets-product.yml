@@ -1,0 +1,62 @@
+# Sanity check to stop the products snippets being deleted
+# These snippets are used in the product for the empty state pages
+name: Check Snippets Product Folder
+
+on:
+  push:
+    branches:
+      - main
+      - feat/**
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-snippets-product:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check snippets/product folder exists
+        run: |
+          if [ ! -d "snippets/product" ]; then
+            echo "❌ Error: snippets/product folder does not exist"
+            exit 1
+          fi
+          echo "✅ snippets/product folder exists"
+      
+      - name: Check required files exist
+        run: |
+          MISSING_FILES=()
+          
+          # Define the required files
+          REQUIRED_FILES=(
+            "snippets/product/code/python/datasets.mdx"
+            "snippets/product/code/python/experiments.mdx"
+            "snippets/product/code/python/prompts.mdx"
+            "snippets/product/code/typescript/datasets.mdx"
+            "snippets/product/code/typescript/experiments.mdx"
+            "snippets/product/code/typescript/prompts.mdx"
+          )
+          
+          # Check each file
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$file" ]; then
+              MISSING_FILES+=("$file")
+              echo "❌ Missing: $file"
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+          
+          # Exit with error if any files are missing
+          if [ ${#MISSING_FILES[@]} -gt 0 ]; then
+            echo ""
+            echo "❌ Error: ${#MISSING_FILES[@]} required file(s) missing from snippets/product folder"
+            exit 1
+          fi
+          
+          echo ""
+          echo "✅ All required files are present in snippets/product folder"
