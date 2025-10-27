@@ -1,0 +1,82 @@
+```typescript TypeScript
+import { openai } from '@ai-sdk/openai';
+import { Experimental_Agent as Agent, stepCountIs, tool } from 'ai';
+import { z } from 'zod';
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { 
+  AlwaysOnSampler,
+  SimpleSpanProcessor
+} from '@opentelemetry/sdk-trace-node';
+import { OTLPHttpProtoTraceExporter } from '@vercel/otel';
+import { env } from 'process';
+import dotenv from "dotenv";
+
+// Load the environment variables
+dotenv.config();
+
+// Get the OTel endpoint
+const galileoEndpoint = env.GALILEO_API_ENDPOINT || 
+  "https://api.galileo.ai/otel/traces";
+
+// Get the Galileo API key, project, and log stream from environment
+// variables
+const galileoHeaders = {
+  "Galileo-API-Key": env.GALILEO_API_KEY ,
+  "project": env.GALILEO_PROJECT,
+  "logstream": env.GALILEO_LOG_STREAM,
+};
+
+// Create and start the OpenTelemetry SDK
+const sdk = new NodeSDK({
+  spanProcessors: [new SimpleSpanProcessor(new OTLPHttpProtoTraceExporter({
+    url: galileoEndpoint,
+    headers: galileoHeaders,
+  }))],
+  sampler: new AlwaysOnSampler(),
+});
+
+sdk.start();
+
+/**
+ * The weather agent is a simple agent that can get the weather in a
+ * location and convert the temperature from Fahrenheit to Celsius
+ * using tools.
+ */
+const weatherAgent = new Agent({
+  model: openai('gpt-4-turbo'),
+  tools: {
+    weather: tool({
+      description: 'Get the weather in a location (in Fahrenheit)',
+      inputSchema: z.object({
+        location: z.string().describe('The location to get the weather for'),
+      }),
+      execute: async ({ location }) => ({
+        location,
+        temperature: 72,
+      }),
+    }),
+    convertFahrenheitToCelsius: tool({
+      description: 'Convert temperature from Fahrenheit to Celsius',
+      inputSchema: z.object({
+        temperature: z.number().describe('Temperature in Fahrenheit'),
+      }),
+      execute: async ({ temperature }) => {
+        const celsius = Math.round((temperature - 32) * (5 / 9));
+        return { celsius };
+      },
+    }),
+  },
+  stopWhen: stepCountIs(20),
+  // enable telemetry for the agent
+  experimental_telemetry: { isEnabled: true },
+
+});
+
+// Run the weather agent to get the weather in San Francisco in Celsius
+const result = await weatherAgent.generate({
+  prompt: 'What is the weather in San Francisco in celsius?',
+});
+
+// Log the result
+console.log(result.text);
+```

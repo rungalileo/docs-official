@@ -13,6 +13,18 @@ pip install opentelemetry-api opentelemetry-sdk \
 
 The `opentelemetry-api` and `opentelemetry-sdk` packages provide the core OpenTelemetry functionality. The `opentelemetry-exporter-otlp` package enables sending traces to Galileo's OTLP endpoint.
 </Step>
+<Step title="Create environment variables for your Galileo settings">
+
+Set environment variables for your Galileo settings, for example in a `.env` file:
+
+import SnippetSimpleEnvVars from "/snippets/code/multilingual/env-galileo-simple.mdx"
+
+<CodeGroup>
+
+<SnippetSimpleEnvVars/>
+
+</CodeGroup>
+</Step>
 <Step title="Get the authentication headers">
 The OTel headers is a dictionary containing your API key, project name, and Log stream name. The convention for OTel is to store this header as a single string of key=value pairs in the `OTEL_EXPORTER_OTLP_HEADERS` environment variable.
 
@@ -37,16 +49,10 @@ os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(
 </CodeGroup>
 </Step>
 <Step title="Get your endpoint">
-The OTel endpoint is different from Galileo's regular API endpoint and is specifically designed to receive telemetry data in the OTLP format.
 
-If you are using [app.galileo.ai](https://app.galileo.ai), then the OTel endpoint is `https://api.galileo.ai/otel/traces`.
+import SnippetConfigureOTelEndpoint from "/snippets/content/configure-otel-endpoint.mdx"
 
-If you're using a self-hosted Galileo deployment, replace the `https://api.galileo.ai/otel/traces` endpoint with your deployment URL. The format of this URL is based on your console URL, replacing `console` with `api` and appending `/otel/traces`.
-
-For example:
-
-- if your console URL is `https://console.galileo.example.com`, the OTel endpoint would be `https://api.galileo.example.com/otel/traces`
-- if your console URL is `https://console-galileo.apps.mycompany.com`, the OTel endpoint would be `https://api-galileo.apps.mycompany.com/otel/traces`
+<SnippetConfigureOTelEndpoint/>
 
 The convention is to store this in the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. For example:
 
