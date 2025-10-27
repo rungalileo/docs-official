@@ -22,8 +22,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure the OTel endpoint environment variable
-os.environ['OTEL_EXPORTER_OTLP_TRACES_ENDPOINT'] = \
-    os.getenv("GALILEO_API_ENDPOINT")
+os.environ["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"] = os.environ.get(
+    "GALILEO_API_ENDPOINT", 
+    "https://api.galileo.ai/otel/traces"
+)
+
 
 # Create the headers using the Galileo API key, project, and log stream
 headers = {
