@@ -182,7 +182,7 @@ The `GalileoLogger` supports adding different types of spans to your traces. All
 | Agent     | A span for logging agent actions. You can specify the agent type, for example a supervisor, planner, router, or judge. |
 | LLM       | A span for logging calls to an LLM. You can specify the number of tokens, time to first token, temperature, model, and any tools. |
 | Retriever | A span for logging RAG actions. In the output for this span you can provide all the data returned from the RAG platform for evaluating your RAG processing, |
-| Tool      | A span for logging calls to tools. You can specify the tool call ID to tie to an LLM tool call. |
+| Tool      | A span for logging calls to tools including MCP servers. You can specify the tool call ID to tie to an LLM tool call. |
 | Workflow  | Workflow spans are for creating logical groupings of spans based on different flows in your app. |
 
 #### Agent spans
@@ -220,7 +220,7 @@ See the [`add_retriever_span` Python SDK docs](/sdk-api/python/reference/logger/
 
 #### Tool spans
 
-Tool spans log calls to tools.
+Tool spans log calls to tools, including tools exposed by MCP servers.
 
 <CodeGroup>
   <SnippetSdkLoggingAddToolSpanPython />
@@ -237,6 +237,10 @@ Workflow spans allow you to group spans into separate workflows for easier monit
   <SnippetSdkLoggingAddWorkflowSpanPython />
   <SnippetSdkLoggingAddWorkflowSpanTypeScript />
 </CodeGroup>
+
+Workflow spans are created as child spans of the current trace, or the current workflow span if one was created already and not concluded. Once you create a workflow span, all subsequent spans are created as children of that workflow span.
+
+To end a workflow span, call `conclude` on the logger. The `output` passed to `conclude` will be set as the output of the workflow span. Once the workflow span is concluded, any newly added spans will be created on that workflow spans parent span or trace.
 
 See the [`add_workflow_span` Python SDK docs](/sdk-api/python/reference/logger/logger#add-workflow-span) or [`addWorkflowSpan` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#addworkflowspan) for more details.
 
