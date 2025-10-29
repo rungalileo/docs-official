@@ -9,10 +9,34 @@ title: getProject
 # Function: getProject()
 
 ```ts
-function getProject(__namedParameters: object): Promise<Project>;
+function getProject(__namedParameters: object): Promise<{
+  bookmark?: boolean;
+  created_at: string;
+  created_by: string;
+  created_by_user: {
+    email: string;
+    first_name?: null | string;
+    id: string;
+    last_name?: null | string;
+  };
+  description?: null | string;
+  id: string;
+  labels?: "sample"[];
+  name?: null | string;
+  permissions?: object[];
+  runs: object[];
+  type?:
+    | null
+    | "prompt_evaluation"
+    | "llm_monitor"
+    | "gen_ai"
+    | "training_inference"
+    | "protect";
+  updated_at: string;
+}>;
 ```
 
-Defined in: [src/utils/projects.ts:42](https://github.com/rungalileo/galileo-js/blob/main/src/utils/projects.ts#L42)
+Defined in: [src/utils/projects.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/projects.ts)
 
 ## Parameters
 
@@ -28,4 +52,27 @@ Defined in: [src/utils/projects.ts:42](https://github.com/rungalileo/galileo-js/
 
 ## Returns
 
-`Promise`\<[`Project`](/sdk-api/typescript/reference/types/interfaces/Project)\>
+`Promise`\<\{
+`bookmark?`: `boolean`;
+`created_at`: `string`;
+`created_by`: `string`;
+`created_by_user`: \{
+`email`: `string`;
+`first_name?`: `null` \| `string`;
+`id`: `string`;
+`last_name?`: `null` \| `string`;
+\};
+`description?`: `null` \| `string`;
+`id`: `string`;
+`labels?`: `"sample"`[];
+`name?`: `null` \| `string`;
+`permissions?`: `object`[];
+`runs`: `object`[];
+`type?`: \| `null`
+\| `"prompt_evaluation"`
+\| `"llm_monitor"`
+\| `"gen_ai"`
+\| `"training_inference"`
+\| `"protect"`;
+`updated_at`: `string`;
+\}\>
