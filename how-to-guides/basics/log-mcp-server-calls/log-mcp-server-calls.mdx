@@ -5,6 +5,13 @@ description: Learn how to log tool calls when calling MCP servers from your AI a
 
 import SnippetBasicChatBot from "/snippets/code/python/how-to-guides/log-mcp-server-calls/basic-chatbot.mdx"
 import SnippetMCPClient from "/snippets/code/python/how-to-guides/log-mcp-server-calls/mcp-client.mdx"
+import SnippetImportMCPClient from "/snippets/code/python/how-to-guides/log-mcp-server-calls/import-mcp-client.mdx"
+import SnippetCreateMCPClient from "/snippets/code/python/how-to-guides/log-mcp-server-calls/create-mcp-client.mdx"
+import SnippetConnectMCPClient from "/snippets/code/python/how-to-guides/log-mcp-server-calls/connect-mcp-client.mdx"
+import SnippetPassToolsToLLM from "/snippets/code/python/how-to-guides/log-mcp-server-calls/pass-tools-to-llm.mdx"
+import SnippetProcessToolUse from "/snippets/code/python/how-to-guides/log-mcp-server-calls/process-tool-use.mdx"
+import SnippetCaptureStartTime from "/snippets/code/python/how-to-guides/log-mcp-server-calls/capture-start-time.mdx"
+import SnippetAddToolSpan from "/snippets/code/python/how-to-guides/log-mcp-server-calls/add-tool-span.mdx"
 
 This guide explains how to log tool calls in Galileo from calls to MCP servers.
 
@@ -132,11 +139,7 @@ This code defines an `MCPClient` class that connects to the Galileo MCP server.
 In your `app.py` file, import the MCP Client, and create an instance of it. Add the following import statement to the top of the `app.py`:
 
 <CodeGroup>
-
-```python app.py
-from mcp_client import MCPClient
-```
-
+<SnippetImportMCPClient/>
 </CodeGroup>
 </Step>
 <Step title="Create and initialize the MCP client">
@@ -144,21 +147,13 @@ from mcp_client import MCPClient
 Under the declaration of the Anthropic client and message history, create an instance of the MCP client with the following code:
 
 <CodeGroup>
-
-```python app.py
-mcp_client = MCPClient()
-```
-
+<SnippetCreateMCPClient/>
 </CodeGroup>
 
 Then in the `main` function, connect the MCP client to the Galileo MCP server. Add the following line of code to the top of the `main` function:
 
 <CodeGroup>
-
-```python app.py
-await mcp_client.connect_to_server()
-```
-
+<SnippetConnectMCPClient/>
 </CodeGroup>
 </Step>
 <Step title="Pass the tools list to the LLM">
@@ -169,45 +164,7 @@ Change the `call_llm` function to take a boolean parameter called `use_tools`. T
 Change the `call_llm` function to the following:
 
 <CodeGroup>
-
-```python app.py
-def call_llm(messages, use_tools: bool = True) -> Message:
-    """
-    Call the LLM with the provided query and return
-    the response text
-    """
-    galileo_logger = galileo_context.get_logger_instance()
-
-    # Capture the current time in nanoseconds for logging
-    start_time_ns = datetime.now().timestamp() * 1_000_000_000
-
-    # Call the LLM
-    response = anthropic.messages.create(
-        model=os.environ["ANTHROPIC_MODEL"],
-        max_tokens=1000,
-        messages=messages,
-        tools=mcp_client.tools if use_tools else omit,
-    )
-
-    # Log the LLM call
-    for content in [c for c in response.content if c.type == "text"]:
-        galileo_logger.add_llm_span(
-            input=messages,
-            output=content.text,
-            model=os.environ["ANTHROPIC_MODEL"],
-            num_input_tokens=response.usage.input_tokens,
-            num_output_tokens=response.usage.output_tokens,
-            total_tokens=response.usage.input_tokens + 
-                         response.usage.output_tokens,
-            duration_ns=int(
-                (datetime.now().timestamp() * 1_000_000_000) - 
-                start_time_ns
-            ),
-        )
-
-    return response
-```
-
+<SnippetPassToolsToLLM/>
 </CodeGroup>
 
 Tools are required when a user query is passed to the LLM, but not when the LLM is processing the response from the tool call.
@@ -220,45 +177,11 @@ If the LLM returns a request to call a tool, you will then need to call the rele
 In the `for content in response.content:` block, add another clause after the `if content.type == "text":` block for if the content type is tool use:
 
 <CodeGroup>
-
-```python app.py
-elif content.type == 'tool_use':
-    # Execute tool call
-    result = await mcp_client.call_tool(
-        content.name,
-        content.input
-    )
-    final_text.append(f"[Calling tool {content.name}"+
-                      f"with args {content.input}]")
-
-    # Create a copy of the messages
-    # And add the tool response
-    messages = message_history.copy()
-    if hasattr(content, 'text') and content.text:
-        messages.append({
-            "role": "assistant",
-            "content": content.text
-        })
-    messages.append({
-        "role": "user",
-        "content": result.content
-    })
-
-    # Call the LLM without tools for the final response
-    response = call_llm(messages, use_tools=False)
-
-    # Add the response to the original message history
-    message_history.append({
-        "role": "assistant",
-        "content": response.content[0].text
-    })
-
-    final_text.append(response.content[0].text)
-```
+<SnippetProcessToolUse/>
+</CodeGroup>
 
 This code calls the MCP client to call the tool on the MCP server. The response is saved to the message history, then the message history is sent back to the LLM, this time without the tools list. The LLM then processes the tool result and returns a response.
 
-</CodeGroup>
 </Step>
 <Step title="Run the code">
 Run the code to ensure it works. Ask the chat bot a query that the Galileo MCP server can answer, such as "How do I use the GalileoLogger?".
@@ -294,33 +217,14 @@ When you run the app, a list of the all the tools on the server will be written 
 Add the following code before the call to `mcp_client.call_tool` to get the start time of the call. This will allow you to time the tool call and add this duration to the span.
 
 <CodeGroup>
-
-```python app.py
-# Get the tool start time
-tool_start_time_ns = datetime.now().timestamp() * 1_000_000_000
-```
-
+<SnippetCaptureStartTime/>
 </CodeGroup>
 </Step>
 <Step title="Log the tool span">
 After the tool call, log a tool span with the input and output of the tool. Add the following code after the call to `mcp_client.call_tool`:
 
 <CodeGroup>
-
-```python app.py
-# Log the tool call
-galileo_logger.add_tool_span(
-    input=query,
-    output=result.content[0].text,
-    name=content.name,
-    tool_call_id=content.id,
-    duration_ns=int(
-        (datetime.now().timestamp() * 1_000_000_000) - 
-        tool_start_time_ns
-    ),
-)
-```
-
+<SnippetAddToolSpan/>
 </CodeGroup>
 </Step>
 <Step title="Run the code">

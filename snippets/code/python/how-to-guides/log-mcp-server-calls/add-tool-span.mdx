@@ -1,0 +1,13 @@
+```python app.py
+# Log the tool call
+galileo_logger.add_tool_span(
+    input=query,
+    output=result.content[0].text,
+    name=content.name,
+    tool_call_id=content.id,
+    duration_ns=int(
+        (datetime.now().timestamp() * 1_000_000_000) - 
+        tool_start_time_ns
+    ),
+)
+```
