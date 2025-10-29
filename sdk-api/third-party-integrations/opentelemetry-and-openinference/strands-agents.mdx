@@ -1,0 +1,73 @@
+---
+title: Strands Agents
+description: Learn how to integrate a Strands Agents project with Galileo using OpenTelemetry
+---
+
+import ConfigureOTelInvVars from "/snippets/content/configure-otel-env-vars.mdx"
+
+import SnippetQuickstartPython from "/snippets/code/python/sdk/otel/strands-agents/quickstart-example.mdx"
+
+Galileo supports logging traces from [Strands Agents SDK](https://strandsagents.com/) applications using OpenTelemetry.
+
+## Set up OpenTelemetry
+
+To log Strands Agents using Galileo, the first step is to set up OpenTelemetry.
+
+<Steps>
+<ConfigureOTelInvVars/>
+</Steps>
+
+## Log a Strands ADK agent using OpenTelemetry
+
+Once OpenTelemetry is configured, you can use the OTel capabilities of Strands to log traces.
+
+<Steps>
+<Step title="Import the Strands Agent telemetry package">
+The Strands Agents SDK has telemetry support out of the box. Start by importing `StrandsTelemetry` with the following code:
+
+<CodeGroup>
+
+```python Python
+from strands.telemetry import StrandsTelemetry
+```
+
+</CodeGroup>
+</Step>
+<Step title="Set up the exporter">
+You can now set up an OTel exporter for your Strands Agent:
+
+<CodeGroup>
+
+```python Python
+strands_telemetry = StrandsTelemetry()
+strands_telemetry.setup_otlp_exporter()
+```
+
+</CodeGroup>
+
+When you run your Strands Agent code, traces will be logged to Galileo.
+</Step>
+</Steps>
+
+## Full example
+
+Here is a full example based off the [Strands Agent quickstart](https://strandsagents.com/latest/documentation/docs/user-guide/quickstart/). You can find this project in the [Galileo SDK examples repo](https://github.com/rungalileo/sdk-examples/tree/main/python/agent/strands-agent).
+
+To run this example, create a `.env` file with the following values set, or set them as environment variables:
+
+```ini .env
+# AWS environment variables
+AWS_BEARER_TOKEN_BEDROCK=your-aws-bedrock-token
+
+# Galileo environment variables
+GALILEO_API_ENDPOINT=your-galileo-otel-api-endpoint
+GALILEO_API_KEY=your-galileo-api-key
+GALILEO_PROJECT=your-galileo-project
+GALILEO_LOG_STREAM=your-log-stream
+```
+
+Remember to update these to match your [Galileo API key](https://app.galileo.ai/settings/api-keys), AWS Bedrock token, [Galileo OTel endpoint](/sdk-api/third-party-integrations/opentelemetry-and-openinference#configure-the-otel-endpoint), project name, and Log stream name.
+
+<CodeGroup>
+<SnippetQuickstartPython/>
+</CodeGroup>

@@ -1,134 +1,52 @@
 ---
-title: OpenTelemetry and OpenInference
+title: OpenInference
 description: Learn how to integrate Galileo with OpenTelemetry and OpenInference for comprehensive observability and tracing
 ---
 
+import ConfigureOTel from "/snippets/content/configure-otel.mdx"
+
 This guide explains how to integrate Galileo with [OpenTelemetry](https://opentelemetry.io/) and [OpenInference](https://github.com/Arize-ai/openinference) for comprehensive observability and tracing of your AI/ML workflows using industry-standard tools.
 
-## Installation
+## OpenTelemetry
 
-Add OpenTelemetry packages and AI instrumentation libraries to your project:
+The first step is to configure OpenTelemetry.
 
-```bash
-pip install opentelemetry-api opentelemetry-sdk \
-            opentelemetry-exporter-otlp
-```
+<ConfigureOTel/>
 
-The `opentelemetry-api` and `opentelemetry-sdk` packages provide the core OpenTelemetry functionality. The `opentelemetry-exporter-otlp` package enables sending traces to Galileo's OTLP endpoint
+You can now use this trace processor either using a framework that supports OTel directly, or via OpenInference.
 
-You can then add the relevant OpenInferencepackages for the framework or LLM that you are using. For example, to add the packages for LangChain and OpenAI, install the following:
+## OpenInference
 
-```bash
+Now you can enable automatic tracing for your framework and LLM operations using OpenInference instrumentors. These add AI-specific semantic conventions to your traces.
+
+For example, to instrument LangChain and OpenAI start by adding the relevant OpenInference packages:
+
+<CodeGroup>
+
+```bash Terminal
 pip install openinference-instrumentation-langchain \
             openinference-instrumentation-openai
 ```
 
-## Configure the OTel endpoint
+</CodeGroup>
 
-Set up the exporter to send traces to Galileo's OTel endpoint. The OTel endpoint is different from Galileo's regular API endpoint and is specifically designed to receive telemetry data in the OTLP format.
+Now you can add the instrumentors to your code, using the OTel trace provider.
 
-```python
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
+<CodeGroup>
 
-# Galileo's OpenTelemetry endpoint
-endpoint = "https://api.galileo.ai/otel/traces"
-
-# Configure OTLP exporter
-exporter = OTLPSpanExporter(endpoint=endpoint)
-span_processor = BatchSpanProcessor(exporter)
-```
-
-### Self-hosted deployments
-
-If you're using a self-hosted Galileo deployment, replace the `https://api.galileo.ai/otel/traces` endpoint with your deployment URL. The format of this URL is based on your console URL, replacing `console` with `api` and appending `/otel/traces`.
-
-For example:
-
-- if your console URL is `https://console.galileo.example.com`, the OTel endpoint would be `https://api.galileo.example.com/otel/traces`
-- if your console URL is `https://console-galileo.apps.mycompany.com`, the OTel endpoint would be `https://api-galileo.apps.mycompany.com/otel/traces`
-
-## Set up authentication headers
-
-Format your Galileo API key and project information for OpenTelemetry. OpenTelemetry requires headers to be set in the `OTEL_EXPORTER_OTLP_TRACES_HEADERS` environment variable in a specific comma-separated format.
-
-```python
-import os
-
-# Standard dictionary format (what you might expect)
-headers = {
-    "Galileo-API-Key": os.environ.get("GALILEO_API_KEY"),
-    "project": os.environ.get("GALILEO_PROJECT"),
-    "logstream": os.environ.get("GALILEO_LOG_STREAM", "default"),
-}
-
-# OpenTelemetry requires headers in this specific format
-os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(
-    [f"{k}={v}" for k, v in headers.items()]
+```python Python
+from openinference.instrumentation.langgraph import (
+    LangGraphInstrumentor
 )
-print(f"OTEL Headers: {os.environ['OTEL_EXPORTER_OTLP_TRACES_HEADERS']}")
-```
-
-OpenTelemetry's OTLP exporter expects headers as a single comma-separated string, not as a dictionary. This conversion ensures your authentication and metadata are properly formatted for transmission.
-
-## Configure the tracer provider
-
-Assemble the complete observability system with service metadata. This creates the pipeline that batches and exports traces to the OTel endpoint.
-
-```python
-from opentelemetry.sdk import trace as trace_sdk
-from opentelemetry import trace as trace_api
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.resources import Resource
-
-# Set up headers (as shown above)
-headers = {
-    "Galileo-API-Key": os.environ.get("GALILEO_API_KEY"),
-    "project": os.environ.get("GALILEO_PROJECT"),
-    "logstream": os.environ.get("GALILEO_LOG_STREAM", "default"),
-}
-os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(
-    [f"{k}={v}" for k, v in headers.items()]
+from openinference.instrumentation.openai import (
+    OpenAIInstrumentor
 )
-
-# Configure OpenTelemetry
-endpoint = "https://api.galileo.ai/otel/traces"
-resource = Resource.create({
-    "service.name": "your-service-name",
-    "service.version": "1.0.0",
-})
-
-# Create tracer provider
-tracer_provider = trace_sdk.TracerProvider(resource=resource)
-
-# Add span processor for Galileo
-tracer_provider.add_span_processor(
-    BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint))
-)
-trace_api.set_tracer_provider(tracer_provider=tracer_provider)
-```
-
-This code:
-
-- Creates a `Resource` that identifies your service with metadata
-- Sets up a `TracerProvider` that manages trace creation and processing
-- Configures a `BatchSpanProcessor` that efficiently batches traces before sending them to Galileo
-- Registers the tracer provider globally so all instrumentation can use it
-
-## Apply AI instrumentation
-
-Now you can enable automatic tracing for your framework and LLM operations using OpenInference instrumentors. These add AI-specific semantic conventions to your traces.
-
-For example, to instrument LangChain and OpenAI, use the following code:
-
-```python
-from openinference.instrumentation.langgraph import LangGraphInstrumentor
-from openinference.instrumentation.openai import OpenAIInstrumentor
 
 LangGraphInstrumentor().instrument(tracer_provider=tracer_provider)
 OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
 ```
+
+</CodeGroup>
 
 OpenInference adds:
 
@@ -139,32 +57,18 @@ OpenInference adds:
 
 Once OpenTelemetry and OpenInference is set up your application will automatically capture and send observability data to Galileo with every run, providing complete traces of your AI workflows, detailed LLM call breakdowns, and performance insights organized by project and Log stream.
 
-Galileo supports multiple ways to instrument OpenTelemetry with different AI frameworks or LLMs. Choose the method that best fits your application:
-
-<CardGroup cols={2}>
-<Card title="CrewAI and OpenTelemetry" icon="file-code" horizontal href="https://github.com/rungalileo/sdk-examples/tree/main/python/agent/crew-ai">
-    Add Galileo logging to existing CrewAI applications using the event listener.
-</Card>
-<Card title="LangGraph and OpenAI with OpenTelemetry" icon="book" horizontal href="/cookbooks/features/integrations/langgraph-otel-cookbook">
-    Complete tutorial for instrumenting LangGraph workflows with OpenAI and OpenInference
-</Card>
-<Card title="Mastra.ai and OpenTelemetry" icon="file-code" horizontal href="https://github.com/rungalileo/sdk-examples/blob/main/typescript/agent/mastra-template-csv-to-questions">
-    Sample application for instrumenting Galileo using OpenTelemetry in a Mastra.ai agent.
-</Card>
-</CardGroup>
-
 ## Next steps
 
+Learn how to integrate with some popular frameworks using OpenTelemetry and OpenInference.
+
 <CardGroup cols={2}>
-  <Card title="Galileo logger" icon="code" horizontal href="/sdk-api/logging/galileo-logger">
-    Log with full control over sessions, traces, and spans using the Galileo logger.
-  </Card>
-
-  <Card title="Log decorator" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
-    Quickly add logging to your code with the log decorator and wrapper.
-  </Card>
-
-  <Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
-    Manage logging using the Galileo context manager.
-  </Card>
+<Card title="Google ADK" icon="python" horizontal href="/sdk-api/third-party-integrations/opentelemetry-and-openinference/google-adk">
+    Learn how to integrate a Google ADK project with Galileo using OpenTelemetry and OpenInference.
+</Card>
+<Card title="Strands Agents" icon="python" horizontal href="/sdk-api/third-party-integrations/opentelemetry-and-openinference/strands-agents">
+    Learn how to integrate a Strands Agents project with Galileo using OpenTelemetry.
+</Card>
+<Card title="Vercel AI SDK" icon="python" horizontal href="/sdk-api/third-party-integrations/opentelemetry-and-openinference/vercel-ai">
+    Learn how to integrate a Vercel AI SDK project with Galileo using OpenTelemetry.
+</Card>
 </CardGroup>
