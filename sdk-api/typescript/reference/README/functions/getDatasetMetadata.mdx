@@ -12,10 +12,30 @@ title: getDatasetMetadata
 function getDatasetMetadata<T>(
   params: RunExperimentParams<T>,
   projectName: string,
-): Promise<undefined | Dataset>;
+): Promise<
+  | undefined
+  | {
+      column_names: null | string[];
+      created_at: string;
+      created_by_user: null | {
+        email: string;
+        first_name?: null | string;
+        id: string;
+        last_name?: null | string;
+      };
+      current_version_index: number;
+      draft: boolean;
+      id: string;
+      name: string;
+      num_rows: null | number;
+      permissions?: object[];
+      project_count: number;
+      updated_at: string;
+    }
+>;
 ```
 
-Defined in: [src/utils/datasets.ts:412](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts#L412)
+Defined in: [src/utils/datasets.ts:414](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts#L414)
 
 ## Type Parameters
 
@@ -35,4 +55,24 @@ Defined in: [src/utils/datasets.ts:412](https://github.com/rungalileo/galileo-js
 
 ## Returns
 
-`Promise`\<`undefined` \| [`Dataset`](/sdk-api/typescript/reference/types/interfaces/Dataset)\>
+`Promise`\<
+\| `undefined`
+\| \{
+`column_names`: `null` \| `string`[];
+`created_at`: `string`;
+`created_by_user`: \| `null`
+\| \{
+`email`: `string`;
+`first_name?`: `null` \| `string`;
+`id`: `string`;
+`last_name?`: `null` \| `string`;
+\};
+`current_version_index`: `number`;
+`draft`: `boolean`;
+`id`: `string`;
+`name`: `string`;
+`num_rows`: `null` \| `number`;
+`permissions?`: `object`[];
+`project_count`: `number`;
+`updated_at`: `string`;
+\}\>

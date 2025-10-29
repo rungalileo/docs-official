@@ -9,7 +9,24 @@ title: getDataset
 # Function: getDataset()
 
 ```ts
-function getDataset(__namedParameters: object): Promise<Dataset>;
+function getDataset(__namedParameters: object): Promise<{
+  column_names: null | string[];
+  created_at: string;
+  created_by_user: null | {
+    email: string;
+    first_name?: null | string;
+    id: string;
+    last_name?: null | string;
+  };
+  current_version_index: number;
+  draft: boolean;
+  id: string;
+  name: string;
+  num_rows: null | number;
+  permissions?: object[];
+  project_count: number;
+  updated_at: string;
+}>;
 ```
 
 Defined in: [src/utils/datasets.ts:159](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts#L159)
@@ -28,4 +45,22 @@ Defined in: [src/utils/datasets.ts:159](https://github.com/rungalileo/galileo-js
 
 ## Returns
 
-`Promise`\<[`Dataset`](/sdk-api/typescript/reference/types/interfaces/Dataset)\>
+`Promise`\<\{
+`column_names`: `null` \| `string`[];
+`created_at`: `string`;
+`created_by_user`: \| `null`
+\| \{
+`email`: `string`;
+`first_name?`: `null` \| `string`;
+`id`: `string`;
+`last_name?`: `null` \| `string`;
+\};
+`current_version_index`: `number`;
+`draft`: `boolean`;
+`id`: `string`;
+`name`: `string`;
+`num_rows`: `null` \| `number`;
+`permissions?`: `object`[];
+`project_count`: `number`;
+`updated_at`: `string`;
+\}\>

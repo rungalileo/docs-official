@@ -9,7 +9,20 @@ title: createProject
 # Function: createProject()
 
 ```ts
-function createProject(name: string): Promise<Project>;
+function createProject(name: string): Promise<{
+  created_at: string;
+  created_by?: null | string;
+  id: string;
+  name?: null | string;
+  type?:
+    | null
+    | "prompt_evaluation"
+    | "llm_monitor"
+    | "gen_ai"
+    | "training_inference"
+    | "protect";
+  updated_at: string;
+}>;
 ```
 
 Defined in: [src/utils/projects.ts:16](https://github.com/rungalileo/galileo-js/blob/main/src/utils/projects.ts#L16)
@@ -22,4 +35,16 @@ Defined in: [src/utils/projects.ts:16](https://github.com/rungalileo/galileo-js/
 
 ## Returns
 
-`Promise`\<[`Project`](/sdk-api/typescript/reference/types/interfaces/Project)\>
+`Promise`\<\{
+`created_at`: `string`;
+`created_by?`: `null` \| `string`;
+`id`: `string`;
+`name?`: `null` \| `string`;
+`type?`: \| `null`
+\| `"prompt_evaluation"`
+\| `"llm_monitor"`
+\| `"gen_ai"`
+\| `"training_inference"`
+\| `"protect"`;
+`updated_at`: `string`;
+\}\>

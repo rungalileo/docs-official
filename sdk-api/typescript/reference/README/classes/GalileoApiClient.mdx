@@ -8,7 +8,7 @@ title: GalileoApiClient
 
 # Class: GalileoApiClient
 
-Defined in: [src/api-client/galileo-client.ts:54](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L54)
+Defined in: [src/api-client/galileo-client.ts:55](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L55)
 
 ## Extends
 
@@ -72,7 +72,7 @@ BaseClient.client;
 datasetId: string = "";
 ```
 
-Defined in: [src/api-client/galileo-client.ts:59](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L59)
+Defined in: [src/api-client/galileo-client.ts:60](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L60)
 
 ---
 
@@ -82,7 +82,7 @@ Defined in: [src/api-client/galileo-client.ts:59](https://github.com/rungalileo/
 experimentId: string = "";
 ```
 
-Defined in: [src/api-client/galileo-client.ts:60](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L60)
+Defined in: [src/api-client/galileo-client.ts:61](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L61)
 
 ---
 
@@ -92,7 +92,7 @@ Defined in: [src/api-client/galileo-client.ts:60](https://github.com/rungalileo/
 logStreamId: string = "";
 ```
 
-Defined in: [src/api-client/galileo-client.ts:57](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L57)
+Defined in: [src/api-client/galileo-client.ts:58](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L58)
 
 ---
 
@@ -102,7 +102,7 @@ Defined in: [src/api-client/galileo-client.ts:57](https://github.com/rungalileo/
 projectId: string = "";
 ```
 
-Defined in: [src/api-client/galileo-client.ts:56](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L56)
+Defined in: [src/api-client/galileo-client.ts:57](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L57)
 
 ---
 
@@ -112,17 +112,22 @@ Defined in: [src/api-client/galileo-client.ts:56](https://github.com/rungalileo/
 projectScoped: boolean = true;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:62](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L62)
+Defined in: [src/api-client/galileo-client.ts:63](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L63)
 
 ---
 
 ### projectType
 
 ```ts
-projectType: ProjectTypes = ProjectTypes.genAI;
+projectType:
+  | "prompt_evaluation"
+  | "llm_monitor"
+  | "gen_ai"
+  | "training_inference"
+  | "protect" = ProjectTypes.genAI;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:55](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L55)
+Defined in: [src/api-client/galileo-client.ts:56](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L56)
 
 ---
 
@@ -132,7 +137,7 @@ Defined in: [src/api-client/galileo-client.ts:55](https://github.com/rungalileo/
 runId: string = "";
 ```
 
-Defined in: [src/api-client/galileo-client.ts:58](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L58)
+Defined in: [src/api-client/galileo-client.ts:59](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L59)
 
 ---
 
@@ -142,7 +147,7 @@ Defined in: [src/api-client/galileo-client.ts:58](https://github.com/rungalileo/
 optional sessionId: string = undefined;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:61](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L61)
+Defined in: [src/api-client/galileo-client.ts:62](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L62)
 
 ---
 
@@ -162,6 +167,1374 @@ BaseClient.token;
 
 ## Methods
 
+### \_searchSessionsByExternalId()
+
+```ts
+_searchSessionsByExternalId(externalId: string): Promise<{
+  last_row_id?: null | string;
+  limit?: number;
+  next_starting_token?: null | number;
+  paginated?: boolean;
+  records?: (
+     | {
+     agent_type?:   | "default"
+        | "planner"
+        | "react"
+        | "reflection"
+        | "router"
+        | "classifier"
+        | "supervisor"
+        | "judge";
+     created_at?: string;
+     dataset_input?: null | string;
+     dataset_metadata?: {
+      [key: string]: string;
+     };
+     dataset_output?: null | string;
+     external_id?: null | string;
+     has_children?: null | boolean;
+     id: string;
+     input?: string | object[];
+     is_complete?: boolean;
+     metric_info?:   | null
+        | {
+      [key: string]:
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_computed";
+      }
+        | {
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "pending";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "computing";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_applicable";
+      }
+        | {
+        cost?: ... | ... | ...;
+        critique?: ... | ... | ...;
+        display_value?: ... | ... | ...;
+        explanation?: ... | ... | ...;
+        model_alias?: ... | ... | ...;
+        num_judges?: ... | ... | ...;
+        rationale?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "success";
+        value: ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ...;
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "error";
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "failed";
+      };
+      };
+     metrics?: object & object;
+     metrics_batch_id?: null | string;
+     name?: string;
+     output?:   | null
+        | string
+        | {
+        content: string;
+        role:   | "function"
+           | "agent"
+           | "tool"
+           | "user"
+           | "assistant"
+           | "developer"
+           | "system";
+        tool_call_id?: null | string;
+        tool_calls?: null | object[];
+      }
+        | object[];
+     parent_id: string;
+     project_id: string;
+     redacted_input?: null | string | object[];
+     redacted_output?:   | null
+        | string
+        | {
+        content: string;
+        role:   | "function"
+           | "agent"
+           | "tool"
+           | "user"
+           | "assistant"
+           | "developer"
+           | "system";
+        tool_call_id?: null | string;
+        tool_calls?: null | object[];
+      }
+        | object[];
+     run_id: string;
+     session_batch_id?: null | string;
+     session_id: string;
+     status_code?: null | number;
+     step_number?: null | number;
+     tags?: string[];
+     trace_id?: null | string;
+     type: "agent";
+     updated_at?: null | string;
+     user_metadata?: {
+      [key: string]: string;
+     };
+   }
+     | {
+     created_at?: string;
+     dataset_input?: null | string;
+     dataset_metadata?: {
+      [key: string]: string;
+     };
+     dataset_output?: null | string;
+     external_id?: null | string;
+     finish_reason?: null | string;
+     has_children?: null | boolean;
+     id: string;
+     input?: object[];
+     is_complete?: boolean;
+     metric_info?:   | null
+        | {
+      [key: string]:
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_computed";
+      }
+        | {
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "pending";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "computing";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_applicable";
+      }
+        | {
+        cost?: ... | ... | ...;
+        critique?: ... | ... | ...;
+        display_value?: ... | ... | ...;
+        explanation?: ... | ... | ...;
+        model_alias?: ... | ... | ...;
+        num_judges?: ... | ... | ...;
+        rationale?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "success";
+        value: ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ...;
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "error";
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "failed";
+      };
+      };
+     metrics?: object & object;
+     metrics_batch_id?: null | string;
+     model?: null | string;
+     name?: string;
+     output?: {
+        content: string;
+        role:   | "function"
+           | "agent"
+           | "tool"
+           | "user"
+           | "assistant"
+           | "developer"
+           | "system";
+        tool_call_id?: null | string;
+        tool_calls?: null | object[];
+     };
+     parent_id: string;
+     project_id: string;
+     redacted_input?: null | object[];
+     redacted_output?:   | null
+        | {
+        content: string;
+        role:   | "function"
+           | "agent"
+           | "tool"
+           | "user"
+           | "assistant"
+           | "developer"
+           | "system";
+        tool_call_id?: null | string;
+        tool_calls?: null | object[];
+      };
+     run_id: string;
+     session_batch_id?: null | string;
+     session_id: string;
+     status_code?: null | number;
+     step_number?: null | number;
+     tags?: string[];
+     temperature?: null | number;
+     tools?: null | object[];
+     trace_id?: null | string;
+     type: "llm";
+     updated_at?: null | string;
+     user_metadata?: {
+      [key: string]: string;
+     };
+   }
+     | {
+     created_at?: string;
+     dataset_input?: null | string;
+     dataset_metadata?: {
+      [key: string]: string;
+     };
+     dataset_output?: null | string;
+     external_id?: null | string;
+     has_children?: null | boolean;
+     id: string;
+     input?: string;
+     is_complete?: boolean;
+     metric_info?:   | null
+        | {
+      [key: string]:
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_computed";
+      }
+        | {
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "pending";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "computing";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_applicable";
+      }
+        | {
+        cost?: ... | ... | ...;
+        critique?: ... | ... | ...;
+        display_value?: ... | ... | ...;
+        explanation?: ... | ... | ...;
+        model_alias?: ... | ... | ...;
+        num_judges?: ... | ... | ...;
+        rationale?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "success";
+        value: ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ...;
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "error";
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "failed";
+      };
+      };
+     metrics?: object & object;
+     metrics_batch_id?: null | string;
+     name?: string;
+     output?: object[];
+     parent_id: string;
+     project_id: string;
+     redacted_input?: null | string;
+     redacted_output?: null | object[];
+     run_id: string;
+     session_batch_id?: null | string;
+     session_id: string;
+     status_code?: null | number;
+     step_number?: null | number;
+     tags?: string[];
+     trace_id?: null | string;
+     type: "retriever";
+     updated_at?: null | string;
+     user_metadata?: {
+      [key: string]: string;
+     };
+   }
+     | {
+     created_at?: string;
+     dataset_input?: null | string;
+     dataset_metadata?: {
+      [key: string]: string;
+     };
+     dataset_output?: null | string;
+     external_id?: null | string;
+     has_children?: null | boolean;
+     id: string;
+     input?: string | object[];
+     metric_info?:   | null
+        | {
+      [key: string]:
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_computed";
+      }
+        | {
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "pending";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "computing";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_applicable";
+      }
+        | {
+        cost?: ... | ... | ...;
+        critique?: ... | ... | ...;
+        display_value?: ... | ... | ...;
+        explanation?: ... | ... | ...;
+        model_alias?: ... | ... | ...;
+        num_judges?: ... | ... | ...;
+        rationale?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "success";
+        value: ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ...;
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "error";
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "failed";
+      };
+      };
+     metrics?: object & object;
+     metrics_batch_id?: null | string;
+     name?: string;
+     output?:   | null
+        | string
+        | {
+        content: string;
+        role:   | "function"
+           | "agent"
+           | "tool"
+           | "user"
+           | "assistant"
+           | "developer"
+           | "system";
+        tool_call_id?: null | string;
+        tool_calls?: null | object[];
+      }
+        | object[];
+     previous_session_id?: null | string;
+     project_id: string;
+     redacted_input?: null | string | object[];
+     redacted_output?:   | null
+        | string
+        | {
+        content: string;
+        role:   | "function"
+           | "agent"
+           | "tool"
+           | "user"
+           | "assistant"
+           | "developer"
+           | "system";
+        tool_call_id?: null | string;
+        tool_calls?: null | object[];
+      }
+        | object[];
+     run_id: string;
+     session_batch_id?: null | string;
+     session_id?: null | string;
+     status_code?: null | number;
+     tags?: string[];
+     trace_id?: null | string;
+     type: "session";
+     updated_at?: null | string;
+     user_metadata?: {
+      [key: string]: string;
+     };
+   }
+     | {
+     created_at?: string;
+     dataset_input?: null | string;
+     dataset_metadata?: {
+      [key: string]: string;
+     };
+     dataset_output?: null | string;
+     external_id?: null | string;
+     has_children?: null | boolean;
+     id: string;
+     input?: string;
+     is_complete?: boolean;
+     metric_info?:   | null
+        | {
+      [key: string]:
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_computed";
+      }
+        | {
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "pending";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "computing";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_applicable";
+      }
+        | {
+        cost?: ... | ... | ...;
+        critique?: ... | ... | ...;
+        display_value?: ... | ... | ...;
+        explanation?: ... | ... | ...;
+        model_alias?: ... | ... | ...;
+        num_judges?: ... | ... | ...;
+        rationale?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "success";
+        value: ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ...;
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "error";
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "failed";
+      };
+      };
+     metrics?: object & object;
+     metrics_batch_id?: null | string;
+     name?: string;
+     output?: null | string;
+     parent_id: string;
+     project_id: string;
+     redacted_input?: null | string;
+     redacted_output?: null | string;
+     run_id: string;
+     session_batch_id?: null | string;
+     session_id: string;
+     status_code?: null | number;
+     step_number?: null | number;
+     tags?: string[];
+     tool_call_id?: null | string;
+     trace_id?: null | string;
+     type: "tool";
+     updated_at?: null | string;
+     user_metadata?: {
+      [key: string]: string;
+     };
+   }
+     | {
+     created_at?: string;
+     dataset_input?: null | string;
+     dataset_metadata?: {
+      [key: string]: string;
+     };
+     dataset_output?: null | string;
+     external_id?: null | string;
+     feedback_rating_info?: {
+      [key: string]: object;
+     };
+     has_children?: null | boolean;
+     id: string;
+     input?: string;
+     is_complete?: boolean;
+     metric_info?:   | null
+        | {
+      [key: string]:
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_computed";
+      }
+        | {
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "pending";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "computing";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_applicable";
+      }
+        | {
+        cost?: ... | ... | ...;
+        critique?: ... | ... | ...;
+        display_value?: ... | ... | ...;
+        explanation?: ... | ... | ...;
+        model_alias?: ... | ... | ...;
+        num_judges?: ... | ... | ...;
+        rationale?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "success";
+        value: ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ...;
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "error";
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "failed";
+      };
+      };
+     metrics?: object & object;
+     metrics_batch_id?: null | string;
+     name?: string;
+     output?: null | string;
+     project_id: string;
+     redacted_input?: null | string;
+     redacted_output?: null | string;
+     run_id: string;
+     session_batch_id?: null | string;
+     session_id: string;
+     status_code?: null | number;
+     tags?: string[];
+     trace_id: string;
+     type: "trace";
+     updated_at?: null | string;
+     user_metadata?: {
+      [key: string]: string;
+     };
+   }
+     | {
+     created_at?: string;
+     dataset_input?: null | string;
+     dataset_metadata?: {
+      [key: string]: string;
+     };
+     dataset_output?: null | string;
+     external_id?: null | string;
+     has_children?: null | boolean;
+     id: string;
+     input?: string | object[];
+     is_complete?: boolean;
+     metric_info?:   | null
+        | {
+      [key: string]:
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_computed";
+      }
+        | {
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "pending";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "computing";
+      }
+        | {
+        message?: ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "not_applicable";
+      }
+        | {
+        cost?: ... | ... | ...;
+        critique?: ... | ... | ...;
+        display_value?: ... | ... | ...;
+        explanation?: ... | ... | ...;
+        model_alias?: ... | ... | ...;
+        num_judges?: ... | ... | ...;
+        rationale?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "success";
+        value: ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ...;
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "error";
+      }
+        | {
+        message?: ... | ... | ...;
+        scorer_type?: ... | ... | ... | ...;
+        status_type: "failed";
+      };
+      };
+     metrics?: object & object;
+     metrics_batch_id?: null | string;
+     name?: string;
+     output?:   | null
+        | string
+        | {
+        content: string;
+        role:   | "function"
+           | "agent"
+           | "tool"
+           | "user"
+           | "assistant"
+           | "developer"
+           | "system";
+        tool_call_id?: null | string;
+        tool_calls?: null | object[];
+      }
+        | object[];
+     parent_id: string;
+     project_id: string;
+     redacted_input?: null | string | object[];
+     redacted_output?:   | null
+        | string
+        | {
+        content: string;
+        role:   | "function"
+           | "agent"
+           | "tool"
+           | "user"
+           | "assistant"
+           | "developer"
+           | "system";
+        tool_call_id?: null | string;
+        tool_calls?: null | object[];
+      }
+        | object[];
+     run_id: string;
+     session_batch_id?: null | string;
+     session_id: string;
+     status_code?: null | number;
+     step_number?: null | number;
+     tags?: string[];
+     trace_id?: null | string;
+     type: "workflow";
+     updated_at?: null | string;
+     user_metadata?: {
+      [key: string]: string;
+     };
+  })[];
+  starting_token?: number;
+}>;
+```
+
+Defined in: [src/api-client/galileo-client.ts:356](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L356)
+
+**`Internal`**
+
+- Used internally by startSession for external_id lookup
+
+#### Parameters
+
+##### externalId
+
+`string`
+
+#### Returns
+
+`Promise`\<\{
+`last_row_id?`: `null` \| `string`;
+`limit?`: `number`;
+`next_starting_token?`: `null` \| `number`;
+`paginated?`: `boolean`;
+`records?`: (
+\| \{
+`agent_type?`: \| `"default"`
+\| `"planner"`
+\| `"react"`
+\| `"reflection"`
+\| `"router"`
+\| `"classifier"`
+\| `"supervisor"`
+\| `"judge"`;
+`created_at?`: `string`;
+`dataset_input?`: `null` \| `string`;
+`dataset_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+`dataset_output?`: `null` \| `string`;
+`external_id?`: `null` \| `string`;
+`has_children?`: `null` \| `boolean`;
+`id`: `string`;
+`input?`: `string` \| `object`[];
+`is_complete?`: `boolean`;
+`metric_info?`: \| `null`
+\| \{
+[`key`: `string`]:
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_computed"`;
+\}
+\| \{
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"pending"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"computing"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_applicable"`;
+\}
+\| \{
+`cost?`: ... \| ... \| ...;
+`critique?`: ... \| ... \| ...;
+`display_value?`: ... \| ... \| ...;
+`explanation?`: ... \| ... \| ...;
+`model_alias?`: ... \| ... \| ...;
+`num_judges?`: ... \| ... \| ...;
+`rationale?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"success"`;
+`value`: ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ...;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"error"`;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"failed"`;
+\};
+\};
+`metrics?`: `object` & `object`;
+`metrics_batch_id?`: `null` \| `string`;
+`name?`: `string`;
+`output?`: \| `null`
+\| `string`
+\| \{
+`content`: `string`;
+`role`: \| `"function"`
+\| `"agent"`
+\| `"tool"`
+\| `"user"`
+\| `"assistant"`
+\| `"developer"`
+\| `"system"`;
+`tool_call_id?`: `null` \| `string`;
+`tool_calls?`: `null` \| `object`[];
+\}
+\| `object`[];
+`parent_id`: `string`;
+`project_id`: `string`;
+`redacted_input?`: `null` \| `string` \| `object`[];
+`redacted_output?`: \| `null`
+\| `string`
+\| \{
+`content`: `string`;
+`role`: \| `"function"`
+\| `"agent"`
+\| `"tool"`
+\| `"user"`
+\| `"assistant"`
+\| `"developer"`
+\| `"system"`;
+`tool_call_id?`: `null` \| `string`;
+`tool_calls?`: `null` \| `object`[];
+\}
+\| `object`[];
+`run_id`: `string`;
+`session_batch_id?`: `null` \| `string`;
+`session_id`: `string`;
+`status_code?`: `null` \| `number`;
+`step_number?`: `null` \| `number`;
+`tags?`: `string`[];
+`trace_id?`: `null` \| `string`;
+`type`: `"agent"`;
+`updated_at?`: `null` \| `string`;
+`user_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+\}
+\| \{
+`created_at?`: `string`;
+`dataset_input?`: `null` \| `string`;
+`dataset_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+`dataset_output?`: `null` \| `string`;
+`external_id?`: `null` \| `string`;
+`finish_reason?`: `null` \| `string`;
+`has_children?`: `null` \| `boolean`;
+`id`: `string`;
+`input?`: `object`[];
+`is_complete?`: `boolean`;
+`metric_info?`: \| `null`
+\| \{
+[`key`: `string`]:
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_computed"`;
+\}
+\| \{
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"pending"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"computing"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_applicable"`;
+\}
+\| \{
+`cost?`: ... \| ... \| ...;
+`critique?`: ... \| ... \| ...;
+`display_value?`: ... \| ... \| ...;
+`explanation?`: ... \| ... \| ...;
+`model_alias?`: ... \| ... \| ...;
+`num_judges?`: ... \| ... \| ...;
+`rationale?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"success"`;
+`value`: ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ...;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"error"`;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"failed"`;
+\};
+\};
+`metrics?`: `object` & `object`;
+`metrics_batch_id?`: `null` \| `string`;
+`model?`: `null` \| `string`;
+`name?`: `string`;
+`output?`: \{
+`content`: `string`;
+`role`: \| `"function"`
+\| `"agent"`
+\| `"tool"`
+\| `"user"`
+\| `"assistant"`
+\| `"developer"`
+\| `"system"`;
+`tool_call_id?`: `null` \| `string`;
+`tool_calls?`: `null` \| `object`[];
+\};
+`parent_id`: `string`;
+`project_id`: `string`;
+`redacted_input?`: `null` \| `object`[];
+`redacted_output?`: \| `null`
+\| \{
+`content`: `string`;
+`role`: \| `"function"`
+\| `"agent"`
+\| `"tool"`
+\| `"user"`
+\| `"assistant"`
+\| `"developer"`
+\| `"system"`;
+`tool_call_id?`: `null` \| `string`;
+`tool_calls?`: `null` \| `object`[];
+\};
+`run_id`: `string`;
+`session_batch_id?`: `null` \| `string`;
+`session_id`: `string`;
+`status_code?`: `null` \| `number`;
+`step_number?`: `null` \| `number`;
+`tags?`: `string`[];
+`temperature?`: `null` \| `number`;
+`tools?`: `null` \| `object`[];
+`trace_id?`: `null` \| `string`;
+`type`: `"llm"`;
+`updated_at?`: `null` \| `string`;
+`user_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+\}
+\| \{
+`created_at?`: `string`;
+`dataset_input?`: `null` \| `string`;
+`dataset_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+`dataset_output?`: `null` \| `string`;
+`external_id?`: `null` \| `string`;
+`has_children?`: `null` \| `boolean`;
+`id`: `string`;
+`input?`: `string`;
+`is_complete?`: `boolean`;
+`metric_info?`: \| `null`
+\| \{
+[`key`: `string`]:
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_computed"`;
+\}
+\| \{
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"pending"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"computing"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_applicable"`;
+\}
+\| \{
+`cost?`: ... \| ... \| ...;
+`critique?`: ... \| ... \| ...;
+`display_value?`: ... \| ... \| ...;
+`explanation?`: ... \| ... \| ...;
+`model_alias?`: ... \| ... \| ...;
+`num_judges?`: ... \| ... \| ...;
+`rationale?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"success"`;
+`value`: ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ...;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"error"`;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"failed"`;
+\};
+\};
+`metrics?`: `object` & `object`;
+`metrics_batch_id?`: `null` \| `string`;
+`name?`: `string`;
+`output?`: `object`[];
+`parent_id`: `string`;
+`project_id`: `string`;
+`redacted_input?`: `null` \| `string`;
+`redacted_output?`: `null` \| `object`[];
+`run_id`: `string`;
+`session_batch_id?`: `null` \| `string`;
+`session_id`: `string`;
+`status_code?`: `null` \| `number`;
+`step_number?`: `null` \| `number`;
+`tags?`: `string`[];
+`trace_id?`: `null` \| `string`;
+`type`: `"retriever"`;
+`updated_at?`: `null` \| `string`;
+`user_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+\}
+\| \{
+`created_at?`: `string`;
+`dataset_input?`: `null` \| `string`;
+`dataset_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+`dataset_output?`: `null` \| `string`;
+`external_id?`: `null` \| `string`;
+`has_children?`: `null` \| `boolean`;
+`id`: `string`;
+`input?`: `string` \| `object`[];
+`metric_info?`: \| `null`
+\| \{
+[`key`: `string`]:
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_computed"`;
+\}
+\| \{
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"pending"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"computing"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_applicable"`;
+\}
+\| \{
+`cost?`: ... \| ... \| ...;
+`critique?`: ... \| ... \| ...;
+`display_value?`: ... \| ... \| ...;
+`explanation?`: ... \| ... \| ...;
+`model_alias?`: ... \| ... \| ...;
+`num_judges?`: ... \| ... \| ...;
+`rationale?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"success"`;
+`value`: ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ...;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"error"`;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"failed"`;
+\};
+\};
+`metrics?`: `object` & `object`;
+`metrics_batch_id?`: `null` \| `string`;
+`name?`: `string`;
+`output?`: \| `null`
+\| `string`
+\| \{
+`content`: `string`;
+`role`: \| `"function"`
+\| `"agent"`
+\| `"tool"`
+\| `"user"`
+\| `"assistant"`
+\| `"developer"`
+\| `"system"`;
+`tool_call_id?`: `null` \| `string`;
+`tool_calls?`: `null` \| `object`[];
+\}
+\| `object`[];
+`previous_session_id?`: `null` \| `string`;
+`project_id`: `string`;
+`redacted_input?`: `null` \| `string` \| `object`[];
+`redacted_output?`: \| `null`
+\| `string`
+\| \{
+`content`: `string`;
+`role`: \| `"function"`
+\| `"agent"`
+\| `"tool"`
+\| `"user"`
+\| `"assistant"`
+\| `"developer"`
+\| `"system"`;
+`tool_call_id?`: `null` \| `string`;
+`tool_calls?`: `null` \| `object`[];
+\}
+\| `object`[];
+`run_id`: `string`;
+`session_batch_id?`: `null` \| `string`;
+`session_id?`: `null` \| `string`;
+`status_code?`: `null` \| `number`;
+`tags?`: `string`[];
+`trace_id?`: `null` \| `string`;
+`type`: `"session"`;
+`updated_at?`: `null` \| `string`;
+`user_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+\}
+\| \{
+`created_at?`: `string`;
+`dataset_input?`: `null` \| `string`;
+`dataset_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+`dataset_output?`: `null` \| `string`;
+`external_id?`: `null` \| `string`;
+`has_children?`: `null` \| `boolean`;
+`id`: `string`;
+`input?`: `string`;
+`is_complete?`: `boolean`;
+`metric_info?`: \| `null`
+\| \{
+[`key`: `string`]:
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_computed"`;
+\}
+\| \{
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"pending"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"computing"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_applicable"`;
+\}
+\| \{
+`cost?`: ... \| ... \| ...;
+`critique?`: ... \| ... \| ...;
+`display_value?`: ... \| ... \| ...;
+`explanation?`: ... \| ... \| ...;
+`model_alias?`: ... \| ... \| ...;
+`num_judges?`: ... \| ... \| ...;
+`rationale?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"success"`;
+`value`: ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ...;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"error"`;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"failed"`;
+\};
+\};
+`metrics?`: `object` & `object`;
+`metrics_batch_id?`: `null` \| `string`;
+`name?`: `string`;
+`output?`: `null` \| `string`;
+`parent_id`: `string`;
+`project_id`: `string`;
+`redacted_input?`: `null` \| `string`;
+`redacted_output?`: `null` \| `string`;
+`run_id`: `string`;
+`session_batch_id?`: `null` \| `string`;
+`session_id`: `string`;
+`status_code?`: `null` \| `number`;
+`step_number?`: `null` \| `number`;
+`tags?`: `string`[];
+`tool_call_id?`: `null` \| `string`;
+`trace_id?`: `null` \| `string`;
+`type`: `"tool"`;
+`updated_at?`: `null` \| `string`;
+`user_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+\}
+\| \{
+`created_at?`: `string`;
+`dataset_input?`: `null` \| `string`;
+`dataset_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+`dataset_output?`: `null` \| `string`;
+`external_id?`: `null` \| `string`;
+`feedback_rating_info?`: \{
+[`key`: `string`]: `object`;
+\};
+`has_children?`: `null` \| `boolean`;
+`id`: `string`;
+`input?`: `string`;
+`is_complete?`: `boolean`;
+`metric_info?`: \| `null`
+\| \{
+[`key`: `string`]:
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_computed"`;
+\}
+\| \{
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"pending"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"computing"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_applicable"`;
+\}
+\| \{
+`cost?`: ... \| ... \| ...;
+`critique?`: ... \| ... \| ...;
+`display_value?`: ... \| ... \| ...;
+`explanation?`: ... \| ... \| ...;
+`model_alias?`: ... \| ... \| ...;
+`num_judges?`: ... \| ... \| ...;
+`rationale?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"success"`;
+`value`: ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ...;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"error"`;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"failed"`;
+\};
+\};
+`metrics?`: `object` & `object`;
+`metrics_batch_id?`: `null` \| `string`;
+`name?`: `string`;
+`output?`: `null` \| `string`;
+`project_id`: `string`;
+`redacted_input?`: `null` \| `string`;
+`redacted_output?`: `null` \| `string`;
+`run_id`: `string`;
+`session_batch_id?`: `null` \| `string`;
+`session_id`: `string`;
+`status_code?`: `null` \| `number`;
+`tags?`: `string`[];
+`trace_id`: `string`;
+`type`: `"trace"`;
+`updated_at?`: `null` \| `string`;
+`user_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+\}
+\| \{
+`created_at?`: `string`;
+`dataset_input?`: `null` \| `string`;
+`dataset_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+`dataset_output?`: `null` \| `string`;
+`external_id?`: `null` \| `string`;
+`has_children?`: `null` \| `boolean`;
+`id`: `string`;
+`input?`: `string` \| `object`[];
+`is_complete?`: `boolean`;
+`metric_info?`: \| `null`
+\| \{
+[`key`: `string`]:
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_computed"`;
+\}
+\| \{
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"pending"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"computing"`;
+\}
+\| \{
+`message?`: ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"not_applicable"`;
+\}
+\| \{
+`cost?`: ... \| ... \| ...;
+`critique?`: ... \| ... \| ...;
+`display_value?`: ... \| ... \| ...;
+`explanation?`: ... \| ... \| ...;
+`model_alias?`: ... \| ... \| ...;
+`num_judges?`: ... \| ... \| ...;
+`rationale?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"success"`;
+`value`: ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ... \| ...;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"error"`;
+\}
+\| \{
+`message?`: ... \| ... \| ...;
+`scorer_type?`: ... \| ... \| ... \| ...;
+`status_type`: `"failed"`;
+\};
+\};
+`metrics?`: `object` & `object`;
+`metrics_batch_id?`: `null` \| `string`;
+`name?`: `string`;
+`output?`: \| `null`
+\| `string`
+\| \{
+`content`: `string`;
+`role`: \| `"function"`
+\| `"agent"`
+\| `"tool"`
+\| `"user"`
+\| `"assistant"`
+\| `"developer"`
+\| `"system"`;
+`tool_call_id?`: `null` \| `string`;
+`tool_calls?`: `null` \| `object`[];
+\}
+\| `object`[];
+`parent_id`: `string`;
+`project_id`: `string`;
+`redacted_input?`: `null` \| `string` \| `object`[];
+`redacted_output?`: \| `null`
+\| `string`
+\| \{
+`content`: `string`;
+`role`: \| `"function"`
+\| `"agent"`
+\| `"tool"`
+\| `"user"`
+\| `"assistant"`
+\| `"developer"`
+\| `"system"`;
+`tool_call_id?`: `null` \| `string`;
+`tool_calls?`: `null` \| `object`[];
+\}
+\| `object`[];
+`run_id`: `string`;
+`session_batch_id?`: `null` \| `string`;
+`session_id`: `string`;
+`status_code?`: `null` \| `number`;
+`step_number?`: `null` \| `number`;
+`tags?`: `string`[];
+`trace_id?`: `null` \| `string`;
+`type`: `"workflow"`;
+`updated_at?`: `null` \| `string`;
+`user_metadata?`: \{
+[`key`: `string`]: `string`;
+\};
+\})[];
+`starting_token?`: `number`;
+\}\>
+
+---
+
 ### appendRowsToDatasetContent()
 
 ```ts
@@ -171,7 +1544,7 @@ appendRowsToDatasetContent(
 rows: object[]): Promise<void>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:304](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L304)
+Defined in: [src/api-client/galileo-client.ts:305](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L305)
 
 #### Parameters
 
@@ -220,7 +1593,7 @@ createDataset(
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:289](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L289)
+Defined in: [src/api-client/galileo-client.ts:290](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L290)
 
 #### Parameters
 
@@ -268,10 +1641,87 @@ createExperiment(name: string, dataset?:
   | {
   dataset_id: string;
   version_index: number;
-}): Promise<Experiment>;
+}): Promise<{
+  aggregate_feedback?: {
+   [key: string]: object;
+  };
+  aggregate_metrics?: {
+   [key: string]: unknown;
+  };
+  created_at?: string;
+  created_by?: null | string;
+  dataset?:   | null
+     | {
+     dataset_id?: null | string;
+     name?: null | string;
+     version_index?: null | number;
+   };
+  id: string;
+  name?: string;
+  playground?:   | null
+     | {
+     name?: null | string;
+     playground_id?: null | string;
+   };
+  playground_id?: null | string;
+  project_id: string;
+  prompt?:   | null
+     | {
+     content?: null | string;
+     name?: null | string;
+     prompt_template_id?: null | string;
+     version_index?: null | number;
+   };
+  prompt_model?: null | string;
+  prompt_run_settings?:   | null
+     | {
+     deployment_name?: null | string;
+     echo?: boolean;
+     frequency_penalty?: number;
+     known_models?: object[];
+     logprobs?: boolean;
+     max_tokens?: number;
+     model_alias?: string;
+     n?: number;
+     presence_penalty?: number;
+     reasoning_effort?: string;
+     response_format?:   | null
+        | {
+      [key: string]: string;
+      };
+     stop_sequences?: null | string[];
+     temperature?: number;
+     tool_choice?:   | null
+        | string
+        | {
+        function: {
+           name: string;
+        };
+        type?: string;
+      };
+     tools?: null | object[];
+     top_k?: number;
+     top_logprobs?: number;
+     top_p?: number;
+     verbosity?: string;
+   };
+  rank?: null | number;
+  ranking_score?: null | number;
+  status?: {
+     log_generation?: {
+        progress_percent?: number;
+     };
+  };
+  tags?: {
+   [key: string]: object[];
+  };
+  task_type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18;
+  updated_at?: null | string;
+  winner?: null | boolean;
+}>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:435](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L435)
+Defined in: [src/api-client/galileo-client.ts:455](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L455)
 
 #### Parameters
 
@@ -303,14 +1753,91 @@ Version Index
 
 #### Returns
 
-`Promise`\<[`Experiment`](/sdk-api/typescript/reference/types/interfaces/Experiment)\>
+`Promise`\<\{
+`aggregate_feedback?`: \{
+[`key`: `string`]: `object`;
+\};
+`aggregate_metrics?`: \{
+[`key`: `string`]: `unknown`;
+\};
+`created_at?`: `string`;
+`created_by?`: `null` \| `string`;
+`dataset?`: \| `null`
+\| \{
+`dataset_id?`: `null` \| `string`;
+`name?`: `null` \| `string`;
+`version_index?`: `null` \| `number`;
+\};
+`id`: `string`;
+`name?`: `string`;
+`playground?`: \| `null`
+\| \{
+`name?`: `null` \| `string`;
+`playground_id?`: `null` \| `string`;
+\};
+`playground_id?`: `null` \| `string`;
+`project_id`: `string`;
+`prompt?`: \| `null`
+\| \{
+`content?`: `null` \| `string`;
+`name?`: `null` \| `string`;
+`prompt_template_id?`: `null` \| `string`;
+`version_index?`: `null` \| `number`;
+\};
+`prompt_model?`: `null` \| `string`;
+`prompt_run_settings?`: \| `null`
+\| \{
+`deployment_name?`: `null` \| `string`;
+`echo?`: `boolean`;
+`frequency_penalty?`: `number`;
+`known_models?`: `object`[];
+`logprobs?`: `boolean`;
+`max_tokens?`: `number`;
+`model_alias?`: `string`;
+`n?`: `number`;
+`presence_penalty?`: `number`;
+`reasoning_effort?`: `string`;
+`response_format?`: \| `null`
+\| \{
+[`key`: `string`]: `string`;
+\};
+`stop_sequences?`: `null` \| `string`[];
+`temperature?`: `number`;
+`tool_choice?`: \| `null`
+\| `string`
+\| \{
+`function`: \{
+`name`: `string`;
+\};
+`type?`: `string`;
+\};
+`tools?`: `null` \| `object`[];
+`top_k?`: `number`;
+`top_logprobs?`: `number`;
+`top_p?`: `number`;
+`verbosity?`: `string`;
+\};
+`rank?`: `null` \| `number`;
+`ranking_score?`: `null` \| `number`;
+`status?`: \{
+`log_generation?`: \{
+`progress_percent?`: `number`;
+\};
+\};
+`tags?`: \{
+[`key`: `string`]: `object`[];
+\};
+`task_type`: `0` \| `1` \| `2` \| `3` \| `4` \| `5` \| `6` \| `7` \| `8` \| `9` \| `10` \| `11` \| `12` \| `13` \| `14` \| `15` \| `16` \| `17` \| `18`;
+`updated_at?`: `null` \| `string`;
+`winner?`: `null` \| `boolean`;
+\}\>
 
 ---
 
 ### createGlobalPromptTemplate()
 
 ```ts
-createGlobalPromptTemplate(template: Message[], name: string): Promise<{
+createGlobalPromptTemplate(template: object[], name: string): Promise<{
   all_available_versions: number[];
   all_versions?: object[];
   created_at: string;
@@ -350,8 +1877,6 @@ createGlobalPromptTemplate(template: Message[], name: string): Promise<{
         deployment_name?: null | string;
         echo?: boolean;
         frequency_penalty?: number;
-        input?: null | string;
-        instructions?: null | string;
         known_models?: object[];
         logprobs?: boolean;
         max_tokens?: number;
@@ -391,13 +1916,13 @@ createGlobalPromptTemplate(template: Message[], name: string): Promise<{
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:385](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L385)
+Defined in: [src/api-client/galileo-client.ts:405](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L405)
 
 #### Parameters
 
 ##### template
 
-[`Message`](/sdk-api/typescript/reference/types/interfaces/Message)[]
+`object`[]
 
 ##### name
 
@@ -445,8 +1970,6 @@ Defined in: [src/api-client/galileo-client.ts:385](https://github.com/rungalileo
 `deployment_name?`: `null` \| `string`;
 `echo?`: `boolean`;
 `frequency_penalty?`: `number`;
-`input?`: `null` \| `string`;
-`instructions?`: `null` \| `string`;
 `known_models?`: `object`[];
 `logprobs?`: `boolean`;
 `max_tokens?`: `number`;
@@ -501,11 +2024,20 @@ createLlmScorerVersion(
   cot_enabled?: null | boolean;
   finetuned_scorer?:   | null
      | {
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      executor?:   | null
         | "agentic_session_success"
         | "agentic_workflow_success"
         | "action_completion_luna"
         | "action_advancement_luna"
+        | "agent_efficiency"
+        | "agent_flow"
         | "bleu"
         | "chunk_attribution_utilization_luna"
         | "chunk_attribution_utilization"
@@ -514,19 +2046,24 @@ createLlmScorerVersion(
         | "context_adherence"
         | "context_adherence_luna"
         | "context_relevance"
+        | "conversation_quality"
         | "correctness"
         | "ground_truth_adherence"
         | "input_pii"
+        | "input_pii_gpt"
         | "input_sexist"
         | "input_sexist_luna"
         | "input_tone"
+        | "input_tone_gpt"
         | "input_toxicity"
         | "input_toxicity_luna"
         | "instruction_adherence"
         | "output_pii"
+        | "output_pii_gpt"
         | "output_sexist"
         | "output_sexist_luna"
         | "output_tone"
+        | "output_tone_gpt"
         | "output_toxicity"
         | "output_toxicity_luna"
         | "prompt_injection"
@@ -537,9 +2074,12 @@ createLlmScorerVersion(
         | "tool_error_rate_luna"
         | "tool_selection_quality"
         | "tool_selection_quality_luna"
-        | "uncertainty";
+        | "uncertainty"
+        | "user_intent_change";
      id: string;
      lora_task_id: number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      name: string;
      prompt: string;
    };
@@ -550,6 +2090,10 @@ createLlmScorerVersion(
         metric_description?: null | string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: null | string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template: string;
         value_field_name?: string;
      };
@@ -586,11 +2130,12 @@ createLlmScorerVersion(
      name: string;
    };
   scoreable_node_types?: null | string[];
+  scorer_id: string;
   version: number;
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:518](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L518)
+Defined in: [src/api-client/galileo-client.ts:538](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L538)
 
 #### Parameters
 
@@ -650,6 +2195,19 @@ Metric System Prompt
 
 System prompt for the metric.
 
+###### response_schema?
+
+\| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\}
+
+Response Schema
+
+**Description**
+
+Response schema for the output
+
 ###### template
 
 `string`
@@ -698,11 +2256,20 @@ rating;
 `cot_enabled?`: `null` \| `boolean`;
 `finetuned_scorer?`: \| `null`
 \| \{
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
+\};
 `executor?`: \| `null`
 \| `"agentic_session_success"`
 \| `"agentic_workflow_success"`
 \| `"action_completion_luna"`
 \| `"action_advancement_luna"`
+\| `"agent_efficiency"`
+\| `"agent_flow"`
 \| `"bleu"`
 \| `"chunk_attribution_utilization_luna"`
 \| `"chunk_attribution_utilization"`
@@ -711,19 +2278,24 @@ rating;
 \| `"context_adherence"`
 \| `"context_adherence_luna"`
 \| `"context_relevance"`
+\| `"conversation_quality"`
 \| `"correctness"`
 \| `"ground_truth_adherence"`
 \| `"input_pii"`
+\| `"input_pii_gpt"`
 \| `"input_sexist"`
 \| `"input_sexist_luna"`
 \| `"input_tone"`
+\| `"input_tone_gpt"`
 \| `"input_toxicity"`
 \| `"input_toxicity_luna"`
 \| `"instruction_adherence"`
 \| `"output_pii"`
+\| `"output_pii_gpt"`
 \| `"output_sexist"`
 \| `"output_sexist_luna"`
 \| `"output_tone"`
+\| `"output_tone_gpt"`
 \| `"output_toxicity"`
 \| `"output_toxicity_luna"`
 \| `"prompt_injection"`
@@ -734,9 +2306,12 @@ rating;
 \| `"tool_error_rate_luna"`
 \| `"tool_selection_quality"`
 \| `"tool_selection_quality_luna"`
-\| `"uncertainty"`;
+\| `"uncertainty"`
+\| `"user_intent_change"`;
 `id`: `string`;
 `lora_task_id`: `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `name`: `string`;
 `prompt`: `string`;
 \};
@@ -747,6 +2322,10 @@ rating;
 `metric_description?`: `null` \| `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `null` \| `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template`: `string`;
 `value_field_name?`: `string`;
 \};
@@ -783,6 +2362,7 @@ rating;
 `name`: `string`;
 \};
 `scoreable_node_types?`: `null` \| `string`[];
+`scorer_id`: `string`;
 `version`: `number`;
 \}\>
 
@@ -791,10 +2371,18 @@ rating;
 ### createLogStream()
 
 ```ts
-createLogStream(name: string): Promise<LogStream>;
+createLogStream(name: string): Promise<{
+  created_at: string;
+  created_by?: null | string;
+  has_user_created_sessions?: boolean;
+  id: string;
+  name: string;
+  project_id: string;
+  updated_at: string;
+}>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:255](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L255)
+Defined in: [src/api-client/galileo-client.ts:256](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L256)
 
 #### Parameters
 
@@ -804,7 +2392,15 @@ Defined in: [src/api-client/galileo-client.ts:255](https://github.com/rungalileo
 
 #### Returns
 
-`Promise`\<[`LogStream`](/sdk-api/typescript/reference/types/interfaces/LogStream)\>
+`Promise`\<\{
+`created_at`: `string`;
+`created_by?`: `null` \| `string`;
+`has_user_created_sessions?`: `boolean`;
+`id`: `string`;
+`name`: `string`;
+`project_id`: `string`;
+`updated_at`: `string`;
+\}\>
 
 ---
 
@@ -814,7 +2410,7 @@ Defined in: [src/api-client/galileo-client.ts:255](https://github.com/rungalileo
 createLogStreamScorerSettings(logStreamId: string, scorers: object[]): Promise<void>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:260](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L260)
+Defined in: [src/api-client/galileo-client.ts:261](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L261)
 
 #### Parameters
 
@@ -835,10 +2431,22 @@ Defined in: [src/api-client/galileo-client.ts:260](https://github.com/rungalileo
 ### createProject()
 
 ```ts
-createProject(name: string): Promise<Project>;
+createProject(name: string): Promise<{
+  created_at: string;
+  created_by?: null | string;
+  id: string;
+  name?: null | string;
+  type?:   | null
+     | "prompt_evaluation"
+     | "llm_monitor"
+     | "gen_ai"
+     | "training_inference"
+     | "protect";
+  updated_at: string;
+}>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:234](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L234)
+Defined in: [src/api-client/galileo-client.ts:235](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L235)
 
 #### Parameters
 
@@ -848,7 +2456,19 @@ Defined in: [src/api-client/galileo-client.ts:234](https://github.com/rungalileo
 
 #### Returns
 
-`Promise`\<[`Project`](/sdk-api/typescript/reference/types/interfaces/Project)\>
+`Promise`\<\{
+`created_at`: `string`;
+`created_by?`: `null` \| `string`;
+`id`: `string`;
+`name?`: `null` \| `string`;
+`type?`: \| `null`
+\| `"prompt_evaluation"`
+\| `"llm_monitor"`
+\| `"gen_ai"`
+\| `"training_inference"`
+\| `"protect"`;
+`updated_at`: `string`;
+\}\>
 
 ---
 
@@ -916,9 +2536,20 @@ createPromptRunJob(
         metric_description?: string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -956,6 +2587,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "agentic_session_success";
@@ -1059,9 +2692,20 @@ createPromptRunJob(
         metric_description?: string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -1099,6 +2743,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "agentic_workflow_success";
@@ -1202,9 +2848,20 @@ createPromptRunJob(
         metric_description?: null | string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: null | string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -1242,6 +2899,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "chunk_attribution_utilization";
@@ -1345,9 +3004,20 @@ createPromptRunJob(
         metric_description?: null | string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: null | string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -1385,6 +3055,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "completeness";
@@ -1488,9 +3160,20 @@ createPromptRunJob(
         metric_description?: null | string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -1529,6 +3212,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "correctness";
@@ -1632,9 +3317,20 @@ createPromptRunJob(
         metric_description?: string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -1672,6 +3368,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "context_adherence";
@@ -1775,9 +3473,20 @@ createPromptRunJob(
         metric_description?: string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -1816,6 +3525,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "instruction_adherence";
@@ -1919,9 +3630,20 @@ createPromptRunJob(
         metric_description?: string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -1959,6 +3681,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "ground_truth_adherence";
@@ -2062,9 +3786,20 @@ createPromptRunJob(
         metric_description?: string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -2102,6 +3837,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "prompt_injection";
@@ -2205,9 +3942,20 @@ createPromptRunJob(
         metric_description?: string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -2245,6 +3993,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "output_sexist";
@@ -2348,9 +4098,20 @@ createPromptRunJob(
         metric_description?: string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -2388,6 +4149,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "input_sexist";
@@ -2491,9 +4254,20 @@ createPromptRunJob(
         metric_description?: string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -2531,6 +4305,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "tool_selection_quality";
@@ -2634,9 +4410,20 @@ createPromptRunJob(
         metric_description?: string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -2674,6 +4461,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "tool_error_rate";
@@ -2777,9 +4566,20 @@ createPromptRunJob(
         metric_description?: string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -2817,6 +4617,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "output_toxicity";
@@ -2920,9 +4722,20 @@ createPromptRunJob(
         metric_description?: string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template?: string;
         value_field_name?: string;
      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      cot_enabled?: null | boolean;
      description?: null | string;
      extra?:   | null
@@ -2960,6 +4773,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: string;
      name?: "input_toxicity";
@@ -3096,8 +4911,19 @@ createPromptRunJob(
         metric_description?: null | string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: null | string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template: string;
         value_field_name?: string;
+      };
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
       };
      cot_enabled?: null | boolean;
      description?: null | string;
@@ -3136,6 +4962,8 @@ createPromptRunJob(
         | "trace_normalized"
         | "trace_output_only";
      lora_task_id?: null | number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      metric_name?: null | string;
      model_alias?: null | string;
      name?: string;
@@ -3275,8 +5103,6 @@ createPromptRunJob(
      deployment_name?: null | string;
      echo?: boolean;
      frequency_penalty?: number;
-     input?: null | string;
-     instructions?: null | string;
      known_models?: object[];
      logprobs?: boolean;
      max_tokens?: number;
@@ -3363,11 +5189,20 @@ createPromptRunJob(
         cot_enabled?: null | boolean;
         finetuned_scorer?:   | null
            | {
+           class_name_to_vocab_ix?:   | null
+              | {
+            [key: string]: ...[];
+            }
+              | {
+            [key: string]: number;
+            };
            executor?:   | null
               | "agentic_session_success"
               | "agentic_workflow_success"
               | "action_completion_luna"
               | "action_advancement_luna"
+              | "agent_efficiency"
+              | "agent_flow"
               | "bleu"
               | "chunk_attribution_utilization_luna"
               | "chunk_attribution_utilization"
@@ -3376,19 +5211,24 @@ createPromptRunJob(
               | "context_adherence"
               | "context_adherence_luna"
               | "context_relevance"
+              | "conversation_quality"
               | "correctness"
               | "ground_truth_adherence"
               | "input_pii"
+              | "input_pii_gpt"
               | "input_sexist"
               | "input_sexist_luna"
               | "input_tone"
+              | "input_tone_gpt"
               | "input_toxicity"
               | "input_toxicity_luna"
               | "instruction_adherence"
               | "output_pii"
+              | "output_pii_gpt"
               | "output_sexist"
               | "output_sexist_luna"
               | "output_tone"
+              | "output_tone_gpt"
               | "output_toxicity"
               | "output_toxicity_luna"
               | "prompt_injection"
@@ -3399,9 +5239,12 @@ createPromptRunJob(
               | "tool_error_rate_luna"
               | "tool_selection_quality"
               | "tool_selection_quality_luna"
-              | "uncertainty";
+              | "uncertainty"
+              | "user_intent_change";
            id: string;
            lora_task_id: number;
+           luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+           luna_output_type?: null | "string" | "float" | "string_list";
            name: string;
            prompt: string;
          };
@@ -3412,6 +5255,10 @@ createPromptRunJob(
               metric_description?: null | string;
               metric_few_shot_examples?: ...[];
               metric_system_prompt?: null | string;
+              response_schema?:   | null
+                 | {
+               [key: ...]: ...;
+               };
               template: string;
               value_field_name?: string;
            };
@@ -3448,6 +5295,7 @@ createPromptRunJob(
            name: string;
          };
         scoreable_node_types?: null | string[];
+        scorer_id: string;
         version: number;
       };
    };
@@ -4021,10 +5869,10 @@ createPromptRunJob(
      | 0
      | 1
      | 2
-     | 4
-     | 6
      | 3
+     | 4
      | 5
+     | 6
      | 7
      | 8
      | 9
@@ -4044,7 +5892,7 @@ createPromptRunJob(
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L472)
+Defined in: [src/api-client/galileo-client.ts:492](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L492)
 
 #### Parameters
 
@@ -4129,8 +5977,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -4169,6 +6028,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"agentic_session_success"`;
@@ -4272,8 +6133,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -4312,6 +6184,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"agentic_workflow_success"`;
@@ -4415,8 +6289,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `null` \| `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `null` \| `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -4455,6 +6340,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"chunk_attribution_utilization"`;
@@ -4558,8 +6445,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `null` \| `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `null` \| `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -4598,6 +6496,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"completeness"`;
@@ -4701,8 +6601,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `null` \| `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -4742,6 +6653,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"correctness"`;
@@ -4845,8 +6758,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -4885,6 +6809,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"context_adherence"`;
@@ -4988,8 +6914,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -5029,6 +6966,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"instruction_adherence"`;
@@ -5132,8 +7071,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -5172,6 +7122,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"ground_truth_adherence"`;
@@ -5275,8 +7227,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -5315,6 +7278,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"prompt_injection"`;
@@ -5418,8 +7383,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -5458,6 +7434,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"output_sexist"`;
@@ -5561,8 +7539,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -5601,6 +7590,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"input_sexist"`;
@@ -5704,8 +7695,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -5744,6 +7746,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"tool_selection_quality"`;
@@ -5847,8 +7851,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -5887,6 +7902,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"tool_error_rate"`;
@@ -5990,8 +8007,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -6030,6 +8058,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"output_toxicity"`;
@@ -6133,8 +8163,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template?`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -6173,6 +8214,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `string`;
 `name?`: `"input_toxicity"`;
@@ -6309,8 +8352,19 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `null` \| `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `null` \| `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template`: `string`;
 `value_field_name?`: `string`;
+\};
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
 \};
 `cot_enabled?`: `null` \| `boolean`;
 `description?`: `null` \| `string`;
@@ -6349,6 +8403,8 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"trace_normalized"`
 \| `"trace_output_only"`;
 `lora_task_id?`: `null` \| `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `metric_name?`: `null` \| `string`;
 `model_alias?`: `null` \| `string`;
 `name?`: `string`;
@@ -6488,8 +8544,6 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `deployment_name?`: `null` \| `string`;
 `echo?`: `boolean`;
 `frequency_penalty?`: `number`;
-`input?`: `null` \| `string`;
-`instructions?`: `null` \| `string`;
 `known_models?`: `object`[];
 `logprobs?`: `boolean`;
 `max_tokens?`: `number`;
@@ -6576,11 +8630,20 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `cot_enabled?`: `null` \| `boolean`;
 `finetuned_scorer?`: \| `null`
 \| \{
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: ...[];
+\}
+\| \{
+[`key`: `string`]: `number`;
+\};
 `executor?`: \| `null`
 \| `"agentic_session_success"`
 \| `"agentic_workflow_success"`
 \| `"action_completion_luna"`
 \| `"action_advancement_luna"`
+\| `"agent_efficiency"`
+\| `"agent_flow"`
 \| `"bleu"`
 \| `"chunk_attribution_utilization_luna"`
 \| `"chunk_attribution_utilization"`
@@ -6589,19 +8652,24 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"context_adherence"`
 \| `"context_adherence_luna"`
 \| `"context_relevance"`
+\| `"conversation_quality"`
 \| `"correctness"`
 \| `"ground_truth_adherence"`
 \| `"input_pii"`
+\| `"input_pii_gpt"`
 \| `"input_sexist"`
 \| `"input_sexist_luna"`
 \| `"input_tone"`
+\| `"input_tone_gpt"`
 \| `"input_toxicity"`
 \| `"input_toxicity_luna"`
 \| `"instruction_adherence"`
 \| `"output_pii"`
+\| `"output_pii_gpt"`
 \| `"output_sexist"`
 \| `"output_sexist_luna"`
 \| `"output_tone"`
+\| `"output_tone_gpt"`
 \| `"output_toxicity"`
 \| `"output_toxicity_luna"`
 \| `"prompt_injection"`
@@ -6612,9 +8680,12 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `"tool_error_rate_luna"`
 \| `"tool_selection_quality"`
 \| `"tool_selection_quality_luna"`
-\| `"uncertainty"`;
+\| `"uncertainty"`
+\| `"user_intent_change"`;
 `id`: `string`;
 `lora_task_id`: `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `name`: `string`;
 `prompt`: `string`;
 \};
@@ -6625,6 +8696,10 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `metric_description?`: `null` \| `string`;
 `metric_few_shot_examples?`: ...[];
 `metric_system_prompt?`: `null` \| `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: ...]: ...;
+\};
 `template`: `string`;
 `value_field_name?`: `string`;
 \};
@@ -6661,6 +8736,7 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 `name`: `string`;
 \};
 `scoreable_node_types?`: `null` \| `string`[];
+`scorer_id`: `string`;
 `version`: `number`;
 \};
 \};
@@ -7234,10 +9310,10 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 \| `0`
 \| `1`
 \| `2`
-\| `4`
-\| `6`
 \| `3`
+\| `4`
 \| `5`
+\| `6`
 \| `7`
 \| `8`
 \| `9`
@@ -7261,7 +9337,7 @@ Defined in: [src/api-client/galileo-client.ts:472](https://github.com/rungalileo
 ### createPromptTemplate()
 
 ```ts
-createPromptTemplate(template: Message[], name: string): Promise<{
+createPromptTemplate(template: object[], name: string): Promise<{
   all_available_versions: number[];
   all_versions?: object[];
   created_at: string;
@@ -7301,8 +9377,6 @@ createPromptTemplate(template: Message[], name: string): Promise<{
         deployment_name?: null | string;
         echo?: boolean;
         frequency_penalty?: number;
-        input?: null | string;
-        instructions?: null | string;
         known_models?: object[];
         logprobs?: boolean;
         max_tokens?: number;
@@ -7342,13 +9416,13 @@ createPromptTemplate(template: Message[], name: string): Promise<{
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:376](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L376)
+Defined in: [src/api-client/galileo-client.ts:396](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L396)
 
 #### Parameters
 
 ##### template
 
-[`Message`](/sdk-api/typescript/reference/types/interfaces/Message)[]
+`object`[]
 
 ##### name
 
@@ -7396,8 +9470,6 @@ Defined in: [src/api-client/galileo-client.ts:376](https://github.com/rungalileo
 `deployment_name?`: `null` \| `string`;
 `echo?`: `boolean`;
 `frequency_penalty?`: `number`;
-`input?`: `null` \| `string`;
-`instructions?`: `null` \| `string`;
 `known_models?`: `object`[];
 `logprobs?`: `boolean`;
 `max_tokens?`: `number`;
@@ -7447,7 +9519,7 @@ createRunScorerSettings(
 scorers: object[]): Promise<void>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:459](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L459)
+Defined in: [src/api-client/galileo-client.ts:479](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L479)
 
 #### Parameters
 
@@ -7480,12 +9552,317 @@ createScorer(
    defaults?: object,
    modelType?: "llm" | "code" | "slm",
    defaultVersionId?: string,
-   scoreableNodeTypes?: StepType[],
+   scoreableNodeTypes?: ("agent" | "llm" | "retriever" | "tool" | "workflow" | "trace" | "session")[],
    outputType?: OutputType,
-inputType?: InputType): Promise<Scorer>;
+   inputType?: InputType): Promise<{
+  created_at?: null | string;
+  created_by?: null | string;
+  default_version?:   | null
+     | {
+     cot_enabled?: null | boolean;
+     finetuned_scorer?:   | null
+        | {
+        class_name_to_vocab_ix?:   | null
+           | {
+         [key: string]: number[];
+         }
+           | {
+         [key: string]: number;
+         };
+        executor?:   | null
+           | "agentic_session_success"
+           | "agentic_workflow_success"
+           | "action_completion_luna"
+           | "action_advancement_luna"
+           | "agent_efficiency"
+           | "agent_flow"
+           | "bleu"
+           | "chunk_attribution_utilization_luna"
+           | "chunk_attribution_utilization"
+           | "completeness_luna"
+           | "completeness"
+           | "context_adherence"
+           | "context_adherence_luna"
+           | "context_relevance"
+           | "conversation_quality"
+           | "correctness"
+           | "ground_truth_adherence"
+           | "input_pii"
+           | "input_pii_gpt"
+           | "input_sexist"
+           | "input_sexist_luna"
+           | "input_tone"
+           | "input_tone_gpt"
+           | "input_toxicity"
+           | "input_toxicity_luna"
+           | "instruction_adherence"
+           | "output_pii"
+           | "output_pii_gpt"
+           | "output_sexist"
+           | "output_sexist_luna"
+           | "output_tone"
+           | "output_tone_gpt"
+           | "output_toxicity"
+           | "output_toxicity_luna"
+           | "prompt_injection"
+           | "prompt_injection_luna"
+           | "prompt_perplexity"
+           | "rouge"
+           | "tool_error_rate"
+           | "tool_error_rate_luna"
+           | "tool_selection_quality"
+           | "tool_selection_quality_luna"
+           | "uncertainty"
+           | "user_intent_change";
+        id: string;
+        lora_task_id: number;
+        luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+        luna_output_type?: null | "string" | "float" | "string_list";
+        name: string;
+        prompt: string;
+      };
+     generated_scorer?:   | null
+        | {
+        chain_poll_template: {
+           explanation_field_name?: string;
+           metric_description?: null | string;
+           metric_few_shot_examples?: object[];
+           metric_system_prompt?: null | string;
+           response_schema?:   | null
+              | {
+            [key: string]: unknown;
+            };
+           template: string;
+           value_field_name?: string;
+        };
+        id: string;
+        instructions?: null | string;
+        name: string;
+        user_prompt?: null | string;
+      };
+     id: string;
+     input_type?:   | null
+        | "basic"
+        | "llm_spans"
+        | "retriever_spans"
+        | "sessions_normalized"
+        | "sessions_trace_io_only"
+        | "tool_spans"
+        | "trace_input_only"
+        | "trace_io_only"
+        | "trace_normalized"
+        | "trace_output_only";
+     model_name?: null | string;
+     num_judges?: null | number;
+     output_type?:   | null
+        | "boolean"
+        | "categorical"
+        | "count"
+        | "discrete"
+        | "freeform"
+        | "percentage"
+        | "multilabel";
+     registered_scorer?:   | null
+        | {
+        id: string;
+        name: string;
+      };
+     scoreable_node_types?: null | string[];
+     scorer_id: string;
+     version: number;
+   };
+  default_version_id?: null | string;
+  defaults?:   | null
+     | {
+     cot_enabled?: null | boolean;
+     filters?:   | null
+        | (
+        | {
+        case_sensitive?: boolean;
+        filter_type?: "string";
+        name: "node_name";
+        operator: "eq" | "ne" | "contains";
+        value: string;
+      }
+        | {
+        filter_type?: "map";
+        key: string;
+        name: "metadata";
+        operator: "eq" | "ne" | "not_in" | "one_of";
+        value: string | string[];
+      })[];
+     input_type?:   | null
+        | "basic"
+        | "llm_spans"
+        | "retriever_spans"
+        | "sessions_normalized"
+        | "sessions_trace_io_only"
+        | "tool_spans"
+        | "trace_input_only"
+        | "trace_io_only"
+        | "trace_normalized"
+        | "trace_output_only";
+     model_name?: null | string;
+     num_judges?: null | number;
+     output_type?:   | null
+        | "boolean"
+        | "categorical"
+        | "count"
+        | "discrete"
+        | "freeform"
+        | "percentage"
+        | "multilabel";
+     scoreable_node_types?: null | string[];
+   };
+  description?: null | string;
+  ground_truth?: null | boolean;
+  id: string;
+  included_fields?: string[];
+  input_type?:   | null
+     | "basic"
+     | "llm_spans"
+     | "retriever_spans"
+     | "sessions_normalized"
+     | "sessions_trace_io_only"
+     | "tool_spans"
+     | "trace_input_only"
+     | "trace_io_only"
+     | "trace_normalized"
+     | "trace_output_only";
+  label?: null | string;
+  latest_version?:   | null
+     | {
+     cot_enabled?: null | boolean;
+     finetuned_scorer?:   | null
+        | {
+        class_name_to_vocab_ix?:   | null
+           | {
+         [key: string]: number[];
+         }
+           | {
+         [key: string]: number;
+         };
+        executor?:   | null
+           | "agentic_session_success"
+           | "agentic_workflow_success"
+           | "action_completion_luna"
+           | "action_advancement_luna"
+           | "agent_efficiency"
+           | "agent_flow"
+           | "bleu"
+           | "chunk_attribution_utilization_luna"
+           | "chunk_attribution_utilization"
+           | "completeness_luna"
+           | "completeness"
+           | "context_adherence"
+           | "context_adherence_luna"
+           | "context_relevance"
+           | "conversation_quality"
+           | "correctness"
+           | "ground_truth_adherence"
+           | "input_pii"
+           | "input_pii_gpt"
+           | "input_sexist"
+           | "input_sexist_luna"
+           | "input_tone"
+           | "input_tone_gpt"
+           | "input_toxicity"
+           | "input_toxicity_luna"
+           | "instruction_adherence"
+           | "output_pii"
+           | "output_pii_gpt"
+           | "output_sexist"
+           | "output_sexist_luna"
+           | "output_tone"
+           | "output_tone_gpt"
+           | "output_toxicity"
+           | "output_toxicity_luna"
+           | "prompt_injection"
+           | "prompt_injection_luna"
+           | "prompt_perplexity"
+           | "rouge"
+           | "tool_error_rate"
+           | "tool_error_rate_luna"
+           | "tool_selection_quality"
+           | "tool_selection_quality_luna"
+           | "uncertainty"
+           | "user_intent_change";
+        id: string;
+        lora_task_id: number;
+        luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+        luna_output_type?: null | "string" | "float" | "string_list";
+        name: string;
+        prompt: string;
+      };
+     generated_scorer?:   | null
+        | {
+        chain_poll_template: {
+           explanation_field_name?: string;
+           metric_description?: null | string;
+           metric_few_shot_examples?: object[];
+           metric_system_prompt?: null | string;
+           response_schema?:   | null
+              | {
+            [key: string]: unknown;
+            };
+           template: string;
+           value_field_name?: string;
+        };
+        id: string;
+        instructions?: null | string;
+        name: string;
+        user_prompt?: null | string;
+      };
+     id: string;
+     input_type?:   | null
+        | "basic"
+        | "llm_spans"
+        | "retriever_spans"
+        | "sessions_normalized"
+        | "sessions_trace_io_only"
+        | "tool_spans"
+        | "trace_input_only"
+        | "trace_io_only"
+        | "trace_normalized"
+        | "trace_output_only";
+     model_name?: null | string;
+     num_judges?: null | number;
+     output_type?:   | null
+        | "boolean"
+        | "categorical"
+        | "count"
+        | "discrete"
+        | "freeform"
+        | "percentage"
+        | "multilabel";
+     registered_scorer?:   | null
+        | {
+        id: string;
+        name: string;
+      };
+     scoreable_node_types?: null | string[];
+     scorer_id: string;
+     version: number;
+   };
+  model_type?: null | "llm" | "code" | "slm";
+  name: string;
+  output_type?:   | null
+     | "boolean"
+     | "categorical"
+     | "count"
+     | "discrete"
+     | "freeform"
+     | "percentage"
+     | "multilabel";
+  scoreable_node_types?: null | string[];
+  scorer_type: "luna" | "llm" | "code" | "preset";
+  tags: string[];
+  updated_at?: null | string;
+  user_prompt?: null | string;
+}>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:491](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L491)
+Defined in: [src/api-client/galileo-client.ts:511](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L511)
 
 #### Parameters
 
@@ -7607,7 +9984,7 @@ List of node types that can be scored by this scorer. Defaults to llm/chat.
 
 ##### scoreableNodeTypes?
 
-[`StepType`](/sdk-api/typescript/reference/types/enumerations/StepType)[]
+(`"agent"` \| `"llm"` \| `"retriever"` \| `"tool"` \| `"workflow"` \| `"trace"` \| `"session"`)[]
 
 ##### outputType?
 
@@ -7619,7 +9996,312 @@ List of node types that can be scored by this scorer. Defaults to llm/chat.
 
 #### Returns
 
-`Promise`\<[`Scorer`](/sdk-api/typescript/reference/types/interfaces/Scorer)\>
+`Promise`\<\{
+`created_at?`: `null` \| `string`;
+`created_by?`: `null` \| `string`;
+`default_version?`: \| `null`
+\| \{
+`cot_enabled?`: `null` \| `boolean`;
+`finetuned_scorer?`: \| `null`
+\| \{
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
+\};
+`executor?`: \| `null`
+\| `"agentic_session_success"`
+\| `"agentic_workflow_success"`
+\| `"action_completion_luna"`
+\| `"action_advancement_luna"`
+\| `"agent_efficiency"`
+\| `"agent_flow"`
+\| `"bleu"`
+\| `"chunk_attribution_utilization_luna"`
+\| `"chunk_attribution_utilization"`
+\| `"completeness_luna"`
+\| `"completeness"`
+\| `"context_adherence"`
+\| `"context_adherence_luna"`
+\| `"context_relevance"`
+\| `"conversation_quality"`
+\| `"correctness"`
+\| `"ground_truth_adherence"`
+\| `"input_pii"`
+\| `"input_pii_gpt"`
+\| `"input_sexist"`
+\| `"input_sexist_luna"`
+\| `"input_tone"`
+\| `"input_tone_gpt"`
+\| `"input_toxicity"`
+\| `"input_toxicity_luna"`
+\| `"instruction_adherence"`
+\| `"output_pii"`
+\| `"output_pii_gpt"`
+\| `"output_sexist"`
+\| `"output_sexist_luna"`
+\| `"output_tone"`
+\| `"output_tone_gpt"`
+\| `"output_toxicity"`
+\| `"output_toxicity_luna"`
+\| `"prompt_injection"`
+\| `"prompt_injection_luna"`
+\| `"prompt_perplexity"`
+\| `"rouge"`
+\| `"tool_error_rate"`
+\| `"tool_error_rate_luna"`
+\| `"tool_selection_quality"`
+\| `"tool_selection_quality_luna"`
+\| `"uncertainty"`
+\| `"user_intent_change"`;
+`id`: `string`;
+`lora_task_id`: `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
+`name`: `string`;
+`prompt`: `string`;
+\};
+`generated_scorer?`: \| `null`
+\| \{
+`chain_poll_template`: \{
+`explanation_field_name?`: `string`;
+`metric_description?`: `null` \| `string`;
+`metric_few_shot_examples?`: `object`[];
+`metric_system_prompt?`: `null` \| `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
+`template`: `string`;
+`value_field_name?`: `string`;
+\};
+`id`: `string`;
+`instructions?`: `null` \| `string`;
+`name`: `string`;
+`user_prompt?`: `null` \| `string`;
+\};
+`id`: `string`;
+`input_type?`: \| `null`
+\| `"basic"`
+\| `"llm_spans"`
+\| `"retriever_spans"`
+\| `"sessions_normalized"`
+\| `"sessions_trace_io_only"`
+\| `"tool_spans"`
+\| `"trace_input_only"`
+\| `"trace_io_only"`
+\| `"trace_normalized"`
+\| `"trace_output_only"`;
+`model_name?`: `null` \| `string`;
+`num_judges?`: `null` \| `number`;
+`output_type?`: \| `null`
+\| `"boolean"`
+\| `"categorical"`
+\| `"count"`
+\| `"discrete"`
+\| `"freeform"`
+\| `"percentage"`
+\| `"multilabel"`;
+`registered_scorer?`: \| `null`
+\| \{
+`id`: `string`;
+`name`: `string`;
+\};
+`scoreable_node_types?`: `null` \| `string`[];
+`scorer_id`: `string`;
+`version`: `number`;
+\};
+`default_version_id?`: `null` \| `string`;
+`defaults?`: \| `null`
+\| \{
+`cot_enabled?`: `null` \| `boolean`;
+`filters?`: \| `null`
+\| (
+\| \{
+`case_sensitive?`: `boolean`;
+`filter_type?`: `"string"`;
+`name`: `"node_name"`;
+`operator`: `"eq"` \| `"ne"` \| `"contains"`;
+`value`: `string`;
+\}
+\| \{
+`filter_type?`: `"map"`;
+`key`: `string`;
+`name`: `"metadata"`;
+`operator`: `"eq"` \| `"ne"` \| `"not_in"` \| `"one_of"`;
+`value`: `string` \| `string`[];
+\})[];
+`input_type?`: \| `null`
+\| `"basic"`
+\| `"llm_spans"`
+\| `"retriever_spans"`
+\| `"sessions_normalized"`
+\| `"sessions_trace_io_only"`
+\| `"tool_spans"`
+\| `"trace_input_only"`
+\| `"trace_io_only"`
+\| `"trace_normalized"`
+\| `"trace_output_only"`;
+`model_name?`: `null` \| `string`;
+`num_judges?`: `null` \| `number`;
+`output_type?`: \| `null`
+\| `"boolean"`
+\| `"categorical"`
+\| `"count"`
+\| `"discrete"`
+\| `"freeform"`
+\| `"percentage"`
+\| `"multilabel"`;
+`scoreable_node_types?`: `null` \| `string`[];
+\};
+`description?`: `null` \| `string`;
+`ground_truth?`: `null` \| `boolean`;
+`id`: `string`;
+`included_fields?`: `string`[];
+`input_type?`: \| `null`
+\| `"basic"`
+\| `"llm_spans"`
+\| `"retriever_spans"`
+\| `"sessions_normalized"`
+\| `"sessions_trace_io_only"`
+\| `"tool_spans"`
+\| `"trace_input_only"`
+\| `"trace_io_only"`
+\| `"trace_normalized"`
+\| `"trace_output_only"`;
+`label?`: `null` \| `string`;
+`latest_version?`: \| `null`
+\| \{
+`cot_enabled?`: `null` \| `boolean`;
+`finetuned_scorer?`: \| `null`
+\| \{
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
+\};
+`executor?`: \| `null`
+\| `"agentic_session_success"`
+\| `"agentic_workflow_success"`
+\| `"action_completion_luna"`
+\| `"action_advancement_luna"`
+\| `"agent_efficiency"`
+\| `"agent_flow"`
+\| `"bleu"`
+\| `"chunk_attribution_utilization_luna"`
+\| `"chunk_attribution_utilization"`
+\| `"completeness_luna"`
+\| `"completeness"`
+\| `"context_adherence"`
+\| `"context_adherence_luna"`
+\| `"context_relevance"`
+\| `"conversation_quality"`
+\| `"correctness"`
+\| `"ground_truth_adherence"`
+\| `"input_pii"`
+\| `"input_pii_gpt"`
+\| `"input_sexist"`
+\| `"input_sexist_luna"`
+\| `"input_tone"`
+\| `"input_tone_gpt"`
+\| `"input_toxicity"`
+\| `"input_toxicity_luna"`
+\| `"instruction_adherence"`
+\| `"output_pii"`
+\| `"output_pii_gpt"`
+\| `"output_sexist"`
+\| `"output_sexist_luna"`
+\| `"output_tone"`
+\| `"output_tone_gpt"`
+\| `"output_toxicity"`
+\| `"output_toxicity_luna"`
+\| `"prompt_injection"`
+\| `"prompt_injection_luna"`
+\| `"prompt_perplexity"`
+\| `"rouge"`
+\| `"tool_error_rate"`
+\| `"tool_error_rate_luna"`
+\| `"tool_selection_quality"`
+\| `"tool_selection_quality_luna"`
+\| `"uncertainty"`
+\| `"user_intent_change"`;
+`id`: `string`;
+`lora_task_id`: `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
+`name`: `string`;
+`prompt`: `string`;
+\};
+`generated_scorer?`: \| `null`
+\| \{
+`chain_poll_template`: \{
+`explanation_field_name?`: `string`;
+`metric_description?`: `null` \| `string`;
+`metric_few_shot_examples?`: `object`[];
+`metric_system_prompt?`: `null` \| `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
+`template`: `string`;
+`value_field_name?`: `string`;
+\};
+`id`: `string`;
+`instructions?`: `null` \| `string`;
+`name`: `string`;
+`user_prompt?`: `null` \| `string`;
+\};
+`id`: `string`;
+`input_type?`: \| `null`
+\| `"basic"`
+\| `"llm_spans"`
+\| `"retriever_spans"`
+\| `"sessions_normalized"`
+\| `"sessions_trace_io_only"`
+\| `"tool_spans"`
+\| `"trace_input_only"`
+\| `"trace_io_only"`
+\| `"trace_normalized"`
+\| `"trace_output_only"`;
+`model_name?`: `null` \| `string`;
+`num_judges?`: `null` \| `number`;
+`output_type?`: \| `null`
+\| `"boolean"`
+\| `"categorical"`
+\| `"count"`
+\| `"discrete"`
+\| `"freeform"`
+\| `"percentage"`
+\| `"multilabel"`;
+`registered_scorer?`: \| `null`
+\| \{
+`id`: `string`;
+`name`: `string`;
+\};
+`scoreable_node_types?`: `null` \| `string`[];
+`scorer_id`: `string`;
+`version`: `number`;
+\};
+`model_type?`: `null` \| `"llm"` \| `"code"` \| `"slm"`;
+`name`: `string`;
+`output_type?`: \| `null`
+\| `"boolean"`
+\| `"categorical"`
+\| `"count"`
+\| `"discrete"`
+\| `"freeform"`
+\| `"percentage"`
+\| `"multilabel"`;
+`scoreable_node_types?`: `null` \| `string`[];
+`scorer_type`: `"luna"` \| `"llm"` \| `"code"` \| `"preset"`;
+`tags`: `string`[];
+`updated_at?`: `null` \| `string`;
+`user_prompt?`: `null` \| `string`;
+\}\>
 
 ---
 
@@ -7636,7 +10318,7 @@ createSession(__namedParameters: object): Promise<{
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:335](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L335)
+Defined in: [src/api-client/galileo-client.ts:336](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L336)
 
 #### Parameters
 
@@ -7673,7 +10355,7 @@ Defined in: [src/api-client/galileo-client.ts:335](https://github.com/rungalileo
 deleteDataset(id: string): Promise<void>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:299](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L299)
+Defined in: [src/api-client/galileo-client.ts:300](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L300)
 
 #### Parameters
 
@@ -7693,7 +10375,7 @@ Defined in: [src/api-client/galileo-client.ts:299](https://github.com/rungalileo
 deleteGlobalPromptTemplate(id: string): Promise<void>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:419](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L419)
+Defined in: [src/api-client/galileo-client.ts:439](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L439)
 
 #### Parameters
 
@@ -7713,7 +10395,7 @@ Defined in: [src/api-client/galileo-client.ts:419](https://github.com/rungalileo
 deleteScorer(scorerId: string): Promise<void>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:539](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L539)
+Defined in: [src/api-client/galileo-client.ts:559](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L559)
 
 #### Parameters
 
@@ -7735,7 +10417,7 @@ extendDataset(params: object): Promise<{
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:317](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L317)
+Defined in: [src/api-client/galileo-client.ts:318](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L318)
 
 #### Parameters
 
@@ -7790,8 +10472,6 @@ Prompt
 `deployment_name?`: `null` \| `string`;
 `echo?`: `boolean`;
 `frequency_penalty?`: `number`;
-`input?`: `null` \| `string`;
-`instructions?`: `null` \| `string`;
 `known_models?`: `object`[];
 `logprobs?`: `boolean`;
 `max_tokens?`: `number`;
@@ -7853,18 +10533,6 @@ Frequency Penalty
 ```ts
 0;
 ```
-
-###### prompt_settings.input?
-
-`null` \| `string`
-
-Input
-
-###### prompt_settings.instructions?
-
-`null` \| `string`
-
-Instructions
 
 ###### prompt_settings.known_models?
 
@@ -8137,7 +10805,7 @@ getDataset(id: string): Promise<{
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:274](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L274)
+Defined in: [src/api-client/galileo-client.ts:275](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L275)
 
 #### Parameters
 
@@ -8193,7 +10861,7 @@ getDatasetByName(name: string): Promise<{
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:284](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L284)
+Defined in: [src/api-client/galileo-client.ts:285](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L285)
 
 #### Parameters
 
@@ -8231,7 +10899,7 @@ Defined in: [src/api-client/galileo-client.ts:284](https://github.com/rungalileo
 getDatasetContent(datasetId: string): Promise<object[]>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:294](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L294)
+Defined in: [src/api-client/galileo-client.ts:295](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L295)
 
 #### Parameters
 
@@ -8251,7 +10919,7 @@ Defined in: [src/api-client/galileo-client.ts:294](https://github.com/rungalileo
 getDatasetEtag(id: string): Promise<string>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:279](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L279)
+Defined in: [src/api-client/galileo-client.ts:280](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L280)
 
 #### Parameters
 
@@ -8271,7 +10939,7 @@ Defined in: [src/api-client/galileo-client.ts:279](https://github.com/rungalileo
 getDatasets(): Promise<object[]>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:269](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L269)
+Defined in: [src/api-client/galileo-client.ts:270](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L270)
 
 #### Returns
 
@@ -8282,10 +10950,87 @@ Defined in: [src/api-client/galileo-client.ts:269](https://github.com/rungalileo
 ### getExperiment()
 
 ```ts
-getExperiment(id: string): Promise<Experiment>;
+getExperiment(id: string): Promise<{
+  aggregate_feedback?: {
+   [key: string]: object;
+  };
+  aggregate_metrics?: {
+   [key: string]: unknown;
+  };
+  created_at?: string;
+  created_by?: null | string;
+  dataset?:   | null
+     | {
+     dataset_id?: null | string;
+     name?: null | string;
+     version_index?: null | number;
+   };
+  id: string;
+  name?: string;
+  playground?:   | null
+     | {
+     name?: null | string;
+     playground_id?: null | string;
+   };
+  playground_id?: null | string;
+  project_id: string;
+  prompt?:   | null
+     | {
+     content?: null | string;
+     name?: null | string;
+     prompt_template_id?: null | string;
+     version_index?: null | number;
+   };
+  prompt_model?: null | string;
+  prompt_run_settings?:   | null
+     | {
+     deployment_name?: null | string;
+     echo?: boolean;
+     frequency_penalty?: number;
+     known_models?: object[];
+     logprobs?: boolean;
+     max_tokens?: number;
+     model_alias?: string;
+     n?: number;
+     presence_penalty?: number;
+     reasoning_effort?: string;
+     response_format?:   | null
+        | {
+      [key: string]: string;
+      };
+     stop_sequences?: null | string[];
+     temperature?: number;
+     tool_choice?:   | null
+        | string
+        | {
+        function: {
+           name: string;
+        };
+        type?: string;
+      };
+     tools?: null | object[];
+     top_k?: number;
+     top_logprobs?: number;
+     top_p?: number;
+     verbosity?: string;
+   };
+  rank?: null | number;
+  ranking_score?: null | number;
+  status?: {
+     log_generation?: {
+        progress_percent?: number;
+     };
+  };
+  tags?: {
+   [key: string]: object[];
+  };
+  task_type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18;
+  updated_at?: null | string;
+  winner?: null | boolean;
+}>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:430](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L430)
+Defined in: [src/api-client/galileo-client.ts:450](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L450)
 
 #### Parameters
 
@@ -8295,21 +11040,98 @@ Defined in: [src/api-client/galileo-client.ts:430](https://github.com/rungalileo
 
 #### Returns
 
-`Promise`\<[`Experiment`](/sdk-api/typescript/reference/types/interfaces/Experiment)\>
+`Promise`\<\{
+`aggregate_feedback?`: \{
+[`key`: `string`]: `object`;
+\};
+`aggregate_metrics?`: \{
+[`key`: `string`]: `unknown`;
+\};
+`created_at?`: `string`;
+`created_by?`: `null` \| `string`;
+`dataset?`: \| `null`
+\| \{
+`dataset_id?`: `null` \| `string`;
+`name?`: `null` \| `string`;
+`version_index?`: `null` \| `number`;
+\};
+`id`: `string`;
+`name?`: `string`;
+`playground?`: \| `null`
+\| \{
+`name?`: `null` \| `string`;
+`playground_id?`: `null` \| `string`;
+\};
+`playground_id?`: `null` \| `string`;
+`project_id`: `string`;
+`prompt?`: \| `null`
+\| \{
+`content?`: `null` \| `string`;
+`name?`: `null` \| `string`;
+`prompt_template_id?`: `null` \| `string`;
+`version_index?`: `null` \| `number`;
+\};
+`prompt_model?`: `null` \| `string`;
+`prompt_run_settings?`: \| `null`
+\| \{
+`deployment_name?`: `null` \| `string`;
+`echo?`: `boolean`;
+`frequency_penalty?`: `number`;
+`known_models?`: `object`[];
+`logprobs?`: `boolean`;
+`max_tokens?`: `number`;
+`model_alias?`: `string`;
+`n?`: `number`;
+`presence_penalty?`: `number`;
+`reasoning_effort?`: `string`;
+`response_format?`: \| `null`
+\| \{
+[`key`: `string`]: `string`;
+\};
+`stop_sequences?`: `null` \| `string`[];
+`temperature?`: `number`;
+`tool_choice?`: \| `null`
+\| `string`
+\| \{
+`function`: \{
+`name`: `string`;
+\};
+`type?`: `string`;
+\};
+`tools?`: `null` \| `object`[];
+`top_k?`: `number`;
+`top_logprobs?`: `number`;
+`top_p?`: `number`;
+`verbosity?`: `string`;
+\};
+`rank?`: `null` \| `number`;
+`ranking_score?`: `null` \| `number`;
+`status?`: \{
+`log_generation?`: \{
+`progress_percent?`: `number`;
+\};
+\};
+`tags?`: \{
+[`key`: `string`]: `object`[];
+\};
+`task_type`: `0` \| `1` \| `2` \| `3` \| `4` \| `5` \| `6` \| `7` \| `8` \| `9` \| `10` \| `11` \| `12` \| `13` \| `14` \| `15` \| `16` \| `17` \| `18`;
+`updated_at?`: `null` \| `string`;
+`winner?`: `null` \| `boolean`;
+\}\>
 
 ---
 
 ### getExperiments()
 
 ```ts
-getExperiments(): Promise<Experiment[]>;
+getExperiments(): Promise<object[]>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:425](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L425)
+Defined in: [src/api-client/galileo-client.ts:445](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L445)
 
 #### Returns
 
-`Promise`\<[`Experiment`](/sdk-api/typescript/reference/types/interfaces/Experiment)[]\>
+`Promise`\<`object`[]\>
 
 ---
 
@@ -8323,7 +11145,7 @@ getExtendDatasetStatus(datasetId: string): Promise<{
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:324](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L324)
+Defined in: [src/api-client/galileo-client.ts:325](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L325)
 
 #### Parameters
 
@@ -8384,8 +11206,6 @@ getGlobalPromptTemplate(id: string): Promise<{
         deployment_name?: null | string;
         echo?: boolean;
         frequency_penalty?: number;
-        input?: null | string;
-        instructions?: null | string;
         known_models?: object[];
         logprobs?: boolean;
         max_tokens?: number;
@@ -8425,7 +11245,7 @@ getGlobalPromptTemplate(id: string): Promise<{
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:406](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L406)
+Defined in: [src/api-client/galileo-client.ts:426](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L426)
 
 #### Parameters
 
@@ -8475,8 +11295,6 @@ Defined in: [src/api-client/galileo-client.ts:406](https://github.com/rungalileo
 `deployment_name?`: `null` \| `string`;
 `echo?`: `boolean`;
 `frequency_penalty?`: `number`;
-`input?`: `null` \| `string`;
-`instructions?`: `null` \| `string`;
 `known_models?`: `object`[];
 `logprobs?`: `boolean`;
 `max_tokens?`: `number`;
@@ -8541,8 +11359,6 @@ getGlobalPromptTemplateVersion(id: string, version: number): Promise<{
      deployment_name?: null | string;
      echo?: boolean;
      frequency_penalty?: number;
-     input?: null | string;
-     instructions?: null | string;
      known_models?: object[];
      logprobs?: boolean;
      max_tokens?: number;
@@ -8577,7 +11393,7 @@ getGlobalPromptTemplateVersion(id: string, version: number): Promise<{
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:411](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L411)
+Defined in: [src/api-client/galileo-client.ts:431](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L431)
 
 #### Parameters
 
@@ -8612,8 +11428,6 @@ Defined in: [src/api-client/galileo-client.ts:411](https://github.com/rungalileo
 `deployment_name?`: `null` \| `string`;
 `echo?`: `boolean`;
 `frequency_penalty?`: `number`;
-`input?`: `null` \| `string`;
-`instructions?`: `null` \| `string`;
 `known_models?`: `object`[];
 `logprobs?`: `boolean`;
 `max_tokens?`: `number`;
@@ -8652,10 +11466,18 @@ Defined in: [src/api-client/galileo-client.ts:411](https://github.com/rungalileo
 ### getLogStream()
 
 ```ts
-getLogStream(id: string): Promise<LogStream>;
+getLogStream(id: string): Promise<{
+  created_at: string;
+  created_by?: null | string;
+  has_user_created_sessions?: boolean;
+  id: string;
+  name: string;
+  project_id: string;
+  updated_at: string;
+}>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:245](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L245)
+Defined in: [src/api-client/galileo-client.ts:246](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L246)
 
 #### Parameters
 
@@ -8665,17 +11487,33 @@ Defined in: [src/api-client/galileo-client.ts:245](https://github.com/rungalileo
 
 #### Returns
 
-`Promise`\<[`LogStream`](/sdk-api/typescript/reference/types/interfaces/LogStream)\>
+`Promise`\<\{
+`created_at`: `string`;
+`created_by?`: `null` \| `string`;
+`has_user_created_sessions?`: `boolean`;
+`id`: `string`;
+`name`: `string`;
+`project_id`: `string`;
+`updated_at`: `string`;
+\}\>
 
 ---
 
 ### getLogStreamByName()
 
 ```ts
-getLogStreamByName(name: string): Promise<LogStream>;
+getLogStreamByName(name: string): Promise<{
+  created_at: string;
+  created_by?: null | string;
+  has_user_created_sessions?: boolean;
+  id: string;
+  name: string;
+  project_id: string;
+  updated_at: string;
+}>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:250](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L250)
+Defined in: [src/api-client/galileo-client.ts:251](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L251)
 
 #### Parameters
 
@@ -8685,31 +11523,62 @@ Defined in: [src/api-client/galileo-client.ts:250](https://github.com/rungalileo
 
 #### Returns
 
-`Promise`\<[`LogStream`](/sdk-api/typescript/reference/types/interfaces/LogStream)\>
+`Promise`\<\{
+`created_at`: `string`;
+`created_by?`: `null` \| `string`;
+`has_user_created_sessions?`: `boolean`;
+`id`: `string`;
+`name`: `string`;
+`project_id`: `string`;
+`updated_at`: `string`;
+\}\>
 
 ---
 
 ### getLogStreams()
 
 ```ts
-getLogStreams(): Promise<LogStream[]>;
+getLogStreams(): Promise<object[]>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:240](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L240)
+Defined in: [src/api-client/galileo-client.ts:241](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L241)
 
 #### Returns
 
-`Promise`\<[`LogStream`](/sdk-api/typescript/reference/types/interfaces/LogStream)[]\>
+`Promise`\<`object`[]\>
 
 ---
 
 ### getProject()
 
 ```ts
-getProject(id: string): Promise<Project>;
+getProject(id: string): Promise<{
+  bookmark?: boolean;
+  created_at: string;
+  created_by: string;
+  created_by_user: {
+     email: string;
+     first_name?: null | string;
+     id: string;
+     last_name?: null | string;
+  };
+  description?: null | string;
+  id: string;
+  labels?: "sample"[];
+  name?: null | string;
+  permissions?: object[];
+  runs: object[];
+  type?:   | null
+     | "prompt_evaluation"
+     | "llm_monitor"
+     | "gen_ai"
+     | "training_inference"
+     | "protect";
+  updated_at: string;
+}>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:219](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L219)
+Defined in: [src/api-client/galileo-client.ts:220](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L220)
 
 #### Parameters
 
@@ -8719,17 +11588,63 @@ Defined in: [src/api-client/galileo-client.ts:219](https://github.com/rungalileo
 
 #### Returns
 
-`Promise`\<[`Project`](/sdk-api/typescript/reference/types/interfaces/Project)\>
+`Promise`\<\{
+`bookmark?`: `boolean`;
+`created_at`: `string`;
+`created_by`: `string`;
+`created_by_user`: \{
+`email`: `string`;
+`first_name?`: `null` \| `string`;
+`id`: `string`;
+`last_name?`: `null` \| `string`;
+\};
+`description?`: `null` \| `string`;
+`id`: `string`;
+`labels?`: `"sample"`[];
+`name?`: `null` \| `string`;
+`permissions?`: `object`[];
+`runs`: `object`[];
+`type?`: \| `null`
+\| `"prompt_evaluation"`
+\| `"llm_monitor"`
+\| `"gen_ai"`
+\| `"training_inference"`
+\| `"protect"`;
+`updated_at`: `string`;
+\}\>
 
 ---
 
 ### getProjectByName()
 
 ```ts
-getProjectByName(name: string): Promise<Project>;
+getProjectByName(name: string): Promise<{
+  bookmark?: boolean;
+  created_at: string;
+  created_by: string;
+  created_by_user: {
+     email: string;
+     first_name?: null | string;
+     id: string;
+     last_name?: null | string;
+  };
+  description?: null | string;
+  id: string;
+  labels?: "sample"[];
+  name?: null | string;
+  permissions?: object[];
+  runs: object[];
+  type?:   | null
+     | "prompt_evaluation"
+     | "llm_monitor"
+     | "gen_ai"
+     | "training_inference"
+     | "protect";
+  updated_at: string;
+}>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:224](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L224)
+Defined in: [src/api-client/galileo-client.ts:225](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L225)
 
 #### Parameters
 
@@ -8739,7 +11654,30 @@ Defined in: [src/api-client/galileo-client.ts:224](https://github.com/rungalileo
 
 #### Returns
 
-`Promise`\<[`Project`](/sdk-api/typescript/reference/types/interfaces/Project)\>
+`Promise`\<\{
+`bookmark?`: `boolean`;
+`created_at`: `string`;
+`created_by`: `string`;
+`created_by_user`: \{
+`email`: `string`;
+`first_name?`: `null` \| `string`;
+`id`: `string`;
+`last_name?`: `null` \| `string`;
+\};
+`description?`: `null` \| `string`;
+`id`: `string`;
+`labels?`: `"sample"`[];
+`name?`: `null` \| `string`;
+`permissions?`: `object`[];
+`runs`: `object`[];
+`type?`: \| `null`
+\| `"prompt_evaluation"`
+\| `"llm_monitor"`
+\| `"gen_ai"`
+\| `"training_inference"`
+\| `"protect"`;
+`updated_at`: `string`;
+\}\>
 
 ---
 
@@ -8749,7 +11687,7 @@ Defined in: [src/api-client/galileo-client.ts:224](https://github.com/rungalileo
 getProjectIdByName(name: string): Promise<string>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:229](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L229)
+Defined in: [src/api-client/galileo-client.ts:230](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L230)
 
 #### Parameters
 
@@ -8766,14 +11704,14 @@ Defined in: [src/api-client/galileo-client.ts:229](https://github.com/rungalileo
 ### getProjects()
 
 ```ts
-getProjects(): Promise<Project[]>;
+getProjects(): Promise<object[]>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:214](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L214)
+Defined in: [src/api-client/galileo-client.ts:215](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L215)
 
 #### Returns
 
-`Promise`\<[`Project`](/sdk-api/typescript/reference/types/interfaces/Project)[]\>
+`Promise`\<`object`[]\>
 
 ---
 
@@ -8820,8 +11758,6 @@ getPromptTemplate(id: string): Promise<{
         deployment_name?: null | string;
         echo?: boolean;
         frequency_penalty?: number;
-        input?: null | string;
-        instructions?: null | string;
         known_models?: object[];
         logprobs?: boolean;
         max_tokens?: number;
@@ -8861,7 +11797,7 @@ getPromptTemplate(id: string): Promise<{
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:358](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L358)
+Defined in: [src/api-client/galileo-client.ts:378](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L378)
 
 #### Parameters
 
@@ -8911,8 +11847,6 @@ Defined in: [src/api-client/galileo-client.ts:358](https://github.com/rungalileo
 `deployment_name?`: `null` \| `string`;
 `echo?`: `boolean`;
 `frequency_penalty?`: `number`;
-`input?`: `null` \| `string`;
-`instructions?`: `null` \| `string`;
 `known_models?`: `object`[];
 `logprobs?`: `boolean`;
 `max_tokens?`: `number`;
@@ -8959,7 +11893,7 @@ Defined in: [src/api-client/galileo-client.ts:358](https://github.com/rungalileo
 getPromptTemplates(): Promise<object[]>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:353](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L353)
+Defined in: [src/api-client/galileo-client.ts:373](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L373)
 
 #### Returns
 
@@ -8991,8 +11925,6 @@ getPromptTemplateVersion(id: string, version: number): Promise<{
      deployment_name?: null | string;
      echo?: boolean;
      frequency_penalty?: number;
-     input?: null | string;
-     instructions?: null | string;
      known_models?: object[];
      logprobs?: boolean;
      max_tokens?: number;
@@ -9027,7 +11959,7 @@ getPromptTemplateVersion(id: string, version: number): Promise<{
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:363](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L363)
+Defined in: [src/api-client/galileo-client.ts:383](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L383)
 
 #### Parameters
 
@@ -9062,8 +11994,6 @@ Defined in: [src/api-client/galileo-client.ts:363](https://github.com/rungalileo
 `deployment_name?`: `null` \| `string`;
 `echo?`: `boolean`;
 `frequency_penalty?`: `number`;
-`input?`: `null` \| `string`;
-`instructions?`: `null` \| `string`;
 `known_models?`: `object`[];
 `logprobs?`: `boolean`;
 `max_tokens?`: `number`;
@@ -9123,8 +12053,6 @@ getPromptTemplateVersionByName(name: string, version?: number): Promise<{
      deployment_name?: null | string;
      echo?: boolean;
      frequency_penalty?: number;
-     input?: null | string;
-     instructions?: null | string;
      known_models?: object[];
      logprobs?: boolean;
      max_tokens?: number;
@@ -9159,7 +12087,7 @@ getPromptTemplateVersionByName(name: string, version?: number): Promise<{
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:368](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L368)
+Defined in: [src/api-client/galileo-client.ts:388](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L388)
 
 #### Parameters
 
@@ -9194,8 +12122,6 @@ Defined in: [src/api-client/galileo-client.ts:368](https://github.com/rungalileo
 `deployment_name?`: `null` \| `string`;
 `echo?`: `boolean`;
 `frequency_penalty?`: `number`;
-`input?`: `null` \| `string`;
-`instructions?`: `null` \| `string`;
 `known_models?`: `object`[];
 `logprobs?`: `boolean`;
 `max_tokens?`: `number`;
@@ -9234,10 +12160,10 @@ Defined in: [src/api-client/galileo-client.ts:368](https://github.com/rungalileo
 ### getScorers()
 
 ```ts
-getScorers(options?: object): Promise<Scorer[]>;
+getScorers(options?: object): Promise<object[]>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:443](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L443)
+Defined in: [src/api-client/galileo-client.ts:463](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L463)
 
 #### Parameters
 
@@ -9253,7 +12179,7 @@ Defined in: [src/api-client/galileo-client.ts:443](https://github.com/rungalileo
 
 #### Returns
 
-`Promise`\<[`Scorer`](/sdk-api/typescript/reference/types/interfaces/Scorer)[]\>
+`Promise`\<`object`[]\>
 
 ---
 
@@ -9264,11 +12190,20 @@ getScorerVersion(scorer_id: string, version: number): Promise<{
   cot_enabled?: null | boolean;
   finetuned_scorer?:   | null
      | {
+     class_name_to_vocab_ix?:   | null
+        | {
+      [key: string]: number[];
+      }
+        | {
+      [key: string]: number;
+      };
      executor?:   | null
         | "agentic_session_success"
         | "agentic_workflow_success"
         | "action_completion_luna"
         | "action_advancement_luna"
+        | "agent_efficiency"
+        | "agent_flow"
         | "bleu"
         | "chunk_attribution_utilization_luna"
         | "chunk_attribution_utilization"
@@ -9277,19 +12212,24 @@ getScorerVersion(scorer_id: string, version: number): Promise<{
         | "context_adherence"
         | "context_adherence_luna"
         | "context_relevance"
+        | "conversation_quality"
         | "correctness"
         | "ground_truth_adherence"
         | "input_pii"
+        | "input_pii_gpt"
         | "input_sexist"
         | "input_sexist_luna"
         | "input_tone"
+        | "input_tone_gpt"
         | "input_toxicity"
         | "input_toxicity_luna"
         | "instruction_adherence"
         | "output_pii"
+        | "output_pii_gpt"
         | "output_sexist"
         | "output_sexist_luna"
         | "output_tone"
+        | "output_tone_gpt"
         | "output_toxicity"
         | "output_toxicity_luna"
         | "prompt_injection"
@@ -9300,9 +12240,12 @@ getScorerVersion(scorer_id: string, version: number): Promise<{
         | "tool_error_rate_luna"
         | "tool_selection_quality"
         | "tool_selection_quality_luna"
-        | "uncertainty";
+        | "uncertainty"
+        | "user_intent_change";
      id: string;
      lora_task_id: number;
+     luna_input_type?: null | "span" | "trace_object" | "trace_input_output_only";
+     luna_output_type?: null | "string" | "float" | "string_list";
      name: string;
      prompt: string;
    };
@@ -9313,6 +12256,10 @@ getScorerVersion(scorer_id: string, version: number): Promise<{
         metric_description?: null | string;
         metric_few_shot_examples?: object[];
         metric_system_prompt?: null | string;
+        response_schema?:   | null
+           | {
+         [key: string]: unknown;
+         };
         template: string;
         value_field_name?: string;
      };
@@ -9349,11 +12296,12 @@ getScorerVersion(scorer_id: string, version: number): Promise<{
      name: string;
    };
   scoreable_node_types?: null | string[];
+  scorer_id: string;
   version: number;
 }>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:451](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L451)
+Defined in: [src/api-client/galileo-client.ts:471](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L471)
 
 #### Parameters
 
@@ -9371,11 +12319,20 @@ Defined in: [src/api-client/galileo-client.ts:451](https://github.com/rungalileo
 `cot_enabled?`: `null` \| `boolean`;
 `finetuned_scorer?`: \| `null`
 \| \{
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
+\};
 `executor?`: \| `null`
 \| `"agentic_session_success"`
 \| `"agentic_workflow_success"`
 \| `"action_completion_luna"`
 \| `"action_advancement_luna"`
+\| `"agent_efficiency"`
+\| `"agent_flow"`
 \| `"bleu"`
 \| `"chunk_attribution_utilization_luna"`
 \| `"chunk_attribution_utilization"`
@@ -9384,19 +12341,24 @@ Defined in: [src/api-client/galileo-client.ts:451](https://github.com/rungalileo
 \| `"context_adherence"`
 \| `"context_adherence_luna"`
 \| `"context_relevance"`
+\| `"conversation_quality"`
 \| `"correctness"`
 \| `"ground_truth_adherence"`
 \| `"input_pii"`
+\| `"input_pii_gpt"`
 \| `"input_sexist"`
 \| `"input_sexist_luna"`
 \| `"input_tone"`
+\| `"input_tone_gpt"`
 \| `"input_toxicity"`
 \| `"input_toxicity_luna"`
 \| `"instruction_adherence"`
 \| `"output_pii"`
+\| `"output_pii_gpt"`
 \| `"output_sexist"`
 \| `"output_sexist_luna"`
 \| `"output_tone"`
+\| `"output_tone_gpt"`
 \| `"output_toxicity"`
 \| `"output_toxicity_luna"`
 \| `"prompt_injection"`
@@ -9407,9 +12369,12 @@ Defined in: [src/api-client/galileo-client.ts:451](https://github.com/rungalileo
 \| `"tool_error_rate_luna"`
 \| `"tool_selection_quality"`
 \| `"tool_selection_quality_luna"`
-\| `"uncertainty"`;
+\| `"uncertainty"`
+\| `"user_intent_change"`;
 `id`: `string`;
 `lora_task_id`: `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `name`: `string`;
 `prompt`: `string`;
 \};
@@ -9420,6 +12385,10 @@ Defined in: [src/api-client/galileo-client.ts:451](https://github.com/rungalileo
 `metric_description?`: `null` \| `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `null` \| `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template`: `string`;
 `value_field_name?`: `string`;
 \};
@@ -9456,6 +12425,7 @@ Defined in: [src/api-client/galileo-client.ts:451](https://github.com/rungalileo
 `name`: `string`;
 \};
 `scoreable_node_types?`: `null` \| `string`[];
+`scorer_id`: `string`;
 `version`: `number`;
 \}\>
 
@@ -9487,7 +12457,7 @@ BaseClient.healthCheck;
 ingestTraces(traces: any[]): Promise<void>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:330](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L330)
+Defined in: [src/api-client/galileo-client.ts:331](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L331)
 
 #### Parameters
 
@@ -9507,7 +12477,7 @@ Defined in: [src/api-client/galileo-client.ts:330](https://github.com/rungalileo
 init(params: Partial<GalileoApiClientParams>): Promise<void>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:75](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L75)
+Defined in: [src/api-client/galileo-client.ts:76](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L76)
 
 #### Parameters
 
@@ -9550,7 +12520,7 @@ listGlobalPromptTemplates(
 starting_token: number): Promise<object[]>;
 ```
 
-Defined in: [src/api-client/galileo-client.ts:393](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L393)
+Defined in: [src/api-client/galileo-client.ts:413](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts#L413)
 
 #### Parameters
 

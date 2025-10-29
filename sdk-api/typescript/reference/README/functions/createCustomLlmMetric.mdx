@@ -12,12 +12,22 @@ title: createCustomLlmMetric
 function createCustomLlmMetric(params: CreateCustomLlmMetricParams): Promise<{
   cot_enabled?: null | boolean;
   finetuned_scorer?: null | {
+    class_name_to_vocab_ix?:
+      | null
+      | {
+          [key: string]: number[];
+        }
+      | {
+          [key: string]: number;
+        };
     executor?:
       | null
       | "agentic_session_success"
       | "agentic_workflow_success"
       | "action_completion_luna"
       | "action_advancement_luna"
+      | "agent_efficiency"
+      | "agent_flow"
       | "bleu"
       | "chunk_attribution_utilization_luna"
       | "chunk_attribution_utilization"
@@ -26,19 +36,24 @@ function createCustomLlmMetric(params: CreateCustomLlmMetricParams): Promise<{
       | "context_adherence"
       | "context_adherence_luna"
       | "context_relevance"
+      | "conversation_quality"
       | "correctness"
       | "ground_truth_adherence"
       | "input_pii"
+      | "input_pii_gpt"
       | "input_sexist"
       | "input_sexist_luna"
       | "input_tone"
+      | "input_tone_gpt"
       | "input_toxicity"
       | "input_toxicity_luna"
       | "instruction_adherence"
       | "output_pii"
+      | "output_pii_gpt"
       | "output_sexist"
       | "output_sexist_luna"
       | "output_tone"
+      | "output_tone_gpt"
       | "output_toxicity"
       | "output_toxicity_luna"
       | "prompt_injection"
@@ -49,9 +64,16 @@ function createCustomLlmMetric(params: CreateCustomLlmMetricParams): Promise<{
       | "tool_error_rate_luna"
       | "tool_selection_quality"
       | "tool_selection_quality_luna"
-      | "uncertainty";
+      | "uncertainty"
+      | "user_intent_change";
     id: string;
     lora_task_id: number;
+    luna_input_type?:
+      | null
+      | "span"
+      | "trace_object"
+      | "trace_input_output_only";
+    luna_output_type?: null | "string" | "float" | "string_list";
     name: string;
     prompt: string;
   };
@@ -61,6 +83,9 @@ function createCustomLlmMetric(params: CreateCustomLlmMetricParams): Promise<{
       metric_description?: null | string;
       metric_few_shot_examples?: object[];
       metric_system_prompt?: null | string;
+      response_schema?: null | {
+        [key: string]: unknown;
+      };
       template: string;
       value_field_name?: string;
     };
@@ -98,6 +123,7 @@ function createCustomLlmMetric(params: CreateCustomLlmMetricParams): Promise<{
     name: string;
   };
   scoreable_node_types?: null | string[];
+  scorer_id: string;
   version: number;
 }>;
 ```
@@ -120,11 +146,20 @@ The parameters for creating the custom LLM metric.
 `cot_enabled?`: `null` \| `boolean`;
 `finetuned_scorer?`: \| `null`
 \| \{
+`class_name_to_vocab_ix?`: \| `null`
+\| \{
+[`key`: `string`]: `number`[];
+\}
+\| \{
+[`key`: `string`]: `number`;
+\};
 `executor?`: \| `null`
 \| `"agentic_session_success"`
 \| `"agentic_workflow_success"`
 \| `"action_completion_luna"`
 \| `"action_advancement_luna"`
+\| `"agent_efficiency"`
+\| `"agent_flow"`
 \| `"bleu"`
 \| `"chunk_attribution_utilization_luna"`
 \| `"chunk_attribution_utilization"`
@@ -133,19 +168,24 @@ The parameters for creating the custom LLM metric.
 \| `"context_adherence"`
 \| `"context_adherence_luna"`
 \| `"context_relevance"`
+\| `"conversation_quality"`
 \| `"correctness"`
 \| `"ground_truth_adherence"`
 \| `"input_pii"`
+\| `"input_pii_gpt"`
 \| `"input_sexist"`
 \| `"input_sexist_luna"`
 \| `"input_tone"`
+\| `"input_tone_gpt"`
 \| `"input_toxicity"`
 \| `"input_toxicity_luna"`
 \| `"instruction_adherence"`
 \| `"output_pii"`
+\| `"output_pii_gpt"`
 \| `"output_sexist"`
 \| `"output_sexist_luna"`
 \| `"output_tone"`
+\| `"output_tone_gpt"`
 \| `"output_toxicity"`
 \| `"output_toxicity_luna"`
 \| `"prompt_injection"`
@@ -156,9 +196,12 @@ The parameters for creating the custom LLM metric.
 \| `"tool_error_rate_luna"`
 \| `"tool_selection_quality"`
 \| `"tool_selection_quality_luna"`
-\| `"uncertainty"`;
+\| `"uncertainty"`
+\| `"user_intent_change"`;
 `id`: `string`;
 `lora_task_id`: `number`;
+`luna_input_type?`: `null` \| `"span"` \| `"trace_object"` \| `"trace_input_output_only"`;
+`luna_output_type?`: `null` \| `"string"` \| `"float"` \| `"string_list"`;
 `name`: `string`;
 `prompt`: `string`;
 \};
@@ -169,6 +212,10 @@ The parameters for creating the custom LLM metric.
 `metric_description?`: `null` \| `string`;
 `metric_few_shot_examples?`: `object`[];
 `metric_system_prompt?`: `null` \| `string`;
+`response_schema?`: \| `null`
+\| \{
+[`key`: `string`]: `unknown`;
+\};
 `template`: `string`;
 `value_field_name?`: `string`;
 \};
@@ -205,6 +252,7 @@ The parameters for creating the custom LLM metric.
 `name`: `string`;
 \};
 `scoreable_node_types?`: `null` \| `string`[];
+`scorer_id`: `string`;
 `version`: `number`;
 \}\>
 
