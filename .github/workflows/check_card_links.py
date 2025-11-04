@@ -193,6 +193,19 @@ def main(argv: List[str] | None = None) -> int:
                 ok = exists_internal(repo_root, href)
                 if not ok:
                     broken.append(BrokenLink(file=file_path, line=line, href=href, reason="File not found", kind="internal"))
+                else:
+                    # If the internal href points directly to a .mdx file, mark as broken
+                    parsed_path = urlsplit(href).path or ""
+                    if parsed_path.lower().endswith(".mdx"):
+                        broken.append(
+                            BrokenLink(
+                                file=file_path,
+                                line=line,
+                                href=href,
+                                reason="Link points directly to a .mdx file; use a permalink or non-.mdx path",
+                                kind="internal",
+                            )
+                        )
 
     # Deduplicate external URLs for efficiency but keep all occurrences for reporting
     # We'll check each occurrence individually so we can record per-file/line
