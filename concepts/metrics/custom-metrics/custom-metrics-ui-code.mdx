@@ -30,14 +30,14 @@ From the dialog that appears, choose the **Code-powered metric** type. This opti
 </Columns>
 </Step>
 <Step title="Write your custom metric">
-Use the code editor to write your custom metric. The editor provides a template with the required functions and helpful comments to guide you.
+Select the step level you'd like to apply this metric to (ie: Sessions, Traces, LlmSpan, etc...). Then, use the code editor to write your custom metric. The editor provides a template with the required functions and helpful comments to guide you.
 
 ![Code editor](/images/g2/custom-metrics-code-editor.png)
 
-The code editor allows you to write and test your metric directly in the browser. You'll need to define at least the `scorer_fn` and `aggregator_fn` functions as described below.
+The code editor allows you to write and test your metric directly in the browser. You'll need to define `scorer_fn` and `aggregator_fn` functions as described below.
 </Step>
 <Step title="Save your metric">
-After writing your custom metric code, select the **Save** button in the top right corner of the code editor. Your metric will be validated and, if there are no errors, it will be saved and become available for use across your organization.
+After writing your custom metric code, select the **Save** button in the bottom right corner of the code editor. Your metric will be validated and, if there are no errors, it will be saved and become available for use across your organization.
 
 You can now select this metric when running evaluations.
 </Step>
@@ -49,43 +49,47 @@ This function evaluates individual responses and returns a score:
 
 ```python
 def scorer_fn(*,
-              index: Union[int, str],
-              node_input: str,
-              node_output: str,
-              **kwargs: Any) -> Union[float, int, bool, str, None]:
+              step_object: Session | Trace | WorkflowSpan | AgentSpan | LlmSpan | RetrieverSpan | ToolSpan,
+              **kwargs: Any) -> float | int | bool | str:
     # Your scoring logic here
     return score
 ```
 
-The function must accept `**kwargs` to ensure forward compatibility. Here's a complete example that measures the difference in length between the output and ground truth:
+The function must accept `**kwargs` to ensure forward/backward compatibility. Here's a complete example that measures the difference in length between the output and ground truth:
 
 ```python
 def scorer_fn(*,
-              index: Union[int, str],
-              node_input: str,
-              node_output: str,
-              node_name: Optional[str],
-              node_type: Optional[str],
-              node_id: Optional[UUID],
-              tools: Optional[List[Dict[str, Any]]],
-              dataset_variables: Dict[str, str],
+              step_object: LlmSpan,
               **kwargs: Any) -> Union[float, int, bool, str, None]:
-
-    ground_truth = dataset_variables.get("target", "")  # Ground truth if provided
-    return abs(len(node_output) - len(ground_truth))
+    node_output = step_object.output.content
+    reference_output = step_object.dataset_output
+    return abs(len(node_output) - len(reference_output))
 ```
 
 **Parameter details:**
 
-- `index`: Row index in the dataset
-- `node_input`: Input to the node
-- `node_output`: Output from the node
-- `node_name`, `node_type`, `node_id`, `tools`: Workflow/chain-specific parameters
-- `dataset_variables`: Key-value pairs from the dataset (includes ground truth)
+- **`step_object`**: The step object represents the unit of your LLM application being evaluated. It can be one of several types from the `galileo` library:
+  - `Session` - A complete user session containing multiple traces
+  - `Trace` - A single execution trace containing multiple spans
+  - `WorkflowSpan` - A workflow-level span containing child spans
+  - `AgentSpan` - An agent execution span
+  - `LlmSpan` - A single LLM call span
+  - `RetrieverSpan` - A retriever/search operation span
+  - `ToolSpan` - A tool execution span
 
-#### 2. the aggregator function (`aggregator_fn`)
+All step objects provide access to key attributes for evaluation:
+- **Input/Output data**: Access the input prompt and generated output (e.g., `step_object.output.content` for LLM responses)
+- **Metadata**: Additional context like timestamps, model information, and custom metadata
+- **Dataset references**: Ground truth or reference data when available (e.g., `step_object.dataset_output`)
+- **Hierarchical data**: For Session/Trace/Workflow objects, access child spans and nested execution data
 
-This function aggregates individual scores into summary metrics:
+<Tip>
+For detailed documentation on each step object type and their specific attributes, refer to the [Galileo Python SDK documentation](/sdk-api/python/overview). Each type has unique properties tailored to its execution context—for example, `LlmSpan` includes model parameters and token counts, while `RetrieverSpan` includes retrieved documents and search queries.
+</Tip>
+
+#### 2. The aggregator function (`aggregator_fn`)
+
+This function aggregates individual scores into summary metrics across experiments:
 
 ```python
 def aggregator_fn(*,
@@ -98,89 +102,42 @@ def aggregator_fn(*,
     }
 ```
 
-#### Optional functions
 
-##### **Score type function**
+### Complete example: trace counter
 
-```python
-def score_type() -> Type[float] | Type[int] | Type[str] | Type[bool]:
-    return float  # Or int, str, bool
-```
-
-This function defines the return type of your scorer (default is `float`).
-
-##### **Node type restriction**
+Let's create a custom metric that counts the number of traces in a Session:
 
 ```python
-def scoreable_node_types_fn() -> List[str]:
-    return ["llm", "chat"]  # Default
-```
+from galileo import Session
 
-This function restricts which node types your scorer can evaluate. For example, to only score retriever nodes:
+def scorer_fn(*, step_object: Session, **kwargs) -> int:
+    num_traces = len(step_object.traces)
+    return num_traces
 
-```python
-def scoreable_node_types_fn() -> List[str]:
-    return ["retriever"]
-```
-
-##### **LLM credentials access**
-
-To access LLM credentials during scorer execution:
-
-```python
-include_llm_credentials = True  # Default is False
-```
-
-When enabled, credentials are passed to `scorer_fn` as a dictionary:
-
-```json
-{
-  "openai": {
-    "api_key": "sk-...",
-    "organization": "org-..."
-  }
-}
-```
-
-### Complete example: response length scorer
-
-Let's create a custom metric that measures response length:
-
-```python
-from typing import List, Dict, Type
-
-def scorer_fn(*, node_output: str, **kwargs) -> int:
-    return len(node_output)
-
-def aggregator_fn(*, scores: List[int]) -> Dict[str, int]:
+def aggregator_fn(*, scores: list[int]) -> dict[str, int]:
     return {
-        "Total Response Length": sum(scores),
-        "Average Response Length": sum(scores) / len(scores) if scores else 0,
+        "Total Traces Across Sessions": sum(scores),
+        "Average Num Traces": sum(scores) / len(scores) if scores else 0,
     }
-
-# Correct way to define score_type
-def score_type():
-    return int
-
-def scoreable_node_types_fn() -> List[str]:
-    return ["llm", "chat"]
 ```
 
 ### Execution environment
 
-Registered custom metrics run in a Python 3.10 environment with these libraries:
+Registered custom metrics run in a sandboxed Python 3.10 environment with only the Python standard library and 'galileo' installed.
 
-```output
-numpy~=1.26.4
-pandas~=2.2.2
-pydantic~=2.7.1
-scikit-learn~=1.4.2
-tensorflow~=2.16.1
-networkx
-openai
+To install your own pypi package, you can define dependencies at the top of the file using the scrip dependency format from 'uv':
+
+```
+# /// script
+# dependencies = [
+#   "requests<3",
+#   "rich",
+# ]
+# ///
 ```
 
-We provide advance notice before major version updates to these libraries.
+For full documentation on defining dependencies, check out the 'uv' script dependency docs: https://docs.astral.sh/uv/guides/scripts/#creating-a-python-script .
+
 
 ## Local metrics
 
@@ -244,9 +201,10 @@ Here's a simple custom metric that evaluates the sentiment of responses:
 
 ```python
 # sentiment_scorer.py
-from typing import Dict, List, Union, Type
 
-def scorer_fn(*, node_output: str, **kwargs) -> float:
+from galileo import LlmSpan
+
+def scorer_fn(*, step_object: LlmSpan, **kwargs) -> float:
     """
     A simple sentiment scorer that counts positive and negative words.
     Returns a score between -1 (negative) and 1 (positive).
@@ -258,6 +216,8 @@ def scorer_fn(*, node_output: str, **kwargs) -> float:
     negative_words = [
         "bad", "poor", "negative", "terrible", "worst", "awful", "horrible"
     ]
+
+    node_output = step_object.output.content
 
     # Convert to lowercase for case-insensitive matching
     text = node_output.lower()
@@ -274,7 +234,7 @@ def scorer_fn(*, node_output: str, **kwargs) -> float:
 
     return (positive_count - negative_count) / total_count
 
-def aggregator_fn(*, scores: List[float]) -> Dict[str, float]:
+def aggregator_fn(*, scores: list[float]) -> dict[str, float]:
     """Aggregate sentiment scores across responses."""
     if not scores:
         return {"Average Sentiment": 0.0}
@@ -287,10 +247,6 @@ def aggregator_fn(*, scores: List[float]) -> Dict[str, float]:
         "Neutral Responses": sum(1 for score in scores if -0.2 <= score <= 0.2),
         "Negative Responses": sum(1 for score in scores if score < -0.2)
     }
-
-# Correct way to define score_type
-def score_type():
-    return float
 ```
 
 This simple sentiment scorer:
