@@ -48,9 +48,14 @@ You can now select this metric when running evaluations.
 This function evaluates individual responses and returns a score:
 
 ```python
-def scorer_fn(*,
-              step_object: Session | Trace | WorkflowSpan | AgentSpan | LlmSpan | RetrieverSpan | ToolSpan,
-              **kwargs: Any) -> float | int | bool | str:
+def scorer_fn(
+    *,
+    step_object: (
+        Session | Trace | WorkflowSpan | AgentSpan |
+        LlmSpan | RetrieverSpan | ToolSpan
+    ),
+    **kwargs: Any
+) -> float | int | bool | str:
     # Your scoring logic here
     return score
 ```
@@ -78,6 +83,7 @@ def scorer_fn(*,
   - `ToolSpan` - A tool execution span
 
 All step objects provide access to key attributes for evaluation:
+
 - **Input/Output data**: Access the input prompt and generated output (e.g., `step_object.output.content` for LLM responses)
 - **Metadata**: Additional context like timestamps, model information, and custom metadata
 - **Dataset references**: Ground truth or reference data when available (e.g., `step_object.dataset_output`)
@@ -123,11 +129,13 @@ def aggregator_fn(*, scores: list[int]) -> dict[str, int]:
 
 ### Execution environment
 
-Registered custom metrics run in a sandboxed Python 3.10 environment with only the Python standard library and 'galileo' installed.
+Registered custom metrics run in a sandboxed Python 3.10 environment with only
+the Python standard library and 'Galileo' installed.
 
-To install your own pypi package, you can define dependencies at the top of the file using the scrip dependency format from 'uv':
+To install your own pypi package, you can define dependencies at the top of the
+file using the scrip dependency format from 'uv':
 
-```
+```toml
 # /// script
 # dependencies = [
 #   "requests<3",
@@ -136,7 +144,8 @@ To install your own pypi package, you can define dependencies at the top of the 
 # ///
 ```
 
-For full documentation on defining dependencies, check out the 'uv' script dependency docs: https://docs.astral.sh/uv/guides/scripts/#creating-a-python-script .
+For full documentation on defining dependencies, check out the
+['uv' script dependency docs](https://docs.astral.sh/uv/guides/scripts/#creating-a-python-script).
 
 
 ## Local metrics
