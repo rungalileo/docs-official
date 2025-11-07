@@ -6,14 +6,18 @@ description: Learn how to configure metrics for Log streams, including managing 
 {/*<!-- markdownlint-disable MD044 -->*/}
 
 import SnippetStartTraceWithMetadataPython from "/snippets/code/python/concepts/logging/metrics/start-trace-metadata.mdx"
+import SnippetEnableMetricsPython from "/snippets/code/python/concepts/metrics/enable-metrics.mdx"
 
 import SnippetStartTraceWithMetadataTypeScript from "/snippets/code/typescript/concepts/logging/metrics/start-trace-metadata.mdx"
+import SnippetEnableMetricsTypeScript from "/snippets/code/typescript/concepts/metrics/enable-metrics.mdx"
 
 {/*<!-- markdownlint-enable MD044 -->*/}
 
 Once you have traces feeding in to a Log stream, you can configure the metrics that you want to evaluate. Metrics are managed at organizational level, including the creation of custom metrics, then are used to evaluate traces at the Log stream level.
 
 ## Configure metrics for a Log stream
+
+### Configure metrics through the console
 
 To configure metrics, open your Log stream and select the **Configure Metrics** button.
 
@@ -30,6 +34,19 @@ This will load the **Configure metrics** pane.
 From here you can filter and search for metrics, then turn on the relevant ones for your Log stream. Once you have the metrics you need turned on, select the **Save and close** button to save your settings.
 
 You can also create new custom metrics from this pane, either using an [LLM as a judge](/concepts/metrics/custom-metrics/custom-metrics-ui-llm), or in [code](/concepts/metrics/custom-metrics/custom-metrics-ui-code), then add them to your Log stream.
+
+### Configure metrics in code
+
+You can also configure metrics for a Log stream using the Galileo SDKs.
+
+<CodeGroup>
+<SnippetEnableMetricsPython/>
+<SnippetEnableMetricsTypeScript/>
+</CodeGroup>
+
+Set `MyProject` to your project name, and `MyLogStream` to your Log stream name. You can then pass in either the relevant metric enum, or the name of a custom metric.
+
+This function will enable just the metrics specified for the Log stream. If you have any other metrics enabled before calling this function, they will be disabled.
 
 ## Metric sampling
 
