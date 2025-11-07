@@ -9,10 +9,30 @@ title: createDataset
 # Function: createDataset()
 
 ```ts
-function createDataset(dataset: DatasetType, name: string): Promise<Dataset>;
+function createDataset(
+  dataset: DatasetType,
+  name: string,
+): Promise<{
+  column_names: null | string[];
+  created_at: string;
+  created_by_user: null | {
+    email: string;
+    first_name?: null | string;
+    id: string;
+    last_name?: null | string;
+  };
+  current_version_index: number;
+  draft: boolean;
+  id: string;
+  name: string;
+  num_rows: null | number;
+  permissions?: object[];
+  project_count: number;
+  updated_at: string;
+}>;
 ```
 
-Defined in: [src/utils/datasets.ts:122](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts#L122)
+Defined in: [src/utils/datasets.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts)
 
 ## Parameters
 
@@ -26,4 +46,22 @@ Defined in: [src/utils/datasets.ts:122](https://github.com/rungalileo/galileo-js
 
 ## Returns
 
-`Promise`\<[`Dataset`](/sdk-api/typescript/reference/types/interfaces/Dataset)\>
+`Promise`\<\{
+`column_names`: `null` \| `string`[];
+`created_at`: `string`;
+`created_by_user`: \| `null`
+\| \{
+`email`: `string`;
+`first_name?`: `null` \| `string`;
+`id`: `string`;
+`last_name?`: `null` \| `string`;
+\};
+`current_version_index`: `number`;
+`draft`: `boolean`;
+`id`: `string`;
+`name`: `string`;
+`num_rows`: `null` \| `number`;
+`permissions?`: `object`[];
+`project_count`: `number`;
+`updated_at`: `string`;
+\}\>
