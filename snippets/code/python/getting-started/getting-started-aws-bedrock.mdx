@@ -80,7 +80,10 @@ model_response = json.loads(response["body"].read())
 response_text = model_response["content"][0]["text"]
 
 # Log an LLM span using the response from Claude
-logged_messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}]
+logged_messages = [
+    {"role": "system", "content": system_prompt}, 
+    {"role": "user", "content": user_prompt}
+]
 
 logger.add_llm_span(
     input=logged_messages,
