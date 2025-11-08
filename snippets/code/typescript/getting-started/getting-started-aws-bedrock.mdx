@@ -1,0 +1,128 @@
+```typescript TypeScript
+import {
+  BedrockRuntimeClient,
+  InvokeModelCommand,
+} from "@aws-sdk/client-bedrock-runtime";
+import dotenv from "dotenv";
+import { getLogger, init } from "galileo";
+
+// Load the environment variables
+dotenv.config();
+
+// Set the project and Log stream, these are created if they don't exist.
+// You can also set these using the GALILEO_PROJECT and GALILEO_LOG_STREAM
+// environment variables.
+init({
+  projectName: "MyFirstEvaluation",
+  logStreamName: "MyFirstLogStream",
+});
+
+// Initialize the Amazon Bedrock Runtime client
+const brt = new BedrockRuntimeClient({
+  region: process.env.AWS_DEFAULT_REGION || "us-east-1",
+});
+
+// Define a system prompt with guidance
+const systemPrompt = `
+You are a helpful assistant that wants to provide a user as much
+information as possible. Avoid saying I don't know.
+`.trim();
+
+// Define a user prompt with a question
+const userPrompt = "Describe Galileo";
+
+const MODEL_NAME = "us.anthropic.claude-3-5-sonnet-20241022-v2:0";
+
+// Get the Galileo logger instance
+const galileoLogger = getLogger();
+
+// Helper function to capture the current time in nanoseconds for logging
+function getNanoSecTime(): number {
+  const hrTime = process.hrtime();
+  return hrTime[0] * 1000000000 + hrTime[1];
+}
+
+async function main() {
+  // Start a session
+  await galileoLogger.startSession();
+
+  // Start a trace
+  galileoLogger.startTrace({ name: "Conversation step", input: userPrompt });
+
+  // Capture the current time in nanoseconds for logging
+  const startTimeNs = getNanoSecTime();
+
+  // Format the request for Claude (Amazon Bedrock)
+  const nativeRequest = {
+    anthropic_version: "bedrock-2023-05-31",
+    max_tokens: 512,
+    temperature: 0.7,
+    system: systemPrompt,
+    messages: [
+      {
+        role: "user",
+        content: userPrompt,
+      },
+    ],
+  };
+
+  // Send a request to the LLM
+  try {
+    const command = new InvokeModelCommand({
+      modelId: MODEL_NAME,
+      body: JSON.stringify(nativeRequest),
+    });
+
+    const response = await brt.send(command);
+
+    // Decode the response body
+    const responseBody = new TextDecoder().decode(response.body);
+    const modelResponse = JSON.parse(responseBody);
+
+    console.log(modelResponse);
+
+    // Extract the response text from Claude's format
+    const responseText = modelResponse.content[0].text;
+
+    console.log(`\n🤖 Response:\n${responseText}\n`);
+
+    // Log an LLM span using the response
+    const loggedMessages = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ];
+
+    galileoLogger.addLlmSpan({
+      input: loggedMessages,
+      output: responseText,
+      model: MODEL_NAME,
+      numInputTokens: modelResponse.usage.input_tokens,
+      numOutputTokens: modelResponse.usage.output_tokens,
+      totalTokens:
+        modelResponse.usage.input_tokens + modelResponse.usage.output_tokens,
+      durationNs: getNanoSecTime() - startTimeNs,
+    });
+
+    // Conclude and flush the logger
+    galileoLogger.conclude({ output: responseText });
+    await galileoLogger.flush();
+
+    // Show Galileo information after the response
+    const galileoConsoleUrl = (
+      process.env.GALILEO_CONSOLE_URL ?? "https://app.galileo.ai"
+    ).replace(/\/+$/, "");
+    const projectUrl = `${galileoConsoleUrl}/project/${galileoLogger.client.projectId}`;
+    const logStreamUrl = `${projectUrl}/log-streams/${galileoLogger.client.logStreamId}`;
+
+    console.log();
+    console.log("🚀 GALILEO LOG INFORMATION:");
+    console.log(`🔗 Project   : ${projectUrl}`);
+    console.log(`📝 Log Stream: ${logStreamUrl}`);
+  } catch (error) {
+    console.error(`ERROR: Can't invoke '${MODEL_NAME}'. Reason:`, error);
+    process.exit(1);
+  }
+}
+
+main();
+```
