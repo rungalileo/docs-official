@@ -1,0 +1,114 @@
+```python Python
+from datetime import datetime
+
+import boto3
+import json
+from galileo import galileo_context
+from galileo.config import GalileoPythonConfig
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from the .env file
+load_dotenv()
+
+# Set the project and Log stream, these are created if they don't exist.
+# You can also set these using the GALILEO_PROJECT and GALILEO_LOG_STREAM
+# environment variables.
+galileo_context.init(project="MyFirstEvaluation7",
+                     log_stream="MyFirstLogStream7")
+
+# Get the Galileo logger instance
+logger = galileo_context.get_logger_instance()
+
+# Start a Galileo session
+logger.start_session()
+
+# Initialize the Amazon Bedrock Runtime client.
+brt = boto3.client(
+    service_name='bedrock-runtime',
+    region_name=os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
+)
+
+# Define a system prompt with guidance
+system_prompt = """
+You are a helpful assistant that wants to provide a user as much
+information as possible. Avoid saying I don't know.
+"""
+
+# Define a user prompt with a question
+user_prompt = "Describe Galileo"
+
+MODEL_NAME = "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+
+# Start a trace
+logger.start_trace(name="Conversation step", input=user_prompt)
+
+# Capture the current time in nanoseconds for logging
+start_time_ns = datetime.now().timestamp() * 1_000_000_000
+
+# Format the request for AWS Bedrock
+# following the Anthropic Claude API structure.
+native_request = {
+    "anthropic_version": "bedrock-2023-05-31",
+    "max_tokens": 512,
+    "temperature": 0.7,
+    "system": system_prompt.strip(),
+    "messages": [
+        {
+            "role": "user",
+            "content": user_prompt
+        }
+    ]
+}
+
+# Convert the native request to JSON.
+request = json.dumps(native_request)
+
+# Send a request to the LLM with AWS Bedrock
+try:
+    # Invoke the model with the request.
+    response = brt.invoke_model(modelId=MODEL_NAME, body=request)
+
+except (ClientError, Exception) as e:
+    print(f"ERROR: Can't invoke '{MODEL_NAME}'. Reason: {e}")
+    exit(1)
+
+# Decode the response body.
+model_response = json.loads(response["body"].read())
+
+# Extract the response text from Claude's format
+response_text = model_response["content"][0]["text"]
+
+# Log an LLM span using the response from Claude
+logged_messages = [
+    {"role": "system", "content": system_prompt}, 
+    {"role": "user", "content": user_prompt}
+]
+
+logger.add_llm_span(
+    input=logged_messages,
+    output=response_text,
+    model=MODEL_NAME,
+    num_input_tokens=model_response["usage"]["input_tokens"],
+    num_output_tokens=model_response["usage"]["output_tokens"],
+    total_tokens=model_response["usage"]["input_tokens"] + model_response["usage"]["output_tokens"],
+    duration_ns=(datetime.now().timestamp() * 1_000_000_000) - start_time_ns,
+)
+
+# Conclude and flush the logger
+logger.conclude(output=response_text)
+logger.flush()
+
+# Print the response
+print(f"\n🤖 Response:\n{response_text}\n")
+
+# Show Galileo information after the response
+config = GalileoPythonConfig.get()
+project_url = f"{config.console_url}project/{logger.project_id}"
+log_stream_url = f"{project_url}/log-streams/{logger.log_stream_id}"
+
+print()
+print("🚀 GALILEO LOG INFORMATION:")
+print(f"🔗 Project   : {project_url}")
+print(f"📝 Log Stream: {log_stream_url}")
+```
