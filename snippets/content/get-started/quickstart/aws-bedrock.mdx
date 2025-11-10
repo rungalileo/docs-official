@@ -1,0 +1,108 @@
+
+{/*<!-- markdownlint-disable MD044 -->*/}
+
+import SnippetGettingStartedAnthropicPython from "/snippets/code/python/getting-started/getting-started-aws-bedrock.mdx";
+import SnippetGettingStartedAnthropicTypeScript from "/snippets/code/typescript/getting-started/getting-started-anthropic.mdx";
+import LLMOutputNoContext from "/snippets/content/get-started/quickstart/llm-output-no-context.mdx";
+
+{/*<!-- markdownlint-enable MD044 -->*/}
+
+<Steps>
+
+<Step title="Install dependencies">
+
+Install the **Galileo SDK**, the AWS SDK, and the dotenv package using the following command in your terminal:
+
+<CodeGroup>
+```bash Python
+pip install galileo python-dotenv boto3
+```
+```bash TypeScript
+npm install galileo dotenv tsx @aws-sdk/client-bedrock-runtime
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="Set up your environment variables">
+
+Create an `.env` file in your project folder, and set:
+
+- Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
+
+<CodeGroup>
+```ini .env
+GALILEO_API_KEY="your-galileo-api-key"
+# Provide the console url below if you are not using app.galileo.ai
+# GALILEO_CONSOLE_URL="your-galileo-console-url"
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="Set up AWS credentials">
+Set up your AWS credentials to allow access to Bedrock. You can do this by [configuring the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) or by setting the following environment variables:
+<CodeGroup>
+```bash Terminal
+export AWS_ACCESS_KEY_ID=your-access-key-id
+export AWS_SECRET_ACCESS_KEY=your-secret-access-key
+export AWS_REGION=your-AWS_region
+```
+</CodeGroup>
+
+Alternatively, use an [Amazon Bedrock API key](https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys-generate.html).
+
+<CodeGroup>
+
+```bash Terminal
+export AWS_BEARER_TOKEN_BEDROCK=your-api-key
+```
+
+</CodeGroup>
+
+</Step>
+<Step title="Create your application code">
+Create a file called `app.py` (Python) or `app.ts` (TypeScript) and add the following code:
+
+<CodeGroup>
+  <SnippetGettingStartedAnthropicPython />
+  <SnippetGettingStartedAnthropicTypeScript />
+</CodeGroup>
+
+This will create a new project in Galileo called **MyFirstEvaluation**, with a Log stream called **MyFirstLogStream**. It will then log a trace using the call to the LLM.
+
+<Note>
+This code defaults to using Claude 3.7 Sonnet. If you want to use a different model, update the `MODEL_NAME`.
+</Note>
+
+</Step>
+<Step title="Run your application">
+
+Run your application using the following command in your terminal:
+
+<CodeGroup>
+```bash Python
+python app.py
+```
+```bash TypeScript
+npx tsx app.ts
+```
+</CodeGroup>
+
+</Step>
+<Step title="View the results in your terminal">
+
+<LLMOutputNoContext />
+
+</Step>
+<Step title="See the trace in Galileo">
+
+Open the Log stream for your project in the Galileo console using the URL output to your terminal. You will see the logged trace.
+
+![The first trace in Galileo](/snippets/content/get-started/quickstart/first-trace.webp)
+
+Select the trace, then navigate to the **Messages** tab to see details of the trace.
+
+![The first trace in Galileo](/snippets/content/get-started/quickstart/first-trace-messages.webp)
+</Step>
+</Steps>

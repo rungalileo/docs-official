@@ -1,0 +1,17 @@
+```python Python
+# Get the name of the average metric
+average_metric_name = f"average_{GalileoScorers.instruction_adherence.value}"
+
+# Poll till the metrics are calculated
+while (
+    experiment.aggregate_metrics is None
+    or average_metric_name
+        not in experiment.aggregate_metrics
+):
+    # If we don't have the metrics calculated,
+    # sleep for 5 seconds before polling again
+    time.sleep(5)
+
+    # Reload the experiment to see if we now have the metrics
+    experiment = get_experiment(experiment_name=experiment_name)
+```

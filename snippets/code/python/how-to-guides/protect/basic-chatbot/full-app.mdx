@@ -1,6 +1,6 @@
 ```python app.py
 from galileo.openai import openai
-from galileo.protect import invoke
+from galileo.protect import invoke_protect
 
 from galileo_core.schemas.protect.execution_status import (
     ExecutionStatus
@@ -24,7 +24,8 @@ while True:
         input=user_input
     )
 
-    protection_response = invoke(
+    # Invoke the runtime protection
+    protection_response = invoke_protect(
         stage_name="Toxicity Stage",
         payload=payload
     )

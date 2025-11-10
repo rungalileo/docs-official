@@ -3,23 +3,34 @@ title: Log Using the Log Decorator
 description: Learn how to use the Galileo log decorator to log functions to traces
 ---
 
-import GalileoOpenAIEnvVars from "/snippets/code/multilingual/env-galileo-openai.mdx"
+{/*<!-- markdownlint-disable MD044 -->*/}
 
-import SnippetInstallPython from "/snippets/code/python/how-to-guides/basics/basic-example/install-packages.mdx";
+import InstallDependencies from "/snippets/content/install-dependencies-openai.mdx"
+
 import SnippetCreateAppPython from "/snippets/code/python/how-to-guides/basics/basic-logging-with-decorator/create-app.mdx";
 import SnippetImportPython from "/snippets/code/python/how-to-guides/basics/basic-logging-with-decorator/import.mdx";
 import SnippetWrapperPython from "/snippets/code/python/how-to-guides/basics/basic-logging-with-decorator/wrapper.mdx";
 
-import SnippetInstallTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-example/install-packages.mdx";
 import SnippetCreateAppTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-logging-with-decorator/create-app.mdx";
 import SnippetImportTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-logging-with-decorator/import.mdx";
 import SnippetWrapperTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-logging-with-decorator/wrapper.mdx";
 
+{/*<!-- markdownlint-enable MD044 -->*/}
+
 ## Overview
 
-This guide shows you how to log spans to Galileo using the `@log` decorator in Python, or the `log` wrapper in TypeScript.
+This guide shows you how to log spans to Galileo using the `@log` decorator in Python, or the `log` wrapper in TypeScript to log function calls using the async OpenAI SDK as LLM spans.
 
-For this example, you will be using the async OpenAI SDK, which is not supported by the Galileo OpenAI wrapper. Instead you will use the `@log` decorator or `log` wrapper to log function calls as LLM spans.
+In this guide you will:
+
+{/*<!-- markdownlint-disable MD051 -->*/}
+
+1. [Set up a project with Galileo](#install-dependencies)
+
+  {/*<!-- markdownlint-disable MD051 -->*/}
+
+1. [Create a basic app to call OpenAI](#create-the-basic-app-to-call-openai)
+1. [Add logging with the log decorator](#add-simple-logging-with-the-galileo-log-decorator-or-wrapper)
 
 ## Before you start
 
@@ -29,39 +40,7 @@ To complete this how-to, you will need:
 - A [Galileo project](/concepts/projects) configured
 - Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
 
-## Install dependencies
-
-To use Galileo, you need to install some package dependencies, and configure environment variables.
-
-<Steps>
-
-<Step title="Install Required Dependencies">
-
-Install the required dependencies for your app. If you are using Python, create a virtual environment using your preferred method, then install dependencies inside that environment:
-
-<CodeGroup>
-  <SnippetInstallPython />
-  <SnippetInstallTypeScript />
-</CodeGroup>
-
-</Step>
-
-<Step title="Create a .env file, and add the following values">
-
-<CodeGroup>
-<GalileoOpenAIEnvVars/>
-</CodeGroup>
-
-<Note>
-This assumes you are using a free Galileo account. If you are using a custom deployment, then you will also need to add the URL of your Galileo Console:
-
-```ini .env
-GALILEO_CONSOLE_URL=your-Galileo-console-URL
-```
-</Note>
-
-</Step>
-</Steps>
+<InstallDependencies/>
 
 ## Create the basic app to call OpenAI
 
@@ -89,6 +68,7 @@ If you are using TypeScript, you will also need to configure your code to use ES
 <Step title="Run the app to ensure everything is working">
 
 <CodeGroup>
+
 ```bash Python
 python app.py
 ```
@@ -96,12 +76,13 @@ python app.py
 ```bash TypeScript
 npx tsx app.ts
 ```
+
 </CodeGroup>
 
 You should see a description of Newton's first law.
 
 ```output
-(.venv) ➜  python app.py   
+(.venv) ➜  python app.py
 Newton's First Law, also known as the Law of Inertia, states that an object
 at rest will stay at rest and an object in motion will stay in motion with
 the same speed and in the same direction, unless acted upon by an
@@ -148,9 +129,10 @@ This also sets the name of the span to "OpenAI GPT-4o-mini".
 
 </Step>
 
-<Step title="Run the Python app">
+<Step title="Run the app">
 
 <CodeGroup>
+
 ```bash Python
 python app.py
 ```
@@ -158,6 +140,7 @@ python app.py
 ```bash TypeScript
 npx tsx app.ts
 ```
+
 </CodeGroup>
 
 When the app runs, the span will be logged automatically, with the input as the `prompt`, the output as the returned `response`. The duration will also be logged.
@@ -185,5 +168,5 @@ Your logging is now set up! You are ready to configure metrics for your project.
 ## See also
 
 - [Configure metrics](/concepts/metrics/overview)
-- [Log streams](/concepts/logging/logstreams)
+- [Log streams](/sdk-api/logging/logging-basics)
 - [The `@log` decorator](/sdk-api/logging/log-decorator)

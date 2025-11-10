@@ -1,0 +1,74 @@
+---
+title: OpenInference
+description: Learn how to integrate Galileo with OpenTelemetry and OpenInference for comprehensive observability and tracing
+---
+
+import ConfigureOTel from "/snippets/content/configure-otel.mdx"
+
+This guide explains how to integrate Galileo with [OpenTelemetry](https://opentelemetry.io/) and [OpenInference](https://github.com/Arize-ai/openinference) for comprehensive observability and tracing of your AI/ML workflows using industry-standard tools.
+
+## OpenTelemetry
+
+The first step is to configure OpenTelemetry.
+
+<ConfigureOTel/>
+
+You can now use this trace processor either using a framework that supports OTel directly, or via OpenInference.
+
+## OpenInference
+
+Now you can enable automatic tracing for your framework and LLM operations using OpenInference instrumentors. These add AI-specific semantic conventions to your traces.
+
+For example, to instrument LangChain and OpenAI start by adding the relevant OpenInference packages:
+
+<CodeGroup>
+
+```bash Terminal
+pip install openinference-instrumentation-langchain \
+            openinference-instrumentation-openai
+```
+
+</CodeGroup>
+
+Now you can add the instrumentors to your code, using the OTel trace provider.
+
+<CodeGroup>
+
+```python Python
+from openinference.instrumentation.langgraph import (
+    LangGraphInstrumentor
+)
+from openinference.instrumentation.openai import (
+    OpenAIInstrumentor
+)
+
+LangGraphInstrumentor().instrument(tracer_provider=tracer_provider)
+OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
+```
+
+</CodeGroup>
+
+OpenInference adds:
+
+- Automatic capture of LLM calls, token usage, and model performance metrics
+- AI-specific span attributes like `gen_ai.request.model`, `gen_ai.response.content`, and `gen_ai.usage.*`
+- Semantic conventions that make your traces more meaningful in Galileo's dashboard
+- Framework-specific instrumentation for LangGraph workflows and OpenAI API calls
+
+Once OpenTelemetry and OpenInference is set up your application will automatically capture and send observability data to Galileo with every run, providing complete traces of your AI workflows, detailed LLM call breakdowns, and performance insights organized by project and Log stream.
+
+## Next steps
+
+Learn how to integrate with some popular frameworks using OpenTelemetry and OpenInference.
+
+<CardGroup cols={2}>
+<Card title="Google ADK" icon="python" horizontal href="/sdk-api/third-party-integrations/opentelemetry-and-openinference/google-adk">
+    Learn how to integrate a Google ADK project with Galileo using OpenTelemetry and OpenInference.
+</Card>
+<Card title="Strands Agents" icon="python" horizontal href="/sdk-api/third-party-integrations/opentelemetry-and-openinference/strands-agents">
+    Learn how to integrate a Strands Agents project with Galileo using OpenTelemetry.
+</Card>
+<Card title="Vercel AI SDK" icon="python" horizontal href="/sdk-api/third-party-integrations/opentelemetry-and-openinference/vercel-ai">
+    Learn how to integrate a Vercel AI SDK project with Galileo using OpenTelemetry.
+</Card>
+</CardGroup>

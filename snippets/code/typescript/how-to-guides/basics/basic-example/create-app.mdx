@@ -10,14 +10,20 @@ init({
   logStreamName: process.env.GALILEO_LOG_STREAM
 });
 
-const openai = wrapOpenAI(new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
-}));
+// Create the OpenAI wrapper
+const openai = wrapOpenAI(new OpenAI());
+
+// Define a prompt
 const prompt = "Explain the following topic succinctly: Newton's First Law";
-await openai.chat.completions.create({
+
+// Get a response from OpenAI
+const response = await openai.chat.completions.create({
   model: "gpt-4o",
   messages: [{ content: prompt, role: "user" }],
 });
+
+// Print the response
+console.log(response.choices[0].message.content)
 
 // Flush logs before exiting
 await flush();

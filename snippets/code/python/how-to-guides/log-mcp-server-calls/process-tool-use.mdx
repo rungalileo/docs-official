@@ -1,0 +1,34 @@
+```python app.py
+elif content.type == 'tool_use':
+    # Execute tool call
+    result = await mcp_client.call_tool(
+        content.name,
+        content.input
+    )
+    final_text.append(f"[Calling tool {content.name}"+
+                      f"with args {content.input}]")
+
+    # Create a copy of the messages
+    # And add the tool response
+    messages = message_history.copy()
+    if hasattr(content, 'text') and content.text:
+        messages.append({
+            "role": "assistant",
+            "content": content.text
+        })
+    messages.append({
+        "role": "user",
+        "content": result.content
+    })
+
+    # Call the LLM without tools for the final response
+    response = call_llm(messages, use_tools=False)
+
+    # Add the response to the original message history
+    message_history.append({
+        "role": "assistant",
+        "content": response.content[0].text
+    })
+
+    final_text.append(response.content[0].text)
+```

@@ -1,0 +1,21 @@
+```python Python
+from galileo.handlers.crewai.handler import CrewAIEventListener
+
+def run():
+    # Create a custom logger
+    logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
+
+    # Create the CrewAI Event Listener
+    CrewAIEventListener(
+        galileo_logger=logger,       # Optional custom logger
+        start_new_trace=True,        # Start a new trace for each crew
+        flush_on_crew_completed=True # Flush traces when the crew completes
+    )
+
+    # Run the crew
+    inputs = {
+        'topic': 'AI Agents'
+    }
+
+    MyCrew().crew().kickoff(inputs=inputs)
+```

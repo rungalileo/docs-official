@@ -1,5 +1,5 @@
 ---
-title: Weather Vibes Agent Cookbook
+title: Weather Vibes Agent
 description: Learn how to build an Agentic System for a smart weather application in a Python-based tech stack
 tag: "Python"
 ---
@@ -31,7 +31,14 @@ The application leverages multiple tools to create its final end result:
 
 Finally, we'll run this application to demonstrate [Galileo's Agent Evaluation functionality](https://www.galileo.ai/blog/introducing-agentic-evaluations), where it will determine the success of each run and tool call. You can also follow along [on YouTube](https://youtu.be/h6Ui2kpstR4?si=Bek5yPt6vWtyL0U9).
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/h6Ui2kpstR4?si=PMVHWPlGN_A7IQ8v" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
+<iframe
+  className="w-full aspect-video rounded-xl"
+  src="https://www.youtube.com/embed/h6Ui2kpstR4"
+  title="YouTube video player"
+  frameBorder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
 
 ### Requirements
 
@@ -68,12 +75,14 @@ To see a completed version of this application and other examples using the Gali
 2. **Create a virtual environment:**
 
    **Using uv (recommended):**
+
    ```bash
    uv venv .venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
    **Using standard Python venv:**
+
    ```bash
    python -m venv .venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
@@ -82,11 +91,13 @@ To see a completed version of this application and other examples using the Gali
 3. **Install dependencies:**
 
    **Using uv:**
+
    ```bash
    uv pip install -r requirements.txt
    ```
 
    **Using pip:**
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -110,8 +121,8 @@ To see a completed version of this application and other examples using the Gali
    # Your Galileo project name
    GALILEO_PROJECT=your-galileo-project-name
 
-   # The name of the log stream you want to use for logging
-   GALILEO_LOG_STREAM=your-galileo-log-stream 
+   # The name of the Log stream you want to use for logging
+   GALILEO_LOG_STREAM=your-galileo-log-stream
 
    # Provide the console url below if you are using a
    # custom deployment, and not using the free tier, or app.galileo.ai.
@@ -121,7 +132,7 @@ To see a completed version of this application and other examples using the Gali
    # OpenAI properties
    OPENAI_API_KEY=your-openai-api-key
 
-   # Optional. The base URL of your OpenAI deployment. 
+   # Optional. The base URL of your OpenAI deployment.
    # Leave this commented out if you are using the default OpenAI API.
    # OPENAI_BASE_URL=
 
@@ -213,7 +224,8 @@ The main workflow in `agent.py` ties everything together and adds Galileo instru
 
 **Galileo's Role in Observability:**
 
-The Galileo-instrumented version of the agent includes several span types.  Learn more about spans, the atomic unit of logging in Galileo, [here](/getting-started/logging).
+The Galileo-instrumented version of the agent includes several span types.  Learn more about spans, the atomic unit of logging in Galileo, [in our logging guide](/sdk-api/logging/logging-basics).
+
 - **Entrypoint span**: Contains the entire run with input parameters
 - **Workflow span**: Tracks the main agent logic and decision-making
 - **Tool spans**: Monitor individual tool performance and success rates
@@ -340,7 +352,7 @@ This allows you to analyze:
 
 You can see this within the Galileo Log stream as pictured below.
 
-![Weather Vibes Log Stream](../../images/weather-vibes-log-stream.jpeg)
+![Weather Vibes Log stream](../../images/weather-vibes-log-stream.jpeg)
 
 ## The YouTube tool
 
@@ -548,6 +560,7 @@ Here are some problems you might encounter and how to fix them:
 **Problem:** `ModuleNotFoundError: No module named 'weather_vibes'`
 
 **Solution:**
+
 - Ensure you're in the correct directory: `sdk-examples/python/agent/weather-vibes-agent`
 - Check that all dependencies are installed: `pip install -r requirements.txt`
 - Verify your Python environment is activated
@@ -557,6 +570,7 @@ Here are some problems you might encounter and how to fix them:
 **Problem:** "Invalid API key" errors
 
 **Solution:**
+
 - Double-check your `.env` file has the correct API keys
 - Ensure API keys are properly formatted (no extra spaces or quotes)
 - For WeatherAPI, new keys may take a few minutes to activate
@@ -567,6 +581,7 @@ Here are some problems you might encounter and how to fix them:
 **Problem:** Traces aren't showing up in Galileo
 
 **Solution:**
+
 - Confirm your `GALILEO_API_KEY` is valid and has proper permissions
 - Check that `GALILEO_PROJECT`, `GALILEO_LOG_STREAM`, and `GALILEO_CONSOLE_URL` match your Galileo setup
 - Verify internet connectivity
@@ -577,6 +592,7 @@ Here are some problems you might encounter and how to fix them:
 **Problem:** Jinja template errors
 
 **Solution:**
+
 - Ensure the `templates/` directory exists with required template files
 - Check template syntax and variable references
 - Verify Jinja2 is installed: `pip install Jinja2`
@@ -586,6 +602,7 @@ Here are some problems you might encounter and how to fix them:
 **Problem:** Slow response times
 
 **Solution:**
+
 - Check API rate limits for WeatherAPI and YouTube
 - Consider implementing caching for weather data
 - Monitor Galileo traces to identify bottlenecks

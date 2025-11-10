@@ -3,7 +3,7 @@ title: Luna-2 Overview
 description: Discover Galileo's Luna-2 Evaluation model, reducing the latency and cost for metric evaluations
 ---
 
-**Luna-2** is the latest generation of our Luna small language models (SLMs), purpose built for scaling AI evaluations. Luna-2 models are fine tuned to provide low latency and reduced costs for metric evaluations. Luna-2 is designed to be further fine tuned for your specific use cases and custom metrics with the goal of providing scalable, real-time, customizable evaluations for enterprises. 
+**Luna-2** is the latest generation of our Luna small language models (SLMs), purpose built for scaling AI evaluations. Luna-2 models are fine tuned to provide low latency and reduced costs for metric evaluations. Luna-2 is designed to be further fine tuned for your specific use cases and custom metrics with the goal of providing scalable, real-time, customizable evaluations for enterprises.
 
 Luna-based metrics offer highly accurate and efficient evaluations for AI applications, particularly those with agentic workflows.
 
@@ -16,13 +16,13 @@ Luna-2 is only available in the Enterprise tier of Galileo. [Contact us](https:/
     Contact us to learn more about using Luna-2 in your evaluations
 </Card>
 <Card title="Read our research" icon="brain" horizontal href="https://galileo.ai/research">
-    Learn how Galileo pushes the envelope on GenAI evaluation with our family of fine tuned small language models. 
+    Learn how Galileo pushes the envelope on GenAI evaluation with our family of fine tuned small language models.
 </Card>
 </CardGroup>
 
 ## Overview
 
-LLMs are powerful judges for evaluations, but as your application scales up to from tens or hundreds of traces a day, to thousands or millions, they can fall short. Too often, organizations relying solely on LLMs to act as judges incur major inference costs and don't see the low-latency they need to enable real-time evaluations and runtime protection. 
+LLMs are powerful judges for evaluations, but as your application scales up to from tens or hundreds of traces a day, to thousands or millions, they can fall short. Too often, organizations relying solely on LLMs to act as judges incur major inference costs and don't see the low-latency they need to enable real-time evaluations and runtime protection.
 
 - LLMs are expensive
 - LLMs don't provide the performance needed, especially for runtime protection
@@ -34,7 +34,7 @@ The Luna-2 model mitigates these issues:
 - SLMs run an **order of magnitude faster**, allowing for **runtime protection**
 - Luna-2 is not only **fine-tuned for evaluations**, giving comparable performance out of the box with the top LLMs, but it can be **further fine-tuned using your data** to improve accuracy beyond any general purpose LLM.
 
-The Luna-2 model works with most of the [out of the box metrics](/sdk-api/metrics/metrics#luna-metrics), or your [LLM as a judge custom metrics](http://localhost:3000/concepts/metrics/custom-metrics/custom-metrics-ui-llm).
+The Luna-2 model works with most of the [out of the box metrics](/sdk-api/metrics/metrics#luna-metrics), or your [LLM-as-a-judge custom metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm).
 
 ## Performance and cost comparison
 
@@ -42,7 +42,7 @@ The Luna-2 model works with most of the [out of the box metrics](/sdk-api/metric
 
 | Model                | Cost/1M token | Accuracy (F1 score) | Latency (avg) | Max tokens |
 | :------------------- | ------------: | ------------------: | ------------: | ---------: |
-| **Luna-2**           | **$0.02**     | **0.88**            | **152ms**     | **128k**   |
+| **Luna-2**           | **$0.02**     | **0.95**            | **152ms**     | **128k**   |
 | GPT 4o               | $2.50         | 0.94                | 3,200ms       | 128k       |
 | GPT 4o mini          | $0.02         | 0.90                | 2,600ms       | 128k       |
 | Azure Content Safety | $1.52         | 0.62                | 312ms         | 3k         |
@@ -51,12 +51,19 @@ The Luna-2 model works with most of the [out of the box metrics](/sdk-api/metric
 
 These are the measured latencies for Luna-2 across a range of GPUs for different sized requests.
 
-#### L4 GPU
+#### H100 GPU
 
 | Model     | Small (500 tokens) | Medium (2K tokens) | Large (15K tokens) | Extra Large (100K tokens) |
 | :-------- | -----------------: | -----------------: | -----------------: | ------------------------: |
-| Luna-2 3B | 63ms               | 249ms              | 4.1s               | 154s                      |
-| Luna-2 8B | 150ms              | 580ms              | 10.3s              | 163s                      |
+| Luna-2 3B | 14ms               | 35ms               | 283ms              | 4.4s                      |
+| Luna-2 8B | 22ms               | 66ms               | 555ms              | 7.52s                     |
+
+#### A100 GPU
+
+| Model     | Small (500 tokens) | Medium (2K tokens) | Large (15K tokens) | Extra Large (100K tokens) |
+| :-------- | -----------------: | -----------------: | -----------------: | ------------------------: |
+| Luna-2 3B | 19ms               | 60ms               | 601ms              | 12.5s                     |
+| Luna-2 8B | 36ms               | 138ms              | 1.24s              | 21.2s                     |
 
 #### L40S GPU
 
@@ -65,12 +72,12 @@ These are the measured latencies for Luna-2 across a range of GPUs for different
 | Luna-2 3B | 14ms               | 47ms               | 564ms              | 17.2s                     |
 | Luna-2 8B | 31ms               | 115ms              | 1.06s              | 29s                       |
 
-#### A100 GPU
+#### L4 GPU
 
 | Model     | Small (500 tokens) | Medium (2K tokens) | Large (15K tokens) | Extra Large (100K tokens) |
 | :-------- | -----------------: | -----------------: | -----------------: | ------------------------: |
-| Luna-2 3B | 19ms               | 60ms               | 601ms              | 12.5s                     |
-| Luna-2 8B | 36ms               | 138ms              | 1.24s              | 21.2s                     |
+| Luna-2 3B | 63ms               | 249ms              | 4.1s               | 154s                      |
+| Luna-2 8B | 150ms              | 580ms              | 10.3s              | 163s                      |
 
 <Note>
 The actual latencies can vary a lot based upon the load on the system (Eg: QPS). This can be managed with more GPUs, but the cost will increase.

@@ -3,9 +3,17 @@ title: Custom LLM-as-a-Judge Metrics
 description: "Learn how to create evaluation metrics using LLMs to judge the quality of responses"
 ---
 
+{/*<!-- markdownlint-disable MD044 -->*/}
+
 import SnippetExperimentCustomMetricNamePython from "/snippets/code/python/sdk/experiments/custom-metric.mdx";
+import SnippetPythonCreateMetric from "/snippets/code/python/sdk/metrics/create-metric.mdx"
+import SnippetPythonDeleteMetric from "/snippets/code/python/sdk/metrics/delete-metric.mdx"
 
 import SnippetExperimentCustomMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/custom-metric.mdx";
+import SnippetTypeScriptCreateMetric from "/snippets/code/typescript/sdk/metrics/create-metric.mdx"
+import SnippetTypeScriptDeleteMetric from "/snippets/code/typescript/sdk/metrics/delete-metric.mdx"
+
+{/*<!-- markdownlint-enable MD044 -->*/}
 
 LLM-as-a-judge metrics leverage the capabilities of large language models to evaluate the quality of responses from your LLM applications. This approach is particularly useful for subjective assessments that are difficult to capture with code-based metrics, such as helpfulness, accuracy, or adherence to specific guidelines.
 
@@ -13,15 +21,19 @@ LLM-as-a-judge metrics leverage the capabilities of large language models to eva
 
 LLM-as-a-judge metrics are natural language prompts that are run against an LLM, using the input and output from a span, trace, or session. When the span, trace, or session is logged, all the details including inputs and outputs are sent to the LLM along with a prompt, and the response from the prompt is used to score the metric.
 
-The response needs to be a fixed type for the metric to be evaluated correctly. Currently the following response types are supported:
+The response needs to be a fixed type for the metric to be evaluated correctly. Currently the following output types are supported:
 
-| Type    | Allowed return values | Description |
-| :------ | :-------------------- | :---------- |
-| Boolean | `true`,`false`        | A true or false prompt. The prompt must return `true` or `false` only. |
+| Output type | Allowed return values                              | Description |
+| :---------- | :------------------------------------------------- | :---------- |
+| Boolean     | `true`,`false`                                     | A true or false prompt. The prompt must return `true` or `false` only. |
+| Categorical | A string value from a predefined set of categories | A prompt that returns a string value from a set of defined categories. The prompt must also define the possible category values. |
+| Count.      | A positive integer                                 | A positive integer, from 0 upwards that represents the count of something |
+| Discrete.   | An integer in a defined range                      | A prompt that returns a integer in a defined range, that can be defined in the prompt. For example, a score from 0-5. |
+| Percentage  | `0.0` - `1.0`                                      | A prompt that returns a percentage value, scored from 0.0 to 1.0, with 0.0 being 0%, and 1.0 being 100% |
 
-## Create a new LLM-as-a-judge metric
+You can create and manage LLM-as-a-judge metrics from the [Galileo console](#create-a-new-llm-as-a-judge-metric-in-the-galileo-console), or in [code](#create-a-new-llm-as-a-judge-metric-in-code).
 
-You can create and manage LLM-as-a-judge metrics from the Galileo console.
+## Create a new LLM-as-a-judge metric in the Galileo console
 
 <Steps>
 <Step title="Navigate to the Metrics section">
@@ -52,19 +64,31 @@ You would pass this to an experiment like this:
 </CodeGroup>
 
 </Step>
+<Step title="Define what this metric applies to">
+In the **Apply to** box, select what level this metric applies to.
 
+| Level          | Description |
+| :------------- | :---------- |
+| Session        | A session can include multiple traces. Apply your metric to a session when you want to evaluate a multiple-step interaction, including multiple RAG retrievals, tool calls, or LLM calls. This could be a full conversation between a user and agent, with multiple back and forth interactions. |
+| Trace          | A trace is typically one single interaction. Apply your metric to a trace when you want to evaluate a single step interaction, or a single step in a session. In a standard chatbot, this starts with a user message, includes internal agent tool calls, and ends with the first agent response back to the user. |
+| Retriever span | When building a RAG application, retriever spans consists of the user query as input, and the retrieved docs as output. Apply your metric to a retriever span when you are evaluating document retrieval and processing steps. |
+| LLM span       | An LLM Span is a single LLM call, it's input will contain the entire chat history up to that point, and the output would be the latest output. Apply your metric to an LLM span when you want to evaluate how the LLM processes the input and generates the output. |
+| Tool span      | A tool span logs a tool call. The input here is the arguments being passed to a tool, and the output is the tool output. Apply your metric to a tool span when you are evaluating tools. |
+
+</Step>
 <Step title="Configure the metric">
 In the **Prompt Editor**, configure the following fields:
 
 - **LLM Model** - select the model from the available integrations that you want to use to evaluate this metric.
-- **Apply to** - select what you want this metric to apply to, either an entire session, a trace, or an individual LLM, retriever, or tool span
 - **Step-by-step reasoning** - turn this on to see metric explanations, giving a reasoning behind the score. This will use more LLM tokens, and have a corresponding increase in cost.
 - **No. of judges** - select the number of judges to use. The metric is run against each judge, and an average score is returned. The more judges you use, the more accurate the score, but with a higher cost.
 </Step>
 
 <Step title="Configure the metric prompt">
 
-In the **Prompt** dialog, enter your prompt. Ensure your prompt returns the right response type. For example:
+In the **Prompt** dialog, enter your prompt. Ensure your prompt defines a clear rubric with explicit scoring criteria. For example:
+
+{/*<!-- markdownlint-disable MD013 -->*/}
 
 ```output wrap
 You are an impartial evaluator, ensuring that other LLMs are aligning with our corporate guidance.
@@ -75,28 +99,105 @@ For this evaluation, the guidance in question is:
 
 Task: Determine if the provided LLM output adheres to this guidance.
 
-Return true if the guidance is completely followed
-Return false if the guidance is not completely followed
+Set true if the guidance is completely followed
+Set false if the guidance is not completely followed
 ```
 
-In this example, there is an explicit instruction to return a boolean type:
+{/*<!-- markdownlint-enable MD013 -->*/}
+
+In this example, the rubric clearly defines the scoring criteria:
 
 ```output
-Return true if the guidance is completely followed
-Return false if the guidance is not completely followed
+Set true if the guidance is completely followed
+Set false if the guidance is not completely followed
 ```
 
-</Step>
-<Step title="Optional - get help writing a prompt for an LLM span metric">
-If you are creating an LLM span metric, you can use the **Help me write** option. In this case, describe what you want the prompt to evaluate in natural language, then select the **Auto-Generate Prompt** button to have Galileo create a prompt for you using the selected model.
-</Step>
+This establishes a clear evaluation rubric where "completely followed" is the criterion for a passing grade, while any deviation from the guidance results in a failing grade.
 
+Also we recommend not to write any instructions in the prompt regarding the response format.
+
+Avoid statements like:
+
+```output
+Only return a single word,  True or False
+Return as a JSON
+```
+
+<Info>
+See our [prompt engineering guide](/concepts/metrics/custom-metrics/prompt-engineering) to learn more about writing an effective prompt, and what happens behind the scenes with your prompts.
+</Info>
+
+</Step>
+<Step title="Optional - get help writing a prompt using Prompt Assist">
+To help you create a metric prompt, you can use the **Prompt assist** feature. This allows you to define how you want the metric to work in natural language, and Galileo will create the metric prompt for you.
+
+To use prompt assist, select the **Show prompt assist** button.
+
+![The show prompt assist button](/concepts/metrics/custom-metrics/show-prompt-assist.webp)
+
+Provide a natural language description of what the metric to measure, including:
+
+- The output you would like, e.g. binary, categories or a number range.
+- The criteria you would like the metric to use to decide the output values.
+
+You can also select which LLM you want to use to generate the prompt.
+
+![The prompt assist with a prompt description](/concepts/metrics/custom-metrics/prompt-assist-with-prompt.webp)
+
+Once done, select the **Generate prompt** button to generate the metric prompt.
+</Step>
+<Step title="Test your metric">
+When you have your metric configured, it is important to test the metric against multiple inputs and outputs. You can then use the results of the tests to iterate on the metric prompt and configuration, for example experimenting with different models, or number of judges.
+
+To test your metric, head to the **Test Metric** tab. You can either test the metric by passing in a manual input, or by using logged sessions, traces, spans, or experiments.
+
+Due to the complex structure of sessions and traces, manual input is only supported for metrics that apply to spans only. To test session and trace level metrics, you need to test with existing logged sessions or traces, or experiments.
+
+For manual input testing, provide the input and output you want to test against, then select the **Test** button. You will see the result of the metric, and an explanation if you have step-by-step reasoning turned on.
+
+![A manual metric test showing a fail score and an explanation](/concepts/metrics/custom-metrics/test-metric-manual.webp)
+
+To test against current logs or experiments, select the project, then select the source type, then select the relevant Log stream or experiment.
+
+You can then run your metric against the last 5 logged sessions, traces, spans, or experiments by selecting the **Test Metric** button. The metric will be calculated, along with an explanation if you have step-by-step reasoning turned on.
+
+![A test run against 5 Log stream rows showing they all pass with 100%](/concepts/metrics/custom-metrics/test-metric-logs.webp)
+
+After the metrics are calculated, select each row to see more details on the explanation if available.
+
+</Step>
 <Step title="Save your metric">
-Once you are happy with your metric, select the **Create metric** button to save your metric. You can now enable this metric for your log streams.
+Once you are happy with your metric, select the **Create metric** button to save your metric. You can now enable this metric for your Log streams.
 
 ![A complete metric ready to be saved](/concepts/metrics/custom-metrics/save-llm-metric.webp)
 </Step>
 </Steps>
+
+## Create a new LLM-as-a-judge metric in code
+
+In addition to creating custom LLM-as-a-judge metrics through the Galileo console, you can also create these in code.
+
+### Create a custom metric
+
+When you create a custom metric, you need to provide a name and the prompt to use. You can optionally also provide the output type, what it applies to, span, trace, or session, the model to use, if reasoning should be generated, the number of LLM judges to use, and any tags.
+
+<CodeGroup>
+
+<SnippetPythonCreateMetric />
+<SnippetTypeScriptCreateMetric />
+
+</CodeGroup>
+
+### Delete a custom metric
+
+You can also delete a metric by name.
+
+<CodeGroup>
+
+<SnippetPythonDeleteMetric />
+<SnippetTypeScriptDeleteMetric />
+
+</CodeGroup>
 
 ## Metric versions
 
@@ -114,7 +215,7 @@ From the version history, you can tag different versions as the default, or rest
 
 When you add a metric to a Log stream, you can configure which version is used - either the default, or a specific version. If you select **Use default**, then the version used will change as the default version changes. If you select a specific version, then only that version will be used.
 
-![The version selector for a metric for a log stream](/concepts/metrics/custom-metrics/version-history-logstream.webp)
+![The version selector for a metric for a Log stream](/concepts/metrics/custom-metrics/version-history-logstream.webp)
 
 ## Best practices for LLM-as-a-Judge metrics
 
@@ -148,6 +249,9 @@ While powerful, LLM-as-a-Judge metrics have some limitations to keep in mind:
 ## Next steps
 
 <CardGroup cols={2}>
+<Card title="LLM-as-a-Judge Prompt Engineering Guide " icon="wrench" horizontal href="/concepts/metrics/custom-metrics/prompt-engineering">
+    Learn best practices for prompt engineering with custom LLM-as-a-judge metrics.
+</Card>
 <Card title="Metrics overview" icon="chart-bar" horizontal href="/concepts/metrics/overview">
     Explore Galileo's comprehensive metrics framework for evaluating and improving AI system performance across multiple dimensions.
 </Card>

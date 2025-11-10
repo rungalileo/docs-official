@@ -63,7 +63,7 @@ ELSER (Elastic Learned Sparse EncodeR) provides semantic search capabilities:
 
 1. In your Elasticsearch project, go to **Relevance** → **Inference Endpoints**
 2. If **ELSER** does not exist, click **Create endpoint**
-3. Follow [the ELSER docs](https://www.elastic.co/docs/explore-analyze/machine-learning/nlp/ml-nlp-elser#download-deploy-elser) or [ Elastic guide](https://www.elastic.co/getting-started/enterprise-search/vector-search)
+3. Follow [the ELSER docs](https://www.elastic.co/docs/explore-analyze/machine-learning/nlp/ml-nlp-elser#download-deploy-elser) or [Elastic guide](https://www.elastic.co/getting-started/enterprise-search/vector-search)
 4. Note the model ID (typically `.elser_model_2_linux-x86_64`)
 
 ## Step 2: set up your Python environment
@@ -95,8 +95,8 @@ GALILEO_API_KEY=your-galileo-api-key
 # Your Galileo project name
 GALILEO_PROJECT=your-galileo-project-name
 
-# The name of the log stream you want to use for logging
-GALILEO_LOG_STREAM=your-galileo-log-stream 
+# The name of the Log stream you want to use for logging
+GALILEO_LOG_STREAM=your-galileo-log-stream
 
 # Provide the console url below if you are using a
 # custom deployment, and not using the free tier, or app.galileo.ai.
@@ -106,7 +106,7 @@ GALILEO_LOG_STREAM=your-galileo-log-stream
 # OpenAI properties
 OPENAI_API_KEY=your-openai-api-key
 
-# Optional. The base URL of your OpenAI deployment. 
+# Optional. The base URL of your OpenAI deployment.
 # Leave this commented out if you are using the default OpenAI API.
 # OPENAI_BASE_URL=
 
@@ -115,13 +115,14 @@ OPENAI_API_KEY=your-openai-api-key
 
 # Elasticsearch
 ES_HOST="your-elasticsearch-host-here"  # e.g., "https://your-cluster.es.us-central1.gcp.cloud.es.io:443"
-ES_API_KEY="your-api-key-here" 
+ES_API_KEY="your-api-key-here"
 ES_INDEX="demo"
 ES_INDEX_CHAT_HISTORY="chat-history"
 ELSER_MODEL=".elser_model_2_linux-x86_64"  # Adjust based on your deployment
 ```
 
 **Note**: The ELSER model name varies by platform:
+
 - Linux x86_64: `.elser_model_2_linux-x86_64`
 - Check your Elasticsearch ML models for the exact name
 
@@ -136,6 +137,7 @@ First, we import the necessary libraries and configure our environment variables
 <SnippetElasticRag1 />
 
 ### 1. Elasticsearch setup
+
 <SnippetElasticRag2 />
 The code automatically:
 - Connects to your Elasticsearch instance
@@ -144,6 +146,7 @@ The code automatically:
 
 
 ### 2. agent architecture
+
 <SnippetElasticRag3 />
 - **State Management**: Uses `AgentState` to track conversation messages
 - **Tool Integration**: Creates a retriever tool that searches Elasticsearch
@@ -151,6 +154,7 @@ The code automatically:
 
 
 ### 3. conversation flow
+
 <SnippetElasticRag4 />
 1. User asks a question
 2. Agent decides whether to use the retriever tool
@@ -191,7 +195,8 @@ The script will:
 5. **Run sample questions** and display answers and log them to Galileo
 
 Expected output:
-```
+
+```text
 Connecting to Elasticsearch...
 {'name': 'your-cluster', 'cluster_name': '...', ...}
 ELSER model ".elser_model_2_linux-x86_64" is already available.
@@ -200,36 +205,30 @@ ELSER model ".elser_model_2_linux-x86_64" is already available.
 --- Starting Q&A Session ---
 
 ❓ Question: How many vacation days do new hires get?
-✅ Answer: New hires get 15 days of paid time off, which increases to 20 days after 3 years of service.
+✅ Answer: New hires get 15 days of paid time off, which increases to 20 days
+after 3 years of service.
 
 ❓ Question: What about health insurance?
-✅ Answer: The company offers comprehensive health insurance including medical, dental, and vision coverage.
+✅ Answer: The company offers comprehensive health insurance including medical,
+dental, and vision coverage.
 ```
-
-## Understanding the application flow
-
-
-
-
-
-
-
-
-
 
 ## Troubleshooting
 
 ### Connection issues
+
 - Verify your Elasticsearch host URL and API key
 - Ensure your IP is whitelisted if using Elastic Cloud if not using serverless
 - Check that Elasticsearch is running and accessible
 
 ### ELSER model issues
+
 - Verify the model name matches your platform
 - Ensure machine learning features are enabled
 - Check that you have sufficient resources for model deployment
 
 ### Missing documents in search
+
 - Wait a few seconds after indexing for documents to be available
 - Verify the index name matches your configuration
 - Check Elasticsearch logs for indexing errors
@@ -243,4 +242,4 @@ Now that you have a working RAG application, you can add **evaluation metrics** 
 - [Elasticsearch Vector Search Documentation](https://www.elastic.co/getting-started/enterprise-search/vector-search)
 - [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
 - [Galileo Python SDK](/sdk-api/python/sdk-reference)
-- [Example Chat App with streaming](https://github.com/rungalileo/elasticsearch-labs/tree/main/python/rag/elastic-chatbot-rag-app)
+- [Example Chat App with streaming](https://github.com/rungalileo/sdk-examples/tree/main/python/rag/elastic-chatbot-rag-app)

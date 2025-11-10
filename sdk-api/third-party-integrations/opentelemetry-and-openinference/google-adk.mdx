@@ -1,0 +1,72 @@
+---
+title: Google ADK
+description: Learn how to integrate a Google ADK project with Galileo using OpenTelemetry and OpenInference
+---
+
+import ConfigureOTel from "/snippets/content/configure-otel.mdx"
+
+import SnippetQuickstartPython from "/snippets/code/python/sdk/otel/google-adk/quickstart-example.mdx"
+
+Galileo supports logging traces from Google ADK applications using OpenTelemetry and OpenInference.
+
+## Set up OpenTelemetry
+
+To log Google ADK agents using OpenInference, the first step is to set up OpenTelemetry.
+
+<ConfigureOTel/>
+
+## Log a Google ADK agent using OpenInference
+
+Once OpenTelemetry is configured, you can use OpenInference to log traces.
+
+<Steps>
+<Step title="Install the Google ADK OpenInference support">
+To support OpenInference with the Google ADK, you need to install the OpenInference instrumentor.
+
+<CodeGroup>
+
+```bash Terminal
+pip install openinference-instrumentation-google-adk
+```
+
+</CodeGroup>
+</Step>
+<Step title="Configure the instrumentor">
+You can now create a `GoogleADKInstrumentor` instance and instrument it with the trace provider you created earlier.
+
+<CodeGroup>
+
+```python Python
+from openinference.instrumentation.google_adk import GoogleADKInstrumentor
+
+GoogleADKInstrumentor().instrument(tracer_provider=tracer_provider)
+```
+
+</CodeGroup>
+
+When you run your Google ADK code, traces will be logged to Galileo.
+</Step>
+</Steps>
+
+## Full example
+
+Here is a full example based off the [Google ADK quickstart](https://google.github.io/adk-docs/get-started/python/#create-an-agent-project). You can find this project in the [Galileo SDK examples repo](https://github.com/rungalileo/sdk-examples/tree/main/python/agent/google-adk).
+
+To run this example, create a `.env` file with the following values set, or set them as environment variables:
+
+```ini .env
+# AWS environment variables
+GOOGLE_API_KEY=your-google-api-key
+
+# Galileo environment variables
+GALILEO_API_ENDPOINT=your-galileo-otel-api-endpoint
+GALILEO_API_KEY=your-galileo-api-key
+GALILEO_PROJECT=your-galileo-project
+GALILEO_LOG_STREAM=your-log-stream
+```
+
+Remember to update these to match your [Galileo API key](https://app.galileo.ai/settings/api-keys), Google API key, [Galileo OTel endpoint](/sdk-api/third-party-integrations/opentelemetry-and-openinference#configure-the-otel-endpoint), project name, and Log stream name.
+
+<CodeGroup>
+<SnippetQuickstartPython/>
+</CodeGroup>

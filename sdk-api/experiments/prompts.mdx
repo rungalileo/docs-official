@@ -3,6 +3,8 @@ title: Prompts
 description: Learn how to create and use prompt templates in experiments
 ---
 
+{/*<!-- markdownlint-disable MD044 -->*/}
+
 import SnippetSdkPromptsCreatePython from "/snippets/code/python/sdk/prompts/create.mdx";
 import SnippetSdkPromptsGetPython from "/snippets/code/python/sdk/prompts/get.mdx";
 import SnippetSdkPromptsListPython from "/snippets/code/python/sdk/prompts/list.mdx";
@@ -19,7 +21,11 @@ import SnippetSdkPromptsExperimentTypeScript from "/snippets/code/typescript/sdk
 import SnippetSdkPromptsTestDataTypeScript from "/snippets/code/typescript/sdk/experiments/test-data.mdx";
 import SnippetSdkPromptsReferenceDataSetTypeScript from "/snippets/code/typescript/sdk/experiments/reference-dataset.mdx";
 
+{/*<!-- markdownlint-enable MD044 -->*/}
+
 Prompts in Galileo allow you to create, store, and reuse prompts across your experiments. They provide a structured way to manage your prompts and ensure consistency in your LLM interactions.
+
+Prompts can be created an managed at an organization, or project level.
 
 ## Create prompts
 
@@ -32,7 +38,7 @@ Prompts in Galileo allow you to create, store, and reuse prompts across your exp
 
 When you use datasets in Galileo, the attributes stored in the input in your dataset are made available to your prompt templates using mustache templating.  This allows you to create dynamic prompts that adapt to the data in each row.
 
-Suppose you have the following dataset: 
+Suppose you have the following dataset:
 
 <CodeGroup>
   <SnippetSdkPromptsTestDataPython />
@@ -46,12 +52,12 @@ To reference fields from your dataset in your prompt, use double curly braces:
   <SnippetSdkPromptsReferenceDataSetTypeScript />
 </CodeGroup>
 
-- `{{ city }}` will be replaced with the value of the `city` field inside the `input` dictionary. 
-- `{{ days }}` will be replaced with the value of the `days` field inside the `input` dictionary. 
+- `{{ city }}` will be replaced with the value of the `city` field inside the `input` dictionary.
+- `{{ days }}` will be replaced with the value of the `days` field inside the `input` dictionary.
 
 ## Get prompts
 
-Once prompts have been created in Galileo, they can be retrieved by name.
+Once prompts have been created in Galileo, they can be retrieved by name. For project level prompts, pass in either the project name or Id.
 
 <CodeGroup>
   <SnippetSdkPromptsGetPython />
@@ -60,7 +66,7 @@ Once prompts have been created in Galileo, they can be retrieved by name.
 
 ## List prompts
 
-To list all prompt templates in a project:
+To list all prompt templates in a project or organization:
 
 <CodeGroup>
   <SnippetSdkPromptsListPython />
@@ -98,10 +104,10 @@ When working with prompts:
 ## Related resources
 
 <CardGroup cols={2}>
-<Card title="Datasets" icon="database" horizontal href="/concepts/datasets">
+<Card title="Datasets" icon="database" horizontal href="/sdk-api/experiments/datasets">
     Learn about more datasets, the data driving your experiments.
 </Card>
-<Card title="Experiments" icon="flask" horizontal href="/concepts/experiments/overview">
+<Card title="Experiments" icon="flask" horizontal href="/sdk-api/experiments/experiments">
     Learn how to use datasets and experiments to improve your application.
 </Card>
 </CardGroup>

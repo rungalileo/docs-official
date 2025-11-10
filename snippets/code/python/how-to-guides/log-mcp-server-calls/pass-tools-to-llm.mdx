@@ -1,0 +1,37 @@
+```python app.py
+def call_llm(messages, use_tools: bool = True) -> Message:
+    """
+    Call the LLM with the provided query and return
+    the response text
+    """
+    galileo_logger = galileo_context.get_logger_instance()
+
+    # Capture the current time in nanoseconds for logging
+    start_time_ns = datetime.now().timestamp() * 1_000_000_000
+
+    # Call the LLM
+    response = anthropic.messages.create(
+        model=os.environ["ANTHROPIC_MODEL"],
+        max_tokens=1000,
+        messages=messages,
+        tools=mcp_client.tools if use_tools else omit,
+    )
+
+    # Log the LLM call
+    for content in [c for c in response.content if c.type == "text"]:
+        galileo_logger.add_llm_span(
+            input=messages,
+            output=content.text,
+            model=os.environ["ANTHROPIC_MODEL"],
+            num_input_tokens=response.usage.input_tokens,
+            num_output_tokens=response.usage.output_tokens,
+            total_tokens=response.usage.input_tokens + 
+                         response.usage.output_tokens,
+            duration_ns=int(
+                (datetime.now().timestamp() * 1_000_000_000) - 
+                start_time_ns
+            ),
+        )
+
+    return response
+```

@@ -28,18 +28,18 @@ These are the requirements for the fine-tuning process:
 1. **Create a test dataset**
 
     The test dataset is the most crucial piece for any fine-tuning work. 300-500 samples is a decent number for a test set with a diverse set of samples, with at least 100 samples of each class. If 300 samples is hard to get to, 150 is a bare minimum.
-        
+
     The test set **must be manually labelled** to ensure high quality. The format can be a spreadsheet/csv with input, output, label and explanations on the label if possible. If you are already using a Galileo metric on the data, these numbers will also help.
 
 1. **Latency and Load Requirements**
 
     Specify the maximum acceptable latency for the given metric and its use case (online observability, run time protection etc.). The latency requirements should include QPS and expected input token size. Both these numbers should be provided for average and peak loads.
-    
+
     This requirement will influence the choice of flow and may necessitate trade-offs with other factors.
 
 1. **Constraints**
 
-    Identify any limitations or restrictions that may impact the design or implementation of the flow. These constraints could include technical, resource, or regulatory limitations. 
+    Identify any limitations or restrictions that may impact the design or implementation of the flow. These constraints could include technical, resource, or regulatory limitations.
 
 ## Approaches
 
@@ -51,6 +51,8 @@ There are 3 different approaches that Galileo takes with fine-tuning, depending 
 | Fine-tune preset SLM metric        | The required metric aligns in definition with a metric offered by Galileo. LLM-as-a-judge variant of the metric works well (with or without CLHF). Preset SLM variant performance is poor. |
 | Create a new customized SLM metric | The required metric is not offered by Galileo out-of-the-box. |
 
+{/*<!-- markdownlint-disable MD013 -->*/}
+
 ```mermaid
 flowchart TD
     A([Is required metric offered by Galileo?]) -->|Yes| B([Is Preset SLM accurate enough?])
@@ -58,6 +60,8 @@ flowchart TD
     B -->|Yes| D[Use approach 1 - enable preset SLM metric]
     B -->|No| E[Use approach 2 - fine-tune Preset SLM]
 ```
+
+{/*<!-- markdownlint-enable MD013 -->*/}
 
 ## Fine-tuning requirements
 
@@ -72,30 +76,32 @@ These are rough estimates for the turnaround time for a fine-tuned metric, based
 
 ### Model fine-tuning
 
-#### Prerequisites
+To fine tune your model, ensure:
 
-- Objective for the new metric is clearly understood
-- Test Dataset is quality checked by the applied data science team
+- The objective for the new metric is clearly understood
+- The test Dataset is quality checked by the applied data science team
 
-#### Scenarios
+The estimated timings are:
 
 - **Existing metric fine-tuning:**
-    - If your metric has the same definition as our metric, and just needs to work on your data: **2-3 days**
-    - If there is a slight change in definition on the metric: **3-4 days**
+
+  - If your metric has the same definition as our metric, and just needs to work on your data: **2-3 days**
+  - If there is a slight change in definition on the metric: **3-4 days**
+
 - **New metric:** **4-5 days**
 
-<Note> 
+<Note>
 These times can vary based on the data/latency/metric requirements, so would ideally need at least a week (5 days) for any metric fine-tuning after all the prerequisites are fulfilled.
 </Note>
 
 ### Model deployment
 
-#### Prerequisites
+To deploy your model, ensure:
 
 - The new fine-tuned model is approved for use internally
 - The model is integrated into the Galileo cluster by the applied data science team
 
-#### Scenarios
+The estimated timings are:
 
 - **Replace existing metric**: Deployment can be done in **1-2 days**
 - **New custom metric**: This is more involved, the time to completion would be defined on a case-by-case basis

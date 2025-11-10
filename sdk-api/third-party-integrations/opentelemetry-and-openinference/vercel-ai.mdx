@@ -1,0 +1,108 @@
+---
+title: Vercel AI SDK
+description: Learn how to integrate a Vercel AI SDK project with Galileo using OpenTelemetry
+---
+
+{/*<!-- markdownlint-disable MD044 -->*/}
+
+import SnippetSimpleEnvVars from "/snippets/code/multilingual/env-galileo-simple.mdx"
+import SnippetConfigureOTelEndpoint from "/snippets/content/configure-otel-endpoint.mdx"
+import SnippetQuickstartTypeScript from "/snippets/code/typescript/sdk/otel/vertex/quickstart-example.mdx"
+
+{/*<!-- markdownlint-enable MD044 -->*/}
+
+Galileo supports logging traces from [Vercel AI SDK](https://ai-sdk.dev/docs/introduction) applications using OpenTelemetry.
+
+## Set up OpenTelemetry
+
+To log Vercel AI SDK applications using Galileo, the first step is to set up OpenTelemetry.
+
+<Steps>
+<Step title="Add the OpenTelemetry packages to your application">
+
+Add the OpenTelemetry NPM packages to your Vercel AI application project.
+
+<CodeGroup>
+
+```bash Terminal
+npm i @opentelemetry/sdk-node \
+      @opentelemetry/exporter-trace-otlp-http
+```
+
+</CodeGroup>
+</Step>
+<Step title="Create environment variables for your Galileo settings">
+
+Set environment variables for your Galileo settings, for example in a `.env` file:
+
+<CodeGroup>
+<SnippetSimpleEnvVars/>
+</CodeGroup>
+</Step>
+<Step title="Get your endpoint">
+<SnippetConfigureOTelEndpoint/>
+</Step>
+<Step title="Start the OTel processor">
+
+Use the following code to start the OTel processor. Update the value of `galileoEndpoint` to reflect your endpoint if you are using a custom Galileo deployment.
+
+<CodeGroup>
+
+```typescript TypeScript
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { 
+  AlwaysOnSampler,
+  SimpleSpanProcessor
+} from '@opentelemetry/sdk-trace-node';
+import { OTLPHttpProtoTraceExporter } from '@vercel/otel';
+import { env } from 'process';
+
+const galileoEndpoint = "https://api.galileo.ai/otel/traces";
+const galileoHeaders = {
+  "Galileo-API-Key": env.GALILEO_API_KEY,
+  "project": env.GALILEO_PROJECT,
+  "logstream": env.GALILEO_LOG_STREAM,
+};
+
+const sdk = new NodeSDK({
+  spanProcessors: [
+    new SimpleSpanProcessor(new OTLPHttpProtoTraceExporter({
+        url: galileoEndpoint,
+        headers: galileoHeaders,
+    }))
+  ],
+  sampler: new AlwaysOnSampler(),
+});
+
+sdk.start();
+```
+
+</CodeGroup>
+</Step>
+<Step title="Run your application">
+Your application is not configured to send telemetry to Galileo using OTel. Run your application to see traces in your Log stream.
+</Step>
+</Steps>
+
+## Full example
+
+Here is a full example based off the [Vercel AI SDK Agents example](https://ai-sdk.dev/docs/agents/overview). You can find this project in the [Galileo SDK examples repo](https://github.com/rungalileo/sdk-examples/tree/main/typescript/agent/vercel-agent).
+
+To run this example, create a `.env` file with the following values set, or set them as environment variables:
+
+```ini .env
+# AWS environment variables
+OPENAI_API_KEY=your-openai-api-key
+
+# Galileo environment variables
+GALILEO_API_ENDPOINT=your-galileo-otel-api-endpoint
+GALILEO_API_KEY=your-galileo-api-key
+GALILEO_PROJECT=your-galileo-project
+GALILEO_LOG_STREAM=your-log-stream
+```
+
+Remember to update these to match your [Galileo API key](https://app.galileo.ai/settings/api-keys), OpenAI API key, [Galileo OTel endpoint](/sdk-api/third-party-integrations/opentelemetry-and-openinference#configure-the-otel-endpoint), project name, and Log stream name.
+
+<CodeGroup>
+<SnippetQuickstartTypeScript/>
+</CodeGroup>
