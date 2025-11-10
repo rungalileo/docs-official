@@ -9,7 +9,7 @@ import AgenticPerformanceMetrics from "/snippets/components/Agentic-Performance-
 import ModelConfidenceMetrics from "/snippets/components/Model-Confidence-Metrics.mdx";
 import ExpressionAndReadabilityMetrics from "/snippets/components/Expression-And-Readability-Metrics.mdx";
 
-Galileo comes with a set of ready to use [out-of-the-box metrics](#out-of-the-box-metric-categories) that allow you to see how your AI is performing. With these metrics, you can quickly spot problems, track improvements, and make your AI work better for your users.
+Galileo comes with a set of ready to use [out-of-the-box metrics](#out-of-the-box-metric-categories) that allow you to see how your AI is performing. With these metrics, you can quickly spot problems, track improvements, and make your AI work better for your users. These metrics [apply to different node types](#supported-node-types) (such as session, trace, or different span types), depending on the metric.
 
 You can then expand these metrics with custom metrics, creating using [LLM-as-a-judge](/concepts/metrics/custom-metrics/custom-metrics-ui-llm), or [custom code-based metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-code).
 
@@ -69,35 +69,75 @@ Our metrics can be broken down into five key categories, each addressing a speci
 | [Response Quality](/concepts/metrics/overview#response-quality-metrics) | Metrics that assess the accuracy, completeness, relevance, and overall quality of AI-generated responses. | When evaluating how well AI systems answer questions, follow instructions, or provide information based on context. | <ul><li>Measuring factual accuracy in a medical information system</li><li>Evaluating how well a RAG system uses retrieved information</li><li>Assessing if customer service responses address all parts of a query</li></ul> |
 | [Safety and Compliance](/concepts/metrics/overview#safety-and-compliance-metrics) | Metrics that identify potential risks, harmful content, bias, or privacy concerns in AI interactions. | When ensuring AI systems meet regulatory requirements, protect user privacy, and avoid generating harmful or biased content. | <ul><li>Detecting PII in healthcare chatbot conversations</li><li>Identifying potential prompt injection attacks in public-facing systems</li><li>Measuring bias in hiring or loan approval recommendation systems</li></ul> |
 
-## Agentic performance metrics
+### Agentic performance metrics
 
 Use these metrics to evaluate how well your AI agents use tools, make decisions, and accomplish multi-step tasks. They're a good fit when you're building agents that need to interact with external systems or complete complex workflows.
 
 <AgenticPerformanceMetrics />
 
-## Expression and readability metrics
+### Expression and readability metrics
 
 Use these metrics to assess the style, tone, and clarity of your AI's generated content. They're helpful when you want your AI to communicate clearly, match your brand's voice, or produce content that's easy for users to understand.
 
 <ExpressionAndReadabilityMetrics />
 
-## Model confidence metrics
+### Model confidence metrics
 
 Use these metrics to understand how certain or uncertain your AI model is about its answers. They're useful when you want to flag low-confidence responses for review or improve your system's reliability.
 
 <ModelConfidenceMetrics />
 
-## Response quality metrics
+### Response quality metrics
 
 Use these metrics to evaluate how well your AI answers user questions and follows instructions. They're especially helpful when you want to ensure your system is providing accurate, complete, and relevant responses.
 
 <ResponseQuality />
 
-## Safety and compliance metrics
+### Safety and compliance metrics
 
 Use these metrics to identify potential risks, harmful content, or compliance issues in your AI's responses. They're important when you need to protect users, meet regulatory requirements, or avoid generating biased or unsafe content.
 
 <SafetyAndComplianceMetrics />
+
+## Supported node types
+
+Different metrics apply to different node types, such as sessions, traces, or spans.
+
+<AccordionGroup>
+<Accordion title="Session">
+- [Action completion](/concepts/metrics/agentic/action-completion)
+- [Agent efficiency](/concepts/metrics/agentic/agent-efficiency)
+- [Agent flow](/concepts/metrics/agentic/agent-flow)
+- [Conversation quality](/concepts/metrics/agentic/conversation-quality) (Trace input/outputs only)
+- [User Intent change](/concepts/metrics/agentic/intent-change) (Trace input/outputs only)
+</Accordion>
+<Accordion title="Trace">
+- [Action advancement](/concepts/metrics/agentic/action-advancement)
+- [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence)
+- [PII / CPNI / PHI](/concepts/metrics/safety-and-compliance/pii) (Root input/output only)
+- [Prompt Injection](/concepts/metrics/safety-and-compliance/prompt-injection)
+- [Sexism / Bias](/concepts/metrics/safety-and-compliance/sexism) (Root input/output only)
+- [Tone](/concepts/metrics/expression-and-readability/tone) (Root input/output only)
+- [Toxicity](/concepts/metrics/safety-and-compliance/toxicity) (Root input/output only)
+</Accordion>
+<Accordion title="LLM Span">
+- [BLEU & ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge)
+- [Completeness](/concepts/metrics/response-quality/completeness)
+- [Context Adherence](/concepts/metrics/response-quality/context-adherence)
+- [Correctness (factuality)](/concepts/metrics/response-quality/correctness)
+- [Instruction Adherence](/concepts/metrics/response-quality/instruction-adherence)
+- [Prompt Perplexity](/concepts/metrics/model-confidence/prompt-perplexity)
+- [Tool selection quality](/concepts/metrics/agentic/tool-selection-quality)
+- [Uncertainty](/concepts/metrics/model-confidence/uncertainty)
+</Accordion>
+<Accordion title="Retriever span">
+- [Chunk Attribution Utilization](/concepts/metrics/response-quality/chunk-attribution)
+- [Context Relevance (Query Adherence)](/concepts/metrics/response-quality/context-relevance)
+</Accordion>
+<Accordion title="Tool span">
+- [Tool error](/concepts/metrics/agentic/tool-error)
+</Accordion>
+</AccordionGroup>
 
 ## Next steps
 
