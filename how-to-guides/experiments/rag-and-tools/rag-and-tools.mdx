@@ -1,0 +1,291 @@
+---
+title: Run an experiment against a RAG app
+description: Learn how to run experiments against RAG applications
+---
+
+{/*<!-- markdownlint-disable MD044 -->*/}
+
+import InstallDependencies from "/snippets/content/install-dependencies-openai-python-only.mdx"
+
+import SnippetImportsPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/imports.mdx"
+import SnippetRAGFunctionPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/rag-function.mdx"
+import SnippetToolsPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/tools.mdx"
+import SnippetLLMInteractionPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/llm-interaction.mdx"
+import SnippetGetHoroscopePython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/get-horoscope.mdx"
+import SnippetMainFunctionPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/main-function.mdx"
+import SnippetLoggingImportsPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/logging-imports.mdx"
+import SnippetMainWithLoggingPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/main-with-logging.mdx"
+import SnippetOpenAIImportPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/openai-import.mdx"
+import SnippetRAGFunctionLogPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/rag-function-log.mdx"
+import SnippetToolFunctionLogPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/tool-function-log.mdx"
+import SnippetExperimentMainFunctionPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/experiment-main.mdx"
+
+{/*<!-- markdownlint-enable MD044 -->*/}
+
+Experiments allow you to test your model, prompts, or application against a set of metrics using pre-defined inputs. This guide explains how to run an experiment against a RAG application, implemented using tool calling. The experiment will measure various metrics associated with tools and RAG.
+
+The core of this experiment is an application you can run to get a horoscope, using Galileo logging to trace the LLM, tool, and RAG interactions. This core is then exposed to an experiment to show how you can take an existing application and run it through an experiment with a defined dataset of inputs.
+
+In this guide you will:
+
+{/*<!-- markdownlint-disable MD051 -->*/}
+
+1. [Set up your project with Galileo](#install-dependencies)
+
+    {/*<!-- markdownlint-disable MD051 -->*/}
+
+1. [Create a basic RAG application](#create-a-basic-ragapplication)
+1. [Add logging with Galileo](#add-logging-with-galileo)
+1. [Run your app using an experiment](#run-your-app-using-an-experiment)
+
+## Before you start
+
+To complete this how-to, you will need:
+
+- An [OpenAI API key](https://openai.com/api/)
+- A [Galileo project](/concepts/projects)
+- An LLM integration configured to calculate LLM-as-a-judge metrics
+- Your [Galileo API key](/references/faqs/find-keys#galileo-api-key)
+
+<InstallDependencies/>
+
+## Create a basic RAG application
+
+In this section you will create a basic RAG application. This will use tool calling to call a function that simulates a RAG system by returning some pre-defined documents.
+
+<Steps>
+<Step title="Create a file called app.py (Python) or app.ts (TypeScript)"/>
+<Step title="Add imports">
+
+Add the following imports to your application file:
+
+<CodeGroup>
+<SnippetImportsPython/>
+</CodeGroup>
+
+</Step>
+<Step title="Add a RAG function">
+
+Add a function that simulates RAG. This function takes a star sign, and returns some dummy documents with horoscopes.
+
+<CodeGroup>
+<SnippetRAGFunctionPython/>
+</CodeGroup>
+</Step>
+<Step title="Add a tool to get the horoscope">
+
+Add code for a tool that can get the horoscope. This consists of a function that uses the RAG code to get horoscope information, and a tool definition that the LLM can use.
+
+<CodeGroup>
+<SnippetToolsPython/>
+</CodeGroup>
+</Step>
+<Step title="Add code to interact with an LLM">
+
+Add the following code to interact with OpenAI:
+
+<CodeGroup>
+<SnippetLLMInteractionPython/>
+</CodeGroup>
+</Step>
+<Step title="Add a function to generate the horoscope using the LLM and tools">
+
+Add the following code to request the horoscope from OpenAI, calling tools as required:
+
+<CodeGroup>
+<SnippetGetHoroscopePython/>
+</CodeGroup>
+</Step>
+<Step title="Add a main function">
+
+Add a main function to run the code:
+
+<CodeGroup>
+<SnippetMainFunctionPython/>
+</CodeGroup>
+
+</Step>
+<Step title="Run your code">
+
+Run your app to ensure it is all working.
+
+<CodeGroup>
+
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+npx tsx app.ts
+```
+
+</CodeGroup>
+
+You should see a fake horoscope in the output:
+
+<CodeGroup>
+
+{/*<!-- markdownlint-disable MD013 -->*/}
+
+```output Terminal wrap
+Aquarius, star-sparked visionary and airy water-bearer, your week shimmers with the quirky electricity of Uranus, your modern ruler. You thrive on fresh ideas, freedom, and the thrill of uplifting the collective—and the cosmos is conspiring to delight your inventive, humanitarian heart.
+
+Expect a playful burst of serendipity by Tuesday. An encounter that feels like befriending a baby otter—sweet, curious, and disarmingly genuine—invites you to lead with wonder and soften any cool detachment. You may even stumble upon a tiny windfall, like a dollar on the ground, a winking reminder that value can arrive in small, unexpected packages. Take these omens as permission to say yes to spontaneity and to cherish the little joys that keep your big ideas buoyant.
+
+In love and friendship: Share your eccentric sparkle without overexplaining. Your independence is magnetic when paired with a touch of warmth. Let your community know what you're building; allies are ready to rally.
+
+In work and creativity: A future-forward insight wants to land. Prototype boldly, network widely, and trust your unconventional approach. If a door opens suddenly, step through—your sign excels at surfing the unexpected.
+
+Soul care: Water rituals nourish now—walk by a river, take a long bath, or journal near a window after dusk. Give your brilliant mind a soft place to play.
+
+Lucky glimmers: Tuesday's spontaneity, electric blue, silver accents, the numbers 1 and 11.
+Aquarian mantra: “I pour possibility into the world, and the world pours wonder back to me.”
+```
+
+{/*<!-- markdownlint-enable MD013 -->*/}
+
+</CodeGroup>
+
+</Step>
+</Steps>
+
+## Add logging with Galileo
+
+You now have a basic AI application with a tool that uses RAG. Let's add logging with Galileo.
+
+<Steps>
+<Step title="Add imports for Galileo">
+
+Add the following imports to the top of your application file:
+
+<CodeGroup>
+<SnippetLoggingImportsPython/>
+</CodeGroup>
+</Step>
+<Step title="Create a session and trace">
+
+Change the main function to create a session and trace before generating the horoscope, then concluding and flushing it afterwards:
+
+<CodeGroup>
+<SnippetMainWithLoggingPython/>
+</CodeGroup>
+
+</Step>
+<Step title="Use the Galileo OpenAI wrapper to log an LLM span">
+
+Galileo has a wrapper for the OpenAI SDK that logs all LLM interactions as LLM spans.
+
+Update the OpenAI import to the following:
+
+<CodeGroup>
+<SnippetOpenAIImportPython/>
+</CodeGroup>
+</Step>
+<Step title="Log the RAG call as a retriever span">
+
+Update the mock RAG function to log the call and result as a retriever span:
+
+<CodeGroup>
+<SnippetRAGFunctionLogPython/>
+</CodeGroup>
+
+</Step>
+<Step title="Log the tool call as a tool span">
+
+Update the get horoscope tool function to log the call and result as a tool span:
+
+<CodeGroup>
+<SnippetToolFunctionLogPython/>
+</CodeGroup>
+
+</Step>
+<Step title="Run your code">
+
+Run your app to ensure it is all working and logs to Galileo.
+
+<CodeGroup>
+
+```bash Python
+python app.py
+```
+
+```bash TypeScript
+npx tsx app.ts
+```
+
+</CodeGroup>
+
+View your Log stream in Galileo. You should see a session with a trace that has 2 LLM spans, a tool span, and a retriever span.
+
+![A trace with 2 LLM spans, a tool span, and a retriever span](/how-to-guides/experiments/rag-and-tools/trace-llm-tool-rag-spans.webp)
+
+</Step>
+</Steps>
+
+## Run your app using an experiment
+
+Now that your app is running, let's create an experiment file to run the app as an experiment. In this code you'll create a new file to run as a test, but in the real world you would probably create this as a unit test using your preferred framework of choice.
+
+<Steps>
+<Step title="Create a file called experiment.py (Python) or experiment.ts (TypeScript)"/>
+<Step title="Add code to run the experiment">
+
+Add the following code to the experiment file to run the get horoscope function in an experiment using a dataset of star signs.
+
+<CodeGroup>
+<SnippetExperimentMainFunctionPython/>
+</CodeGroup>
+
+This code runs the experiment, and calculates [tool error rate](/concepts/metrics/agentic/tool-error), [tool selection quality](/concepts/metrics/agentic/tool-selection-quality), [chunk attribution and utilization](/concepts/metrics/response-quality/chunk-attribution), and [context adherence](/concepts/metrics/response-quality/context-adherence).
+
+The run experiment function runs the get horoscope code in the experiment. This code has logging for the LLM call, tool call, and RAG retriever code, but does not create a trace or a session. These are created in the applications main function.
+
+This is the correct way to write code that you want to run in an experiment. For each row in the dataset used in the experiment, a new trace is created. If you try to create other traces inside the code that the experiment runs, then the experiment will raise an error.
+
+You should either create sessions and traces outside the code that is run in the experiment, or inside your code check to see if you are in an experiment, and if so, not create a session or trace. See our documentation on [running experiments against custom functions](/sdk-api/experiments/running-experiments#run-experiments-against-complex-code-with-custom-functions) for more details.
+
+</Step>
+<Step title="Run your code">
+
+Run your experiment code to create the experiment in Galileo.
+
+<CodeGroup>
+
+```bash Python
+python experiment.py
+```
+
+```bash TypeScript
+npx tsx experiment.ts
+```
+
+</CodeGroup>
+
+The terminal output will contain a link to the experiment:
+
+<CodeGroup>
+
+```output Terminal wrap
+Experiment Results:
+https://app.galileo.ai/project/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx/experiments/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx
+```
+
+</CodeGroup>
+
+Follow the link to see the results of the experiment:
+
+![The experiment results showing 4 rows](/how-to-guides/experiments/rag-and-tools/experiment-results.webp)
+
+</Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="Run experiments in code" icon="code" horizontal href="/sdk-api/experiments/running-experiments">
+    Learn how to run experiments in unit tests that you can use during development, or in your CI/CD pipelines.
+</Card>
+<Card title="Run experiments in unit tests" icon="code" horizontal href="/sdk-api/experiments/running-experiments-in-unit-tests">
+    Learn how to run experiments in unit tests that you can use during development, or in your CI/CD pipelines.
+</Card>
+</CardGroup>

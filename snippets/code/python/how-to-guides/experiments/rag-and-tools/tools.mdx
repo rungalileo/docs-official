@@ -1,0 +1,32 @@
+```python Python
+def get_horoscope(sign):
+    """
+    Tool function to get a horoscope for a given astrological sign.
+    """
+    return "\n".join(retrieve_horoscope_data(sign))
+
+
+# Define a list of callable tools for the model
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_horoscope",
+            "description": "Get today's horoscope for an astrological sign.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "sign": {
+                        "type": "string",
+                        "description": "An astrological sign like Taurus or Aquarius",
+                    },
+                },
+                "required": ["sign"],
+            },
+        },
+    },
+]
+
+# Map tool names to their implementations
+available_tools = {"get_horoscope": get_horoscope}
+```

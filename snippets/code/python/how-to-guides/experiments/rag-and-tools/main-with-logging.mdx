@@ -1,0 +1,21 @@
+```python Python
+def main():
+    """
+    Get the user's horoscope
+    """
+    # Start a session and trace
+    galileo_logger = galileo_context.get_logger_instance()
+    galileo_logger.start_session("RAG with Tools Example")
+    galileo_logger.start_trace(
+        input="What is my horoscope? I am Aquarius.",
+        name="Calling LLM with Tool"
+    )
+
+    response = get_users_horoscope("Aquarius")
+
+    # Conclude the trace and flush
+    galileo_logger.conclude(response)
+    galileo_logger.flush()
+
+    print(response)
+```
