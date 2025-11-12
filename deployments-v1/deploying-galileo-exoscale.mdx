@@ -1,0 +1,118 @@
+---
+title: "Exoscale"
+description: The Galileo applications run on managed Kubernetes-like environments, but this document will specifically cover the configuration and deployment of an Exoscale Cloud SKS environment.
+---
+
+<Info>
+  **
+  <Icon icon="clock" /> Total time for deployment:** 30-45 minutes
+</Info>
+
+<Info>
+  **This deployment requires the use of** [**Exoscale CLI commands**](https://community.exoscale.com/documentation/tools/exoscale-command-line-interface/)**. Before you start install the Exo CLI following the official documentation.**
+</Info>
+
+##
+
+[](#recommended-cluster-configuration)
+
+Recommended Cluster Configuration
+
+| Configuration                                      | Recommended Value |
+| -------------------------------------------------- | ----------------- |
+| Nodes in the cluster’s core nodegroup              | 5                 |
+| CPU per core node                                  | 4 CPU             |
+| RAM per core node                                  | 16 GiB RAM        |
+| Minimum volume size per node                       | 400 GiB           |
+| Number of nodes in the cluster’s runners nodegroup | 2                 |
+| CPU per runner node                                | 8 CPU             |
+| RAM per runner node                                | 32 GiB RAM        |
+| Minimum volume size per node                       | 200 GiB           |
+| Required Kubernetes API version                    | 1.24              |
+
+## Deploying the SKS Cluster
+
+1.  **Create security groups**
+
+```sh
+exo compute security-group create sks-security-group
+
+exo compute security-group rule add sks-security-group \
+    --description "NodePort services" \
+    --protocol tcp \
+    --network 0.0.0.0/0 \
+    --port 30000-32767
+
+exo compute security-group rule add sks-security-group \
+    --description "SKS kubelet" \
+    --protocol tcp \
+    --port 10250 \
+    --security-group sks-security-group
+
+exo compute security-group rule add sks-security-group \
+    --description "Calico traffic" \
+    --protocol udp \
+    --port 4789 \
+    --security-group sks-security-group
+```
+
+1.  **Create SKS cluster**
+
+```sh
+exo compute sks create galileo \
+    --kubernetes-version "1.24"
+    --zone ch-gva-2 \
+    --nodepool-name galileo-core \
+    --nodepool-size 6 \
+    --nodepool-disk-size 400 \
+    --nodepool-instance-prefix "galileo-core" \
+    --nodepool-instance-type "extra-large" \
+    --nodepool-label "galileo-node-type=galileo-core" \
+    --nodepool-security-group sks-security-group
+
+exo compute sks nodepool add galileo galileo-runner \
+    --zone ch-gva-2 \
+    --size 2 \
+    --size 400 \
+    --instance-prefix "galileo-runner" \
+    --instance-type "extra-large" \
+    --label "galileo-node-type=galileo-runner" \
+    --security-group sks-security-group
+```
+
+## Deploy distributed block storage
+
+Longhorn is Open-Source Software that you can install inside your SKS cluster. Installation of Longhorn takes a few minutes, you need a SKS Cluster and access to this cluster via kubectl.
+
+```sh
+kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/1.3.1/deploy/longhorn.yaml
+```
+
+## Required Configuration Values
+
+Customer specific cluster values (e.g. domain name, slack channel for notifications etc) will be placed in a base64 encoded string, stored as a secret in GitHub that Galileo’s deployment automation will read in and use when templating a cluster's resource files.
+
+| Mandatory Field                         | Description                                                                                                                                                                                                                                                                            |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **SKS Cluster Name**                    | The SKS cluster name                                                                                                                                                                                                                                                                   |
+| **Galileo runner instance pool ID**     | SKS galileo-runner instance pool ID                                                                                                                                                                                                                                                    |
+| **Exoscale API keys**                   | Exoscale EXOSCALE_API_KEY and EXOSCALE_API_SECRET with Object Storage Buckets permissions: - create - get - list                                                                                                                                                                       |
+| **Exoscale storage host**               | e.g sos-ch-gva-2.exo.io                                                                                                                                                                                                                                                                |
+| **Domain Name**                         | The customer wishes to deploy the cluster under e.g. google.com                                                                                                                                                                                                                        |
+| **Root subdomain**                      | e.g. "galileo" as in galileo.google.com                                                                                                                                                                                                                                                |
+| **Trusted SSL Certificates (Optional)** | By default, Galileo provisions Let’s Encrypt certificates. But if you wish to use your own trusted SSL certificates, you should submit a base64 encoded string of<br/><br/>1. the full certificate chain, and<br/> <br/>2. another, separate base64 encoded string of the signing key. |
+
+## Access to Deployment Logs
+
+As a customer, you have full access to the deployment logs in Google Cloud Storage. You (customer) are able to view all configurations there. A customer email address must be provided to have access to this log.
+
+## Customer DNS Configuration
+
+Galileo has 4 main URLs (shown below). In order to make the URLs accessible across the company, you have to set the following DNS addresses in your DNS provider after the platform is deployed.
+
+| Service | URL                                          |
+| ------- | -------------------------------------------- |
+| API     | **api.galileo.**company.\[com\|ai\|io…\]     |
+| Data    | **data.galileo.**company.\[com\|ai\|io…\]    |
+| UI      | **console.galileo.**company.\[com\|ai\|io…\] |
+| Grafana | **grafana.galileo**.company.\[com\|ai\|io…\] |

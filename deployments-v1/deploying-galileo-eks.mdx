@@ -1,0 +1,285 @@
+---
+title: "Deploying Galileo on Amazon EKS"
+description: "Deploy Galileo on Amazon EKS with a step-by-step guide for configuring, managing, and scaling Galileo's infrastructure using Kubernetes clusters."
+---
+
+## Setting Up Your Kubernetes Cluster with EKS, IAM, and Trust Policies for Galileo Applications
+
+This guide provides a comprehensive walkthrough for configuring and deploying an EKS (Elastic Kubernetes Service) environment to support Galileo applications. Galileo applications are designed to operate efficiently on managed Kubernetes services like EKS (Amazon Elastic Kubernetes Service) and GKE (Google Kubernetes Engine). This document, however, will specifically address the setup process within an EKS environment, including the integration of IAM (Identity and Access Management) roles and Trust Policies, alongside configuring the necessary Galileo DNS endpoints.
+
+### Prerequisites
+
+Before you begin, ensure you have the following:
+
+- An AWS account with administrative access
+
+- `kubectl` installed on your local machine
+
+- `aws-cli` version 2 installed and configured
+
+- Basic knowledge of Kubernetes, AWS EKS, and IAM policies
+
+Below lists the 4 steps to set deploy Galileo onto a an EKS environment.
+
+### Setting Up the EKS Cluster
+
+1.  **Create an EKS Cluster**: Use the AWS Management Console or AWS CLI to create an EKS cluster in your preferred region. For CLI, use the command `aws eks create-cluster` with the necessary parameters.
+
+2.  **Configure kubectl**: Once your cluster is active, configure `kubectl` to communicate with your EKS cluster by running `aws eks update-kubeconfig --region <region> --name <cluster_name>`.
+
+### Configuring IAM Roles and Trust Policies
+
+1.  **Create IAM Roles for EKS**: Navigate to the IAM console and create a new role. Select "EKS" as the trusted entity and attach policies that grant required permissions for managing the cluster.
+
+2.  **Set Up Trust Policies**: Edit the trust relationship of the IAM roles to allow the EKS service to assume these roles on behalf of your Kubernetes pods.
+
+### Integrating Galileo DNS Endpoints
+
+1.  **Determine Galileo DNS Endpoints**: Identify the four DNS endpoints required by Galileo applications to function correctly. These typically include endpoints for database connections, API gateways, telemetry services, and external integrations.
+
+2.  **Configure DNS in Kubernetes**: Utilize ConfigMaps or external-dns controllers in Kubernetes to route your applications to the identified Galileo DNS endpoints effectively.
+
+### Deploying Galileo Applications
+
+1.  **Prepare Application Manifests**: Ensure your Galileo application Kubernetes manifests are correctly set up with the necessary configurations, including environment variables pointing to the Galileo DNS endpoints.
+
+2.  **Deploy Applications**: Use `kubectl apply` to deploy your Galileo applications onto the EKS cluster. Monitor the deployment status to ensure they are running as expected.
+
+<Info>
+  <Icon icon="clock" /> **Total time for deployment:** 30-45 minutes
+</Info>
+
+<Info>
+  **This deployment requires the use of AWS CLI commands. If you only have cloud console access, follow the optional instructions below to get** [**eksctl**](https://eksctl.io/introduction/#installation) **working with AWS CloudShell.**
+</Info>
+
+### Step 0: (Optional) Deploying via AWS CloudShell
+
+To use [`eksctl`](https://eksctl.io/introduction/#installation) via CloudShell in the AWS console, open a CloudShell session and do the following:
+
+```
+# Create directory
+mkdir -p $HOME/.local/bin
+cd $HOME/.local/bin
+
+# eksctl
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl $HOME/.local/bin
+```
+
+The rest of the installation deployment can now be run from the CloudShell session. You can use `vim` to create/edit the required yaml and json files within the shell session.
+
+### Recommended Cluster Configuration
+
+Galileo recommends the following Kubernetes deployment configuration:
+
+| Configuration                                          | Recommended Value           |
+| ------------------------------------------------------ | --------------------------- |
+| **Nodes in the cluster’s core nodegroup**              | 4 (min) 5 (max) 4 (desired) |
+| **CPU per core node**                                  | 4 CPU                       |
+| **RAM per core node**                                  | 16 GiB RAM                  |
+| **Number of nodes in the cluster’s runners nodegroup** | 1 (min) 5 (max) 1 (desired) |
+| **CPU per runner node**                                | 8 CPU                       |
+| **RAM per runner node**                                | 32 GiB RAM                  |
+| **Minimum volume size per node**                       | 200 GiB                     |
+| **Required Kubernetes API version**                    | 1.21                        |
+| **Storage class**                                      | gp2                         |
+
+Here's an [example EKS cluster configuration](/galileo/how-to-and-faq/enterprise-only/deploying-galileo-eks/eks-cluster-config-example).
+
+### Step 1: Creating Roles and Policies for the Cluster
+
+- **Galileo IAM Policy:** This policy is attached to the Galileo IAM Role. Add the following to a file called `galileo-policy.json`
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "eks:AccessKubernetesApi",
+                "eks:DescribeCluster"
+            ],
+            "Resource": "arn:aws:eks:CLUSTER_REGION:ACCOUNT_ID:cluster/CLUSTER_NAME"
+        }
+    ]
+}
+```
+
+- **Galileo IAM Trust Policy:** This trust policy enables an external Galileo user to assume your Galileo IAM Role to deploy changes to your cluster securely. Add the following to a file called `galileo-trust-policy.json`
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": ["arn:aws:iam::273352303610:role/GalileoConnect"],
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+- **Galileo IAM Role with Policy:** Role should only include the Galileo IAM Policy mentioned in this table. Create a file called `create-galileo-role-and-policies.sh`, make it executable with `chmod +x create-galileo-role-and-policies.sh` and run it. Make sure to run in the same directory as the json files created in the above steps.
+
+```bash
+#!/bin/sh -ex
+
+aws iam create-policy --policy-name Galileo --policy-document file://galileo-policy.json
+aws iam create-role --role-name Galileo --assume-role-policy-document file://galileo-trust-policy.json
+aws iam attach-role-policy --role-name Galileo --policy-arn $(aws iam list-policies | jq -r '.Policies[] | select (.PolicyName == "Galileo") | .Arn')
+```
+
+### Step 2: Deploying the EKS Cluster
+
+With the role and policies created, the cluster itself can be deployed in a single command using [eksctl](https://eksctl.io/introduction/#installation). Using the cluster template [here](/galileo/how-to-and-faq/enterprise-only/deploying-galileo-eks/eks-cluster-config-example), create a `galileo-cluster.yaml` file and edit the contents to replace `CUSTOMER_NAME` with your company name like `galileo`. Also check and update all `availabilityZones` as appropriate.
+
+With the yaml file saved, run the following command to deploy the cluster:
+
+```
+eksctl create cluster -f galileo-cluster.yaml
+```
+
+### Step 3: EKS IAM Identity Mapping
+
+This ensures that only users who have access to this role can deploy changes to the cluster. Account owners can also make changes. This is easy to do with [eksctl](https://eksctl.io/usage/iam-identity-mappings/) with the following command:
+
+```sh
+eksctl create iamidentitymapping
+--cluster customer-cluster
+--region your-region-id
+--arn "arn:aws:iam::CUSTOMER-ACCOUNT-ID:role/Galileo"
+--username galileo
+--group system:masters
+```
+
+<Info>**NOTE for the user:** For connected clusters, Galileo will apply changes from github actions. So github.com should be allow-listed for your cluster’s ingress rules if you have any specific network requirements.</Info>
+### **Step 4: Required Configuration Values**
+
+Customer specific cluster values (e.g. domain name, slack channel for notifications etc) will be placed in a base64 encoded string, stored as a secret in GitHub that Galileo’s deployment automation will read in and use when templating a cluster’s resource files.\\
+| Mandatory Field | Description |
+| --- | --- |
+| **AWS Account ID** | The Customer's AWS Account ID that the customer will use for provisioning Galileo |
+| **Galileo IAM Role Name** | The AWS IAM Role name the customer has created for the galileo deployment account to assume. |
+| **EKS Cluster Name** | The EKS cluster name that Galileo will deploy the platform to. |
+| **Domain Name** | The customer wishes to deploy the cluster under e.g. google.com |
+| **Root subdomain** | e.g. "galileo" as in galileo.google.com |
+| **Trusted SSL Certificates (Optional)** | By default, Galileo provisions Let’s Encrypt certificates. But if you wish to use your own trusted SSL certificates, you should submit a base64 encoded string of<br/><br/>1. the full certificate chain, and<br/> <br/>2. another, separate base64 encoded string of the signing key. |
+| **AWS Access Key ID and Secret Access Key for Internal S3 Uploads (Optional)** | If you would like to export data into an s3 bucket of your choice. Please let us know the access key and secret key of the account that can make those upload calls. |
+
+<Info>
+  **NOTE for the user:** Let Galileo know if you’d like to use LetsEncrypt or your own certificate before deployment.
+
+</Info>
+### Step 5: Access to Deployment Logs
+
+As a customer, you have full access to the deployment logs in Google Cloud Storage. You (customer) are able to view all configuration there. A customer email address must be provided to have access to this log.
+
+### **Step 6: Customer DNS Configuration**
+
+Galileo has 4 main URLs (shown below). In order to make the URLs accessible across the company, you have to set the following DNS addresses in your DNS provider after the platform is deployed.
+
+<Info>
+  **
+  <Icon icon="clock" /> Time taken :** 5-10 minutes (post the ingress endpoint / load balancer provisioning)
+</Info>
+| Service | URL | | --- | --- | | API | **api.galileo**.company.\[com\|ai\|io…\] | | UI | **console.galileo**.company.\[com\|ai\|io…\] | | Grafana | **grafana.galileo**.company.\[com\|ai\|io…\] |
+
+Each URL must be entered as a CNAME record into your DNS management system as the ELB address. You can find this address by listing the kubernetes ingresses that the platform has provisioned.
+
+## Creating a GPU-enabled Node Pool
+
+For specialized tasks that require GPU processing, such as machine learning workloads, Galileo supports the configuration of GPU-enabled node pools. Here's how you can set up and manage a node pool with GPU-enabled nodes using `eksctl`, a command line tool for creating and managing Kubernetes clusters on Amazon EKS.
+
+The supported GPUs are H100, A100, L40S, L4 (shorter context window), A10 (shorter context window). And the corresponding node types are p5.4xlarge, g6e.2xlarge, g6.2xlarge.
+
+1.  **Node Pool Creation**: Use `eksctl` to create a node pool with an Amazon Machine Image (AMI) that supports GPUs.
+
+    ```
+    eksctl create nodegroup --cluster your-cluster-name --name galileo-ml --node-type {NODE_TYPE} --nodes-min 1 --nodes-max 5 --node-ami {AMI_WITH_GPU_DRIVER} --node-labels "galileo-node-type=galileo-ml" --region your-region-id
+    ```
+
+    In this command, replace `your-cluster-name` and `your-region-id` with your specific details. The `--node-ami` option is used to specify the exact AMI that supports CUDA and GPU workloads.
+
+2.  Reach out to Galileo to get exact number of GPUs needed for your load. But feel free to set min=1, max=5 by default.
+
+## Using Managed RDS Postgres DB server
+
+To use Managed RDS Postgres DB Server. You should create RDS Aurora directly in AWS console and Create K8s Secret and config map in kubernetes so that Galileo app can use it to connect to the DB server
+
+### Creating RDS Aurora cluster
+
+1.  Go to AWS Console --> RDS Service and create a RDS Subnet group.
+
+- Select the VPC in which EKS cluster is running.
+
+- Select AZs A and B and the respective private subnets
+
+1.  Next Create a RDS aurora Postgres Cluster. Config for the cluster are listed below. General fields like cluster name, username, password etc can we enter as per cloud best practice.
+
+| Field                 | Recommended Value                     |
+| --------------------- | ------------------------------------- |
+| **Engine Version**    | 16.x                                  |
+| **DB Instance class** | db.t3.medium                          |
+| **VPC**               | EKS cluster VPC ID                    |
+| **DB Subnet Group**   | Select subnet group created in step 1 |
+| **Security Group ID** | Select Primary EKS cluster SG         |
+| **Enable Encryption** | true                                  |
+
+1.  Create K8s Secret
+
+- **Kubernetes resources:** Add the following to a file called `galileo-rds-details.yaml`. Update all marker ${xxx} text with appropriate values. Then run `kubectl apply -f galileo-rds-details.yaml`
+
+```yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: galileo
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres
+  namespace: galileo
+type: Opaque
+data:
+  GALILEO_POSTGRES_USER: "${db_username}"
+  GALILEO_POSTGRES_PASSWORD: "${db_username}"
+  GALILEO_POSTGRES_REPLICA_PASSWORD: "${db_master_password}"
+  GALILEO_DATABASE_URL_WRITE: "postgresql+psycopg2://${db_username}:${db_master_password}@${db_endpoint}/${database_name}"
+  GALILEO_DATABASE_URL_READ: "postgresql+psycopg2://${db_username}:${db_master_password}@${db_endpoint}/${database_name}"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: galileo
+  labels:
+    app: grafana
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+    - access: proxy
+      isDefault: true
+      name: prometheus
+      type: prometheus
+      url: "http://prometheus.galileo.svc.cluster.local:9090"
+      version: 1
+    - name: postgres
+      type: postgres
+      url: "${db_endpoint}"
+      database: ${database_name}
+      user: ${db_username}
+      secureJsonData:
+        password: ${db_master_password}
+      jsonData:
+        sslmode: "disable"
+---
+```

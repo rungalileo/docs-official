@@ -1,0 +1,164 @@
+Pre-Deployment Considerations Checklist
+
+Confirm Kubernetes Version is above 1.32
+How to Confirm
+Use kubectl version (Link) 
+Form Answer
+
+
+
+
+2a. If you use LetsEncrypt, confirm the DNS has been configured
+How to Confirm
+https://palark.com/blog/using-ssl-certificates-from-lets-encrypt-in-your-kubernetes-ingress-via-cert-manager/ ( Method 2)
+Form Answer
+https://docs.galileo.ai/deployments/post-deployment-checklist 
+
+
+
+2b. If your cluster leverages a pre-built certificate, confirm that your certificate is present 
+How to Confirm
+Confirm that the cert is present as a Kubernetes secret using `` 
+Form Answer
+
+
+
+
+2c. If your cluster leverages a pre-built certificate, confirm that your certificate is present 
+How to Confirm
+Confirm that your Kubernetes cluster leverages your cloud provider’s default ingress provider or third party ingress
+Form Answer
+
+
+
+
+
+3. Confirm that you are able to pull the Galileo helm chart from public repo
+How to Confirm
+helm repo add https://helm.galileo.ai/
+helm repo update
+helm search repo galileo/<chart-name>
+helm pull galileo/<chart-name>
+helm install --dry-run=server <release-name> galileo/<chart-name>
+
+
+Form Answer
+
+
+
+
+4. Confirm the cluster can pull image directly from the container registry
+GCR
+How to Confirm
+You will need to be provided an authentication token via Aegis which will allow you the ability to then test via `docker pull …`
+Confirm that you have added your image pull key JSON provided by Galileo as a Kubernetes secret. Confirm using `kubectl get secrets` 
+ .dockerconfigjson: {{ required ".Values.galileo_secrets.imagepullsecret" .Values.galileo_secrets.imagepullsecret }} (https://github.com/rungalileo/helm-charts/blob/main/galileo-base/galileo-base/templates/secrets/docker-registry-secret.yaml#L9)
+Confirm that the secret variable is present in the Helm values file
+Form Answer
+
+
+
+
+AWS
+How to Confirm
+[add a command to test pull from each env]
+Form Answer
+
+
+
+
+Dockerhub
+How to Confirm
+
+
+Form Answer
+
+
+
+
+5. If SSO is needed, confirm you have registered a client in your IDP and prepared these things:
+Galileo Docs - SSO Integration
+
+client_id
+
+
+client_secret
+
+
+
+Tenant ID (only required for Azure)
+
+
+
+6. If GPU is needed, confirm the node group has been created with GPU driver installed with command:
+How to Confirm
+Check for GPU-specific labels: If you are using the NVIDIA GPU Operator or Node Feature Discovery (NFD), your nodes will be automatically labeled. You can check for these labels, which often include the driver version.
+sh
+kubectl get nodes --show-labels
+
+Verify the NVIDIA device plugin
+The NVIDIA device plugin is responsible for exposing the GPUs to your cluster as a schedulable resource. 
+List pods in the kube-system namespace: Look for the device plugin pods, which will have a name like nvidia-device-plugin-*.
+kubectl get pods -n kube-system | grep nvidia
+Check the plugin's logs: If the device plugin is not running or showing errors, check its logs for clues.
+kubectl logs -n kube-system <nvidia-device-plugin-pod-name>
+Run a test pod with nvidia-smi 
+The most definitive way to confirm that everything is working is to deploy a temporary pod that requests a GPU and runs the nvidia-smi command. 
+Create a pod manifest: Save the following YAML as gpu-test.yaml: https://drive.google.com/file/d/16cGxBdGS2xQuaX8YrYR5OF8BNVZJ5aWx/view?usp=drive_link 
+Deploy the pod: Apply the manifest to your cluster.
+Check the pod logs: Once the pod is complete, view its logs. The output of nvidia-smi will confirm that the driver is accessible and show its version.
+kubectl logs gpu-test
+Clean up the pod: Delete the test pod when you are finished.
+kubectl delete pod gpu-test
+Form Answer
+
+
+
+
+
+
+
+7. Confirm that the Cluster has access to CloudFlare R2:
+
+How to Confirm
+Galileo will provide you an access token that will need to be included in your values file
+https://developers.cloudflare.com/r2/api/tokens/ 
+Form Answer
+[make a test pod as above]
+
+
+
+
+8. If Custom Object Store (S3) bucket names are used, ensure that the updated bucket names are present in the chart values
+
+How to Confirm
+  GALILEO_ROOT_BUCKET_NAME: {{- if ((.Values.galileo_config.object_store_buckets).root) }} {{.Values.galileo_config.object_store_buckets.root}} {{else}} "galileo-{{ .Values.global.customer_name }}-project-runs" {{end}}
+  GALILEO_ROOT_BUCKET_NAME_RESULTS: {{- if ((.Values.galileo_config.object_store_buckets).root_results) }} {{.Values.galileo_config.object_store_buckets.root_results}} {{else}} "galileo-{{ .Values.global.customer_name }}-project-runs-results" {{end}}
+  GALILEO_IMAGES_BUCKET_NAME: {{- if ((.Values.galileo_config.object_store_buckets).images) }} {{.Values.galileo_config.object_store_buckets.images}} {{else}} "galileo-{{ .Values.global.customer_name }}-images" {{end}}
+  GALILEO_PROMPTS_BUCKET_NAME: {{- if ((.Values.galileo_config.object_store_buckets).prompts) }} {{.Values.galileo_config.object_store_buckets.prompts}} {{else}} "galileo-{{ .Values.global.customer_name }}-prompts" {{end}}
+  GALILEO_PROMPTS_DATASETS_BUCKET_NAME: {{- if ((.Values.galileo_config.object_store_buckets).prompts_datasets) }} {{.Values.galileo_config.object_store_buckets.prompts_datasets}} {{else}} "galileo-{{ .Values.global.customer_name }}-prompts-datasets" {{end}}
+  GALILEO_PROMPTS_RESULTS_BUCKET_NAME: {{- if ((.Values.galileo_config.object_store_buckets).prompts_results) }} {{.Values.galileo_config.object_store_buckets.prompts_results}} {{else}} "galileo-{{ .Values.global.customer_name }}-prompts-results" {{end}}
+  GALILEO_MODELS_BUCKET_NAME: {{- if ((.Values.galileo_config.object_store_buckets).models) }} {{.Values.galileo_config.object_store_buckets.models}} {{else}} "galileo-{{ .Values.global.customer_name }}-models" {{end}}
+  GALILEO_AUTO_DATASETS_BUCKET_NAME: {{- if ((.Values.galileo_config.object_store_buckets).auto_datasets) }} {{.Values.galileo_config.object_store_buckets.auto_datasets}} {{else}} "galileo-{{ .Values.global.customer_name }}-auto-datasets" {{end}}
+  {{- end }}
+  GALILEO_BACKUPS_BUCKET_NAME:
+https://github.com/rungalileo/helm-charts/blob/main/galileo-base/galileo-base/templates/configs/objectstore-config.yaml 
+Form Answer
+
+
+
+
+
+9. Please provide the role used to access S3 buckets via the service account (combine with the above question, use a pod to confirm) 
+
+How to Confirm
+In the AWS Console, Navigate to “S3”, select your desired bucket, and check the attached policy
+Following this, ensure that the role has the appropriate permissions
+Form Answer
+
+
+
+
+Ensure that you have provisioned the appropriate node groups that galileo has provided 
+After the questionnaire, we should estimate the cluster size by adapting the calc
+

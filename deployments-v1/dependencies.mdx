@@ -1,0 +1,59 @@
+---
+icon: link
+title: "Dependencies"
+description: "Understand Galileo deployment prerequisites and dependencies to ensure a smooth installation and integration across supported platforms."
+---
+
+### Core Dependencies
+
+- Kubernetes Cluster: Galileo is deployed within a Kubernetes environment, leveraging various Kubernetes resources.
+
+### Data Stores
+
+- PostgreSQL: Used for persistent data storage (if not using AWS RDS or GCP CloudSQL).
+
+- ClickHouse: A columnar database used for storing and querying large volumes of data efficiently. It supports analytics and real-time reporting.
+
+- MinIO: Serves as the object storage solution (if not using AWS S3 or GCP Cloud Storage).
+
+### Messaging
+
+- RabbitMQ: Acts as the message broker for asynchronous communication.
+
+### Monitoring and Logging
+
+- Prometheus: For metrics collection and monitoring. This will also send metrics to Galileo's centralized Grafana server for observability.
+
+- Prometheus Adapter: This component is crucial for enabling Kubernetes Horizontal Pod Autoscaler (HPA) to use Prometheus metrics for scaling applications. It must be activated through the `.Values.prometheus_adapter.enabled` Helm configuration. Care should be taken to avoid conflicts with existing services, such as the metrics-server, potentially requiring resource renaming for seamless integration.
+
+- Grafana: For visualizing metrics. Optional, as users might not require metric visualization.
+
+- Fluentd: For logging and forwarding to AWS CloudWatch. Optional, depending on the logging and log forwarding requirements.
+
+- Alertmanager: Manages alerts for the monitoring system. Optional, if no alerting is needed or a different alerting mechanism is in place.
+
+Ensure that the corresponding Helm values (`prometheus_adapter.enabled`, `fluentd.enabled`, `alertmanager.enabled`) are configured according to your deployment needs.
+
+### Networking
+
+- Ingress NGINX: Manages external access to the services.
+
+- Calico: Provides network policies.
+
+- Cert-Manager: Handles certificate management.
+
+### Configuration and Management
+
+- Helm: Galileo leverages Helm for package management and deployment. Ensure Helm is configured correctly to deploy the charts listed above.
+
+### Miscellaneous
+
+- Cluster Autoscaler: Automatically adjusts the size of the Kubernetes cluster.
+
+- Kube-State-Metrics: Generates metrics about the state of Kubernetes objects.
+
+- Metrics Server: Aggregates resource usage data.
+
+- Node Exporter: Collects metrics from the nodes.
+
+- ClickHouse Keeper: Acts as the service for managing ClickHouse replicas and coordinating distributed tasks, similar to Zookeeper. Essential for ClickHouse high availability and consistency.

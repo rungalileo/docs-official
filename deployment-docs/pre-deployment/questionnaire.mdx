@@ -1,0 +1,580 @@
+ Pre-Deployment Considerations Questionnaire
+
+Link to Shortcut Epic:
+https://app.shortcut.com/galileo/epic/39953 
+
+
+Purpose & Instructions
+This questionnaire is critical for successful Galileo pre-production and production deployment. Incomplete or incorrect information will delay your deployment and require additional meetings.
+The ideal time to fill this out is as early as possible. The fastest we have all the information in this document, the faster we can deploy and add value to your business.
+The best point of contact to fill this out is a representative who can either fill out this document in its entirety, or understands how to reach the right points of contact to complete the various items in this document.
+Before You Begin:
+
+Required Participants: Involve your Cloud Infrastructure, Security, and DevOps teams to assist with gathering this information
+Time Needed: Approximately 45-60 minutes to gather all information
+
+
+How to Use This Document:
+Review each section with the appropriate technical team member
+Mark any items as "Unknown - Need Investigation" rather than guessing
+Flag any "blockers" that require immediate discussion
+Return the completed form with any additional context or constraints
+Index
+
+Section 1: Deployment Tier Selection
+Section 2: Technical Prerequisites Checklist
+Kubernetes Environment
+Network Configuration
+Container & Security
+Section 3: Infrastructure Services Configuration
+Section 4: Compute Resources & Scaling
+Section 5: Security & Compliance
+Authentication & Access
+Compliance Requirements
+Data Handling
+Model & AI Access
+Section 6: Unsupported Configurations
+Section 7: Deployment Process
+Your Deployment Method
+Section 8: Known Constraints & Special Requirements
+Section 9: Contact Information
+Section 10 - Submission Checklist
+
+
+
+Section 1: Deployment Tier Selection
+Understanding Your Options
+Your Deployment Tier determines the level of support, monitoring, and deployment complexity. This is the most critical decision for your deployment.
+
+Tier
+Description
+Benefits
+Trade-offs
+Best For
+Tier 1
+Fully Galileo-hosted solution
+• Fastest deployment (hours)
+• Full monitoring & support
+• No infrastructure management
+• Automatic updates
+• Best SLAs
+• Less control
+• Data leaves your environment
+Organizations prioritizing speed and simplicity
+Tier 2
+Self-hosted with full Galileo access
+• Data stays in your environment
+• Strong support capabilities
+• Good monitoring coverage
+• Longer deployment (days)
+• Shared management responsibility
+Organizations with data residency requirements but flexible access policies
+Tier 3
+Self-hosted with limited access
+• Full data control
+• Compliance-friendly
+• Metrics-based monitoring
+• Limited support capabilities
+• Longer incident resolution
+• More customer responsibility
+Organizations with strict access controls
+Tier 4
+Fully isolated self-hosted
+• Complete isolation
+• Maximum security
+• Full compliance control
+• External support needed 
+• Longest deployment time
+Highly regulated industries with strict isolation requirements
+
+
+Required Questions
+ 
+Section
+Question
+Form Options
+Number of Clusters
+How many clusters will you need?
+Pre-production
+Production
+Several
+Not sure
+Use Case
+Briefly describe the use case for this cluster (these clusters)
+____________
+Environments
+Will you be deploying a production and pre-production cluster?
+Pre-production
+Production
+Both
+Pre-prod vs. Prod
+If you answered both to the above, do you have any significant differences in requirements for these environments? 
+Yes
+No
+Pre-prod
+If you answered yes to the above, please explain.
+____________
+Cloud Hosting Requirements
+Which deployment tier described above best aligns with your organization’s requirements?
+Tier 1
+Tier 2
+Tier 3
+Tier 4
+Tier 2-4 Infra Support Contact
+If you selected Tiers 2-4 above, who will be your primary DevOps or Infra support contact? (Name/Email):
+Name:
+Email:
+Slack:
+
+
+
+
+Section 2: Technical Prerequisites Checklist
+Kubernetes Environment
+Category
+Question
+Form Options
+Cloud Provider
+Which cloud provider do you intend on deploying Galileo’s software to?
+AWS EKS
+Google Cloud (GKE)
+Microsoft Azure (AKS)
+Openshift
+Rancher
+Exoscale
+On-Premises
+
+
+Network Configuration
+Category
+Question
+Form Options
+Ingress Controller
+Cluster Ingress - Does your Kubernetes cluster leverage your cloud provider’s default ingress provider or third party ingress?
+Default Ingress Provider for Cloud Provider (Example: AWS VPC)
+Third-party ingress provider (Example: Istio)
+SSL/TLS
+Does your cluster require TLS encryption for communication between services within the cluster (service mesh, mTLS)?
+Can provide Let's Encrypt certificate
+Will use internal CA certificates
+Require mTLS between services
+No special requirements
+Outbound Access
+
+Does your cluster route outbound network traffic through a proxy (HTTP/HTTPS proxy)? (this affects AWS S3 access due to legacy STS authentication)
+
+
+Direct internet access
+Via proxy
+No outbound (special config)
+Network Policies
+Does your Kubernetes cluster use custom Network Policies to control pod-to-pod communication?
+Yes - We have custom Network Policies configured
+No - We use default/open network configuration
+Cluster Accessibility
+Is your Kubernetes cluster accessible from the public internet, or only within your organization's private network?
+Public - Cluster API and services are accessible from the public internet (with appropriate authentication)
+Private - Cluster is only accessible within our private network (VPN, private connectivity, or on-premises)
+Hybrid - API is private, but specific services/ingress may be exposed publicly
+
+
+
+
+
+
+Container & Security
+Category
+Question
+Form Options
+Registry Access
+Can your cluster pull Helm charts from Galileo’s public registry?
+Yes - We can pull from public Helm chart repositories
+No - We have restrictions that prevent pulling from public repositories
+Partial - We can pull via proxy or with specific approvals/allowlisting
+Image Scanning
+Does your organization require security scanning of all container images before they can be deployed to the cluster?
+Yes - All images must be scanned and approved before deployment
+No - Images can be deployed without security scanning
+Partial - Scanning required for certain namespaces/environments (e.g., production only)
+Which container registry are you approved to pull from?
+GCR
+ECR
+Dockerhub
+Other
+Policy Enforcement
+Are you currently using Open Policy Agent (OPA) for policy enforcement in your Kubernetes environment?
+Yes - We use OPA for policy enforcement
+No - We don't use OPA
+External Secrets Management
+Does your organization require that all Kubernetes secrets be stored and managed by an external secrets management system?
+Yes - All secrets must be stored in external secrets manager (cannot use native Kubernetes secrets)
+No - Native Kubernetes secrets are acceptable
+
+
+
+
+Section 3a: Sending Data to Galileo
+
+Service
+Deployment Option
+Please explain why or why not
+
+
+Are you permitted to send prometheus metrics to Galileo?
+Yes
+No
+
+
+Are you permitted to send Sentry Issues and traces to Galileo?
+Yes
+No
+
+
+Are you permitted to send logs to Galileo?
+Yes
+No
+
+
+Section 3b: Infrastructure Services Configuration
+For each service, indicate your requirements:
+
+Service
+Deployment Option
+Details Required
+ClickHouse
+Can your organization use externally-managed ClickHouse services?
+Yes - We have to use managed instances
+We can deploy either via managed or self-hosted instances
+No - We require self-hosted instances only
+PostgreSQL
+Can your organization use externally-managed PostgreSQL services?
+Yes - We have to use managed instances
+We can deploy either via managed or self-hosted instances
+No - We require self-hosted instances only
+S3/Object Storage
+Can your organization use externally-managed object storage services?
+Yes - We have to use managed instances
+We can deploy either via managed or self-hosted instances
+No - We require self-hosted instances only
+RabbitMQ
+Can your organization use externally-managed RabbitMQ services?
+Yes - We have to use managed instances
+We can deploy either via managed or self-hosted instances
+No - We require self-hosted instances only
+Prometheus
+Prometheus - Can your organization use externally-managed Prometheus services?
+Yes - We have to use managed instances
+We can deploy either via managed or self-hosted instances
+No - We require self-hosted instances only
+Monitoring (Prometheus/Grafana)
+Will your organization allow the cluster to push metrics to our Grafana Cloud instance?
+Yes - We are okay with sending metrics to Galileo’s Grafana Cloud instance
+No - our organization restricts allowing metrics to write to an external Grafana Cloud instance
+Redis
+Redis - Can your organization use externally-managed Redis services, or must it be self-hosted?
+Yes - We can use third-party managed Redis services (e.g., AWS ElastiCache, Redis Cloud, Azure Cache)
+No - Must be self-hosted due to restrictions
+Partial - Allowed with specific conditions or configurations
+
+
+Section 4. Compute Resources & Scaling
+Category
+Question
+Form Options
+Preferred GPU Type
+Do you have a preferred GPU model for your cluster’s node groups?
+Yes - H100
+Yes - A100
+Yes - L40S
+Yes - L4 (<= 16k tokens only)
+Yes - Other
+No GPU preference for node groups
+Traffic Volume
+On a typical day, how many traces, requests, or queries per second do you expect?
+Less than 10
+10–50
+50–100
+100–500
+500+
+Not sure
+During your busiest times, how many requests per second do you expect?
+50–200
+200–500
+500-1,000
+1,000+
+Not sure
+Metrics & Features
+On average, how many evaluation metrics would you like to run per request? (Examples: hallucination check, tone check, PII detection)
+1-2
+3-5
+6-10
+10+
+Not Sure
+Model Choice
+Which Luna model are you considering?
+Luna-small-3B (faster, lighter)
+Luna-large-8B
+Input & Output Sizes
+What is your average input size?
+Short (1–2 sentences, < 250 tokens)
+Medium (1–2 paragraphs, ~ 500–750 tokens)
+Long (1 page, ~ 1,500 tokens)
+Extra long (multi-page, 3,000+ tokens)
+Not Sure
+What’s your average output size?
+Short (1–2 sentences, < 250 tokens)
+Medium (1–2 paragraphs, ~ 500–750 tokens)
+Long (1 page, ~ 1,500 tokens)
+Extra long (multi-page, 3,000+ tokens)
+Not Sure
+What’s the maximum input size you expect (peak)? (Select the closest option)
+< 1,000 tokens (~500 words)
+~ 3,000 tokens (~1.5 pages)
+~ 8,000 tokens (~4 pages)
+~ 16,000 tokens (~8 pages)
+32,000+ tokens (~15+ pages)
+Not Sure
+What’s the maximum output size you expect (peak)?
+< 1,000 tokens (~500 words)
+~ 3,000 tokens (~1.5 pages)
+~ 8,000 tokens (~4 pages)
+Not Sure
+
+
+Section 5: Security & Compliance
+Authentication & Access
+
+
+Category
+Description
+Form Options
+SSO Requirement
+Single Sign-On needs
+Yes - All internal applications must authenticate via SSO/Identity Provider (IdP)
+Partial - Required for user-facing apps, but not for system/service accounts
+No - SSO is not required for internal applications
+SSO Optional - users can both SSO and password authentication without restriction
+Identity Provider
+SSO system details
+OAuth 2.0/OIDC via Okta
+OAuth 2.0/OIDC via Google SSO
+OAuth 2.0/OIDC via Azure
+OAuth 2.0/OIDC via Custom Backend
+No SSO requirements
+Service Accounts
+Non-human authentication
+SSO exemption allowed
+Must use SSO
+Certificate-based
+
+Compliance Requirements
+
+Category
+Description
+Form Options
+SOC2
+SOC2 compliance
+Required
+Not Required
+GDPR
+Data privacy compliance
+Required
+Not Required
+HIPAA
+Healthcare compliance
+Required
+Not Required
+Industry-Specific
+Other compliance needs
+PCI DSS
+FedRAMP
+ISO 27001
+Other: _______
+
+
+Data Handling
+
+Category
+Description
+Form Options
+Data Residency 
+
+
+Must stay in specific region: _______________
+Must stay in country: _______________
+No restrictions
+Log Retention
+Storage duration
+
+
+30 days
+90 days
+1 year
+Other: _______
+
+
+Model & AI Access
+Category
+Question
+Form Options
+Models Hosted
+What models will your organization most likely be using?
+Azure
+Bedrock
+Meta
+OpenAI
+VertexAI
+Other
+Custom Models
+Do you plan on using any custom large language models? If yes, where are they hosted?
+Azure
+Bedrock
+Meta
+OpenAI
+VertexAI
+Other
+External AI Services
+Does your organization allow using Pulling data from Cloudflare R2?
+Yes - We can use Cloudflare-hosted AI models
+No - We have restrictions preventing use of external AI services
+Partial - Allowed with specific conditions or approvals
+
+
+Section 6 - Unsupported Configurations
+
+Kubernetes versions below 1.32
+Non-Kubernetes container orchestration (e.g., Docker Swarm, Nomad, ECS without EKS)
+Deployments via Kubernetes manifests (vs the supported Helm chart deployment method)
+Nonstandard Luna base model types
+Kubernetes worker nodes that do not support x86 Linux images
+IPv6-only networking (IPv4 required, dual-stack acceptable)
+Service mesh that breaks standard Kubernetes networking (please specify for evaluation)
+Custom CNI that prevents pod-to-pod communication
+Self-hosted environments that disallow Galileo’s default Grafana or Clickhouse instances
+Nonstandard GPU types (see here for supported types: https://v2docs.galileo.ai/concepts/luna/luna#h100-gpu)
+
+
+
+Section 7: Known Constraints & Special Requirements
+Please list any additional constraints not covered above:
+Firewall/Proxy Requirements:
+Regulatory Constraints:
+Internal Policy Restrictions:
+Performance Requirements/SLAs:
+Disaster Recovery Requirements
+Accessibility Requirements
+
+Other
+
+
+Section 9: Contact Information
+
+Activity / Area
+Primary Technical Contact
+Cloud / Infra Lead
+Security Lead
+Project Manager
+Escalation Contact
+Installation & Deployment
+R
+A
+C
+I
+I
+Secrets Management
+R
+A
+C
+I
+I
+Access Control & Permissions
+C
+R
+A
+I
+I
+Incident Escalation
+
+
+I
+C
+C
+R
+A
+Reporting & Updates
+I
+I
+C
+R
+I
+
+
+
+Role
+Name
+Email
+Phone
+TimeZone
+Primary Technical Contact
+
+
+
+
+
+
+
+
+Cloud / Infrastructure Lead
+
+
+
+
+
+
+
+
+Security Lead
+
+
+
+
+
+
+
+
+Project Manager
+
+
+
+
+
+
+
+
+Escalation Contact
+
+
+
+
+
+
+
+
+
+
+Section 10 - Submission Checklist
+Before submitting, ensure:
+All REQUIRED fields are completed
+BLOCKER CHECK items are identified and flagged
+Technical contacts have reviewed their sections
+Security team has approved the deployment tier selection
+Unknown items are marked for follow-up
+Contact information is complete and current
+Submission Date: _______________ 
+Name:
+Company:
+Title:
+I have reached out to the appropriate teams to make sure the information in this document is correct to the best of my ability.
+
+Next Steps Meeting Scheduled: _______________
+
