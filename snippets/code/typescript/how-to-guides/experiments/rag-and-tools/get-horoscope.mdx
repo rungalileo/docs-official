@@ -1,0 +1,54 @@
+```typescript TypeScript
+// Get the user's horoscope given a sign
+export async function getUsersHoroscope(sign: string): Promise<string> {
+    // Create a running message history list we will add to over time
+    const messageHistory: any[] = [
+        {
+            role: "system",
+            content: `You are a helpful assistant that provides horoscopes.
+Provide a flowery response based off any information retrieved.
+Include typical horoscope phrases, and characteristics of
+the sign in question.
+`,
+        },
+        { role: "user", content: `What is my horoscope? I am ${sign}.` },
+    ];
+
+    // Prompt the model with tools defined
+    let response = await callLlm(messageHistory);
+
+    // Add the tool call to the message history (if any)
+    const completionToolCalls = response.choices[0].message.tool_calls ?? [];
+    if (completionToolCalls.length > 0) {
+        messageHistory.push({
+            role: "assistant",
+            tool_calls: completionToolCalls.map((tc: any) => ({
+                id: tc.id,
+                type: "function",
+                function: {
+                    name: tc.function.name,
+                    arguments: tc.function.arguments,
+                },
+            })),
+        });
+
+        // Call any tools the model requested
+        for (const call of completionToolCalls) {
+            const toolToCall = availableTools[call.function.name];
+            const args = JSON.parse(call.function.arguments ?? "{}");
+            const result = await toolToCall(args);
+            messageHistory.push({
+                role: "tool",
+                content: String(result),
+                tool_call_id: call.id,
+                name: call.function.name,
+            });
+        }
+
+        // Now we call the model again, with the tool results included
+        response = await callLlm(messageHistory);
+    }
+
+    return response.choices[0].message.content ?? "";
+}
+```

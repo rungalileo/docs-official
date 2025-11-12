@@ -1,0 +1,36 @@
+```typescript TypeScript
+// Tool function to get today's horoscope for a given astrological sign
+async function getHoroscope({ sign }: { sign: string }): Promise<string> {
+    const response = (await retrieveHoroscopeData(sign)).join("\n");
+
+    await sleep(100); // Simulate tool latency
+
+    return response;
+}
+
+// Define a list of callable tools for the model
+const tools: any[] = [
+    {
+        type: "function",
+        function: {
+            name: "get_horoscope",
+            description: "Get today's horoscope for an astrological sign.",
+            parameters: {
+                type: "object",
+                properties: {
+                    sign: {
+                        type: "string",
+                        description: "An astrological sign like Taurus or Aquarius",
+                    },
+                },
+                required: ["sign"],
+            },
+        },
+    },
+];
+
+// Map tool names to their implementations
+const availableTools: Record<string, (args: any) => any> = {
+    get_horoscope: getHoroscope,
+};
+```

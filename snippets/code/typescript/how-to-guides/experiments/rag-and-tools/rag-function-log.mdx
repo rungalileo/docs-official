@@ -1,0 +1,34 @@
+```typescript TypeScript
+// A mock RAG retriever function
+async function retrieveHoroscopeData(sign: string): Promise<string[]> {
+    const startTimeNs = getNanoSecTime();
+
+    const horoscopes: Record<string, string[]> = {
+        Aquarius: [
+            "Next Tuesday you will befriend a baby otter.",
+            "Next Tuesday you will find a dollar on the ground.",
+        ],
+        Taurus: [
+            "Next Tuesday you will find a four-leaf clover.",
+            "Next Tuesday you will have a great conversation with a stranger.",
+        ],
+        Gemini: [
+            "Next Tuesday you will learn to juggle.",
+            "Next Tuesday you will discover a new favorite book.",
+        ],
+    };
+    const response = horoscopes[sign] ?? ["No horoscope available."];
+
+    await sleep(100); // Simulate RAG latency
+
+    const galileoLogger = getLogger();
+    galileoLogger.addRetrieverSpan({
+        name: "get_horoscope",
+        input: sign,
+        output: response,
+        durationNs: getNanoSecTime() - startTimeNs,
+    });
+
+    return response;
+}
+```

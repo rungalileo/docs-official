@@ -1,0 +1,20 @@
+```typescript TypeScript
+// Tool function to get today's horoscope for a given astrological sign
+async function getHoroscope({ sign }: { sign: string }): Promise<string> {
+    const startTimeNs = getNanoSecTime();
+
+    const response = (await retrieveHoroscopeData(sign)).join("\n");
+
+    await sleep(100); // Simulate tool latency
+
+    const galileoLogger = getLogger();
+    galileoLogger.addToolSpan({
+        name: "get_horoscope",
+        input: sign,
+        output: response,
+        durationNs: getNanoSecTime() - startTimeNs,
+    });
+
+    return response;
+}
+```
