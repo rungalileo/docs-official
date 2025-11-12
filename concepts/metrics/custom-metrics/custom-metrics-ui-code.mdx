@@ -12,7 +12,7 @@ Custom metrics allow you to define specific evaluation criteria for your LLM app
 
 Registered custom metrics are stored and run in Galileo's environment and can be used across your organization.
 
-### Creating a registered custom metric
+### Create a registered custom metric
 
 You can create a registered custom metric either through the Python SDK or directly in the Galileo UI. Let's walk through the UI approach:
 
@@ -30,64 +30,83 @@ From the dialog that appears, choose the **Code-powered metric** type. This opti
 </Columns>
 </Step>
 <Step title="Write your custom metric">
-Use the code editor to write your custom metric. The editor provides a template with the required functions and helpful comments to guide you.
+Select the step level you'd like to apply this metric to (ie: Sessions, Traces, LlmSpan, etc...). Then, use the code editor to write your custom metric. The editor provides a template with the required functions and helpful comments to guide you.
 
 ![Code editor](/images/g2/custom-metrics-code-editor.png)
 
-The code editor allows you to write and test your metric directly in the browser. You'll need to define at least the `scorer_fn` and `aggregator_fn` functions as described below.
+The code editor allows you to write and test your metric directly in the browser. You'll need to define `scorer_fn` and `aggregator_fn` functions as described below.
 </Step>
 <Step title="Save your metric">
-After writing your custom metric code, select the **Save** button in the top right corner of the code editor. Your metric will be validated and, if there are no errors, it will be saved and become available for use across your organization.
+After writing your custom metric code, select the **Save** button in the bottom right corner of the code editor. Your metric will be validated and, if there are no errors, it will be saved and become available for use across your organization.
 
 You can now select this metric when running evaluations.
 </Step>
 </Steps>
 
-#### 1. The scorer function (`scorer_fn`)
+#### The scorer function
 
 This function evaluates individual responses and returns a score:
 
-```python
-def scorer_fn(*,
-              index: Union[int, str],
-              node_input: str,
-              node_output: str,
-              **kwargs: Any) -> Union[float, int, bool, str, None]:
+<CodeGroup>
+
+```python Python
+def scorer_fn(
+    *,
+    step_object: (
+        Session | Trace | WorkflowSpan | AgentSpan |
+        LlmSpan | RetrieverSpan | ToolSpan
+    ),
+    **kwargs: Any
+) -> float | int | bool | str:
     # Your scoring logic here
     return score
 ```
 
-The function must accept `**kwargs` to ensure forward compatibility. Here's a complete example that measures the difference in length between the output and ground truth:
+</CodeGroup>
 
-```python
+The function must accept `**kwargs` to ensure forward/backward compatibility. Here's a complete example that measures the difference in length between the output and ground truth:
+
+<CodeGroup>
+
+```python Python
 def scorer_fn(*,
-              index: Union[int, str],
-              node_input: str,
-              node_output: str,
-              node_name: Optional[str],
-              node_type: Optional[str],
-              node_id: Optional[UUID],
-              tools: Optional[List[Dict[str, Any]]],
-              dataset_variables: Dict[str, str],
+              step_object: LlmSpan,
               **kwargs: Any) -> Union[float, int, bool, str, None]:
-
-    ground_truth = dataset_variables.get("target", "")  # Ground truth if provided
-    return abs(len(node_output) - len(ground_truth))
+    node_output = step_object.output.content
+    reference_output = step_object.dataset_output
+    return abs(len(node_output) - len(reference_output))
 ```
+
+</CodeGroup>
 
 **Parameter details:**
 
-- `index`: Row index in the dataset
-- `node_input`: Input to the node
-- `node_output`: Output from the node
-- `node_name`, `node_type`, `node_id`, `tools`: Workflow/chain-specific parameters
-- `dataset_variables`: Key-value pairs from the dataset (includes ground truth)
+- **`step_object`**: The step object represents the unit of your LLM application being evaluated. It can be one of several types from the `galileo` library:
+  - `Session` - A complete user session containing multiple traces
+  - `Trace` - A single execution trace containing multiple spans
+  - `WorkflowSpan` - A workflow-level span containing child spans
+  - `AgentSpan` - An agent execution span
+  - `LlmSpan` - A single LLM call span
+  - `RetrieverSpan` - A retriever/search operation span
+  - `ToolSpan` - A tool execution span
 
-#### 2. the aggregator function (`aggregator_fn`)
+All step objects provide access to key attributes for evaluation:
 
-This function aggregates individual scores into summary metrics:
+- **Input/Output data**: Access the input prompt and generated output (e.g., `step_object.output.content` for LLM responses)
+- **Metadata**: Additional context like timestamps, model information, and custom metadata
+- **Dataset references**: Ground truth or reference data when available (e.g., `step_object.dataset_output`)
+- **Hierarchical data**: For Session/Trace/Workflow objects, access child spans and nested execution data
 
-```python
+<Tip>
+For detailed documentation on each step object type and their specific attributes, refer to the [Galileo Python SDK documentation](/sdk-api/python/overview). Each type has unique properties tailored to its execution context—for example, `LlmSpan` includes model parameters and token counts, while `RetrieverSpan` includes retrieved documents and search queries.
+</Tip>
+
+#### The aggregator function
+
+This function aggregates individual scores into summary metrics across experiments:
+
+<CodeGroup>
+```python Python
 def aggregator_fn(*,
                  scores: List[Union[float, int, bool, str, None]]
                  ) -> Dict[str, Union[float, int, bool, str, None]]:
@@ -97,90 +116,53 @@ def aggregator_fn(*,
         "Metric Name 2": aggregated_value_2
     }
 ```
+</CodeGroup>
 
-#### Optional functions
+### Complete example: trace counter
 
-##### **Score type function**
+Let's create a custom metric that counts the number of traces in a Session:
 
-```python
-def score_type() -> Type[float] | Type[int] | Type[str] | Type[bool]:
-    return float  # Or int, str, bool
-```
+<CodeGroup>
 
-This function defines the return type of your scorer (default is `float`).
+```python Python
+from galileo import Session
 
-##### **Node type restriction**
+def scorer_fn(*, step_object: Session, **kwargs) -> int:
+    num_traces = len(step_object.traces)
+    return num_traces
 
-```python
-def scoreable_node_types_fn() -> List[str]:
-    return ["llm", "chat"]  # Default
-```
-
-This function restricts which node types your scorer can evaluate. For example, to only score retriever nodes:
-
-```python
-def scoreable_node_types_fn() -> List[str]:
-    return ["retriever"]
-```
-
-##### **LLM credentials access**
-
-To access LLM credentials during scorer execution:
-
-```python
-include_llm_credentials = True  # Default is False
-```
-
-When enabled, credentials are passed to `scorer_fn` as a dictionary:
-
-```json
-{
-  "openai": {
-    "api_key": "sk-...",
-    "organization": "org-..."
-  }
-}
-```
-
-### Complete example: response length scorer
-
-Let's create a custom metric that measures response length:
-
-```python
-from typing import List, Dict, Type
-
-def scorer_fn(*, node_output: str, **kwargs) -> int:
-    return len(node_output)
-
-def aggregator_fn(*, scores: List[int]) -> Dict[str, int]:
+def aggregator_fn(*, scores: list[int]) -> dict[str, int]:
     return {
-        "Total Response Length": sum(scores),
-        "Average Response Length": sum(scores) / len(scores) if scores else 0,
+        "Total Traces Across Sessions": sum(scores),
+        "Average Num Traces": sum(scores) / len(scores) if scores else 0,
     }
-
-# Correct way to define score_type
-def score_type():
-    return int
-
-def scoreable_node_types_fn() -> List[str]:
-    return ["llm", "chat"]
 ```
+
+</CodeGroup>
 
 ### Execution environment
 
-Registered custom metrics run in a Python 3.10 environment with these libraries:
+Registered custom metrics run in a sandbox Python 3.10 environment with only
+the Python standard library and the Galileo SDK installed.
 
-```output
-numpy~=1.26.4
-pandas~=2.2.2
-pydantic~=2.7.1
-scikit-learn~=1.4.2
-tensorflow~=2.16.1
-networkx
-openai
+To install your own PyPI package, you can define dependencies at the top of the
+file using the script dependency format from `uv`:
+
+<CodeGroup>
+
+```toml uv
+# /// script
+# dependencies = [
+#   "requests<3",
+#   "rich",
+# ]
+# ///
 ```
 
-We provide advance notice before major version updates to these libraries.
+</CodeGroup>
+
+For full documentation on defining dependencies, check out the
+['uv' script dependency docs](https://docs.astral.sh/uv/guides/scripts/#creating-a-python-script).
 
 ## Local metrics
 
@@ -190,7 +172,7 @@ You can also use any library or custom Python code with your local metrics, incl
 
 <Note>Galileo currently only supports Local scorers in Python</Note>
 
-## Local scorer components
+### Local scorer components
 
 A Local scorer consists of three main parts:
 
@@ -198,11 +180,11 @@ A Local scorer consists of three main parts:
 
    Receives a single [`Span`](/sdk-api/logging/galileo-logger#add-spans) or [`Trace`](/sdk-api/logging/galileo-logger#start-a-trace) containing the LLM input and output, and computes a score. The exact measurement is up to you — for example, you might measure the length of the output or rate it based on the presence/absence of specific words.
 
-2. **Aggregator Function**
+1. **Aggregator Function**
 
    Aggregates the scores generated by the Scorer Function and returns a final metric value. This function receives a list of the type returned by your Scorer. For instance, if your Scorer returns a `str`, the Aggregator will be called with a `list[str]`. The Aggregator's return value can also be any type (e.g., `str`, `bool`, `int`), depending on how you want to represent the final metric.
 
-3. **`LocalMetricConfig[type]`**
+1. **`LocalMetricConfig[type]`**
 
    A typed callable provided by Galileo's Python SDK that combines your Scorer and Aggregator into a custom metric.
    - The generic `type` should match the type returned by your Aggregator.
@@ -216,20 +198,19 @@ With local metrics, you have full control over how you measure LLM behavior—un
 
 <Card title="Create a local metric" icon="code" href="/how-to-guides/metrics/create-local-metric/create-local-metric" horizontal>
   Learn how to create a local metric in Python to use in your experiments
-
 </Card>
 
-## Comparison: registered custom metrics vs. local metrics
+### Comparison: registered custom metrics vs. local metrics
 
 | Feature         | Registered Custom Metrics         | Local Metrics            |
 | :-------------- | :-------------------------------- | :----------------------- |
 | **Creation**    | Python client, activated via UI   | Python client only       |
 | **Sharing**     | Organization-wide                 | Current project only     |
 | **Environment** | Server-side                       | Local Python environment |
-| **Libraries**   | Limited to Galileo environment    | Any available library    |
+| **Libraries**   | Any available library.            | Any available library    |
 | **Resources**   | Restricted by Galileo             | Local resources          |
 
-## Common use cases
+### Common use cases
 
 Custom metrics are ideal for:
 
@@ -238,15 +219,16 @@ Custom metrics are ideal for:
 - **Business-specific metrics**: Measuring domain-specific quality indicators
 - **Comparative analysis**: Comparing outputs against ground truth or reference data
 
-## Simple example: sentiment scorer
+### Simple example: sentiment scorer
 
 Here's a simple custom metric that evaluates the sentiment of responses:
 
-```python
-# sentiment_scorer.py
-from typing import Dict, List, Union, Type
+<CodeGroup>
 
-def scorer_fn(*, node_output: str, **kwargs) -> float:
+```python Python
+from galileo import Span, Trace
+
+def scorer_fn(step: Span | Trace) -> float:
     """
     A simple sentiment scorer that counts positive and negative words.
     Returns a score between -1 (negative) and 1 (positive).
@@ -256,8 +238,11 @@ def scorer_fn(*, node_output: str, **kwargs) -> float:
         "positive", "happy", "best", "wonderful"
     ]
     negative_words = [
-        "bad", "poor", "negative", "terrible", "worst", "awful", "horrible"
+        "bad", "poor", "negative", "terrible",
+        "worst", "awful", "horrible"
     ]
+
+    node_output = step.output.content
 
     # Convert to lowercase for case-insensitive matching
     text = node_output.lower()
@@ -274,7 +259,7 @@ def scorer_fn(*, node_output: str, **kwargs) -> float:
 
     return (positive_count - negative_count) / total_count
 
-def aggregator_fn(*, scores: List[float]) -> Dict[str, float]:
+def aggregator_fn(scores: list[float]) -> dict[str, float]:
     """Aggregate sentiment scores across responses."""
     if not scores:
         return {"Average Sentiment": 0.0}
@@ -283,15 +268,13 @@ def aggregator_fn(*, scores: List[float]) -> Dict[str, float]:
 
     return {
         "Average Sentiment": round(avg_sentiment, 2),
-        "Positive Responses": sum(1 for score in scores if score > 0.2),
-        "Neutral Responses": sum(1 for score in scores if -0.2 <= score <= 0.2),
-        "Negative Responses": sum(1 for score in scores if score < -0.2)
+        "Positive Responses": sum(1 for s in scores if s > 0.2),
+        "Neutral Responses": sum(1 for s in scores if -0.2 <= s <= 0.2),
+        "Negative Responses": sum(1 for s in scores if s < -0.2)
     }
-
-# Correct way to define score_type
-def score_type():
-    return float
 ```
+
+</CodeGroup>
 
 This simple sentiment scorer:
 
@@ -302,7 +285,6 @@ This simple sentiment scorer:
 You can easily extend this with more sophisticated sentiment analysis techniques or domain-specific terminology.
 
 ## Next steps
-
 
 <CardGroup cols={2}>
 <Card title="Create custom LLM-as-a-judge metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code">
@@ -321,4 +303,3 @@ You can easily extend this with more sophisticated sentiment analysis techniques
     Learn how to run experiments in Galileo using the Galileo SDKs and custom metrics.
 </Card>
 </CardGroup>
-
