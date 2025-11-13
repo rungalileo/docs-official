@@ -31,7 +31,7 @@ See our [contributing guide](./.github/CONTRIBUTING.md) for more details.
 
 ### Documentation Style Guide
 
-Before contributing, please review our [Documentation Style Guide](./DOCUMENTATION_STYLE_GUIDE.md) which covers:
+Before contributing, please review our [Documentation Style Guide](https://github.com/rungalileo/docs-official/blob/main/DOCUMENTATION_STYLE_GUIDE.md) which covers:
 - Writing style and tone guidelines
 - Markdown formatting standards
 - Code example best practices
@@ -120,7 +120,7 @@ npm run lint:markdown:fix
 
 ## Project Documentation
 
-- [Documentation Style Guide](./DOCUMENTATION_STYLE_GUIDE.md) - Comprehensive writing and formatting standards
-- [Phase 1 Implementation Summary](./PHASE_1_IMPLEMENTATION_SUMMARY.md) - Technical details of UX enhancements
-- [Enhancement Roadmap](./documentation-enhancement-roadmap.md) - 36-week improvement plan
-- [Improvement Recommendations](./documentation-improvement-recommendations.md) - Selected enhancements
+- [Documentation Style Guide](https://github.com/rungalileo/docs-official/blob/main/DOCUMENTATION_STYLE_GUIDE.md) - Comprehensive writing and formatting standards
+- [Phase 1 Implementation Summary](https://github.com/rungalileo/docs-official/blob/main/PHASE_1_IMPLEMENTATION_SUMMARY.md) - Technical details of UX enhancements
+- [Enhancement Roadmap](https://github.com/rungalileo/docs-official/blob/main/documentation-enhancement-roadmap.md) - 36-week improvement plan
+- [Improvement Recommendations](https://github.com/rungalileo/docs-official/blob/main/documentation-improvement-recommendations.md) - Selected enhancements
