@@ -59,13 +59,14 @@ kubectl exec -n galileo deployment/api -- psql -c "SELECT query, mean_exec_time,
     ```
     
     **Action Items:**
-    - [ ] Identify nodes with <50% average utilization
+    - [ ] Identify nodes with under 50% average utilization
     - [ ] Consider node pool consolidation for cost savings
     - [ ] Right-size node instance types based on actual usage
     - [ ] Enable cluster autoscaler if variable load patterns exist
   </Step>
 
 {" "}
+
 <Step title="CPU Optimization">
   **CPU Tuning Checklist:** - [ ] Review pod CPU requests vs actual usage - [ ]
   Set CPU limits to prevent noisy neighbor issues - [ ] Enable CPU throttling
@@ -112,12 +113,12 @@ kubectl exec -n galileo deployment/api -- psql -c "SELECT query, mean_exec_time,
 ### Horizontal Pod Autoscaling (HPA)
 
 <Card title="HPA Configuration" icon="arrows-left-right-to-line">
-  Configure autoscaling for elastic workloads:
-  - [ ] **API Deployment:** Scale 2-10 replicas based on CPU >70%
-  - [ ] **Worker Pods:** Scale 1-5 replicas based on queue depth
-  - [ ] **Cache Layer:** Scale based on cache hit ratio <80%
-  - [ ] **Test Autoscaling:** Simulate load and verify scaling behavior
-  - [ ] **Set Cooldown Periods:** Configure scale-up (30s) and scale-down (5m) delays
+  Configure autoscaling for elastic workloads: - [ ] **API Deployment:** Scale
+  2-10 replicas based on CPU >70% - [ ] **Worker Pods:** Scale 1-5 replicas
+  based on queue depth - [ ] **Cache Layer:** Scale based on cache hit ratio
+  under 80% - [ ] **Test Autoscaling:** Simulate load and verify scaling
+  behavior - [ ] **Set Cooldown Periods:** Configure scale-up (30s) and
+  scale-down (5m) delays
 </Card>
 
 ```yaml
@@ -185,6 +186,7 @@ spec:
   </Step>
 
 {" "}
+
 <Step title="Database Storage Optimization">
   **ClickHouse Tuning:** - [ ] Separate data volume from logs volume - [ ] Use
   ReplicatedMergeTree engine for critical tables - [ ] Configure appropriate
@@ -329,6 +331,7 @@ kubectl logs -n galileo deployment/api --tail=1000 | grep "response_time" | awk 
   </Step>
 
 {" "}
+
 <Step title="ClickHouse Tuning">
   **ClickHouse Performance Checklist:** - [ ] Use appropriate partitioning key
   (typically by date) - [ ] Set proper ORDER BY columns for queries - [ ] Enable
@@ -541,6 +544,7 @@ groups:
   </Step>
 
 {" "}
+
 <Step title="Tuning Changes">
   Document all modifications: - [ ] Configuration changes made - [ ] Rationale
   for each change - [ ] Expected vs actual impact - [ ] Rollback procedures
