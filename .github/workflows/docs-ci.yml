@@ -1,0 +1,355 @@
+name: Documentation CI/CD Pipeline
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+      - "release/**"
+  push:
+    branches:
+      - main
+
+# Prevent concurrent runs for the same PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  MINTLIFY_VERSION: '4.0.525'
+
+jobs:
+  # Job 1: Markdown Linting (Enhanced)
+  markdown-lint:
+    name: Markdown Lint & Style Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install dependencies
+        run: |
+          npm install -g markdownlint-cli2
+          npm ci
+
+      - name: Get changed files
+        id: changed-files
+        if: github.event_name == 'pull_request'
+        uses: tj-actions/changed-files@v46
+        with:
+          files: |
+            **.md
+            **.mdx
+          separator: " "
+
+      - name: Run markdownlint on changed files (PR)
+        if: github.event_name == 'pull_request' && steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "Running markdownlint on changed files:"
+          echo "${{ steps.changed-files.outputs.all_changed_files }}"
+          
+          FILTERED_FILES=""
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            if [[ ! "$file" =~ ^sdk-api/.*/reference/.* ]]; then
+              if [[ -f "$file" ]]; then
+                FILTERED_FILES="$FILTERED_FILES $file"
+              fi
+            fi
+          done
+          
+          if [[ -n "$FILTERED_FILES" ]]; then
+            echo "Linting files: $FILTERED_FILES"
+            markdownlint-cli2 $FILTERED_FILES
+          else
+            echo "No markdown files to lint after filtering"
+            exit 0
+          fi
+
+      - name: Run markdownlint on all files (push to main)
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: markdownlint-cli2 "**/*.{md,mdx}"
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: markdown-lint
+          message: |
+            ## ✅ Markdown Lint Passed
+            
+            All markdown files meet the linting standards! 🎉
+
+  # Job 2: Link Checking (Enhanced)
+  link-check:
+    name: Link Validation & Reporting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Mintlify CLI
+        run: npm install -g mintlify@${{ env.MINTLIFY_VERSION }}
+
+      - name: Generate API documentation
+        run: npx --yes @mintlify/scraping@latest openapi-file https://api.galileo.ai/public/v2/openapi.json -o api-reference
+
+      - name: Check for broken links
+        id: link-check
+        continue-on-error: true
+        run: |
+          mint broken-links > link-check-report.txt 2>&1
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Upload link check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: link-check-report
+          path: link-check-report.txt
+          retention-days: 30
+
+      - name: Comment on PR with link issues
+        if: steps.link-check.outputs.exit_code != '0' && github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: link-check
+          message: |
+            ## ⚠️ Broken Links Detected
+            
+            The link checker found broken links in the documentation. Please review the [link check report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) and fix them.
+            
+            ### Common causes:
+            - Typos in URLs or file paths
+            - Missing pages or renamed files
+            - External links that are down
+            - Case sensitivity in file paths
+
+      - name: Fail if links are broken
+        if: steps.link-check.outputs.exit_code != '0'
+        run: exit 1
+
+  # Job 3: Performance Monitoring (Lighthouse CI)
+  performance-check:
+    name: Performance & Accessibility Audit
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install -g @lhci/cli@0.14.x
+
+      - name: Install Mintlify CLI
+        run: npm install -g mintlify@${{ env.MINTLIFY_VERSION }}
+
+      - name: Build documentation
+        run: mintlify build
+
+      - name: Run Lighthouse CI
+        id: lighthouse
+        continue-on-error: true
+        run: |
+          # Create Lighthouse CI configuration
+          cat > lighthouserc.json << 'EOF'
+          {
+            "ci": {
+              "collect": {
+                "numberOfRuns": 3,
+                "settings": {
+                  "preset": "desktop",
+                  "throttling": {
+                    "rttMs": 40,
+                    "throughputKbps": 10240,
+                    "cpuSlowdownMultiplier": 1
+                  }
+                },
+                "url": [
+                  "http://localhost:3000/what-is-galileo",
+                  "http://localhost:3000/getting-started/quickstart",
+                  "http://localhost:3000/deployment-docs/overview"
+                ]
+              },
+              "assert": {
+                "assertions": {
+                  "categories:performance": ["error", {"minScore": 0.90}],
+                  "categories:accessibility": ["error", {"minScore": 0.95}],
+                  "categories:best-practices": ["warn", {"minScore": 0.90}],
+                  "categories:seo": ["warn", {"minScore": 0.90}]
+                }
+              },
+              "upload": {
+                "target": "temporary-public-storage"
+              }
+            }
+          }
+          EOF
+          
+          # Start Mintlify dev server in background
+          mintlify dev &
+          DEV_PID=$!
+          
+          # Wait for server to be ready
+          echo "Waiting for dev server to start..."
+          for i in {1..30}; do
+            if curl -s http://localhost:3000 > /dev/null; then
+              echo "Server is ready!"
+              break
+            fi
+            sleep 2
+          done
+          
+          # Run Lighthouse CI
+          lhci autorun || echo "lighthouse_failed=true" >> $GITHUB_OUTPUT
+          
+          # Stop dev server
+          kill $DEV_PID
+
+      - name: Upload Lighthouse results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-results
+          path: .lighthouseci/
+          retention-days: 30
+
+      - name: Comment on PR with performance results
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: lighthouse
+          message: |
+            ## 🚦 Performance & Accessibility Audit
+            
+            Lighthouse CI has completed. View the [detailed results](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) in the artifacts.
+            
+            ### Metrics Targets:
+            - ⚡ Performance: ≥90
+            - ♿ Accessibility: ≥95
+            - ✅ Best Practices: ≥90
+            - 🔍 SEO: ≥90
+
+  # Job 4: Build Verification
+  build-check:
+    name: Documentation Build Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Mintlify CLI
+        run: npm install -g mintlify@${{ env.MINTLIFY_VERSION }}
+
+      - name: Generate API documentation
+        run: npx --yes @mintlify/scraping@latest openapi-file https://api.galileo.ai/public/v2/openapi.json -o api-reference
+
+      - name: Build documentation
+        run: mintlify build
+
+      - name: Check for build artifacts
+        run: |
+          if [ ! -d ".mintlify" ]; then
+            echo "Error: Build artifacts not found"
+            exit 1
+          fi
+          echo "✅ Build completed successfully"
+
+  # Job 5: PR Preview Deployment
+  preview-deploy:
+    name: Deploy PR Preview
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: [markdown-lint, build-check]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Mintlify CLI
+        run: npm install -g mintlify@${{ env.MINTLIFY_VERSION }}
+
+      - name: Generate preview link
+        id: preview
+        run: |
+          echo "Preview will be available once Mintlify preview deployment is configured"
+          echo "preview_url=https://preview-${{ github.event.pull_request.number }}.docs.galileo.ai" >> $GITHUB_OUTPUT
+
+      - name: Comment on PR with preview link
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: preview-deployment
+          message: |
+            ## 📝 Documentation Preview
+            
+            A preview deployment will be available once configured.
+            
+            **Expected URL**: ${{ steps.preview.outputs.preview_url }}
+            
+            ### Next Steps:
+            1. Configure Mintlify preview deployments
+            2. Add `MINTLIFY_API_KEY` to repository secrets
+            3. Enable preview deployments in Mintlify dashboard
+            
+            ---
+            💡 **Tip**: Preview deployments allow reviewers to see documentation changes before merging.
+
+  # Job 6: Workflow Status Summary
+  status-summary:
+    name: CI/CD Status Summary
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [markdown-lint, link-check, build-check]
+    steps:
+      - name: Check workflow status
+        run: |
+          echo "## 📊 CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Markdown Lint: ${{ needs.markdown-lint.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Link Check: ${{ needs.link-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Build Check: ${{ needs.build-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow completed at**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
