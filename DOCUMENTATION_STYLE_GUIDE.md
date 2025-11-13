@@ -453,7 +453,7 @@ icon: "book-open"
 ```
 
 **Tabs** (for language-specific examples):
-```markdown
+````markdown
 <Tabs>
   <Tab title="Python">
     ```python
@@ -466,7 +466,7 @@ icon: "book-open"
     ```
   </Tab>
 </Tabs>
-```
+````
 
 ---
 
