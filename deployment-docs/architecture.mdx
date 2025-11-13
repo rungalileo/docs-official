@@ -1,0 +1,449 @@
+---
+title: "Architecture Overview"
+description: "Understand Galileo Platform's architecture, including core components, infrastructure dependencies, and deployment patterns."
+icon: "diagram-project"
+---
+
+## Galileo Platform Architecture
+
+Galileo Platform is built on a microservices architecture running on Kubernetes, designed for scalability, reliability, and enterprise deployment flexibility.
+
+## High-Level Architecture
+
+```mermaid
+graph TB
+    Users[Users] -->|HTTPS| Ingress[Ingress Controller]
+    Ingress --> UI[UI Service]
+    Ingress --> API[API Service]
+    
+    API --> Auth[AuthZ Service]
+    API --> PG[(PostgreSQL)]
+    API --> Redis[(Redis Cache)]
+    API --> CH[(ClickHouse)]
+    API --> RMQ[RabbitMQ]
+    API --> S3[(Object Storage)]
+    
+    RMQ --> Runners[Runner Services]
+    RMQ --> Wizard[Wizard Service]
+    Runners --> S3
+    Wizard --> S3
+    
+    API --> Comet[Comet Service]
+    Comet --> CH
+```
+
+## Core Components
+
+### Application Services
+
+<AccordionGroup>
+  <Accordion title="API Service" icon="server">
+    **Role**: Core backend API for all Galileo operations
+    
+    **Responsibilities**:
+    - Handles all API requests from UI and SDKs
+    - Manages experiments, projects, and datasets
+    - Orchestrates job execution via RabbitMQ
+    - Integrates with storage and database services
+    
+    **Resources**: 2 replicas, 1-6 GiB RAM, 0.5-1 CPU
+    
+    **Dependencies**: PostgreSQL, Redis, ClickHouse, RabbitMQ, Object Storage
+  </Accordion>
+
+  <Accordion title="UI Service" icon="desktop">
+    **Role**: Web-based console interface
+    
+    **Responsibilities**:
+    - Serves the Galileo Console web application
+    - Provides interactive experiment analysis
+    - Displays metrics, traces, and visualizations
+    
+    **Resources**: 2 replicas, 1 GiB RAM, 0.5 CPU
+    
+    **Dependencies**: API Service
+  </Accordion>
+
+  <Accordion title="AuthZ Service" icon="lock">
+    **Role**: Authorization and access control
+    
+    **Responsibilities**:
+    - Manages user authentication and authorization
+    - Enforces role-based access control (RBAC)
+    - Handles SSO integration
+    
+    **Resources**: 2 replicas, 256-512 MiB RAM, 0.2-1 CPU
+    
+    **Dependencies**: PostgreSQL
+  </Accordion>
+
+  <Accordion title="Comet Service" icon="chart-line">
+    **Role**: Experiment tracking and metrics aggregation
+    
+    **Responsibilities**:
+    - Processes and stores experiment data
+    - Calculates aggregate metrics
+    - Manages data retention policies
+    
+    **Resources**: 1 replica, 4-8 GiB RAM, 1-2 CPU
+    
+    **Dependencies**: ClickHouse, Object Storage
+  </Accordion>
+
+  <Accordion title="Runner Services" icon="play">
+    **Role**: Job execution and data processing
+    
+    **Responsibilities**:
+    - Executes evaluation jobs
+    - Processes large datasets
+    - Runs metric calculations
+    
+    **Resources**: 
+    - Standard Runners: 1 replica, 1.5-4 GiB RAM, 0.75-1 CPU
+    - Large Runners: 1 replica, 3-16 GiB RAM, 1-1.5 CPU (GPU recommended)
+    
+    **Dependencies**: Object Storage, RabbitMQ
+  </Accordion>
+
+  <Accordion title="Wizard Service" icon="wand-magic-sparkles">
+    **Role**: Advanced analytics and ML model evaluation
+    
+    **Responsibilities**:
+    - Runs Luna-2 evaluations
+    - Performs complex analysis tasks
+    - GPU-accelerated computations
+    
+    **Resources**: 1 replica, 26-32 GiB RAM, 6-8 CPU (GPU recommended)
+    
+    **Dependencies**: Object Storage, RabbitMQ
+  </Accordion>
+</AccordionGroup>
+
+### Infrastructure Components
+
+<AccordionGroup>
+  <Accordion title="PostgreSQL" icon="database">
+    **Role**: Primary relational database
+    
+    **Stores**:
+    - User accounts and permissions
+    - Project and experiment metadata
+    - Configuration and settings
+    
+    **Options**:
+    - Self-hosted (in-cluster): 1 primary + 2 replicas
+    - Managed service: AWS RDS, Cloud SQL, Azure Database
+    
+    **Resources**: 1-5 GiB RAM, 0.25-1 CPU, 50 GiB storage
+  </Accordion>
+
+  <Accordion title="ClickHouse" icon="chart-column">
+    **Role**: Analytics database for time-series data
+    
+    **Stores**:
+    - Trace and span data
+    - Metrics and evaluations
+    - High-volume event data
+    
+    **Components**:
+    - ClickHouse Cluster: 2 replicas for data storage
+    - ClickHouse Keeper: 3 replicas for coordination
+    - ClickHouse Operator: Manages cluster operations
+    
+    **Resources**: 8-16 GiB RAM per replica, 2-4 CPU, 50 GiB storage
+  </Accordion>
+
+  <Accordion title="RabbitMQ" icon="rabbit">
+    **Role**: Message broker for async job processing
+    
+    **Responsibilities**:
+    - Queues evaluation and processing jobs
+    - Handles inter-service communication
+    - Provides reliable message delivery
+    
+    **Components**:
+    - RabbitMQ Cluster: 3 replicas
+    - RabbitMQ Operator: Manages cluster
+    
+    **Resources**: 512 MiB-1 GiB RAM per replica, 256m-1 CPU, 5 GiB storage
+  </Accordion>
+
+  <Accordion title="Object Storage" icon="box-archive">
+    **Role**: Blob storage for datasets, models, and artifacts
+    
+    **Stores**:
+    - Experiment datasets and results
+    - Model artifacts and checkpoints
+    - Images and large files
+    - Backup archives
+    
+    **Options**:
+    - AWS S3
+    - Google Cloud Storage
+    - Azure Blob Storage
+    - MinIO (self-hosted, S3-compatible)
+    
+    **Buckets**: 10 buckets for different data types
+  </Accordion>
+
+  <Accordion title="Redis" icon="circle-nodes">
+    **Role**: Caching and session storage
+    
+    **Responsibilities**:
+    - Caches frequently accessed data
+    - Stores user sessions
+    - Temporary data storage
+    
+    **Requirements**:
+    - Must use managed service (self-hosting not supported)
+    - HA mode with 1+ replica
+    
+    **Resources**: 1-2 GiB RAM per instance
+  </Accordion>
+
+  <Accordion title="Ingress Controller" icon="right-to-bracket">
+    **Role**: External traffic routing and TLS termination
+    
+    **Responsibilities**:
+    - Routes HTTP/HTTPS traffic to services
+    - SSL/TLS certificate management
+    - Load balancing
+    
+    **Options**:
+    - NGINX Ingress Controller (default)
+    - AWS ALB Controller
+    - GCP Load Balancer
+    - Azure Application Gateway
+    
+    **Resources**: 2 replicas, 1 GiB RAM, 0.5 CPU
+  </Accordion>
+</AccordionGroup>
+
+## Deployment Patterns
+
+### Standard Deployment
+
+For most production deployments with managed cloud services:
+
+<Tabs>
+  <Tab title="AWS">
+    - **Compute**: EKS cluster with 3 node pools
+    - **Database**: RDS Aurora PostgreSQL
+    - **Cache**: ElastiCache Redis
+    - **Storage**: S3 buckets
+    - **Ingress**: ALB Ingress Controller or NGINX
+  </Tab>
+  
+  <Tab title="Google Cloud">
+    - **Compute**: GKE cluster with 3 node pools
+    - **Database**: Cloud SQL PostgreSQL
+    - **Cache**: Memorystore for Redis
+    - **Storage**: Cloud Storage buckets
+    - **Ingress**: GKE Ingress or NGINX
+  </Tab>
+  
+  <Tab title="Azure">
+    - **Compute**: AKS cluster with 3 node pools
+    - **Database**: Azure Database for PostgreSQL
+    - **Cache**: Azure Cache for Redis
+    - **Storage**: Azure Blob Storage
+    - **Ingress**: Application Gateway or NGINX
+  </Tab>
+</Tabs>
+
+### Air-Gapped Deployment
+
+For environments without internet access:
+
+- All services run in-cluster (PostgreSQL, Redis via managed services)
+- MinIO for object storage
+- Pre-loaded container images
+- Offline model artifacts on shared volume (EFS/NFS)
+- Internal DNS and certificate management
+
+### High-Availability Deployment
+
+For mission-critical deployments:
+
+- Multi-zone Kubernetes cluster
+- Managed database with multi-region replication
+- Multiple replicas for all stateless services (3+)
+- Cross-region backup strategy
+- Geo-redundant object storage
+
+## Data Flow
+
+### Experiment Logging Flow
+
+```mermaid
+sequenceDiagram
+    participant SDK
+    participant API
+    participant RMQ as RabbitMQ
+    participant Runner
+    participant CH as ClickHouse
+    participant S3 as Object Storage
+    
+    SDK->>API: Log trace/spans
+    API->>RMQ: Queue evaluation job
+    API->>S3: Store raw artifacts
+    RMQ->>Runner: Process job
+    Runner->>S3: Retrieve artifacts
+    Runner->>CH: Store processed data
+    Runner->>RMQ: Job complete
+    API->>CH: Query results
+    API->>SDK: Return response
+```
+
+### Analysis Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant UI
+    participant API
+    participant CH as ClickHouse
+    participant S3 as Object Storage
+    
+    User->>UI: View experiment
+    UI->>API: Request data
+    API->>CH: Query metrics
+    API->>S3: Retrieve artifacts
+    API->>UI: Return results
+    UI->>User: Display visualizations
+```
+
+## Network Architecture
+
+### Internal Communication
+
+- All services communicate via Kubernetes internal DNS
+- Services use ClusterIP for in-cluster communication
+- TLS for sensitive inter-service communication (optional)
+
+### External Access
+
+<Tabs>
+  <Tab title="Public Endpoints">
+    Four main public endpoints (via ingress):
+    - `console.<domain>` - Web UI
+    - `api.<domain>` - API service
+    - `data.<domain>` - Data service (optional)
+    - `grafana.<domain>` - Monitoring dashboard
+  </Tab>
+  
+  <Tab title="Egress Requirements">
+    Galileo integrates with external services:
+    
+    | Endpoint | Protocol | Port | Purpose | Can Block? |
+    |----------|----------|------|---------|------------|
+    | api.sendgrid.com | HTTPS | 443 | Email notifications | Yes |
+    | huggingface.co | HTTPS | 443 | Model downloads | Yes* |
+    | listener.logz.io | HTTPS | 8053, 8071 | Telemetry | Yes |
+    | prometheus-prod.grafana.net | HTTPS | 443 | Metrics | Yes |
+    | us.sentry.io | HTTPS | 443 | APM | Yes |
+    | hooks.slack.com | HTTPS | 443 | Notifications | Yes |
+    
+    *Use offline models via shared volume if blocked
+  </Tab>
+</Tabs>
+
+## Security Architecture
+
+### Authentication & Authorization
+
+- Users authenticate via web UI or API keys
+- Optional SSO integration (SAML, OAuth)
+- JWT tokens for API authentication
+- RBAC enforced by AuthZ service
+
+### Data Security
+
+- TLS/SSL for all external communications
+- Optional TLS for internal service mesh
+- Encryption at rest for databases and object storage
+- Secrets management via Kubernetes Secrets or external vaults
+
+### Network Security
+
+- Network policies to restrict pod-to-pod communication
+- Private subnets for databases and internal services
+- Security groups/firewall rules for ingress/egress
+- VPC/VNet isolation
+
+## Scaling Strategies
+
+### Horizontal Scaling
+
+Services that scale horizontally:
+- API Service: Scale based on request rate
+- UI Service: Scale based on concurrent users
+- Runner Services: Scale based on queue depth
+- Comet Service: Limited horizontal scaling
+
+### Vertical Scaling
+
+Services that benefit from vertical scaling:
+- Wizard Service: More GPU/CPU for complex analysis
+- ClickHouse: More memory for query performance
+- PostgreSQL: More CPU/memory for complex queries
+
+### Autoscaling Configuration
+
+Galileo supports Kubernetes Horizontal Pod Autoscaler (HPA):
+- API: Target 70% CPU utilization
+- Runners: Target queue depth < 5 jobs
+- UI: Target 60% memory utilization
+
+## Monitoring & Observability
+
+### Metrics
+
+- Prometheus for metrics collection
+- Grafana for visualization
+- Custom Galileo metrics exposed via API
+
+### Logging
+
+- Centralized logging via Logz.io (optional)
+- Kubernetes native logging
+- Application logs stored in ClickHouse
+
+### Tracing
+
+- Distributed tracing for request flows
+- Performance monitoring via APM tools
+- Custom trace storage in ClickHouse
+
+## Upgrade & Maintenance
+
+### Upgrade Strategy
+
+- Rolling updates for stateless services
+- Blue-green deployment support
+- Database migrations handled automatically
+- Helm-based configuration management
+
+### Backup & Recovery
+
+- Automated database backups
+- Object storage versioning
+- ClickHouse snapshots
+- Disaster recovery procedures documented
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Resource Requirements" icon="server" href="/deployment-docs/resource-requirements">
+    Review detailed resource specifications for each component
+  </Card>
+  <Card title="Prerequisites" icon="list-check" href="/deployment-docs/prerequisites">
+    Check prerequisites before deployment
+  </Card>
+  <Card title="Security Considerations" icon="shield-check" href="/deployment-docs/security-considerations">
+    Review security best practices and requirements
+  </Card>
+  <Card title="Start Deployment" icon="rocket" href="/deployment-docs/deploying-on-aws-eks">
+    Begin deploying on your chosen platform
+  </Card>
+</CardGroup>

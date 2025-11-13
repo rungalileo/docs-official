@@ -1,0 +1,588 @@
+---
+title: "Prerequisites"
+description: "Prerequisites and requirements for deploying Galileo Platform, including tools, access permissions, and infrastructure readiness."
+icon: "list-check"
+---
+
+## Overview
+
+Before deploying Galileo Platform, ensure you have the necessary tools, permissions, and infrastructure components in place. This page outlines all prerequisites organized by category.
+
+<Info>
+  **Time to prepare**: 30-60 minutes depending on your environment and access levels
+</Info>
+
+## Kubernetes Requirements
+
+### Minimum Kubernetes Version
+
+<Check>**Kubernetes 1.25 or higher** is required</Check>
+
+Galileo Platform requires specific Kubernetes API functionalities available in version 1.25 and above.
+
+<Warning>
+  **Note on ClickHouse Keeper**: If using Kubernetes version below 1.30, you may encounter issues with ClickHouse Keeper. Upgrade to 1.30+ for optimal compatibility.
+</Warning>
+
+### Persistent Volume Support
+
+Your Kubernetes cluster must support **Persistent Volumes (PV)** and **Persistent Volume Claims (PVC)** for stateful services:
+
+- ClickHouse data storage
+- PostgreSQL (if self-hosted)
+- RabbitMQ message persistence
+- MinIO (if using self-hosted object storage)
+
+### Storage Classes
+
+Ensure appropriate storage classes are available:
+
+<Tabs>
+  <Tab title="AWS EKS">
+    - **Default**: `gp2` or `gp3` (EBS)
+    - **Fast SSD**: `gp3` for databases
+    - **Standard**: `gp2` for message queues
+  </Tab>
+  
+  <Tab title="Google GKE">
+    - **Default**: `standard` or `standard-rwo`
+    - **Fast SSD**: `pd-ssd` for databases
+    - **Standard**: `pd-standard` for message queues
+  </Tab>
+  
+  <Tab title="Azure AKS">
+    - **Default**: `default` or `managed-csi`
+    - **Fast SSD**: `managed-premium` for databases
+    - **Standard**: `managed` for message queues
+  </Tab>
+</Tabs>
+
+## Required Tools
+
+Install and configure the following tools on your local machine or deployment environment:
+
+### kubectl
+
+Command-line tool for Kubernetes cluster management
+
+<Tabs>
+  <Tab title="macOS">
+    ```bash
+    brew install kubectl
+    ```
+  </Tab>
+  
+  <Tab title="Linux">
+    ```bash
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    chmod +x kubectl
+    sudo mv kubectl /usr/local/bin/
+    ```
+  </Tab>
+  
+  <Tab title="Windows">
+    ```powershell
+    choco install kubernetes-cli
+    ```
+  </Tab>
+</Tabs>
+
+Verify installation:
+```bash
+kubectl version --client
+```
+
+### Helm
+
+Package manager for Kubernetes (version 3.x required)
+
+<Tabs>
+  <Tab title="macOS">
+    ```bash
+    brew install helm
+    ```
+  </Tab>
+  
+  <Tab title="Linux">
+    ```bash
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+    ```
+  </Tab>
+  
+  <Tab title="Windows">
+    ```powershell
+    choco install kubernetes-helm
+    ```
+  </Tab>
+</Tabs>
+
+Verify installation:
+```bash
+helm version
+```
+
+### Cloud Provider CLI
+
+Install the CLI for your chosen cloud provider:
+
+<Tabs>
+  <Tab title="AWS CLI">
+    **Required version**: AWS CLI v2
+    
+    ```bash
+    # macOS
+    brew install awscli
+    
+    # Linux
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    unzip awscliv2.zip
+    sudo ./aws/install
+    
+    # Verify
+    aws --version
+    
+    # Configure
+    aws configure
+    ```
+    
+    You'll also need `eksctl` for EKS cluster management:
+    ```bash
+    # macOS
+    brew install eksctl
+    
+    # Linux
+    curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+    sudo mv /tmp/eksctl /usr/local/bin
+    
+    # Verify
+    eksctl version
+    ```
+  </Tab>
+  
+  <Tab title="Google Cloud SDK">
+    **Required**: gcloud CLI
+    
+    ```bash
+    # macOS
+    brew install --cask google-cloud-sdk
+    
+    # Linux - follow instructions at:
+    # https://cloud.google.com/sdk/docs/install
+    
+    # Verify
+    gcloud version
+    
+    # Initialize
+    gcloud init
+    
+    # Install kubectl component
+    gcloud components install kubectl
+    ```
+  </Tab>
+  
+  <Tab title="Azure CLI">
+    **Required**: Azure CLI
+    
+    ```bash
+    # macOS
+    brew install azure-cli
+    
+    # Linux
+    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+    
+    # Windows
+    # Download from: https://aka.ms/installazurecliwindows
+    
+    # Verify
+    az --version
+    
+    # Login
+    az login
+    ```
+  </Tab>
+</Tabs>
+
+## Cloud Provider Access & Permissions
+
+### AWS Requirements
+
+<AccordionGroup>
+  <Accordion title="Account Access" icon="user">
+    - AWS account with administrative access
+    - IAM user or role with permissions to:
+      - Create and manage EKS clusters
+      - Create and manage EC2 instances
+      - Create and manage S3 buckets
+      - Create and manage RDS instances (if using managed database)
+      - Create and manage IAM roles and policies
+      - Configure VPC and networking
+  </Accordion>
+  
+  <Accordion title="Service Quotas" icon="gauge">
+    Verify your AWS account has sufficient service quotas:
+    - **EC2 vCPUs**: At least 40 vCPUs in your region
+    - **VPC**: Sufficient ENI and IP address capacity
+    - **EBS volumes**: At least 20 volumes
+    - **S3 buckets**: Ability to create 10+ buckets
+    - **EKS clusters**: At least 1 cluster quota available
+    
+    Check quotas at: [AWS Service Quotas Console](https://console.aws.amazon.com/servicequotas/)
+  </Accordion>
+  
+  <Accordion title="Networking Requirements" icon="network-wired">
+    - VPC with sufficient IP address space
+    - At least 2 private subnets across different AZs
+    - At least 2 public subnets (for load balancers)
+    - NAT Gateway or NAT instances for private subnet internet access
+    - Route tables configured appropriately
+  </Accordion>
+</AccordionGroup>
+
+### Google Cloud Requirements
+
+<AccordionGroup>
+  <Accordion title="Project Access" icon="user">
+    - GCP project with billing enabled
+    - IAM role with permissions:
+      - `roles/container.admin` - GKE cluster management
+      - `roles/compute.admin` - Compute instance management
+      - `roles/storage.admin` - Cloud Storage management
+      - `roles/cloudsql.admin` - Cloud SQL (if using managed database)
+      - `roles/iam.serviceAccountUser` - Service account usage
+  </Accordion>
+  
+  <Accordion title="API Enablement" icon="toggle-on">
+    Enable the following APIs in your GCP project:
+    - Kubernetes Engine API
+    - Compute Engine API
+    - Cloud Storage API
+    - Cloud SQL Admin API (if using Cloud SQL)
+    - Cloud Resource Manager API
+    - IAM Service Account Credentials API
+    
+    ```bash
+    gcloud services enable container.googleapis.com
+    gcloud services enable compute.googleapis.com
+    gcloud services enable storage-api.googleapis.com
+    gcloud services enable sqladmin.googleapis.com
+    ```
+  </Accordion>
+  
+  <Accordion title="Resource Quotas" icon="gauge">
+    Verify sufficient quotas:
+    - **CPUs**: At least 40 CPUs in your region
+    - **In-use IP addresses**: Sufficient for your cluster
+    - **Persistent Disk SSD**: At least 500 GB
+    - **Storage buckets**: Ability to create 10+ buckets
+  </Accordion>
+</AccordionGroup>
+
+### Azure Requirements
+
+<AccordionGroup>
+  <Accordion title="Subscription Access" icon="user">
+    - Azure subscription with appropriate access
+    - Role assignments:
+      - `Contributor` or `Owner` on the subscription
+      - Ability to create and manage AKS clusters
+      - Ability to create and manage Storage Accounts
+      - Ability to create and manage Azure Database for PostgreSQL
+  </Accordion>
+  
+  <Accordion title="Resource Providers" icon="toggle-on">
+    Register required resource providers:
+    ```bash
+    az provider register --namespace Microsoft.ContainerService
+    az provider register --namespace Microsoft.Compute
+    az provider register --namespace Microsoft.Storage
+    az provider register --namespace Microsoft.DBforPostgreSQL
+    az provider register --namespace Microsoft.Network
+    ```
+  </Accordion>
+  
+  <Accordion title="Resource Quotas" icon="gauge">
+    Verify sufficient quotas:
+    - **VM cores**: At least 40 cores in your region
+    - **Public IP addresses**: At least 5 available
+    - **Storage accounts**: Ability to create multiple accounts
+    - **Virtual networks**: Sufficient capacity
+  </Accordion>
+</AccordionGroup>
+
+## Domain and DNS Requirements
+
+### Domain Name
+
+<Check>You need a registered domain name where Galileo will be accessible</Check>
+
+Example: If your domain is `example.com`, Galileo endpoints will be:
+- `console.galileo.example.com` - Web UI
+- `api.galileo.example.com` - API service
+- `grafana.galileo.example.com` - Monitoring dashboard
+
+### DNS Management Access
+
+You'll need the ability to create DNS records (A records or CNAMEs) in your domain's DNS management system:
+
+- Access to your domain registrar's DNS settings, OR
+- Access to your organization's DNS management system (e.g., Route 53, Cloud DNS, Azure DNS)
+
+### SSL/TLS Certificates
+
+Choose one of the following options:
+
+<Tabs>
+  <Tab title="Let's Encrypt (Recommended)">
+    **Automated certificate management**
+    
+    - Galileo can automatically provision Let's Encrypt certificates using cert-manager
+    - Certificates auto-renew before expiration
+    - Requires DNS records to be properly configured
+    - Free of charge
+    
+    <Note>This is the recommended option for most deployments</Note>
+  </Tab>
+  
+  <Tab title="Custom Certificates">
+    **Use your organization's certificates**
+    
+    - Provide your own SSL/TLS certificates
+    - Certificates must be valid for all Galileo endpoints
+    - Need both certificate chain and private key
+    - Certificate files must be base64 encoded
+    
+    Required files:
+    - Full certificate chain (PEM format)
+    - Private key (PEM format)
+  </Tab>
+  
+  <Tab title="Cloud Provider Certificates">
+    **Use cloud-managed certificates**
+    
+    - AWS: ACM (AWS Certificate Manager)
+    - GCP: Google-managed SSL certificates
+    - Azure: Azure App certificates
+    
+    Configure during ingress setup
+  </Tab>
+</Tabs>
+
+## Secrets and Credentials
+
+### Docker Registry Access
+
+<Warning>
+  **Required**: Contact Galileo support to obtain Docker registry credentials for pulling Galileo container images.
+</Warning>
+
+You'll receive:
+- Docker registry URL
+- Username
+- Password or access token
+
+These credentials will be used to create a Kubernetes secret for image pulls.
+
+### Database Credentials
+
+If using a managed database service, prepare:
+- Database admin username
+- Secure password (URL-encode if it contains special characters)
+- Database endpoint/hostname
+- Database name (typically `galileo`)
+
+### Additional Secrets
+
+Galileo will handle generation of additional internal secrets, but you should prepare:
+- Email service credentials (if using SendGrid or similar)
+- External integration API keys (optional)
+- SSO configuration details (if using SSO)
+
+## Network and Security Requirements
+
+### Firewall Rules
+
+<Tabs>
+  <Tab title="Ingress (Inbound)">
+    Allow inbound traffic to your cluster:
+    - **Port 443 (HTTPS)**: From users accessing Galileo web UI and API
+    - **Port 80 (HTTP)**: Optional, for redirecting to HTTPS
+    - **Kubernetes API (6443)**: From your deployment machine
+    
+    Source IPs:
+    - Your organization's IP ranges
+    - VPN IPs (if applicable)
+    - Load balancer health checks
+  </Tab>
+  
+  <Tab title="Egress (Outbound)">
+    Allow outbound traffic from your cluster:
+    
+    **Required**:
+    - Container registry (for pulling images)
+    - Cloud provider APIs
+    - Package repositories (for updates)
+    
+    **Optional** (can be blocked with configuration):
+    - `api.sendgrid.com:443` - Email notifications
+    - `huggingface.co:443` - Model downloads (use offline models if blocked)
+    - `listener.logz.io:8053,8071` - Telemetry
+    - `prometheus-prod.grafana.net:443` - Metrics
+    - `us.sentry.io:443` - APM
+    - `hooks.slack.com:443` - Notifications
+    
+    <Note>See the [Network Configuration](/deployment-docs/network-configuration) page for details on disabling external integrations.</Note>
+  </Tab>
+</Tabs>
+
+### Security Groups / Firewall Policies
+
+Configure security groups to allow:
+- Inter-node communication within the Kubernetes cluster
+- Communication between nodes and managed services (RDS, Redis, etc.)
+- Load balancer to cluster communication
+- Cluster to object storage communication
+
+## Compute Resources
+
+### Cluster Capacity
+
+Ensure your cloud subscription or account can provision:
+
+| Resource Type | Minimum Requirement |
+|---------------|-------------------|
+| **Worker Nodes** | 5-10 nodes |
+| **Total vCPUs** | 40-60 vCPUs |
+| **Total Memory** | 160-240 GiB |
+| **Storage** | 500 GiB total persistent volumes |
+
+See [Resource Requirements](/deployment-docs/resource-requirements) for detailed specifications.
+
+### Node Pools
+
+Plan for at least 2-3 node pools:
+1. **Core pool**: General Galileo services (4 nodes min)
+2. **Runner pool**: Job execution (1-5 nodes, auto-scaling)
+3. **ML pool** (optional): GPU workloads (1-5 nodes, if needed)
+
+## Optional: Managed Services
+
+Consider provisioning these managed services before deployment:
+
+### PostgreSQL Database
+
+<Tabs>
+  <Tab title="AWS RDS">
+    - Aurora PostgreSQL 16.x
+    - Instance class: `db.t3.medium` minimum
+    - Multi-AZ for production
+    - Automated backups enabled
+  </Tab>
+  
+  <Tab title="Cloud SQL">
+    - PostgreSQL 16
+    - Machine type: `db-custom-2-7680` minimum
+    - High availability enabled
+    - Automated backups enabled
+  </Tab>
+  
+  <Tab title="Azure Database">
+    - PostgreSQL Flexible Server 16
+    - 2 vCores, 8 GiB memory minimum
+    - Zone-redundant HA
+    - Automated backups enabled
+  </Tab>
+</Tabs>
+
+### Redis Cache
+
+<Warning>
+  **Required**: Galileo does not support self-hosted Redis. You must use a managed Redis service.
+</Warning>
+
+<Tabs>
+  <Tab title="AWS ElastiCache">
+    - Redis 6.x or higher
+    - Node type: `cache.t3.medium` minimum
+    - Cluster mode or replication enabled
+    - At least 1 replica
+  </Tab>
+  
+  <Tab title="Memorystore">
+    - Redis 6.x or higher
+    - Tier: Standard (for HA)
+    - Memory: 1-2 GiB minimum
+    - Read replicas enabled
+  </Tab>
+  
+  <Tab title="Azure Cache">
+    - Redis 6.x or higher
+    - Tier: Standard C1 minimum
+    - Replication enabled
+  </Tab>
+</Tabs>
+
+## Pre-Deployment Checklist
+
+Before proceeding with deployment, verify you have:
+
+<Steps>
+  <Step title="Kubernetes cluster access">
+    ✓ kubectl configured and connected to your cluster  
+    ✓ Cluster meets minimum version requirement (1.25+)  
+    ✓ Sufficient node capacity available
+  </Step>
+  
+  <Step title="Tools installed">
+    ✓ kubectl installed  
+    ✓ Helm 3.x installed  
+    ✓ Cloud provider CLI installed and configured
+  </Step>
+  
+  <Step title="Permissions and access">
+    ✓ Cloud provider admin access  
+    ✓ Ability to create clusters and resources  
+    ✓ Docker registry credentials from Galileo
+  </Step>
+  
+  <Step title="Domain and certificates">
+    ✓ Domain name registered  
+    ✓ DNS management access  
+    ✓ SSL/TLS certificate strategy chosen
+  </Step>
+  
+  <Step title="Network configuration">
+    ✓ VPC/VNet configured  
+    ✓ Subnets available  
+    ✓ Firewall rules planned  
+    ✓ Egress requirements reviewed
+  </Step>
+  
+  <Step title="Resources planned">
+    ✓ Node pools designed  
+    ✓ Storage classes identified  
+    ✓ Managed services provisioned (optional)
+  </Step>
+</Steps>
+
+## Next Steps
+
+Once you've completed all prerequisites:
+
+<CardGroup cols={2}>
+  <Card title="Infrastructure Planning" icon="sitemap" href="/deployment-docs/infrastructure-planning">
+    Plan your detailed cluster architecture and configuration
+  </Card>
+  <Card title="Resource Requirements" icon="server" href="/deployment-docs/resource-requirements">
+    Review detailed resource specifications
+  </Card>
+  <Card title="Deploy on AWS EKS" icon="aws" href="/deployment-docs/deploying-on-aws-eks">
+    Start your AWS deployment
+  </Card>
+  <Card title="Deploy on GCP GKE" icon="google" href="/deployment-docs/deploying-on-gcp-gke">
+    Start your Google Cloud deployment
+  </Card>
+</CardGroup>
+
+<Note>
+  **Need help?** Contact Galileo support at support@galileo.ai or through your dedicated Slack channel.
+</Note>
