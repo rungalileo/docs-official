@@ -351,7 +351,7 @@ Test on the following combinations:
 - [ ] Initial page load is fast (under 3 seconds)
 - [ ] Custom CSS loads without blocking
 - [ ] Custom JS loads asynchronously
-- [ ] No visible layout shifts (CLS < 0.1)
+- [ ] No visible layout shifts (CLS under 0.1)
 
 **Scroll Performance:**
 - [ ] Smooth scrolling throughout page
@@ -367,7 +367,7 @@ Test on the following combinations:
 
 **Network:**
 - [ ] Custom assets are cached properly
-- [ ] File sizes are reasonable (<50KB per file)
+- [ ] File sizes are reasonable (under 50KB per file)
 - [ ] No unnecessary requests
 - [ ] Test on throttled connection (3G simulation)
 
