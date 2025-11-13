@@ -56,30 +56,51 @@ For general Galileo services (API, UI, database, etc.)
 
 <Tabs>
   <Tab title="AWS EKS">
-    - **Instance Type**: `c5.xlarge` or `m5.xlarge`
-    - **vCPUs**: 4
-    - **Memory**: 16 GiB
-    - **Storage**: 100 GiB gp2/gp3
-    - **Node Count**: Min 4, Max 5, Desired 4
-    - **Node Label**: `galileo-node-type=galileo-core`
+
+```yaml
+instanceType: c5.xlarge or m5.xlarge
+vCPUs: 4
+memory: 16 GiB
+storage: 100 GiB gp2/gp3
+nodeCount:
+  min: 4
+  max: 5
+  desired: 4
+nodeLabel: galileo-node-type=galileo-core
+```
+
   </Tab>
   
   <Tab title="Google GKE">
-    - **Machine Type**: `n2-standard-4` or `n1-standard-4`
-    - **vCPUs**: 4
-    - **Memory**: 16 GiB
-    - **Storage**: 100 GiB pd-standard
-    - **Node Count**: Min 4, Max 5, Desired 4
-    - **Node Label**: `galileo-node-type=galileo-core`
+
+```yaml
+machineType: n2-standard-4 or n1-standard-4
+vCPUs: 4
+memory: 16 GiB
+storage: 100 GiB pd-standard
+nodeCount:
+  min: 4
+  max: 5
+  desired: 4
+nodeLabel: galileo-node-type=galileo-core
+```
+
   </Tab>
   
   <Tab title="Azure AKS">
-    - **VM Size**: `Standard_D4_v4` or `Standard_D4s_v4`
-    - **vCPUs**: 4
-    - **Memory**: 16 GiB
-    - **Storage**: 100 GiB Standard SSD
-    - **Node Count**: Min 4, Max 5, Desired 4
-    - **Node Label**: `galileo-node-type=galileo-core`
+
+```yaml
+vmSize: Standard_D4_v4 or Standard_D4s_v4
+vCPUs: 4
+memory: 16 GiB
+storage: 100 GiB Standard SSD
+nodeCount:
+  min: 4
+  max: 5
+  desired: 4
+nodeLabel: galileo-node-type=galileo-core
+```
+
   </Tab>
 </Tabs>
 
@@ -89,30 +110,51 @@ For job execution and data processing
 
 <Tabs>
   <Tab title="AWS EKS">
-    - **Instance Type**: `c5.2xlarge` or `m5.2xlarge`
-    - **vCPUs**: 8
-    - **Memory**: 32 GiB
-    - **Storage**: 200 GiB gp2/gp3
-    - **Node Count**: Min 1, Max 5, Desired 1
-    - **Node Label**: `galileo-node-type=galileo-runner`
+
+```yaml
+instanceType: c5.2xlarge or m5.2xlarge
+vCPUs: 8
+memory: 32 GiB
+storage: 200 GiB gp2/gp3
+nodeCount:
+  min: 1
+  max: 5
+  desired: 1
+nodeLabel: galileo-node-type=galileo-runner
+```
+
   </Tab>
   
   <Tab title="Google GKE">
-    - **Machine Type**: `n2-standard-8` or `n1-standard-8`
-    - **vCPUs**: 8
-    - **Memory**: 32 GiB
-    - **Storage**: 200 GiB pd-standard
-    - **Node Count**: Min 1, Max 5, Desired 1
-    - **Node Label**: `galileo-node-type=galileo-runner`
+
+```yaml
+machineType: n2-standard-8 or n1-standard-8
+vCPUs: 8
+memory: 32 GiB
+storage: 200 GiB pd-standard
+nodeCount:
+  min: 1
+  max: 5
+  desired: 1
+nodeLabel: galileo-node-type=galileo-runner
+```
+
   </Tab>
   
   <Tab title="Azure AKS">
-    - **VM Size**: `Standard_D8_v4` or `Standard_D8s_v4`
-    - **vCPUs**: 8
-    - **Memory**: 32 GiB
-    - **Storage**: 200 GiB Standard SSD
-    - **Node Count**: Min 1, Max 5, Desired 1
-    - **Node Label**: `galileo-node-type=galileo-runner`
+
+```yaml
+vmSize: Standard_D8_v4 or Standard_D8s_v4
+vCPUs: 8
+memory: 32 GiB
+storage: 200 GiB Standard SSD
+nodeCount:
+  min: 1
+  max: 5
+  desired: 1
+nodeLabel: galileo-node-type=galileo-runner
+```
+
   </Tab>
 </Tabs>
 
@@ -124,13 +166,21 @@ For machine learning workloads requiring GPU acceleration
   <Tab title="AWS EKS">
     **Supported GPUs:** H100, A100, L40S, L4, A10
 
-    - **Instance Type**: `g4dn.2xlarge` (basic), `p5.4xlarge` (H100),
-      `g6e.2xlarge` (L40S), `g6.2xlarge` (L4)
-    - **GPU**: 1x NVIDIA T4 (g4dn), H100 (p5), L40S (g6e), or L4 (g6)
-    - **vCPUs**: 8-48 (varies by instance)
-    - **Memory**: 32-192 GiB (varies by instance)
-    - **Node Count**: Min 1, Max 5, Desired 1
-    - **Node Label**: `galileo-node-type=galileo-ml`
+```yaml
+instanceTypes:
+  basic: g4dn.2xlarge  # NVIDIA T4
+  h100: p5.4xlarge      # H100
+  l40s: g6e.2xlarge     # L40S
+  l4: g6.2xlarge        # L4
+gpu: 1x NVIDIA T4/H100/L40S/L4
+vCPUs: 8-48 (varies by instance)
+memory: 32-192 GiB (varies by instance)
+nodeCount:
+  min: 1
+  max: 5
+  desired: 1
+nodeLabel: galileo-node-type=galileo-ml
+```
 
     <Warning>
       L4 and A10 GPUs have shorter context windows -
@@ -141,13 +191,20 @@ For machine learning workloads requiring GPU acceleration
   <Tab title="Google GKE">
     **Supported GPUs:** H100, A100, L40S, L4, A10
 
-    - **Machine Type**: `a2-highgpu-1g` (A100), `a3-highgpu-1g` (H100),
-      `g2-standard-8` (L4)
-    - **GPU**: 1x NVIDIA A100, H100, or L4
-    - **vCPUs**: 12-96 (varies by machine type)
-    - **Memory**: 85-680 GiB (varies by machine type)
-    - **Node Count**: Min 1, Max 5, Desired 1
-    - **Node Label**: `galileo-node-type=galileo-ml`
+```yaml
+machineTypes:
+  a100: a2-highgpu-1g   # A100
+  h100: a3-highgpu-1g   # H100
+  l4: g2-standard-8     # L4
+gpu: 1x NVIDIA A100/H100/L4
+vCPUs: 12-96 (varies by machine type)
+memory: 85-680 GiB (varies by machine type)
+nodeCount:
+  min: 1
+  max: 5
+  desired: 1
+nodeLabel: galileo-node-type=galileo-ml
+```
 
     <Warning>
       L4 and A10 GPUs have shorter context windows -
@@ -158,14 +215,20 @@ For machine learning workloads requiring GPU acceleration
   <Tab title="Azure AKS">
     **Supported GPUs:** H100, A100, L40S, A10
 
-    - **VM Size**: `Standard_NC40ads_H100_v5` (H100),
-      `Standard_NC24ads_A100_v4` (A100),
-      `Standard_NV12ads_A10_v5` (A10)
-    - **GPU**: 1x NVIDIA H100, A100, or A10
-    - **vCPUs**: 12-80 (varies by VM size)
-    - **Memory**: 110-660 GiB (varies by VM size)
-    - **Node Count**: Min 1, Max 5, Desired 1
-    - **Node Label**: `galileo-node-type=galileo-ml`
+```yaml
+vmSizes:
+  h100: Standard_NC40ads_H100_v5  # H100
+  a100: Standard_NC24ads_A100_v4  # A100
+  a10: Standard_NV12ads_A10_v5    # A10
+gpu: 1x NVIDIA H100/A100/A10
+vCPUs: 12-80 (varies by VM size)
+memory: 110-660 GiB (varies by VM size)
+nodeCount:
+  min: 1
+  max: 5
+  desired: 1
+nodeLabel: galileo-node-type=galileo-ml
+```
 
     <Warning>
       A10 GPUs have shorter context windows -
@@ -198,59 +261,69 @@ Galileo requires persistent storage for stateful services:
 <Tabs>
   <Tab title="AWS S3">
     Galileo requires the following S3 buckets (auto-created or pre-provisioned):
-    
-    - `galileo-<customer_name>-project-runs`
-    - `galileo-<customer_name>-project-runs-results`
-    - `galileo-<customer_name>-images`
-    - `galileo-<customer_name>-prompts`
-    - `galileo-<customer_name>-prompts-datasets`
-    - `galileo-<customer_name>-prompts-results`
-    - `galileo-<customer_name>-models`
-    - `galileo-<customer_name>-auto-datasets`
-    - `galileo-<customer_name>-backups`
-    - `galileo-<customer_name>-offline-models` (for air-gapped deployments)
-    
+
+```text
+galileo-<customer_name>-project-runs
+galileo-<customer_name>-project-runs-results
+galileo-<customer_name>-images
+galileo-<customer_name>-prompts
+galileo-<customer_name>-prompts-datasets
+galileo-<customer_name>-prompts-results
+galileo-<customer_name>-models
+galileo-<customer_name>-auto-datasets
+galileo-<customer_name>-backups
+galileo-<customer_name>-offline-models (for air-gapped deployments)
+```
+
     <Note>
       Bucket names use the `customer_name` value from your Helm configuration.
     </Note>
   </Tab>
-  
+
   <Tab title="Google Cloud Storage">
     Galileo requires the following GCS buckets:
-    
-    - `galileo-<customer_name>-project-runs`
-    - `galileo-<customer_name>-project-runs-results`
-    - `galileo-<customer_name>-images`
-    - `galileo-<customer_name>-prompts`
-    - `galileo-<customer_name>-prompts-datasets`
-    - `galileo-<customer_name>-prompts-results`
-    - `galileo-<customer_name>-models`
-    - `galileo-<customer_name>-auto-datasets`
-    - `galileo-<customer_name>-backups`
-    - `galileo-<customer_name>-offline-models` (for air-gapped deployments)
+
+```text
+galileo-<customer_name>-project-runs
+galileo-<customer_name>-project-runs-results
+galileo-<customer_name>-images
+galileo-<customer_name>-prompts
+galileo-<customer_name>-prompts-datasets
+galileo-<customer_name>-prompts-results
+galileo-<customer_name>-models
+galileo-<customer_name>-auto-datasets
+galileo-<customer_name>-backups
+galileo-<customer_name>-offline-models (for air-gapped deployments)
+```
   </Tab>
-  
+
   <Tab title="Azure Blob Storage">
     Galileo requires the following storage containers:
-    
-    - `galileo-<customer_name>-project-runs`
-    - `galileo-<customer_name>-project-runs-results`
-    - `galileo-<customer_name>-images`
-    - `galileo-<customer_name>-prompts`
-    - `galileo-<customer_name>-prompts-datasets`
-    - `galileo-<customer_name>-prompts-results`
-    - `galileo-<customer_name>-models`
-    - `galileo-<customer_name>-auto-datasets`
-    - `galileo-<customer_name>-backups`
-    - `galileo-<customer_name>-offline-models` (for air-gapped deployments)
+
+```text
+galileo-<customer_name>-project-runs
+galileo-<customer_name>-project-runs-results
+galileo-<customer_name>-images
+galileo-<customer_name>-prompts
+galileo-<customer_name>-prompts-datasets
+galileo-<customer_name>-prompts-results
+galileo-<customer_name>-models
+galileo-<customer_name>-auto-datasets
+galileo-<customer_name>-backups
+galileo-<customer_name>-offline-models (for air-gapped deployments)
+```
+
   </Tab>
-  
+
   <Tab title="MinIO (Self-Hosted)">
     If using MinIO instead of cloud object storage:
-    
-    - **Storage**: 200 GiB per replica (4 replicas recommended)
-    - **Access**: S3-compatible API
-    - Buckets are auto-created by the application
+
+```yaml
+storage: 200 GiB per replica (4 replicas recommended)
+access: S3-compatible API
+buckets: Auto-created by the application
+```
+
   </Tab>
 </Tabs>
 
@@ -262,27 +335,39 @@ Instead of running PostgreSQL in-cluster, you can use managed database services:
 
 <Tabs>
   <Tab title="AWS RDS">
-    - **Engine**: Aurora PostgreSQL 16.x
-    - **Instance Class**: `db.t3.medium` (minimum for moderate workloads)
-    - **Storage**: 50-100 GiB with auto-scaling enabled
-    - **Multi-AZ**: Recommended for production
-    - **Backup**: Automated backups enabled
+
+```yaml
+engine: Aurora PostgreSQL 16.x
+instanceClass: db.t3.medium  # minimum for moderate workloads
+storage: 50-100 GiB with auto-scaling enabled
+multiAZ: Recommended for production
+backup: Automated backups enabled
+```
+
   </Tab>
-  
+
   <Tab title="Google Cloud SQL">
-    - **Engine**: PostgreSQL 16
-    - **Machine Type**: `db-custom-2-7680` (2 vCPU, 7.5 GiB)
-    - **Storage**: 50-100 GiB SSD with auto-scaling
-    - **High Availability**: Recommended for production
-    - **Backup**: Automated backups enabled
+
+```yaml
+engine: PostgreSQL 16
+machineType: db-custom-2-7680  # 2 vCPU, 7.5 GiB
+storage: 50-100 GiB SSD with auto-scaling
+highAvailability: Recommended for production
+backup: Automated backups enabled
+```
+
   </Tab>
-  
+
   <Tab title="Azure Database">
-    - **Engine**: Azure Database for PostgreSQL Flexible Server 16
-    - **Compute**: 2 vCores, 8 GiB memory
-    - **Storage**: 50-100 GiB with auto-growth
-    - **High Availability**: Zone-redundant recommended
-    - **Backup**: Automated backups enabled
+
+```yaml
+engine: Azure Database for PostgreSQL Flexible Server 16
+compute: 2 vCores, 8 GiB memory
+storage: 50-100 GiB with auto-growth
+highAvailability: Zone-redundant recommended
+backup: Automated backups enabled
+```
+
   </Tab>
 </Tabs>
 
@@ -307,6 +392,7 @@ Instead of running PostgreSQL in-cluster, you can use managed database services:
 ### Ports
 
 Standard Kubernetes ports plus Galileo-specific services:
+
 - HTTP: 80
 - HTTPS: 443
 - Kubernetes API: 6443

@@ -1,12 +1,105 @@
 ---
-icon: user-doctor-hair-long
-title: "Post Deployment Checklist"
-description: The following guide will walk you through steps you can take to make sure your Galileo cluster is properly deployed and running well.
+icon: "list-check"
+title: "Deployment Validation Checklist"
+description: "Comprehensive pre-deployment and post-deployment checklist to ensure your Galileo Platform is properly configured and running optimally."
 ---
 
-_This guide applies to all cloud providers._
+## Overview
 
-### 1. Confirm that all DNS records have been created.
+This guide provides validation steps for both pre-deployment preparation and post-deployment verification of your Galileo Platform. Following these checklists ensures a smooth deployment and operational cluster.
+
+<Info>
+  **Important:** Complete all pre-deployment checks before initiating the
+  deployment process to avoid configuration issues and deployment failures.
+</Info>
+
+## Pre-Deployment Checklist
+
+### Infrastructure Requirements
+
+<Card title="Infrastructure Validation" icon="server">
+  Verify your infrastructure meets all requirements before deployment: - [ ]
+  **Kubernetes Version:** Confirm version 1.32 or higher - [ ] **Node
+  Resources:** Verify minimum 4 vCPUs, 16GB RAM per node - [ ] **Storage
+  Classes:** Confirm availability of required storage classes - [ ] **Network
+  CNI:** Verify supported CNI plugin (Calico, Cilium, etc.) - [ ] **Load
+  Balancer:** Confirm load balancer provisioning capability - [ ] **DNS Zone:**
+  Verify control over DNS zone for record creation
+</Card>
+
+### Access and Permissions
+
+<Steps>
+  <Step title="Kubernetes Access">
+    Verify kubectl access and admin permissions: ```bash kubectl auth can-i '*'
+    '*' --all-namespaces ```
+  </Step>
+
+  <Step title="Cloud Provider Permissions">
+    Confirm IAM roles have necessary permissions: - Create/modify cloud
+    resources - Manage storage buckets - Configure networking - Access managed
+    services
+  </Step>
+
+  <Step title="Container Registry">
+    Verify access to Galileo's container registry: ```bash docker pull
+    galileo/platform:latest ```
+  </Step>
+</Steps>
+
+### Network Configuration
+
+| Check Item                   | Command/Verification                            | Expected Result              |
+| ---------------------------- | ----------------------------------------------- | ---------------------------- |
+| **Outbound Internet**        | `curl -I https://api.github.com`                | HTTP 200 response            |
+| **CloudFlare R2 Access**     | `curl -I https://r2.cloudflarestorage.com`      | HTTP 200/403 response        |
+| **DNS Resolution**           | `nslookup kubernetes.default.svc.cluster.local` | Valid IP returned            |
+| **Pod-to-Pod Communication** | Deploy test pods                                | Successful ping between pods |
+| **Service Discovery**        | `kubectl get svc -n kube-system`                | Core services visible        |
+
+### Storage Validation
+
+```bash
+# Check available storage classes
+kubectl get storageclass
+
+# Verify dynamic provisioning
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+EOF
+
+# Check PVC status
+kubectl get pvc test-pvc
+
+# Cleanup
+kubectl delete pvc test-pvc
+```
+
+### Pre-Deployment Configuration Review
+
+<Card title="Configuration Files" icon="file-check">
+  Ensure all configuration files are prepared: - [ ] **values.yaml:** Helm
+  values customized for your environment - [ ] **Secrets:** Database passwords,
+  API keys configured - [ ] **TLS Certificates:** SSL certificates ready (or
+  cert-manager configured) - [ ] **Ingress Configuration:** Domain names and
+  paths defined - [ ] **Resource Limits:** CPU/memory limits appropriate for
+  workload - [ ] **Backup Configuration:** Backup storage and schedule defined
+</Card>
+
+## Post-Deployment Checklist
+
+_The following steps verify successful deployment and operational readiness._
+
+### Step 1: Verify DNS Records
 
 Galileo will not set DNS records for your cluster and as such you need to set those appropriately for your company. Each record should have a TTL of 60 seconds or less.
 
@@ -18,7 +111,7 @@ kubectl get ingress -n galileo | grep -i http-solver
 
 When you run the above command, if you see no output, then the solvers should have finished. You can check this by visiting any of the domains for your cluster.
 
-### 2. Check the API's health-check.
+### Step 2: API Health Check
 
 ```
 curl -I -X GET https://api.<CLUSTER_SUBDOMAIN>.<CLUSTER_DOMAIN>/healthcheck
@@ -26,7 +119,7 @@ curl -I -X GET https://api.<CLUSTER_SUBDOMAIN>.<CLUSTER_DOMAIN>/healthcheck
 
 If the response is a 200, then this is a good sign that almost everything is up and running as expected.
 
-### 3. Check for unready pods.
+### Step 3: Pod Readiness Verification
 
 ```
 kubectl get pods --all-namespaces -o go-template='{{ range  $item := .items }}{{ range .status.conditions }}{{ if (or (and (eq .type "PodScheduled") (eq .status "False")) (and (eq .type "Ready") (eq .status "False"))) }}{{ $item.metadata.name}} {{ end }}{{ end }}{{ end }}'
@@ -34,7 +127,7 @@ kubectl get pods --all-namespaces -o go-template='{{ range  $item := .items }}{{
 
 If any pods are in an unready state, especially in the namespace where the Galileo platform was deployed, please notify the appropriate representative from Galileo and they will help to solve the issue.
 
-### 4. Check for pending persistent volume claims.
+### Step 4: Storage Validation
 
 ```
 kubectl get pvc --all-namespaces | grep -i pending
@@ -42,17 +135,188 @@ kubectl get pvc --all-namespaces | grep -i pending
 
 If any persistent volume claims are in a pending state, especially in the namespace where the Galileo platform was deployed, please notify the appropriate representative from Galileo and they will help to solve the issue.
 
-### 5. Clickhouse keeper fails to start
+### Step 5: ClickHouse Keeper Health
+
+<Warning>
+  **Known Issue:** ClickHouse Keeper may fail on Kubernetes versions below 1.30
+</Warning>
 
 ```
 kubectl get sts --all-namespaces | grep -i clickhouse-keeper
 ```
 
-If there is a statefulset `clickhouse-keeper` with zero ready replicas, it means the kubernetes version is incompatible, please take the following steps:
+If there is a statefulset `clickhouse-keeper` with zero ready replicas:
 
-1. Upgrade kubernetes version (control plane + node groups) to at least 1.30
-2. Delete the broken CRD with `kubectl delete crd clickhousekeeperinstallations.clickhouse-keeper.altinity.com`
-3. Delete the clickhouse operator with `kubectl delete deploy clickhouse-operator`
-4. Re-apply the manifest
-5. Wait for 2 minutes, confirm 3 clickhouse keeper statefulsets `chk-clickhouse-keeper-cluster` are up with `kubectl get sts --all-namespaces | grep -i clickhouse-keeper`
-6. If you still see an unhealthy statefulset `clickhouse-keeper` along with those 3, just clean up the statefulset and its pvc with `kubectl delete sts clickhouse-keeper && kubectl delete pvc data-volume-claim-clickhouse-keeper-0`
+<Steps>
+  <Step title="Upgrade Kubernetes">
+    Upgrade control plane and node groups to at least version 1.30
+  </Step>
+  <Step title="Clean Broken Resources">
+    ```bash kubectl delete crd
+    clickhousekeeperinstallations.clickhouse-keeper.altinity.com kubectl delete
+    deploy clickhouse-operator ```
+  </Step>
+  <Step title="Re-apply Manifest">
+    Re-apply the Galileo manifest to recreate resources
+  </Step>
+  <Step title="Verify Health">
+    Wait 2 minutes, then verify ClickHouse Keeper is healthy: ```bash kubectl
+    get sts --all-namespaces | grep -i clickhouse-keeper ```
+  </Step>
+  <Step title="Cleanup if Needed">
+    If issues persist, cleanup and retry: ```bash kubectl delete sts
+    clickhouse-keeper kubectl delete pvc data-volume-claim-clickhouse-keeper-0
+    ```
+  </Step>
+</Steps>
+
+## Additional Post-Deployment Validation
+
+### Service Connectivity
+
+```bash
+# Test UI accessibility
+curl -I https://console.<CLUSTER_SUBDOMAIN>.<CLUSTER_DOMAIN>
+
+# Test Grafana (if enabled)
+curl -I https://grafana.<CLUSTER_SUBDOMAIN>.<CLUSTER_DOMAIN>
+
+# Test data ingestion endpoint
+curl -I https://data.<CLUSTER_SUBDOMAIN>.<CLUSTER_DOMAIN>/healthcheck
+```
+
+### Database Connectivity
+
+```bash
+# Check PostgreSQL
+kubectl exec -n galileo deployment/api -- pg_isready
+
+# Check Redis
+kubectl exec -n galileo deployment/api -- redis-cli ping
+
+# Check ClickHouse
+kubectl exec -n galileo statefulset/clickhouse-cluster-0 -- clickhouse-client --query="SELECT 1"
+```
+
+### Resource Utilization
+
+```bash
+# Check node resource usage
+kubectl top nodes
+
+# Check pod resource usage in Galileo namespace
+kubectl top pods -n galileo
+
+# Check for resource pressure
+kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.conditions[?(@.type=="MemoryPressure")].status}{"\t"}{.status.conditions[?(@.type=="DiskPressure")].status}{"\n"}{end}'
+```
+
+### Security Validation
+
+<Card title="Security Checks" icon="shield-check">
+  Verify security configurations are properly applied: - [ ] **RBAC Policies:**
+  Check role bindings are correctly configured - [ ] **Network Policies:**
+  Verify network segmentation is active - [ ] **Secrets Encryption:** Confirm
+  secrets are encrypted at rest - [ ] **TLS/SSL:** Validate all endpoints use
+  HTTPS - [ ] **Authentication:** Test SSO/OAuth integration if configured - [ ]
+  **Audit Logging:** Verify audit logs are being collected
+</Card>
+
+## Performance Baseline
+
+### Establish Initial Metrics
+
+```bash
+# Capture baseline response times
+for i in {1..10}; do
+  time curl -s https://api.<DOMAIN>/healthcheck > /dev/null
+done
+
+# Document baseline metrics
+kubectl exec -n galileo deployment/api -- /app/scripts/performance_baseline.sh
+```
+
+### Set Up Monitoring Alerts
+
+<Info>
+  **Recommended:** Configure alerts for critical metrics: - API response time >
+  500ms - Pod restart count > 3 in 1 hour - Disk usage > 80% - Memory usage >
+  90% - ClickHouse replication lag > 5 minutes
+</Info>
+
+## Troubleshooting Common Issues
+
+### Pod Scheduling Issues
+
+```bash
+# Check for unschedulable pods
+kubectl get events --all-namespaces | grep FailedScheduling
+
+# View pod scheduling details
+kubectl describe pod <pod-name> -n galileo
+```
+
+### Certificate Issues
+
+```bash
+# Check cert-manager logs
+kubectl logs -n cert-manager deployment/cert-manager
+
+# View certificate status
+kubectl get certificate -n galileo
+kubectl describe certificate <cert-name> -n galileo
+```
+
+### Storage Issues
+
+```bash
+# Check PVC binding status
+kubectl get pvc -n galileo
+
+# View storage events
+kubectl get events -n galileo | grep -i volume
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="User Management"
+    icon="users"
+    href="/deployment-docs/security/setting-up-new-users"
+  >
+    Configure users and access control
+  </Card>
+  <Card
+    title="Backup Configuration"
+    icon="database"
+    href="/deployment-docs/operations/scheduling-automatic-backups-for-your-cluster"
+  >
+    Set up automated backups
+  </Card>
+  <Card
+    title="SSO Integration"
+    icon="key"
+    href="/deployment-docs/security/sso-integration"
+  >
+    Configure single sign-on
+  </Card>
+  <Card
+    title="Monitoring Setup"
+    icon="chart-line"
+    href="/deployment-docs/monitoring-setup"
+  >
+    Configure monitoring and alerting
+  </Card>
+</CardGroup>
+
+## Getting Support
+
+If you encounter issues during validation:
+
+<Warning>
+  **For Critical Issues:** Contact Galileo support immediately at
+  support@galileo.ai with: - Cluster information (cloud provider, region,
+  Kubernetes version) - Output from failed validation steps - Relevant pod logs
+  and events - Screenshots of error messages
+</Warning>

@@ -1,0 +1,595 @@
+---
+title: "Deployment Troubleshooting Hub"
+description: "Common issues, solutions, and debugging strategies for Galileo deployments"
+---
+
+import { Card, CardGroup } from "/snippets/components/card-component.mdx";
+import { Tabs, Tab } from "/snippets/components/tabs-component.mdx";
+import {
+  Accordion,
+  AccordionGroup,
+} from "/snippets/components/accordion-component.mdx";
+import { Steps, Step } from "/snippets/components/steps-component.mdx";
+import { Callout } from "/snippets/components/callout-component.mdx";
+
+# Deployment Troubleshooting Hub
+
+<Callout type="info" emoji="🔧">
+  This hub provides solutions to common deployment issues, debugging strategies,
+  and health check procedures for Galileo deployments.
+</Callout>
+
+## Quick Links
+
+<CardGroup cols={3}>
+  <Card
+    title="Common Errors"
+    icon="triangle-exclamation"
+    href="#common-deployment-errors"
+  >
+    Solutions to frequent deployment issues
+  </Card>
+  <Card
+    title="Health Checks"
+    icon="heart-pulse"
+    href="#health-check-procedures"
+  >
+    Verify system components are running
+  </Card>
+  <Card title="Log Analysis" icon="magnifying-glass" href="#log-analysis-guide">
+    Debugging with system logs
+  </Card>
+</CardGroup>
+
+## Common Deployment Errors
+
+### Installation Failures
+
+<AccordionGroup>
+  <Accordion title="Helm Chart Installation Fails">
+    **Symptoms:**
+    - `Error: unable to build kubernetes objects`
+    - `Error: validation failed`
+    - `helm install` hangs indefinitely
+
+    **Solutions:**
+    ```bash
+    # 1. Verify Helm version compatibility
+    helm version
+    # Ensure Helm 3.8+ is installed
+
+    # 2. Update Helm repositories
+    helm repo update
+
+    # 3. Validate values file
+    helm lint ./galileo-chart -f values.yaml
+
+    # 4. Dry run to test configuration
+    helm install galileo ./galileo-chart \
+      -f values.yaml \
+      --dry-run --debug
+
+    # 5. Check for namespace issues
+    kubectl create namespace galileo --dry-run=client -o yaml
+    ```
+
+    **Common Fixes:**
+    - Ensure all required values are set in `values.yaml`
+    - Check for YAML syntax errors
+    - Verify Kubernetes version compatibility (1.23+)
+
+  </Accordion>
+
+  <Accordion title="Container Image Pull Errors">
+    **Symptoms:**
+    - `ErrImagePull` or `ImagePullBackOff`
+    - `unauthorized: authentication required`
+    - `manifest unknown`
+
+    **Solutions:**
+    ```bash
+    # 1. Verify registry credentials
+    kubectl get secret docker-registry-secret -n galileo -o yaml
+
+    # 2. Create/update registry secret
+    kubectl create secret docker-registry docker-registry-secret \
+      --docker-server=<registry-url> \
+      --docker-username=<username> \
+      --docker-password=<password> \
+      --docker-email=<email> \
+      -n galileo
+
+    # 3. Check pod events
+    kubectl describe pod <pod-name> -n galileo
+
+    # 4. Test registry access
+    docker login <registry-url>
+    docker pull <image-name>:<tag>
+    ```
+
+    **Common Fixes:**
+    - Update expired registry credentials
+    - Ensure correct image tags in values.yaml
+    - Check network connectivity to registry
+
+  </Accordion>
+
+  <Accordion title="Persistent Volume Claims Pending">
+    **Symptoms:**
+    - PVCs stuck in `Pending` state
+    - `no persistent volumes available`
+    - `waiting for a volume to be created`
+
+    **Solutions:**
+    ```bash
+    # 1. Check storage class availability
+    kubectl get storageclass
+
+    # 2. Verify PVC specifications
+    kubectl describe pvc -n galileo
+
+    # 3. Check available PVs
+    kubectl get pv
+
+    # 4. Create storage class if missing
+    cat <<EOF | kubectl apply -f -
+    apiVersion: storage.k8s.io/v1
+    kind: StorageClass
+    metadata:
+      name: galileo-storage
+    provisioner: kubernetes.io/aws-ebs  # Adjust for your cloud
+    parameters:
+      type: gp3
+      fsType: ext4
+    volumeBindingMode: WaitForFirstConsumer
+    EOF
+    ```
+
+    **Common Fixes:**
+    - Ensure storage provisioner is installed
+    - Verify cloud provider IAM permissions
+    - Check storage quota limits
+
+  </Accordion>
+</AccordionGroup>
+
+### Connection Issues
+
+<AccordionGroup>
+  <Accordion title="Database Connection Failures">
+    **Symptoms:**
+    - `connection refused` errors
+    - `timeout waiting for connection`
+    - Services failing health checks
+
+    **Solutions:**
+    <Tabs>
+      <Tab title="PostgreSQL">
+        ```bash
+        # 1. Test database connectivity
+        kubectl run -it --rm debug --image=postgres:14 \
+          --restart=Never -n galileo -- \
+          psql -h <db-host> -U <username> -d <database>
+
+        # 2. Check network policies
+        kubectl get networkpolicies -n galileo
+
+        # 3. Verify database credentials
+        kubectl get secret galileo-db-secret -n galileo \
+          -o jsonpath='{.data}' | base64 -d
+
+        # 4. Check database logs
+        kubectl logs -n galileo deployment/postgres
+        ```
+      </Tab>
+      <Tab title="MongoDB">
+        ```bash
+        # 1. Test MongoDB connectivity
+        kubectl run -it --rm debug --image=mongo:6 \
+          --restart=Never -n galileo -- \
+          mongosh --host <mongo-host> --username <user>
+
+        # 2. Verify replica set status
+        kubectl exec -it mongodb-0 -n galileo -- \
+          mongosh --eval "rs.status()"
+
+        # 3. Check connection string
+        echo $MONGO_CONNECTION_STRING
+        ```
+      </Tab>
+    </Tabs>
+
+    **Common Fixes:**
+    - Update database connection strings
+    - Check firewall rules and security groups
+    - Verify DNS resolution
+    - Ensure database is accepting connections
+
+  </Accordion>
+
+  <Accordion title="Load Balancer Not Accessible">
+    **Symptoms:**
+    - Cannot access Galileo UI
+    - `Connection refused` in browser
+    - Load balancer shows unhealthy targets
+
+    **Solutions:**
+    ```bash
+    # 1. Check service status
+    kubectl get svc -n galileo
+
+    # 2. Verify load balancer provisioning
+    kubectl describe svc galileo-ui -n galileo
+
+    # 3. Check ingress configuration
+    kubectl get ingress -n galileo
+    kubectl describe ingress galileo-ingress -n galileo
+
+    # 4. Test internal connectivity
+    kubectl port-forward svc/galileo-ui 8080:80 -n galileo
+    # Then access http://localhost:8080
+
+    # 5. Check SSL/TLS certificates
+    kubectl get certificates -n galileo
+    ```
+
+    **Common Fixes:**
+    - Wait for load balancer provisioning (can take 5-10 minutes)
+    - Update security group rules
+    - Verify DNS propagation
+    - Check certificate validation
+
+  </Accordion>
+</AccordionGroup>
+
+## Health Check Procedures
+
+### System Component Health Checks
+
+<Steps>
+  <Step title="Core Services Health">
+    ```bash
+    # Check all pod statuses
+    kubectl get pods -n galileo
+
+    # Verify all deployments are ready
+    kubectl get deployments -n galileo
+
+    # Check replica sets
+    kubectl get rs -n galileo
+
+    # Monitor pod restarts
+    kubectl get pods -n galileo \
+      --sort-by='.status.containerStatuses[0].restartCount'
+    ```
+
+  </Step>
+
+  <Step title="Database Health">
+    ```bash
+    # PostgreSQL health check
+    kubectl exec -it postgres-0 -n galileo -- \
+      pg_isready -U postgres
+
+    # MongoDB health check
+    kubectl exec -it mongodb-0 -n galileo -- \
+      mongosh --eval "db.adminCommand('ping')"
+
+    # Redis health check
+    kubectl exec -it redis-master-0 -n galileo -- \
+      redis-cli ping
+    ```
+
+  </Step>
+
+  <Step title="API Health">
+    ```bash
+    # Check API endpoints
+    kubectl run curl --image=curlimages/curl -it --rm \
+      --restart=Never -n galileo -- \
+      curl http://galileo-api:8080/health
+
+    # Check metrics endpoint
+    curl http://<galileo-url>/metrics
+
+    # Verify authentication service
+    curl http://<galileo-url>/auth/health
+    ```
+
+  </Step>
+
+  <Step title="Storage Health">
+    ```bash
+    # Check PVC status
+    kubectl get pvc -n galileo
+
+    # Verify storage usage
+    kubectl exec -it <pod-name> -n galileo -- df -h
+
+    # Check S3 connectivity (if applicable)
+    kubectl run aws-cli --image=amazon/aws-cli -it --rm \
+      --restart=Never -n galileo -- \
+      s3 ls s3://<bucket-name>
+    ```
+
+  </Step>
+</Steps>
+
+### Automated Health Monitoring Script
+
+```bash
+#!/bin/bash
+# galileo-health-check.sh
+
+NAMESPACE="galileo"
+CRITICAL_SERVICES=("galileo-api" "galileo-ui" "postgres" "redis")
+
+echo "🔍 Galileo Health Check Report"
+echo "==============================="
+echo "Timestamp: $(date)"
+echo ""
+
+# Check critical services
+echo "📊 Critical Services Status:"
+for service in "${CRITICAL_SERVICES[@]}"; do
+    STATUS=$(kubectl get pods -n $NAMESPACE -l app=$service \
+      -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
+    if [ "$STATUS" == "Running" ]; then
+        echo "✅ $service: Running"
+    else
+        echo "❌ $service: $STATUS"
+    fi
+done
+
+# Check resource usage
+echo -e "\n💾 Resource Usage:"
+kubectl top pods -n $NAMESPACE --no-headers | head -5
+
+# Check recent events
+echo -e "\n📝 Recent Warning Events:"
+kubectl get events -n $NAMESPACE --field-selector type=Warning \
+  --sort-by='.lastTimestamp' | tail -5
+
+# Check certificate expiry
+echo -e "\n🔒 Certificate Status:"
+kubectl get certificates -n $NAMESPACE \
+  -o jsonpath='{range .items[*]}{.metadata.name}: {.status.conditions[0].message}{"\n"}{end}'
+```
+
+## Log Analysis Guide
+
+### Where to Find Logs
+
+<Tabs>
+  <Tab title="Kubernetes Logs">
+    ```bash
+    # View logs for specific pod
+    kubectl logs <pod-name> -n galileo
+
+    # View logs with timestamps
+    kubectl logs <pod-name> -n galileo --timestamps
+
+    # Follow logs in real-time
+    kubectl logs -f <pod-name> -n galileo
+
+    # View previous container logs (after crash)
+    kubectl logs <pod-name> -n galileo --previous
+
+    # Get logs from all pods with label
+    kubectl logs -l app=galileo-api -n galileo --all-containers
+
+    # Export logs to file
+    kubectl logs deployment/galileo-api -n galileo > galileo-api.log
+    ```
+
+  </Tab>
+  <Tab title="System Events">
+    ```bash
+    # View all events in namespace
+    kubectl get events -n galileo --sort-by='.lastTimestamp'
+
+    # Watch events in real-time
+    kubectl get events -n galileo --watch
+
+    # Filter warning events
+    kubectl get events -n galileo --field-selector type=Warning
+
+    # Events for specific pod
+    kubectl describe pod <pod-name> -n galileo | grep -A 10 Events
+    ```
+
+  </Tab>
+  <Tab title="Application Logs">
+    ```bash
+    # Access application log directory
+    kubectl exec -it <pod-name> -n galileo -- ls -la /var/log/
+
+    # View specific application log
+    kubectl exec -it <pod-name> -n galileo -- tail -f /var/log/galileo/app.log
+
+    # Search for errors
+    kubectl logs <pod-name> -n galileo | grep -i error
+
+    # Get stack traces
+    kubectl logs <pod-name> -n galileo | grep -A 10 -B 2 "Exception"
+    ```
+
+  </Tab>
+</Tabs>
+
+### Common Log Patterns to Look For
+
+<AccordionGroup>
+  <Accordion title="Error Patterns">
+    ```bash
+    # Database connection errors
+    grep -E "(connection refused|timeout|unreachable|failed to connect)" logs.txt
+
+    # Authentication failures
+    grep -E "(unauthorized|forbidden|401|403|invalid token)" logs.txt
+
+    # Resource exhaustion
+    grep -E "(OOMKilled|memory limit|disk full|quota exceeded)" logs.txt
+
+    # Configuration errors
+    grep -E "(missing required|invalid config|unknown field)" logs.txt
+    ```
+
+  </Accordion>
+  <Accordion title="Performance Issues">
+    ```bash
+    # Slow queries
+    grep -E "took [0-9]+ms" logs.txt | awk '$3 > 1000'
+
+    # High latency requests
+    grep -E "response_time|duration" logs.txt | sort -k2 -n | tail -20
+
+    # Timeout patterns
+    grep -E "(timeout|deadline exceeded|context canceled)" logs.txt
+
+    # Rate limiting
+    grep -E "(rate limit|throttled|too many requests|429)" logs.txt
+    ```
+
+  </Accordion>
+</AccordionGroup>
+
+## Debugging Strategies
+
+### Progressive Debugging Approach
+
+<Steps>
+  <Step title="Isolate the Problem">
+    - Identify which component is failing
+    - Check if issue is consistent or intermittent
+    - Determine if it's environment-specific
+    - Review recent changes or deployments
+  </Step>
+
+  <Step title="Gather Information">
+    ```bash
+    # Collect comprehensive diagnostics
+    kubectl cluster-info dump --namespace galileo \
+      --output-directory=/tmp/galileo-debug
+
+    # Get resource descriptions
+    kubectl describe all -n galileo > resources.txt
+
+    # Check resource utilization
+    kubectl top nodes
+    kubectl top pods -n galileo
+    ```
+
+  </Step>
+
+  <Step title="Test Incrementally">
+    ```bash
+    # Test network connectivity
+    kubectl run netshoot --rm -i --tty \
+      --image nicolaka/netshoot -n galileo
+
+    # Test DNS resolution
+    nslookup galileo-api.galileo.svc.cluster.local
+
+    # Test service endpoints
+    curl -v http://galileo-api:8080/health
+    ```
+
+  </Step>
+
+  <Step title="Apply Fixes">
+    - Start with least invasive solutions
+    - Document changes made
+    - Test after each change
+    - Have rollback plan ready
+  </Step>
+</Steps>
+
+### Emergency Recovery Procedures
+
+<Callout type="warning" emoji="⚠️">
+  These procedures should only be used when standard troubleshooting fails and
+  the system is completely unavailable.
+</Callout>
+
+```bash
+# Emergency restart of all pods
+kubectl rollout restart deployment -n galileo
+
+# Force delete stuck pods
+kubectl delete pod <pod-name> -n galileo --grace-period=0 --force
+
+# Reset failed Helm release
+helm rollback galileo -n galileo
+helm upgrade galileo ./galileo-chart -f values.yaml --force
+
+# Clear and recreate namespace (LAST RESORT)
+kubectl delete namespace galileo
+kubectl create namespace galileo
+# Redeploy from scratch
+```
+
+## Getting Help
+
+### Information to Provide When Seeking Help
+
+When contacting support, include:
+
+**1. Environment Details**
+
+- Kubernetes version: `kubectl version`
+- Helm version: `helm version`
+- Cloud provider and region
+- Deployment tier (Starter/Growth/Scale/Enterprise)
+
+**2. Error Description**
+
+- Exact error messages
+- When the error occurs
+- Steps to reproduce
+- What you expected to happen
+
+**3. Diagnostic Information**
+
+```bash
+# Generate support bundle
+kubectl get all -n galileo > galileo-resources.txt
+kubectl describe pods -n galileo > galileo-pods.txt
+kubectl logs -n galileo --all-containers --tail=1000 > galileo-logs.txt
+helm get values galileo -n galileo > galileo-values.yaml
+```
+
+**4. Recent Changes**
+
+- Configuration updates
+- Version upgrades
+- Infrastructure changes
+- New integrations
+
+### Support Channels
+
+<CardGroup cols={2}>
+  <Card title="Documentation" icon="book" href="/deployment-docs/overview">
+    Check deployment guides and configuration references
+  </Card>
+  <Card
+    title="Community Forum"
+    icon="users"
+    href="https://community.galileo.ai"
+  >
+    Ask questions and share solutions with other users
+  </Card>
+  <Card title="Support Portal" icon="headset" href="https://support.galileo.ai">
+    Open tickets for critical issues
+  </Card>
+  <Card title="Status Page" icon="signal" href="https://status.galileo.ai">
+    Check service status and incidents
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+- Review [Post-Deployment Checklist](/deployment-docs/operations/post-deployment-checklist) to ensure proper configuration
+- Set up [Monitoring and Alerting](/deployment-docs/operations/monitoring) for proactive issue detection
+- Configure [Automatic Backups](/deployment-docs/operations/scheduling-automatic-backups-for-your-cluster) for disaster recovery
+- Implement [Performance Tuning](/deployment-docs/operations/performance-tuning) for optimal operation

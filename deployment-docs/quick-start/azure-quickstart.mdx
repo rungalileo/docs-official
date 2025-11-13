@@ -1,0 +1,596 @@
+---
+title: "Azure Quick Start Guide"
+description: "Deploy Galileo on Azure Kubernetes Service in 30 minutes"
+---
+
+import { Card, CardGroup } from "/snippets/components/card-component.mdx";
+import { Steps, Step } from "/snippets/components/steps-component.mdx";
+import { Tabs, Tab } from "/snippets/components/tabs-component.mdx";
+import { Callout } from "/snippets/components/callout-component.mdx";
+import {
+  Accordion,
+  AccordionGroup,
+} from "/snippets/components/accordion-component.mdx";
+
+# Azure Quick Start Guide
+
+<Callout type="info" emoji="⚡">
+  This guide helps you deploy Galileo on Azure Kubernetes Service (AKS) in
+  approximately 30 minutes. For detailed configuration options, see the
+  [comprehensive Azure deployment
+  guide](/deployment-docs/cloud-providers/azure/overview).
+</Callout>
+
+## Prerequisites Checklist
+
+Before starting, ensure you have:
+
+- [ ] Azure Account with active subscription
+- [ ] Azure CLI installed (`az --version`)
+- [ ] kubectl installed (`kubectl version`)
+- [ ] Helm 3.8+ installed (`helm version`)
+- [ ] Appropriate Azure RBAC permissions
+- [ ] Galileo license key and registry credentials
+
+## Quick Deploy Options
+
+<CardGroup cols={2}>
+  <Card title="Starter Tier" icon="rocket">
+    **Best for:** Proof of concepts and small teams - 3 nodes (Standard_D2s_v3)
+    - ~$280/month - 5-minute setup
+  </Card>
+  <Card title="Growth Tier" icon="chart-line">
+    **Best for:** Production workloads - 5 nodes (Standard_D4s_v3) - ~$750/month
+    - 10-minute setup
+  </Card>
+</CardGroup>
+
+## Deployment Steps
+
+<Steps>
+  <Step title="Set Up Environment Variables">
+    ```bash
+    # Set your configuration
+    export RESOURCE_GROUP="galileo-rg"
+    export CLUSTER_NAME="galileo-cluster"
+    export LOCATION="eastus"
+    export GALILEO_VERSION="1.0.0"
+    export GALILEO_LICENSE_KEY="your-license-key"
+    
+    # Login to Azure
+    az login
+    
+    # Set subscription (if you have multiple)
+    az account set --subscription "Your Subscription Name"
+    
+    # Create resource group
+    az group create --name ${RESOURCE_GROUP} --location ${LOCATION}
+    ```
+  </Step>
+
+  <Step title="Create AKS Cluster">
+    <Tabs>
+      <Tab title="Starter Tier">
+        ```bash
+        # Create starter cluster
+        az aks create \
+          --resource-group ${RESOURCE_GROUP} \
+          --name ${CLUSTER_NAME} \
+          --location ${LOCATION} \
+          --kubernetes-version 1.27.7 \
+          --node-count 3 \
+          --node-vm-size Standard_D2s_v3 \
+          --node-osdisk-size 100 \
+          --node-osdisk-type Managed \
+          --enable-cluster-autoscaler \
+          --min-count 3 \
+          --max-count 5 \
+          --enable-managed-identity \
+          --network-plugin azure \
+          --network-policy azure \
+          --enable-addons monitoring,azure-policy \
+          --enable-ahub \
+          --generate-ssh-keys \
+          --tags Environment=Starter Application=Galileo
+        
+        # Get cluster credentials
+        az aks get-credentials \
+          --resource-group ${RESOURCE_GROUP} \
+          --name ${CLUSTER_NAME} \
+          --overwrite-existing
+        ```
+      </Tab>
+      <Tab title="Growth Tier">
+        ```bash
+        # Create growth cluster
+        az aks create \
+          --resource-group ${RESOURCE_GROUP} \
+          --name ${CLUSTER_NAME} \
+          --location ${LOCATION} \
+          --kubernetes-version 1.27.7 \
+          --enable-cluster-autoscaler \
+          --enable-managed-identity \
+          --network-plugin azure \
+          --network-policy azure \
+          --enable-addons monitoring,azure-policy,azure-keyvault-secrets-provider \
+          --enable-ahub \
+          --generate-ssh-keys \
+          --nodepool-name system \
+          --node-count 1 \
+          --node-vm-size Standard_D2s_v3 \
+          --tags Environment=Growth Application=Galileo
+        
+        # Add compute node pool
+        az aks nodepool add \
+          --resource-group ${RESOURCE_GROUP} \
+          --cluster-name ${CLUSTER_NAME} \
+          --name compute \
+          --node-count 3 \
+          --node-vm-size Standard_D4s_v3 \
+          --node-osdisk-size 200 \
+          --node-osdisk-type Ephemeral \
+          --enable-cluster-autoscaler \
+          --min-count 3 \
+          --max-count 10 \
+          --mode User \
+          --labels workload=compute
+        
+        # Add data node pool with premium storage
+        az aks nodepool add \
+          --resource-group ${RESOURCE_GROUP} \
+          --cluster-name ${CLUSTER_NAME} \
+          --name data \
+          --node-count 2 \
+          --node-vm-size Standard_E4s_v3 \
+          --node-osdisk-size 500 \
+          --node-osdisk-type Managed \
+          --zones 1 2 \
+          --enable-cluster-autoscaler \
+          --min-count 2 \
+          --max-count 5 \
+          --mode User \
+          --labels workload=data \
+          --node-taints workload=data:NoSchedule
+        
+        # Get cluster credentials
+        az aks get-credentials \
+          --resource-group ${RESOURCE_GROUP} \
+          --name ${CLUSTER_NAME} \
+          --overwrite-existing
+        ```
+      </Tab>
+    </Tabs>
+
+  </Step>
+
+  <Step title="Configure Storage">
+    ```bash
+    # Create namespace
+    kubectl create namespace galileo
+    
+    # Create premium storage class
+    cat <<EOF | kubectl apply -f -
+    apiVersion: storage.k8s.io/v1
+    kind: StorageClass
+    metadata:
+      name: galileo-premium
+    provisioner: disk.csi.azure.com
+    parameters:
+      skuName: Premium_LRS
+      cachingmode: ReadWrite
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+    reclaimPolicy: Retain
+    EOF
+    
+    # Create standard storage class
+    cat <<EOF | kubectl apply -f -
+    apiVersion: storage.k8s.io/v1
+    kind: StorageClass
+    metadata:
+      name: galileo-standard
+    provisioner: disk.csi.azure.com
+    parameters:
+      skuName: Standard_LRS
+      cachingmode: ReadOnly
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+    reclaimPolicy: Retain
+    EOF
+    ```
+  </Step>
+
+{" "}
+<Step title="Configure Azure Resources">
+  ```bash # Create Azure Container Registry (ACR) ACR_NAME="galileoacr${RANDOM}"
+  az acr create \ --resource-group ${RESOURCE_GROUP} \ --name ${ACR_NAME} \
+  --sku Standard \ --location ${LOCATION}# Attach ACR to AKS az aks update \ --name
+  ${CLUSTER_NAME} \ --resource-group ${RESOURCE_GROUP} \ --attach-acr ${
+    ACR_NAME
+  }# Create Storage Account for backups STORAGE_ACCOUNT="galileostorage${RANDOM}
+  " az storage account create \ --name ${STORAGE_ACCOUNT} \ --resource-group $
+  {RESOURCE_GROUP} \ --location ${LOCATION} \ --sku Standard_LRS \ --kind
+  StorageV2 \ --access-tier Hot # Create backup container az storage container
+  create \ --name galileo-backups \ --account-name ${STORAGE_ACCOUNT} \
+  --auth-mode login # Create Azure Key Vault KEYVAULT_NAME="galileo-kv-${RANDOM}
+  " az keyvault create \ --name ${KEYVAULT_NAME} \ --resource-group $
+  {RESOURCE_GROUP} \ --location ${LOCATION} \ --enable-rbac-authorization ```
+</Step>
+
+  <Step title="Install Galileo">
+    ```bash
+    # Add Helm repository
+    helm repo add galileo https://charts.galileo.ai
+    helm repo update
+    
+    # Get AKS identity
+    IDENTITY_CLIENT_ID=$(az aks show \
+      --resource-group ${RESOURCE_GROUP} \
+      --name ${CLUSTER_NAME} \
+      --query identityProfile.kubeletidentity.clientId -o tsv)
+    
+    # Create values file
+    cat > galileo-values.yaml <<EOF
+    global:
+      license:
+        key: "${GALILEO_LICENSE_KEY}"
+      
+      azure:
+        enabled: true
+        tenantId: $(az account show --query tenantId -o tsv)
+        subscriptionId: $(az account show --query id -o tsv)
+        resourceGroup: ${RESOURCE_GROUP}
+        identityClientId: ${IDENTITY_CLIENT_ID}
+      
+      ingress:
+        enabled: true
+        className: azure/application-gateway
+        annotations:
+          appgw.ingress.kubernetes.io/ssl-redirect: "true"
+          appgw.ingress.kubernetes.io/backend-protocol: "http"
+        host: galileo.${LOCATION}.cloudapp.azure.com
+      
+      storage:
+        className: galileo-premium
+        size: 100Gi
+      
+      backup:
+        enabled: true
+        storageAccount: ${STORAGE_ACCOUNT}
+        container: galileo-backups
+    
+    postgresql:
+      enabled: true
+      persistence:
+        size: 50Gi
+        storageClass: galileo-premium
+      
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+    
+    redis:
+      enabled: true
+      master:
+        persistence:
+          size: 10Gi
+          storageClass: galileo-premium
+      
+      sentinel:
+        enabled: true
+    
+    monitoring:
+      enabled: true
+      azureMonitor:
+        enabled: true
+        workspaceId: $(az monitor log-analytics workspace show \
+          --resource-group ${RESOURCE_GROUP} \
+          --workspace-name galileo-workspace \
+          --query customerId -o tsv 2>/dev/null || echo "")
+    EOF
+    
+    # Install Galileo
+    helm install galileo galileo/galileo \
+      --namespace galileo \
+      --values galileo-values.yaml \
+      --wait --timeout 10m
+    ```
+  </Step>
+
+  <Step title="Configure Application Gateway">
+
+    ```bash
+    # Create public IP
+    az network public-ip create \
+      --resource-group ${RESOURCE_GROUP} \
+      --name galileo-pip \
+      --allocation-method Static \
+      --sku Standard
+
+    # Create Application Gateway
+    az network application-gateway create \
+      --resource-group ${RESOURCE_GROUP} \
+      --name galileo-appgw \
+      --vnet-name aks-vnet-* \
+      --subnet appgw-subnet \
+      --public-ip-address galileo-pip \
+      --sku Standard_v2 \
+      --capacity 2 \
+      --http-settings-port 80 \
+      --http-settings-protocol Http \
+      --frontend-port 443 \
+      --routing-rule-type Basic
+
+    # Install AGIC (Application Gateway Ingress Controller)
+    helm repo add application-gateway-kubernetes-ingress \
+      https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
+    helm repo update
+
+    helm install agic application-gateway-kubernetes-ingress/ingress-azure \
+      --namespace default \
+      --set appgw.name=galileo-appgw \
+      --set appgw.resourceGroup=${RESOURCE_GROUP} \
+      --set appgw.subscriptionId=$(az account show --query id -o tsv) \
+      --set appgw.usePrivateIP=false \
+      --set appgw.shared=false \
+      --set armAuth.type=aadPodIdentity \
+      --set armAuth.identityClientID=${IDENTITY_CLIENT_ID} \
+      --set rbac.enabled=true \
+      --set verbosityLevel=3
+
+    # Get public IP
+    export GALILEO_IP=$(az network public-ip show \
+      --resource-group ${RESOURCE_GROUP} \
+      --name galileo-pip \
+      --query ipAddress -o tsv)
+
+    echo "Galileo will be available at: https://${GALILEO_IP}"
+    ```
+
+  </Step>
+
+  <Step title="Access Galileo">
+    ```bash
+    # For immediate access, use port forwarding
+    kubectl port-forward svc/galileo-ui 8080:80 -n galileo &
+    
+    # Open in browser
+    echo "Local access: http://localhost:8080"
+    open "http://localhost:8080"
+    
+    # Check ingress status
+    kubectl get ingress -n galileo
+    
+    # Production URL (after DNS configuration)
+    echo "Production access: https://galileo.${LOCATION}.cloudapp.azure.com"
+    
+    # Configure DNS name
+    az network public-ip update \
+      --resource-group ${RESOURCE_GROUP} \
+      --name galileo-pip \
+      --dns-name galileo-${RANDOM}
+    ```
+  </Step>
+</Steps>
+
+## Post-Deployment Configuration
+
+### Enable Azure DDoS Protection
+
+<Accordion title="Configure DDoS Protection">
+
+```bash
+# Create DDoS protection plan
+az network ddos-protection create \
+  --resource-group ${RESOURCE_GROUP} \
+  --name galileo-ddos \
+  --location ${LOCATION}
+
+# Enable on virtual network
+VNET_NAME=$(az network vnet list \
+  --resource-group ${RESOURCE_GROUP} \
+  --query "[?contains(name, 'aks')].name" -o tsv)
+
+az network vnet update \
+  --resource-group ${RESOURCE_GROUP} \
+  --name ${VNET_NAME} \
+  --ddos-protection-plan galileo-ddos
+```
+
+</Accordion>
+
+### Configure Monitoring
+
+<Accordion title="Enable Azure Monitor">
+  ```bash # Create Log Analytics workspace az monitor log-analytics workspace
+  create \ --resource-group ${RESOURCE_GROUP} \ --workspace-name
+  galileo-workspace \ --location ${LOCATION}# Enable Container Insights WORKSPACE_ID=$(az
+  monitor log-analytics workspace show \ --resource-group ${RESOURCE_GROUP} \ --workspace-name
+  galileo-workspace \ --query id -o tsv) az aks enable-addons \ --resource-group
+  ${RESOURCE_GROUP} \ --name ${CLUSTER_NAME} \ --addons monitoring \ --workspace-resource-id
+  ${WORKSPACE_ID}# Create alert rules az monitor metrics alert create \ --name
+  galileo-cpu-alert \ --resource-group ${RESOURCE_GROUP} \ --scopes $(az aks
+  show --resource-group ${RESOURCE_GROUP} \ --name ${CLUSTER_NAME} --query id -o
+  tsv) \ --condition "avg Percentage CPU > 80" \ --description "Alert when CPU
+  exceeds 80%" ```
+</Accordion>
+
+### Set Up Backups
+
+<Accordion title="Configure Azure Backup">
+
+```bash
+# Install Velero with Azure plugin
+velero install \
+  --provider azure \
+  --plugins velero/velero-plugin-for-microsoft-azure:v1.7.0 \
+  --bucket galileo-backups \
+  --secret-file ./credentials-velero \
+  --backup-location-config \
+    resourceGroup=${RESOURCE_GROUP},storageAccount=${STORAGE_ACCOUNT} \
+  --snapshot-location-config \
+    apiTimeout=5m,resourceGroup=${RESOURCE_GROUP}
+
+# Create backup schedule
+velero schedule create galileo-daily \
+  --schedule="0 2 * * *" \
+  --include-namespaces galileo \
+  --ttl 720h
+
+# Configure Azure Backup for AKS
+az backup vault create \
+  --resource-group ${RESOURCE_GROUP} \
+  --name galileo-vault \
+  --location ${LOCATION}
+
+az backup protection enable-for-vm \
+  --resource-group ${RESOURCE_GROUP} \
+  --vault-name galileo-vault \
+  --vm ${CLUSTER_NAME} \
+  --policy-name DefaultPolicy
+```
+
+</Accordion>
+
+## Quick Validation
+
+Run this script to validate your deployment:
+
+```bash
+#!/bin/bash
+# galileo-azure-validate.sh
+
+echo "🔍 Validating Galileo Deployment on Azure"
+echo "========================================="
+
+# Check cluster status
+echo "✓ Checking AKS cluster..."
+az aks show --resource-group ${RESOURCE_GROUP} \
+  --name ${CLUSTER_NAME} --query powerState.code -o tsv
+
+# Check nodes
+echo "✓ Checking nodes..."
+kubectl get nodes
+
+# Check Galileo pods
+echo "✓ Checking Galileo pods..."
+kubectl get pods -n galileo
+
+# Check services
+echo "✓ Checking services..."
+kubectl get svc -n galileo
+
+# Check ingress
+echo "✓ Checking ingress..."
+kubectl get ingress -n galileo
+
+# Check persistent volumes
+echo "✓ Checking storage..."
+kubectl get pvc -n galileo
+
+# Test API endpoint
+echo "✓ Testing API endpoint..."
+kubectl run curl --image=curlimages/curl -it --rm \
+  --restart=Never -n galileo -- \
+  curl http://galileo-api:8080/health
+
+echo ""
+echo "✅ Deployment validation complete!"
+echo "Galileo URL: https://galileo.${LOCATION}.cloudapp.azure.com"
+```
+
+## Troubleshooting Quick Fixes
+
+<AccordionGroup>
+  <Accordion title="Pods not starting">
+    ```bash
+    # Check pod events
+    kubectl describe pods -n galileo
+    
+    # Check resource quotas
+    az aks show --resource-group ${RESOURCE_GROUP} \
+      --name ${CLUSTER_NAME} --query agentPoolProfiles
+    
+    # Scale node pool if needed
+    az aks nodepool scale \
+      --resource-group ${RESOURCE_GROUP} \
+      --cluster-name ${CLUSTER_NAME} \
+      --name compute \
+      --node-count 5
+    ```
+  </Accordion>
+
+  <Accordion title="Application Gateway issues">
+
+    ```bash
+    # Check AGIC logs
+    kubectl logs -n default -l app=ingress-azure
+
+    # Check Application Gateway health
+    az network application-gateway show \
+      --resource-group ${RESOURCE_GROUP} \
+      --name galileo-appgw \
+      --query operationalState
+
+    # Check backend health
+    az network application-gateway show-backend-health \
+      --resource-group ${RESOURCE_GROUP} \
+      --name galileo-appgw
+
+    # Update Application Gateway
+    az network application-gateway update \
+      --resource-group ${RESOURCE_GROUP} \
+      --name galileo-appgw
+    ```
+
+  </Accordion>
+
+  <Accordion title="Storage issues">
+    ```bash
+    # Check storage classes
+    kubectl get storageclass
+    
+    # Check PVC status
+    kubectl get pvc -n galileo
+    
+    # Check disk quotas
+    az vm list-usage --location ${LOCATION} \
+      --query "[?name.value=='standardDiskCount']"
+    
+    # Expand PVC
+    kubectl patch pvc <pvc-name> -n galileo \
+      -p '{"spec":{"resources":{"requests":{"storage":"200Gi"}}}}'
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Cost Optimization Tips
+
+<CardGroup cols={2}>
+  <Card title="Use Spot Instances" icon="dollar-sign">
+    Save up to 90% with Azure Spot VMs for non-critical workloads
+  </Card>
+  <Card title="Enable Auto-shutdown" icon="clock">
+    Schedule dev/test clusters to shutdown during off-hours
+  </Card>
+  <Card title="Reserved Instances" icon="lock">
+    Save 40-60% with 1-year or 3-year reserved instances
+  </Card>
+  <Card title="Optimize Storage" icon="database">
+    Use lifecycle policies to move cold data to cool/archive tiers
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+- Review the [Post-Deployment Checklist](/deployment-docs/operations/post-deployment-checklist)
+- Configure [Azure Active Directory Integration](/deployment-docs/security/azure-ad)
+- Set up [Azure Monitor Dashboards](/deployment-docs/operations/monitoring)
+- Implement [Disaster Recovery](/deployment-docs/operations/disaster-recovery)
+
+<Callout type="success" emoji="🎉">
+  Congratulations! Your Galileo deployment on Azure is ready. For additional
+  configuration options and best practices, see the [comprehensive Azure
+  deployment guide](/deployment-docs/cloud-providers/azure/overview).
+</Callout>

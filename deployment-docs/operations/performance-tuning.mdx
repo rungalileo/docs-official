@@ -1,0 +1,962 @@
+---
+title: "Performance Tuning Guide"
+description: "Optimize your Galileo deployment for maximum performance and efficiency"
+---
+
+import { Card, CardGroup } from "/snippets/components/card-component.mdx";
+import { Tabs, Tab } from "/snippets/components/tabs-component.mdx";
+import {
+  Accordion,
+  AccordionGroup,
+} from "/snippets/components/accordion-component.mdx";
+import { Steps, Step } from "/snippets/components/steps-component.mdx";
+import { Callout } from "/snippets/components/callout-component.mdx";
+
+# Performance Tuning Guide
+
+<Callout type="info" emoji="⚡">
+  This guide helps you optimize your Galileo deployment for peak performance,
+  covering resource allocation, database tuning, caching strategies, and
+  monitoring.
+</Callout>
+
+## Performance Baselines
+
+Before tuning, establish baseline metrics to measure improvements.
+
+### Key Performance Indicators (KPIs)
+
+<CardGroup cols={3}>
+  <Card title="Response Time" icon="clock">
+    - API response: < 200ms (p95)
+    - UI page load: < 2s
+    - Query execution: < 500ms
+  </Card>
+  <Card title="Throughput" icon="gauge-high">
+    - API requests/sec: varies by tier
+    - Concurrent users: varies by tier
+    - Data ingestion rate: GB/hour
+  </Card>
+  <Card title="Resource Utilization" icon="server">
+    - CPU usage: 60-70% average
+    - Memory usage: 70-80% average
+    - Disk I/O: < 80% capacity
+  </Card>
+</CardGroup>
+
+### Establishing Baselines
+
+<Steps>
+  <Step title="Run Load Tests">
+    ```bash
+    # Install k6 for load testing
+    brew install k6  # macOS
+    # or download from https://k6.io/
+
+    # Create load test script
+    cat > load-test.js <<'EOF'
+    import http from 'k6/http';
+    import { check, sleep } from 'k6';
+
+    export const options = {
+      stages: [
+        { duration: '2m', target: 10 },   // Ramp up
+        { duration: '5m', target: 10 },   // Stay at 10 users
+        { duration: '2m', target: 50 },   // Ramp to 50 users
+        { duration: '5m', target: 50 },   // Stay at 50 users
+        { duration: '2m', target: 0 },    // Ramp down
+      ],
+      thresholds: {
+        http_req_duration: ['p(95)<500'],
+        http_req_failed: ['rate<0.01'],
+      },
+    };
+
+    export default function () {
+      const res = http.get('https://your-galileo-url.com/api/health');
+      check(res, {
+        'status is 200': (r) => r.status === 200,
+        'response time < 500ms': (r) => r.timings.duration < 500,
+      });
+      sleep(1);
+    }
+    EOF
+
+    # Run the test
+    k6 run load-test.js
+    ```
+
+  </Step>
+
+  <Step title="Monitor Resource Usage">
+    ```bash
+    # Monitor pods during load test
+    kubectl top pods -n galileo --watch
+
+    # Export metrics for analysis
+    kubectl top pods -n galileo --containers > baseline-metrics.txt
+    ```
+
+  </Step>
+
+  <Step title="Document Baseline">
+    Record baseline metrics for future comparison:
+    - Average response times by endpoint
+    - Resource utilization under normal load
+    - Database query performance
+    - Cache hit rates
+  </Step>
+</Steps>
+
+## Resource Optimization
+
+### Pod Resource Allocation
+
+**Starter Tier Resource Limits:**
+
+```yaml
+resources:
+  api:
+    requests:
+      memory: "2Gi"
+      cpu: "1000m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+  worker:
+    requests:
+      memory: "1.5Gi"
+      cpu: "750m"
+    limits:
+      memory: "3Gi"
+      cpu: "1500m"
+  ui:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+```
+
+**Growth Tier Resource Limits:**
+
+```yaml
+resources:
+  api:
+    requests:
+      memory: "4Gi"
+      cpu: "2000m"
+    limits:
+      memory: "8Gi"
+      cpu: "4000m"
+  worker:
+    requests:
+      memory: "3Gi"
+      cpu: "1500m"
+    limits:
+      memory: "6Gi"
+      cpu: "3000m"
+  ui:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  cache:
+    requests:
+      memory: "2Gi"
+      cpu: "1000m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+```
+
+**Scale/Enterprise Tier Resource Limits:**
+
+```yaml
+resources:
+  api:
+    requests:
+      memory: "8Gi"
+      cpu: "4000m"
+    limits:
+      memory: "16Gi"
+      cpu: "8000m"
+  worker:
+    requests:
+      memory: "6Gi"
+      cpu: "3000m"
+    limits:
+      memory: "12Gi"
+      cpu: "6000m"
+  ui:
+    requests:
+      memory: "2Gi"
+      cpu: "1000m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+  cache:
+    requests:
+      memory: "4Gi"
+      cpu: "2000m"
+    limits:
+      memory: "8Gi"
+      cpu: "4000m"
+```
+
+### Horizontal Pod Autoscaler (HPA)
+
+<Callout type="tip" emoji="🎯">
+  HPA automatically scales pods based on CPU/memory utilization or custom
+  metrics.
+</Callout>
+
+```yaml
+# hpa-api.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: galileo-api-hpa
+  namespace: galileo
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: galileo-api
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 75
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 30
+        - type: Pods
+          value: 2
+          periodSeconds: 30
+      selectPolicy: Max
+```
+
+Apply the HPA:
+
+```bash
+kubectl apply -f hpa-api.yaml
+
+# Monitor HPA status
+kubectl get hpa -n galileo --watch
+```
+
+## Database Performance Tuning
+
+### PostgreSQL Optimization
+
+<AccordionGroup>
+  <Accordion title="Connection Pooling">
+    ```yaml
+    # PgBouncer configuration for connection pooling
+    postgresql:
+      pgbouncer:
+        enabled: true
+        poolMode: transaction
+        maxClientConn: 1000
+        defaultPoolSize: 25
+        minPoolSize: 10
+        reservePoolSize: 5
+        reservePoolTimeout: 5
+        maxDbConnections: 100
+        maxUserConnections: 100
+    ```
+
+    Benefits:
+    - Reduces connection overhead
+    - Improves response times
+    - Better resource utilization
+    - Handles connection spikes
+
+  </Accordion>
+
+  <Accordion title="Query Optimization">
+    ```sql
+    -- Identify slow queries
+    SELECT 
+      query,
+      calls,
+      total_exec_time,
+      mean_exec_time,
+      max_exec_time
+    FROM pg_stat_statements
+    ORDER BY mean_exec_time DESC
+    LIMIT 20;
+
+    -- Add missing indexes
+    SELECT
+      schemaname,
+      tablename,
+      attname,
+      n_distinct,
+      correlation
+    FROM pg_stats
+    WHERE schemaname = 'public'
+      AND n_distinct > 100
+      AND correlation < 0.1;
+
+    -- Create indexes for frequently queried columns
+    CREATE INDEX CONCURRENTLY idx_traces_project_id
+      ON traces(project_id);
+    CREATE INDEX CONCURRENTLY idx_traces_created_at
+      ON traces(created_at DESC);
+    CREATE INDEX CONCURRENTLY idx_spans_trace_id
+      ON spans(trace_id);
+    ```
+
+  </Accordion>
+
+  <Accordion title="Memory and Cache Settings">
+    ```sql
+    -- Optimize PostgreSQL configuration
+    ALTER SYSTEM SET shared_buffers = '4GB';
+    ALTER SYSTEM SET effective_cache_size = '12GB';
+    ALTER SYSTEM SET maintenance_work_mem = '1GB';
+    ALTER SYSTEM SET checkpoint_completion_target = 0.9;
+    ALTER SYSTEM SET wal_buffers = '16MB';
+    ALTER SYSTEM SET default_statistics_target = 100;
+    ALTER SYSTEM SET random_page_cost = 1.1;
+    ALTER SYSTEM SET effective_io_concurrency = 200;
+    ALTER SYSTEM SET work_mem = '32MB';
+    ALTER SYSTEM SET min_wal_size = '1GB';
+    ALTER SYSTEM SET max_wal_size = '4GB';
+
+    -- Reload configuration
+    SELECT pg_reload_conf();
+    ```
+
+  </Accordion>
+
+  <Accordion title="Vacuum and Maintenance">
+    ```sql
+    -- Configure autovacuum for heavy write workloads
+    ALTER SYSTEM SET autovacuum_max_workers = 4;
+    ALTER SYSTEM SET autovacuum_naptime = '10s';
+    ALTER SYSTEM SET autovacuum_vacuum_threshold = 50;
+    ALTER SYSTEM SET autovacuum_analyze_threshold = 50;
+    ALTER SYSTEM SET autovacuum_vacuum_scale_factor = 0.1;
+    ALTER SYSTEM SET autovacuum_analyze_scale_factor = 0.05;
+
+    SELECT pg_reload_conf();
+
+    -- Manual vacuum for critical tables
+    VACUUM (ANALYZE, VERBOSE) traces;
+    VACUUM (ANALYZE, VERBOSE) spans;
+    ```
+
+  </Accordion>
+</AccordionGroup>
+
+### MongoDB Optimization
+
+<AccordionGroup>
+  <Accordion title="Index Optimization">
+    ```javascript
+    // Connect to MongoDB
+    mongosh --host mongodb-primary.galileo.svc.cluster.local
+
+    // Analyze query performance
+    db.traces.find({project_id: "abc123"}).explain("executionStats");
+
+    // Create compound indexes for common queries
+    db.traces.createIndex(
+      { project_id: 1, created_at: -1 },
+      { background: true }
+    );
+
+    db.spans.createIndex(
+      { trace_id: 1, span_type: 1 },
+      { background: true }
+    );
+
+    // Create text index for search
+    db.traces.createIndex(
+      { name: "text", description: "text" },
+      { weights: { name: 2, description: 1 } }
+    );
+
+    // List and monitor indexes
+    db.traces.getIndexes();
+    db.traces.aggregate([{ $indexStats: {} }]);
+    ```
+
+  </Accordion>
+
+{" "}
+<Accordion title="Connection Pool Settings">
+  Configure MongoDB connection pooling for optimal performance. Set maxPoolSize
+  to 100, minPoolSize to 10, and configure appropriate timeouts
+  (waitQueueTimeoutMS: 5000, socketTimeoutMS: 30000, connectTimeoutMS: 10000).
+  Enable retryWrites and retryReads, use "majority" write concern, and set
+  readPreference to "secondaryPreferred" for load distribution.
+</Accordion>
+
+  <Accordion title="Profiling and Monitoring">
+    ```javascript
+    // Enable profiling for slow queries
+    db.setProfilingLevel(1, { slowms: 100 });
+
+    // View slow queries
+    db.system.profile.find({
+      millis: { $gt: 100 }
+    }).sort({ ts: -1 }).limit(10);
+
+    // Monitor server status
+    db.serverStatus();
+
+    // Check collection statistics
+    db.traces.stats();
+    ```
+
+  </Accordion>
+</AccordionGroup>
+
+## Caching Strategies
+
+### Redis Configuration
+
+```yaml
+# Optimized Redis configuration
+redis:
+  master:
+    resources:
+      requests:
+        memory: "2Gi"
+        cpu: "1000m"
+      limits:
+        memory: "4Gi"
+        cpu: "2000m"
+
+    configuration: |
+      # Memory management
+      maxmemory 3gb
+      maxmemory-policy allkeys-lru
+
+      # Persistence (adjust based on needs)
+      save 900 1
+      save 300 10
+      save 60 10000
+
+      # Performance tuning
+      tcp-backlog 511
+      timeout 300
+      tcp-keepalive 300
+
+      # Slow log
+      slowlog-log-slower-than 10000
+      slowlog-max-len 128
+
+      # Advanced config
+      hash-max-ziplist-entries 512
+      hash-max-ziplist-value 64
+      list-max-ziplist-size -2
+      set-max-intset-entries 512
+      zset-max-ziplist-entries 128
+      zset-max-ziplist-value 64
+
+      # Threading
+      io-threads 4
+      io-threads-do-reads yes
+
+  replica:
+    replicaCount: 2
+```
+
+### Application-Level Caching
+
+<Tabs>
+  <Tab title="API Response Caching">
+    ```python
+    # Example caching strategy in application code
+    from functools import lru_cache
+    import redis
+    import json
+
+    # Initialize Redis client
+    redis_client = redis.Redis(
+        host='redis-master',
+        port=6379,
+        db=0,
+        decode_responses=True,
+        socket_connect_timeout=5,
+        socket_keepalive=True
+    )
+
+    def get_cached_data(cache_key, ttl=300):
+        """Get data from cache with TTL"""
+        cached = redis_client.get(cache_key)
+        if cached:
+            return json.loads(cached)
+        return None
+
+    def set_cached_data(cache_key, data, ttl=300):
+        """Set data in cache with TTL"""
+        redis_client.setex(
+            cache_key,
+            ttl,
+            json.dumps(data)
+        )
+
+    # Implement cache-aside pattern
+    def get_project_metrics(project_id):
+        cache_key = f"metrics:project:{project_id}"
+
+        # Try cache first
+        cached_data = get_cached_data(cache_key)
+        if cached_data:
+            return cached_data
+
+        # Fetch from database
+        data = fetch_metrics_from_db(project_id)
+
+        # Store in cache
+        set_cached_data(cache_key, data, ttl=600)
+
+        return data
+    ```
+
+  </Tab>
+  <Tab title="Query Result Caching">
+    ```javascript
+    // Node.js caching example
+    const Redis = require('ioredis');
+
+    const redis = new Redis({
+      host: 'redis-master',
+      port: 6379,
+      retryStrategy: (times) => Math.min(times * 50, 2000),
+      enableReadyCheck: true,
+      maxRetriesPerRequest: 3,
+    });
+
+    // Cache expensive query results
+    async function getCachedQuery(queryKey, queryFn, ttl = 300) {
+      try {
+        // Check cache
+        const cached = await redis.get(queryKey);
+        if (cached) {
+          return JSON.parse(cached);
+        }
+
+        // Execute query
+        const result = await queryFn();
+
+        // Cache result
+        await redis.setex(queryKey, ttl, JSON.stringify(result));
+
+        return result;
+      } catch (error) {
+        console.error('Cache error:', error);
+        // Fallback to query without caching
+        return await queryFn();
+      }
+    }
+
+    // Usage example
+    app.get('/api/experiments/:id', async (req, res) => {
+      const experimentId = req.params.id;
+      const cacheKey = `experiment:${experimentId}`;
+
+      const experiment = await getCachedQuery(
+        cacheKey,
+        () => db.experiments.findById(experimentId),
+        600 // 10 minute TTL
+      );
+
+      res.json(experiment);
+    });
+    ```
+
+  </Tab>
+</Tabs>
+
+### Cache Eviction Strategies
+
+<CardGroup cols={2}>
+  <Card title="LRU (Least Recently Used)" icon="clock-rotate-left">
+    **Best for:** General-purpose caching - Evicts least recently accessed items
+    - Good balance of hit rate and memory usage - Default recommendation
+  </Card>
+  <Card title="LFU (Least Frequently Used)" icon="chart-column">
+    **Best for:** Hot data scenarios - Evicts least frequently accessed items -
+    Better for data with varying access patterns - Use when some data is
+    consistently hot
+  </Card>
+</CardGroup>
+
+## Network Optimization
+
+### Ingress and Load Balancer Tuning
+
+```yaml
+# Optimized ingress configuration
+apiVersion: networking.k8s.io/v1
+kind:Ingress
+metadata:
+  name: galileo-ingress
+  namespace: galileo
+  annotations:
+    # Connection settings
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+
+    # Buffer settings
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+
+    # Compression
+    nginx.ingress.kubernetes.io/enable-compression: "true"
+    nginx.ingress.kubernetes.io/compression-level: "5"
+
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "20"
+
+    # Keep-alive
+    nginx.ingress.kubernetes.io/upstream-keepalive-connections: "64"
+    nginx.ingress.kubernetes.io/upstream-keepalive-timeout: "60"
+
+    # SSL optimization
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: galileo.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: galileo-ui
+            port:
+              number: 80
+```
+
+### CDN Integration
+
+<Callout type="tip" emoji="🌐">
+  Use a CDN for static assets to reduce load on your deployment and improve
+  global performance.
+</Callout>
+
+<Steps>
+  <Step title="Configure CDN">
+    Use CloudFront (AWS), Cloud CDN (GCP), or Azure CDN:
+    
+    ```bash
+    # Example: CloudFront distribution for static assets
+    aws cloudfront create-distribution \
+      --origin-domain-name galileo.example.com \
+      --default-root-object index.html \
+      --enabled \
+      --comment "Galileo CDN" \
+      --price-class PriceClass_100
+    ```
+  </Step>
+
+{" "}
+
+<Step title="Update Asset URLs">
+  Point static assets to CDN: ```yaml # values.yaml ui: cdnUrl:
+  "https://d1234567890.cloudfront.net" staticAssets: enabled: true prefix:
+  "/static" ```
+</Step>
+
+  <Step title="Set Cache Headers">
+    ```nginx
+    # Cache static assets for 1 year
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf)$ {
+      expires 1y;
+      add_header Cache-Control "public, immutable";
+    }
+    ```
+  </Step>
+</Steps>
+
+## Monitoring and Profiling
+
+### Performance Monitoring Setup
+
+```bash
+# Install Prometheus and Grafana
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+helm install prometheus prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace \
+  --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false
+
+# Access Grafana
+kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80
+# Default credentials: admin / prom-operator
+```
+
+### Key Metrics to Monitor
+
+<CardGroup cols={2}>
+  <Card title="Application Metrics" icon="chart-line">
+    - Request rate (requests/sec) - Response time (p50, p95, p99) - Error rate
+    (errors/sec, %) - Active connections - Queue depth
+  </Card>
+  <Card title="System Metrics" icon="server">
+    - CPU utilization (%) - Memory usage (bytes, %) - Disk I/O (IOPS,
+    throughput) - Network I/O (bytes/sec) - Pod restart count
+  </Card>
+  <Card title="Database Metrics" icon="database">
+    - Query execution time - Connection pool usage - Cache hit rate - Slow query
+    count - Lock wait time
+  </Card>
+  <Card title="Business Metrics" icon="chart-simple">
+    - Concurrent users - API call volume - Data ingestion rate - Feature usage -
+    User session duration
+  </Card>
+</CardGroup>
+
+### Custom Dashboards
+
+```yaml
+# prometheus-rules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: galileo-performance-rules
+  namespace: galileo
+spec:
+  groups:
+    - name: performance
+      interval: 30s
+      rules:
+        - alert: HighResponseTime
+          expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High API response time"
+            description: "95th percentile response time is above 1 second"
+
+        - alert: HighErrorRate
+          expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High error rate detected"
+            description: "Error rate is above 5%"
+
+        - alert: DatabaseConnectionPoolExhaustion
+          expr: database_connection_pool_active / database_connection_pool_max > 0.9
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Database connection pool nearly exhausted"
+            description: "Connection pool usage is above 90%"
+```
+
+## Performance Testing
+
+### Continuous Performance Testing
+
+```bash
+#!/bin/bash
+# performance-test.sh
+
+# Run baseline test
+echo "Running baseline performance test..."
+k6 run --out json=baseline.json load-test.js
+
+# Extract key metrics
+echo "Extracting metrics..."
+jq '.metrics.http_req_duration.values' baseline.json > metrics.json
+
+# Compare with previous baseline
+if [ -f "previous-baseline.json" ]; then
+  echo "Comparing with previous baseline..."
+  python compare-metrics.py previous-baseline.json metrics.json
+fi
+
+# Save current baseline
+cp metrics.json previous-baseline.json
+
+echo "Performance test complete!"
+```
+
+### Regression Testing
+
+<Callout type="warning" emoji="⚠️">
+  Run performance tests before and after major changes to catch regressions
+  early.
+</Callout>
+
+```yaml
+# CI/CD pipeline integration (.github/workflows/performance-test.yml)
+name: Performance Test
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run performance test
+        run: |
+          k6 run --out json=results.json load-test.js
+
+      - name: Check thresholds
+        run: |
+          if grep -q '"thresholds_failed":true' results.json; then
+            echo "Performance regression detected!"
+            exit 1
+          fi
+
+      - name: Upload results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: results.json
+```
+
+## Common Performance Issues and Solutions
+
+<AccordionGroup>
+  <Accordion title="Slow API Response Times">
+    **Symptoms:**
+    - High p95/p99 response times
+    - Timeout errors
+    - User complaints about sluggishness
+
+    **Solutions:**
+    1. Add missing database indexes
+    2. Implement response caching
+    3. Optimize N+1 queries
+    4. Increase API pod replicas
+    5. Add connection pooling
+    6. Profile and optimize slow endpoints
+
+  </Accordion>
+
+  <Accordion title="High Database CPU Usage">
+    **Symptoms:**
+    - Database CPU constantly >80%
+    - Slow query execution
+    - Connection timeouts
+
+    **Solutions:**
+    1. Optimize expensive queries
+    2. Add appropriate indexes
+    3. Increase database resources
+    4. Implement read replicas
+    5. Use connection pooling
+    6. Archive old data
+
+  </Accordion>
+
+  <Accordion title="Memory Leaks">
+    **Symptoms:**
+    - Gradually increasing memory usage
+    - OOMKilled pods
+    - Frequent pod restarts
+
+    **Solutions:**
+    1. Profile application memory usage
+    2. Fix connection leaks
+    3. Clear unused caches
+    4. Implement proper resource cleanup
+    5. Adjust memory limits
+    6. Use memory profiling tools
+
+  </Accordion>
+
+  <Accordion title="Disk I/O Bottlenecks">
+    **Symptoms:**
+    - High disk latency
+    - Slow database queries
+    - Storage performance issues
+
+    **Solutions:**
+    1. Upgrade to faster storage (e.g., gp3, SSD)
+    2. Increase IOPS allocation
+    3. Optimize database writes
+    4. Implement write batching
+    5. Use separate volumes for logs
+    6. Enable disk caching
+
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Monitoring Setup"
+    icon="chart-mixed"
+    href="/deployment-docs/operations/monitoring"
+  >
+    Set up comprehensive monitoring and alerting
+  </Card>
+  <Card
+    title="Troubleshooting"
+    icon="wrench"
+    href="/deployment-docs/operations/troubleshooting-hub"
+  >
+    Debug performance issues and system problems
+  </Card>
+  <Card
+    title="Backup Strategy"
+    icon="floppy-disk"
+    href="/deployment-docs/operations/scheduling-automatic-backups-for-your-cluster"
+  >
+    Implement automated backup procedures
+  </Card>
+  <Card
+    title="Security Hardening"
+    icon="shield"
+    href="/deployment-docs/security/security-and-access-control"
+  >
+    Optimize security while maintaining performance
+  </Card>
+</CardGroup>
+
+## Additional Resources
+
+- [Kubernetes Performance Best Practices](https://kubernetes.io/docs/concepts/configuration/overview/)
+- [PostgreSQL Performance Tuning](https://wiki.postgresql.org/wiki/Performance_Optimization)
+- [Redis Performance Optimization](https://redis.io/docs/management/optimization/)
+- [Load Testing with k6](https://k6.io/docs/)

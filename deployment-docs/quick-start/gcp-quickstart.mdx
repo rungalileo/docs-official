@@ -1,0 +1,580 @@
+---
+title: "GCP Quick Start Guide"
+description: "Deploy Galileo on Google Kubernetes Engine in 30 minutes"
+---
+
+import { Card, CardGroup } from "/snippets/components/card-component.mdx";
+import { Steps, Step } from "/snippets/components/steps-component.mdx";
+import { Tabs, Tab } from "/snippets/components/tabs-component.mdx";
+import { Callout } from "/snippets/components/callout-component.mdx";
+import {
+  Accordion,
+  AccordionGroup,
+} from "/snippets/components/accordion-component.mdx";
+
+# GCP Quick Start Guide
+
+<Callout type="info" emoji="⚡">
+  This guide helps you deploy Galileo on Google Kubernetes Engine (GKE) in
+  approximately 30 minutes. For detailed configuration options, see the
+  [comprehensive GCP deployment
+  guide](/deployment-docs/cloud-providers/gke/overview).
+</Callout>
+
+## Prerequisites Checklist
+
+Before starting, ensure you have:
+
+- [ ] GCP Account with billing enabled
+- [ ] gcloud CLI installed and configured (`gcloud version`)
+- [ ] kubectl installed (`kubectl version`)
+- [ ] Helm 3.8+ installed (`helm version`)
+- [ ] Appropriate IAM permissions (Kubernetes Engine Admin, Service Account Admin)
+- [ ] Galileo license key and registry credentials
+
+## Quick Deploy Options
+
+<CardGroup cols={2}>
+  <Card title="Starter Tier" icon="rocket">
+    **Best for:** Proof of concepts and small teams - 3 nodes (n2-standard-2) -
+    ~$300/month - 5-minute setup
+  </Card>
+  <Card title="Growth Tier" icon="chart-line">
+    **Best for:** Production workloads - 5 nodes (n2-standard-4) - ~$800/month -
+    10-minute setup
+  </Card>
+</CardGroup>
+
+## Deployment Steps
+
+<Steps>
+  <Step title="Set Up Environment Variables">
+    ```bash
+    # Set your configuration
+    export PROJECT_ID="your-gcp-project-id"
+    export CLUSTER_NAME="galileo-cluster"
+    export REGION="us-central1"
+    export ZONE="us-central1-a"
+    export GALILEO_VERSION="1.0.0"
+    export GALILEO_LICENSE_KEY="your-license-key"
+    
+    # Set the project
+    gcloud config set project ${PROJECT_ID}
+    
+    # Enable required APIs
+    gcloud services enable container.googleapis.com
+    gcloud services enable compute.googleapis.com
+    gcloud services enable storage-api.googleapis.com
+    ```
+  </Step>
+
+  <Step title="Create GKE Cluster">
+    <Tabs>
+      <Tab title="Starter Tier">
+        ```bash
+        # Create starter cluster
+        gcloud container clusters create ${CLUSTER_NAME} \
+          --zone=${ZONE} \
+          --num-nodes=3 \
+          --machine-type=n2-standard-2 \
+          --disk-size=100 \
+          --disk-type=pd-standard \
+          --enable-autoscaling \
+          --min-nodes=3 \
+          --max-nodes=5 \
+          --enable-autorepair \
+          --enable-autoupgrade \
+          --release-channel=regular \
+          --network=default \
+          --logging=SYSTEM,WORKLOAD \
+          --monitoring=SYSTEM \
+          --addons=HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver \
+          --workload-pool=${PROJECT_ID}.svc.id.goog \
+          --enable-shielded-nodes \
+          --labels=environment=starter,application=galileo
+        
+        # Get cluster credentials
+        gcloud container clusters get-credentials ${CLUSTER_NAME} \
+          --zone=${ZONE} \
+          --project=${PROJECT_ID}
+        ```
+      </Tab>
+      <Tab title="Growth Tier">
+        ```bash
+        # Create growth cluster with node pools
+        gcloud container clusters create ${CLUSTER_NAME} \
+          --zone=${ZONE} \
+          --num-nodes=0 \
+          --release-channel=regular \
+          --enable-ip-alias \
+          --network=default \
+          --logging=SYSTEM,WORKLOAD,API_SERVER \
+          --monitoring=SYSTEM,API_SERVER \
+          --addons=HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver \
+          --workload-pool=${PROJECT_ID}.svc.id.goog \
+          --enable-shielded-nodes \
+          --enable-autoscaling \
+          --labels=environment=growth,application=galileo
+        
+        # Create compute node pool
+        gcloud container node-pools create compute-pool \
+          --cluster=${CLUSTER_NAME} \
+          --zone=${ZONE} \
+          --num-nodes=3 \
+          --machine-type=n2-standard-4 \
+          --disk-size=200 \
+          --disk-type=pd-ssd \
+          --enable-autoscaling \
+          --min-nodes=3 \
+          --max-nodes=10 \
+          --enable-autorepair \
+          --enable-autoupgrade \
+          --node-labels=workload=compute
+        
+        # Create data node pool with SSD
+        gcloud container node-pools create data-pool \
+          --cluster=${CLUSTER_NAME} \
+          --zone=${ZONE} \
+          --num-nodes=2 \
+          --machine-type=n2-highmem-2 \
+          --disk-size=500 \
+          --disk-type=pd-ssd \
+          --local-ssd-count=1 \
+          --enable-autoscaling \
+          --min-nodes=2 \
+          --max-nodes=5 \
+          --node-labels=workload=data \
+          --node-taints=workload=data:NoSchedule
+        
+        # Get cluster credentials
+        gcloud container clusters get-credentials ${CLUSTER_NAME} \
+          --zone=${ZONE} \
+          --project=${PROJECT_ID}
+        ```
+      </Tab>
+    </Tabs>
+
+  </Step>
+
+  <Step title="Configure Storage">
+    ```bash
+    # Create namespace
+    kubectl create namespace galileo
+    
+    # Create SSD storage class
+    cat <<EOF | kubectl apply -f -
+    apiVersion: storage.k8s.io/v1
+    kind: StorageClass
+    metadata:
+      name: galileo-ssd
+    provisioner: pd.csi.storage.gke.io
+    parameters:
+      type: pd-ssd
+      replication-type: regional-pd
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+    reclaimPolicy: Retain
+    EOF
+    
+    # Create standard storage class for backups
+    cat <<EOF | kubectl apply -f -
+    apiVersion: storage.k8s.io/v1
+    kind: StorageClass
+    metadata:
+      name: galileo-standard
+    provisioner: pd.csi.storage.gke.io
+    parameters:
+      type: pd-standard
+      replication-type: none
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+    reclaimPolicy: Retain
+    EOF
+    ```
+  </Step>
+
+{" "}
+<Step title="Configure Workload Identity">
+  ```bash # Create service account gcloud iam service-accounts create galileo-sa
+  \ --display-name="Galileo Service Account" # Bind roles gcloud projects
+  add-iam-policy-binding ${PROJECT_ID} \ --member="serviceAccount:galileo-sa@$
+  {PROJECT_ID}.iam.gserviceaccount.com" \ --role="roles/storage.admin" gcloud
+  projects add-iam-policy-binding ${PROJECT_ID} \
+  --member="serviceAccount:galileo-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/logging.logWriter" gcloud projects add-iam-policy-binding $
+  {PROJECT_ID} \ --member="serviceAccount:galileo-sa@${PROJECT_ID}
+  .iam.gserviceaccount.com" \ --role="roles/monitoring.metricWriter" # Allow
+  Kubernetes service account to use GCP service account kubectl create
+  serviceaccount galileo-ksa -n galileo gcloud iam service-accounts
+  add-iam-policy-binding \ galileo-sa@${PROJECT_ID}.iam.gserviceaccount.com \
+  --role roles/iam.workloadIdentityUser \ --member "serviceAccount:${PROJECT_ID}
+  .svc.id.goog[galileo/galileo-ksa]" # Annotate Kubernetes service account
+  kubectl annotate serviceaccount galileo-ksa -n galileo \
+  iam.gke.io/gcp-service-account=galileo-sa@${PROJECT_ID}
+  .iam.gserviceaccount.com ```
+</Step>
+
+  <Step title="Install Galileo">
+    ```bash
+    # Add Helm repository
+    helm repo add galileo https://charts.galileo.ai
+    helm repo update
+    
+    # Create values file
+    cat > galileo-values.yaml <<EOF
+    global:
+      license:
+        key: "${GALILEO_LICENSE_KEY}"
+      
+      serviceAccount:
+        create: false
+        name: galileo-ksa
+      
+      ingress:
+        enabled: true
+        className: gce
+        annotations:
+          kubernetes.io/ingress.class: "gce"
+          kubernetes.io/ingress.global-static-ip-name: "galileo-ip"
+          ingress.gcp.kubernetes.io/pre-shared-cert: "galileo-cert"
+        host: galileo.${REGION}.${PROJECT_ID}.gcp
+      
+      storage:
+        className: galileo-ssd
+        size: 100Gi
+      
+      gcs:
+        enabled: true
+        bucket: "galileo-data-${PROJECT_ID}"
+    
+    postgresql:
+      enabled: true
+      persistence:
+        size: 50Gi
+        storageClass: galileo-ssd
+      
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+    
+    redis:
+      enabled: true
+      master:
+        persistence:
+          size: 10Gi
+          storageClass: galileo-ssd
+      
+      sentinel:
+        enabled: true
+    
+    monitoring:
+      enabled: true
+      stackdriver:
+        enabled: true
+        projectId: ${PROJECT_ID}
+    EOF
+    
+    # Install Galileo
+    helm install galileo galileo/galileo \
+      --namespace galileo \
+      --values galileo-values.yaml \
+      --wait --timeout 10m
+    ```
+  </Step>
+
+  <Step title="Configure Load Balancer">
+
+    ```bash
+    # Reserve static IP
+    gcloud compute addresses create galileo-ip \
+      --global \
+      --project=${PROJECT_ID}
+
+    # Get the reserved IP
+    export GALILEO_IP=$(gcloud compute addresses describe galileo-ip \
+      --global --project=${PROJECT_ID} \
+      --format="value(address)")
+
+    # Create managed SSL certificate
+    gcloud compute ssl-certificates create galileo-cert \
+      --domains=galileo.yourdomain.com \
+      --global
+
+    # Update ingress with static IP
+    kubectl patch ingress galileo-ingress -n galileo \
+      --type=merge \
+      -p '{"metadata":{"annotations":{"kubernetes.io/ingress.global-static-ip-name":"galileo-ip"}}}'
+
+    echo "Galileo will be available at: https://galileo.yourdomain.com"
+    echo "Static IP: ${GALILEO_IP}"
+    echo "Update your DNS A record to point to: ${GALILEO_IP}"
+    ```
+
+  </Step>
+
+  <Step title="Access Galileo">
+    ```bash
+    # For immediate access, use port forwarding
+    kubectl port-forward svc/galileo-ui 8080:80 -n galileo &
+    
+    # Open in browser
+    echo "Local access: http://localhost:8080"
+    open "http://localhost:8080"
+    
+    # Check ingress status
+    kubectl get ingress galileo-ingress -n galileo
+    
+    # Once DNS is configured and SSL is provisioned (15-30 minutes)
+    echo "Production access: https://galileo.yourdomain.com"
+    ```
+  </Step>
+</Steps>
+
+## Post-Deployment Configuration
+
+### Enable Cloud Armor (DDoS Protection)
+
+<Accordion title="Configure Cloud Armor">
+
+```bash
+# Create security policy
+gcloud compute security-policies create galileo-security-policy \
+  --description="Galileo security policy"
+
+# Add rate limiting rule
+gcloud compute security-policies rules create 1000 \
+  --security-policy=galileo-security-policy \
+  --expression="origin.region_code == 'CN'" \
+  --action=deny-403
+
+# Add throttling rule
+gcloud compute security-policies rules create 2000 \
+  --security-policy=galileo-security-policy \
+  --expression="true" \
+  --action=throttle \
+  --rate-limit-threshold-count=100 \
+  --rate-limit-threshold-interval-sec=60 \
+  --conform-action=allow \
+  --exceed-action=deny-429
+
+# Attach to backend service
+BACKEND_SERVICE=$(gcloud compute backend-services list \
+  --filter="name~galileo" --format="value(name)")
+
+gcloud compute backend-services update ${BACKEND_SERVICE} \
+  --security-policy=galileo-security-policy \
+  --global
+```
+
+</Accordion>
+
+### Configure Monitoring
+
+<Accordion title="Enable Cloud Monitoring & Logging">
+  ```bash
+  # Create monitoring dashboard
+  cat > dashboard.json <<EOF
+  {
+    "displayName": "Galileo Dashboard",
+    "mosaicLayout": {
+      "columns": 12,
+      "tiles": [
+        {
+          "width": 6,
+          "height": 4,
+          "widget": {
+            "title": "CPU Utilization",
+            "xyChart": {
+              "dataSets": [{
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"kubernetes.io/container/cpu/core_usage_time\" resource.type=\"k8s_container\" resource.label.cluster_name=\"${CLUSTER_NAME}\""
+                  }
+                }
+              }]
+            }
+          }
+        }
+      ]
+    }
+  }
+  EOF
+  
+  gcloud monitoring dashboards create --config-from-file=dashboard.json
+  
+  # Create alerting policy
+  gcloud alpha monitoring policies create \
+    --notification-channels=${NOTIFICATION_CHANNEL_ID} \
+    --display-name="High CPU Usage" \
+    --condition="cpu-usage > 0.8" \
+    --condition-display-name="CPU > 80%"
+  ```
+</Accordion>
+
+### Set Up Backups
+
+<Accordion title="Configure Cloud Storage Backups">
+
+```bash
+# Create backup bucket
+gsutil mb -p ${PROJECT_ID} -c STANDARD -l ${REGION} \
+  -b on gs://galileo-backups-${PROJECT_ID}/
+
+# Install Velero with GCS plugin
+velero install \
+  --provider gcp \
+  --plugins velero/velero-plugin-for-gcp:v1.7.0 \
+  --bucket galileo-backups-${PROJECT_ID} \
+  --secret-file ./credentials-velero
+
+# Create backup schedule
+velero schedule create galileo-daily \
+  --schedule="0 2 * * *" \
+  --include-namespaces galileo \
+  --ttl 720h
+
+# Create snapshot policy for persistent disks
+gcloud compute resource-policies create snapshot-schedule galileo-snapshots \
+  --region=${REGION} \
+  --max-retention-days=30 \
+  --on-source-disk-delete=keep-auto-snapshots \
+  --daily-schedule \
+  --start-time=03:00
+```
+
+</Accordion>
+
+## Quick Validation
+
+Run this script to validate your deployment:
+
+```bash
+#!/bin/bash
+# galileo-gcp-validate.sh
+
+echo "🔍 Validating Galileo Deployment on GCP"
+echo "========================================"
+
+# Check cluster status
+echo "✓ Checking GKE cluster..."
+gcloud container clusters describe ${CLUSTER_NAME} \
+  --zone=${ZONE} --format="value(status)"
+
+# Check nodes
+echo "✓ Checking nodes..."
+kubectl get nodes
+
+# Check Galileo pods
+echo "✓ Checking Galileo pods..."
+kubectl get pods -n galileo
+
+# Check services
+echo "✓ Checking services..."
+kubectl get svc -n galileo
+
+# Check ingress
+echo "✓ Checking ingress..."
+kubectl get ingress -n galileo
+
+# Check persistent volumes
+echo "✓ Checking storage..."
+kubectl get pvc -n galileo
+
+# Test API endpoint
+echo "✓ Testing API endpoint..."
+kubectl run curl --image=curlimages/curl -it --rm \
+  --restart=Never -n galileo -- \
+  curl http://galileo-api:8080/health
+
+echo ""
+echo "✅ Deployment validation complete!"
+```
+
+## Troubleshooting Quick Fixes
+
+<AccordionGroup>
+  <Accordion title="Pods not starting">
+    ```bash
+    # Check pod events
+    kubectl describe pods -n galileo
+    
+    # Check resource quotas
+    gcloud compute project-info describe --project=${PROJECT_ID}
+    
+    # Scale node pool if needed
+    gcloud container clusters resize ${CLUSTER_NAME} \
+      --node-pool=default-pool \
+      --num-nodes=5 \
+      --zone=${ZONE}
+    ```
+  </Accordion>
+
+  <Accordion title="Ingress not working">
+
+    ```bash
+    # Check ingress status
+    kubectl describe ingress galileo-ingress -n galileo
+
+    # Check backend services
+    gcloud compute backend-services list
+
+    # Check health checks
+    gcloud compute health-checks list
+
+    # Verify firewall rules
+    gcloud compute firewall-rules list \
+      --filter="name~gke-${CLUSTER_NAME}"
+    ```
+
+  </Accordion>
+
+  <Accordion title="Storage issues">
+    ```bash
+    # Check storage class
+    kubectl get storageclass
+    
+    # Check PVC status
+    kubectl get pvc -n galileo
+    
+    # Check disk quotas
+    gcloud compute project-info describe \
+      --project=${PROJECT_ID} | grep -i disk
+    
+    # Resize PVC if needed
+    kubectl patch pvc <pvc-name> -n galileo \
+      -p '{"spec":{"resources":{"requests":{"storage":"200Gi"}}}}'
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Cost Optimization Tips
+
+<CardGroup cols={2}>
+  <Card title="Use Preemptible VMs" icon="dollar-sign">
+    Save up to 80% on compute costs with preemptible instances for non-critical
+    workloads
+  </Card>
+  <Card title="Enable Cluster Autoscaler" icon="expand">
+    Automatically scale down during off-hours to reduce costs
+  </Card>
+  <Card title="Use Committed Use Discounts" icon="lock">
+    Save 37-55% with 1-year or 3-year commitments
+  </Card>
+  <Card title="Optimize Storage Classes" icon="database">
+    Use standard persistent disks for non-performance-critical data
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+- Review the [Post-Deployment Checklist](/deployment-docs/operations/post-deployment-checklist)
+- Configure [Identity & Access Management](/deployment-docs/security/iam)
+- Set up [Cloud Monitoring Dashboards](/deployment-docs/operations/monitoring)
+- Implement [Disaster Recovery](/deployment-docs/operations/disaster-recovery)
+
+<Callout type="success" emoji="🎉">
+  Congratulations! Your Galileo deployment on GCP is ready. For additional
+  configuration options and best practices, see the [comprehensive GKE
+  deployment guide](/deployment-docs/cloud-providers/gke/overview).
+</Callout>

@@ -1,11 +1,272 @@
 {
-	"folders": [
+  "folders": [
     {
-      "path": "."
+      "path": ".",
+      "name": "📁 Main Project"
     },
     {
-      "path": "../docs-mintlify"
+      "path": "../docs-mintlify",
+      "name": "📚 Documentation"
     }
   ],
-  "settings": {}
+  "settings": {
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Workspace-Specific Font Overrides
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    // Documentation folder might benefit from slightly larger fonts
+    "[../docs-mintlify]": {
+      "editor.fontSize": 14,
+      "markdown.preview.fontSize": 15
+    },
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Workspace File Associations
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    "files.associations": {
+      "*.mdx": "mdx",
+      "mint.json": "json",
+      "*.mint": "markdown"
+    },
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Search Configuration
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/bower_components": true,
+      "**/dist": true,
+      "**/build": true,
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/CVS": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true,
+      "**/.next": true,
+      "**/.docusaurus": true,
+      "**/coverage": true,
+      "**/.nyc_output": true
+    },
+    
+    "search.useIgnoreFiles": true,
+    "search.followSymlinks": false,
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Workspace-Specific Extensions
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    "recommendations": [
+      // Documentation
+      "mintlify.document",
+      "yzhang.markdown-all-in-one",
+      "bierner.markdown-mermaid",
+      "davidanson.vscode-markdownlint",
+      
+      // Development
+      "github.copilot",
+      "github.copilot-chat",
+      "eamodio.gitlens",
+      "usernamehw.errorlens",
+      
+      // Formatting
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      
+      // Utilities
+      "streetsidesoftware.code-spell-checker",
+      "gruntfuggly.todo-tree",
+      "alefragnani.bookmarks",
+      "christian-kohler.path-intellisense"
+    ],
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Project-Specific Formatting Rules
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    "[markdown]": {
+      "files.trimTrailingWhitespace": false,  // Markdown may need trailing spaces for line breaks
+      "editor.wordWrap": "bounded",
+      "editor.wordWrapColumn": 120,
+      "editor.quickSuggestions": {
+        "comments": false,
+        "strings": false,
+        "other": true
+      }
+    },
+    
+    "[mdx]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true,
+      "editor.wordWrap": "bounded",
+      "editor.wordWrapColumn": 120
+    },
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Git Configuration for Multi-Folder Workspace
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    "git.autoRepositoryDetection": "openEditors",
+    "git.detectSubmodules": true,
+    "git.detectSubmodulesLimit": 10,
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Terminal Profiles for Workspace
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    "terminal.integrated.profiles.osx": {
+      "Main Project": {
+        "path": "zsh",
+        "args": ["-l"],
+        "icon": "terminal",
+        "color": "terminal.ansiCyan",
+        "cwd": "${workspaceFolder:📁 Main Project}"
+      },
+      "Documentation": {
+        "path": "zsh",
+        "args": ["-l"],
+        "icon": "book",
+        "color": "terminal.ansiGreen",
+        "cwd": "${workspaceFolder:📚 Documentation}"
+      },
+      "Dotfiles": {
+        "path": "zsh",
+        "args": ["-l"],
+        "icon": "gear",
+        "color": "terminal.ansiMagenta",
+        "cwd": "${env:HOME}/.dotfiles"
+      }
+    },
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Task Automation
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    "task.autoDetect": "on",
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Spell Check Configuration for Documentation
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    "cSpell.enableFiletypes": [
+      "mdx",
+      "mint"
+    ],
+    
+    "cSpell.words": [
+      "mintlify",
+      "mdx",
+      "frontmatter",
+      "callout",
+      "hairglasses",
+      "dotfiles"
+    ],
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Project Labels (for better organization)
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    "workbench.editor.labelFormat": "medium",
+    "explorer.sortOrder": "type"
+  },
+  
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Workspace Launch Configurations
+  // ─────────────────────────────────────────────────────────────────────────────
+  
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Launch Documentation Server",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "dev"],
+        "cwd": "${workspaceFolder:📚 Documentation}",
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen"
+      }
+    ]
+  },
+  
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Workspace Tasks
+  // ─────────────────────────────────────────────────────────────────────────────
+  
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "📚 Start Documentation Server",
+        "type": "shell",
+        "command": "npm run dev",
+        "options": {
+          "cwd": "${workspaceFolder:📚 Documentation}"
+        },
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "panel": "new",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "🔧 Update Dotfiles",
+        "type": "shell",
+        "command": "${env:HOME}/.dotfiles/install.sh --update",
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "panel": "new",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "🎨 Install Fonts",
+        "type": "shell",
+        "command": "${env:HOME}/.dotfiles/scripts/install-fonts.sh",
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "panel": "new",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "problemMatcher": []
+      }
+    ]
+  },
+  
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Extension Settings
+  // ─────────────────────────────────────────────────────────────────────────────
+  
+  "extensions": {
+    "recommendations": [
+      "mintlify.document",
+      "github.copilot",
+      "github.copilot-chat",
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "yzhang.markdown-all-in-one",
+      "davidanson.vscode-markdownlint",
+      "streetsidesoftware.code-spell-checker",
+      "eamodio.gitlens",
+      "gruntfuggly.todo-tree"
+    ],
+    "unwantedRecommendations": []
+  }
 }

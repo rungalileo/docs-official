@@ -1,0 +1,381 @@
+---
+title: "Pre-Deployment Checklist"
+description: "Complete checklist for preparing your environment before deploying Galileo"
+---
+
+# Pre-Deployment Checklist
+
+Use this comprehensive checklist to ensure your environment is properly prepared before deploying Galileo. Complete each section in order to minimize deployment issues and ensure a successful installation.
+
+<Info>
+  **Download this checklist**: A downloadable version is available at the end of
+  this document for offline use and team collaboration.
+</Info>
+
+## 1. Infrastructure Requirements
+
+### Kubernetes Cluster
+
+- [ ] Kubernetes version 1.24 - 1.30 is installed and verified
+- [ ] Cluster has sufficient nodes for the selected deployment tier
+- [ ] Node operating system is compatible (Linux-based, 64-bit)
+- [ ] Container runtime is installed (Docker, containerd, or CRI-O)
+- [ ] kubectl is installed and configured to access the cluster
+- [ ] Cluster has stable network connectivity
+
+### Compute Resources
+
+**Starter Tier:**
+
+- [ ] Minimum 3 worker nodes available
+- [ ] Each node: 8 vCPUs
+- [ ] Each node: 32 GB RAM
+- [ ] Total: 24 vCPUs, 96 GB RAM
+
+**Standard Tier:**
+
+- [ ] Minimum 5 worker nodes available
+- [ ] Each node: 16 vCPUs
+- [ ] Each node: 64 GB RAM
+- [ ] Total: 80 vCPUs, 320 GB RAM
+
+**Enterprise Tier:**
+
+- [ ] Minimum 10 worker nodes available
+- [ ] Each node: 32 vCPUs
+- [ ] Each node: 128 GB RAM
+- [ ] Total: 320 vCPUs, 1.28 TB RAM
+
+### Storage Requirements
+
+- [ ] Dynamic volume provisioning is enabled
+- [ ] Block storage class available (e.g., AWS EBS, GCP PD, Azure Disk)
+- [ ] Object storage available (e.g., S3, GCS, Azure Blob)
+- [ ] Storage class supports volume expansion
+- [ ] Snapshot capabilities configured (recommended)
+
+**Storage Capacity:**
+
+- [ ] Starter: 500 GB block storage, 1 TB object storage
+- [ ] Standard: 2 TB block storage, 5 TB object storage
+- [ ] Enterprise: 5 TB block storage, 10 TB object storage
+
+## 2. Network Configuration
+
+### Network Policies
+
+- [ ] Network policies are supported in the cluster
+- [ ] Firewall rules configured for inter-pod communication
+- [ ] Network plugin installed (Calico, Cilium, or cloud provider CNI)
+
+### Ingress Configuration
+
+- [ ] Ingress controller installed (NGINX, Traefik, cloud provider ALB/GCE)
+- [ ] Ingress class configured and tested
+- [ ] Load balancer provisioner available
+
+### DNS Configuration
+
+- [ ] DNS provider configured (Route 53, Cloud DNS, Azure DNS)
+- [ ] Domain name registered for Galileo deployment
+- [ ] DNS zone created and accessible
+- [ ] Ability to create A/CNAME records verified
+
+### SSL/TLS Certificates
+
+- [ ] Certificate authority chosen (Let's Encrypt, cloud provider, internal CA)
+- [ ] cert-manager installed (if using Let's Encrypt)
+- [ ] Certificate issuer configured
+- [ ] Ability to generate/import certificates verified
+
+### Network Egress
+
+- [ ] Outbound internet access available (or proxy configured)
+- [ ] Access to LLM provider APIs (OpenAI, Anthropic, AWS Bedrock, etc.)
+- [ ] Access to container registries
+- [ ] Access to Galileo license server (or offline license configured)
+
+## 3. Cloud Provider Setup
+
+### AWS
+
+- [ ] AWS account with appropriate permissions
+- [ ] AWS CLI installed and configured
+- [ ] EKS cluster created (or permissions to create)
+- [ ] IAM roles for service accounts (IRSA) configured
+- [ ] VPC with appropriate CIDR ranges
+- [ ] Subnets across multiple availability zones
+- [ ] NAT Gateway configured for private subnets
+- [ ] S3 bucket created for object storage
+- [ ] EBS storage class configured
+- [ ] AWS Load Balancer Controller installed
+
+### Google Cloud Platform
+
+- [ ] GCP project with billing enabled
+- [ ] gcloud CLI installed and configured
+- [ ] GKE cluster created (or permissions to create)
+- [ ] Workload Identity configured
+- [ ] VPC network configured
+- [ ] Cloud Storage bucket created
+- [ ] Persistent Disk storage class configured
+- [ ] GKE Ingress controller available
+
+### Microsoft Azure
+
+- [ ] Azure subscription with appropriate permissions
+- [ ] Azure CLI installed and configured
+- [ ] AKS cluster created (or permissions to create)
+- [ ] Managed Identity configured
+- [ ] Virtual Network configured
+- [ ] Azure Blob Storage account created
+- [ ] Azure Disk storage class configured
+- [ ] Application Gateway or Azure Load Balancer configured
+
+## 4. Required Tools Installation
+
+### Package Managers
+
+- [ ] Helm 3.8+ installed
+- [ ] Helm repository configured
+- [ ] kubectl 1.24+ installed
+- [ ] Cloud provider CLI tool installed (aws-cli, gcloud, az)
+
+### Optional Tools
+
+- [ ] k9s or similar Kubernetes UI tool
+- [ ] stern or kubetail for log aggregation
+- [ ] kubectx/kubens for context switching
+- [ ] jq for JSON processing
+
+## 5. Access Control & Security
+
+### RBAC Configuration
+
+- [ ] Kubernetes RBAC enabled
+- [ ] Service accounts created for Galileo components
+- [ ] ClusterRole/Role definitions prepared
+- [ ] RoleBindings configured
+
+### Secrets Management
+
+- [ ] Secrets management solution chosen (Kubernetes Secrets, Vault, cloud provider)
+- [ ] Secret encryption at rest enabled
+- [ ] Service account for secrets access configured
+
+### Single Sign-On (Optional)
+
+- [ ] SSO provider identified (SAML, OAuth, LDAP)
+- [ ] Application registered with SSO provider
+- [ ] Callback URLs documented
+- [ ] SSO certificates/keys available
+
+### Network Security
+
+- [ ] Security groups/firewall rules defined
+- [ ] Network segmentation planned
+- [ ] Pod Security Standards configured
+- [ ] Network policies drafted
+
+## 6. Monitoring & Logging
+
+### Monitoring Stack
+
+- [ ] Monitoring solution chosen (Prometheus, cloud provider monitoring)
+- [ ] Metrics server installed
+- [ ] Grafana installed (or alternative visualization tool)
+- [ ] Alert manager configured
+- [ ] Notification endpoints configured (Slack, PagerDuty, email)
+
+### Logging Infrastructure
+
+- [ ] Logging solution chosen (ELK, Splunk, cloud provider logging)
+- [ ] Log aggregation configured
+- [ ] Log retention policies defined
+- [ ] Log storage capacity allocated
+
+## 7. Backup Strategy
+
+### Backup Tools
+
+- [ ] Backup solution chosen (Velero, cloud provider snapshots)
+- [ ] Backup storage location configured
+- [ ] Backup retention policy defined
+- [ ] Backup schedule planned
+
+### Disaster Recovery
+
+- [ ] Recovery Time Objective (RTO) defined
+- [ ] Recovery Point Objective (RPO) defined
+- [ ] Disaster recovery plan documented
+- [ ] Backup restoration tested
+
+## 8. Database Configuration
+
+### Database Options
+
+- [ ] Database deployment model chosen (managed service vs. self-hosted)
+- [ ] Database version compatible (PostgreSQL 13+)
+- [ ] Database backup strategy defined
+- [ ] Connection pooling configured
+
+### Database Resources
+
+- [ ] Sufficient database compute resources allocated
+- [ ] Database storage properly sized
+- [ ] High availability configured (for production)
+- [ ] Monitoring enabled
+
+## 9. License & Credentials
+
+### Galileo License
+
+- [ ] Galileo license obtained from Galileo team
+- [ ] License key documented and securely stored
+- [ ] License expiration date noted
+- [ ] License terms reviewed
+
+### API Keys & Tokens
+
+- [ ] LLM provider API keys obtained (if using external providers)
+- [ ] API keys securely stored in secrets management
+- [ ] API rate limits understood
+- [ ] Backup API keys available (if applicable)
+
+### Container Registry Access
+
+- [ ] Access to Galileo container registry confirmed
+- [ ] Registry credentials obtained
+- [ ] Image pull secrets created and configured
+
+## 10. Configuration Values
+
+### Helm Values File
+
+- [ ] values.yaml file prepared
+- [ ] Domain name and ingress configuration specified
+- [ ] Storage class names specified
+- [ ] Resource requests and limits defined
+- [ ] TLS certificate configuration included
+- [ ] Database connection details configured
+- [ ] Object storage configuration specified
+
+### Environment-Specific Settings
+
+- [ ] Environment name defined (prod, staging, dev)
+- [ ] Node selectors configured (if needed)
+- [ ] Tolerations configured (if needed)
+- [ ] Pod affinity/anti-affinity configured
+- [ ] Custom labels and annotations defined
+
+## 11. Testing & Validation
+
+### Pre-Deployment Tests
+
+- [ ] Test deployment performed in non-production namespace
+- [ ] Storage provisioning tested
+- [ ] Network connectivity tested
+- [ ] Ingress routing tested
+- [ ] Certificate generation tested
+- [ ] Database connectivity tested
+- [ ] Object storage access tested
+
+### Rollback Plan
+
+- [ ] Rollback procedure documented
+- [ ] Helm rollback command syntax verified
+- [ ] Backup of current state taken (if upgrading)
+- [ ] Communication plan for rollback scenario defined
+
+## 12. Team Readiness
+
+### Documentation
+
+- [ ] Architecture diagram available
+- [ ] Runbook created for common operations
+- [ ] Troubleshooting guide accessible
+- [ ] Contact information for support documented
+
+### Training
+
+- [ ] Team trained on Galileo basics
+- [ ] Admin users identified and trained
+- [ ] On-call rotation defined (if applicable)
+- [ ] Escalation path established
+
+### Communication
+
+- [ ] Deployment timeline communicated to stakeholders
+- [ ] Maintenance window scheduled (if applicable)
+- [ ] Status page or notification channel identified
+- [ ] Post-deployment communication plan defined
+
+## 13. Compliance & Governance
+
+### Security Compliance
+
+- [ ] Security requirements documented
+- [ ] Compliance frameworks identified (SOC 2, HIPAA, etc.)
+- [ ] Data residency requirements documented
+- [ ] Audit logging requirements defined
+
+### Data Privacy
+
+- [ ] Data classification performed
+- [ ] PII handling procedures defined
+- [ ] Data retention policies established
+- [ ] Data deletion procedures documented
+
+## 14. Final Pre-Deployment Checks
+
+### Critical Path Items
+
+- [ ] All prerequisite checklists complete
+- [ ] Deployment window confirmed
+- [ ] All stakeholders notified
+- [ ] Rollback plan reviewed and approved
+- [ ] Support contact information verified
+- [ ] Monitoring dashboards prepared
+- [ ] Initial admin accounts planned
+
+### Go/No-Go Decision
+
+- [ ] Technical readiness confirmed
+- [ ] Business readiness confirmed
+- [ ] Risk assessment completed
+- [ ] Deployment approved by leadership
+- [ ] Support team on standby
+- [ ] Post-deployment validation plan ready
+
+---
+
+## Download Checklist
+
+<Card title="Download Pre-Deployment Checklist" icon="download">
+  A printer-friendly PDF version and Google Docs-compatible HTML version of this
+  checklist are available for download and team collaboration.
+</Card>
+
+## Next Steps
+
+Once all checklist items are complete:
+
+1. Review the [Deployment Tiers](/deployment-docs/deployment-tiers) guide to confirm your tier selection
+2. Follow the deployment guide for your cloud provider:
+   - [AWS EKS Deployment](/deployment-docs/deploying-on-aws-eks)
+   - [GCP GKE Deployment](/deployment-docs/cloud-providers/gke/deploying-galileo-on-gke)
+   - [Azure AKS Deployment](/deployment-docs/cloud-providers/azure/deploying-galileo-on-aks)
+3. Have the [Post-Deployment Checklist](/deployment-docs/operations/post-deployment-checklist) ready for after installation
+
+<Warning>
+  Do not proceed with deployment until all critical checklist items are
+  complete. Missing prerequisites can lead to deployment failures and data loss.
+</Warning>
+
+## Support
+
+If you have questions about any checklist items:
+
+- Review the [FAQ](/deployment-docs/faq)
+- Check the [Glossary](/deployment-docs/glossary) for term definitions
+- Contact Galileo Support for assistance

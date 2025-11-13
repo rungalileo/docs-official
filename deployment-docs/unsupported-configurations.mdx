@@ -1,0 +1,365 @@
+---
+title: "Unsupported Configurations"
+description: "Understanding deployment configurations and environments that are not supported by Galileo Platform."
+icon: "triangle-exclamation"
+---
+
+## Overview
+
+While Galileo Platform supports a wide range of deployment configurations, certain environments and setups are not compatible with the platform's architecture or requirements. This page outlines configurations that are explicitly unsupported.
+
+<Warning>
+  **Important:** Attempting to deploy Galileo in unsupported configurations may
+  result in deployment failures, performance issues, or data loss. Always verify
+  your environment meets the supported requirements before proceeding.
+</Warning>
+
+## Kubernetes Version Requirements
+
+### Unsupported Kubernetes Versions
+
+<Card title="Version Requirements" icon="kubernetes">
+  **Minimum Supported Version:** Kubernetes 1.32 or higher **Unsupported:** -
+  Kubernetes versions below 1.32 - Alpha or beta Kubernetes releases - Modified
+  or forked Kubernetes distributions without standard API compatibility
+</Card>
+
+### Why Version 1.32+?
+
+Galileo requires Kubernetes 1.32 or higher for:
+
+- Essential API features and stability improvements
+- Security patches and vulnerability fixes
+- Compatible container runtime interfaces
+- Required storage and networking capabilities
+
+## Container Orchestration Platforms
+
+### Unsupported Platforms
+
+The following container orchestration platforms are **not supported**:
+
+<Tabs>
+  <Tab title="Docker Swarm">
+    **Status:** ❌ Not Supported Docker Swarm lacks the necessary: - StatefulSet
+    capabilities - Persistent volume management - Advanced networking features -
+    Operator framework support
+  </Tab>
+
+  <Tab title="Apache Mesos">
+    **Status:** ❌ Not Supported Mesos/Marathon missing: - Kubernetes-native
+    APIs - Required CRD support - Compatible storage drivers - Helm chart
+    compatibility
+  </Tab>
+
+  <Tab title="Nomad">
+    **Status:** ❌ Not Supported HashiCorp Nomad lacks: - Kubernetes API
+    compatibility - StatefulSet equivalents - Required operator patterns -
+    Native Helm support
+  </Tab>
+</Tabs>
+
+### Supported Alternative
+
+<Info>
+  **Kubernetes Only:** Galileo exclusively supports Kubernetes-based deployments
+  including managed services like EKS, GKE, AKS, and self-managed Kubernetes
+  clusters that meet version requirements.
+</Info>
+
+## Networking Configurations
+
+### IPv6-Only Environments
+
+<Card title="IPv6-Only Networks" icon="network-wired">
+  **Status:** ❌ Not Supported **Requirements:** - IPv4 connectivity required
+  for core services - Dual-stack (IPv4/IPv6) configurations are supported - Pure
+  IPv6 environments will cause service discovery failures
+</Card>
+
+### Unsupported CNI Plugins
+
+The following Container Network Interface (CNI) plugins are known to cause issues:
+
+| CNI Plugin                 | Status             | Issue                                       |
+| -------------------------- | ------------------ | ------------------------------------------- |
+| **Flannel**                | ⚠️ Limited Support | May cause performance issues at scale       |
+| **Weave Net**              | ❌ Not Supported   | Incompatible with required network policies |
+| **Contiv**                 | ❌ Not Supported   | Lacks necessary features                    |
+| **Custom/Proprietary CNI** | ❌ Not Supported   | Untested and unsupported                    |
+
+### Supported CNI Plugins
+
+✅ **Recommended:**
+
+- Calico
+- Cilium
+- AWS VPC CNI (for EKS)
+- Azure CNI (for AKS)
+- GKE native CNI
+
+## Storage Configurations
+
+### Unsupported Storage Types
+
+<Warning>
+  **Critical:** The following storage configurations will cause deployment
+  failures or data corruption.
+</Warning>
+
+#### Network File Systems
+
+| Storage Type  | Status             | Reason                                 |
+| ------------- | ------------------ | -------------------------------------- |
+| **NFS v3**    | ❌ Not Supported   | Lacks required locking mechanisms      |
+| **SMB/CIFS**  | ❌ Not Supported   | Performance and compatibility issues   |
+| **GlusterFS** | ❌ Not Supported   | Known stability issues with ClickHouse |
+| **CephFS**    | ⚠️ Limited Support | Only with specific configurations      |
+
+#### Local Storage
+
+<Card title="Ephemeral Storage" icon="hard-drive">
+  **Status:** ❌ Not Supported for Production - No `emptyDir` for persistent
+  data - No `hostPath` volumes for stateful services - Local SSDs only supported
+  with proper CSI drivers
+</Card>
+
+### Supported Storage
+
+✅ **Use These Instead:**
+
+- AWS EBS (gp3, io2)
+- GCP Persistent Disks
+- Azure Managed Disks
+- CSI-compliant block storage
+- S3-compatible object storage
+
+## Database Configurations
+
+### Unsupported Database Scenarios
+
+#### Self-Hosted Redis
+
+<Card title="Redis Self-Hosting" icon="database">
+  **Status:** ❌ Not Supported **Required:** Managed Redis service with: - High
+  Availability mode - At least 1 replica - Managed failover capabilities
+  **Supported Services:** - AWS ElastiCache - GCP Memorystore - Azure Cache for
+  Redis
+</Card>
+
+#### Database Versions
+
+| Database       | Unsupported Versions | Minimum Required |
+| -------------- | -------------------- | ---------------- |
+| **PostgreSQL** | < 14                 | PostgreSQL 14+   |
+| **ClickHouse** | < 23.3               | ClickHouse 23.3+ |
+| **Redis**      | < 6.0                | Redis 6.0+       |
+
+## Operating System Requirements
+
+### Unsupported Node Operating Systems
+
+<Tabs>
+  <Tab title="Windows">
+    **Status:** ❌ Not Supported Windows nodes cannot run Galileo workloads due
+    to: - Linux container requirements - Incompatible system calls - Missing
+    kernel features
+  </Tab>
+
+  <Tab title="RHEL/CentOS 6-7">
+    **Status:** ❌ Not Supported Legacy RHEL/CentOS versions lack: - Modern
+    kernel features - Required cgroup v2 support - Updated container runtimes
+  </Tab>
+
+  <Tab title="32-bit Systems">
+    **Status:** ❌ Not Supported All nodes must be 64-bit (x86_64 or arm64)
+  </Tab>
+</Tabs>
+
+### Supported Operating Systems
+
+✅ **Recommended Node OS:**
+
+- Ubuntu 20.04 LTS or newer
+- RHEL 8/9
+- Amazon Linux 2/2023
+- Debian 11+
+
+## Hardware Configurations
+
+### Unsupported Hardware
+
+#### ARM Architecture Limitations
+
+<Card title="ARM/Apple Silicon" icon="microchip">
+  **Status:** ⚠️ Partial Support - ARM64 nodes supported for basic services -
+  GPU workloads require x86_64 architecture - Some ML models not optimized for
+  ARM - Development/testing only, not production
+</Card>
+
+#### Unsupported GPUs
+
+| GPU Type                           | Status             | Reason                              |
+| ---------------------------------- | ------------------ | ----------------------------------- |
+| **Consumer GPUs** (GTX/RTX Gaming) | ❌ Not Supported   | Lack enterprise drivers and support |
+| **Intel GPUs**                     | ❌ Not Supported   | Incompatible with CUDA requirements |
+| **AMD GPUs**                       | ❌ Not Supported   | Require NVIDIA CUDA                 |
+| **GPUs < 16GB VRAM**               | ⚠️ Not Recommended | Insufficient memory for models      |
+
+### Minimum Hardware Requirements
+
+<Info>
+  **Production Minimums:** - 4+ vCPUs per node - 16+ GB RAM per node - 100+ GB
+  SSD storage per node - 1 Gbps network connectivity
+</Info>
+
+## Cloud Provider Limitations
+
+### Unsupported Cloud Environments
+
+| Environment       | Status             | Alternative              |
+| ----------------- | ------------------ | ------------------------ |
+| **Alibaba Cloud** | ❌ Not Supported   | Use AWS/GCP/Azure        |
+| **Oracle Cloud**  | ❌ Not Supported   | Use supported providers  |
+| **IBM Cloud**     | ⚠️ Limited Support | Only with ROKS           |
+| **DigitalOcean**  | ❌ Not Supported   | Lacks required services  |
+| **Linode/Vultr**  | ❌ Not Supported   | Missing managed services |
+
+## Security Configurations
+
+### Unsupported Security Models
+
+#### Air-Gapped Without Preparation
+
+<Warning>
+  **Cannot Deploy Air-Gapped Without:** - Pre-downloaded container images -
+  Offline model storage - Local package repositories - Tier 4 deployment
+  preparation
+</Warning>
+
+#### Unsupported Authentication Methods
+
+| Method              | Status           | Use Instead     |
+| ------------------- | ---------------- | --------------- |
+| **Basic Auth Only** | ❌ Not Supported | OAuth2/OIDC     |
+| **LDAP Direct**     | ❌ Not Supported | LDAP via OIDC   |
+| **Custom Auth**     | ❌ Not Supported | Standard SSO    |
+| **No Auth**         | ❌ Not Supported | Always required |
+
+## Deployment Patterns
+
+### Unsupported Architectures
+
+<Tabs>
+  <Tab title="Multi-Region Active-Active">
+    **Status:** ❌ Not Supported Galileo doesn't support: - Cross-region data
+    replication - Multi-master databases - Global load balancing
+    **Alternative:** Deploy separate instances per region
+  </Tab>
+
+  <Tab title="Serverless/FaaS">
+    **Status:** ❌ Not Supported Cannot deploy on: - AWS Lambda - Google Cloud
+    Functions - Azure Functions - Knative **Reason:** Requires persistent
+    stateful services
+  </Tab>
+
+  <Tab title="Edge Deployments">
+    **Status:** ❌ Not Supported Not suitable for: - IoT edge devices - CDN edge
+    locations - Lightweight edge clusters **Reason:** Resource requirements too
+    high
+  </Tab>
+</Tabs>
+
+## Common Misconfigurations
+
+### Frequently Attempted Unsupported Setups
+
+1. **Mixing Kubernetes Versions**
+
+   - All nodes must run the same Kubernetes version
+   - Control plane and workers must be compatible
+
+2. **Insufficient Resources**
+
+   - Under-provisioning leads to failures
+   - Cannot run on free tier resources
+
+3. **Network Segregation**
+
+   - Pods must communicate freely within namespace
+   - Overly restrictive network policies break services
+
+4. **Storage Mixing**
+   - Cannot mix storage classes for same service
+   - Consistent performance tier required
+
+## Migration from Unsupported Configurations
+
+If you're currently running an unsupported configuration:
+
+<Steps>
+  <Step title="Assessment">
+    Document your current environment and identify unsupported elements.
+  </Step>
+
+  <Step title="Planning">
+    Design a migration path to a supported configuration.
+  </Step>
+
+  <Step title="Testing">
+    Validate the new configuration in a test environment.
+  </Step>
+
+  <Step title="Migration">
+    Execute the migration with proper backups and rollback plans.
+  </Step>
+</Steps>
+
+## Getting Help
+
+### Still Unsure?
+
+If you're uncertain whether your configuration is supported:
+
+<CardGroup cols={2}>
+  <Card
+    title="Review Prerequisites"
+    icon="list-check"
+    href="/deployment-docs/prerequisites"
+  >
+    Check the detailed prerequisites and requirements
+  </Card>
+  <Card
+    title="Contact Support"
+    icon="headset"
+    href="https://galileo.ai/contact-sales"
+  >
+    Reach out to our support team for clarification
+  </Card>
+  <Card
+    title="Architecture Guide"
+    icon="diagram-project"
+    href="/deployment-docs/architecture"
+  >
+    Understand the required architecture components
+  </Card>
+  <Card
+    title="Deployment Tiers"
+    icon="layer-group"
+    href="/deployment-docs/deployment-tiers"
+  >
+    Explore supported deployment tier options
+  </Card>
+</CardGroup>
+
+## Summary
+
+### Key Takeaways
+
+<Info>
+  **Remember:** - Kubernetes 1.32+ is mandatory - IPv4 networking is required -
+  Managed Redis is non-negotiable - Standard Kubernetes APIs must be available -
+  Sufficient resources must be allocated
+</Info>
+
+Always verify your environment against these requirements before attempting deployment. When in doubt, choose proven, standard configurations over experimental or custom setups.
