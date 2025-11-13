@@ -123,46 +123,60 @@ For machine learning workloads requiring GPU acceleration
 <Tabs>
   <Tab title="AWS EKS">
     **Supported GPUs:** H100, A100, L40S, L4, A10
-    
-    - **Instance Type**: `g4dn.2xlarge` (basic), `p5.4xlarge` (H100), `g6e.2xlarge` (L40S), `g6.2xlarge` (L4)
+
+    - **Instance Type**: `g4dn.2xlarge` (basic), `p5.4xlarge` (H100),
+      `g6e.2xlarge` (L40S), `g6.2xlarge` (L4)
     - **GPU**: 1x NVIDIA T4 (g4dn), H100 (p5), L40S (g6e), or L4 (g6)
     - **vCPUs**: 8-48 (varies by instance)
     - **Memory**: 32-192 GiB (varies by instance)
     - **Node Count**: Min 1, Max 5, Desired 1
     - **Node Label**: `galileo-node-type=galileo-ml`
-    
-    <Warning>L4 and A10 GPUs have shorter context windows - performance may not be optimal.</Warning>
+
+    <Warning>
+      L4 and A10 GPUs have shorter context windows -
+      performance may not be optimal.
+    </Warning>
   </Tab>
-  
+
   <Tab title="Google GKE">
     **Supported GPUs:** H100, A100, L40S, L4, A10
-    
-    - **Machine Type**: `a2-highgpu-1g` (A100), `a3-highgpu-1g` (H100), `g2-standard-8` (L4)
+
+    - **Machine Type**: `a2-highgpu-1g` (A100), `a3-highgpu-1g` (H100),
+      `g2-standard-8` (L4)
     - **GPU**: 1x NVIDIA A100, H100, or L4
     - **vCPUs**: 12-96 (varies by machine type)
     - **Memory**: 85-680 GiB (varies by machine type)
     - **Node Count**: Min 1, Max 5, Desired 1
     - **Node Label**: `galileo-node-type=galileo-ml`
-    
-    <Warning>L4 and A10 GPUs have shorter context windows - performance may not be optimal.</Warning>
+
+    <Warning>
+      L4 and A10 GPUs have shorter context windows -
+      performance may not be optimal.
+    </Warning>
   </Tab>
-  
+
   <Tab title="Azure AKS">
     **Supported GPUs:** H100, A100, L40S, A10
-    
-    - **VM Size**: `Standard_NC40ads_H100_v5` (H100), `Standard_NC24ads_A100_v4` (A100), `Standard_NV12ads_A10_v5` (A10)
+
+    - **VM Size**: `Standard_NC40ads_H100_v5` (H100),
+      `Standard_NC24ads_A100_v4` (A100),
+      `Standard_NV12ads_A10_v5` (A10)
     - **GPU**: 1x NVIDIA H100, A100, or A10
     - **vCPUs**: 12-80 (varies by VM size)
     - **Memory**: 110-660 GiB (varies by VM size)
     - **Node Count**: Min 1, Max 5, Desired 1
     - **Node Label**: `galileo-node-type=galileo-ml`
-    
-    <Warning>A10 GPUs have shorter context windows - performance may not be optimal.</Warning>
+
+    <Warning>
+      A10 GPUs have shorter context windows -
+      performance may not be optimal.
+    </Warning>
   </Tab>
 </Tabs>
 
 <Info>
-  Contact the Galileo team to determine the exact number of GPUs needed for your expected workload. Default recommendation: Min 1, Max 5.
+  Contact the Galileo team to determine the exact number of GPUs needed
+  for your expected workload. Default recommendation: Min 1, Max 5.
 </Info>
 
 ## Storage Requirements
@@ -196,7 +210,9 @@ Galileo requires persistent storage for stateful services:
     - `galileo-<customer_name>-backups`
     - `galileo-<customer_name>-offline-models` (for air-gapped deployments)
     
-    <Note>Bucket names use the `customer_name` value from your Helm configuration.</Note>
+    <Note>
+      Bucket names use the `customer_name` value from your Helm configuration.
+    </Note>
   </Tab>
   
   <Tab title="Google Cloud Storage">
