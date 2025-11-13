@@ -348,7 +348,7 @@ Test on the following combinations:
 ### 8. Performance Testing
 
 **Page Load:**
-- [ ] Initial page load is fast (<3 seconds)
+- [ ] Initial page load is fast (under 3 seconds)
 - [ ] Custom CSS loads without blocking
 - [ ] Custom JS loads asynchronously
 - [ ] No visible layout shifts (CLS < 0.1)
