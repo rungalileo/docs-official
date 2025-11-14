@@ -1,0 +1,301 @@
+---
+title: "Deployment Decision Guide"
+description: "Quick guide to help you choose the right Galileo deployment configuration for your organization"
+icon: "compass"
+---
+
+# Galileo Deployment Decision Guide
+
+This interactive guide will help you quickly determine the best deployment configuration for your Galileo Platform installation.
+
+## 🎯 Start Here: Quick Decision Tree
+
+<Steps>
+  <Step title="Determine Your Deployment Tier">
+    Answer these questions to identify your deployment tier:
+    <Accordion title="Do you need complete infrastructure control?">
+      **Yes** → Consider **Tier 3** or **Tier 4** - Tier 3: Customer-managed
+      cloud with Galileo support - Tier 4: Fully air-gapped, self-managed
+      deployment **No** → Consider **Tier 1** or **Tier 2** - Tier 1: Fully
+      hosted by Galileo - Tier 2: Galileo-managed in your cloud account
+    </Accordion>
+    <Accordion title="Do you have strict data residency requirements?">
+      **Yes** → You need **Tier 2**, **Tier 3**, or **Tier 4** - Your data stays
+      in your infrastructure **No** → **Tier 1** (fully hosted) is an option
+    </Accordion>
+    <Accordion title="Can your environment access the internet?">**No** → You need **Tier 4** (air-gapped deployment) **Yes, but restricted** → **Tier 3** with firewall rules **Yes, unrestricted** → Any tier works for you</Accordion>
+  </Step>
+
+{" "}
+<Step title="Choose Your Cloud Provider">
+  Based on your infrastructure:
+  <CardGroup cols={3}>
+    <Card title="AWS" icon="aws" href="/deployment-docs/deploying-on-aws-eks">
+      - Amazon EKS - RDS Aurora - S3 Storage - ElastiCache Redis
+    </Card>
+    <Card
+      title="Google Cloud"
+      icon="google"
+      href="/deployment-docs/cloud-providers/gke"
+    >
+      - Google Kubernetes Engine - Cloud SQL - Cloud Storage - Memorystore Redis
+    </Card>
+    <Card
+      title="Azure"
+      icon="microsoft"
+      href="/deployment-docs/cloud-providers/azure"
+    >
+      - Azure Kubernetes Service - Azure Database - Blob Storage - Azure Cache
+      for Redis
+    </Card>
+  </CardGroup>
+</Step>
+
+  <Step title="Size Your Deployment">
+    Select your expected usage level: | Usage Level | Users | Daily Experiments
+    | Recommended Resources |
+    |------------|-------|------------------|----------------------| |
+    **Starter** | 1-50 | &lt;100 | 3 nodes, 48 GiB RAM total | | **Growth** |
+    50-200 | 100-500 | 5 nodes, 80 GiB RAM total | | **Scale** | 200-1000 |
+    500-2000 | 8 nodes, 128 GiB RAM total | | **Enterprise** | 1000+ | 2000+ |
+    12+ nodes, 256+ GiB RAM total |
+  </Step>
+</Steps>
+
+## 📊 Deployment Configuration Matrix
+
+Use this matrix to quickly compare deployment options:
+
+<Tabs>
+  <Tab title="By Deployment Tier">
+    | Aspect | Tier 1 | Tier 2 | Tier 3 | Tier 4 |
+    |--------|--------|--------|--------|--------| | **Management** | Galileo |
+    Galileo | Customer | Customer | | **Infrastructure** | Galileo Cloud | Your
+    Cloud | Your Cloud | Your Data Center | | **Internet Required** | Yes | Yes
+    | Yes | No | | **Setup Time** | Minutes | 1-2 hours | 2-4 hours | 4-8 hours
+    | | **Operational Overhead** | None | Minimal | Moderate | High | |
+    **Customization** | Limited | Moderate | High | Full | | **Best For** |
+    Quick POCs | Production w/ compliance | Full control | Air-gapped
+    environments |
+  </Tab>
+
+{" "}
+<Tab title="By Cloud Provider">
+  | Feature | AWS | GCP | Azure | On-Premise |
+  |---------|-----|-----|-------|------------| | **Kubernetes** | EKS | GKE |
+  AKS | Self-managed | | **Database** | RDS Aurora | Cloud SQL | Azure Database
+  | PostgreSQL | | **Object Storage** | S3 | Cloud Storage | Blob Storage |
+  MinIO | | **Cache** | ElastiCache | Memorystore | Azure Cache | Redis | |
+  **Load Balancer** | ALB | GCP LB | App Gateway | NGINX | | **GPU Support** |
+  P3/G4 instances | A100/T4 | NC-series | Custom | | **Managed Services** |
+  Extensive | Comprehensive | Full suite | Limited |
+</Tab>
+
+  <Tab title="By Use Case">
+    | Use Case | Recommended Tier | Cloud Provider | Key Considerations |
+    |----------|-----------------|----------------|-------------------| |
+    **Proof of Concept** | Tier 1 | Any | Quick setup, minimal commitment | |
+    **Startup/Small Team** | Tier 1-2 | AWS/GCP | Cost-effective, easy scaling |
+    | **Enterprise Production** | Tier 2-3 | AWS/Azure | Compliance, support,
+    SLAs | | **Regulated Industry** | Tier 3-4 | Azure/On-prem | Data
+    sovereignty, audit trails | | **Government/Defense** | Tier 4 | On-premise |
+    Air-gapped, full control | | **Multi-region Global** | Tier 2-3 | AWS/GCP |
+    Geo-distribution, latency |
+  </Tab>
+</Tabs>
+
+## 💰 Cost Estimation Guide
+
+<Info>
+  **Note**: These are rough estimates. Actual costs vary based on usage, region,
+  and negotiated rates.
+</Info>
+
+### Monthly Cost Ranges by Tier
+
+<Cards>
+  <Card title="Tier 1: Fully Hosted">
+    **$2,000 - $10,000/month** - All-inclusive pricing - No infrastructure costs
+    - Support included - Pay per user/usage
+  </Card>
+
+{" "}
+<Card title="Tier 2: Galileo-Managed">
+  **$1,500 - $8,000/month** - Infrastructure: $800-4,000 - Management fee:
+  $700-4,000 - Your cloud account billing
+</Card>
+
+{" "}
+<Card title="Tier 3: Self-Managed">
+  **$800 - $5,000/month** - Infrastructure only - No management fees - Your
+  DevOps team required - Optional support contracts
+</Card>
+
+  <Card title="Tier 4: Air-Gapped">
+    **$1,000 - $6,000/month** - Hardware/VM costs - Higher operational overhead
+    - Specialized expertise needed
+  </Card>
+</Cards>
+
+### Infrastructure Cost Breakdown
+
+| Component             | Small          | Medium           | Large            | Enterprise  |
+| --------------------- | -------------- | ---------------- | ---------------- | ----------- |
+| **Kubernetes Nodes**  | $300-500       | $600-1,000       | $1,200-2,000     | $2,500+     |
+| **Database**          | $200-400       | $400-800         | $800-1,500       | $1,500+     |
+| **Object Storage**    | $50-100        | $100-300         | $300-800         | $800+       |
+| **Load Balancer**     | $25-50         | $50-100          | $100-200         | $200+       |
+| **Cache (Redis)**     | $50-100        | $100-200         | $200-400         | $400+       |
+| **Networking/Egress** | $50-200        | $200-500         | $500-1,000       | $1,000+     |
+| **Backups**           | $50-100        | $100-200         | $200-500         | $500+       |
+| **Total/month**       | **$725-1,450** | **$1,550-3,100** | **$3,300-6,400** | **$6,900+** |
+
+## 🚀 Quick Start Paths
+
+Based on your needs, here's your fastest path to deployment:
+
+<Tabs>
+  <Tab title="I want to try Galileo quickly">
+**Recommended: Tier 1 - Fully Hosted**
+
+1. Contact Galileo sales for trial access
+2. Receive credentials within 24 hours
+3. Start using immediately
+4. No infrastructure setup required
+
+[Contact Sales →](mailto:sales@galileo.ai)
+
+  </Tab>
+  
+  <Tab title="I need production deployment">
+**Recommended: Tier 2 - Galileo Managed**
+
+1. Provision cloud account and permissions
+2. Run Galileo deployment automation
+3. Configuration and testing (2-4 hours)
+4. Production ready
+
+[View Tier 2 Guide →](/deployment-docs/deployment-tiers#tier-2-galileo-managed-customer-infrastructure)
+
+  </Tab>
+  
+  <Tab title="I need full control">
+**Recommended: Tier 3 - Self Managed**
+
+1. Review [Prerequisites](/deployment-docs/prerequisites)
+2. Follow cloud-specific deployment guide
+3. Configure security and networking
+4. Run validation tests
+
+[View Deployment Guides →](/deployment-docs/overview)
+
+  </Tab>
+  
+  <Tab title="I have an air-gapped environment">
+**Required: Tier 4 - Air-Gapped**
+
+1. Review [Air-Gapped Requirements](/deployment-docs/deployment-tiers#tier-4-air-gapped-deployment)
+2. Download offline packages
+3. Configure internal registries
+4. Deploy with no internet access
+
+[View Tier 4 Guide →](/deployment-docs/deployment-tiers#tier-4-air-gapped-deployment)
+
+  </Tab>
+</Tabs>
+
+## ❓ Common Decision Points
+
+<AccordionGroup>
+  <Accordion title="Should I use managed databases or self-host?">
+    **Use Managed Databases if:** - You want automatic backups and high
+    availability - You have limited database administration expertise - You need
+    compliance certifications - Cost is less important than reliability
+    **Self-Host Databases if:** - You need full control over configuration - You
+    have database administration expertise - You're in an air-gapped environment
+    - You want to minimize external dependencies
+  </Accordion>
+
+  <Accordion title="How many GPU nodes do I need?">
+    **GPU Requirements by Use Case:** - **No ML Evaluations**: 0 GPU nodes
+    needed - **Light ML Usage** (Luna evaluations): 1 GPU node - **Heavy ML
+    Usage**: 2-4 GPU nodes - **Fine-tuning Workflows**: 4+ GPU nodes **GPU Node
+    Recommendations:** - AWS: p3.2xlarge or g4dn.xlarge - GCP: n1-standard-8
+    with T4 or A100 - Azure: NC6s_v3 or NC12s_v3
+  </Accordion>
+
+  <Accordion title="What about high availability and disaster recovery?">
+    **High Availability Options:** - **Tier 1**: Built-in HA with 99.9% SLA -
+    **Tier 2**: Multi-AZ deployment, managed failover - **Tier 3**: Configure
+    your own HA (multi-zone, replicas) - **Tier 4**: Manual HA configuration
+    required **Disaster Recovery:** - All tiers support automated backups - Tier
+    2-4: Cross-region backup options - RTO: 1-4 hours depending on tier - RPO:
+    1-24 hours based on backup frequency
+  </Accordion>
+
+  <Accordion title="Can I change tiers later?">
+    **Yes, you can migrate between tiers:** - **Tier 1 → 2**: Export data,
+    deploy in your cloud - **Tier 2 → 3**: Transfer management responsibility -
+    **Tier 3 → 4**: Implement air-gap procedures - **Any → Tier 1**: Import data
+    to hosted platform Migration typically takes 2-8 hours with minimal
+    downtime.
+  </Accordion>
+</AccordionGroup>
+
+## 📋 Next Steps
+
+<Steps>
+  <Step title="Review Requirements">
+    Check the [Prerequisites](/deployment-docs/prerequisites) for your chosen
+    deployment tier
+  </Step>
+
+{" "}
+<Step title="Plan Infrastructure">
+  Use the [Infrastructure Planning
+  Guide](/deployment-docs/infrastructure-planning) to size your deployment
+</Step>
+
+{" "}
+<Step title="Follow Deployment Guide">
+  Select your specific deployment guide: - [AWS
+  EKS](/deployment-docs/deploying-on-aws-eks) - [Google
+  GKE](/deployment-docs/cloud-providers/gke) - [Azure
+  AKS](/deployment-docs/cloud-providers/azure)
+</Step>
+
+  <Step title="Validate Deployment">
+    Use the [Post-Deployment
+    Checklist](/deployment-docs/operations/post-deployment-checklist) to verify
+    your installation
+  </Step>
+</Steps>
+
+## 🆘 Need Help Deciding?
+
+<CardGroup cols={2}>
+  <Card
+    title="Technical Documentation"
+    icon="book"
+    href="/deployment-docs/overview"
+  >
+    Detailed technical guides for all deployment options
+  </Card>
+  <Card
+    title="Contact Solutions Team"
+    icon="comments"
+    href="mailto:solutions@galileo.ai"
+  >
+    Get personalized recommendations from our experts
+  </Card>
+  <Card
+    title="Community Forum"
+    icon="users"
+    href="https://community.galileo.ai"
+  >
+    Learn from other users' deployment experiences
+  </Card>
+  <Card title="Schedule Demo" icon="calendar" href="https://galileo.ai/demo">
+    See Galileo in action with your use case
+  </Card>
+</CardGroup>

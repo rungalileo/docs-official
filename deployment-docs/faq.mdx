@@ -1,0 +1,674 @@
+---
+title: "Deployment FAQ"
+description: "Frequently asked questions about deploying and operating Galileo"
+---
+
+# Deployment FAQ
+
+Common questions and answers about deploying, configuring, and operating Galileo in your environment.
+
+## General Questions
+
+<AccordionGroup>
+  <Accordion title="What are the minimum infrastructure requirements for Galileo?">
+    Minimum requirements vary by deployment tier:
+
+    - **Starter Tier**: 3 nodes, 8 vCPUs per node, 32 GB RAM per node
+    - **Standard Tier**: 5 nodes, 16 vCPUs per node, 64 GB RAM per node
+    - **Enterprise Tier**: 10+ nodes, 32 vCPUs per node, 128 GB RAM per node
+
+    See the [Resource Requirements](/deployment-docs/resource-requirements) guide for detailed specifications.
+
+  </Accordion>
+
+  <Accordion title="Which cloud providers are supported?">
+    Galileo supports deployment on:
+
+    - Amazon Web Services (AWS) via EKS
+    - Google Cloud Platform (GCP) via GKE
+    - Microsoft Azure via AKS
+    - Exoscale
+    - Any Kubernetes cluster that meets our requirements
+
+    Each provider has specific configuration requirements detailed in our cloud provider guides.
+
+  </Accordion>
+
+  <Accordion title="Can Galileo be deployed on-premises?">
+    Yes! Galileo can be deployed on any Kubernetes cluster, including on-premises infrastructure. You'll need to ensure:
+
+    - Kubernetes 1.24 or higher
+    - Sufficient compute and storage resources
+    - Network connectivity for external integrations (if needed)
+    - Container registry access for pulling Galileo images
+
+    For air-gapped environments, contact Galileo Support for specific configuration guidance.
+
+  </Accordion>
+
+  <Accordion title="How long does a typical deployment take?">
+    Deployment time varies by complexity:
+
+    - **Quick Start (existing cluster)**: 2-4 hours
+    - **Standard deployment**: 1-2 days
+    - **Enterprise with custom integrations**: 3-5 days
+
+    This includes infrastructure setup, installation, configuration, and initial testing.
+
+  </Accordion>
+
+  <Accordion title="What data does Galileo collect and store?">
+    Galileo stores:
+
+    - LLM prompts and responses
+    - Evaluation metrics and scores
+    - User annotations and feedback
+    - System logs and monitoring data
+    - Configuration and metadata
+
+    All data remains within your infrastructure. Galileo does not send data to external servers unless you configure external integrations.
+
+  </Accordion>
+</AccordionGroup>
+
+## Infrastructure & Kubernetes
+
+<AccordionGroup>
+  <Accordion title="What Kubernetes versions are supported?">
+    Galileo supports Kubernetes versions **1.24 through 1.30**. We recommend using the latest stable version within this range for optimal security and features.
+
+    Note: Some cloud provider managed services may have specific version recommendations.
+
+  </Accordion>
+
+  <Accordion title="Can I use an existing Kubernetes cluster?">
+    Yes! Galileo can be deployed into an existing cluster if it meets our requirements:
+
+    - Sufficient available resources (CPU, memory, storage)
+    - Compatible Kubernetes version (1.24-1.30)
+    - No conflicting services or configurations
+    - Proper RBAC permissions
+
+    We recommend using a dedicated namespace for Galileo components.
+
+  </Accordion>
+
+  <Accordion title="What storage classes are required?">
+    Galileo requires:
+
+    - **Block storage**: For databases and persistent data (e.g., AWS EBS, GCP Persistent Disk)
+    - **Object storage**: For artifacts and large datasets (e.g., AWS S3, GCS, Azure Blob)
+
+    Storage classes must support:
+    - Dynamic provisioning
+    - Volume expansion
+    - Snapshot capabilities (recommended)
+
+  </Accordion>
+
+  <Accordion title="How do I handle node autoscaling?">
+    For optimal autoscaling:
+
+    1. **Use cluster autoscaler**: Configure your cloud provider's autoscaler (Karpenter, GKE autoscaler, etc.)
+    2. **Set resource requests**: Define accurate CPU/memory requests for Galileo pods
+    3. **Configure HPA**: Enable Horizontal Pod Autoscaler for stateless services
+    4. **Set node limits**: Configure min/max node counts to prevent runaway scaling
+
+    See [Performance Tuning](/deployment-docs/operations/performance-tuning) for detailed guidance.
+
+  </Accordion>
+
+  <Accordion title="What happens if a node fails?">
+    Kubernetes automatically handles node failures:
+
+    - Pods are rescheduled to healthy nodes
+    - StatefulSets maintain data consistency
+    - PersistentVolumes are reattached to new pods
+    - Load balancers route traffic away from failed nodes
+
+    For critical components, we recommend multi-replica deployments across availability zones.
+
+  </Accordion>
+</AccordionGroup>
+
+## Security & Access Control
+
+<AccordionGroup>
+  <Accordion title="How is data encrypted?">
+    Galileo provides encryption at multiple layers:
+
+    - **In Transit**: TLS 1.2+ for all network communication
+    - **At Rest**: Encrypted storage volumes using cloud provider KMS
+    - **Application Layer**: Sensitive data encrypted in database
+
+    See [Security and Access Control](/deployment-docs/security/security-and-access-control) for configuration details.
+
+  </Accordion>
+
+  <Accordion title="Can I integrate with my existing SSO provider?">
+    Yes! Galileo supports:
+
+    - SAML 2.0
+    - OAuth 2.0 / OIDC
+    - LDAP/Active Directory
+
+    Configuration guides are available in the [SSO Integration](/deployment-docs/security/sso-integration) documentation.
+
+  </Accordion>
+
+  <Accordion title="How do I manage user permissions?">
+    Galileo uses role-based access control (RBAC) with predefined roles:
+
+    - **Admin**: Full system access
+    - **Member**: Project and experiment access
+    - **Viewer**: Read-only access
+
+    Custom roles can be configured for enterprise deployments. See [Setting Up Users](/deployment-docs/security/setting-up-new-users).
+
+  </Accordion>
+
+  <Accordion title="Are there network egress requirements?">
+    Galileo needs egress access for:
+
+    - LLM provider APIs (OpenAI, Anthropic, AWS Bedrock, etc.)
+    - License validation (occasional)
+    - Optional: External monitoring/logging services
+
+    For air-gapped environments, you can proxy these connections or use local LLM deployments. See [Prerequisites](/deployment-docs/prerequisites) for details.
+
+  </Accordion>
+
+  <Accordion title="How do I secure the database?">
+    Best practices for database security:
+
+    - Use encrypted storage volumes
+    - Enable network policies to restrict access
+    - Use strong passwords with secret management
+    - Enable audit logging
+    - Regular backup and testing
+    - Keep database software updated
+
+    See [Data Privacy and Compliance](/deployment-docs/security/data-privacy-and-compliance) for more details.
+
+  </Accordion>
+</AccordionGroup>
+
+## Installation & Configuration
+
+<AccordionGroup>
+  <Accordion title="What are the Helm chart configuration options?">
+    Key Helm values you can configure:
+
+    - Resource requests and limits
+    - Storage class and sizes
+    - Ingress and TLS settings
+    - External service endpoints
+    - Feature flags and settings
+    - Monitoring and logging integrations
+
+    Run `helm show values galileo/galileo` to see all available options.
+
+  </Accordion>
+
+  <Accordion title="How do I customize the deployment for my environment?">
+    You can customize the deployment by:
+
+    1. Creating a custom `values.yaml` file
+    2. Setting environment-specific configurations
+    3. Applying Kubernetes customizations
+    4. Integrating with existing infrastructure
+
+    Consult with Galileo Support for complex customizations.
+
+  </Accordion>
+
+  <Accordion title="Can I install Galileo in multiple namespaces?">
+    While possible, we recommend:
+
+    - One Galileo instance per namespace
+    - Use multiple namespaces for staging/production separation
+    - Each instance requires separate configuration and resources
+
+    Multiple instances in the same cluster should use different ingress paths and storage.
+
+  </Accordion>
+
+  <Accordion title="How do I upgrade to a new version?">
+    To upgrade Galileo:
+
+    1. Review release notes for breaking changes
+    2. Backup your data (see [Disaster Recovery](/deployment-docs/operations/disaster-recovery))
+    3. Update Helm chart version
+    4. Run `helm upgrade` with appropriate values
+    5. Verify all services are healthy
+    6. Test core functionality
+
+    Rolling updates minimize downtime. See deployment tier documentation for specific upgrade procedures.
+
+  </Accordion>
+
+  <Accordion title="What if the installation fails midway?">
+    If installation fails:
+
+    1. Check Helm release status: `helm list -n <namespace>`
+    2. Review pod status: `kubectl get pods -n <namespace>`
+    3. Check logs: `kubectl logs <pod-name> -n <namespace>`
+    4. Common issues:
+       - Insufficient resources
+       - Missing prerequisites
+       - Network connectivity problems
+       - Incorrect configuration values
+
+    You can rollback with `helm rollback <release> <revision>` or uninstall and retry.
+
+  </Accordion>
+</AccordionGroup>
+
+## Performance & Scaling
+
+<AccordionGroup>
+  <Accordion title="How many concurrent users can Galileo support?">
+    Capacity depends on deployment tier:
+
+    - **Starter**: 10-50 concurrent users
+    - **Standard**: 50-200 concurrent users
+    - **Enterprise**: 200+ concurrent users
+
+    Actual capacity depends on workload patterns and resource allocation. Monitor metrics and scale as needed.
+
+  </Accordion>
+
+  <Accordion title="How do I optimize query performance?">
+    To improve query performance:
+
+    - Ensure adequate database resources
+    - Enable database query caching
+    - Use appropriate indexes
+    - Implement data retention policies
+    - Consider read replicas for analytics
+    - Optimize network latency between components
+
+    See [Performance Tuning](/deployment-docs/operations/performance-tuning) for detailed optimization strategies.
+
+  </Accordion>
+
+  <Accordion title="What causes high memory usage?">
+    Common causes:
+
+    - Large batch processing jobs
+    - Memory leaks (rare, contact support)
+    - Insufficient resource limits
+    - High concurrent user load
+    - Large dataset operations
+
+    Monitor pod memory with Prometheus and adjust resource requests/limits accordingly.
+
+  </Accordion>
+
+  <Accordion title="How do I scale individual components?">
+    Different components scale differently:
+
+    - **Stateless services**: Increase replica count
+    - **Databases**: Vertical scaling (larger instances) or read replicas
+    - **Storage**: Expand volume sizes or add new volumes
+    - **Workers**: Horizontal scaling with more pods
+
+    Use Horizontal Pod Autoscaler (HPA) for automatic scaling based on metrics.
+
+  </Accordion>
+
+  <Accordion title="What are typical response times?">
+    Expected performance for common operations:
+
+    - UI page loads: < 2 seconds
+    - API queries: < 500ms
+    - Experiment creation: < 1 second
+    - Large dataset uploads: Varies by size
+    - Metric calculations: 1-5 seconds per trace
+
+    Slower times may indicate resource constraints or network issues.
+
+  </Accordion>
+</AccordionGroup>
+
+## Backup & Recovery
+
+<AccordionGroup>
+  <Accordion title="How often should I backup?">
+    Recommended backup frequency:
+
+    - **Database**: Daily full backups, hourly incremental
+    - **Configuration**: Before any changes
+    - **Object storage**: Weekly snapshots
+
+    Adjust based on your RPO (Recovery Point Objective) requirements. See [Disaster Recovery](/deployment-docs/operations/disaster-recovery).
+
+  </Accordion>
+
+  <Accordion title="How long does a restore take?">
+    Restore time depends on data size:
+
+    - Small deployments (< 100 GB): 15-30 minutes
+    - Medium deployments (100-500 GB): 1-2 hours
+    - Large deployments (> 500 GB): 2-6 hours
+
+    This assumes backups are readily accessible and infrastructure is prepared.
+
+  </Accordion>
+
+  <Accordion title="Can I restore to a different cluster?">
+    Yes! You can restore backups to a different cluster if:
+
+    - Target cluster meets system requirements
+    - Same Galileo version (or compatible)
+    - Storage backends are compatible
+    - Network access to restore sources
+
+    This is useful for migration, disaster recovery, or creating test environments.
+
+  </Accordion>
+
+  <Accordion title="What should I backup before an upgrade?">
+    Always backup before upgrades:
+
+    - Database (full backup)
+    - Persistent volumes
+    - Helm values and configurations
+    - Custom resource definitions
+    - Certificates and secrets
+
+    Verify backups are complete and restorable before proceeding with the upgrade.
+
+  </Accordion>
+
+  <Accordion title="How do I test my backup strategy?">
+    Regular backup testing is critical:
+
+    1. Schedule quarterly restore drills
+    2. Restore to a separate test cluster
+    3. Verify data integrity
+    4. Document restore procedures
+    5. Measure actual RTO/RPO
+    6. Update runbooks based on findings
+
+    See [Disaster Recovery](/deployment-docs/operations/disaster-recovery) for testing procedures.
+
+  </Accordion>
+</AccordionGroup>
+
+## Monitoring & Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="What monitoring tools should I use?">
+    Recommended monitoring stack:
+
+    - **Metrics**: Prometheus + Grafana (built-in)
+    - **Logs**: ELK stack or cloud provider logging
+    - **Traces**: Optional OpenTelemetry integration
+    - **Alerts**: AlertManager or cloud provider alerting
+
+    See [Integration Patterns](/deployment-docs/operations/integration-patterns) for setup guides.
+
+  </Accordion>
+
+  <Accordion title="How do I troubleshoot pod startup failures?">
+    Steps to diagnose pod issues:
+
+    1. Check pod status: `kubectl get pods -n <namespace>`
+    2. Describe pod: `kubectl describe pod <pod-name> -n <namespace>`
+    3. View logs: `kubectl logs <pod-name> -n <namespace>`
+    4. Check events: `kubectl get events -n <namespace>`
+
+    Common issues: image pull errors, insufficient resources, configuration errors
+
+    See [Troubleshooting Hub](/deployment-docs/operations/troubleshooting-hub) for detailed solutions.
+
+  </Accordion>
+
+  <Accordion title="Why is my service unavailable?">
+    Check these common causes:
+
+    - Pod not running or crashing
+    - Service/Ingress misconfiguration
+    - Network policy blocking traffic
+    - TLS certificate issues
+    - Load balancer problems
+    - DNS resolution failures
+
+    Use `kubectl get svc,ingress,pods` to check component status.
+
+  </Accordion>
+
+  <Accordion title="How do I debug database connectivity issues?">
+    To troubleshoot database connections:
+
+    1. Verify database pod is running
+    2. Check service endpoints: `kubectl get endpoints`
+    3. Test connection from another pod: `kubectl run -it debug --image=busybox --rm`
+    4. Verify credentials in secrets
+    5. Check network policies
+    6. Review database logs
+
+    Ensure connection strings and credentials are correct in configuration.
+
+  </Accordion>
+
+  <Accordion title="Where can I find logs for debugging?">
+    Logs are available from multiple sources:
+
+    - **Pod logs**: `kubectl logs <pod-name> -n <namespace>`
+    - **Previous pod**: `kubectl logs <pod-name> --previous`
+    - **Centralized logging**: If configured (ELK, CloudWatch, etc.)
+    - **Audit logs**: For security events
+    - **Application logs**: Within persistent volumes
+
+    Use labels to filter: `kubectl logs -l app=galileo -n <namespace>`
+
+  </Accordion>
+</AccordionGroup>
+
+## Integrations
+
+<AccordionGroup>
+  <Accordion title="How do I connect to my LLM provider?">
+    Configure LLM providers through:
+
+    1. Galileo Console UI (Settings > Integrations)
+    2. Environment variables in Helm values
+    3. Kubernetes secrets for API keys
+
+    Supported providers: OpenAI, Anthropic, AWS Bedrock, Azure OpenAI, Google Vertex AI, and more.
+
+  </Accordion>
+
+  <Accordion title="Can I use local LLM models?">
+    Yes! Galileo supports:
+
+    - Self-hosted LLM endpoints
+    - Local model serving (e.g., vLLM, Ollama)
+    - Custom API endpoints
+
+    Configure endpoint URLs in integration settings. Ensure network connectivity between Galileo and your model servers.
+
+  </Accordion>
+
+  <Accordion title="How do I integrate with my CI/CD pipeline?">
+    Integration options:
+
+    - Use Galileo API for programmatic access
+    - Create service accounts with API tokens
+    - Integrate evaluation into your pipeline
+    - Automate experiment creation and comparison
+
+    See [Integration Patterns](/deployment-docs/operations/integration-patterns) for examples with GitHub Actions, GitLab CI, and Jenkins.
+
+  </Accordion>
+
+  <Accordion title="Can I export data to external systems?">
+    Yes! You can export:
+
+    - Metrics via Prometheus endpoints
+    - Logs to centralized logging systems
+    - Data via API or direct database access
+    - Reports in various formats
+
+    Configure integrations in the Console or via Helm values.
+
+  </Accordion>
+
+  <Accordion title="How do I set up Slack notifications?">
+    To enable Slack alerts:
+
+    1. Create a Slack webhook URL
+    2. Add webhook to AlertManager configuration
+    3. Configure alert routing rules
+    4. Test with a sample alert
+
+    See [Integration Patterns](/deployment-docs/operations/integration-patterns) for detailed setup.
+
+  </Accordion>
+</AccordionGroup>
+
+## Compliance & Data Privacy
+
+<AccordionGroup>
+  <Accordion title="Is Galileo SOC 2 compliant?">
+    Galileo follows SOC 2 best practices. For self-hosted deployments:
+
+    - You control all data
+    - Data never leaves your infrastructure
+    - You're responsible for compliance in your environment
+
+    Contact Galileo for compliance documentation and guidance.
+
+  </Accordion>
+
+  <Accordion title="How do I handle sensitive data?">
+    Best practices:
+
+    - Enable encryption at rest and in transit
+    - Use secrets management (Vault, cloud provider KMS)
+    - Implement access controls and audit logging
+    - Consider data anonymization/pseudonymization
+    - Define data retention policies
+    - Regular security audits
+
+    See [Data Privacy and Compliance](/deployment-docs/security/data-privacy-and-compliance).
+
+  </Accordion>
+
+  <Accordion title="Can I run Galileo in an air-gapped environment?">
+    Yes! Air-gapped deployments require:
+
+    - Pre-pulled container images in private registry
+    - Local LLM deployments (no external API calls)
+    - Manual license management
+    - Offline monitoring and logging
+
+    Contact Galileo Support for air-gapped deployment assistance.
+
+  </Accordion>
+
+  <Accordion title="How long is data retained?">
+    Data retention is configurable:
+
+    - Default: 90 days for traces, 1 year for aggregates
+    - Configure per-project or globally
+    - Automated cleanup jobs
+    - Manual deletion available
+
+    Set retention policies based on your compliance requirements.
+
+  </Accordion>
+
+  <Accordion title="How do I delete user data?">
+    To remove user data:
+
+    1. Delete experiments/projects via UI or API
+    2. For complete removal: database cleanup scripts
+    3. Clear object storage artifacts
+    4. Remove from backups (manual process)
+
+    Contact support for data deletion procedures.
+
+  </Accordion>
+</AccordionGroup>
+
+## Cost & Licensing
+
+<AccordionGroup>
+  <Accordion title="What are the infrastructure costs?">
+    Infrastructure costs vary by:
+
+    - Cloud provider and region
+    - Deployment tier (resource usage)
+    - Storage requirements
+    - Data transfer/egress
+    - Additional services (monitoring, backups)
+
+    Use cloud provider cost calculators with our resource requirements as inputs.
+
+  </Accordion>
+
+  <Accordion title="How is Galileo licensed?">
+    Contact Galileo Sales for licensing information. Licenses are typically based on:
+
+    - Number of users
+    - Usage volume
+    - Support tier
+    - Deployment model
+
+    License keys are provided during installation.
+
+  </Accordion>
+
+  <Accordion title="Can I reduce costs with spot instances?">
+    Yes, with caution:
+
+    - Use spot/preemptible instances for stateless workers
+    - Keep databases and stateful services on regular instances
+    - Configure pod disruption budgets
+    - Implement graceful shutdown handling
+
+    Test thoroughly to ensure workloads can handle interruptions.
+
+  </Accordion>
+
+  <Accordion title="What's included in support?">
+    Support varies by tier:
+
+    - **Standard**: Email support, business hours
+    - **Premium**: 24/7 support, faster response
+    - **Enterprise**: Dedicated support, custom SLAs
+
+    All tiers include access to documentation, updates, and security patches.
+
+  </Accordion>
+</AccordionGroup>
+
+## Still Have Questions?
+
+If you can't find the answer you're looking for:
+
+<CardGroup cols={2}>
+  <Card
+    title="Check the Troubleshooting Hub"
+    icon="wrench"
+    href="/deployment-docs/operations/troubleshooting-hub"
+  >
+    Common issues and solutions
+  </Card>
+  <Card
+    title="Review the Glossary"
+    icon="book"
+    href="/deployment-docs/glossary"
+  >
+    Technical terms and definitions
+  </Card>
+  <Card title="Contact Support" icon="headset">
+    Reach out to Galileo Support for personalized assistance
+  </Card>
+  <Card title="Join Community" icon="users">
+    Connect with other Galileo users
+  </Card>
+</CardGroup>

@@ -1,0 +1,700 @@
+---
+title: "Deploying on AWS EKS"
+description: "Complete guide for deploying Galileo Platform on Amazon Elastic Kubernetes Service (EKS) with S3, RDS, and IAM integration."
+icon: "aws"
+---
+
+## Overview
+
+This guide walks you through deploying Galileo Platform on Amazon EKS. The deployment includes setting up an EKS cluster, configuring IAM roles, provisioning S3 buckets, and deploying Galileo services using Helm.
+
+<Info>
+  **Total deployment time:** 45-60 minutes
+</Info>
+
+## Prerequisites
+
+Before starting, ensure you have completed all items in the [Prerequisites](/deployment-docs/prerequisites) page, specifically:
+
+- AWS CLI v2 and eksctl installed
+- AWS account with administrative access
+- kubectl and Helm 3.x installed
+- Docker registry credentials from Galileo
+- Domain name and DNS management access
+
+## Architecture Overview
+
+Galileo on EKS consists of:
+- **EKS Cluster** with 3 node pools (core, runners, ML/GPU)
+- **S3 Buckets** for object storage (10 buckets)
+- **RDS Aurora PostgreSQL** (optional, recommended) or in-cluster PostgreSQL
+- **ElastiCache Redis** (required for production)
+- **VPC** with public and private subnets
+- **Load Balancer** (ALB or NLB) for ingress
+
+## S3 Buckets
+
+Galileo requires the following S3 buckets. The application can auto-create these, or you can pre-provision them.
+
+### Bucket Names
+
+Replace `<customer_name>` with your organization identifier (set in Helm values as `global.customer_name`):
+
+- `galileo-<customer_name>-project-runs`
+- `galileo-<customer_name>-project-runs-results`
+- `galileo-<customer_name>-images`
+- `galileo-<customer_name>-prompts`
+- `galileo-<customer_name>-prompts-datasets`
+- `galileo-<customer_name>-prompts-results`
+- `galileo-<customer_name>-models`
+- `galileo-<customer_name>-auto-datasets`
+- `galileo-<customer_name>-backups`
+- `galileo-<customer_name>-offline-models`*
+
+<Note>
+  *The `offline-models` bucket is only needed for air-gapped deployments where EFS is not available.
+</Note>
+
+### Option 1: Auto-Create Buckets (Application Managed)
+
+Allow Galileo API to create buckets automatically with this IAM policy:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllBucketList",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListAllMyBuckets"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "GalileoBucketFullAccess",
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::galileo-<customer-name>-*"
+    }
+  ]
+}
+```
+
+### Option 2: Pre-Create Buckets (Admin Managed)
+
+If your organization requires pre-creating buckets, create them manually and use this restricted IAM policy:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllBucketList",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListAllMyBuckets"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "GalileoBucketFullAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:DeleteObject",
+        "s3:Get*",
+        "s3:ListBucket",
+        "s3:Put*"
+      ],
+      "Resource": [
+        "arn:aws:s3:::galileo-<customer-name>-*/*",
+        "arn:aws:s3:::galileo-<customer-name>-*"
+      ]
+    }
+  ]
+}
+```
+
+## Step 1: Create IAM Roles and Policies
+
+### Create Galileo IAM Policy
+
+Create `galileo-policy.json`:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "eks:AccessKubernetesApi",
+        "eks:DescribeCluster"
+      ],
+      "Resource": "arn:aws:eks:CLUSTER_REGION:ACCOUNT_ID:cluster/CLUSTER_NAME"
+    }
+  ]
+}
+```
+
+<Warning>
+  Replace `CLUSTER_REGION`, `ACCOUNT_ID`, and `CLUSTER_NAME` with your actual values.
+</Warning>
+
+### Create Galileo Trust Policy
+
+Create `galileo-trust-policy.json`:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": ["arn:aws:iam::273352303610:role/GalileoConnect"],
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+### Create IAM Role with Policies
+
+Create `create-galileo-role-and-policies.sh`:
+
+```bash
+#!/bin/sh -ex
+
+aws iam create-policy --policy-name Galileo --policy-document file://galileo-policy.json
+aws iam create-role --role-name Galileo --assume-role-policy-document file://galileo-trust-policy.json
+aws iam attach-role-policy --role-name Galileo --policy-arn $(aws iam list-policies | jq -r '.Policies[] | select (.PolicyName == "Galileo") | .Arn')
+```
+
+Run the script:
+
+```bash
+chmod +x create-galileo-role-and-policies.sh
+./create-galileo-role-and-policies.sh
+```
+
+## Step 2: Deploy the EKS Cluster
+
+### Cluster Configuration
+
+Create `galileo-cluster.yaml` with your cluster configuration:
+
+```yaml
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: galileo-cluster
+  region: us-west-2  # Change to your preferred region
+  version: "1.28"    # Kubernetes version (1.25+)
+
+vpc:
+  cidr: 10.0.0.0/16
+  nat:
+    gateway: HighlyAvailable
+
+availabilityZones:
+  - us-west-2a
+  - us-west-2b
+  - us-west-2c
+
+# IAM configuration
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: galileo
+        namespace: galileo
+      attachPolicyARNs:
+        - arn:aws:iam::ACCOUNT_ID:policy/Galileo
+      roleName: galileo-serviceaccount-role
+
+# Core node group for general Galileo services
+managedNodeGroups:
+  - name: galileo-core
+    instanceType: m5.xlarge
+    minSize: 4
+    maxSize: 5
+    desiredCapacity: 4
+    volumeSize: 100
+    volumeType: gp3
+    labels:
+      galileo-node-type: galileo-core
+    tags:
+      k8s.io/cluster-autoscaler/enabled: "true"
+      k8s.io/cluster-autoscaler/galileo-cluster: "owned"
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+        ebs: true
+        
+  # Runner node group for job execution
+  - name: galileo-runner
+    instanceType: m5.2xlarge
+    minSize: 1
+    maxSize: 5
+    desiredCapacity: 1
+    volumeSize: 200
+    volumeType: gp3
+    labels:
+      galileo-node-type: galileo-runner
+    tags:
+      k8s.io/cluster-autoscaler/enabled: "true"
+      k8s.io/cluster-autoscaler/galileo-cluster: "owned"
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+        ebs: true
+```
+
+<Accordion title="View Complete Example Configuration">
+  See a full example configuration including optional GPU node pool in the [EKS Cluster Config Example](/deployment-docs/deploying-on-aws-eks/eks-cluster-config-example) page.
+</Accordion>
+
+### Deploy the Cluster
+
+```bash
+eksctl create cluster -f galileo-cluster.yaml
+```
+
+This will take approximately 15-20 minutes.
+
+### Configure kubectl
+
+Once the cluster is created, configure kubectl:
+
+```bash
+aws eks update-kubeconfig --region us-west-2 --name galileo-cluster
+```
+
+Verify connectivity:
+
+```bash
+kubectl get nodes
+```
+
+## Step 3: Create GPU Node Pool (Optional)
+
+If you need GPU support for ML workloads, create a GPU-enabled node pool:
+
+<Tabs>
+  <Tab title="Basic GPU (T4)">
+    ```bash
+    eksctl create nodegroup \
+      --cluster galileo-cluster \
+      --name galileo-ml \
+      --node-type g4dn.2xlarge \
+      --nodes-min 1 \
+      --nodes-max 5 \
+      --node-ami-family AmazonLinux2 \
+      --node-labels "galileo-node-type=galileo-ml" \
+      --region us-west-2
+    ```
+  </Tab>
+  
+  <Tab title="H100 GPU">
+    ```bash
+    eksctl create nodegroup \
+      --cluster galileo-cluster \
+      --name galileo-ml \
+      --node-type p5.4xlarge \
+      --nodes-min 1 \
+      --nodes-max 2 \
+      --node-ami-family AmazonLinux2 \
+      --node-labels "galileo-node-type=galileo-ml" \
+      --region us-west-2
+    ```
+    
+    <Note>H100 instances have limited availability and require quota increases.</Note>
+  </Tab>
+  
+  <Tab title="L40S GPU">
+    ```bash
+    eksctl create nodegroup \
+      --cluster galileo-cluster \
+      --name galileo-ml \
+      --node-type g6e.2xlarge \
+      --nodes-min 1 \
+      --nodes-max 5 \
+      --node-ami-family AmazonLinux2 \
+      --node-labels "galileo-node-type=galileo-ml" \
+      --region us-west-2
+    ```
+  </Tab>
+</Tabs>
+
+**Supported GPUs**: H100, A100, L40S, L4, A10  
+**Recommended**: Contact Galileo team to determine GPU requirements for your workload.
+
+## Step 4: Set Up IAM Identity Mapping
+
+Map the Galileo IAM role to Kubernetes RBAC:
+
+```bash
+eksctl create iamidentitymapping \
+  --cluster galileo-cluster \
+  --region us-west-2 \
+  --arn "arn:aws:iam::ACCOUNT_ID:role/Galileo" \
+  --username galileo \
+  --group system:masters
+```
+
+<Info>
+  **GitHub Actions**: For connected clusters, Galileo applies changes from GitHub Actions. Allowlist `github.com` in your ingress rules if you have specific network requirements.
+</Info>
+
+## Step 5: Configure RDS PostgreSQL (Optional but Recommended)
+
+### Create RDS Aurora PostgreSQL
+
+<Steps>
+  <Step title="Create RDS Instance">
+    - **Engine**: Aurora PostgreSQL 16.x
+    - **Instance Class**: `db.t3.medium` (minimum for moderate workloads)
+    - **Storage**: 50-100 GiB with autoscaling
+    - **Multi-AZ**: Enabled (recommended for production)
+    - **VPC**: Same VPC as your EKS cluster
+    - **Security Group**: Allow access from EKS nodes
+  </Step>
+  
+  <Step title="Create Database and User">
+    Connect to RDS as admin and execute:
+    
+    ```sql
+    CREATE USER galileo WITH ENCRYPTED PASSWORD '<PASSWORD>';
+    CREATE DATABASE galileo WITH OWNER galileo;
+    GRANT ALL PRIVILEGES ON SCHEMA public TO galileo;
+    ```
+    
+    <Warning>
+      If your password contains special characters, **URL-encode** it for use in connection strings.
+    </Warning>
+  </Step>
+  
+  <Step title="Configure Security Group">
+    Add an inbound rule to allow PostgreSQL traffic (port 5432) from the EKS cluster security group.
+  </Step>
+</Steps>
+
+### Create Kubernetes Secret for RDS
+
+Create `galileo-rds-details.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: galileo
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres
+  namespace: galileo
+type: Opaque
+stringData:
+  GALILEO_POSTGRES_USER: "galileo"
+  GALILEO_POSTGRES_PASSWORD: "<URL_ENCODED_PASSWORD>"
+  GALILEO_POSTGRES_REPLICA_PASSWORD: "<URL_ENCODED_PASSWORD>"
+  GALILEO_DATABASE_URL_WRITE: "postgresql+psycopg2://galileo:<PASSWORD>@<RDS_ENDPOINT>:5432/galileo"
+  GALILEO_DATABASE_URL_READ: "postgresql+psycopg2://galileo:<PASSWORD>@<RDS_ENDPOINT>:5432/galileo"
+```
+
+Apply the configuration:
+
+```bash
+kubectl apply -f galileo-rds-details.yaml
+```
+
+## Step 6: Install Galileo Platform
+
+### Add Galileo Helm Repository
+
+```bash
+helm repo add galileo https://helm.galileo.ai
+helm repo update
+```
+
+### Create Docker Registry Secret
+
+```bash
+kubectl create secret docker-registry galileo-docker-registry-secret \
+  --docker-server=<REGISTRY_URL> \
+  --docker-username=<USERNAME> \
+  --docker-password=<PASSWORD> \
+  --namespace=galileo
+```
+
+<Warning>
+  Contact Galileo support for registry credentials if you haven't received them.
+</Warning>
+
+### Prepare Helm Values
+
+Create `galileo-values.yaml`:
+
+```yaml
+global:
+  local_postgres: false  # Set to true if not using RDS
+  galileo_airgapped: false
+  cloud_vendor_objectstore: "s3"
+  customer_name: "your-company"  # Used for S3 bucket names
+  cluster_domain_name: "example.com"  # Your domain
+  imagepull_secret: galileo-docker-registry-secret
+  enable_imagepull_secret_for_serviceAccount: true
+  storageClassName: gp2  # or gp3
+
+galileo_config:
+  api_url: https://api.galileo.example.com
+  console_url: https://console.galileo.example.com
+  serviceaccount_name: galileo
+  serviceaccount_annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/galileo-serviceaccount-role
+  postgres_primary_service: "<RDS_ENDPOINT>"  # If using RDS
+  postgres_replica_service: "<RDS_ENDPOINT>"  # If using RDS
+  logzio_enabled: true
+  sendgrid_enabled: true
+  feature_flags_enabled: true
+  posthog_enabled: true
+  sentry_enabled: false
+
+galileo_secrets:
+  postgres_user: galileo
+  postgres_password: "<URL_ENCODED_PASSWORD>"
+  postgres_replica_password: "<URL_ENCODED_PASSWORD>"
+  # Additional secrets will be generated by create-secrets.sh script
+
+galileo_infra:
+  disable_node_selector: false  # Set to true to ignore node labels
+  clickhouse:
+    cluster:
+      tag: "24.12.1.1614"
+      nodeSelector:
+        galileo-node-type: galileo-core
+      replicas: 2
+
+galileo_services:
+  disable_node_selector: false
+  container_registry: gcr.io/rungalileo-prod
+  api:
+    version: v1.353.0
+    nodeSelector:
+      galileo-node-type: galileo-core
+  authz:
+    version: v0.27.0
+    nodeSelector:
+      galileo-node-type: galileo-core
+  comet:
+    version: v0.14.2
+    nodeSelector:
+      galileo-node-type: galileo-core
+  ui:
+    version: v2.4.6
+    nodeSelector:
+      galileo-node-type: galileo-core
+  wizard:
+    version: v0.107.0
+    nodeSelector:
+      galileo-node-type: galileo-ml
+  runners:
+    version: v2.41.0
+    nodeSelector:
+      galileo-node-type: galileo-runner
+```
+
+<Note>
+  Contact Galileo support for the latest service versions and additional configuration options.
+</Note>
+
+### Deploy Galileo
+
+```bash
+helm install galileo galileo/galileo-platform \
+  -f galileo-values.yaml \
+  --namespace galileo \
+  --create-namespace
+```
+
+## Step 7: Configure Ingress
+
+<Tabs>
+  <Tab title="NGINX Ingress">
+    ### Install NGINX Ingress Controller
+    
+    ```bash
+    helm install nginx-ingress ingress-nginx/ingress-nginx \
+      --namespace ingress-nginx \
+      --create-namespace \
+      --set controller.service.type=LoadBalancer
+    ```
+    
+    ### Get Load Balancer Address
+    
+    ```bash
+    kubectl get service -n ingress-nginx nginx-ingress-ingress-nginx-controller
+    ```
+    
+    Note the `EXTERNAL-IP` value.
+  </Tab>
+  
+  <Tab title="AWS ALB Ingress">
+    ### Install ALB Ingress Controller
+    
+    Follow [AWS documentation](https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html) to install the AWS Load Balancer Controller.
+    
+    ### Request ACM Certificate
+    
+    Request a certificate in AWS Certificate Manager for:
+    - `*.galileo.example.com` or
+    - Individual certificates for each endpoint
+    
+    ### Update Helm Values
+    
+    Add to your `galileo-values.yaml`:
+    
+    ```yaml
+    global:
+      ingress:
+        class: "aws_alb"
+        aws_alb:
+          annotations:
+            alb.ingress.kubernetes.io/load-balancer-name: galileo-alb-ingress
+            alb.ingress.kubernetes.io/scheme: external  # or internal
+            alb.ingress.kubernetes.io/target-type: ip
+            alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:region:account:certificate/xxx"
+            alb.ingress.kubernetes.io/group.name: galileo-ingress
+    ```
+    
+    ### Deploy Ingress Rules
+    
+    ```bash
+    helm upgrade galileo galileo/galileo-platform \
+      -f galileo-values.yaml \
+      --namespace galileo
+    ```
+  </Tab>
+</Tabs>
+
+## Step 8: Configure DNS
+
+Get your load balancer address:
+
+```bash
+# For NGINX
+kubectl get service -n ingress-nginx
+
+# For ALB
+kubectl get ingress -n galileo
+```
+
+Create DNS records (A records or CNAMEs) pointing to the load balancer:
+
+| DNS Record | Target |
+|------------|--------|
+| `api.galileo.example.com` | Load Balancer Address |
+| `console.galileo.example.com` | Load Balancer Address |
+| `grafana.galileo.example.com` | Load Balancer Address |
+
+<Info>
+  **TTL Recommendation**: Set TTL to 60 seconds or less for faster updates during deployment.
+</Info>
+
+## Verification
+
+### Check Pod Status
+
+```bash
+kubectl get pods -n galileo
+```
+
+All pods should be in `Running` state.
+
+### Test API Health
+
+```bash
+curl -I https://api.galileo.example.com/healthcheck
+```
+
+Should return `200 OK`.
+
+###Access the Console
+
+Navigate to `https://console.galileo.example.com` in your browser.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Post-Deployment Checklist" icon="clipboard-check" href="/deployment-docs/operations/post-deployment-checklist">
+    Verify your deployment is fully operational
+  </Card>
+  <Card title="DNS Configuration" icon="globe" href="/deployment-docs/deploying-on-aws-eks#dns-and-ssl">
+    Complete DNS setup and SSL certificates
+  </Card>
+  <Card title="Monitoring Setup" icon="chart-line" href="/deployment-docs/deploying-on-aws-eks#monitoring">
+    Configure monitoring and alerting
+  </Card>
+  <Card title="User Management" icon="users" href="/deployment-docs/security/setting-up-new-users">
+    Set up users and access control
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Pods are not starting" icon="circle-exclamation">
+    Check common issues:
+    - Docker registry credentials are correct
+    - Node pools have sufficient capacity
+    - Storage classes are available
+    - IAM roles are properly configured
+    
+    ```bash
+    kubectl describe pod -n galileo <pod-name>
+    kubectl logs -n galileo <pod-name>
+    ```
+  </Accordion>
+  
+  <Accordion title="Cannot access services" icon="ban">
+    Verify:
+    - Ingress controller is running
+    - DNS records are correctly configured
+    - Security groups allow traffic on ports 80/443
+    - Load balancer is healthy
+    
+    ```bash
+    kubectl get ingress -n galileo
+    kubectl describe ingress -n galileo
+    ```
+  </Accordion>
+  
+  <Accordion title="Database connection fails" icon="database">
+    Check:
+    - RDS security group allows EKS nodes
+    - Database credentials are correct and URL-encoded
+    - Database exists and user has permissions
+    
+    ```bash
+    kubectl logs -n galileo -l app=api
+    ```
+  </Accordion>
+  
+  <Accordion title="S3 access denied" icon="lock">
+    Verify:
+    - IAM role is attached to service account
+    - IAM policy allows S3 operations
+    - S3 buckets exist (if pre-created)
+    
+    ```bash
+    kubectl describe serviceaccount galileo -n galileo
+    ```
+  </Accordion>
+</AccordionGroup>
+
+See [Troubleshooting Installation](/deployment-docs/troubleshooting-installation) for more details.

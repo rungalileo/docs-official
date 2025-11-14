@@ -1,0 +1,443 @@
+---
+title: "Resource Requirements"
+description: "Comprehensive resource requirements for deploying Galileo Platform, including CPU, memory, storage, and GPU specifications for each service."
+icon: "server"
+---
+
+## Overview
+
+Galileo Platform requires specific compute, memory, and storage resources to operate effectively. This page outlines the resource requirements for a basic production cluster. Requirements may vary based on your workload, user count, and data volume.
+
+<Info>
+  **Minimum Kubernetes Version:** 1.25 or higher with Persistent Volumes support
+</Info>
+
+## Galileo Core Resource Requirements
+
+The following table details resource requirements for each Galileo service in a basic production cluster:
+
+<Note>
+  These specifications represent a **basic cluster configuration**. For high-availability or high-traffic deployments, consult with the Galileo team for scaling recommendations.
+</Note>
+
+### Application Services
+
+| Service Name | Replicas | Memory Min | Memory Max | CPU Min | CPU Max | Disk | Notes |
+|--------------|----------|------------|------------|---------|---------|------|-------|
+| **api** | 2 | 1 GiB | 6 GiB | 500m | 1 | - | Core API service |
+| **authz** | 2 | 256 MiB | 512 MiB | 200m | 1 | - | Authorization service |
+| **comet** | 1 | 4 GiB | 8 GiB | 1 | 2 | - | Experiment tracking |
+| **runners** | 1 | 1.5 GiB | 4 GiB | 750m | 1 | - | Job orchestration |
+| **runners-large** | 1 | 3 GiB | 16 GiB | 1 | 1500m | - | GPU recommended for ML workloads |
+| **ui** | 2 | 1 GiB | 1 GiB | 500m | 500m | - | Console UI |
+| **wizard** | 1 | 26 GiB | 32 GiB | 6 | 8 | - | GPU recommended for analysis |
+
+### Infrastructure Services
+
+| Service Name | Replicas | Memory Min | Memory Max | CPU Min | CPU Max | Disk | Notes |
+|--------------|----------|------------|------------|---------|---------|------|-------|
+| **clickhouse-cluster** | 2 | 8 GiB | 16 GiB | 2 | 4 | 50 GiB | Analytics database |
+| **clickhouse-keeper** | 3 | 1 GiB | 1 GiB | 2 | 2 | 5 GiB | ClickHouse coordination |
+| **rabbitmq-cluster** | 3 | 512 MiB | 1 GiB | 256m | 1 | 5 GiB | Message broker |
+| **rabbitmq-operator** | 1 | 512 MiB | 512 MiB | 200m | 200m | - | RabbitMQ management |
+| **clickhouse-operator** | 1 | 512 MiB | 1 GiB | 500m | 1 | - | ClickHouse management |
+| **minio** | 4 | 1 GiB | 2 GiB | 500m | 500m | 200 GiB | Only if S3/GCS not available |
+| **postgres** | 1 primary + 2 replicas | 1 GiB | 5 GiB | 250m | 1 | 50 GiB | Only if cloud-managed DB not available |
+| **ingress-nginx** | 2 | 1 GiB | 1 GiB | 500m | 500m | - | If no other ingress available |
+| **redis** | 2 | 1 GiB | 1 GiB | 1 | 1 | 4 GiB | Managed Redis HA mode with 1 replica (self-hosting not currently supported) |
+
+## Node Pool Recommendations
+
+Galileo recommends organizing your Kubernetes cluster into specialized node pools for optimal resource utilization:
+
+### Core Node Pool
+
+For general Galileo services (API, UI, database, etc.)
+
+<Tabs>
+  <Tab title="AWS EKS">
+
+```yaml
+instanceType: c5.xlarge or m5.xlarge
+vCPUs: 4
+memory: 16 GiB
+storage: 100 GiB gp2/gp3
+nodeCount:
+  min: 4
+  max: 5
+  desired: 4
+nodeLabel: galileo-node-type=galileo-core
+```
+
+  </Tab>
+  
+  <Tab title="Google GKE">
+
+```yaml
+machineType: n2-standard-4 or n1-standard-4
+vCPUs: 4
+memory: 16 GiB
+storage: 100 GiB pd-standard
+nodeCount:
+  min: 4
+  max: 5
+  desired: 4
+nodeLabel: galileo-node-type=galileo-core
+```
+
+  </Tab>
+  
+  <Tab title="Azure AKS">
+
+```yaml
+vmSize: Standard_D4_v4 or Standard_D4s_v4
+vCPUs: 4
+memory: 16 GiB
+storage: 100 GiB Standard SSD
+nodeCount:
+  min: 4
+  max: 5
+  desired: 4
+nodeLabel: galileo-node-type=galileo-core
+```
+
+  </Tab>
+</Tabs>
+
+### Runner Node Pool
+
+For job execution and data processing
+
+<Tabs>
+  <Tab title="AWS EKS">
+
+```yaml
+instanceType: c5.2xlarge or m5.2xlarge
+vCPUs: 8
+memory: 32 GiB
+storage: 200 GiB gp2/gp3
+nodeCount:
+  min: 1
+  max: 5
+  desired: 1
+nodeLabel: galileo-node-type=galileo-runner
+```
+
+  </Tab>
+  
+  <Tab title="Google GKE">
+
+```yaml
+machineType: n2-standard-8 or n1-standard-8
+vCPUs: 8
+memory: 32 GiB
+storage: 200 GiB pd-standard
+nodeCount:
+  min: 1
+  max: 5
+  desired: 1
+nodeLabel: galileo-node-type=galileo-runner
+```
+
+  </Tab>
+  
+  <Tab title="Azure AKS">
+
+```yaml
+vmSize: Standard_D8_v4 or Standard_D8s_v4
+vCPUs: 8
+memory: 32 GiB
+storage: 200 GiB Standard SSD
+nodeCount:
+  min: 1
+  max: 5
+  desired: 1
+nodeLabel: galileo-node-type=galileo-runner
+```
+
+  </Tab>
+</Tabs>
+
+### ML/GPU Node Pool (Optional)
+
+For machine learning workloads requiring GPU acceleration
+
+<Tabs>
+  <Tab title="AWS EKS">
+    **Supported GPUs:** H100, A100, L40S, L4, A10
+
+```yaml
+instanceTypes:
+  basic: g4dn.2xlarge  # NVIDIA T4
+  h100: p5.4xlarge      # H100
+  l40s: g6e.2xlarge     # L40S
+  l4: g6.2xlarge        # L4
+gpu: 1x NVIDIA T4/H100/L40S/L4
+vCPUs: 8-48 (varies by instance)
+memory: 32-192 GiB (varies by instance)
+nodeCount:
+  min: 1
+  max: 5
+  desired: 1
+nodeLabel: galileo-node-type=galileo-ml
+```
+
+    <Warning>
+      L4 and A10 GPUs have shorter context windows -
+      performance may not be optimal.
+    </Warning>
+  </Tab>
+
+  <Tab title="Google GKE">
+    **Supported GPUs:** H100, A100, L40S, L4, A10
+
+```yaml
+machineTypes:
+  a100: a2-highgpu-1g   # A100
+  h100: a3-highgpu-1g   # H100
+  l4: g2-standard-8     # L4
+gpu: 1x NVIDIA A100/H100/L4
+vCPUs: 12-96 (varies by machine type)
+memory: 85-680 GiB (varies by machine type)
+nodeCount:
+  min: 1
+  max: 5
+  desired: 1
+nodeLabel: galileo-node-type=galileo-ml
+```
+
+    <Warning>
+      L4 and A10 GPUs have shorter context windows -
+      performance may not be optimal.
+    </Warning>
+  </Tab>
+
+  <Tab title="Azure AKS">
+    **Supported GPUs:** H100, A100, L40S, A10
+
+```yaml
+vmSizes:
+  h100: Standard_NC40ads_H100_v5  # H100
+  a100: Standard_NC24ads_A100_v4  # A100
+  a10: Standard_NV12ads_A10_v5    # A10
+gpu: 1x NVIDIA H100/A100/A10
+vCPUs: 12-80 (varies by VM size)
+memory: 110-660 GiB (varies by VM size)
+nodeCount:
+  min: 1
+  max: 5
+  desired: 1
+nodeLabel: galileo-node-type=galileo-ml
+```
+
+    <Warning>
+      A10 GPUs have shorter context windows -
+      performance may not be optimal.
+    </Warning>
+  </Tab>
+</Tabs>
+
+<Info>
+  Contact the Galileo team to determine the exact number of GPUs needed
+  for your expected workload. Default recommendation: Min 1, Max 5.
+</Info>
+
+## Storage Requirements
+
+### Persistent Volumes
+
+Galileo requires persistent storage for stateful services:
+
+| Component | Storage Size | Storage Class | Notes |
+|-----------|--------------|---------------|-------|
+| ClickHouse Cluster | 50 GiB per replica | Fast SSD (gp2/pd-ssd) | Analytics data |
+| ClickHouse Keeper | 5 GiB per replica | Standard (gp2/pd-standard) | Coordination state |
+| PostgreSQL (if self-hosted) | 50 GiB | Fast SSD (gp2/pd-ssd) | Application database |
+| RabbitMQ | 5 GiB per replica | Standard (gp2/pd-standard) | Message queue |
+| MinIO (if used) | 200 GiB per replica | Standard (gp2/pd-standard) | Object storage |
+
+### Object Storage
+
+<Tabs>
+  <Tab title="AWS S3">
+    Galileo requires the following S3 buckets (auto-created or pre-provisioned):
+
+```text
+galileo-<customer_name>-project-runs
+galileo-<customer_name>-project-runs-results
+galileo-<customer_name>-images
+galileo-<customer_name>-prompts
+galileo-<customer_name>-prompts-datasets
+galileo-<customer_name>-prompts-results
+galileo-<customer_name>-models
+galileo-<customer_name>-auto-datasets
+galileo-<customer_name>-backups
+galileo-<customer_name>-offline-models (for air-gapped deployments)
+```
+
+    <Note>
+      Bucket names use the `customer_name` value from your Helm configuration.
+    </Note>
+  </Tab>
+
+  <Tab title="Google Cloud Storage">
+    Galileo requires the following GCS buckets:
+
+```text
+galileo-<customer_name>-project-runs
+galileo-<customer_name>-project-runs-results
+galileo-<customer_name>-images
+galileo-<customer_name>-prompts
+galileo-<customer_name>-prompts-datasets
+galileo-<customer_name>-prompts-results
+galileo-<customer_name>-models
+galileo-<customer_name>-auto-datasets
+galileo-<customer_name>-backups
+galileo-<customer_name>-offline-models (for air-gapped deployments)
+```
+  </Tab>
+
+  <Tab title="Azure Blob Storage">
+    Galileo requires the following storage containers:
+
+```text
+galileo-<customer_name>-project-runs
+galileo-<customer_name>-project-runs-results
+galileo-<customer_name>-images
+galileo-<customer_name>-prompts
+galileo-<customer_name>-prompts-datasets
+galileo-<customer_name>-prompts-results
+galileo-<customer_name>-models
+galileo-<customer_name>-auto-datasets
+galileo-<customer_name>-backups
+galileo-<customer_name>-offline-models (for air-gapped deployments)
+```
+
+  </Tab>
+
+  <Tab title="MinIO (Self-Hosted)">
+    If using MinIO instead of cloud object storage:
+
+```yaml
+storage: 200 GiB per replica (4 replicas recommended)
+access: S3-compatible API
+buckets: Auto-created by the application
+```
+
+  </Tab>
+</Tabs>
+
+## Managed Database Options
+
+### PostgreSQL
+
+Instead of running PostgreSQL in-cluster, you can use managed database services:
+
+<Tabs>
+  <Tab title="AWS RDS">
+
+```yaml
+engine: Aurora PostgreSQL 16.x
+instanceClass: db.t3.medium  # minimum for moderate workloads
+storage: 50-100 GiB with auto-scaling enabled
+multiAZ: Recommended for production
+backup: Automated backups enabled
+```
+
+  </Tab>
+
+  <Tab title="Google Cloud SQL">
+
+```yaml
+engine: PostgreSQL 16
+machineType: db-custom-2-7680  # 2 vCPU, 7.5 GiB
+storage: 50-100 GiB SSD with auto-scaling
+highAvailability: Recommended for production
+backup: Automated backups enabled
+```
+
+  </Tab>
+
+  <Tab title="Azure Database">
+
+```yaml
+engine: Azure Database for PostgreSQL Flexible Server 16
+compute: 2 vCores, 8 GiB memory
+storage: 50-100 GiB with auto-growth
+highAvailability: Zone-redundant recommended
+backup: Automated backups enabled
+```
+
+  </Tab>
+</Tabs>
+
+### Redis
+
+<Warning>
+  **Important:** Galileo currently does **not support self-hosted Redis**. You must use a managed Redis service with HA mode and at least 1 replica.
+</Warning>
+
+- **Memory**: 1-2 GiB per instance
+- **Replicas**: Minimum 1 replica for high availability
+- **Version**: Redis 6.x or higher
+
+## Network Requirements
+
+### Bandwidth
+
+- **Minimum**: 1 Gbps network connectivity
+- **Recommended**: 10 Gbps for high-throughput deployments
+- **Inter-node**: Low latency (less than 5ms) between nodes in the same cluster
+
+### Ports
+
+Standard Kubernetes ports plus Galileo-specific services:
+
+- HTTP: 80
+- HTTPS: 443
+- Kubernetes API: 6443
+- Custom metrics: Various ports (configured in Helm values)
+
+## Scaling Considerations
+
+<Info>
+  These are **baseline requirements**. Scale resources based on:
+  - **Number of concurrent users**: Add more API and UI replicas
+  - **Data volume**: Increase ClickHouse and storage capacity
+  - **Experiment frequency**: Scale runner and ML node pools
+  - **Analysis workload**: Add GPU nodes for wizard service
+</Info>
+
+### When to Scale Up
+
+| Metric | Threshold | Action |
+|--------|-----------|--------|
+| API pod CPU | >80% sustained | Increase API CPU limits or add replicas |
+| ClickHouse disk | >70% used | Add storage or implement retention policies |
+| Runner queue depth | >10 jobs waiting | Scale runner node pool |
+| GPU utilization | >90% sustained | Add ML nodes or upgrade GPU SKUs |
+
+## Cost Optimization Tips
+
+1. **Right-size your nodes**: Start with recommended sizes and adjust based on actual usage
+2. **Use spot/preemptible instances**: For non-critical runner workloads
+3. **Enable cluster autoscaling**: Scale down during off-peak hours
+4. **Use managed services**: Consider RDS/Cloud SQL instead of self-hosted databases
+5. **Implement lifecycle policies**: Archive old data to cheaper storage tiers
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Architecture Overview" icon="diagram-project" href="/deployment-docs/architecture">
+    Understand how these resources work together in Galileo's architecture
+  </Card>
+  <Card title="Prerequisites" icon="list-check" href="/deployment-docs/prerequisites">
+    Review prerequisites before starting your deployment
+  </Card>
+  <Card title="Infrastructure Planning" icon="sitemap" href="/deployment-docs/infrastructure-planning">
+    Plan your cluster architecture and configuration
+  </Card>
+  <Card title="Deploy on Cloud" icon="cloud" href="/deployment-docs/deploying-on-aws-eks">
+    Start deploying on your chosen cloud provider
+  </Card>
+</CardGroup>

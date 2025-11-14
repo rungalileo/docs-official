@@ -1,0 +1,462 @@
+---
+title: "AWS Quick Start Guide"
+description: "Deploy Galileo on AWS EKS in 30 minutes"
+---
+
+import { Card, CardGroup } from "/snippets/components/card-component.mdx";
+import { Steps, Step } from "/snippets/components/steps-component.mdx";
+import { Tabs, Tab } from "/snippets/components/tabs-component.mdx";
+import { Callout } from "/snippets/components/callout-component.mdx";
+import {
+  Accordion,
+  AccordionGroup,
+} from "/snippets/components/accordion-component.mdx";
+
+# AWS Quick Start Guide <a id="aws-quick-start-guide" />
+
+<Callout type="info" emoji="⚡">
+  This guide helps you deploy Galileo on AWS EKS in approximately 30 minutes.
+  For detailed configuration options, see the [comprehensive AWS deployment
+  guide](/deployment-docs/cloud-providers/aws/overview).
+</Callout>
+
+## Prerequisites Checklist
+
+Before starting, ensure you have:
+
+- [ ] AWS Account with appropriate permissions
+- [ ] AWS CLI installed and configured (`aws --version`)
+- [ ] kubectl installed (`kubectl version`)
+- [ ] eksctl installed (`eksctl version`)
+- [ ] Helm 3.8+ installed (`helm version`)
+- [ ] Galileo license key and registry credentials
+
+## Quick Deploy Options
+
+<CardGroup cols={2}>
+  <Card title="Starter Tier" icon="rocket">
+    **Best for:** Proof of concepts and small teams - 3 nodes (t3.large) -
+    ~$250/month - 5-minute setup
+  </Card>
+  <Card title="Growth Tier" icon="chart-line">
+    **Best for:** Production workloads - 5 nodes (t3.xlarge) - ~$725/month -
+    10-minute setup
+  </Card>
+</CardGroup>
+
+## Deployment Steps
+
+<Steps>
+  <Step title="Set Up Environment Variables">
+    ```bash
+    # Set your configuration
+    export GALILEO_CLUSTER_NAME="galileo-cluster"
+    export AWS_REGION="us-west-2"
+    export GALILEO_VERSION="1.0.0"
+    export GALILEO_LICENSE_KEY="your-license-key"
+    
+    # Verify AWS credentials
+    aws sts get-caller-identity
+    ```
+  </Step>
+
+  <Step title="Create EKS Cluster">
+    <Tabs>
+      <Tab title="Starter Tier">
+        ```yaml
+        # galileo-starter-cluster.yaml
+        apiVersion: eksctl.io/v1alpha5
+        kind: ClusterConfig
+        metadata:
+          name: galileo-starter
+          region: us-west-2
+          version: "1.27"
+        
+        managedNodeGroups:
+          - name: galileo-nodes
+            instanceType: t3.large
+            desiredCapacity: 3
+            minSize: 3
+            maxSize: 5
+            volumeSize: 100
+            volumeType: gp3
+            tags:
+              Environment: starter
+              Application: galileo
+        
+        addons:
+          - name: vpc-cni
+          - name: coredns
+          - name: kube-proxy
+          - name: aws-ebs-csi-driver
+        ```
+
+        ```bash
+        # Create cluster
+        eksctl create cluster -f galileo-starter-cluster.yaml
+
+        # Wait for cluster (approximately 15 minutes)
+        eksctl utils wait-nodes --cluster=galileo-starter
+        ```
+      </Tab>
+      <Tab title="Growth Tier">
+        ```yaml
+        # galileo-growth-cluster.yaml
+        apiVersion: eksctl.io/v1alpha5
+        kind: ClusterConfig
+        metadata:
+          name: galileo-growth
+          region: us-west-2
+          version: "1.27"
+
+        managedNodeGroups:
+          - name: galileo-compute
+            instanceType: t3.xlarge
+            desiredCapacity: 3
+            minSize: 3
+            maxSize: 10
+            volumeSize: 200
+            volumeType: gp3
+            tags:
+              NodeType: compute
+
+          - name: galileo-data
+            instanceType: r5.large
+            desiredCapacity: 2
+            minSize: 2
+            maxSize: 5
+            volumeSize: 500
+            volumeType: gp3
+            taints:
+              - key: workload
+                value: database
+                effect: NoSchedule
+            tags:
+              NodeType: data
+
+        addons:
+          - name: vpc-cni
+          - name: coredns
+          - name: kube-proxy
+          - name: aws-ebs-csi-driver
+          - name: aws-efs-csi-driver
+        ```
+
+        ```bash
+        # Create cluster
+        eksctl create cluster -f galileo-growth-cluster.yaml
+
+        # Wait for cluster
+        eksctl utils wait-nodes --cluster=galileo-growth
+        ```
+      </Tab>
+    </Tabs>
+
+  </Step>
+
+  <Step title="Configure Storage">
+    ```bash
+    # Create namespace
+    kubectl create namespace galileo
+    
+    # Create storage class for persistent volumes
+    cat <<EOF | kubectl apply -f -
+    apiVersion: storage.k8s.io/v1
+    kind: StorageClass
+    metadata:
+      name: galileo-storage
+    provisioner: ebs.csi.aws.com
+    parameters:
+      type: gp3
+      fsType: ext4
+      encrypted: "true"
+    volumeBindingMode: WaitForFirstConsumer
+    reclaimPolicy: Retain
+    EOF
+    ```
+  </Step>
+
+  <Step title="Install Galileo">
+    ```bash
+    # Add Helm repository
+    helm repo add galileo https://charts.galileo.ai
+    helm repo update
+    
+    # Create values file
+    cat > galileo-values.yaml <<EOF
+    global:
+      license:
+        key: "${GALILEO_LICENSE_KEY}"
+      
+      ingress:
+        enabled: true
+        className: alb
+        annotations:
+          alb.ingress.kubernetes.io/scheme: internet-facing
+          alb.ingress.kubernetes.io/target-type: ip
+        host: galileo.${AWS_REGION}.elb.amazonaws.com
+      
+      storage:
+        className: galileo-storage
+        size: 100Gi
+    
+    postgresql:
+      enabled: true
+      persistence:
+        size: 50Gi
+        storageClass: galileo-storage
+    
+    redis:
+      enabled: true
+      master:
+        persistence:
+          size: 10Gi
+          storageClass: galileo-storage
+    EOF
+    
+    # Install Galileo
+    helm install galileo galileo/galileo \
+      --namespace galileo \
+      --values galileo-values.yaml \
+      --wait --timeout 10m
+    ```
+  </Step>
+
+  <Step title="Configure Load Balancer">
+
+    ```bash
+    # Install AWS Load Balancer Controller
+    eksctl utils associate-iam-oidc-provider \
+      --cluster ${GALILEO_CLUSTER_NAME} \
+      --approve
+
+    # Download IAM policy
+    curl -o iam_policy.json \
+      https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.6.0/docs/install/iam_policy.json
+
+    # Create IAM policy
+    aws iam create-policy \
+      --policy-name AWSLoadBalancerControllerIAMPolicy \
+      --policy-document file://iam_policy.json
+
+    # Create service account
+    eksctl create iamserviceaccount \
+      --cluster=${GALILEO_CLUSTER_NAME} \
+      --namespace=kube-system \
+      --name=aws-load-balancer-controller \
+      --attach-policy-arn=arn:aws:iam::${AWS_ACCOUNT_ID}:policy/AWSLoadBalancerControllerIAMPolicy \
+      --override-existing-serviceaccounts \
+      --approve
+
+    # Install the controller
+    helm repo add eks https://aws.github.io/eks-charts
+    helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+      -n kube-system \
+      --set clusterName=${GALILEO_CLUSTER_NAME} \
+      --set serviceAccount.create=false \
+      --set serviceAccount.name=aws-load-balancer-controller
+    ```
+
+  </Step>
+
+  <Step title="Access Galileo">
+    ```bash
+    # Get the load balancer URL
+    export GALILEO_URL=$(kubectl get ingress galileo-ingress -n galileo \
+      -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+    
+    echo "Galileo is available at: http://${GALILEO_URL}"
+    
+    # Wait for load balancer to be ready (2-5 minutes)
+    while [ -z "$(dig +short ${GALILEO_URL})" ]; do
+      echo "Waiting for DNS propagation..."
+      sleep 30
+    done
+    
+    # Open in browser
+    open "http://${GALILEO_URL}"
+    ```
+  </Step>
+</Steps>
+
+## Post-Deployment Configuration
+
+### Enable HTTPS
+
+<Accordion title="Configure SSL/TLS with ACM">
+  ```bash
+  # Request certificate from ACM
+  aws acm request-certificate \
+    --domain-name galileo.yourdomain.com \
+    --validation-method DNS \
+    --region ${AWS_REGION}
+  
+  # Update ingress annotation
+  kubectl annotate ingress galileo-ingress -n galileo \
+    alb.ingress.kubernetes.io/certificate-arn=arn:aws:acm:${AWS_REGION}:${AWS_ACCOUNT_ID}:certificate/xxx \
+    alb.ingress.kubernetes.io/listen-ports='[{"HTTPS":443}]' \
+    alb.ingress.kubernetes.io/ssl-redirect='443'
+  ```
+</Accordion>
+
+### Configure Monitoring
+
+<Accordion title="Enable CloudWatch Container Insights">
+  ```bash
+  # Enable Container Insights
+  aws eks update-cluster-config \
+    --region ${AWS_REGION} \
+    --name ${GALILEO_CLUSTER_NAME} \
+    --logging '{"clusterLogging":[{"types":["api","audit","authenticator","controllerManager","scheduler"],"enabled":true}]}'
+  
+  # Install CloudWatch agent
+  curl https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluentd-quickstart.yaml | \
+    sed "s/{{cluster_name}}/${GALILEO_CLUSTER_NAME}/" | \
+    sed "s/{{region_name}}/${AWS_REGION}/" | \
+    kubectl apply -f -
+  ```
+</Accordion>
+
+### Set Up Backups
+
+<Accordion title="Configure Automated Backups">
+
+Install Velero for backups:
+
+```bash
+# Install Velero for backups
+velero install \
+  --provider aws \
+  --plugins velero/velero-plugin-for-aws:v1.7.0 \
+  --bucket galileo-backups-${AWS_REGION} \
+  --backup-location-config region=${AWS_REGION} \
+  --snapshot-location-config region=${AWS_REGION} \
+  --secret-file ./credentials-velero
+
+# Create backup schedule
+velero schedule create galileo-daily \
+  --schedule="0 2 * * *" \
+  --include-namespaces galileo \
+  --ttl 720h
+```
+
+</Accordion>
+
+## Quick Validation
+
+Run this script to validate your deployment:
+
+```bash
+#!/bin/bash
+# galileo-aws-validate.sh
+
+echo "🔍 Validating Galileo Deployment on AWS"
+echo "========================================"
+
+# Check cluster status
+echo "✓ Checking EKS cluster..."
+eksctl get cluster --name ${GALILEO_CLUSTER_NAME} --region ${AWS_REGION}
+
+# Check nodes
+echo "✓ Checking nodes..."
+kubectl get nodes
+
+# Check Galileo pods
+echo "✓ Checking Galileo pods..."
+kubectl get pods -n galileo
+
+# Check services
+echo "✓ Checking services..."
+kubectl get svc -n galileo
+
+# Check ingress
+echo "✓ Checking ingress..."
+kubectl get ingress -n galileo
+
+# Test API endpoint
+echo "✓ Testing API endpoint..."
+curl -s -o /dev/null -w "%{http_code}" http://${GALILEO_URL}/health
+
+echo ""
+echo "✅ Deployment validation complete!"
+echo "Access Galileo at: http://${GALILEO_URL}"
+```
+
+## Troubleshooting Quick Fixes
+
+<AccordionGroup>
+  <Accordion title="Pods not starting">
+    ```bash
+    # Check pod events
+    kubectl describe pods -n galileo
+    
+    # Check resource availability
+    kubectl top nodes
+    
+    # Scale nodes if needed
+    eksctl scale nodegroup --cluster=${GALILEO_CLUSTER_NAME} \
+      --nodes=5 --name=galileo-nodes
+    ```
+  </Accordion>
+
+  <Accordion title="Load balancer not accessible">
+
+    ```bash
+    # Check security groups
+    aws ec2 describe-security-groups \
+      --filters "Name=tag:kubernetes.io/cluster/${GALILEO_CLUSTER_NAME},Values=owned"
+
+    # Ensure port 80/443 is open
+    aws ec2 authorize-security-group-ingress \
+      --group-id sg-xxxxx \
+      --protocol tcp \
+      --port 80 \
+      --cidr 0.0.0.0/0
+    ```
+
+  </Accordion>
+
+  <Accordion title="Storage issues">
+    ```bash
+    # Check EBS CSI driver
+    kubectl get pods -n kube-system | grep ebs-csi
+    
+    # Check PVCs
+    kubectl get pvc -n galileo
+    
+    # Describe PVC for errors
+    kubectl describe pvc -n galileo
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Cost Optimization Tips
+
+<CardGroup cols={2}>
+  <Card title="Use Spot Instances" icon="dollar-sign">
+    Save up to 70% on compute costs by using spot instances for non-critical
+    workloads
+  </Card>
+  <Card title="Enable Auto-scaling" icon="expand">
+    Scale down during off-hours to reduce costs
+  </Card>
+  <Card title="Use Reserved Instances" icon="lock">
+    Save 30-50% with 1-year or 3-year commitments
+  </Card>
+  <Card title="Optimize Storage" icon="database">
+    Use lifecycle policies to move old data to cheaper storage tiers
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+- Review the [Post-Deployment Checklist](/deployment-docs/operations/post-deployment-checklist)
+- Configure [SSO Integration](/deployment-docs/security/sso-integration)
+- Set up [Monitoring and Alerting](/deployment-docs/operations/monitoring)
+- Implement [Disaster Recovery](/deployment-docs/operations/disaster-recovery)
+
+<Callout type="success" emoji="🎉">
+  Congratulations! Your Galileo deployment on AWS is ready. For additional
+  configuration options and best practices, see the [comprehensive deployment
+  guide](/deployment-docs/deploying-on-aws-eks).
+</Callout>

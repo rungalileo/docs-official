@@ -1,0 +1,79 @@
+---
+icon: key
+title: "SSO Integration"
+description: This page covers our SSO Integration support with information we need to setup SSO for your Galileo cluster.
+---
+
+# Single Sign On
+
+Galileo provides Single Sign-on capabilities for various providers using the OIDC protocol. See details below for how to configure each provider.
+
+| Provider               | Integration |
+| ---------------------- | ----------- |
+| Okta                   | OIDC        |
+| Azure Active Directory | OIDC        |
+| PingFederate           | OIDC        |
+| Google                 | OIDC        |
+| Github                 | OIDC        |
+| Custom OIDC provider   | OIDC        |
+
+If your provider is not listed above, additional SSO providers can be added on-demand as per requirements.
+
+## Setting Up SSO with Galileo
+
+### Google
+
+1.  Follow [this guide](https://support.google.com/cloud/answer/6158849?hl=en#zippy=) to set up **OAuth credentials**. **User Type** is **Internal**, **Scopes** are **.../auth/userinfo.profile** and **openid**, **Authorized domains** is your domain for Galileo console.
+
+2.  When creating new client ID, set **type** to **Web application**, set **Authorized redirect URIs** to `https://{CONSOLE_URL}/api/auth/callback/google`
+
+3.  Share **Client ID** and **Client Secret** with Galileo
+
+### Okta
+
+1.  Follow [this guide](https://help.okta.com/en-us/content/topics/apps/apps_app_integration_wizard_oidc.htm) to create a new application. Select **OIDC - OpenID Connect** as the **Sign-in method**, **Web Application** as the application type, **Authorization Code** as the **Grant Type**
+
+2.  Set **Sign-in redirect URIs** to `https://{CONSOLE_URL}/api/auth/callback/okta`, and **Sign-out redirect URIs** to `https://{CONSOLE_URL}`.
+
+3.  Share **Issuer URL**, **Client ID** and **Client Secret** with Galileo
+
+    1.  Find **Issuer URL** in Security -> API in admin panel. Audience should be `api://default`
+
+### Microsoft Entra ID (formerly Azure Active Directory)
+
+1.  Follow [this guide](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app) to create a new application. Under **Redirect URI**, set type to **Web** and URI to `https://{CONSOLE_URL}/api/auth/callback/azure-ad`
+
+2.  Go to **Token configuration** page, **Add Optional Claim**, choose **ID** token and **email** claim.
+
+    1.  Please ensure each user has the **email** set in the **Contact Information** properties. We will use this email as the account on Galileo.
+
+3.  Go to **Certificates & secrets** page, click **New Client Secret** and create a new secret.
+
+4.  Share the **Tenant ID**, **Client ID** and **Client Secret** with Galileo
+
+### PingFederate
+
+1.  Follow [this guide](https://docs.pingidentity.com/r/en-us/pingone/pingone_edit_application_oidc) to create an application with Application Type **OIDC Web App**
+
+2.  Go to app **configuration** page, edit it by setting **Redirect URIs** to `https://{CONSOLE_URL}/api/auth/callback/custom`
+
+3.  Share the **Environment ID**, **Client ID** and **Client Secret** with Galileo
+
+### Custom OIDC Provider
+
+1.  Create an application/client with **OIDC** as the protocol, **Web Application** as the application type, **Authorization Code** as the Grant Type
+
+    1.  Please ensure **email** claim is returned as part of the **ID Token**
+
+2.  Set **Sign-in redirect URIs** to `https://{CONSOLE_URL}/api/auth/callback/custom`, and **Sign-out redirect URIs** to `https://{CONSOLE_URL}`, **Web origins** to `https://{CONSOLE_URL}`
+
+3.  Create a **Client Secret**
+
+4.  Share all these with Galileo:
+    1.  CLIENT_ID
+    2.  CLIENT_SECRET
+    3.  TOKEN_URL (like `https://{BASE_URL}/token`)
+    4.  USERINFO_URL (like `https://{BASE_URL}/userinfo`)
+    5.  ISSUER
+    6.  JWKS_URL (like `https://{BASE_URL}/certs`)
+    7.  AUTHORIZATION_URL (like `https://{BASE_URL}/auth?response_type=code`)

@@ -1,0 +1,957 @@
+---
+title: "Integration Patterns"
+description: "CI/CD pipelines, monitoring integration, and third-party tool connections for Galileo deployments"
+---
+
+import { Card, CardGroup } from "/snippets/components/card-component.mdx";
+import { Tabs, Tab } from "/snippets/components/tabs-component.mdx";
+import {
+  Accordion,
+  AccordionGroup,
+} from "/snippets/components/accordion-component.mdx";
+import { Steps, Step } from "/snippets/components/steps-component.mdx";
+import { Callout } from "/snippets/components/callout-component.mdx";
+
+# Integration Patterns
+
+<Callout type="info" emoji="🔗">
+  Integrate Galileo with your existing DevOps toolchain for automated
+  deployments, monitoring, and operational excellence.
+</Callout>
+
+## Overview
+
+This guide covers common integration patterns for connecting Galileo with popular CI/CD platforms, monitoring solutions, logging aggregation services, and other operational tools.
+
+<CardGroup cols={3}>
+  <Card title="CI/CD Integration" icon="code-branch">
+    Automate deployment pipelines with GitHub Actions, GitLab CI, Jenkins
+  </Card>
+  <Card title="Monitoring" icon="chart-line">
+    Integrate with Prometheus, Grafana, DataDog, New Relic
+  </Card>
+  <Card title="Logging" icon="file-lines">
+    Connect to ELK Stack, Splunk, CloudWatch, Loki
+  </Card>
+</CardGroup>
+
+## CI/CD Integration
+
+### GitHub Actions
+
+**Complete Deployment Pipeline:**
+
+```yaml
+# .github/workflows/deploy-galileo.yml
+name: Deploy Galileo
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: us-west-2
+  CLUSTER_NAME: galileo-prod
+  NAMESPACE: galileo
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Validate Helm Chart
+        run: |
+          helm lint ./galileo-chart
+          helm template ./galileo-chart -f values.yaml > /dev/null
+
+      - name: Validate Kubernetes Manifests
+        uses: instrumenta/kubeval-action@master
+        with:
+          files: manifests/
+
+  test:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Integration Tests
+        run: |
+          docker-compose up -d
+          npm test
+          docker-compose down
+
+  deploy-staging:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install galileo ./galileo-chart \
+            --namespace ${{ env.NAMESPACE }} \
+            --create-namespace \
+            --values values-staging.yaml \
+            --wait \
+            --timeout 10m
+
+      - name: Run Smoke Tests
+        run: |
+          kubectl wait --for=condition=ready pod \
+            -l app=galileo-api \
+            -n ${{ env.NAMESPACE }} \
+            --timeout=5m
+
+          ./scripts/smoke-tests.sh staging
+
+  deploy-production:
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.CLUSTER_NAME }}-prod \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Deploy with Helm (Blue-Green)
+        run: |
+          # Deploy to green environment
+          helm upgrade --install galileo-green ./galileo-chart \
+            --namespace ${{ env.NAMESPACE }}-green \
+            --create-namespace \
+            --values values-production.yaml \
+            --wait \
+            --timeout 10m
+
+          # Run validation tests
+          ./scripts/validate-deployment.sh green
+
+          # Switch traffic to green
+          kubectl patch service galileo-ui \
+            -n ${{ env.NAMESPACE }} \
+            -p '{"spec":{"selector":{"version":"green"}}}'
+
+          # Wait and monitor
+          sleep 60
+
+          # If successful, remove blue
+          helm uninstall galileo-blue -n ${{ env.NAMESPACE }}-blue || true
+
+      - name: Notify Deployment
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Galileo deployment to production: ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deployment Status:* ${{ job.status }}\n*Commit:* ${{ github.sha }}\n*Author:* ${{ github.actor }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+```
+
+### GitLab CI/CD
+
+```yaml
+# .gitlab-ci.yml
+stages:
+  - validate
+  - build
+  - test
+  - deploy-staging
+  - deploy-production
+
+variables:
+  KUBECONFIG: /etc/deploy/config
+  NAMESPACE: galileo
+
+validate-charts:
+  stage: validate
+  image: alpine/helm:latest
+  script:
+    - helm lint ./galileo-chart
+    - helm template ./galileo-chart -f values.yaml --debug
+  only:
+    - merge_requests
+    - main
+
+unit-tests:
+  stage: test
+  image: node:18
+  script:
+    - npm install
+    - npm test
+  coverage: '/Coverage: \d+\.\d+%/'
+  artifacts:
+    reports:
+      junit: junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+
+deploy-staging:
+  stage: deploy-staging
+  image: google/cloud-sdk:alpine
+  environment:
+    name: staging
+    url: https://staging.galileo.example.com
+  before_script:
+    - echo $GCP_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+    - gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $GCP_PROJECT
+  script:
+    - helm upgrade --install galileo ./galileo-chart
+      --namespace $NAMESPACE
+      --create-namespace
+      --values values-staging.yaml
+      --set image.tag=$CI_COMMIT_SHORT_SHA
+      --wait
+    - kubectl rollout status deployment/galileo-api -n $NAMESPACE
+  only:
+    - main
+
+deploy-production:
+  stage: deploy-production
+  image: google/cloud-sdk:alpine
+  environment:
+    name: production
+    url: https://galileo.example.com
+  before_script:
+    - echo $GCP_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+    - gcloud container clusters get-credentials $GKE_CLUSTER_PROD --zone $GKE_ZONE --project $GCP_PROJECT
+  script:
+    - |
+      # Canary deployment strategy
+      helm upgrade --install galileo-canary ./galileo-chart \
+        --namespace $NAMESPACE \
+        --values values-production.yaml \
+        --set image.tag=$CI_COMMIT_SHORT_SHA \
+        --set replicaCount=1 \
+        --set canary.enabled=true \
+        --wait
+
+      # Monitor canary for 10 minutes
+      sleep 600
+
+      # Check error rates
+      ERROR_RATE=$(curl -s http://prometheus:9090/api/v1/query?query=rate\(http_requests_total\{job=\"galileo-canary\",status=~\"5..\"\}[5m]\) | jq '.data.result[0].value[1]')
+
+      if (( $(echo "$ERROR_RATE < 0.01" | bc -l) )); then
+        echo "Canary healthy, proceeding with full deployment"
+        helm upgrade --install galileo ./galileo-chart \
+          --namespace $NAMESPACE \
+          --values values-production.yaml \
+          --set image.tag=$CI_COMMIT_SHORT_SHA \
+          --wait
+      else
+        echo "Canary unhealthy, rolling back"
+        helm rollback galileo -n $NAMESPACE
+        exit 1
+      fi
+  when: manual
+  only:
+    - main
+```
+
+### Jenkins Pipeline
+
+```groovy
+// Jenkinsfile
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-west-2'
+        CLUSTER_NAME = 'galileo-prod'
+        NAMESPACE = 'galileo'
+        HELM_CHART = './galileo-chart'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Validate') {
+            parallel {
+                stage('Lint Helm Chart') {
+                    steps {
+                        sh 'helm lint ${HELM_CHART}'
+                    }
+                }
+                stage('Validate Kubernetes') {
+                    steps {
+                        sh 'kubectl apply --dry-run=client -f manifests/'
+                    }
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    docker.build("galileo-api:${env.BUILD_NUMBER}")
+                    docker.build("galileo-ui:${env.BUILD_NUMBER}")
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'npm test'
+                junit 'test-results/**/*.xml'
+            }
+        }
+
+        stage('Push Images') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.example.com', 'docker-credentials') {
+                        docker.image("galileo-api:${env.BUILD_NUMBER}").push()
+                        docker.image("galileo-ui:${env.BUILD_NUMBER}").push()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Staging') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withAWS(credentials: 'aws-credentials', region: env.AWS_REGION) {
+                    sh """
+                        aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION}
+                        helm upgrade --install galileo ${HELM_CHART} \
+                            --namespace ${NAMESPACE} \
+                            --values values-staging.yaml \
+                            --set image.tag=${env.BUILD_NUMBER} \
+                            --wait
+                    """
+                }
+            }
+        }
+
+        stage('Deploy to Production') {
+            when {
+                branch 'main'
+            }
+            steps {
+                input message: 'Deploy to production?', ok: 'Deploy'
+                withAWS(credentials: 'aws-credentials', region: env.AWS_REGION) {
+                    sh """
+                        aws eks update-kubeconfig --name ${CLUSTER_NAME}-prod --region ${AWS_REGION}
+                        helm upgrade --install galileo ${HELM_CHART} \
+                            --namespace ${NAMESPACE} \
+                            --values values-production.yaml \
+                            --set image.tag=${env.BUILD_NUMBER} \
+                            --wait
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            slackSend(
+                color: 'good',
+                message: "Deployment successful: ${env.JOB_NAME} ${env.BUILD_NUMBER}"
+            )
+        }
+        failure {
+            slackSend(
+                color: 'danger',
+                message: "Deployment failed: ${env.JOB_NAME} ${env.BUILD_NUMBER}"
+            )
+        }
+    }
+}
+```
+
+## Monitoring Integration
+
+### Prometheus & Grafana
+
+**Deploy Monitoring Stack:**
+
+```bash
+# Install Prometheus Operator
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+helm install prometheus prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace \
+  --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false \
+  --set grafana.adminPassword=admin123
+```
+
+**Galileo Service Monitor:**
+
+```yaml
+# galileo-servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: galileo-metrics
+  namespace: galileo
+  labels:
+    app: galileo
+spec:
+  selector:
+    matchLabels:
+      app: galileo-api
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics
+```
+
+**Custom Grafana Dashboard:**
+
+```json
+{
+  "dashboard": {
+    "title": "Galileo Performance Dashboard",
+    "panels": [
+      {
+        "title": "API Request Rate",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{job=\"galileo-api\"}[5m])",
+            "legendFormat": "{{method}} {{path}}"
+          }
+        ]
+      },
+      {
+        "title": "Response Time (p95)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "p95"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m])",
+            "legendFormat": "5xx errors"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### DataDog Integration
+
+```yaml
+# datadog-agent.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: datadog-config
+  namespace: galileo
+data:
+  datadog.yaml: |
+    api_key: ${DD_API_KEY}
+    site: datadoghq.com
+    logs_enabled: true
+    apm_enabled: true
+    process_agent_enabled: true
+
+    logs_config:
+      container_collect_all: true
+
+    kubernetes_state_metrics_core:
+      collectors:
+        - pods
+        - nodes
+        - deployments
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: datadog-agent
+  namespace: galileo
+spec:
+  selector:
+    matchLabels:
+      app: datadog-agent
+  template:
+    metadata:
+      labels:
+        app: datadog-agent
+    spec:
+      serviceAccountName: datadog-agent
+      containers:
+        - name: datadog-agent
+          image: datadog/agent:latest
+          env:
+            - name: DD_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: datadog-secret
+                  key: api-key
+            - name: DD_SITE
+              value: "datadoghq.com"
+            - name: DD_LOGS_ENABLED
+              value: "true"
+            - name: DD_APM_ENABLED
+              value: "true"
+            - name: DD_KUBERNETES_KUBELET_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+          volumeMounts:
+            - name: dockersocket
+              mountPath: /var/run/docker.sock
+            - name: procdir
+              mountPath: /host/proc
+              readOnly: true
+            - name: cgroups
+              mountPath: /host/sys/fs/cgroup
+              readOnly: true
+      volumes:
+        - name: dockersocket
+          hostPath:
+            path: /var/run/docker.sock
+        - name: procdir
+          hostPath:
+            path: /proc
+        - name: cgroups
+          hostPath:
+            path: /sys/fs/cgroup
+```
+
+### New Relic Integration
+
+```yaml
+# newrelic-infrastructure.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: newrelic-infrastructure-config
+  namespace: galileo
+data:
+  newrelic-infra.yml: |
+    custom_attributes:
+      environment: production
+      cluster: galileo
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: newrelic-infra
+  namespace: galileo
+spec:
+  selector:
+    matchLabels:
+      name: newrelic-infra
+  template:
+    metadata:
+      labels:
+        name: newrelic-infra
+    spec:
+      containers:
+        - name: newrelic-infra
+          image: newrelic/infrastructure-k8s:latest
+          env:
+            - name: NRIA_LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: newrelic-secret
+                  key: license-key
+            - name: NRIA_DISPLAY_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: NRK8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: NRIA_PASSTHROUGH_ENVIRONMENT
+              value: "KUBERNETES_SERVICE_HOST,KUBERNETES_SERVICE_PORT,CLUSTER_NAME,CADVISOR_PORT,NRK8S_NODE_NAME,KUBE_STATE_METRICS_URL,KUBE_STATE_METRICS_POD_LABEL"
+            - name: CLUSTER_NAME
+              value: "galileo-prod"
+          volumeMounts:
+            - name: host-dev
+              mountPath: /dev
+              readOnly: true
+            - name: host-sys
+              mountPath: /sys
+              readOnly: true
+            - name: host-volume
+              mountPath: /host
+              readOnly: true
+      volumes:
+        - name: host-dev
+          hostPath:
+            path: /dev
+        - name: host-sys
+          hostPath:
+            path: /sys
+        - name: host-volume
+          hostPath:
+            path: /
+```
+
+## Logging Integration
+
+### ELK Stack (Elasticsearch, Logstash, Kibana)
+
+**Deploy ELK Stack:**
+
+```bash
+# Add Elastic Helm repository
+helm repo add elastic https://helm.elastic.co
+helm repo update
+
+# Install Elasticsearch
+helm install elasticsearch elastic/elasticsearch \
+  --namespace logging \
+  --create-namespace \
+  --set replicas=3 \
+  --set minimumMasterNodes=2
+
+# Install Kibana
+helm install kibana elastic/kibana \
+  --namespace logging \
+  --set elasticsearchHosts="http://elasticsearch-master:9200"
+
+# Install Filebeat for log collection
+helm install filebeat elastic/filebeat \
+  --namespace logging \
+  --set daemonset.enabled=true
+```
+
+**Filebeat Configuration:**
+
+```yaml
+# filebeat-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-config
+  namespace: logging
+data:
+  filebeat.yml: |
+    filebeat.inputs:
+    - type: container
+      paths:
+        - /var/log/containers/*.log
+      processors:
+        - add_kubernetes_metadata:
+            host: ${NODE_NAME}
+            matchers:
+            - logs_path:
+                logs_path: "/var/log/containers/"
+        - decode_json_fields:
+            fields: ["message"]
+            target: "json"
+            overwrite_keys: true
+
+    output.elasticsearch:
+      hosts: ['elasticsearch-master:9200']
+      indices:
+        - index: "galileo-%{[agent.version]}-%{+yyyy.MM.dd}"
+          when.contains:
+            kubernetes.namespace: "galileo"
+```
+
+### Splunk Integration
+
+```yaml
+# splunk-connect.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: splunk-kubernetes-logging
+  namespace: galileo
+data:
+  fluent.conf: |
+    <source>
+      @type tail
+      path /var/log/containers/galileo*.log
+      pos_file /var/log/galileo.log.pos
+      tag kubernetes.*
+      read_from_head true
+      <parse>
+        @type json
+        time_format %Y-%m-%dT%H:%M:%S.%NZ
+      </parse>
+    </source>
+
+    <match kubernetes.**>
+      @type splunk_hec
+      hec_host "#{ENV['SPLUNK_HEC_HOST']}"
+      hec_port "#{ENV['SPLUNK_HEC_PORT']}"
+      hec_token "#{ENV['SPLUNK_HEC_TOKEN']}"
+      index galileo
+      sourcetype _json
+      <buffer>
+        @type memory
+        flush_interval 5s
+      </buffer>
+    </match>
+```
+
+### CloudWatch Logs
+
+```yaml
+# cloudwatch-fluent-bit.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: amazon-cloudwatch
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         5
+        Log_Level     info
+        Daemon        off
+        
+    [INPUT]
+        Name              tail
+        Tag               galileo.*
+        Path              /var/log/containers/galileo*.log
+        Parser            docker
+        DB                /var/log/flb_galileo.db
+        Mem_Buf_Limit     5MB
+        Skip_Long_Lines   On
+
+    [OUTPUT]
+        Name              cloudwatch
+        Match             galileo.*
+        region            us-west-2
+        log_group_name    /aws/eks/galileo/application
+        log_stream_prefix galileo-
+        auto_create_group true
+```
+
+## Alerting Integration
+
+### PagerDuty
+
+```yaml
+# pager duty-integration.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: monitoring
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 12h
+      receiver: 'pagerduty'
+      routes:
+      - match:
+          severity: critical
+        receiver: 'pagerduty'
+        continue: true
+      - match:
+          severity: warning
+        receiver: 'slack'
+
+    receivers:
+    - name: 'pagerduty'
+      pagerduty_configs:
+      - service_key: '${PAGERDUTY_SERVICE_KEY}'
+        description: '{{ .CommonAnnotations.summary }}'
+        details:
+          firing: '{{ .Alerts.Firing | len }}'
+          resolved: '{{ .Alerts.Resolved | len }}'
+
+    - name: 'slack'
+      slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#galileo-alerts'
+        title: '{{ .CommonAnnotations.summary }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+```
+
+### Slack Notifications
+
+```yaml
+# slack-alerting.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-slack-config
+  namespace: monitoring
+data:
+  config.yml: |
+    slack_configs:
+    - api_url: ${SLACK_WEBHOOK_URL}
+      channel: '#galileo-ops'
+      title: 'Galileo Alert: {{ .GroupLabels.alertname }}'
+      text: >-
+        {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Instance:* {{ .Labels.instance }}
+        {{ end }}
+      send_resolved: true
+```
+
+## Secret Management Integration
+
+### HashiCorp Vault
+
+```yaml
+# vault-integration.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-auth
+  namespace: galileo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vault-auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+  - kind: ServiceAccount
+    name: vault-auth
+    namespace: galileo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: galileo-api
+  namespace: galileo
+spec:
+  template:
+    spec:
+      serviceAccountName: vault-auth
+      initContainers:
+        - name: vault-agent
+          image: vault:latest
+          args:
+            - agent
+            - -config=/vault/config/agent.hcl
+          volumeMounts:
+            - name: vault-config
+              mountPath: /vault/config
+            - name: secrets
+              mountPath: /vault/secrets
+      containers:
+        - name: galileo-api
+          image: galileo-api:latest
+          env:
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: galileo-secrets
+                  key: db-password
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+      volumes:
+        - name: vault-config
+          configMap:
+            name: vault-agent-config
+        - name: secrets
+          emptyDir: {}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Disaster Recovery"
+    icon="shield-halved"
+    href="/deployment-docs/operations/disaster-recovery"
+  >
+    Set up backup and recovery procedures
+  </Card>
+  <Card
+    title="Performance Tuning"
+    icon="gauge"
+    href="/deployment-docs/operations/performance-tuning"
+  >
+    Optimize system performance
+  </Card>
+  <Card
+    title="Monitoring"
+    icon="chart-line"
+    href="/deployment-docs/operations/troubleshooting-hub"
+  >
+    Configure comprehensive monitoring
+  </Card>
+  <Card
+    title="Security"
+    icon="lock"
+    href="/deployment-docs/security/security-and-access-control"
+  >
+    Implement security best practices
+  </Card>
+</CardGroup>
+
+## Additional Resources
+
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [GitLab CI/CD Documentation](https://docs.gitlab.com/ee/ci/)
+- [Jenkins Pipeline Documentation](https://www.jenkins.io/doc/book/pipeline/)
+- [Prometheus Operator](https://github.com/prometheus-operator/prometheus-operator)
+- [DataDog Kubernetes Integration](https://docs.datadoghq.com/integrations/kubernetes/)
+- [ELK Stack on Kubernetes](https://www.elastic.co/guide/en/cloud-on-k8s/current/index.html)

@@ -1,0 +1,73 @@
+---
+title: "Azure AKS"
+description: "This page details the steps to deploy a Galileo Kubernetes cluster in Microsoft Azure's AKS service environment."
+---
+
+<Info>
+  **
+  <Icon icon="clock" /> Total time for deployment:** 30-45 minutes
+</Info>
+## Recommended Cluster Configuration
+
+| Configuration                                          | Recommended Value           |
+| ------------------------------------------------------ | --------------------------- |
+| **Nodes in the cluster’s core nodegroup**              | 4 (min) 5 (max) 4 (desired) |
+| **CPU per core node**                                  | 4 CPU                       |
+| **RAM per core node**                                  | 16 GiB RAM                  |
+| **Number of nodes in the cluster’s runners nodegroup** | 1 (min) 5 (max) 1 (desired) |
+| **CPU per runner node**                                | 8 CPU                       |
+| **RAM per runner node**                                | 32 GiB RAM                  |
+| **Minimum volume size per node**                       | 200 GiB                     |
+| **Required Kubernetes API version**                    | 1.21                        |
+| **Storage class**                                      | standard                    |
+
+## Step 1: \[Optional\] Create a dedicated resource group for Galileo cluster
+
+```sh
+az group create --name galileo --location eastus
+```
+
+## Step 2: Provision an AKS cluster
+
+```sh
+az aks create -g galileo -n galileo --enable-managed-identity --node-count 4 --max-count 7 --min-count 4 -s Standard_D4_v4 --nodepool-name gcore --nodepool-labels "galileo-node-type=galileo-core" --enable-cluster-autoscaler
+```
+
+## Step 3: Add Galileo Runner nodepool
+
+```sh
+Az aks nodepool add -g galileo -n grunner --cluster-name galileo --node-count 1 --max-count 5 --min-count 1 --node-count 1 -s Standard_D8_v4 --labels "galileo-node-type=galileo-runner" --enable-cluster-autoscaler
+```
+
+## Step 4: Get cluster credentials
+
+```sh
+az aks get-credentials --resource-group galileo --name galileo
+```
+
+## Step 5: Apply Galileo manifest
+
+```sh
+kubectl apply -f galileo.yaml
+```
+
+## Step 6: Customer DNS Configuration
+
+Galileo has 4 main URLs (shown below). In order to make the URLs accessible across the company, you have to set the following DNS addresses in your DNS provider after the platform is deployed.
+
+| Service | URL                                          |
+| ------- | -------------------------------------------- |
+| API     | **api.galileo**.company.\[com\|ai\|io…\]     |
+| Data    | **data.galileo**.company.\[com\|ai\|io…\]    |
+| UI      | **console.galileo**.company.\[com\|ai\|io…\] |
+| Grafana | **grafana.galileo**.company.\[com\|ai\|io…\] |
+
+## Creating a GPU-enabled Node Group
+
+For specialized tasks that require GPU processing, such as machine learning workloads, Galileo supports the configuration of GPU-enabled node pools.
+
+The supported GPUs are H100, A100, L40S, L4 (shorter context window), A10 (shorter context window). And the corresponding node types are Standard_NC40ads_H100_v5, Standard_NC24ads_A100_v4, Standard_NV12ads_A10_v5.
+
+1.  **Node Group Creation**: Create a node group with name `galileo-ml`, and label `galileo-node-type=galileo-ml`
+
+2.  Reach out to Galileo to get exact number of GPUs needed for your load. But feel free to set min=1, max=5 by default.

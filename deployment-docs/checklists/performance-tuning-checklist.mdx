@@ -1,0 +1,600 @@
+---
+icon: "gauge-high"
+title: "Performance Tuning Checklist"
+description: "Comprehensive checklist for optimizing Galileo Platform performance across compute, storage, network, and application layers."
+---
+
+## Overview
+
+This checklist provides systematic guidance for optimizing your Galileo Platform deployment. Use this to establish performance baselines, identify bottlenecks, and implement tuning strategies.
+
+<Info>
+  **Best Practice:** Perform performance tuning after deployment stabilization
+  (typically 7-14 days of production operation) to establish accurate baseline
+  metrics.
+</Info>
+
+## Performance Assessment
+
+### Establish Baseline Metrics
+
+<Card title="Metrics Collection" icon="chart-line">
+  Before tuning, collect baseline performance data: - [ ] **API Response
+  Times:** Capture p50, p95, p99 latencies for 24h period - [ ] **Database Query
+  Performance:** Profile slow queries (>100ms) - [ ] **Resource Utilization:**
+  Record CPU, memory, disk I/O averages - [ ] **Network Throughput:** Measure
+  inbound/outbound traffic patterns - [ ] **Pod Restart Frequency:** Document
+  restart counts and reasons - [ ] **Error Rates:** Calculate baseline error
+  rates per service
+</Card>
+
+```bash
+# Collect baseline metrics
+kubectl top nodes > baseline-nodes.txt
+kubectl top pods -n galileo > baseline-pods.txt
+
+# API latency benchmark
+for i in {1..100}; do
+  curl -w "@curl-format.txt" -o /dev/null -s https://api.<DOMAIN>/healthcheck
+done | awk '{sum+=$1; count++} END {print "Average:",sum/count,"ms"}'
+
+# Database query analysis
+kubectl exec -n galileo deployment/api -- psql -c "SELECT query, mean_exec_time, calls FROM pg_stat_statements ORDER BY mean_exec_time DESC LIMIT 20;"
+```
+
+## Compute Resource Optimization
+
+### Node-Level Tuning
+
+<Steps>
+  <Step title="Node Resource Assessment">
+    Evaluate node utilization patterns:
+    ```bash
+    # Check node resource pressure
+    kubectl describe nodes | grep -A 5 "Allocated resources"
+    
+    # Identify underutilized nodes
+    kubectl top nodes --sort-by=cpu
+    kubectl top nodes --sort-by=memory
+    ```
+    
+    **Action Items:**
+    - [ ] Identify nodes with <50% average utilization
+    - [ ] Consider node pool consolidation for cost savings
+    - [ ] Right-size node instance types based on actual usage
+    - [ ] Enable cluster autoscaler if variable load patterns exist
+  </Step>
+
+{" "}
+<Step title="CPU Optimization">
+  **CPU Tuning Checklist:** - [ ] Review pod CPU requests vs actual usage - [ ]
+  Set CPU limits to prevent noisy neighbor issues - [ ] Enable CPU throttling
+  monitoring - [ ] Consider CPU pinning for latency-sensitive workloads - [ ]
+  Verify no pods are in CrashLoopBackOff due to CPU limits ```bash # Find pods
+  with high CPU throttling kubectl top pods -n galileo --sort-by=cpu # Check for
+  CPU-related OOMKills kubectl get events -n galileo | grep -i "oom\|cpu" ```
+</Step>
+
+  <Step title="Memory Optimization">
+    **Memory Tuning Checklist:**
+    - [ ] Review pod memory requests vs RSS usage
+    - [ ] Set appropriate memory limits (1.5-2x requests)
+    - [ ] Enable swap on nodes for burstable workloads (if appropriate)
+    - [ ] Monitor for memory leaks in long-running pods
+    - [ ] Configure OOM score adjustments for critical pods
+    
+    ```bash
+    # Identify memory pressure
+    kubectl top pods -n galileo --sort-by=memory
+    
+    # Check OOM events
+    kubectl get events -n galileo --field-selector reason=OOMKilling
+    ```
+  </Step>
+</Steps>
+
+### Pod-Level Resource Tuning
+
+| Component         | Recommended CPU Request | Recommended CPU Limit | Recommended Memory Request | Recommended Memory Limit |
+| ----------------- | ----------------------- | --------------------- | -------------------------- | ------------------------ |
+| **API Server**    | 2000m                   | 4000m                 | 4Gi                        | 8Gi                      |
+| **Worker Pods**   | 1000m                   | 2000m                 | 2Gi                        | 4Gi                      |
+| **ClickHouse**    | 4000m                   | 8000m                 | 8Gi                        | 16Gi                     |
+| **PostgreSQL**    | 2000m                   | 4000m                 | 4Gi                        | 8Gi                      |
+| **Redis**         | 500m                    | 1000m                 | 2Gi                        | 4Gi                      |
+| **Nginx Ingress** | 1000m                   | 2000m                 | 512Mi                      | 1Gi                      |
+
+<Warning>
+  **Important:** Adjust these values based on your actual workload. Monitor for
+  2 weeks before making changes.
+</Warning>
+
+### Horizontal Pod Autoscaling (HPA)
+
+<Card title="HPA Configuration" icon="arrows-left-right-to-line">
+  Configure autoscaling for elastic workloads:
+  - [ ] **API Deployment:** Scale 2-10 replicas based on CPU >70%
+  - [ ] **Worker Pods:** Scale 1-5 replicas based on queue depth
+  - [ ] **Cache Layer:** Scale based on cache hit ratio <80%
+  - [ ] **Test Autoscaling:** Simulate load and verify scaling behavior
+  - [ ] **Set Cooldown Periods:** Configure scale-up (30s) and scale-down (5m) delays
+</Card>
+
+```yaml
+# Example HPA configuration
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: galileo-api-hpa
+  namespace: galileo
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 30
+```
+
+## Storage Performance Optimization
+
+### Disk I/O Tuning
+
+<Steps>
+  <Step title="Storage Class Selection">
+    **Storage Performance Checklist:**
+    - [ ] Use SSD-backed storage for ClickHouse and PostgreSQL
+    - [ ] Configure appropriate IOPS for disk-intensive workloads
+    - [ ] Enable volume encryption without compromising performance
+    - [ ] Set proper filesystem options (noatime, nodiratime)
+    - [ ] Use multiple volumes for high-I/O databases
+    
+    ```bash
+    # Check storage class performance characteristics
+    kubectl get storageclass -o wide
+    
+    # Monitor PVC performance
+    kubectl exec -n galileo deployment/api -- iostat -x 5 3
+    ```
+  </Step>
+
+{" "}
+<Step title="Database Storage Optimization">
+  **ClickHouse Tuning:** - [ ] Separate data volume from logs volume - [ ] Use
+  ReplicatedMergeTree engine for critical tables - [ ] Configure appropriate
+  merge_tree settings - [ ] Enable data compression (LZ4 or ZSTD) - [ ] Optimize
+  part merge frequency **PostgreSQL Tuning:** - [ ] Set shared_buffers to 25% of
+  available memory - [ ] Configure effective_cache_size to 50-75% of memory - [
+  ] Enable synchronous_commit = off for non-critical writes - [ ] Set
+  checkpoint_completion_target = 0.9 - [ ] Configure wal_buffers = 16MB
+</Step>
+
+  <Step title="Volume Provisioning">
+    Review and optimize PVC configurations:
+    - [ ] Increase volume size if usage >80%
+    - [ ] Enable volume expansion for growth capacity
+    - [ ] Use topology-aware provisioning for multi-AZ setups
+    - [ ] Configure volume snapshots for quick recovery
+    - [ ] Set appropriate retention policies
+    
+    ```bash
+    # Check PVC usage
+    kubectl exec -n galileo deployment/api -- df -h | grep "/data"
+    
+    # Enable volume expansion
+    kubectl patch storageclass <storage-class> -p '{"allowVolumeExpansion": true}'
+    ```
+  </Step>
+</Steps>
+
+## Network Performance Optimization
+
+### Network Layer Tuning
+
+<Card title="Network Optimization" icon="network-wired">
+  Optimize network configuration for reduced latency: - [ ] **CNI Plugin:**
+  Verify optimal CNI for workload (Calico vs Cilium) - [ ] **MTU Settings:** Set
+  MTU to 9000 (jumbo frames) if supported - [ ] **DNS Caching:** Enable
+  NodeLocal DNSCache for reduced latency - [ ] **Service Mesh:** Consider using
+  service mesh for sub-ms routing - [ ] **Network Policies:** Review and
+  optimize policy rules for minimal overhead - [ ] **Load Balancer:** Configure
+  connection pooling and keepalive settings
+</Card>
+
+```bash
+# Test network performance between pods
+kubectl run -n galileo network-test --image=nicolaka/netshoot --rm -it -- bash
+# Inside pod:
+iperf3 -c <target-pod-ip> -t 30
+
+# Check DNS latency
+kubectl exec -n galileo deployment/api -- time nslookup kubernetes.default.svc.cluster.local
+
+# Monitor network traffic
+kubectl exec -n galileo deployment/api -- netstat -s | grep -i retrans
+```
+
+### Ingress Controller Optimization
+
+<Steps>
+  <Step title="Nginx Ingress Tuning">
+    **Nginx Performance Checklist:**
+    - [ ] Increase worker_processes to match CPU cores
+    - [ ] Set worker_connections to 10000+
+    - [ ] Enable gzip compression for text responses
+    - [ ] Configure proxy buffering appropriately
+    - [ ] Set keepalive connections to 100+
+    - [ ] Enable HTTP/2 for multiplexing
+    
+    ```bash
+    # Check Nginx config
+    kubectl exec -n ingress-nginx deployment/ingress-nginx-controller -- cat /etc/nginx/nginx.conf | grep -A 10 "worker"
+    
+    # Monitor connection stats
+    kubectl exec -n ingress-nginx deployment/ingress-nginx-controller -- curl localhost:18080/nginx_status
+    ```
+  </Step>
+
+  <Step title="Connection Pooling">
+    Configure efficient connection management:
+    - [ ] Set max_connections = 1000 in PostgreSQL
+    - [ ] Configure Redis maxclients = 10000
+    - [ ] Enable connection pooling in application layer
+    - [ ] Set appropriate connection timeouts
+    - [ ] Monitor connection pool exhaustion
+  </Step>
+</Steps>
+
+## Application-Level Optimization
+
+### API Server Tuning
+
+<Card title="API Optimization" icon="code">
+  Optimize application-level performance: - [ ] **Query Optimization:** Profile
+  and optimize slow database queries - [ ] **Response Caching:** Enable Redis
+  caching for frequent queries - [ ] **Pagination:** Implement cursor-based
+  pagination for large datasets - [ ] **Async Processing:** Move heavy
+  operations to background workers - [ ] **Rate Limiting:** Configure
+  per-endpoint rate limits - [ ] **Compression:** Enable response compression
+  (gzip/brotli)
+</Card>
+
+```bash
+# Identify slow queries
+kubectl exec -n galileo deployment/api -- psql -c "
+SELECT query, mean_exec_time, calls, total_exec_time
+FROM pg_stat_statements
+WHERE mean_exec_time > 100
+ORDER BY mean_exec_time DESC
+LIMIT 20;"
+
+# Check Redis cache hit ratio
+kubectl exec -n galileo deployment/redis -- redis-cli INFO stats | grep keyspace_hits
+kubectl exec -n galileo deployment/redis -- redis-cli INFO stats | grep keyspace_misses
+
+# Monitor API response times
+kubectl logs -n galileo deployment/api --tail=1000 | grep "response_time" | awk '{sum+=$NF; count++} END {print "Avg:",sum/count,"ms"}'
+```
+
+### Database Query Optimization
+
+<Steps>
+  <Step title="PostgreSQL Tuning">
+    **Query Performance Checklist:**
+    - [ ] Add indexes for frequently queried columns
+    - [ ] Use EXPLAIN ANALYZE to identify slow queries
+    - [ ] Configure pg_stat_statements for query tracking
+    - [ ] Enable auto_explain for queries >500ms
+    - [ ] Run VACUUM ANALYZE weekly
+    - [ ] Consider partitioning large tables (>10M rows)
+    
+    ```sql
+    -- Find missing indexes
+    SELECT * FROM pg_stat_user_tables 
+    WHERE seq_scan > 100 AND idx_scan = 0 
+    ORDER BY seq_scan DESC;
+    
+    -- Check index usage
+    SELECT schemaname, tablename, indexname, idx_scan 
+    FROM pg_stat_user_indexes 
+    WHERE idx_scan = 0 
+    ORDER BY pg_relation_size(indexrelid) DESC;
+    ```
+  </Step>
+
+{" "}
+<Step title="ClickHouse Tuning">
+  **ClickHouse Performance Checklist:** - [ ] Use appropriate partitioning key
+  (typically by date) - [ ] Set proper ORDER BY columns for queries - [ ] Enable
+  data compression (CODEC) - [ ] Configure merge_tree settings for workload - [
+  ] Use materialized views for aggregations - [ ] Monitor merge queue length
+  ```bash # Check ClickHouse performance kubectl exec -n galileo
+  statefulset/clickhouse-cluster-0 -- clickhouse-client --query=" SELECT query,
+  query_duration_ms, read_rows, memory_usage FROM system.query_log WHERE type =
+  'QueryFinish' ORDER BY query_duration_ms DESC LIMIT 20;" # Monitor merge
+  operations kubectl exec -n galileo statefulset/clickhouse-cluster-0 --
+  clickhouse-client --query=" SELECT database, table, COUNT(*) as parts FROM
+  system.parts WHERE active = 1 GROUP BY database, table HAVING parts > 100;"
+  ```
+</Step>
+
+  <Step title="Redis Optimization">
+    **Redis Performance Checklist:**
+    - [ ] Enable persistence (RDB or AOF) based on durability needs
+    - [ ] Set maxmemory-policy to volatile-lru or allkeys-lru
+    - [ ] Configure maxmemory to 80% of available RAM
+    - [ ] Use pipelining for batch operations
+    - [ ] Monitor eviction rate and adjust maxmemory
+    - [ ] Consider Redis Cluster for >100GB datasets
+    
+    ```bash
+    # Check Redis memory usage
+    kubectl exec -n galileo deployment/redis -- redis-cli INFO memory
+    
+    # Monitor evictions
+    kubectl exec -n galileo deployment/redis -- redis-cli INFO stats | grep evicted_keys
+    
+    # Check slow log
+    kubectl exec -n galileo deployment/redis -- redis-cli SLOWLOG GET 10
+    ```
+  </Step>
+</Steps>
+
+## Monitoring and Observability
+
+### Performance Monitoring Setup
+
+<Card title="Monitoring Configuration" icon="gauge">
+  Ensure comprehensive performance monitoring: - [ ] **Prometheus:** Configure
+  scrape intervals (15-30s) - [ ] **Grafana Dashboards:** Import Galileo
+  performance dashboards - [ ] **Alert Rules:** Configure alerts for performance
+  degradation - [ ] **Distributed Tracing:** Enable OpenTelemetry for request
+  tracing - [ ] **Log Aggregation:** Forward logs to central logging system - [
+  ] **Custom Metrics:** Expose application-specific metrics
+</Card>
+
+```yaml
+# Example performance alert rules
+groups:
+  - name: performance
+    interval: 30s
+    rules:
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        annotations:
+          summary: "API latency p95 > 1s for 5 minutes"
+
+      - alert: HighDatabaseConnectionUsage
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8
+        for: 5m
+        annotations:
+          summary: "Database connection pool >80% utilized"
+
+      - alert: HighCPUThrottling
+        expr: rate(container_cpu_cfs_throttled_seconds_total[5m]) > 0.3
+        for: 10m
+        annotations:
+          summary: "Container CPU throttling >30% for 10 minutes"
+```
+
+## Load Testing and Validation
+
+### Performance Testing Checklist
+
+<Steps>
+  <Step title="Load Test Preparation">
+    Prepare for load testing:
+    - [ ] Define realistic user scenarios
+    - [ ] Create test datasets matching production scale
+    - [ ] Set up isolated test environment
+    - [ ] Configure monitoring and alerting
+    - [ ] Document current performance baselines
+  </Step>
+
+  <Step title="Execute Load Tests">
+    Run comprehensive load tests:
+    ```bash
+    # Install k6 for load testing
+    brew install k6  # or appropriate package manager
+    
+    # Example load test script
+    cat > load-test.js <<'EOF'
+    import http from 'k6/http';
+    import { check, sleep } from 'k6';
+    
+    export let options = {
+      stages: [
+        { duration: '2m', target: 50 },   // Ramp up
+        { duration: '5m', target: 50 },   // Steady state
+        { duration: '2m', target: 100 },  // Ramp up more
+        { duration: '5m', target: 100 },  // Higher load
+        { duration: '2m', target: 0 },    // Ramp down
+      ],
+      thresholds: {
+        'http_req_duration': ['p(95)<500'],
+        'http_req_failed': ['rate<0.01'],
+      },
+    };
+    
+    export default function() {
+      let response = http.get('https://api.<DOMAIN>/healthcheck');
+      check(response, {
+        'status is 200': (r) => r.status === 200,
+        'response time < 500ms': (r) => r.timings.duration < 500,
+      });
+      sleep(1);
+    }
+    EOF
+    
+    # Run load test
+    k6 run load-test.js
+    ```
+    
+    **Load Test Checklist:**
+    - [ ] Test with 50% of expected peak load
+    - [ ] Test with 100% of expected peak load
+    - [ ] Test with 150% of expected peak load (stress test)
+    - [ ] Monitor all systems during tests
+    - [ ] Verify graceful degradation under stress
+    - [ ] Document performance metrics at each load level
+  </Step>
+
+  <Step title="Analyze Results">
+    Review load test outcomes:
+    - [ ] Compare results against performance SLOs
+    - [ ] Identify performance bottlenecks
+    - [ ] Document system breaking points
+    - [ ] Create remediation plan for issues found
+    - [ ] Validate autoscaling behavior
+  </Step>
+</Steps>
+
+## Advanced Optimization Techniques
+
+### Caching Strategy
+
+<Card title="Multi-Layer Caching" icon="layer-group">
+  Implement comprehensive caching: - [ ] **CDN Caching:** Cache static assets at
+  edge (CloudFlare/CloudFront) - [ ] **HTTP Caching:** Set appropriate
+  Cache-Control headers - [ ] **Application Caching:** Implement Redis for query
+  results - [ ] **Database Caching:** Enable query result caching - [ ]
+  **Connection Caching:** Pool database and API connections - [ ] **Cache
+  Invalidation:** Implement efficient cache invalidation strategy
+</Card>
+
+### Resource Allocation Strategies
+
+| Workload Type        | Strategy                           | Benefits                | Considerations        |
+| -------------------- | ---------------------------------- | ----------------------- | --------------------- |
+| **CPU-Intensive**    | Guaranteed QoS (requests = limits) | Predictable performance | Higher cost           |
+| **Memory-Intensive** | Burstable QoS (limits > requests)  | Cost-effective          | Potential eviction    |
+| **I/O-Intensive**    | Premium storage, dedicated nodes   | Higher throughput       | Increased complexity  |
+| **Batch Jobs**       | Spot/preemptible instances         | Lower cost              | Interruption handling |
+
+### Database Optimization Matrix
+
+| Database       | Tuning Area        | Recommended Settings                                                   | Impact |
+| -------------- | ------------------ | ---------------------------------------------------------------------- | ------ |
+| **PostgreSQL** | Connection Pooling | max_connections=200, shared_buffers=4GB                                | High   |
+| **PostgreSQL** | Query Planning     | effective_cache_size=12GB, random_page_cost=1.1                        | Medium |
+| **ClickHouse** | Memory             | max_memory_usage=10GB, max_bytes_before_external_sort=20GB             | High   |
+| **ClickHouse** | Merges             | background_pool_size=32, max_bytes_to_merge_at_max_space_in_pool=150GB | Medium |
+| **Redis**      | Memory             | maxmemory=8GB, maxmemory-policy=allkeys-lru                            | High   |
+| **Redis**      | Persistence        | save 900 1 300 10 60 10000                                             | Low    |
+
+## Performance Validation Checklist
+
+### Final Performance Verification
+
+<Card title="Performance Sign-Off" icon="circle-check">
+  Verify all optimization objectives are met:
+  - [ ] **API Latency:** p95 < 500ms, p99 < 1s
+  - [ ] **Database Performance:** Queries < 100ms average
+  - [ ] **Error Rate:** < 0.1% across all endpoints
+  - [ ] **Resource Utilization:** CPU < 70%, Memory < 80% at peak
+  - [ ] **Autoscaling:** Responds within 2 minutes of threshold breach
+  - [ ] **Cache Hit Ratio:** > 80% for frequently accessed data
+  - [ ] **Database Connections:** < 60% of max capacity
+  - [ ] **Network Latency:** Pod-to-pod < 1ms, external < 50ms
+  - [ ] **Storage IOPS:** Meets application requirements without throttling
+  - [ ] **Load Test Results:** System handles 150% peak load gracefully
+</Card>
+
+## Performance Documentation
+
+### Document Your Optimization Journey
+
+<Steps>
+  <Step title="Baseline Documentation">
+    Record initial state:
+    - [ ] Pre-tuning performance metrics
+    - [ ] System configuration snapshots
+    - [ ] Resource allocation details
+    - [ ] Cost baseline
+  </Step>
+
+{" "}
+<Step title="Tuning Changes">
+  Document all modifications: - [ ] Configuration changes made - [ ] Rationale
+  for each change - [ ] Expected vs actual impact - [ ] Rollback procedures
+</Step>
+
+  <Step title="Results and Insights">
+    Capture outcomes:
+    - [ ] Post-tuning performance metrics
+    - [ ] Cost impact analysis
+    - [ ] Lessons learned
+    - [ ] Future optimization opportunities
+  </Step>
+</Steps>
+
+## Continuous Performance Management
+
+<Info>
+  **Best Practice:** Schedule performance reviews quarterly to: - Re-baseline
+  metrics as workload evolves - Identify new optimization opportunities - Adjust
+  resource allocation based on growth - Update tuning parameters for new
+  features
+</Info>
+
+---
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="Resource Requirements"
+    icon="server"
+    href="/deployment-docs/resource-requirements"
+  >
+    Understand baseline resource needs
+  </Card>
+  <Card
+    title="Monitoring Setup"
+    icon="chart-line"
+    href="/deployment-docs/operations/integration-patterns#monitoring-integration"
+  >
+    Configure performance monitoring
+  </Card>
+  <Card
+    title="Troubleshooting Guide"
+    icon="wrench"
+    href="/deployment-docs/operations/troubleshooting-hub"
+  >
+    Resolve performance issues
+  </Card>
+  <Card
+    title="Disaster Recovery"
+    icon="life-ring"
+    href="/deployment-docs/operations/disaster-recovery"
+  >
+    Maintain performance during recovery
+  </Card>
+</CardGroup>

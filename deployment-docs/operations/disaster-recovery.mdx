@@ -1,0 +1,856 @@
+---
+title: "Disaster Recovery Procedures"
+description: "Backup strategies, failover procedures, and data restoration workflows for Galileo deployments"
+---
+
+import { Card, CardGroup } from "/snippets/components/card-component.mdx";
+import { Tabs, Tab } from "/snippets/components/tabs-component.mdx";
+import {
+  Accordion,
+  AccordionGroup,
+} from "/snippets/components/accordion-component.mdx";
+import { Steps, Step } from "/snippets/components/steps-component.mdx";
+import { Callout } from "/snippets/components/callout-component.mdx";
+
+# Disaster Recovery Procedures
+
+<Callout type="warning" emoji="🚨">
+  Disaster recovery planning is critical for production deployments. Test your
+  recovery procedures regularly to ensure they work when needed.
+</Callout>
+
+## Overview
+
+A comprehensive disaster recovery (DR) plan ensures business continuity by minimizing downtime and data loss in the event of system failures, natural disasters, or other catastrophic events.
+
+### Key Metrics
+
+<CardGroup cols={3}>
+  <Card title="RTO (Recovery Time Objective)" icon="clock">
+    **Target: 4 hours** Maximum acceptable downtime before business impact
+    becomes severe
+  </Card>
+  <Card title="RPO (Recovery Point Objective)" icon="database">
+    **Target: 15 minutes** Maximum acceptable data loss measured in time
+  </Card>
+  <Card title="Recovery Success Rate" icon="check-circle">
+    **Target: 99.9%** Percentage of successful recovery operations during
+    testing
+  </Card>
+</CardGroup>
+
+## Backup Strategy
+
+### What to Backup
+
+<AccordionGroup>
+  <Accordion title="Database Backups">
+    **PostgreSQL:**
+    - Full database dumps
+    - Transaction logs (WAL files)
+    - Schema definitions
+    - User permissions and roles
+
+    **MongoDB:**
+    - Database snapshots
+    - Oplog for point-in-time recovery
+    - Indexes and collections
+    - User authentication data
+
+  </Accordion>
+
+{" "}
+
+<Accordion title="Application Configuration">
+  - Kubernetes manifests - Helm values files - ConfigMaps and Secrets - Custom
+  resource definitions - Ingress configurations - Service mesh policies
+</Accordion>
+
+{" "}
+
+<Accordion title="Persistent Storage">
+  - User-uploaded files - Machine learning models - Generated reports and
+  exports - Application logs (if not using external logging) - Cached data
+  (optional)
+</Accordion>
+
+  <Accordion title="Infrastructure as Code">
+    - Terraform state files
+    - Terraform configuration files
+    - Ansible playbooks
+    - CloudFormation templates
+    - Network configurations
+  </Accordion>
+</AccordionGroup>
+
+### Backup Schedule
+
+**Production Backup Schedule:**
+
+```yaml
+backups:
+  full:
+    frequency: daily
+    time: "02:00 UTC"
+    retention: 30 days
+  incremental:
+    frequency: every 4 hours
+    retention: 7 days
+  transaction_logs:
+    frequency: continuous
+    retention: 7 days
+  snapshots:
+    frequency: hourly
+    retention: 48 hours
+```
+
+**Staging Backup Schedule:**
+
+```yaml
+backups:
+  full:
+    frequency: daily
+    time: "03:00 UTC"
+    retention: 14 days
+  incremental:
+    frequency: every 8 hours
+    retention: 3 days
+  snapshots:
+    frequency: every 6 hours
+    retention: 24 hours
+```
+
+**Development Backup Schedule:**
+
+```yaml
+backups:
+  full:
+    frequency: weekly
+    time: "04:00 UTC"
+    retention: 7 days
+  snapshots:
+    frequency: daily
+    retention: 3 days
+```
+
+### Automated Backup Configuration
+
+<Steps>
+  <Step title="Install Velero for Kubernetes Backups">
+    ```bash
+    # Install Velero CLI
+    brew install velero  # macOS
+    # or download from https://velero.io/docs/main/basic-install/
+
+    # Configure backup location
+    velero backup-location create default \
+      --provider aws \
+      --bucket galileo-backups \
+      --config region=us-west-2
+
+    # Create backup schedule
+    velero schedule create galileo-daily \
+      --schedule="0 2 * * *" \
+      --include-namespaces galileo \
+      --snapshot-volumes \
+      --ttl 720h0m0s
+    ```
+
+  </Step>
+
+  <Step title="Configure Database Backups">
+    **PostgreSQL with pg_basebackup:**
+    ```bash
+    #!/bin/bash
+    # postgres-backup.sh
+
+    BACKUP_DIR="/backups/postgres"
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    RETENTION_DAYS=30
+
+    # Create full backup
+    pg_basebackup -h localhost -U postgres \
+      -D "$BACKUP_DIR/full_$TIMESTAMP" \
+      -Ft -z -Xs -P
+
+    # Upload to S3
+    aws s3 sync "$BACKUP_DIR/full_$TIMESTAMP" \
+      s3://galileo-backups/postgres/full_$TIMESTAMP/
+
+    # Clean old backups
+    find "$BACKUP_DIR" -mtime +$RETENTION_DAYS -delete
+    ```
+
+    **MongoDB with mongodump:**
+    ```bash
+    #!/bin/bash
+    # mongodb-backup.sh
+
+    BACKUP_DIR="/backups/mongodb"
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+    # Create backup
+    mongodump --host mongodb-0.mongodb \
+      --out "$BACKUP_DIR/dump_$TIMESTAMP"
+
+    # Compress
+    tar -czf "$BACKUP_DIR/dump_$TIMESTAMP.tar.gz" \
+      "$BACKUP_DIR/dump_$TIMESTAMP"
+
+    # Upload to S3
+    aws s3 cp "$BACKUP_DIR/dump_$TIMESTAMP.tar.gz" \
+      s3://galileo-backups/mongodb/
+
+    # Cleanup
+    rm -rf "$BACKUP_DIR/dump_$TIMESTAMP"
+    ```
+
+  </Step>
+
+  <Step title="Set Up Continuous Transaction Log Archiving">
+    ```yaml
+    # PostgreSQL WAL archiving configuration
+    postgresql:
+      postgresql.conf:
+        wal_level: replica
+        archive_mode: on
+        archive_command: 'aws s3 cp %p s3://galileo-backups/wal/%f'
+        archive_timeout: 300  # 5 minutes
+        
+    # Create CronJob for log cleanup
+    apiVersion: batch/v1
+    kind: CronJob
+    metadata:
+      name: wal-cleanup
+      namespace: galileo
+    spec:
+      schedule: "0 4 * * *"
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: cleanup
+                image: amazon/aws-cli
+                command:
+                - /bin/bash
+                - -c
+                - |
+                  # Keep last 7 days of WAL files
+                  aws s3 ls s3://galileo-backups/wal/ | \
+                  awk '{print $4}' | \
+                  head -n -168 | \
+                  xargs -I {} aws s3 rm s3://galileo-backups/wal/{}
+              restartPolicy: OnFailure
+    ```
+  </Step>
+
+  <Step title="Test Backup Integrity">
+    ```bash
+    # Automated backup verification script
+    #!/bin/bash
+    # verify-backups.sh
+
+    echo "Testing PostgreSQL backup..."
+    pg_restore --list s3://galileo-backups/postgres/latest.tar.gz
+
+    echo "Testing MongoDB backup..."
+    mongorestore --dry-run \
+      --archive=s3://galileo-backups/mongodb/latest.tar.gz
+
+    echo "Testing Velero backup..."
+    velero backup describe galileo-daily-latest
+
+    echo "All backups verified successfully!"
+    ```
+
+  </Step>
+</Steps>
+
+## Recovery Procedures
+
+### Database Recovery
+
+<Tabs>
+  <Tab title="PostgreSQL Full Recovery">
+    ```bash
+    # Stop the application
+    kubectl scale deployment galileo-api --replicas=0 -n galileo
+
+    # Stop PostgreSQL
+    kubectl scale statefulset postgres --replicas=0 -n galileo
+
+    # Download backup
+    aws s3 sync s3://galileo-backups/postgres/full_20231115_020000/ \
+      /var/lib/postgresql/data/
+
+    # Extract backup
+    cd /var/lib/postgresql/data
+    tar -xzf base.tar.gz
+    tar -xzf pg_wal.tar.gz
+
+    # Create recovery.conf
+    cat > recovery.conf <<EOF
+    restore_command = 'aws s3 cp s3://galileo-backups/wal/%f %p'
+    recovery_target_time = '2023-11-15 12:00:00'
+    EOF
+
+    # Start PostgreSQL
+    kubectl scale statefulset postgres --replicas=1 -n galileo
+
+    # Wait for recovery to complete
+    kubectl logs -f postgres-0 -n galileo
+
+    # Restart application
+    kubectl scale deployment galileo-api --replicas=3 -n galileo
+    ```
+
+  </Tab>
+  <Tab title="MongoDB Full Recovery">
+    ```bash
+    # Stop the application
+    kubectl scale deployment galileo-api --replicas=0 -n galileo
+
+    # Download backup
+    aws s3 cp s3://galileo-backups/mongodb/dump_20231115_020000.tar.gz \
+      /tmp/mongo-restore.tar.gz
+
+    # Extract
+    cd /tmp
+    tar -xzf mongo-restore.tar.gz
+
+    # Restore to MongoDB
+    mongorestore --host mongodb-0.mongodb \
+      --drop \
+      --dir /tmp/dump_20231115_020000/
+
+    # Verify data
+    mongosh --host mongodb-0.mongodb --eval "db.stats()"
+
+    # Restart application
+    kubectl scale deployment galileo-api --replicas=3 -n galileo
+    ```
+
+  </Tab>
+  <Tab title="Point-in-Time Recovery (PITR)">
+    ```bash
+    # PostgreSQL PITR
+    # 1. Restore full backup
+    pg_basebackup -h backup-server -U postgres -D /var/lib/postgresql/data
+
+    # 2. Configure recovery
+    cat > /var/lib/postgresql/data/recovery.conf <<EOF
+    restore_command = 'aws s3 cp s3://galileo-backups/wal/%f %p'
+    recovery_target_time = '2023-11-15 10:30:00'
+    recovery_target_action = 'promote'
+    EOF
+
+    # 3. Start PostgreSQL (it will replay WAL logs)
+    pg_ctl start
+
+    # 4. Monitor recovery progress
+    psql -c "SELECT pg_is_in_recovery();"
+
+    # MongoDB PITR using oplog
+    # 1. Restore from snapshot
+    mongorestore --oplogReplay \
+      --oplogLimit "1700053800:1" \
+      --dir /tmp/backup/
+
+    # 2. Verify timestamp
+    mongosh --eval "db.printReplicationInfo()"
+    ```
+
+  </Tab>
+</Tabs>
+
+### Application Recovery
+
+<Steps>
+  <Step title="Restore Kubernetes Resources">
+    ```bash
+    # Restore from Velero backup
+    velero restore create galileo-restore \
+      --from-backup galileo-daily-20231115
+
+    # Monitor restore progress
+    velero restore describe galileo-restore
+
+    # Verify all resources
+    kubectl get all -n galileo
+    ```
+
+  </Step>
+
+  <Step title="Restore Configuration">
+    ```bash
+    # Restore ConfigMaps and Secrets
+    kubectl apply -f backups/configs/galileo-configmap.yaml
+    kubectl apply -f backups/secrets/galileo-secrets.yaml
+
+    # Verify configurations
+    kubectl get configmaps -n galileo
+    kubectl get secrets -n galileo
+    ```
+
+  </Step>
+
+  <Step title="Restore Persistent Volumes">
+    ```bash
+    # List available snapshots
+    aws ec2 describe-snapshots \
+      --filters "Name=tag:Name,Values=galileo-pv-*"
+
+    # Create volumes from snapshots
+    aws ec2 create-volume \
+      --snapshot-id snap-1234567890 \
+      --availability-zone us-west-2a
+
+    # Update PV definitions
+    kubectl apply -f restored-pv.yaml
+    ```
+
+  </Step>
+
+  <Step title="Verify Application Health">
+    ```bash
+    # Check pod status
+    kubectl get pods -n galileo
+
+    # Test API health
+    curl http://galileo-api/health
+
+    # Check logs for errors
+    kubectl logs -n galileo deployment/galileo-api --tail=100
+
+    # Run smoke tests
+    ./scripts/smoke-tests.sh
+    ```
+
+  </Step>
+</Steps>
+
+## Failover Procedures
+
+### Multi-Region Failover
+
+<Callout type="info" emoji="🌍">
+  Multi-region deployments require DNS-based failover and data replication
+  between regions.
+</Callout>
+
+**Automatic Failover Setup:**
+
+```yaml
+# Route53 health check configuration
+healthCheck:
+  type: HTTPS
+  resourcePath: /health
+  requestInterval: 30
+  failureThreshold: 3
+
+# Failover routing policy
+recordSets:
+  - name: galileo.example.com
+    type: A
+    setIdentifier: primary
+    failover: PRIMARY
+    healthCheckId: hc-primary
+    resourceRecords:
+      - 203.0.113.10 # Primary region
+
+  - name: galileo.example.com
+    type: A
+    setIdentifier: secondary
+    failover: SECONDARY
+    resourceRecords:
+      - 198.51.100.10 # Secondary region
+```
+
+**Manual Failover Steps:**
+
+<Steps>
+  <Step title="Assess Primary Region Status">
+    ```bash
+    # Check primary region health
+    curl -f https://primary.galileo.example.com/health || echo "Primary down"
+
+    # Check secondary region health
+    curl -f https://secondary.galileo.example.com/health || echo "Secondary down"
+
+    # Verify data replication lag
+    psql -h secondary-db -c "SELECT now() - pg_last_xact_replay_timestamp() AS lag;"
+    ```
+
+  </Step>
+
+  <Step title="Update DNS">
+    ```bash
+    # Update Route53 to point to secondary
+    aws route53 change-resource-record-sets \
+      --hosted-zone-id Z1234567890ABC \
+      --change-batch file://failover-dns.json
+
+    # Verify DNS propagation
+    dig galileo.example.com +short
+    ```
+
+  </Step>
+
+  <Step title="Promote Secondary Database">
+    ```bash
+    # Promote PostgreSQL replica
+    kubectl exec postgres-0 -n galileo-secondary -- \
+      pg_ctl promote
+
+    # Verify promotion
+    psql -h secondary-db -c "SELECT pg_is_in_recovery();"
+    ```
+
+  </Step>
+
+  <Step title="Redirect Traffic">
+    ```bash
+    # Update load balancer
+    kubectl patch service galileo-ui -n galileo \
+      -p '{"spec":{"externalTrafficPolicy":"Local"}}'
+
+    # Monitor traffic shift
+    kubectl top pods -n galileo
+    ```
+
+  </Step>
+</Steps>
+
+### Database Failover
+
+**PostgreSQL Streaming Replication Failover:**
+
+```bash
+# Check replication status
+psql -h postgres-primary -c "SELECT * FROM pg_stat_replication;"
+
+# Perform manual failover
+pg_ctl promote -D /var/lib/postgresql/data
+
+# Update application connection strings
+kubectl set env deployment/galileo-api \
+  DATABASE_HOST=postgres-replica
+
+# Verify application connectivity
+kubectl logs deployment/galileo-api | grep "database"
+```
+
+## Disaster Scenarios and Responses
+
+<AccordionGroup>
+  <Accordion title="Scenario 1: Complete Cluster Failure">
+    **Impact:** Total system unavailability
+    
+    **Response:**
+    1. Deploy new cluster in alternate region
+    2. Restore latest Velero backup
+    3. Restore database from S3
+    4. Update DNS to point to new cluster
+    5. Verify all services are operational
+    
+    **Estimated RTO:** 2-4 hours
+    **Estimated RPO:** 15 minutes (last backup)
+  </Accordion>
+
+{" "}
+
+<Accordion title="Scenario 2: Database Corruption">
+  **Impact:** Data integrity issues, potential data loss **Response:** 1. Stop
+  write operations immediately 2. Identify corruption extent 3. Restore from
+  last known good backup 4. Apply transaction logs up to corruption point 5.
+  Validate data integrity 6. Resume operations **Estimated RTO:** 1-2 hours
+  **Estimated RPO:** Up to 4 hours (incremental backup)
+</Accordion>
+
+{" "}
+
+<Accordion title="Scenario 3: Ransomware Attack">
+  **Impact:** Encrypted data, system compromise **Response:** 1. Isolate
+  affected systems immediately 2. Activate incident response team 3. Assess
+  infection scope 4. Deploy clean environment 5. Restore from read-only offline
+  backups 6. Implement additional security measures 7. Conduct security audit
+  **Estimated RTO:** 4-8 hours **Estimated RPO:** 24 hours (last offsite backup)
+</Accordion>
+
+{" "}
+
+<Accordion title="Scenario 4: Accidental Data Deletion">
+  **Impact:** Loss of user data or configurations **Response:** 1. Identify
+  deletion timestamp 2. Use point-in-time recovery (PITR) 3. Restore specific
+  tables/collections 4. Verify restored data 5. Update access controls to
+  prevent recurrence **Estimated RTO:** 30 minutes - 1 hour **Estimated RPO:**
+  15 minutes (WAL/oplog)
+</Accordion>
+
+  <Accordion title="Scenario 5: Regional Outage">
+    **Impact:** Primary region unavailable
+    
+    **Response:**
+    1. Verify secondary region health
+    2. Execute automated failover
+    3. Monitor traffic shift
+    4. Communicate status to stakeholders
+    5. Investigate primary region issue
+    
+    **Estimated RTO:** 5-15 minutes (automated)
+    **Estimated RPO:** Near-zero (active-active replication)
+  </Accordion>
+</AccordionGroup>
+
+## Testing and Validation
+
+### Regular DR Testing Schedule
+
+<Callout type="tip" emoji="📅">
+  Test your disaster recovery procedures quarterly to ensure they remain
+  effective.
+</Callout>
+
+**Testing Cadence:**
+
+- **Monthly:** Backup restoration tests
+- **Quarterly:** Full DR simulation
+- **Annually:** Multi-region failover test
+- **Ad-hoc:** After major infrastructure changes
+
+### DR Test Checklist
+
+```markdown
+## Disaster Recovery Test Report
+
+**Date:** **\*\***\_\_\_**\*\***
+**Test Type:** □ Backup Restore □ Database Failover □ Full DR Simulation
+**Tester:** **\*\***\_\_\_**\*\***
+
+### Pre-Test
+
+- [ ] Notify stakeholders of test window
+- [ ] Take snapshot of current state
+- [ ] Document current metrics
+- [ ] Prepare rollback plan
+
+### Test Execution
+
+- [ ] Trigger DR scenario
+- [ ] Execute recovery procedures
+- [ ] Document time to recover
+- [ ] Verify data integrity
+- [ ] Test application functionality
+- [ ] Measure performance
+
+### Post-Test
+
+- [ ] Restore original environment
+- [ ] Document lessons learned
+- [ ] Update procedures as needed
+- [ ] Report results to management
+- [ ] Schedule next test
+
+### Metrics
+
+- Time to detection: **\*\***\_\_\_**\*\***
+- Time to decision: **\*\***\_\_\_**\*\***
+- Time to recovery: **\*\***\_\_\_**\*\***
+- Data loss (RPO): **\*\***\_\_\_**\*\***
+- Test success: □ Pass □ Partial □ Fail
+
+### Issues Identified
+
+1. ***
+2. ***
+3. ***
+
+### Action Items
+
+1. ***
+2. ***
+3. ***
+```
+
+## Monitoring and Alerting
+
+### Backup Monitoring
+
+```yaml
+# Prometheus alerts for backup failures
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: backup-alerts
+  namespace: galileo
+spec:
+  groups:
+    - name: backups
+      rules:
+        - alert: BackupFailed
+          expr: velero_backup_failure_total > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Backup job failed"
+            description: "Backup {{ $labels.schedule }} has failed"
+
+        - alert: BackupMissing
+          expr: time() - velero_backup_last_successful_timestamp > 86400
+          labels:
+            severity: warning
+          annotations:
+            summary: "No recent backup"
+            description: "No successful backup in last 24 hours"
+
+        - alert: BackupStorageNearFull
+          expr: (1 - backup_storage_free_bytes / backup_storage_total_bytes) > 0.85
+          labels:
+            severity: warning
+          annotations:
+            summary: "Backup storage nearly full"
+            description: "Backup storage is {{ $value }}% full"
+```
+
+### Recovery Metrics Dashboard
+
+Key metrics to monitor:
+
+- Backup success rate
+- Average backup duration
+- Backup storage utilization
+- Last successful backup timestamp
+- Recovery test results
+- RTO/RPO compliance
+
+## Documentation and Communication
+
+### DR Runbooks
+
+Maintain up-to-date runbooks for each disaster scenario:
+
+1. **Contact Information**
+
+   - On-call rotation
+   - Escalation procedures
+   - Vendor support contacts
+
+2. **Step-by-Step Procedures**
+
+   - Decision trees for scenario identification
+   - Detailed recovery commands
+   - Rollback procedures
+
+3. **Configuration Details**
+   - Backup locations
+   - Credential vaults
+   - Network diagrams
+
+### Incident Communication Plan
+
+**During Incident:**
+
+- Status page updates every 30 minutes
+- Slack/email notifications to stakeholders
+- Regular management briefings
+
+**Post-Incident:**
+
+- Incident report within 24 hours
+- Root cause analysis within 7 days
+- Remediation plan with timeline
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="3-2-1 Backup Rule" icon="shield-halved">
+    - **3** copies of data - **2** different media types - **1** offsite copy
+  </Card>
+  <Card title="Immutable Backups" icon="lock">
+    Use write-once-read-many (WORM) storage for ransomware protection
+  </Card>
+  <Card title="Encryption" icon="key">
+    Encrypt backups at rest and in transit using AES-256
+  </Card>
+  <Card title="Regular Testing" icon="vial">
+    Test recovery procedures quarterly minimum
+  </Card>
+</CardGroup>
+
+## Compliance and Auditing
+
+### Backup Audit Log
+
+```bash
+# Generate backup audit report
+cat > backup-audit.sh <<'EOF'
+#!/bin/bash
+
+echo "Backup Audit Report - $(date)"
+echo "================================"
+
+echo -e "\n1. Recent Backups:"
+velero backup get | tail-n 10
+
+echo -e "\n2. Backup Storage:"
+aws s3 ls s3://galileo-backups/ --recursive | \
+  awk '{sum+=$3} END {print "Total Size: " sum/1024/1024/1024 " GB"}'
+
+echo -e "\n3. Last Restore Test:"
+grep "restore" /var/log/dr-tests.log | tail -1
+
+echo -e "\n4. Backup Retention Compliance:"
+# Check if backups older than retention period exist
+RETENTION_DAYS=30
+CUTOFF=$(date -d "$RETENTION_DAYS days ago" +%s)
+aws s3api list-objects --bucket galileo-backups | \
+  jq -r ".Contents[] | select(.LastModified < \"$CUTOFF\") | .Key"
+
+EOF
+
+chmod +x backup-audit.sh
+./backup-audit.sh
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Backup Setup"
+    icon="floppy-disk"
+    href="/deployment-docs/operations/scheduling-automatic-backups-for-your-cluster"
+  >
+    Configure automated backup schedules
+  </Card>
+  <Card
+    title="Monitoring"
+    icon="chart-line"
+    href="/deployment-docs/operations/troubleshooting-hub"
+  >
+    Set up comprehensive monitoring
+  </Card>
+  <Card
+    title="Security"
+    icon="shield"
+    href="/deployment-docs/security/security-and-access-control"
+  >
+    Implement security best practices
+  </Card>
+  <Card
+    title="Performance"
+    icon="gauge"
+    href="/deployment-docs/operations/performance-tuning"
+  >
+    Optimize system performance
+  </Card>
+</CardGroup>
+
+## Additional Resources
+
+- [Velero Documentation](https://velero.io/docs/)
+- [PostgreSQL Backup and Recovery](https://www.postgresql.org/docs/current/backup.html)
+- [MongoDB Backup Methods](https://docs.mongodb.com/manual/core/backups/)
+- [AWS Disaster Recovery](https://aws.amazon.com/disaster-recovery/)
+- [Kubernetes Disaster Recovery](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/#backing-up-an-etcd-cluster)

@@ -1,0 +1,249 @@
+---
+title: "Deployment Tiers"
+description: "Understanding the different deployment tiers available for Galileo Platform, from fully hosted to fully isolated self-hosted deployments."
+icon: "layer-group"
+---
+
+## Overview
+
+Galileo Platform offers multiple deployment tiers to meet different organizational needs for security, control, and compliance. Each tier provides a different balance between ease of management and data isolation.
+
+<Info>
+  **Choosing the Right Tier:** Consider your organization's security
+  requirements, compliance needs, and operational capabilities when selecting a
+  deployment tier.
+</Info>
+
+## Deployment Tier Options
+
+### Tier 1: Fully Galileo-Hosted
+
+**Complete SaaS Solution**
+
+In this tier, Galileo manages the entire infrastructure and platform operations.
+
+<Card title="Tier 1 Characteristics" icon="cloud">
+  - **Infrastructure:** Fully managed by Galileo - **Data Storage:** Hosted in
+  Galileo's secure cloud environment - **Maintenance:** Zero operational
+  overhead for your team - **Updates:** Automatic updates and patches -
+  **Support:** 24/7 managed support - **Time to Deploy:** Immediate access
+</Card>
+
+**Best For:**
+
+- Organizations wanting immediate access to Galileo
+- Teams without dedicated infrastructure resources
+- Proof of concepts and initial evaluations
+- Small to medium-sized teams
+
+### Tier 2: Hybrid Deployment
+
+**Balanced Control and Management**
+
+A hybrid approach where core services run in Galileo's infrastructure while sensitive data remains in your environment.
+
+<Card title="Tier 2 Characteristics" icon="arrows-split-up-and-left">
+  - **Infrastructure:** Shared between Galileo and customer - **Data Storage:**
+  Customer data in your cloud, compute in Galileo cloud - **Maintenance:**
+  Shared responsibility model - **Updates:** Coordinated updates - **Support:**
+  Joint support model - **Time to Deploy:** 1-2 weeks
+</Card>
+
+**Key Features:**
+
+- Data residency compliance
+- Reduced operational overhead
+- Access to latest features
+- Flexible scaling options
+
+**Best For:**
+
+- Organizations with data residency requirements
+- Companies needing balance between control and convenience
+- Teams with moderate infrastructure capabilities
+
+### Tier 3: Customer Cloud Deployment
+
+**Full Control in Your Cloud**
+
+Deploy Galileo entirely within your cloud infrastructure while maintaining connectivity for updates and support.
+
+<Card title="Tier 3 Characteristics" icon="building">
+  - **Infrastructure:** Customer-owned cloud (AWS, GCP, Azure) - **Data
+  Storage:** All data in customer environment - **Maintenance:**
+  Customer-managed with Galileo guidance - **Updates:** Customer-controlled
+  update schedule - **Support:** Remote support access - **Time to Deploy:** 2-4
+  weeks
+</Card>
+
+**Requirements:**
+
+- Kubernetes cluster (EKS, GKE, AKS)
+- Cloud storage (S3, GCS, Azure Blob)
+- Managed databases (RDS, Cloud SQL, Azure Database)
+- Outbound internet for updates
+
+**Best For:**
+
+- Enterprises with strict data governance
+- Organizations with existing cloud infrastructure
+- Teams with DevOps capabilities
+- Companies requiring custom configurations
+
+### Tier 4: Fully Isolated Self-Hosted
+
+**Complete Air-Gapped Deployment**
+
+Deploy Galileo in completely isolated environments with no external connectivity.
+
+<Card title="Tier 4 Characteristics" icon="shield-halved">
+  - **Infrastructure:** On-premises or air-gapped cloud - **Data Storage:**
+  Complete data isolation - **Maintenance:** Fully customer-managed -
+  **Updates:** Manual offline updates - **Support:** Documentation and offline
+  support - **Time to Deploy:** 4-6 weeks
+</Card>
+
+**Special Considerations:**
+
+- Requires offline model storage
+- Manual update processes
+- Additional storage for `galileo-<customer_name>-offline-models` bucket
+- Pre-downloaded container images
+- Comprehensive documentation package
+
+**Best For:**
+
+- Government agencies
+- Financial institutions with strict compliance
+- Organizations in regulated industries
+- Environments with no internet connectivity
+
+## CloudFlare R2 Access Requirements
+
+<Warning>
+  **Important:** Tiers 1-3 require access to CloudFlare R2 for model downloads
+  and updates. Only Tier 4 supports fully offline operations.
+</Warning>
+
+For deployments requiring internet connectivity (Tiers 1-3), ensure the following CloudFlare R2 endpoints are accessible:
+
+```yaml
+required_endpoints:
+  - r2.cloudflarestorage.com
+  - *.r2.cloudflarestorage.com
+
+firewall_rules:
+  - protocol: HTTPS
+    port: 443
+    direction: outbound
+```
+
+## Comparison Matrix
+
+| Feature                       | Tier 1        | Tier 2      | Tier 3     | Tier 4           |
+| ----------------------------- | ------------- | ----------- | ---------- | ---------------- |
+| **Deployment Time**           | Immediate     | 1-2 weeks   | 2-4 weeks  | 4-6 weeks        |
+| **Data Location**             | Galileo Cloud | Your Cloud  | Your Cloud | Your Data Center |
+| **Infrastructure Management** | Galileo       | Shared      | Customer   | Customer         |
+| **Internet Required**         | Yes           | Yes         | Yes        | No               |
+| **Automatic Updates**         | Yes           | Coordinated | Optional   | Manual           |
+| **Operational Overhead**      | None          | Low         | Medium     | High             |
+| **Customization**             | Limited       | Moderate    | High       | Full             |
+| **Compliance Options**        | Standard      | High        | Very High  | Maximum          |
+| **Cost Model**                | OpEx          | Mixed       | Mixed      | CapEx            |
+| **Support Model**             | Managed       | Shared      | Assisted   | Documentation    |
+
+## Migration Between Tiers
+
+Organizations can migrate between tiers as their needs evolve:
+
+<Steps>
+  <Step title="Assess Current Tier">
+    Evaluate your current deployment tier and identify reasons for migration.
+  </Step>
+
+  <Step title="Plan Migration">
+    Work with Galileo team to plan the migration path and timeline.
+  </Step>
+
+  <Step title="Prepare Infrastructure">
+    Set up required infrastructure for the target tier.
+  </Step>
+
+  <Step title="Migrate Data">
+    Transfer data and configurations to the new environment.
+  </Step>
+
+  <Step title="Validate Deployment">
+    Test and validate the new deployment thoroughly.
+  </Step>
+
+  <Step title="Cutover">
+    Switch production workloads to the new deployment.
+  </Step>
+</Steps>
+
+## Decision Guide
+
+Consider these factors when choosing your deployment tier:
+
+### Security Requirements
+
+- **Tier 1:** Standard cloud security
+- **Tier 2:** Data residency control
+- **Tier 3:** Full infrastructure control
+- **Tier 4:** Complete isolation
+
+### Operational Capabilities
+
+- **Tier 1:** No infrastructure team needed
+- **Tier 2:** Basic cloud knowledge required
+- **Tier 3:** Full DevOps team required
+- **Tier 4:** Extensive operational expertise needed
+
+### Compliance Needs
+
+- **Tier 1:** Standard compliance (SOC2, GDPR)
+- **Tier 2:** Enhanced data governance
+- **Tier 3:** Industry-specific compliance
+- **Tier 4:** Maximum regulatory compliance
+
+### Budget Considerations
+
+- **Tier 1:** Predictable SaaS pricing
+- **Tier 2:** Mixed operational costs
+- **Tier 3:** Infrastructure + licensing costs
+- **Tier 4:** Full infrastructure investment
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Resource Requirements"
+    icon="server"
+    href="/deployment-docs/resource-requirements"
+  >
+    Review the infrastructure requirements for your chosen tier
+  </Card>
+  <Card
+    title="Prerequisites"
+    icon="list-check"
+    href="/deployment-docs/prerequisites"
+  >
+    Check the prerequisites for deployment
+  </Card>
+  <Card
+    title="Cloud Provider Guides"
+    icon="cloud"
+    href="/deployment-docs/deploying-on-aws-eks"
+  >
+    Follow the deployment guide for your cloud provider
+  </Card>
+  <Card
+    title="Contact Sales"
+    icon="phone"
+    href="https://galileo.ai/contact-sales"
+  >
+    Discuss your deployment needs with our team
+  </Card>
+</CardGroup>
