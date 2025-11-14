@@ -84,3 +84,42 @@ img[src*="api-reference.svg"] {
 .dark img[src*="api-reference.svg"] {
   filter: brightness(0) saturate(100%) invert(48%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%) !important;
 }
+
+/* Layout guards to prevent sidebar overlapping main content on narrow pages */
+/* Make images and media inside the content responsive */
+.page-content img,
+.docs-main img,
+.content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Prevent tables from forcing the page width — allow horizontal scrolling inside the content area instead */
+.page-content table,
+.docs-main table,
+.content table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure main content sits above the sidebar when elements overlap */
+.sidebar {
+  z-index: 1;
+}
+
+main, .main, .page-content, .docs-main, .content {
+  position: relative;
+  z-index: 2;
+  /* if content still overflows, allow internal scrolling rather than pushing layout */
+  overflow-x: auto;
+}
+
+/* Steps/Columns: avoid clipping numbered steps — allow visible overflow for small UI elements */
+.steps, .columns, .Step, .Columns {
+  overflow: visible;
+}
+
