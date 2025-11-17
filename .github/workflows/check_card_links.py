@@ -92,11 +92,15 @@ def extract_card_hrefs(file_path: str) -> List[Tuple[str, int]]:
 
 
 def is_external_url(href: str) -> bool:
-    return href.startswith("http://") or href.startswith("https://")
+    return href.startswith("http://") or href.startswith("https://") or href.startswith("mailto:")
 
 
 def check_external(href: str, timeout: float, max_retries: int = 5, backoff_base: float = 0.5) -> Tuple[bool, str]:
     """Return (ok, reason). Retries up to max_retries with exponential backoff."""
+    # Allow mailto links to pass without checking
+    if href.startswith("mailto:"):
+        return True, "mailto link"
+
     headers = {
         "User-Agent": "Mozilla/5.0 (compatible; LinkChecker/1.0; +https://github.com/)",
         "Accept": "*/*",
