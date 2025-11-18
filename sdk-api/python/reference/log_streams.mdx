@@ -28,6 +28,61 @@ analyze and monitor specific parts of your application or different environments
 
 - `additional_properties` (`dict`): Additional properties associated with the log stream.
 
+**Examples**
+
+```python
+# Create a new log stream in a project
+from galileo.log_streams import create_log_stream
+
+# Create by project ID
+log_stream = create_log_stream(name="Production Logs", project_id="project-123")
+
+# Create by project name
+log_stream = create_log_stream(name="Production Logs", project_name="My AI Project")
+
+# Get a log stream by name
+from galileo.log_streams import get_log_stream
+log_stream = get_log_stream(name="Production Logs", project_name="My AI Project")
+
+# List all log streams in a project
+from galileo.log_streams import list_log_streams
+log_streams = list_log_streams(project_name="My AI Project")
+for stream in log_streams:
+    logger.info(f"Log Stream: {stream.name} (ID: {stream.id})")
+
+# Use a log stream with the context manager
+from galileo.openai import openai
+from galileo import galileo_context
+
+with galileo_context(project="My AI Project", log_stream="Production Logs"):
+    response = openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": "Hello, world!"}]
+    )
+
+# Enable metrics on a log stream - RECOMMENDED APPROACH
+from galileo.log_streams import enable_metrics
+from galileo.schema.metrics import GalileoScorers
+
+# Set environment variables first
+# export GALILEO_LOG_STREAM="Production Logs"
+# export GALILEO_PROJECT="My AI Project"
+
+# Clean and simple - just pass the metrics!
+local_metrics = enable_metrics([
+    GalileoScorers.correctness,
+    GalileoScorers.completeness,
+    "context_relevance"
+])
+
+# Alternative: Use explicit parameters
+local_metrics = enable_metrics(
+    log_stream_name="Production Logs",
+    project_name="My AI Project",
+    metrics=["correctness", "completeness"]
+)
+```
+
 ### enable_metrics
 
 ```python
