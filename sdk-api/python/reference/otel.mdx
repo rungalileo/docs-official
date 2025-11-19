@@ -23,8 +23,10 @@ It handles the complete lifecycle of spans from creation to export to Galileo.
 **Examples**
 
 ```python
+from opentelemetry.sdk.trace import TracerProvider
+tracer_provider = TracerProvider()
 processor = GalileoSpanProcessor(project="my-project")
-tracer_provider.add_span_processor(processor)
+add_galileo_span_processor(tracer_provider, processor)
 ```
 
 
@@ -77,3 +79,12 @@ def shutdown(self) -> None
 ```
 
 Gracefully shutdown the processor and flush any remaining spans.
+
+## add_galileo_span_processor
+
+```python
+def add_galileo_span_processor(tracer_provider: TracerProvider,
+                               processor: GalileoSpanProcessor) -> None
+```
+
+Add the Galileo span processor to the tracer provider.
