@@ -23,22 +23,25 @@ def get_users_horoscope(sign: str) -> str:
     # Call any tools the model requested
     completion_tool_calls = response.choices[0].message.tool_calls
 
+ 
+    # Call any tools the model requested
+    completion_tool_calls = response.choices[0].message.tool_calls
+
     if completion_tool_calls:
-        # Add the tool call to the message history
+        # Add any tool calls to the message history
         message_history.append(
             {
                 "role": "assistant",
                 "tool_calls": [
                     {
-                        "id": response.choices[0].message.tool_calls[0].id,
+                        "id": call.id,
                         "type": "function",
                         "function": {
-                            "name": response.choices[0].message.tool_calls[0].function.name,
-                            "arguments": response.choices[0]
-                            .message.tool_calls[0]
-                            .function.arguments,
+                            "name": call.function.name,
+                            "arguments": call.function.arguments,
                         },
                     }
+                    for call in completion_tool_calls
                 ],
             }
         )
@@ -49,13 +52,13 @@ def get_users_horoscope(sign: str) -> str:
             args = json.loads(call.function.arguments)
 
             # Call the tool
-            result = tool_to_call(**args)
+            tool_result = tool_to_call(**args)
 
             # Add the tool result to the message history
             message_history.append(
                 {
                     "role": "tool",
-                    "content": result,
+                    "content": tool_result,
                     "tool_call_id": call.id,
                     "name": call.function.name,
                 }
