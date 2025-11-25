@@ -20,48 +20,49 @@ def get_users_horoscope(sign: str) -> str:
     # Prompt the model with tools defined
     response = call_llm(message_history)
 
-    # Add the tool call to the message history
-    message_history.append(
-        {
-            "role": "assistant",
-            "tool_calls": [
-                {
-                    "id": response.choices[0].message.tool_calls[0].id,
-                    "type": "function",
-                    "function": {
-                        "name": response.choices[0].message.tool_calls[0].function.name,
-                        "arguments": response.choices[0]
-                        .message.tool_calls[0]
-                        .function.arguments,
-                    },
-                }
-            ],
-        }
-    )
-
     # Call any tools the model requested
     completion_tool_calls = response.choices[0].message.tool_calls
 
-    for call in completion_tool_calls if completion_tool_calls else []:
-        # Get the tool to call and its arguments
-        tool_to_call = available_tools[call.function.name]
-        args = json.loads(call.function.arguments)
-
-        # Call the tool
-        result = tool_to_call(**args)
-
-        # Add the tool result to the message history
+    if completion_tool_calls:
+        # Add the tool call to the message history
         message_history.append(
             {
-                "role": "tool",
-                "content": result,
-                "tool_call_id": call.id,
-                "name": call.function.name,
+                "role": "assistant",
+                "tool_calls": [
+                    {
+                        "id": response.choices[0].message.tool_calls[0].id,
+                        "type": "function",
+                        "function": {
+                            "name": response.choices[0].message.tool_calls[0].function.name,
+                            "arguments": response.choices[0]
+                            .message.tool_calls[0]
+                            .function.arguments,
+                        },
+                    }
+                ],
             }
         )
 
-    # Now we call the model again, with the tool results included
-    response = call_llm(message_history)
+        for call in completion_tool_calls:
+            # Get the tool to call and its arguments
+            tool_to_call = available_tools[call.function.name]
+            args = json.loads(call.function.arguments)
+
+            # Call the tool
+            result = tool_to_call(**args)
+
+            # Add the tool result to the message history
+            message_history.append(
+                {
+                    "role": "tool",
+                    "content": result,
+                    "tool_call_id": call.id,
+                    "name": call.function.name,
+                }
+            )
+
+        # Now we call the model again, with the tool results included
+        response = call_llm(message_history)
 
     # Return the final response from the model
     return response.choices[0].message.content
