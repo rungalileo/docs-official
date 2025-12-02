@@ -190,24 +190,3 @@ document.head.appendChild(script);
 
 // API Reference icon theming is now handled by CSS custom properties
 // No JavaScript needed - the SVG uses var(--icon-color) and CSS handles the theme switching
-
-// Common Room
-(function () {
-  if (typeof window === 'undefined') return;
-  if (typeof window.signals !== 'undefined') return;
-  var script = document.createElement('script');
-  script.src = 'https://cdn.cr-relay.com/v1/site/e9a1e4dd-e943-4f5f-9626-88d3ca665192/signals.js';
-  script.async = true;
-  window.signals = Object.assign(
-    [],
-    { _opts: { apiHost: 'https://api.cr-relay.com' } },
-    ['page', 'identify', 'form'].reduce(function (acc, method) {
-      acc[method] = function () {
-        signals.push([method, arguments]);
-        return signals;
-      };
-      return acc;
-    }, {})
-  );
-  document.head.appendChild(script);
-})();
