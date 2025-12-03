@@ -1,0 +1,94 @@
+```typescript TypeScript
+import { config as dotenvConfig } from "dotenv";
+import { GalileoLogger, init } from "galileo";
+import OpenAI from "openai";
+
+// Load environment variables from .env file
+dotenvConfig();
+
+// Set the project and log stream (can also use env vars GALILEO_PROJECT, GALILEO_LOG_STREAM)
+init({
+  projectName: "MyFirstTagandMetadata",
+  logStreamName: "MyFirstTagandMetatdata"
+});
+
+// Initialize logger
+const logger = new GalileoLogger();
+
+async function main() {
+  // Start a Galileo session
+  await logger.startSession();
+
+  // Initialize the OpenAI client
+  const client = new OpenAI();
+
+  // Define a system prompt with guidance
+  const systemPrompt = `
+You are a helpful assistant that wants to provide a user as much
+information as possible. Avoid saying I don't know.
+`;
+
+  // Define a user prompt with a question
+  const userPrompt = "Explain the following topic succinctly: Newton's First Law";
+
+  // Send a request to the LLM
+  const response = await client.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt }
+    ],
+  });
+
+  // Print the response
+  const answer: string = response.choices[0].message.content.trim();
+  console.log(answer);
+
+  // Define tags and metadata
+  const tags = ["newton", "test", "new-version"];
+  const metadata = {
+    experimentNumber: "1",
+    promptVersion: "0.0.1",
+    field: "physics"
+  };
+
+  // Start a trace and add tags and metadata
+  const trace = logger.startTrace({
+    input: userPrompt,
+    tags,
+    metadata
+  });
+
+  // Log an LLM span using the response
+  logger.addLlmSpan({
+    input: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt }
+    ],
+    output: answer,
+    model: "gpt-4o-mini",
+    tags,
+    metadata
+  });
+
+  // Conclude and flush the logger
+  logger.conclude({ output: answer });
+  await logger.flush();
+
+  // Show Galileo information after the response
+  const galileoConsoleUrl = (process.env.GALILEO_CONSOLE_URL ?? "https://app.galileo.ai").
+  replace(/\/+$/, "");
+  // @ts-ignore
+  const projectUrl = `${galileoConsoleUrl}/project/${logger.client.projectId}`;
+  // @ts-ignore
+  const logStreamUrl = `${projectUrl}/log-streams/${logger.client.logStreamId}`;
+
+  console.log();
+  console.log("🚀 GALILEO LOG INFORMATION:");
+  console.log(`🔗 Project   : ${projectUrl}`);
+  console.log(`📝 Log Stream: ${logStreamUrl}`);
+}
+
+main().catch(console.error);
+
+```

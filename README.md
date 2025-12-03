@@ -4,7 +4,7 @@ This repo is the source for [Galileo's docs](https://v2docs.galileo.ai/).  We us
 
 ## Contributing
 
-See our [contributing guide](./.github/CONTRIBUTING.md) for more details.
+See our [contributing guide](https://github.com/rungalileo/docs-official/blob/main/.github/CONTRIBUTING.md) for more details.
 
 ## Dev container
 

@@ -1,0 +1,221 @@
+---
+title: Tags and Metadata
+description: Learn to use tags and metadata in Galileo logging and monitoring
+---
+
+{/*<!-- markdownlint-disable MD044 -->*/}
+
+
+import SnippetTagsAndMetadataPython1 from '/snippets/code/python/tags-and-metadata/tags-and-metadata-py-1.mdx';
+import SnippetTagsAndMetadataPython2 from '/snippets/code/python/tags-and-metadata/tags-and-metadata-py-2.mdx';
+import SnippetTagsAndMetadataPython3 from '/snippets/code/python/tags-and-metadata/tags-and-metadata-py-3.mdx';
+import SnippetTagsAndMetadataPython4 from '/snippets/code/python/tags-and-metadata/tags-and-metadata-py-4.mdx';
+import SnippetTagsAndMetadataPython5 from '/snippets/code/python/tags-and-metadata/tags-and-metadata-py-5.mdx';
+import SnippetTagsAndMetadataPython6 from '/snippets/code/python/tags-and-metadata/tags-and-metadata-py-6.mdx';
+import SnippetTagsAndMetadataPython7 from '/snippets/code/python/tags-and-metadata/tags-and-metadata-py-7.mdx';
+import SnippetTagsAndMetadataPython8 from '/snippets/code/python/tags-and-metadata/tags-and-metadata-py-8.mdx';
+
+import SnippetTagsAndMetadataTypeScript1 from '/snippets/code/typescript/tags-and-metadata/tags-and-metadata-ts-1.mdx';
+import SnippetTagsAndMetadataTypeScript2 from '/snippets/code/typescript/tags-and-metadata/tags-and-metadata-ts-2.mdx';
+import SnippetTagsAndMetadataTypeScript3 from '/snippets/code/typescript/tags-and-metadata/tags-and-metadata-ts-3.mdx';
+import SnippetTagsAndMetadataTypeScript4 from '/snippets/code/typescript/tags-and-metadata/tags-and-metadata-ts-4.mdx';
+import SnippetTagsAndMetadataTypeScript5 from '/snippets/code/typescript/tags-and-metadata/tags-and-metadata-ts-5.mdx';
+import SnippetTagsAndMetadataTypeScript6 from '/snippets/code/typescript/tags-and-metadata/tags-and-metadata-ts-6.mdx';
+import SnippetTagsAndMetadataTypeScript7 from '/snippets/code/typescript/tags-and-metadata/tags-and-metadata-ts-7.mdx';
+import SnippetTagsAndMetadataTypeScript8 from '/snippets/code/typescript/tags-and-metadata/tags-and-metadata-ts-8.mdx';
+
+{/*<!-- markdownlint-enable MD044 -->*/}
+
+Galileo’s **Tags and Metadata** feature enables teams to label, categorize, and organize model interactions in a structured way.
+This structured labeling is essential for building reproducible, observable, and scalable evaluation workflows.
+
+
+Tags and Metadata provide additional context to your logs and traces.
+By adding Tags and Metadata to logged Traces and Spans, teams can:
+
+- Track and compare experiments.
+- View a clear timeline of how an agent’s behavior evolves across experiments.
+- Track prompt versions and understand how version changes impact performance.
+
+## Overview
+
+**Tags** and **Metadata** are added to logged Traces and Spans.
+
+**Tags** - short, flat labels (strings) you assign to a trace or span to make them easy to group and filter.
+
+- Unlimited number of tags per trace/span (practical limit ≈ 50)
+- Case-sensitive strings ≤ 50 chars each
+- Ideal for boolean-style filters (e.g., “show me all traces tagged physics”)
+
+**Metadata** - key-value dictionaries that travel with a Trace or a Span, perfect for structured information like user IDs, experiment hashes, timestamps, or numeric metrics.
+
+- Keys and values are strings ≤ 256 chars
+- Appears in Log streams as new columns
+- Ideal for structured attributes you can filter, group, and aggregate
+
+## Add Tags and Metadata
+
+> **Note:** This guide uses OpenAI as the example LLM. The code snippets are OpenAI-specific,
+> especially in how the model response is handled (e.g., `response.choices[0].message.content`).
+> If you are using a different LLM or following a different [Log Your First Trace](/getting-started/quickstart),
+> the code will differ slightly—each LLM returns responses in its own format. Adjust the code as needed for your provider.
+Follow this step-by-step guide to get started using **Tags and Metadata** in your AI projects.
+
+### Prerequisites
+
+First, follow the [Log Your First Trace](/getting-started/quickstart) guide if you don't already have a Galileo Project set up.
+
+Then, use the following steps to add Tags and Metadata to your logged Traces and Spans to your Project.
+
+<Steps>
+
+<Step title="Open your Galileo app">
+Open your Galileo application in your code editor.
+In this guide, we are building on top of the **finished demo application** from the
+[Log Your First Trace](/getting-started/quickstart) guide.
+<CodeGroup>
+    <SnippetTagsAndMetadataPython1 />
+    <SnippetTagsAndMetadataTypeScript1 />
+</CodeGroup>
+</Step>
+
+<Step title="Define tags and metadata">
+Create **descriptive tags and metadata** to be attached to your logs.
+Both [Spans](/sdk-api/logging/galileo-logger#add-spans) and
+[Traces](/sdk-api/logging/galileo-logger#start-a-trace)
+can have their own tags and metadata. Define `tags` as a list of relevant labels,
+and `metadata` as a dictionary of label types and their values.
+The individual tag and metadata values must be strings.
+> **Note:** The `answer` variable is set to the raw text output of the
+> model so that it can be used later.
+<CodeGroup>
+    <SnippetTagsAndMetadataPython2 />
+    <SnippetTagsAndMetadataTypeScript2 />
+</CodeGroup>
+</Step>
+
+<Step title="Initialize Galileo Logger">
+Initialize logging by importing and calling the **Galileo Logger**.  
+The **Project name** and **Log stream name** are used as inputs to
+define in which Galileo Project and Log stream the logs will be created.  
+After running our application, the logs will appear in the chosen
+Project's Log stream in the [Galileo Console](https://app.galileo.ai/).
+
+<CodeGroup>
+    <SnippetTagsAndMetadataPython3 />
+    <SnippetTagsAndMetadataTypeScript3 />
+</CodeGroup>
+</Step>
+
+<Step title="Initialize new trace">
+Initialize a new [Trace](/sdk-api/logging/galileo-logger#start-a-trace)
+to start listening for data to log.  
+By using the `tags` and `metadata` inputs, important information is
+added to the Trace.
+
+<CodeGroup>
+    <SnippetTagsAndMetadataPython4 />
+    <SnippetTagsAndMetadataTypeScript4 />
+</CodeGroup>
+</Step>
+
+<Step title="Create new span">
+Create a new [Span](/sdk-api/logging/galileo-logger#add-spans) containing
+the data created by running the LLM. By using the `tags` and `metadata` inputs,
+important information is added to the Span.  
+> **Note:** In this guide, the tags and metadata used for the Span
+> and the Trace are identical. But, they don't have to be. You can use
+> different tags and metadata for Spans and the Traces they're attached to.
+
+<CodeGroup>
+    <SnippetTagsAndMetadataPython5 />
+    <SnippetTagsAndMetadataTypeScript5 />
+</CodeGroup>
+</Step>
+
+<Step title="Close trace & push logs">
+To close the new Trace and **complete the logging session**,
+we use `logger.conclude()` with the LLM's raw text output as the input.  
+Then, `logger.flush()` pushes the logs to the selected
+Project's [Log stream](/sdk-api/logging/logging-basics).
+
+<CodeGroup>
+    <SnippetTagsAndMetadataPython6 />
+    <SnippetTagsAndMetadataTypeScript6 />
+</CodeGroup>
+</Step>
+
+<Step title="Review your code">
+By adding each previous code snippet to your Galileo application,
+it is ready to run and create tags and metadata logs.  
+Below is the **final combined application code** for the
+[Log Your First Trace](/getting-started/quickstart) demo application,
+with our tags and metadata added to logged Traces and Spans.
+<CodeGroup>
+    <SnippetTagsAndMetadataPython7 />
+    <SnippetTagsAndMetadataTypeScript7 />
+</CodeGroup>
+</Step>
+
+<Step title="Run your application">
+Run your Galileo application.  
+If your application file is named `app`
+(as in the [Log Your First Trace](/getting-started/quickstart) demo),
+you can run it by using the following command in your terminal.
+
+<CodeGroup>
+    <SnippetTagsAndMetadataPython8 />
+    <SnippetTagsAndMetadataTypeScript8 />
+</CodeGroup>
+</Step>
+
+<Step title="Open project in Galileo Console">
+In the [Galileo Console](https://app.galileo.ai/), select your Project
+and Log stream in the top-left corner.  For **each time you run your application**,
+you will see a new Trace entry in your Log stream.  Click the
+column icon to open the column selector, and enable the tags and
+metadata keys you created earlier to view them in the Trace table.
+![Tag and MetadataLog stream](./tag-and-metadata-column-log-stream.png)
+    </Step>
+
+<Step title="View trace Tags and Metadata">
+Click on an entry in the list.  
+You will see the data logged to the Trace. This includes:
+- The raw text input (because we initialized the Trace with `input=prompt`)
+- The raw text output from the LLM
+(because we closed the Trace with `logger.conclude(answer)`)
+- The tags and metadata we created
+(found in the **Parameters** section in the top-right)
+
+![Parameters in Trace](./parameters-trace.png)
+
+</Step>
+
+<Step title="View span Tags and Metadata">
+With the Trace open, click the `llm` button below `Trace`
+in the data map on the left.  
+You will see the data logged to the Span. This includes:
+- The complete JSON LLM input
+(because we created the Span with `input=[{"role": "system", "content": prompt}]`)
+- The complete JSON LLM output
+(because we created the Span with `output=response.choices[0].message.content`)
+- The tags and metadata we created
+(found in the **Parameters** section in the top-right)
+
+![ Parameters in Span](./parameters-span.png)
+</Step>
+
+</Steps>
+
+## Best practices
+
+Use **Tags and Metadata** to:
+
+- Keep your [experimentation](/sdk-api/experiments/experiments) process organized.
+- Coordinate with your team and track development.
+- Track individual steps in your AI project with [Traces](/sdk-api/logging/galileo-logger#start-a-trace) containing multiple [Spans](/sdk-api/logging/galileo-logger#add-spans) that each have their own distinct tags and metadata.
+- Use the tag and metadata values in your code to automate alerts and improvements.
+- Tag early. Start the trace yourself and pass tags before the first LLM call; otherwise auto-spans may end up in an untagged trace.
+- Keep tags coarse-grained. A handful of well-chosen tags beat hundreds of one-offs.
+- Standardize metadata keys. Stick to a naming convention (`experiment`, `user_id`, etc.) so dashboards stay tidy.
+- Avoid sensitive data. Never put [PII](https://v2docs.galileo.ai/concepts/metrics/safety-and-compliance/pii#pii) or keys in either tags or metadata; they become queryable in the UI.
