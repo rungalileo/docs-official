@@ -211,6 +211,6 @@ The repository includes a devcontainer configuration with:
 
 - [Mintlify Documentation](https://mintlify.com/docs/)
 - [Diátaxis Framework](https://diataxis.fr)
-- [Contributing Guide](.github/CONTRIBUTING.md)
+- [Contributing Guide](https://github.com/rungalileo/docs-official/blob/main/.github/CONTRIBUTING.md)
 - [The Good Docs Project Templates](https://www.thegooddocsproject.dev)
 - [SDK Examples Repository](https://github.com/rungalileo/sdk-examples)
