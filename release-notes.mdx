@@ -6,6 +6,68 @@ description: Recent updates and enhancements to Galileo
 
 {/*<!-- markdownlint-disable MD024 --> Repeated headings*/}
 
+<Update label="2025-12-05" description="New features, improvements, and fixes for December 5, 2025">
+
+## Key new features and improvements
+
+### Exporting Data
+
+- Galileo allows you to export your data
+(including Sessions, Traces, Spans, Metrics, Annotations, Metadata, and Tags)
+for use in other data stores and applications.
+
+- Exporting now supports downloading 1 GB of data
+from the Galileo Console UI. Easily select pages
+of records to export smaller data sizes.
+
+![Export Data](/images/release-notes/2025-12-05/export-data.png)
+
+#### Exporting via Python SDK
+
+The Python SDK [export_records function](https://v2docs.galileo.ai/sdk-api/python/reference/export) supports exporting from code. Example code snippet:
+
+```python
+from galileo import GalileoLogger
+from galileo.export import export_records
+from galileo.projects import get_project
+from galileo.resources.models import LLMExportFormat
+from galileo.resources.models.root_type import RootType
+
+
+project = get_project(name=PROJECT_NAME)
+logger = GalileoLogger(project=PROJECT_NAME,
+                      log_stream=LOG_STREAM_NAME)
+
+
+records = export_records(project_id=project.id,
+                        root_type=RootType.SESSION, # or RootType.TRACE or RootType.SPAN
+                        export_format=LLMExportFormat.JSONL) # or LLMExportFormat.CSV
+
+print(list(records))
+
+```
+
+### Searching Nodes in Agent Graph
+
+Agent graph in the Galileo Console UI now supports searching nodes.
+
+![Agent Graph](/images/release-notes/2025-12-05/agent-graph.png)
+
+As your bot grows, the Agent Graph can contain dozens of LLMs,
+tools, workflows, RAG steps, and agent groups.
+Manually hunting through them becomes slow and error-prone.  
+
+Search lets you jump directly to the exact node
+(e.g., “RAG Document Search”, “Claim Prediction”,
+“Final Response Generation”) instead of scrolling and visually scanning.
+
+### New How-to Guides
+
+Check out the new guide: [Run an experiment
+against a RAG app](https://v2docs.galileo.ai/how-to-guides/experiments/rag-and-tools/rag-and-tools)
+to learn how to set up an experiment to evaluate a RAG application.
+</Update>
+
 <Update label="2025-11-14" description="Improvements to Log streams and playgrounds">
 
 ## Key new features and improvements
@@ -107,7 +169,7 @@ Our MCP server transforms your IDE's AI assistant into an eval-powered copilot. 
 
 ### Agent Metrics Updated
 
-We've also extended the out-of-the-box [agent metrics](/concepts/metrics/agentic/agentic-overview) available within Galileo with our four new agent-specific metrics that measure the dimensions that impact user experience in production - [Agent Flow](/concepts/metrics/agentic/agent-flow), [Agent Efficiency](concepts/metrics/agentic/agent-efficiency), [Conversation Quality](https://v2docs.galileo.ai/concepts/metrics/agentic/conversation-quality), and [User Intent Change](https://v2docs.galileo.ai/concepts/metrics/agentic/intent-change).
+We've also extended the out-of-the-box [agent metrics](/concepts/metrics/agentic/agentic-overview) available within Galileo with our four new agent-specific metrics that measure the dimensions that impact user experience in production - [Agent Flow](/concepts/metrics/agentic/agent-flow), [Agent Efficiency](concepts/metrics/agentic/agent-efficiency), [Conversation Quality](https://v2docs.galileo.ai/concepts/metrics/agentic/conversation-quality), and [User Intent Change](httpshttps://v2docs.galileo.ai/concepts/metrics/agentic/intent-change).
 
 All four of these metrics are now available to be toggled on or off at the click of a button.
 
