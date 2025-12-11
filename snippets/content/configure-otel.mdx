@@ -2,24 +2,6 @@ import ConfigureOTelInvVars from "/snippets/content/configure-otel-env-vars.mdx"
 
 <Steps>
 <ConfigureOTelInvVars/>
-<Step title="Create a span processor">
-
-You can now create the span processor. This will use an OTel exporter configured by loading the headers and endpoint from the environment variables.
-
-<CodeGroup>
-
-```python Python
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
-    OTLPSpanExporter
-)
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-
-# Create a span process
-span_processor = BatchSpanProcessor(OTLPSpanExporter())
-```
-
-</CodeGroup>
-</Step>
 <Step title="Register the span processor">
 
 The span processor can now be registered with an OTel trace provider.

@@ -15,11 +15,14 @@ The `opentelemetry-api` and `opentelemetry-sdk` packages provide the core OpenTe
 </Step>
 <Step title="Create environment variables for your Galileo settings">
 
-Set environment variables for your Galileo settings, for example in a `.env` file:
+Set environment variables for your Galileo settings, for example in a `.env` file.
+These environment variables are consumed by the galileo.otel helpers
+(such as `GalileoSpanProcessor`) to authenticate
+and route traces to the correct Galileo project and log stream:
 
 {/*<!-- markdownlint-disable MD044 -->*/}
 
-import SnippetSimpleEnvVars from "/snippets/code/multilingual/env-galileo-simple.mdx"
+import SnippetSimpleEnvVars from "/snippets/code/multilingual/env-galileo.mdx"
 
 {/*<!-- markdownlint-enable MD044 -->*/}
 
@@ -29,30 +32,11 @@ import SnippetSimpleEnvVars from "/snippets/code/multilingual/env-galileo-simple
 
 </CodeGroup>
 </Step>
-<Step title="Get the authentication headers">
-The OTel headers is a dictionary containing your API key, project name, and Log stream name. The convention for OTel is to store this header as a single string of key=value pairs in the `OTEL_EXPORTER_OTLP_HEADERS` environment variable.
+<Step title="Self hosted deployments: Set the OTel endpoint">
 
-<CodeGroup>
-
-```python Python
-import os
-
-# Create a dictionary of headers
-headers = {
-    "Galileo-API-Key": os.environ.get("GALILEO_API_KEY"),
-    "project": os.environ.get("GALILEO_PROJECT"),
-    "logstream": os.environ.get("GALILEO_LOG_STREAM", "default"),
-}
-
-# Set this as an environment variable
-os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(
-    [f"{k}={v}" for k, v in headers.items()]
-)
-```
-
-</CodeGroup>
-</Step>
-<Step title="Get your endpoint">
+<Note>
+Skip this step if you are using Galileo Cloud. 
+</Note>
 
 import SnippetConfigureOTelEndpoint from "/snippets/content/configure-otel-endpoint.mdx"
 
@@ -65,6 +49,33 @@ The convention is to store this in the `OTEL_EXPORTER_OTLP_ENDPOINT` environment
 ```python Python
 os.environ["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"] = \
     "https://api.galileo.ai/otel/traces"
+```
+
+</CodeGroup>
+</Step>
+
+<Step title="Initialize and create the Galileo span processor">
+The `GalileoSpanProcessor` automatically configures authentication
+and metadata using your environment variables. It also sets up
+- Auto-builds OTLP headers using your Galileo credentials
+- Configures the correct OTLP trace endpoint
+- Registers a batch span processor that exports traces to Galileo
+
+<CodeGroup>
+
+```python Python
+import os
+import dotenv
+
+dotenv.load_dotenv()
+
+# Create a dictionary of headers
+# Create the Galileo span processor
+galileo_span_processor = otel.GalileoSpanProcessor(
+    # Optional parameters if not set, uses env var
+    # project=os.environ["GALILEO_PROJECT"], 
+    # logstream=os.environ.get("GALILEO_LOGSTREAM"),  
+)
 ```
 
 </CodeGroup>
