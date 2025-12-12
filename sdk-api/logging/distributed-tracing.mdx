@@ -62,12 +62,12 @@ Galileo_MODE=distributed # enables distributed tracing
 Or, you could do this at the start of your code execution:
 
 <CodeGroup>
+
 ```python main.py
 from galileo import galileo_context
 
 # Initialize in distributed mode
 galileo_context.init(mode="distributed")
-
 ```
 
 </CodeGroup>
@@ -83,12 +83,14 @@ Distributed tracing does not currently support:
 
 
     <CodeGroup>
+
     ```python example.py
     @log(span_type="workflow")
     async def parent_workflow():
         tasks = [child_workflow(i) for i in range(3)]
         await asyncio.gather(*tasks)  # Each child makes HTTP requests
     ```
+    
     </CodeGroup>
 
 
