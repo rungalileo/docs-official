@@ -30,7 +30,8 @@ The full code example is available in the [LangGraph Open Telemetry SDK example]
 
 ### In this guide you will
 
-- [Set up your LangGraph app with OpenTelemetry](#set-up-your-langgraph-app-with-opentelemetry)
+- [Set up your environment and requirements](#set-up-your-environment-and-requirements)
+- [Understanding and running the LangGraph Open Telemetry SDK example](#understanding-and-running-the-langgraph-open-telemetry-sdk-example)
 - [Run your application with OpenTelemetry](#run-your-application-with-opentelemetry)
 
 ## Before you start
@@ -43,21 +44,35 @@ Below, you'll find instructions on the key parts that come into play when using 
 - Basic understanding of LangGraph concepts
 - Familiarity with OpenTelemetry basics
 
-## Set up your LangGraph app with OpenTelemetry
+## Set up your environment and requirements
 
-For this how-to guide we'll assume that you have some familiarity with LangGraph, as well as some familiarity with basic observability principles.  If you'd like to see a full guide of this LangGraph application, check out the [full cookbook](/cookbooks/features/integrations/langgraph-otel-cookbook).  
-
-Below, you'll find instructions on the key parts that come into play when using OpenTelemetry for observability, as well as the key parts to on how to integrate existing OTel compatible applications with Galileo.
+For this how-to guide we’ll assume that you have some familiarity with LangGraph,
+as well as some familiarity with basic observability principles. To follow this guide pull the code
+from the [full sdk example](/cookbooks/features/integrations/langgraph-otel-cookbook)
+and work in the root of that directory.
 
 <Steps>
 <Step title="Install required dependencies">
 
-First, you'll have to install any additional OTel-required dependencies to the application.
+The [corresponding repository](https://github.com/rungalileo/sdk-examples/tree/main/python/agent/langgraph-open-telemetry)
+ships with a [pyproject.toml](https://github.com/rungalileo/sdk-examples/blob/main/python/agent/langgraph-open-telemetry/pyproject.toml)
+and so uv is recommended for this project.
+
+After installing [uv](https://docs.astral.sh/uv/),
+you can create and sync a virtual environment with:
 
 ```bash
-pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp \
-  openinference-instrumentation-langchain openinference-instrumentation-openai \
-  langgraph openai python-dotenv
+uv sync
+```
+
+</Step>
+
+<Step title="Set up environment variables">
+Create environment file or copy it from the
+[.env.example](https://github.com/rungalileo/sdk-examples/blob/main/python/agent/langgraph-open-telemetry/.env.example) file
+
+```bash
+cp .env.example .env
 ```
 
 </Step>
@@ -83,7 +98,11 @@ os.environ["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"] = \
 </CodeGroup>
 
 </Step>
+</Steps>
 
+## Understanding and running the LangGraph Open Telemetry SDK example
+
+<Steps>
 <Step title="Initialize OpenTelemetry and Galileo span processor">
 
 After  setting up your environment variables, initialize
@@ -98,8 +117,13 @@ from opentelemetry import trace as trace_api
 from opentelemetry.sdk import trace as trace_sdk
 from opentelemetry.sdk.resources import Resource
 
-# Galileo processor (no manual OTLP config required)
-galileo_span_processor = otel.GalileoSpanProcessor()
+# GalileoSpanProcessor (no manual OTLP config required) loads the env vars for 
+# the Galileo API key, Project, and Log stream. Make sure to set them first. 
+galileo_span_processor = otel.GalileoSpanProcessor(
+    # Optional parameters if not set, uses env var
+    # project=os.environ["GALILEO_PROJECT"], 
+    # logstream=os.environ.get("GALILEO_LOG_STREAM"), 
+)
 
 # Resource metadata that will appear in Galileo
 resource = Resource.create({
@@ -143,17 +167,80 @@ OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
 
 <Step title="Define your LangGraph workflow">
 This example app will build a simple LangGraph workflow that:
-- Validates user input
-- Sends a prompt to OpenAI
-- Cleans up the response
-- Returns the final answer
 
+- Validates user input with `validate_input`
+- Calls OpenAI with `generate_response`
+- Formats the final answer with `format_answer`
 
 ```python
+from typing import TypedDict  
+from langgraph.graph import StateGraph
+from openai import OpenAI
+
 class AgentState(TypedDict, total=False):
-    user_input: str
-    llm_response: str
-    parsed_answer: str
+    user_input: str  # The user's input question
+    llm_response: str  # The raw response from the LLM
+    parsed_answer: str  # The processed/cleaned answer
+
+
+# Node 1: Input Validation
+# Validates and prepares the user input for processing
+def validate_input(state: AgentState):
+    user_input = state.get("user_input", "")
+    print(f"📥 Validating input: '{user_input}'")
+
+    return {"user_input": user_input}
+
+
+# Node 2: Generate Response
+# Calls OpenAI to generate a response to the user's question
+# OpenAI instrumentation will automatically create detailed spans
+def generate_response(state: AgentState):
+    user_input = state.get("user_input", "")
+
+    try:
+        print(f"⚙️ Calling OpenAI with: '{user_input}'")
+
+        # Make the OpenAI API call - OpenAI instrumentation handles tracing
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": user_input}],
+            max_tokens=300,
+            temperature=0.7,
+        )
+
+        # Extract the response content
+        llm_response = response.choices[0].message.content
+
+        if not llm_response:
+            print("❌ No response from OpenAI")
+        else:
+            print(f"✓ Received response: '{llm_response[:100]}...'")
+
+        return {"llm_response": llm_response}
+
+    except Exception as e:
+        print(f"❌ Error calling OpenAI: {e}")
+        return {"llm_response": f"Error: {str(e)}"}
+
+
+# Node 3: Format Answer
+# Extracts and formats a clean answer from the raw LLM response
+def format_answer(state: AgentState):
+    llm_response = state.get("llm_response", "")
+
+    # Simple parsing - extract first sentence for a concise answer
+    sentences = llm_response.split(". ")
+    parsed_answer = sentences[0] if sentences else llm_response
+
+    # Clean up the answer
+    parsed_answer = parsed_answer.strip()
+    if not parsed_answer.endswith(".") and parsed_answer:
+        parsed_answer += "."
+
+    print(f"✨ Parsed answer: '{parsed_answer}'")
+
+    return {"parsed_answer": parsed_answer}
 ```
 
 </Step>
@@ -162,6 +249,8 @@ class AgentState(TypedDict, total=False):
 Everything is assembled using LangGraph’s `StateGraph`:
 
 ```python
+from langgraph import StateGraph, END
+
 workflow = StateGraph(AgentState)
 
 workflow.add_node("validate_input", validate_input)
@@ -197,6 +286,17 @@ if __name__ == "__main__":
     print(f"LLM Response: {result.get('llm_response', 'N/A')}")
     print(f"Parsed Answer: {result.get('parsed_answer', 'N/A')}")
     print("✓ Execution complete - check Galileo for traces in your project/log stream")
+```
+
+</Step>
+
+<Step title="Run the full code example">
+
+Finnaly, run [LangGraph Open Telemetry SDK example](https://github.com/rungalileo/sdk-examples/tree/main/python/agent/langgraph-open-telemetry)
+with:
+
+```bash
+uv run python main.py 
 ```
 
 </Step>

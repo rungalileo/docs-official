@@ -55,7 +55,7 @@ os.environ["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"] = \
 
 <Step title="Initialize and create the Galileo span processor">
 The `GalileoSpanProcessor` automatically configures authentication
-and metadata using your environment variables. It also sets up
+and metadata using your environment variables. It also:
 - Auto-builds OTLP headers using your Galileo credentials
 - Configures the correct OTLP trace endpoint
 - Registers a batch span processor that exports traces to Galileo
@@ -63,17 +63,14 @@ and metadata using your environment variables. It also sets up
 <CodeGroup>
 
 ```python Python
-import os
-import dotenv
+from galileo import otel  
 
-dotenv.load_dotenv()
-
-# Create a dictionary of headers
-# Create the Galileo span processor
+# GalileoSpanProcessor (no manual OTLP config required) loads the env vars for 
+# the Galileo API key, Project, and Log stream. Make sure to set them first. 
 galileo_span_processor = otel.GalileoSpanProcessor(
     # Optional parameters if not set, uses env var
     # project=os.environ["GALILEO_PROJECT"], 
-    # logstream=os.environ.get("GALILEO_LOGSTREAM"),  
+    # logstream=os.environ.get("GALILEO_LOG_STREAM"),  
 )
 ```
 
