@@ -539,6 +539,52 @@ Upload all traces to Galileo.
 
 - `List[Trace]`: The list of uploaded traces.
 
+### get_tracing_headers
+
+```python
+def get_tracing_headers(self) -> dict[str, str]
+```
+
+Get tracing headers for distributed tracing.
+
+Returns headers that can be passed to downstream services to continue the distributed trace.
+
+**Raises**
+
+- `GalileoLoggerException`: If not in distributed mode or if no trace has been started.
+
+**Returns**
+
+- `dict[str, str]`: Dictionary with the following headers:
+- X-Galileo-Trace-ID: The root trace ID
+- X-Galileo-Parent-ID: The ID of the current parent (trace or span) that downstream
+  spans should attach to
+
+**Examples**
+
+```python
+logger = GalileoLogger(mode="distributed")
+logger.start_trace(input="question")
+headers = logger.get_tracing_headers()
+# headers = {
+#     "X-Galileo-Trace-ID": "...",
+#     "X-Galileo-Parent-ID": "...",  # trace ID as parent
+# }
+
+logger.add_workflow_span(input="workflow", name="orchestrator")
+headers = logger.get_tracing_headers()
+# headers = {
+#     "X-Galileo-Trace-ID": "...",
+#     "X-Galileo-Parent-ID": "...",  # workflow span ID as parent
+# }
+
+# Pass headers to HTTP request
+response = httpx.post(url, headers=headers)
+```
+
+Note: Project and log_stream are configured per service (via env vars or logger initialization),
+not propagated via headers, following standard distributed tracing patterns.
+
 ### ingest_traces
 
 ```python

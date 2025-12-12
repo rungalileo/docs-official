@@ -73,7 +73,8 @@ Clear the session in the active context logger instance.
 def flush(self,
           project: Optional[str]=None,
           log_stream: Optional[str]=None,
-          experiment_id: Optional[str]=None) -> None
+          experiment_id: Optional[str]=None,
+          mode: Optional[str]=None) -> None
 ```
 
 Upload all captured traces under a project and log stream context to Galileo.
@@ -84,6 +85,8 @@ If no project or log stream is provided, then the currently initialized context 
 
 - `project`: The project name. Defaults to None.
 - `log_stream`: The log stream name. Defaults to None.
+- `experiment_id`: The experiment ID. Defaults to None.
+- `mode`: The logger mode. Defaults to None.
 
 ### flush_all
 
@@ -110,14 +113,14 @@ Retrieve the current log stream name from context.
 ### get_current_mode
 
 ```python
-def get_current_mode(self) -> Optional[str]
+def get_current_mode(self) -> Optional[LoggerModeType]
 ```
 
 Retrieve the current mode from context.
 
 **Returns**
 
-- `str`: 
+- `Optional[LoggerModeType]`: The current mode context, or None if not initialized
 
 ### get_current_project
 
@@ -161,7 +164,8 @@ Retrieve the current trace from context.
 def get_logger_instance(self,
                         project: Optional[str]=None,
                         log_stream: Optional[str]=None,
-                        experiment_id: Optional[str]=None) -> GalileoLogger
+                        experiment_id: Optional[str]=None,
+                        mode: Optional[str]=None) -> GalileoLogger
 ```
 
 Get the Galileo Logger instance for the current decorator context.
@@ -170,6 +174,8 @@ Get the Galileo Logger instance for the current decorator context.
 
 - `project`: Optional project name to use
 - `log_stream`: Optional log stream name to use
+- `experiment_id`: Optional experiment ID to use
+- `mode`: Optional logger mode to use
 
 **Returns**
 
@@ -182,7 +188,8 @@ def init(self,
          project: Optional[str]=None,
          log_stream: Optional[str]=None,
          experiment_id: Optional[str]=None,
-         local_metrics: Optional[list[LocalMetricConfig]]=None) -> None
+         local_metrics: Optional[list[LocalMetricConfig]]=None,
+         mode: Optional[str]=None) -> None
 ```
 
 Initialize the context with a project and log stream. Optionally, it can also be used
@@ -198,6 +205,7 @@ the specified project and log stream.
 - `log_stream`: The log stream name. Defaults to None.
 - `experiment_id`: The experiment id. Defaults to None.
 - `local_metrics`: Local metrics configs to run on the traces/spans before submitting them for ingestion.  Defaults to None.
+- `mode`: The logger mode.
 
 ### log
 
