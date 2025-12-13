@@ -18,7 +18,9 @@ DEPRECATED: Get the last output of a node or its child spans recursively.
 def handle_galileo_http_exceptions_for_retry(func: Callable) -> Callable
 ```
 
-Decorator that catches and re-raises GalileoHTTPExceptions if the status code is 404, 408, 429, or >= 500.
+Decorator that catches and re-raises GalileoHTTPExceptions if the status code is 404, 408, 422, 429, or >= 500.
+
+Note: The decorator doesn't handle 401 (unauthorized) errors or (403) (forbidden) errors.
 
 This decorator will re-raise the exception so it can be handled by the
 `backoff` decorator.

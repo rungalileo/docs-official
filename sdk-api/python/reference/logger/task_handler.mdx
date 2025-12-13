@@ -88,3 +88,20 @@ Submit a task to the thread pool.
 - `task_id` (`str`): The ID of the task.
 - `async_fn` (`Union[Callable[[], Awaitable[Any]], Coroutine]`): The async function to submit to the thread pool.
 - `dependent_on_prev` (`bool`): Whether the task depends on the previous task.
+
+### submit_task_with_parent
+
+```python
+def submit_task_with_parent(self,
+                            task_id: str,
+                            async_fn: Union[Callable[[], Awaitable[Any]], Coroutine],
+                            parent_task_id: str) -> None
+```
+
+Submit a task that depends on a specific parent task.
+
+**Arguments**
+
+- `task_id` (`str`): The ID of the task.
+- `async_fn` (`Union[Callable[[], Awaitable[Any]], Coroutine]`): The async function to submit to the thread pool.
+- `parent_task_id` (`str`): The ID of the parent task this depends on.
