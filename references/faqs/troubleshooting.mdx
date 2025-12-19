@@ -7,6 +7,7 @@ import SnippetTroubleshooting2 from "/snippets/code/multilingual/troubleshooting
 import SnippetTroubleshooting3 from "/snippets/code/multilingual/troubleshooting/troubleshooting-3.mdx";
 import SnippetTroubleshooting4 from "/snippets/code/multilingual/troubleshooting/troubleshooting-4.mdx";
 import SnippetTroubleshooting5 from "/snippets/code/multilingual/troubleshooting/troubleshooting-5.mdx";
+import SnippetTroubleshooting6 from "/snippets/code/multilingual/troubleshooting/troubleshooting-6.mdx";
 
 Welcome to the Galileo troubleshooting guide. This guide addresses common issues users may encounter when working with the Galileo SDK, API, Console, and overall integration process.
 
@@ -30,6 +31,28 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
   - **Python:** `pip install galileo`
   - **TypeScript:** `npm install galileo`
 - Double-check `.env` configuration, making sure that API keys are correct, the keys are named correctly, and loaded via tools like `dotenv`.
+
+---
+
+### Problem: Python SDK methods failing silently or returning None unexpectedly
+
+**Causes:**
+
+- The Galileo SDK catches exceptions internally to prevent crashing your application
+- Errors are logged to a specific Python logger (`galileo.utils.catch_log`) that may not be configured in your application
+
+**Solutions:**
+
+- Configure Python logging to see Galileo SDK errors by adding the following to your application code **before** importing Galileo:
+
+  <CodeGroup>
+    <SnippetTroubleshooting6 />
+  </CodeGroup>
+
+- Common silent failures include:
+  - Passing invalid parameters to SDK methods (e.g., unsupported keyword arguments)
+  - Network connectivity issues with Galileo APIs
+  - Invalid data types in metadata fields
 
 ---
 
