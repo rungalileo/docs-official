@@ -248,23 +248,6 @@ def scorer_fn(*, step_object: Session, **kwargs) -> float:
 
 ## Best practices
 
-### Order matters
-
-Composite metrics are executed after all their required metrics have been
-computed. Plan your metric dependencies to avoid circular references.
-
-### Handle missing data gracefully
-
-Always check for empty lists or missing spans when aggregating:
-
-```python
-# Bad - may crash
-avg = sum(scores) / len(scores)
-
-# Good - handles empty case
-avg = sum(scores) / len(scores) if scores else 0.0
-```
-
 ### Be specific with required metrics
 
 Only include metrics you actually use. This improves performance and makes your
@@ -293,6 +276,14 @@ Match your composite metric's step type to where the required metrics exist:
 - **Session**: Can access session, trace, and span metrics
 - **Trace**: Can access trace and span metrics
 - **Span**: Can only access metrics on that specific span
+
+### Execution restrictions
+
+Composite metrics depend on the successful completion of their `required metrics`:
+
+- While any required metric is not yet final (e.g., queued or computing), the composite metric remains **queued**.
+- If any required metric finishes without a successful final status (e.g., failed, not computed, or not applicable), the composite metric **raises an error** that includes the failed statuses of those required metrics.
+- Metrics **not** listed in `required_metrics` do **not** affect the composite metric—only the required ones gate execution.
 
 ## Creating composite metrics
 
