@@ -72,9 +72,9 @@ The function must accept `**kwargs` to ensure forward/backward compatibility. He
 def scorer_fn(*,
               step_object: LlmSpan,
               **kwargs: Any) -> Union[float, int, bool, str, None]:
-    node_output = step_object.output.content
+    step_output = step_object.output.content
     reference_output = step_object.dataset_output
-    return abs(len(node_output) - len(reference_output))
+    return abs(len(step_output) - len(reference_output))
 ```
 
 </CodeGroup>
@@ -139,6 +139,62 @@ def aggregator_fn(*, scores: list[int]) -> dict[str, int]:
 ```
 
 </CodeGroup>
+
+### Creating composite metrics
+
+Composite metrics are advanced custom metrics that can access and leverage the
+results of other metrics to perform sophisticated evaluations. This allows you
+to create conditional logic, aggregate multiple metrics, or build hierarchical
+evaluations.
+
+To create a composite metric in the UI:
+
+1. When creating a code-based custom metric, use the **Required Metrics**
+   dropdown to select which metrics must be computed before your composite
+   metric runs
+2. Access the required metric values in your scorer function via
+   `step_object.metrics`
+
+#### Example: Conditional evaluation based on other metrics
+
+<CodeGroup>
+
+```python Python
+from galileo import GalileoMetrics, LlmSpan
+
+def scorer_fn(*, step_object: LlmSpan, **kwargs) -> float:
+    # Access required metrics via step_object.metrics
+    # These metrics were selected in the "Required Metrics" dropdown
+    correctness = step_object.metrics[GalileoMetrics.correctness]
+    adherence = step_object.metrics[GalileoMetrics.context_adherence]
+
+    # Only calculate adherence if correctness is high
+    if correctness < 0.7:
+        return 0.0
+
+    return adherence
+
+def aggregator_fn(*, scores: list[float]) -> dict[str, float]:
+    return {
+        "Average Conditional Score": sum(scores) / len(scores) if scores else 0.0
+    }
+```
+
+</CodeGroup>
+
+#### Referencing metrics
+
+- **Galileo preset metrics**: Use the `GalileoMetrics` enum (e.g.,
+  `GalileoMetrics.context_adherence`)
+- **Custom metrics**: Use the metric name as a string (e.g.,
+  `step_object.metrics["My Custom Metric"]`)
+
+<Note>
+Composite metrics are **only supported for code-based custom metrics**.
+For a comprehensive guide including use cases and best practices, see the
+[Composite Metrics](/concepts/metrics/custom-metrics/composite-metrics)
+documentation.
+</Note>
 
 ### Execution environment
 
@@ -242,10 +298,10 @@ def scorer_fn(step: Span | Trace) -> float:
         "worst", "awful", "horrible"
     ]
 
-    node_output = step.output.content
+    step_output = step.output.content
 
     # Convert to lowercase for case-insensitive matching
-    text = node_output.lower()
+    text = step_output.lower()
 
     # Count occurrences
     positive_count = sum(text.count(word) for word in positive_words)

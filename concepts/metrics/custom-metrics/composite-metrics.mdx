@@ -1,0 +1,363 @@
+---
+title: Composite Metrics
+description: Learn how to create composite metrics that leverage other metrics to perform advanced evaluations
+---
+
+Composite metrics are advanced custom metrics that can access and leverage the
+results of other metrics to perform sophisticated evaluations. Unlike standard
+metrics that operate independently, composite metrics build upon previously
+computed metric values to create more nuanced and context-aware assessments.
+
+## What are composite metrics?
+
+A **composite metric** is a custom metric that has access to other metrics
+computed on the current step or any of its child steps. This allows you to:
+
+- Combine multiple metric scores into a single comprehensive evaluation
+- Apply conditional logic based on metric values
+- Create hierarchical evaluations that aggregate scores across sessions, traces,
+  and spans
+- Build context-aware metrics that only calculate when certain conditions are
+  met
+
+Composite metrics use the `required_metrics` parameter to specify which metrics
+they depend on. These required metrics are guaranteed to be computed before the
+composite metric runs, and their values are accessible via the `step_object.metrics`
+dictionary.
+
+## Common use cases
+
+### Conditional evaluation
+
+Calculate a metric only when another metric meets certain criteria:
+
+**Example**: Only calculate adherence if the input prompt is correct
+
+**Required metrics**: `GalileoMetrics.correctness`, `GalileoMetrics.context_adherence`
+
+```python
+from galileo import GalileoMetrics, LlmSpan
+
+def scorer_fn(*, step_object: LlmSpan, **kwargs) -> float:
+    # Only calculate adherence if correctness score is high
+    correctness = step_object.metrics[GalileoMetrics.correctness]
+    if correctness < 0.7:
+        return 0.0  # Skip adherence calculation for incorrect inputs
+
+    # Calculate adherence for correct inputs
+    adherence = step_object.metrics[GalileoMetrics.context_adherence]
+    return adherence
+```
+
+### Hierarchical aggregation
+
+Aggregate metric values across different levels of your application hierarchy:
+
+**Example**: Calculate average metric scores across all spans in a session
+
+**Required metrics**: `GalileoMetrics.context_adherence`
+
+```python
+from galileo import GalileoMetrics, Session
+
+def scorer_fn(*, step_object: Session, **kwargs) -> float:
+    llm_scores = []
+
+    # Collect scores from all LLM spans across all traces
+    for trace in step_object.traces:
+        for span in trace.spans:
+            if span.type == "llm":
+                score = span.metrics[GalileoMetrics.context_adherence]
+                llm_scores.append(score)
+
+    # Return average score
+    return sum(llm_scores) / len(llm_scores) if llm_scores else 0.0
+```
+
+### Multi-metric analysis
+
+Combine multiple metrics to detect specific patterns or issues:
+
+**Example**: Check for PII and count occurrences if found
+
+**Required metrics**: `GalileoMetrics.output_pii`
+
+```python
+from galileo import GalileoMetrics, LlmSpan
+
+def scorer_fn(*, step_object: LlmSpan, **kwargs) -> int:
+    # Check if PII is present
+    has_pii = step_object.metrics[GalileoMetrics.output_pii]
+
+    if not has_pii:
+        return 0
+
+    # If PII found, count how many times SSN pattern appears
+    import re
+    output = step_object.output.content
+    ssn_pattern = r'\b\d{3}-\d{2}-\d{4}\b'
+    ssn_count = len(re.findall(ssn_pattern, output))
+
+    return ssn_count
+```
+
+### Cross-span evaluation
+
+Evaluate metrics across different span types in a trace:
+
+**Example**: Combine retriever and LLM metrics for RAG evaluation
+
+**Required metrics**: `GalileoMetrics.context_relevance`, `GalileoMetrics.context_adherence`
+
+```python
+from galileo import GalileoMetrics, Trace
+
+def scorer_fn(*, step_object: Trace, **kwargs) -> float:
+    retriever_score = 0.0
+    llm_score = 0.0
+
+    for span in step_object.spans:
+        if span.type == "retriever":
+            retriever_score = span.metrics[GalileoMetrics.context_relevance]
+        elif span.type == "llm":
+            llm_score = span.metrics[GalileoMetrics.context_adherence]
+
+    # Combine both scores
+    return (retriever_score + llm_score) / 2
+```
+
+## Specifying required metrics
+
+The `required_metrics` parameter tells Galileo which metrics must be computed
+before your composite metric runs. This ensures the metric values are available
+when your scorer function executes.
+
+You specify required metrics when creating your code-based custom metric:
+- **In the UI**: Select metrics from the "Required Metrics" dropdown
+- **In the Python SDK**: Pass the `required_metrics` parameter
+
+### Galileo preset metrics
+
+For Galileo's built-in metrics, use the `GalileoMetrics` enum. For example, you
+might select:
+
+- `GalileoMetrics.context_adherence`
+- `GalileoMetrics.context_adherence_luna`
+- `GalileoMetrics.correctness`
+
+### Custom metrics
+
+For your own custom metrics, reference them by name as strings. You can also
+mix custom metrics with Galileo preset metrics:
+
+- `"My Custom Metric"` (string for custom metric)
+- `"Compliance Check"` (string for custom metric)
+- `GalileoMetrics.output_pii` (Galileo preset metric)
+
+## Accessing metric values
+
+Once you've specified required metrics, access them through the
+`step_object.metrics` dictionary:
+
+```python
+def scorer_fn(*, step_object: LlmSpan, **kwargs) -> float:
+    # Access metrics using the same enum or string used in required_metrics
+    adherence = step_object.metrics[GalileoMetrics.context_adherence]
+    custom_score = step_object.metrics["My Custom Metric"]
+
+    # Use the metric values in your logic
+    return (adherence + custom_score) / 2
+```
+
+## Complete example: multi-level session metric
+
+This example demonstrates a comprehensive composite metric that aggregates
+scores from all hierarchy levels.
+
+**Required metrics to select** (in UI dropdown or SDK parameter):
+- `GalileoMetrics.conversation_quality`
+- `GalileoMetrics.action_completion`
+- `GalileoMetrics.agent_efficiency`
+- `GalileoMetrics.action_completion_luna`
+- `GalileoMetrics.action_advancement`
+- `GalileoMetrics.context_adherence`
+- `GalileoMetrics.context_relevance`
+- `GalileoMetrics.tool_error_rate`
+
+```python
+from galileo import GalileoMetrics, Session
+
+def scorer_fn(*, step_object: Session, **kwargs) -> float:
+    """
+    Comprehensive session score combining metrics from all hierarchy levels.
+    """
+    # Session-level metrics
+    conversation_quality = step_object.metrics[
+        GalileoMetrics.conversation_quality
+    ]
+    action_completion = step_object.metrics[GalileoMetrics.action_completion]
+    agent_efficiency = step_object.metrics[GalileoMetrics.agent_efficiency]
+
+    # Collect trace-level metrics
+    trace_scores = []
+    for trace in step_object.traces:
+        trace_scores.append(
+            trace.metrics[GalileoMetrics.action_completion_luna]
+        )
+        trace_scores.append(trace.metrics[GalileoMetrics.action_advancement])
+
+    # Collect span-level metrics by type
+    llm_scores = []
+    retriever_scores = []
+    tool_scores = []
+
+    for trace in step_object.traces:
+        for span in trace.spans:
+            if span.type == "llm":
+                llm_scores.append(
+                    span.metrics[GalileoMetrics.context_adherence]
+                )
+            elif span.type == "retriever":
+                retriever_scores.append(
+                    span.metrics[GalileoMetrics.context_relevance]
+                )
+            elif span.type == "tool":
+                tool_scores.append(
+                    1 - span.metrics[GalileoMetrics.tool_error_rate]
+                )
+
+    # Calculate averages for each level
+    session_avg = (
+        conversation_quality + action_completion + agent_efficiency
+    ) / 3
+    trace_avg = sum(trace_scores) / len(trace_scores) if trace_scores else 0.5
+    llm_avg = sum(llm_scores) / len(llm_scores) if llm_scores else 0.5
+    retriever_avg = (
+        sum(retriever_scores) / len(retriever_scores)
+        if retriever_scores
+        else 0.5
+    )
+    tool_avg = sum(tool_scores) / len(tool_scores) if tool_scores else 0.5
+
+    # Return weighted average across all levels
+    return (session_avg + trace_avg + llm_avg + retriever_avg + tool_avg) / 5
+]
+```
+
+## Best practices
+
+### Order matters
+
+Composite metrics are executed after all their required metrics have been
+computed. Plan your metric dependencies to avoid circular references.
+
+### Handle missing data gracefully
+
+Always check for empty lists or missing spans when aggregating:
+
+```python
+# Bad - may crash
+avg = sum(scores) / len(scores)
+
+# Good - handles empty case
+avg = sum(scores) / len(scores) if scores else 0.0
+```
+
+### Be specific with required metrics
+
+Only include metrics you actually use. This improves performance and makes your
+metric's dependencies clear:
+
+```python
+# Bad - includes unnecessary metrics
+required_metrics = [
+    GalileoMetrics.context_adherence,
+    GalileoMetrics.context_relevance,
+    GalileoMetrics.completeness,  # Not used in scorer
+    GalileoMetrics.correctness     # Not used in scorer
+]
+
+# Good - only required metrics
+required_metrics = [
+    GalileoMetrics.context_adherence,
+    GalileoMetrics.context_relevance
+]
+```
+
+### Use appropriate step types
+
+Match your composite metric's step type to where the required metrics exist:
+
+- **Session**: Can access session, trace, and span metrics
+- **Trace**: Can access trace and span metrics
+- **Span**: Can only access metrics on that specific span
+
+## Creating composite metrics
+
+Composite metrics can be created in two ways:
+
+1. **Galileo Console UI**: Use the custom code-based metrics editor and select
+   required metrics from the "Required Metrics" dropdown
+2. **Python SDK**: Add the `required_metrics` parameter when creating code-based
+   metrics
+
+<Note>
+Composite metrics are only supported for **code-based custom metrics**.
+LLM-as-a-judge metrics do not support the `required_metrics` parameter.
+</Note>
+
+<CardGroup cols={2}>
+<Card
+  title="Create composite metrics in the UI"
+  icon="code"
+  href="/concepts/metrics/custom-metrics/custom-metrics-ui-code#creating-composite-metrics"
+  horizontal
+>
+  Learn how to create composite metrics using the Galileo Console
+</Card>
+<Card
+  title="Python SDK reference"
+  icon="python"
+  href="/sdk-api/python/reference/metrics"
+  horizontal
+>
+  View Python SDK documentation for metrics
+</Card>
+<Card
+  title="Custom metrics overview"
+  icon="chart-bar"
+  href="/concepts/metrics/custom-metrics/custom-metrics-ui-code"
+  horizontal
+>
+  Learn about custom code-based metrics in Galileo
+</Card>
+</CardGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card
+  title="Custom code-based metrics"
+  icon="code"
+  href="/concepts/metrics/custom-metrics/custom-metrics-ui-code"
+  horizontal
+>
+  Learn how to create custom code-based metrics in Galileo
+</Card>
+<Card
+  title="Metrics overview"
+  icon="chart-bar"
+  href="/concepts/metrics/overview"
+  horizontal
+>
+  Explore Galileo's comprehensive metrics framework
+</Card>
+<Card
+  title="Run experiments with metrics"
+  icon="flask"
+  href="/sdk-api/experiments/running-experiments#set-the-metrics-for-your-experiment"
+  horizontal
+>
+  Learn how to use metrics in experiments
+</Card>
+</CardGroup>
