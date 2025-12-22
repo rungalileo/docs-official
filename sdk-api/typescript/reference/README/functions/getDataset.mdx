@@ -9,23 +9,52 @@ title: getDataset
 # Function: getDataset()
 
 ```ts
-function getDataset(__namedParameters: object): Promise<Dataset>;
+function getDataset(options: object): Promise<DatasetDBType>;
 ```
 
-Defined in: [src/utils/datasets.ts:159](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts#L159)
+Defined in: [src/utils/datasets.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts)
+
+Gets a dataset database record by ID or name with optional content loading and project validation.
+Delegates to Datasets.get().
 
 ## Parameters
 
-### \_\_namedParameters
+### options
+
+The options used to locate the dataset.
 
 #### id?
 
 `string`
 
+(Optional) The ID of the dataset.
+
 #### name?
 
 `string`
 
+(Optional) The name of the dataset.
+
+#### projectId?
+
+`string`
+
+(Optional) The ID of the project to validate against.
+
+#### projectName?
+
+`string`
+
+(Optional) The name of the project to validate against.
+
+#### withContent?
+
+`boolean`
+
+(Optional) Whether to load the dataset content.
+
 ## Returns
 
-`Promise`\<[`Dataset`](/sdk-api/typescript/reference/types/interfaces/Dataset)\>
+`Promise`\<[`DatasetDBType`](/sdk-api/typescript/reference/types/type-aliases/DatasetDBType)\>
+
+A promise that resolves to the dataset database object.

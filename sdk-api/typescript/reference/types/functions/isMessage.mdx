@@ -9,10 +9,26 @@ title: isMessage
 # Function: isMessage()
 
 ```ts
-function isMessage(obj: any): obj is Message;
+function isMessage(
+  obj: any,
+): obj is {
+  content: string;
+  role:
+    | "function"
+    | "agent"
+    | "tool"
+    | "user"
+    | "assistant"
+    | "developer"
+    | "system";
+  tool_call_id?: null | string;
+  tool_calls?:
+    | null
+    | { function: { arguments: string; name: string }; id: string }[];
+};
 ```
 
-Defined in: [src/types/message.types.ts:28](https://github.com/rungalileo/galileo-js/blob/main/src/types/message.types.ts#L28)
+Defined in: [src/types/message.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/message.types.ts)
 
 ## Parameters
 
@@ -22,4 +38,4 @@ Defined in: [src/types/message.types.ts:28](https://github.com/rungalileo/galile
 
 ## Returns
 
-`obj is Message`
+obj is \{ content: string; role: "function" \| "agent" \| "tool" \| "user" \| "assistant" \| "developer" \| "system"; tool_call_id?: null \| string; tool_calls?: null \| \{ function: \{ arguments: string; name: string \}; id: string \}\[\] \}

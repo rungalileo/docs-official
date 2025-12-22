@@ -9,10 +9,28 @@ title: createProject
 # Function: createProject()
 
 ```ts
-function createProject(name: string): Promise<Project>;
+function createProject(
+  name: string,
+  options?: ProjectCreateOptions,
+): Promise<{
+  createdAt: string;
+  createdBy?: null | string;
+  id: string;
+  name?: null | string;
+  type?:
+    | null
+    | "prompt_evaluation"
+    | "llm_monitor"
+    | "gen_ai"
+    | "training_inference"
+    | "protect";
+  updatedAt: string;
+}>;
 ```
 
-Defined in: [src/utils/projects.ts:16](https://github.com/rungalileo/galileo-js/blob/main/src/utils/projects.ts#L16)
+Defined in: [src/utils/projects.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/projects.ts)
+
+Creates a new project.
 
 ## Parameters
 
@@ -20,6 +38,28 @@ Defined in: [src/utils/projects.ts:16](https://github.com/rungalileo/galileo-js/
 
 `string`
 
+Name of the project to create.
+
+### options?
+
+[`ProjectCreateOptions`](/sdk-api/typescript/reference/types/type-aliases/ProjectCreateOptions)
+
+(Optional) Additional create options.
+
 ## Returns
 
-`Promise`\<[`Project`](/sdk-api/typescript/reference/types/interfaces/Project)\>
+`Promise`\<\{
+`createdAt`: `string`;
+`createdBy?`: `null` \| `string`;
+`id`: `string`;
+`name?`: `null` \| `string`;
+`type?`: \| `null`
+\| `"prompt_evaluation"`
+\| `"llm_monitor"`
+\| `"gen_ai"`
+\| `"training_inference"`
+\| `"protect"`;
+`updatedAt`: `string`;
+\}\>
+
+A promise that resolves to the created project.

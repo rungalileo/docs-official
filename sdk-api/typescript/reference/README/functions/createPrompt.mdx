@@ -9,178 +9,23 @@ title: createPrompt
 # Function: createPrompt()
 
 ```ts
-function createPrompt(__namedParameters: object): Promise<{
-  all_available_versions: number[];
-  all_versions?: object[];
-  created_at: string;
-  created_by_user: null | {
-    email: string;
-    first_name?: null | string;
-    id: string;
-    last_name?: null | string;
-  };
-  id: string;
-  max_version: number;
-  name:
-    | string
-    | {
-        append_suffix_if_duplicate?: boolean;
-        value: string;
-      };
-  permissions?: object[];
-  selected_version: {
-    content_changed: boolean;
-    created_at: string;
-    created_by_user: null | {
-      email: string;
-      first_name?: null | string;
-      id: string;
-      last_name?: null | string;
-    };
-    id: string;
-    lines_added?: number;
-    lines_edited?: number;
-    lines_removed?: number;
-    model_changed: boolean;
-    output_type?: null | string;
-    raw?: boolean;
-    settings: {
-      deployment_name?: null | string;
-      echo?: boolean;
-      frequency_penalty?: number;
-      input?: null | string;
-      instructions?: null | string;
-      known_models?: object[];
-      logprobs?: boolean;
-      max_tokens?: number;
-      model_alias?: string;
-      n?: number;
-      presence_penalty?: number;
-      reasoning_effort?: string;
-      response_format?: null | {
-        [key: string]: string;
-      };
-      stop_sequences?: null | string[];
-      temperature?: number;
-      tool_choice?:
-        | null
-        | string
-        | {
-            function: {
-              name: string;
-            };
-            type?: string;
-          };
-      tools?: null | object[];
-      top_k?: number;
-      top_logprobs?: number;
-      top_p?: number;
-      verbosity?: string;
-    };
-    settings_changed: boolean;
-    template: string | (object & object[]);
-    updated_at: string;
-    version: number;
-  };
-  selected_version_id: string;
-  template: string;
-  total_versions: number;
-  updated_at: string;
-}>;
+function createPrompt(options: CreatePromptOptions): Promise<PromptTemplate>;
 ```
 
-Defined in: [src/utils/prompt-templates.ts:58](https://github.com/rungalileo/galileo-js/blob/main/src/utils/prompt-templates.ts#L58)
+Defined in: [src/utils/prompt-templates.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/prompt-templates.ts)
+
+Creates a prompt template while guaranteeing a unique name.
 
 ## Parameters
 
-### \_\_namedParameters
+### options
 
-#### name
+[`CreatePromptOptions`](/sdk-api/typescript/reference/types/type-aliases/CreatePromptOptions)
 
-`string`
-
-#### template
-
-`string` \| [`Message`](/sdk-api/typescript/reference/types/interfaces/Message)[]
+Creation request.
 
 ## Returns
 
-`Promise`\<\{
-`all_available_versions`: `number`[];
-`all_versions?`: `object`[];
-`created_at`: `string`;
-`created_by_user`: \| `null`
-\| \{
-`email`: `string`;
-`first_name?`: `null` \| `string`;
-`id`: `string`;
-`last_name?`: `null` \| `string`;
-\};
-`id`: `string`;
-`max_version`: `number`;
-`name`: \| `string`
-\| \{
-`append_suffix_if_duplicate?`: `boolean`;
-`value`: `string`;
-\};
-`permissions?`: `object`[];
-`selected_version`: \{
-`content_changed`: `boolean`;
-`created_at`: `string`;
-`created_by_user`: \| `null`
-\| \{
-`email`: `string`;
-`first_name?`: `null` \| `string`;
-`id`: `string`;
-`last_name?`: `null` \| `string`;
-\};
-`id`: `string`;
-`lines_added?`: `number`;
-`lines_edited?`: `number`;
-`lines_removed?`: `number`;
-`model_changed`: `boolean`;
-`output_type?`: `null` \| `string`;
-`raw?`: `boolean`;
-`settings`: \{
-`deployment_name?`: `null` \| `string`;
-`echo?`: `boolean`;
-`frequency_penalty?`: `number`;
-`input?`: `null` \| `string`;
-`instructions?`: `null` \| `string`;
-`known_models?`: `object`[];
-`logprobs?`: `boolean`;
-`max_tokens?`: `number`;
-`model_alias?`: `string`;
-`n?`: `number`;
-`presence_penalty?`: `number`;
-`reasoning_effort?`: `string`;
-`response_format?`: \| `null`
-\| \{
-[`key`: `string`]: `string`;
-\};
-`stop_sequences?`: `null` \| `string`[];
-`temperature?`: `number`;
-`tool_choice?`: \| `null`
-\| `string`
-\| \{
-`function`: \{
-`name`: `string`;
-\};
-`type?`: `string`;
-\};
-`tools?`: `null` \| `object`[];
-`top_k?`: `number`;
-`top_logprobs?`: `number`;
-`top_p?`: `number`;
-`verbosity?`: `string`;
-\};
-`settings_changed`: `boolean`;
-`template`: `string` \| `object` & `object`[];
-`updated_at`: `string`;
-`version`: `number`;
-\};
-`selected_version_id`: `string`;
-`template`: `string`;
-`total_versions`: `number`;
-`updated_at`: `string`;
-\}\>
+`Promise`\<[`PromptTemplate`](/sdk-api/typescript/reference/types/type-aliases/PromptTemplate)\>
+
+A promise that resolves to the created template summary.

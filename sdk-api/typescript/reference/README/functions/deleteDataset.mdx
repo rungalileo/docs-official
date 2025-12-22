@@ -9,35 +9,46 @@ title: deleteDataset
 # Function: deleteDataset()
 
 ```ts
-function deleteDataset(__namedParameters: object): Promise<void>;
+function deleteDataset(options: object): Promise<void>;
 ```
 
-Defined in: [src/utils/datasets.ts:391](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts#L391)
+Defined in: [src/utils/datasets.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts)
 
 Deletes a dataset by its unique identifier or name.
-
-If both `id` and `name` are provided, `id` takes precedence.
-If only `name` is provided, the dataset will be looked up by name.
-Throws an error if neither `id` nor `name` is provided, or if the dataset cannot be found.
+Delegates to Datasets.delete().
 
 ## Parameters
 
-### \_\_namedParameters
+### options
+
+The options used to locate the dataset.
 
 #### id?
 
 `string`
 
+(Optional) The ID of the dataset.
+
 #### name?
 
 `string`
+
+(Optional) The name of the dataset.
+
+#### projectId?
+
+`string`
+
+(Optional) The ID of the project to validate against.
+
+#### projectName?
+
+`string`
+
+(Optional) The name of the project to validate against.
 
 ## Returns
 
 `Promise`\<`void`\>
 
-A promise that resolves when the dataset is deleted.
-
-## Throws
-
-Error if neither id nor name is provided, or if the dataset cannot be found.
+A promise that resolves when the dataset has been deleted.

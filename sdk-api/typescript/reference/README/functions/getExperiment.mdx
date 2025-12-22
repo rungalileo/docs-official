@@ -9,12 +9,112 @@ title: getExperiment
 # Function: getExperiment()
 
 ```ts
-function getExperiment(
-  __namedParameters: object,
-): Promise<undefined | Experiment>;
+function getExperiment(__namedParameters: object): Promise<
+  | undefined
+  | {
+      aggregate_feedback?: {
+        [key: string]: object;
+      };
+      aggregate_metrics?: {
+        [key: string]: unknown;
+      };
+      created_at?: string;
+      created_by?: null | string;
+      created_by_user?: null | {
+        email: string;
+        first_name?: null | string;
+        id: string;
+        last_name?: null | string;
+      };
+      dataset?: null | {
+        dataset_id?: null | string;
+        name?: null | string;
+        version_index?: null | number;
+      };
+      id: string;
+      name?: string;
+      num_samples?: null | number;
+      playground?: null | {
+        name?: null | string;
+        playground_id?: null | string;
+      };
+      playground_id?: null | string;
+      project_id: string;
+      prompt?: null | {
+        content?: null | string;
+        name?: null | string;
+        prompt_template_id?: null | string;
+        version_index?: null | number;
+      };
+      prompt_model?: null | string;
+      prompt_run_settings?: null | {
+        deployment_name?: null | string;
+        echo?: boolean;
+        frequency_penalty?: number;
+        known_models?: object[];
+        logprobs?: boolean;
+        max_tokens?: number;
+        model_alias?: string;
+        n?: number;
+        presence_penalty?: number;
+        reasoning_effort?: string;
+        response_format?: null | {
+          [key: string]: string;
+        };
+        stop_sequences?: null | string[];
+        temperature?: number;
+        tool_choice?:
+          | null
+          | string
+          | {
+              function: {
+                name: string;
+              };
+              type?: string;
+            };
+        tools?: null | object[];
+        top_k?: number;
+        top_logprobs?: number;
+        top_p?: number;
+        verbosity?: string;
+      };
+      rank?: null | number;
+      ranking_score?: null | number;
+      status?: {
+        log_generation?: {
+          progress_percent?: number;
+        };
+      };
+      tags?: {
+        [key: string]: object[];
+      };
+      task_type:
+        | 0
+        | 1
+        | 2
+        | 3
+        | 4
+        | 5
+        | 6
+        | 7
+        | 8
+        | 9
+        | 10
+        | 11
+        | 12
+        | 13
+        | 14
+        | 15
+        | 16
+        | 17
+        | 18;
+      updated_at?: null | string;
+      winner?: null | boolean;
+    }
+>;
 ```
 
-Defined in: [src/utils/experiments.ts:131](https://github.com/rungalileo/galileo-js/blob/main/src/utils/experiments.ts#L131)
+Defined in: [src/utils/experiments.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/experiments.ts)
 
 ## Parameters
 
@@ -34,4 +134,91 @@ Defined in: [src/utils/experiments.ts:131](https://github.com/rungalileo/galileo
 
 ## Returns
 
-`Promise`\<`undefined` \| [`Experiment`](/sdk-api/typescript/reference/types/interfaces/Experiment)\>
+`Promise`\<
+\| `undefined`
+\| \{
+`aggregate_feedback?`: \{
+[`key`: `string`]: `object`;
+\};
+`aggregate_metrics?`: \{
+[`key`: `string`]: `unknown`;
+\};
+`created_at?`: `string`;
+`created_by?`: `null` \| `string`;
+`created_by_user?`: \| `null`
+\| \{
+`email`: `string`;
+`first_name?`: `null` \| `string`;
+`id`: `string`;
+`last_name?`: `null` \| `string`;
+\};
+`dataset?`: \| `null`
+\| \{
+`dataset_id?`: `null` \| `string`;
+`name?`: `null` \| `string`;
+`version_index?`: `null` \| `number`;
+\};
+`id`: `string`;
+`name?`: `string`;
+`num_samples?`: `null` \| `number`;
+`playground?`: \| `null`
+\| \{
+`name?`: `null` \| `string`;
+`playground_id?`: `null` \| `string`;
+\};
+`playground_id?`: `null` \| `string`;
+`project_id`: `string`;
+`prompt?`: \| `null`
+\| \{
+`content?`: `null` \| `string`;
+`name?`: `null` \| `string`;
+`prompt_template_id?`: `null` \| `string`;
+`version_index?`: `null` \| `number`;
+\};
+`prompt_model?`: `null` \| `string`;
+`prompt_run_settings?`: \| `null`
+\| \{
+`deployment_name?`: `null` \| `string`;
+`echo?`: `boolean`;
+`frequency_penalty?`: `number`;
+`known_models?`: `object`[];
+`logprobs?`: `boolean`;
+`max_tokens?`: `number`;
+`model_alias?`: `string`;
+`n?`: `number`;
+`presence_penalty?`: `number`;
+`reasoning_effort?`: `string`;
+`response_format?`: \| `null`
+\| \{
+[`key`: `string`]: `string`;
+\};
+`stop_sequences?`: `null` \| `string`[];
+`temperature?`: `number`;
+`tool_choice?`: \| `null`
+\| `string`
+\| \{
+`function`: \{
+`name`: `string`;
+\};
+`type?`: `string`;
+\};
+`tools?`: `null` \| `object`[];
+`top_k?`: `number`;
+`top_logprobs?`: `number`;
+`top_p?`: `number`;
+`verbosity?`: `string`;
+\};
+`rank?`: `null` \| `number`;
+`ranking_score?`: `null` \| `number`;
+`status?`: \{
+`log_generation?`: \{
+`progress_percent?`: `number`;
+\};
+\};
+`tags?`: \{
+[`key`: `string`]: `object`[];
+\};
+`task_type`: `0` \| `1` \| `2` \| `3` \| `4` \| `5` \| `6` \| `7` \| `8` \| `9` \| `10` \| `11` \| `12` \| `13` \| `14` \| `15` \| `16` \| `17` \| `18`;
+`updated_at?`: `null` \| `string`;
+`winner?`: `null` \| `boolean`;
+\}\>

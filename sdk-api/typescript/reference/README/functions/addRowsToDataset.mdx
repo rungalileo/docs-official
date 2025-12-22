@@ -9,23 +9,44 @@ title: addRowsToDataset
 # Function: addRowsToDataset()
 
 ```ts
-function addRowsToDataset(__namedParameters: object): Promise<void>;
+function addRowsToDataset(options: object): Promise<void>;
 ```
 
-Defined in: [src/utils/datasets.ts:334](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts#L334)
+Defined in: [src/utils/datasets.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts)
+
+Appends rows to a dataset identified by ID or name.
+Delegates to Dataset.addRows().
 
 ## Parameters
 
-### \_\_namedParameters
+### options
 
-#### datasetId
+The options used to locate the dataset and rows to append.
+
+#### datasetId?
 
 `string`
 
+(Optional) The ID of the dataset.
+
+#### datasetName?
+
+`string`
+
+(Optional) The name of the dataset.
+
 #### rows
 
-`Record`\<`string`, `string` \| `Record`\<`string`, `string`\>\>[]
+`Record`\<`string`,
+\| `null`
+\| `string`
+\| `number`
+\| `Record`\<`string`, `null` \| `string` \| `number`\>\>[]
+
+The rows to append to the dataset.
 
 ## Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves when the rows have been appended.

@@ -9,23 +9,70 @@ title: getProject
 # Function: getProject()
 
 ```ts
-function getProject(__namedParameters: object): Promise<Project>;
+function getProject(options: GetProjectOptions): Promise<{
+  bookmark?: boolean;
+  createdAt: string;
+  createdBy: string;
+  createdByUser: {
+    email: string;
+    firstName?: null | string;
+    id: string;
+    lastName?: null | string;
+  };
+  description?: null | string;
+  id: string;
+  labels?: "sample"[];
+  name?: null | string;
+  permissions?: object[];
+  runs: object[];
+  type?:
+    | null
+    | "prompt_evaluation"
+    | "llm_monitor"
+    | "gen_ai"
+    | "training_inference"
+    | "protect";
+  updatedAt: string;
+}>;
 ```
 
-Defined in: [src/utils/projects.ts:42](https://github.com/rungalileo/galileo-js/blob/main/src/utils/projects.ts#L42)
+Defined in: [src/utils/projects.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/projects.ts)
+
+Gets a project by ID or name.
 
 ## Parameters
 
-### \_\_namedParameters
+### options
 
-#### id?
+[`GetProjectOptions`](/sdk-api/typescript/reference/types/type-aliases/GetProjectOptions)
 
-`string`
-
-#### name?
-
-`string`
+The lookup options.
 
 ## Returns
 
-`Promise`\<[`Project`](/sdk-api/typescript/reference/types/interfaces/Project)\>
+`Promise`\<\{
+`bookmark?`: `boolean`;
+`createdAt`: `string`;
+`createdBy`: `string`;
+`createdByUser`: \{
+`email`: `string`;
+`firstName?`: `null` \| `string`;
+`id`: `string`;
+`lastName?`: `null` \| `string`;
+\};
+`description?`: `null` \| `string`;
+`id`: `string`;
+`labels?`: `"sample"`[];
+`name?`: `null` \| `string`;
+`permissions?`: `object`[];
+`runs`: `object`[];
+`type?`: \| `null`
+\| `"prompt_evaluation"`
+\| `"llm_monitor"`
+\| `"gen_ai"`
+\| `"training_inference"`
+\| `"protect"`;
+`updatedAt`: `string`;
+\}\>
+
+A promise that resolves to the matching project.

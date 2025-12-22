@@ -12,10 +12,13 @@ title: getDatasetMetadata
 function getDatasetMetadata<T>(
   params: RunExperimentParams<T>,
   projectName: string,
-): Promise<undefined | Dataset>;
+): Promise<null | Dataset>;
 ```
 
-Defined in: [src/utils/datasets.ts:412](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts#L412)
+Defined in: [src/utils/datasets.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/datasets.ts)
+
+Gets dataset metadata from experiment params.
+Delegates to Datasets.get() for fetching by id or name.
 
 ## Type Parameters
 
@@ -29,10 +32,16 @@ Defined in: [src/utils/datasets.ts:412](https://github.com/rungalileo/galileo-js
 
 `RunExperimentParams`\<`T`\>
 
+Experiment parameters that may contain a dataset reference.
+
 ### projectName
 
 `string`
 
+Project name used for dataset lookup when needed.
+
 ## Returns
 
-`Promise`\<`undefined` \| [`Dataset`](/sdk-api/typescript/reference/types/interfaces/Dataset)\>
+`Promise`\<`null` \| [`Dataset`](/sdk-api/typescript/reference/README/classes/Dataset)\>
+
+A promise that resolves to the dataset or null if not found.

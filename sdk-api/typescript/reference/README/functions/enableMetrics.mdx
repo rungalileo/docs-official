@@ -12,7 +12,7 @@ title: enableMetrics
 function enableMetrics(options: object): Promise<LocalMetricConfig[]>;
 ```
 
-Defined in: [src/utils/log-streams.ts:89](https://github.com/rungalileo/galileo-js/blob/main/src/utils/log-streams.ts#L89)
+Defined in: [src/utils/log-streams.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/log-streams.ts)
 
 Enable metrics for a log stream.
 
@@ -39,7 +39,7 @@ Log stream name (overrides env var)
 
 Metrics to enable. Accepts:
 
-- GalileoScorers enum (e.g., GalileoScorers.Correctness)
+- GalileoMetrics const object values (e.g., GalileoMetrics.correctness)
 - String names (e.g., 'toxicity')
 - Metric objects (e.g., \{ name: 'custom', version: 2 \})
 - LocalMetricConfig objects with scorerFn for client-side scoring
@@ -67,6 +67,6 @@ Error if project/log stream not found or metrics don't exist
 const localMetrics = await enableMetrics({
   projectName: "My Project",
   logStreamName: "Production",
-  metrics: [GalileoScorers.Correctness, "toxicity"],
+  metrics: [GalileoMetrics.correctness, "toxicity"],
 });
 ```
