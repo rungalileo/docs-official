@@ -1,6 +1,6 @@
 ---
 title: OpenAI Agents SDK
-description: Learn how to send traces from the OpenAI Agents SDK to Galileo for evaluation
+description: Learn how to send traces from the OpenAI Agents SDK to Galileo for evaluation and observability.
 ---
 
 {/*<!-- markdownlint-disable MD044 -->*/}
@@ -35,14 +35,122 @@ Once this is set, all agent events, such as tool calls, handoffs, and generation
 
 ![A set of spans in Galileo showing an OpenAI Agent running guardrails, handoffs, and generating responses](/sdk-api/third-party-integrations/openai-agents/agent-spans.webp)
 
+## Configuration Options 
+
+### Using the Current Logger
+
 By default the tracing processor using the current logger at the time it is created. For example, if you create this processor in a function that is decorated with the `@log` wrapper, then the processor will log to the same logger.
 
-You can override this by passing a [GalileoLogger](/sdk-api/logging/galileo-logger) into the `GalileoTracingProcessor` constructor.
+```python
+from galileo import log
+from galileo.handlers.openai_agents import GalileoTracingProcessor
+from agents import set_trace_processors, Agent, Runner
+
+@log
+async def run_agent():
+    # Processor uses the logger from @log decorator
+    set_trace_processors([GalileoTracingProcessor()])
+    
+    agent = Agent(
+        name="Weather Agent",
+        instructions="You are a helpful weather assistant.",
+        tools=[get_weather]
+    )
+    
+    result = await Runner.run(agent, input="What's the weather in Tokyo?")
+    return result
+```
+
+### Using a Custom Logger
+
+Override the default logger by passing a [GalileoLogger](/sdk-api/logging/galileo-logger) into the `GalileoTracingProcessor` constructor.
 
 <CodeGroup>
   <SnippetSdkHandlersOpenAIAgentsCustomLoggerPython />
 </CodeGroup>
 
+### Controlling Flush Behavior
+
+Control whether traces are automatically flushed when they complete using the `flush_on_trace_end` parameter (default: `True`).
+
+```python
+set_trace_processors([
+    GalileoTracingProcessor(
+        galileo_logger=logger,
+        flush_on_trace_end=False  # Manual flush control
+    )
+])
+```
+
+## Adding Custom Spans
+
+You can add custom Galileo spans to your traces using the add_galileo_custom_span context manager. This is particularly useful for tracking retrievers, custom operations, or any domain-specific logic.
+
+```python
+from agents import function_tool
+from galileo import RetrieverSpan
+from galileo.handlers.openai_agents import GalileoTracingProcessor
+from galileo_core.schemas.shared.document import Document
+
+@function_tool
+def city_geolocation(city: str) -> list[str]:
+    data = [f"{city} is in Japan", f"{city} is not in USA"]
+    
+    # Create a custom retriever span
+    retriever_span = RetrieverSpan(name="city_geolocation", input=city)
+    
+    # Add it to the trace
+    with GalileoTracingProcessor.add_galileo_custom_span(retriever_span):
+        retriever_span.output = [Document(content=item) for item in data]
+        return data
+```
+
+## Complete Example
+
+```python
+import asyncio
+from agents import Agent, Runner, function_tool, set_trace_processors
+from galileo import GalileoLogger, RetrieverSpan
+from galileo.handlers.openai_agents import GalileoTracingProcessor
+from galileo_core.schemas.shared.document import Document
+
+@function_tool
+def get_weather(city: str) -> str:
+    """Get the current weather for a city."""
+    return f"The weather in {city} is sunny."
+
+@function_tool
+def city_geolocation(city: str) -> list[str]:
+    """Get geolocation information for a city."""
+    data = [f"{city} is in Japan", f"{city} is not in USA"]
+    
+    # Track retrieval as a custom span
+    retriever_span = RetrieverSpan(name="city_geolocation", input=city)
+    with GalileoTracingProcessor.add_galileo_custom_span(retriever_span):
+        retriever_span.output = [Document(content=item) for item in data]
+        return data
+
+# Create agent with tools
+agent = Agent(
+    name="Travel Assistant",
+    instructions="You are a helpful agent that provides weather and location information.",
+    tools=[get_weather, city_geolocation],
+)
+
+async def main():
+    # Set up Galileo tracing
+    set_trace_processors([GalileoTracingProcessor()])
+    
+    # Run the agent
+    result = await Runner.run(
+        agent, 
+        input="What's the weather in Tokyo? Where is Tokyo?"
+    )
+    print(result.final_output)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
 
 ## Next steps
 
