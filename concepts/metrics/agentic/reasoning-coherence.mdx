@@ -32,48 +32,34 @@ Here's a scale that shows the relationship between Reasoning Coherence and poten
   highDescription="Reasoning is logically consistent and well-aligned to the stated plan and goal."
 />
 
-<Note>
-Scale is 0–100 and is derived from binary judgments converted into a confidence score.
-</Note>
+<Note>Scale is 0–100 and is derived from binary judgments converted into a confidence score.</Note>
 
 ## Calculation method
 
 Reasoning Coherence is computed through a multi-step process:
 
 <Steps>
-  <Step title="Model Request">
-    One or more evaluation requests are sent to an LLM evaluator to analyze the agent’s reasoning steps and plan alignment.
-  </Step>
+  <Step title="Model Request">One or more evaluation requests are sent to an LLM evaluator to analyze the agent’s reasoning steps and plan alignment.</Step>
   <Step title="Prompt Engineering">
     A chain-of-thought style judge prompt guides the evaluator to check for logical consistency, contradictions, and adherence to the plan.
-    <br/>
-    <br/>
-    Evaluation rubric (summary):
-    - Intermediate reasoning summaries should support the LLM’s input and each other logically.
-    - No event should invalidate or contradict an earlier inference without explicit, justified retraction.
-    - Explanations and planned actions/tool selections must be mutually reinforcing and consistent with the input.
-    - Web search: The need for a search should be justified by the input/reasoning, and the query/parameters should be appropriate.
+    <br />
+    <br />
+    Evaluation rubric (summary): - Intermediate reasoning summaries should support the LLM’s input and each other logically. - No event should invalidate or contradict an earlier inference without explicit, justified retraction. -
+    Explanations and planned actions/tool selections must be mutually reinforcing and consistent with the input. - Web search: The need for a search should be justified by the input/reasoning, and the query/parameters should be appropriate.
   </Step>
-  <Step title="Multiple Evaluations">
-    The system can request multiple judgments to improve robustness and reduce variance.
-  </Step>
-  <Step title="Result Analysis">
-    Each evaluation produces a binary decision (coherent / not coherent) and an explanation.
-  </Step>
-  <Step title="Score Calculation">
-    The final score is computed by converting the binary decisions into a 0–100 confidence (e.g., percentage of positive judgments).
-  </Step>
+  <Step title="Multiple Evaluations">The system can request multiple judgments to improve robustness and reduce variance.</Step>
+  <Step title="Result Analysis">Each evaluation produces a binary decision (coherent / not coherent) and an explanation.</Step>
+  <Step title="Score Calculation">The final score is computed by converting the binary decisions into a 0–100 confidence (e.g., percentage of positive judgments).</Step>
 </Steps>
 
-<Note>
-This metric is computed by prompting an LLM and may require multiple LLM calls to compute, which can impact usage and billing.
-</Note>
+<Note>This metric is computed by prompting an LLM and may require multiple LLM calls to compute, which can impact usage and billing.</Note>
 
 ## Supported nodes
 
 - LLM span
 
 Inputs considered (when available):
+
 - Latest user input and current system prompt
 - Intermediate reasoning events and summaries (including plan/steps)
 - Tool-selection thoughts and invoked tool calls (including arguments)
@@ -124,12 +110,6 @@ from galileo.schema.metrics import GalileoScorers
 metric = GalileoScorers.reasoning_coherence
 ```
 
-```typescript TypeScript
-// TODO: Replace placeholder with the actual enum name once available
-import { GalileoScorers } from "galileo";
-const metric = GalileoScorers.TODOReasoningCoherence;
-```
-
 </CodeGroup>
 
 ## Best practices
@@ -148,6 +128,3 @@ const metric = GalileoScorers.TODOReasoningCoherence;
     Use continuous learning via human feedback to improve the judge prompt and rubric over time.
   </Card>
 </CardGroup>
-
-> TODO: Add your final rubric and decision criteria here once confirmed.
-
