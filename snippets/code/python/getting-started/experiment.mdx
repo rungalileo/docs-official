@@ -1,23 +1,27 @@
 ```python Python
-import os
-
-from galileo import GalileoScorers, Message, MessageRole
-from galileo.config import GalileoPythonConfig
-from galileo.datasets import create_dataset, get_dataset
-from galileo.experiments import run_experiment
-from galileo.prompts import create_prompt, get_prompt
-from galileo.resources.models.prompt_run_settings import PromptRunSettings
+from galileo.__future__ import (
+    Configuration,
+    Dataset,
+    Experiment,
+    Message,
+    MessageRole,
+    Metric,
+    Prompt,
+)
+from dotenv import load_dotenv
 
 # Load the environment variables
-from dotenv import load_dotenv
 load_dotenv()
 
+# Connect to Galileo
+Configuration.connect()
+
 # Create a prompt template, or load it if it already exists
-prompt = get_prompt(name="My Prompt")
+prompt = Prompt.get(name="My Prompt")
 if not prompt:
-    prompt = create_prompt(
+    prompt = Prompt(
         name="My Prompt",
-        template=[
+        messages=[
             Message(
                 role=MessageRole.system,
                 content="""
@@ -29,36 +33,31 @@ ship with confidence.
             Message(role=MessageRole.user, content="{{input}}"),
         ],
     )
+    prompt.create()
 
 # Create a dataset, or load it if it already exists
-dataset = get_dataset(name="My Dataset")
+dataset = Dataset.get(name="My Dataset")
 if not dataset:
-    dataset = create_dataset(
-        "My Dataset",
+    dataset = Dataset(
+        name="My Dataset",
         content=[
             {"input": "What is Galileo?"},
             {"input": "What is Copernicus?"}
         ],
     )
+    dataset.create()
 
-# Run the experiment
-experiment = run_experiment(
-    experiment_name="My Experiment",
-    prompt_template=prompt,
+# Create and run the experiment
+experiment = Experiment(
+    name="My Experiment",
+    prompt=prompt,
     dataset=dataset,
-    metrics=[GalileoScorers.context_adherence],
-    project=os.environ.get("GALILEO_PROJECT"),
-    prompt_settings=PromptRunSettings(model_alias="GPT-4o"),
+    metrics=[Metric.scorers.context_adherence],
+    project_name="MyFirstEvaluation",
 )
+experiment.create()
+result = experiment.run()
 
-# Show Galileo information
-config = GalileoPythonConfig.get()
-prompt_url = f"{config.console_url}prompts/{prompt.id}"
-dataset_url = f"{config.console_url}datasets/{dataset.dataset.id}"
-
-print()
-print("🚀 GALILEO LOG INFORMATION:")
-print(f"🔗 Prompt     : {prompt_url}")
-print(f"🔗 Dataset    : {dataset_url}")
-print(f"🔗 Experiment : {experiment['link']}")
+# Show experiment link
+print(f"Experiment: {result.link}")
 ```

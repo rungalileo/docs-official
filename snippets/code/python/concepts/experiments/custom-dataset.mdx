@@ -1,38 +1,39 @@
 ```python Python
 import os
-from galileo.experiments import run_experiment
-from galileo.openai import openai
-from galileo.schema.metrics import GalileoScorers
+from galileo.__future__ import Dataset, Experiment, Metric
+from galileo import openai
 
-dataset = [
-  {
-    "input": "Spain"
-  }
-]
+dataset = Dataset(
+    name="countries",
+    content=[{"input": "Spain"}]
+)
+dataset.create()
 
 def llm_call(input):
-  client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-  return client.chat.completions.create(
+    client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    return client.chat.completions.create(
         model="gpt-4",
         messages=[
-          {
-            "role": "system",
-            "content": "You are a geography expert"
-          },
-          {
-            "role": "user",
-            "content": f"""
-            Which continent does the following country belong to: {input}
-            """
-          }
+            {
+                "role": "system",
+                "content": "You are a geography expert"
+            },
+            {
+                "role": "user",
+                "content": f"""
+                Which continent does the following country belong to: {input}
+                """
+            }
         ],
     ).choices[0].message.content
 
-results = run_experiment(
-    "geography-experiment",
+experiment = Experiment(
+    name="geography-experiment",
     dataset=dataset,
     function=llm_call,
-    metrics=[GalileoScorers.correctness],
-    project="my-project"
+    metrics=[Metric.scorers.correctness],
+    project_name="my-project"
 )
+experiment.create()
+result = experiment.run()
 ```
