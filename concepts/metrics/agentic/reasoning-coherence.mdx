@@ -7,12 +7,12 @@ import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 
 <DefinitionCard>
-  <strong>Reasoning Coherence</strong> assesses whether an agent’s reasoning steps are logically consistent, non-contradictory, and aligned with the intended plan toward the goal.
+  <strong>Reasoning Coherence</strong> assesses whether an agent’s reasoning steps are logically consistent, non-contradictory, and aligned with the intended plan.
 </DefinitionCard>
 
 ## Metric definition
 
-Reasoning Coherence — Binary metric evaluating internal logical consistency within a single LLM call, with respect to the latest user input.
+Reasoning Coherence — A binary metric that evaluates internal logical consistency within a single LLM call, with respect to the latest user input.
 
 - Type: Binary
   - 1 (Coherent): Intermediate reasoning events/summaries are mutually consistent and causally support the LLM input.
@@ -43,13 +43,12 @@ Reasoning Coherence is computed through a multi-step process:
   <Step title="Prompt Engineering">
     A chain-of-thought style judge prompt guides the evaluator to check for logical consistency, contradictions, and adherence to the plan.
     <br />
-    <br />
     Evaluation rubric (summary): - Intermediate reasoning summaries should support the LLM’s input and each other logically. - No event should invalidate or contradict an earlier inference without explicit, justified retraction. -
     Explanations and planned actions/tool selections must be mutually reinforcing and consistent with the input. - Web search: The need for a search should be justified by the input/reasoning, and the query/parameters should be appropriate.
   </Step>
   <Step title="Multiple Evaluations">The system can request multiple judgments to improve robustness and reduce variance.</Step>
   <Step title="Result Analysis">Each evaluation produces a binary decision (coherent / not coherent) and an explanation.</Step>
-  <Step title="Score Calculation">The final score is computed by converting the binary decisions into a 0–100 confidence (e.g., percentage of positive judgments).</Step>
+  <Step title="Result Analysis">Each evaluation produces a binary outcome, where coherent = 1 and not coherent = 0, along with an explanation.</Step>
 </Steps>
 
 <Note>This metric is computed by prompting an LLM and may require multiple LLM calls to compute, which can impact usage and billing.</Note>
