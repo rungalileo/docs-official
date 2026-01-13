@@ -1,0 +1,135 @@
+---
+title: SQL Correctness
+description: Evaluate whether generated SQL queries are syntactically valid and adhere to the provided database schema
+---
+
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+
+<DefinitionCard>
+  <strong>SQL Correctness</strong> assesses whether a generated SQL query is grammatically correct and grounded in the provided database schema.
+</DefinitionCard>
+
+## Metric definition
+
+SQL Correctness — A multi-label metric that evaluates the generated SQL query on two distinct dimensions: syntactic correctness and schematic adherence.
+
+- Type: Multi-label
+- Possible labels:
+  - `syntactic`: The query is syntactically valid for the specified SQL dialect.
+  - `schematic`: The query only references tables, columns, and data types present in the input schema.
+
+This metric is designed for Text-to-SQL workflows where you need to validate that generated SQL queries are both grammatically correct and properly grounded in the database schema information provided.
+
+The metric produces a list of labels indicating which checks passed:
+
+| Output Labels | Interpretation |
+|:--------------|:---------------|
+| `["syntactic", "schematic"]` | Query passes both validations—fully correct. |
+| `["syntactic"]` | Syntax is correct, but uses tables/columns not in the schema. |
+| `["schematic"]` | Adheres to schema, but has syntax errors for the dialect. |
+| `[]` | Query fails both syntactic and schematic validation. |
+
+## Calculation method
+
+SQL Correctness is computed through a multi-step evaluation process:
+
+<Steps>
+  <Step title="Model Request">One or more evaluation requests are sent to an LLM evaluator to analyze the generated SQL query against the dialect and schema.</Step>
+  <Step title="Syntactic Evaluation">
+    The evaluator checks if the SQL query follows the grammatical rules and structure of the specified SQL dialect.
+    <br />
+    - The query must not contain grammatical errors, misplaced keywords, or use functions not supported by the specified dialect.
+    - Syntax is evaluated independently of the schema.
+    - If no SQL dialect is provided, the query is considered syntactically incorrect.
+  </Step>
+  <Step title="Schematic Evaluation">
+    The evaluator checks if the SQL query adheres to the provided schema information.
+    <br />
+    - The query must only use the exact table names, column names, and data types defined in the schema.
+    - In queries with table aliases, all column references must be correctly prefixed with the appropriate alias.
+    - Comparing a column to a literal of a different data type, or applying an unsuitable aggregation function, is considered a failure.
+    - If no schema information is provided, the query is considered schematically non-adherent.
+  </Step>
+  <Step title="Label Assignment">Based on the evaluation, labels are assigned: include `syntactic` if syntax is correct, include `schematic` if schema adherence passes.</Step>
+</Steps>
+
+<Note>This metric is computed by prompting an LLM and may require multiple LLM calls to compute, which can impact usage and billing.</Note>
+
+## Supported nodes
+
+- LLM span
+
+Inputs considered (when available):
+
+- The generated SQL query (output)
+- The SQL dialect used by the database (e.g., PostgreSQL, MySQL, SQLite, Snowflake, BigQuery, T-SQL, Spark SQL)
+- Database/table schema information
+- Optionally available domain knowledge or hints
+
+## What constitutes syntactic correctness (label "syntactic")
+
+- The query is syntactically grammatically correct for the specific SQL dialect provided.
+- The SQL query does not contain grammatical errors, misplaced keywords, or use functions not supported by the specified dialect.
+- Syntax is evaluated independently of schema correctness.
+
+## What constitutes schematic adherence (label "schematic")
+
+- The SQL query uses only the exact table names, column names, and data types defined in the provided schema information.
+- The query is grounded in the database information provided—no "hallucinated" table names, column names, or data types.
+- In queries with table aliases (e.g., in complex JOINs), all column references are correctly prefixed with the appropriate alias.
+- Data type comparisons and aggregation functions are appropriate for the column types.
+
+## Failure cases
+
+### Syntactic failures
+
+- Grammatical errors or misplaced keywords in the SQL query.
+- Use of functions or syntax not supported by the specified dialect.
+- No SQL dialect provided in the input.
+
+### Schematic failures
+
+- Reference to table names, column names, or data types not present in the schema ("schematic hallucination").
+- Missing or incorrect table alias prefixes for column references in complex queries.
+- Comparing a column to a literal of an incompatible data type.
+- Applying an aggregation function unsuitable for a column's data type (e.g., `AVG(phone_number)`).
+- No schema information provided in the input.
+
+## Example use cases
+
+- Validating SQL queries generated by a natural language to SQL assistant.
+- Ensuring generated queries in a data analytics chatbot only reference valid schema objects.
+- Quality assurance for Text-to-SQL systems before executing queries against production databases.
+- Comparing different LLM models or prompts for SQL generation quality.
+
+**Example**: A business intelligence assistant that translates user questions into SQL queries, where you need to ensure the generated queries are both syntactically valid for your PostgreSQL database and only reference tables and columns that actually exist in your data warehouse schema.
+
+## Usage
+
+Enable this metric in experiments or Log streams by selecting the SQL Correctness scorer.
+
+<CodeGroup>
+
+```python Python
+from galileo.schema.metrics import GalileoScorers
+metric = GalileoScorers.sql_correctness
+```
+
+</CodeGroup>
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Provide complete schema" icon="database">
+    Include comprehensive schema information with table names, column names, and data types to enable accurate schematic validation.
+  </Card>
+  <Card title="Specify SQL dialect" icon="code">
+    Always specify the target SQL dialect (PostgreSQL, MySQL, SQLite, etc.) to enable accurate syntactic validation.
+  </Card>
+  <Card title="Include domain hints" icon="lightbulb">
+    Provide domain knowledge or hints (e.g., "implements daylight savings refers to daylight_savings = 'Yes'") for more contextual evaluation.
+  </Card>
+  <Card title="Iterate with CLHF" icon="graduation-cap">
+    Use continuous learning via human feedback to improve the evaluator's accuracy for your specific database and domain.
+  </Card>
+</CardGroup>

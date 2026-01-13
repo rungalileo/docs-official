@@ -1,0 +1,35 @@
+---
+title: Text-to-SQL Metrics
+description: Understand and evaluate the quality of AI-generated SQL queries using Galileo's Text-to-SQL metrics
+---
+import Text2SQLMetrics from "/snippets/components/Text2SQL-Metrics.mdx";
+
+Text-to-SQL metrics help you measure how well your AI systems generate SQL queries from natural language inputs. These metrics evaluate multiple dimensions of SQL generation quality, from syntactic correctness to schema adherence, helping you build reliable and accurate Text-to-SQL applications.
+
+Evaluating a Text-to-SQL generation system requires assessment of multiple and potentially conflicting criteria of quality. A single monolithic prompt to evaluate different criteria can lead to inconsistent scores if the judging model struggles to balance competing assessments. For example, a query can be syntactically and schematically correct (according to the dialect and schema used in the database) but may still have semantic issues or performance concerns.
+
+A modular approach, separating validation into independent metrics, enables granular and actionable evaluations for your Text-to-SQL systems.
+
+Use Text-to-SQL metrics when you want to:
+
+- Validate that generated SQL queries are syntactically correct for the target database dialect.
+- Ensure generated queries only reference tables, columns, and data types that exist in your schema.
+- Detect hallucinated table names, column names, or data types in generated queries.
+- Evaluate overall SQL generation quality across multiple dimensions.
+
+## Assumptions for metrics
+
+- Text-to-SQL metrics operate at the LLM span level, with the input containing the context required for SQL generation and the output being the generated SQL query.
+- Each LLM span can capture all the context required for a Text-to-SQL generation step, or it can be as minimal as a natural language query and SQL query pair.
+- Each of the individual metrics are designed to perform standalone assessments of the LLM span.
+
+Below is a quick reference table of all Text-to-SQL metrics:
+
+<Text2SQLMetrics />
+
+---
+
+## Next steps
+
+- [Back to Metrics Overview](/concepts/metrics/overview)
+- [Compare all metrics](/concepts/metrics/metric-comparison)
