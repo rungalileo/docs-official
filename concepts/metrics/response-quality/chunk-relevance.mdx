@@ -13,11 +13,13 @@ import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 Chunk Relevance is a binary metric: each chunk is either <Pill label="Relevant" /> or <Pill label="Not Relevant" />.
 
 A chunk is considered <Pill label="Relevant" /> when:
+
 - The chunk contains at least some information that is useful to answer the query (even partially)
 - The chunk provides a key piece of information (such as the name of an entity or a specific fact) that can be used to find the answer in another chunk
 - Any part of the chunk helps answer the query either partially or completely
 
 A chunk is considered <Pill label="Not Relevant" /> when:
+
 - The chunk contains no useful information for answering the query
 - The chunk is completely off-topic or only contains background/tangential information with no bearing on the query
 - The content is topically related but doesn't answer the question even partially
@@ -33,10 +35,6 @@ Chunk Relevance is computed through a multi-step process:
 <Steps>
   <Step title="Model Request">
     Additional evaluation requests are sent to an LLM to analyze each chunk's relevance to the user query.
-
-</Step>
-  <Step title="Prompt Engineering">
-    A carefully engineered prompt is used to evaluate whether each chunk is explicitly related to the query and answers it fully or partially, based only on what is explicitly stated in the query and chunk.
 
 </Step>
   <Step title="Independent Evaluation">
