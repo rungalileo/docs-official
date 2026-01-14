@@ -7,7 +7,7 @@ import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 
 <DefinitionCard>
-  <strong>Context Precision</strong> measures the percentage of retrieved chunks that are relevant to the user's query, weighted by their position in the retrieval order.
+  <strong>Context Precision</strong> measures the percentage of retrieved chunks that are relevant to the user's query, helping identify how much noise or unwanted information was retrieved.
 </DefinitionCard>
 
 Context Precision is a continuous metric ranging from 0 to 1:
@@ -21,11 +21,11 @@ Context Precision is a continuous metric ranging from 0 to 1:
   highDescription="Most or all retrieved chunks are relevant to the query"
 />
 
-This metric helps you evaluate the quality of your retrieval system by measuring how many of the retrieved chunks actually contain useful information for answering the query. Higher Context Precision indicates that your retrieval system is successfully identifying and returning relevant content.
+This metric helps evaluate the quality of retrieval systems by measuring how many of the retrieved chunks actually contain useful information for answering the query. Higher Context Precision indicates that the retrieval system is successfully identifying and returning relevant content with minimal noise.
 
 ## Calculation method
 
-Context Precision is computed as a weighted average of [Chunk Relevance](/concepts/metrics/response-quality/chunk-relevance) scores, where chunks at higher positions (earlier in the retrieval order) are given more weight:
+Context Precision is computed using [Chunk Relevance](/concepts/metrics/response-quality/chunk-relevance) scores with position-based weighting:
 
 <Steps>
   <Step title="Chunk Relevance Calculation">
@@ -33,11 +33,11 @@ Context Precision is computed as a weighted average of [Chunk Relevance](/concep
 
 </Step>
   <Step title="Position Weighting">
-    Each chunk's relevance is weighted by its position in the retrieval order, with earlier positions receiving higher weights (using a 1/(i+1) weighting scheme where i is the position index).
+    Each chunk's relevance is weighted by its position in the retrieval order, with earlier positions receiving higher weights (using a 1/(i+1) weighting scheme where i is the position index, starting from 0).
 
 </Step>
   <Step title="Weighted Sum Calculation">
-    The numerator is calculated as the sum of weighted relevance scores: for each relevant chunk at position i, add 1/(i+1) to the sum.
+    The numerator is calculated as the sum of weighted relevance scores: for each relevant chunk at position i, we add 1/(i+1) to the sum.
 
 </Step>
   <Step title="Normalization">
@@ -49,8 +49,6 @@ Context Precision is computed as a weighted average of [Chunk Relevance](/concep
 
 </Step>
 </Steps>
-
-The position weighting ensures that relevant chunks appearing earlier in the retrieval order contribute more to the final score, reflecting the importance of ranking quality in retrieval systems.
 
 ## Understanding context precision
 
@@ -65,7 +63,7 @@ The position weighting ensures that relevant chunks appearing earlier in the ret
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Example Scenario</h3>
   </div>
 
-Consider this example that illustrates Context Precision:
+This example illustrates Context Precision:
 
 <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
   <strong>User query:</strong> "What are the health benefits of green tea?"
@@ -83,14 +81,47 @@ Consider this example that illustrates Context Precision:
 </div>
 
 <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Analysis:</strong> If 3 out of 10 chunks are relevant, a simple average would give 30% precision. However, Context Precision uses position weighting, so if the relevant chunks appear early (positions 1, 2, 4), the score will be higher than if they appear later, reflecting better ranking quality.
+  <strong>Analysis:</strong> If 3 out of 10 chunks are relevant, a simple average gives 30% precision. However, Context Precision uses position weighting, so if the relevant chunks appear early (positions 1, 2, 4), the score is higher than if they appear later. This helps identify how much noise or unwanted information was retrieved.
 </div>
 
 </Card>
 
 <Note type="info">
-  Context Precision is differentiated from [Precision @ K](/concepts/metrics/response-quality/precision-at-k): Context Precision uses position weighting and considers all retrieved chunks, while Precision @ K evaluates precision at a specific rank K without weighting.
+  Context Precision is differentiated from [Precision @ K](/concepts/metrics/response-quality/precision-at-k): Context Precision uses position weighting and considers all retrieved chunks to measure noise in retrieval, while Precision @ K evaluates precision at a specific rank K and helps assess ranking quality.
 </Note>
+
+## Comparing Context Precision and Precision @ K
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Understanding Metric Combinations</h3>
+  </div>
+
+Different combinations of Context Precision and Precision @ K scores reveal different aspects of retrieval system performance:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>High Context Precision, High Precision @ K:</strong> The retrieval system is performing well overall. Most retrieved chunks are relevant, and the ranking is effective, with relevant chunks appearing in the top positions. This indicates minimal noise and good ranking quality.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>High Context Precision, Low Precision @ K:</strong> While the overall retrieval contains mostly relevant chunks (low noise), the ranking is poor. Relevant chunks are distributed throughout the retrieved set rather than concentrated in the top K positions. This suggests the retrieval system finds relevant content but needs better ranking or reranking.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Low Context Precision, High Precision @ K:</strong> The top K positions contain mostly relevant chunks (good ranking), but the overall retrieved set has significant noise. This indicates that while the ranking algorithm prioritizes relevant content effectively, the retrieval system is bringing back too many irrelevant chunks beyond the top K. Consider reducing Top K or improving retrieval quality.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Low Context Precision, Low Precision @ K:</strong> Both metrics indicate problems. The retrieval system has high noise (many irrelevant chunks) and poor ranking (relevant chunks are not in top positions). This suggests fundamental issues with both retrieval quality and ranking that need to be addressed.
+</div>
+
+</Card>
 
 ## Optimizing your RAG pipeline
 
@@ -104,10 +135,10 @@ Consider this example that illustrates Context Precision:
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing Low Context Precision Scores</h3>
   </div>
 
-When Context Precision scores are low, it indicates that many retrieved chunks are not relevant to the query. To improve your system:
+When Context Precision scores are low, it indicates that many retrieved chunks are not relevant to the query, meaning there is significant noise in the retrieved results. To improve the system:
 
 <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Improve retrieval quality:</strong> Refine your embedding models, similarity search algorithms, or retrieval parameters to better match queries with relevant content.
+  <strong>Improve retrieval quality:</strong> Refine embedding models, similarity search algorithms, or retrieval parameters to better match queries with relevant content.
 </div>
 
 <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
@@ -128,24 +159,24 @@ When Context Precision scores are low, it indicates that many retrieved chunks a
 
 <CardGroup cols={2}>
   <Card title="Use for Retrieval Assessment" icon="chart-line">
-    Leverage Context Precision when evaluating the overall quality of your retrieval system's results and determining how accurately it adheres to queries.
+    Context Precision helps evaluate the overall quality of retrieval system results and determine how accurately they adhere to queries.
 
 </Card>
   <Card title="Combine with Precision @ K" icon="link">
-    Use Context Precision alongside [Precision @ K](/concepts/metrics/response-quality/precision-at-k) to understand both overall precision and precision at specific ranks.
+    Context Precision works alongside [Precision @ K](/concepts/metrics/response-quality/precision-at-k) to understand both overall precision and precision at specific ranks.
 
 </Card>
-  <Card title="Monitor Ranking Quality" icon="arrow-up-arrow-down">
-    Track Context Precision to ensure your retrieval system not only finds relevant chunks but also ranks them appropriately.
+  <Card title="Monitor Retrieval Quality" icon="chart-line">
+    Tracking Context Precision helps identify patterns in retrieval noise and understand how much unwanted information is being retrieved.
 
 </Card>
   <Card title="Optimize Retrieval Parameters" icon="sliders">
-    Use Context Precision scores to guide adjustments to your Top K value, similarity thresholds, and reranking strategies.
+    Context Precision scores guide adjustments to Top K values, similarity thresholds, and reranking strategies.
 
 </Card>
 </CardGroup>
 
 <Note>
-When optimizing for Context Precision, remember that the position weighting means that improving the ranking of relevant chunks (moving them earlier in the retrieval order) will have a significant positive impact on your score, even if the total number of relevant chunks remains the same.
+When optimizing for Context Precision, remember that the position weighting means that relevant chunks appearing earlier in the retrieval order contribute more to the score. This helps identify retrieval systems that return relevant content early while minimizing noise throughout the retrieved set.
 
 </Note>
