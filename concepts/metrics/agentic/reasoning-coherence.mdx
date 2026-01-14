@@ -1,0 +1,129 @@
+---
+title: Reasoning Coherence
+description: Evaluate whether an agent’s reasoning steps are logically consistent and aligned with its plan
+---
+
+import { Scale } from "/snippets/components/scale.mdx";
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+
+<DefinitionCard>
+  <strong>Reasoning Coherence</strong> assesses whether an agent’s reasoning steps are logically consistent, non-contradictory, and aligned with the intended plan.
+</DefinitionCard>
+
+## Metric definition
+
+Reasoning Coherence — A binary metric that evaluates internal logical consistency within a single LLM call, with respect to the latest user input.
+
+- Type: Binary
+  - 1 (Coherent): Intermediate reasoning events/summaries are mutually consistent and causally support the LLM input.
+  - 0 (Incoherent): Contradictions, conflicting premises, circular logic, or unjustified reversals/jumps exist among the reasoning events.
+
+This metric is primarily used for agentic workflows that involve multi-step planning, tool usage, and intermediate reasoning traces. It helps validate that the steps an agent takes (or proposes) form a coherent path from problem to solution.
+
+Here's a scale that shows the relationship between Reasoning Coherence and potential impact on your AI system:
+
+<Scale
+  low="0"
+  lowLabel="Low Coherence"
+  high="100"
+  highLabel="High Coherence"
+  lowDescription="Reasoning steps are inconsistent, contradictory, or diverge from the stated plan."
+  midDescription="Reasoning is partially coherent; some steps align, but gaps or contradictions exist."
+  highDescription="Reasoning is logically consistent and well-aligned to the stated plan and goal."
+/>
+
+<Note>Scale is 0–100 and is derived from binary judgments converted into a confidence score.</Note>
+
+## Calculation method
+
+Reasoning Coherence is computed through a multi-step process:
+
+<Steps>
+  <Step title="Model Request">One or more evaluation requests are sent to an LLM evaluator to analyze the agent’s reasoning steps and plan alignment.</Step>
+  <Step title="Prompt Engineering">
+    A chain-of-thought style judge prompt guides the evaluator to check for logical consistency, contradictions, and adherence to the plan.
+    <br />
+    Evaluation rubric (summary): - Intermediate reasoning summaries should support the LLM’s input and each other logically. - No event should invalidate or contradict an earlier inference without explicit, justified retraction. -
+    Explanations and planned actions/tool selections must be mutually reinforcing and consistent with the input. - Web search: The need for a search should be justified by the input/reasoning, and the query/parameters should be appropriate.
+  </Step>
+  <Step title="Multiple Evaluations">The system can request multiple judgments to improve robustness and reduce variance.</Step>
+  <Step title="Result Analysis">Each evaluation produces a binary decision (coherent / not coherent) and an explanation.</Step>
+  <Step title="Result Analysis">Each evaluation produces a binary outcome, where coherent = 1 and not coherent = 0, along with an explanation.</Step>
+</Steps>
+
+<Note>This metric is computed by prompting an LLM and may require multiple LLM calls to compute, which can impact usage and billing.</Note>
+
+## Supported nodes
+
+- LLM span
+
+Inputs considered (when available):
+
+- Latest user input and current system prompt
+- Intermediate reasoning events and summaries (including plan/steps)
+- Tool-selection thoughts and invoked tool calls (including arguments)
+- Final in-span conclusion/output
+
+Empty or missing reasoning summaries should not be penalized; assess coherence only when there is evidence of incoherence.
+
+## What constitutes coherent reasoning (1)
+
+- Intermediate reasoning summaries support the LLM’s input and each other logically.
+- No unjustified contradictions: any retractions are explicit and justified.
+- Explanations, planned actions, and tool selections are consistent with the input and mutually reinforcing.
+- Web search is justified by the input/reasoning and uses appropriate parameters (e.g., search query).
+
+## What constitutes incoherent reasoning (0)
+
+- Explicit contradictions without justification within the reasoning chain.
+- Final (in-span) conclusions or planned actions don’t follow from prior steps.
+- Circular reasoning or unjustified reversals of stance.
+- Tool-selection reasoning conflicts with the recorded input or earlier reasoning steps.
+- The reasoning process deviates from the latest user or system instructions.
+- Web search is unjustified for common-knowledge queries (if unsure, treat as justified), or web search is used when an available specialized tool (e.g., get_weather) is clearly more appropriate for the user’s query.
+
+## Interpreting the score
+
+- 0–30: Low coherence — reasoning likely contains contradictions or misaligned steps.
+- 31–69: Mixed coherence — review critical steps and provide additional guidance.
+- 70–100: Strong coherence — reasoning appears consistent and aligned.
+
+> Consider setting thresholds for alerting or human review based on your domain’s risk tolerance (e.g., flag < 50 for review).
+
+## Example use cases
+
+- Validating multi-step “plan → execute” agents.
+- Auditing tool-augmented reasoning chains for consistency.
+- Comparing agent versions for planning quality regressions.
+
+- Example: A financial planning agent develops a step-by-step investment plan, ensuring each recommendation logically follows from prior steps and aligns with the user’s goals.
+
+## Usage
+
+Enable this metric in experiments or Log streams by selecting the Reasoning Coherence scorer.
+
+<CodeGroup>
+
+```python Python
+from galileo.schema.metrics import GalileoScorers
+metric = GalileoScorers.reasoning_coherence
+```
+
+</CodeGroup>
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Make plans explicit" icon="list-check">
+    Ensure the agent records its plan and intermediate steps so coherence can be evaluated meaningfully.
+  </Card>
+  <Card title="Refine the rubric" icon="check-circle">
+    Calibrate the judge rubric with domain examples to reduce false positives/negatives.
+  </Card>
+  <Card title="Set thresholds" icon="gauge-high">
+    Define minimum acceptable coherence scores and trigger human review below that threshold.
+  </Card>
+  <Card title="Iterate with CLHF" icon="graduation-cap">
+    Use continuous learning via human feedback to improve the judge prompt and rubric over time.
+  </Card>
+</CardGroup>
