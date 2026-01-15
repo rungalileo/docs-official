@@ -39,31 +39,17 @@ Here's a scale that shows the relationship between SQL Efficiency and potential 
 SQL Efficiency is computed through a comprehensive code review process:
 
 <Steps>
-  <Step title="Model Request">One or more evaluation requests are sent to an LLM evaluator to analyze the SQL query for performance anti-patterns.</Step>
-  <Step title="Cross-Product Detection">
-    Check for Cartesian joins that could cause data explosions.
-    <br />
-    - Comma-separated tables in FROM without JOIN conditions
-    - Missing WHERE or ON conditions linking multiple tables
+  <Step title="Model Request">
+    One or more evaluation requests are sent to an LLM evaluator to analyze the SQL query for performance anti-patterns.
   </Step>
-  <Step title="Resource Exhaustion Analysis">
-    Identify patterns that could exhaust database resources.
-    <br />
-    - Recursive CTEs without proper termination conditions
-    - Unbounded queries without LIMIT clauses
+  <Step title="Prompt Engineering">
+    A specialized chain-of-thought prompt guides the model to evaluate the query for efficiency issues including cross-product detection, resource exhaustion risks, index suppression, and structural flaws.
   </Step>
-  <Step title="Index Suppression Check">
-    Detect predicates that prevent index utilization.
-    <br />
-    - Columns wrapped in functions in WHERE/ON clauses
-    - Implicit type casting in comparisons
+  <Step title="Evaluation Process">
+    The evaluator analyzes the query for known anti-patterns such as Cartesian joins, unbounded recursive CTEs, non-SARGable predicates, inefficient outer join filtering, and correlated subqueries.
   </Step>
-  <Step title="Structural Flaw Detection">
-    Identify other common anti-patterns.
-    <br />
-    - Inefficient outer join filtering
-    - Misplaced HAVING filters
-    - Correlated subqueries causing N+1 problems
+  <Step title="Score Calculation">
+    Based on the evaluation, a binary score is assigned: 1 (Performant) if the query is efficient, or 0 (Non-Performant) if anti-patterns are detected.
   </Step>
 </Steps>
 
@@ -155,14 +141,6 @@ WHERE date_col BETWEEN '2023-01-01' AND '2023-12-31'
 - **Unnecessary DISTINCT**: Deduplicating already-unique columns
 - **Inefficient UNION**: Using UNION when UNION ALL suffices
 
-## Interpreting the score
-
-- **0–30**: Low efficiency — query likely contains serious anti-patterns or DoS risks.
-- **31–69**: Mixed efficiency — review for potential performance improvements.
-- **70–100**: Good efficiency — query appears well-structured.
-
-> Consider setting thresholds based on your database's capacity and query frequency (e.g., flag < 50 for queries running on production systems).
-
 ## Example use cases
 
 - Pre-flight validation of generated SQL before execution on production databases.
@@ -172,32 +150,19 @@ WHERE date_col BETWEEN '2023-01-01' AND '2023-12-31'
 
 **Example**: A business intelligence platform where users generate ad-hoc queries — SQL Efficiency catches a generated query with a missing JOIN condition that would create a Cartesian product of 10 million rows, preventing a potential database outage.
 
-## Usage
-
-Enable this metric in experiments or Log streams by selecting the SQL Efficiency scorer.
-
-<CodeGroup>
-
-```python Python
-from galileo.schema.metrics import GalileoScorers
-metric = GalileoScorers.sql_efficiency
-```
-
-</CodeGroup>
-
 ## Best practices
 
 <CardGroup cols={2}>
+  <Card title="Specify SQL dialect and schema" icon="code">
+    Providing the SQL dialect and schema information helps the evaluator understand dialect-specific anti-patterns and table relationships for optimization analysis.
+  </Card>
   <Card title="Combine with other Text-to-SQL metrics" icon="layer-group">
     Use alongside SQL Correctness and SQL Adherence for comprehensive validation of generated queries.
   </Card>
-  <Card title="Set strict thresholds for production" icon="shield">
-    Use lower tolerance for queries running on production databases to prevent availability issues.
+  <Card title="Iterate with CLHF" icon="graduation-cap">
+    Use continuous learning via human feedback to tune detection for your specific database patterns.
   </Card>
   <Card title="Review flagged queries" icon="magnifying-glass">
     Manually review inefficient queries to understand patterns and improve your SQL generation prompts.
-  </Card>
-  <Card title="Iterate with CLHF" icon="graduation-cap">
-    Use continuous learning via human feedback to tune detection for your specific database patterns.
   </Card>
 </CardGroup>

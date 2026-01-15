@@ -40,36 +40,17 @@ Here's a scale that shows the relationship between SQL Injection detection and p
 SQL Injection detection is computed through a comprehensive security analysis:
 
 <Steps>
-  <Step title="Model Request">One or more evaluation requests are sent to an LLM evaluator to analyze the SQL query for security vulnerabilities.</Step>
-  <Step title="Authentication Bypass Detection">
-    Check for patterns that bypass authentication.
-    <br />
-    - Tautologies like `OR 1=1` to manipulate WHERE clauses
-    - Comment syntax (`--`, `#`, `/*`) to truncate queries
+  <Step title="Model Request">
+    One or more evaluation requests are sent to an LLM evaluator to analyze the SQL query for security vulnerabilities.
   </Step>
-  <Step title="Data Exfiltration Detection">
-    Identify attempts to extract unauthorized data.
-    <br />
-    - `UNION`/`UNION ALL` with unauthorized tables
-    - Blind SQL injection patterns (`sleep()`, `WAITFOR DELAY`, `BENCHMARK()`)
+  <Step title="Prompt Engineering">
+    A specialized chain-of-thought prompt guides the model to evaluate the query for security risks including authentication bypass, data exfiltration, destructive actions, remote code execution, and structural integrity violations.
   </Step>
-  <Step title="Destructive Action Detection">
-    Detect commands that could destroy data or structure.
-    <br />
-    - DDL/DML statements (`DROP`, `TRUNCATE`, `DELETE`)
-    - Data modification (`UPDATE`, `INSERT`) unless whitelisted
+  <Step title="Evaluation Process">
+    The evaluator analyzes both the SQL query and its initiating prompt for known attack patterns such as tautologies, UNION injection, stacked queries, system-level functions, and file operations.
   </Step>
-  <Step title="RCE and System Access Detection">
-    Identify attempts to access the system.
-    <br />
-    - System-level functions (`xp_cmdshell`, stored procedures)
-    - File system access (`LOAD_FILE`, `INTO OUTFILE`)
-  </Step>
-  <Step title="Structural Integrity Check">
-    Verify query structure is not compromised.
-    <br />
-    - Stacked queries (multiple statements with `;`)
-    - Raw syntax from user input altering query structure
+  <Step title="Score Calculation">
+    Based on the evaluation, a binary score is assigned: 0 (Safe) if no security risks are detected, or 1 (Dangerous) if vulnerabilities are identified.
   </Step>
 </Steps>
 
@@ -103,8 +84,7 @@ Inputs considered (when available):
 ### Information Exfiltration
 
 - `UNION` or `UNION ALL` to access unauthorized tables
-- Blind SQL injection (`sleep()`, `WAITFOR DELAY`, `BENCHMARK()`)
-- Out-of-band data exfiltration (DNS lookups, HTTP requests)
+- Blind SQL injection patterns (`sleep()`, `WAITFOR DELAY`)
 
 ### Data Manipulation (Integrity Attacks)
 
@@ -115,19 +95,16 @@ Inputs considered (when available):
 
 - `DROP`, `TRUNCATE`, `DELETE` statements
 - DDL commands that alter database structure
-- `SHUTDOWN` commands
 
 ### Remote Code Execution (RCE)
 
-- System-level functions (`xp_cmdshell`, `sp_oacreate`)
-- File system access (`LOAD_FILE`, `INTO OUTFILE`, `BULK INSERT`)
-- User-defined function creation from external libraries
+- System-level functions (e.g., `xp_cmdshell`)
+- File system access (`LOAD_FILE`, `INTO OUTFILE`)
 
 ### Structural Integrity Violations
 
 - Stacked queries (multiple statements separated by `;`)
 - Raw syntax from user input that alters query structure
-- Recursive CTEs without termination conditions
 
 ## Common attack vectors detected
 
@@ -140,39 +117,21 @@ Inputs considered (when available):
 | Time-Based Blind | Infers data through delays | `IF(1=1, SLEEP(5), 0)` |
 | File Operations | Reads/writes server files | `LOAD_FILE('/etc/passwd')` |
 
-## Interpreting the score
-
-- **0–30**: Safe — query appears to be a standard, safe operation.
-- **31–69**: Suspicious — query contains patterns that warrant review.
-- **70–100**: Dangerous — query contains clear injection patterns or security risks.
-
-> For production systems, consider blocking any query with a score above 30 and implementing human review for edge cases.
-
 ## Example use cases
 
-- Real-time protection for user-facing Text-to-SQL applications.
-- Security auditing of SQL generation pipelines.
-- Detecting adversarial prompts attempting to manipulate SQL output.
-- Compliance validation before executing generated queries.
+- Real-time protection for user-facing Text-to-SQL applications against adversarial inputs.
+- Security auditing of SQL generation pipelines before production deployment.
+- Detecting injection attacks where users attempt to manipulate the LLM into generating malicious SQL.
+- Compliance validation ensuring generated queries don't perform unauthorized data access or modifications.
 
 **Example**: A customer-facing data analytics chatbot where users ask questions in natural language — SQL Injection detection catches an attempt where a user inputs "Show all users' OR '1'='1" which would generate a query bypassing access controls.
-
-## Usage
-
-Enable this metric in experiments or Log streams by selecting the SQL Injection scorer.
-
-<CodeGroup>
-
-```python Python
-from galileo.schema.metrics import GalileoScorers
-metric = GalileoScorers.sql_injection
-```
-
-</CodeGroup>
 
 ## Best practices
 
 <CardGroup cols={2}>
+  <Card title="Specify SQL dialect" icon="code">
+    Providing the SQL dialect helps the evaluator identify dialect-specific attack vectors and dangerous functions.
+  </Card>
   <Card title="Block high-risk queries" icon="shield-halved">
     Implement automatic blocking for queries scoring above your risk threshold before execution.
   </Card>
@@ -181,8 +140,5 @@ metric = GalileoScorers.sql_injection
   </Card>
   <Card title="Combine with input validation" icon="filter">
     Use alongside input sanitization and parameterized queries for defense in depth.
-  </Card>
-  <Card title="Monitor for new patterns" icon="radar">
-    Regularly review flagged queries to identify new attack patterns and update your security posture.
   </Card>
 </CardGroup>

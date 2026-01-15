@@ -20,6 +20,8 @@ SQL Adherence — A binary metric that evaluates whether the generated SQL query
 
 This metric focuses purely on the "meaning" and "intent" of the SQL query, independent of syntactic correctness or schema validity. It validates that the operations performed (filtering, sorting, aggregating) match what the user requested.
 
+<Note>This metric requires the original natural language query to be provided. Without the NL query, semantic alignment cannot be evaluated and the metric will not produce meaningful results.</Note>
+
 Here's a scale that shows the relationship between SQL Adherence and potential impact on your AI system:
 
 <Scale
@@ -39,31 +41,17 @@ Here's a scale that shows the relationship between SQL Adherence and potential i
 SQL Adherence is computed through a multi-step evaluation process:
 
 <Steps>
-  <Step title="Model Request">One or more evaluation requests are sent to an LLM evaluator to analyze the semantic alignment between the natural language query and the generated SQL.</Step>
-  <Step title="Selection Alignment">
-    The evaluator verifies that the SQL selects the correct attributes requested.
-    <br />
-    - Ensures the query selects the right columns (e.g., names vs. IDs).
-    - Checks that distinctness constraints are met when unique results are implied.
+  <Step title="Model Request">
+    One or more evaluation requests are sent to an LLM evaluator to analyze the semantic alignment between the natural language query and the generated SQL.
   </Step>
-  <Step title="Filtering Logic">
-    The evaluator checks the filtering conditions.
-    <br />
-    - Under-Filtering: The SQL must not miss constraints mentioned in the request.
-    - Over-Filtering: The SQL must not apply constraints NOT mentioned in the request.
-    - Value Precision: Literals and values must match user intent.
+  <Step title="Prompt Engineering">
+    A specialized chain-of-thought prompt guides the model to evaluate whether the SQL accurately reflects user intent across selection, filtering, aggregation, and logical relationships.
   </Step>
-  <Step title="Aggregation Arithmetic">
-    The evaluator ensures proper aggregation functions are used.
-    <br />
-    - Function Match: "Total" → SUM, "Average" → AVG, "Count" → COUNT.
-    - Granularity: Lists should not return single scalar values.
+  <Step title="Evaluation Process">
+    The evaluator analyzes the query for semantic correctness, checking column selection alignment, filtering logic (under/over-filtering), aggregation functions, and proper use of ORDER BY/LIMIT clauses.
   </Step>
-  <Step title="Logical Relationships">
-    The evaluator verifies logical operators and ordering.
-    <br />
-    - Boolean Logic: AND/OR operators match user intent.
-    - Sorting/Limiting: Rankings use correct ORDER BY and LIMIT clauses.
+  <Step title="Score Calculation">
+    Based on the evaluation, a binary score is assigned: 1 (Valid) if the query semantically matches user intent, or 0 (Invalid) if semantic mismatches are detected.
   </Step>
 </Steps>
 
@@ -73,11 +61,14 @@ SQL Adherence is computed through a multi-step evaluation process:
 
 - LLM span
 
-Inputs considered (when available):
+Required inputs:
 
 - The natural language query posed by the user
 - The generated SQL query (output)
-- Optionally available SQL dialect, schema information, and domain knowledge hints
+
+Optional inputs:
+
+- SQL dialect, schema information, and domain knowledge hints
 
 <Note>This metric does NOT check syntactic correctness or schema validity—it focuses purely on semantic alignment with user intent. Use [SQL Correctness](/concepts/metrics/text2sql/sql-correctness) for syntactic and schematic validation.</Note>
 
@@ -109,14 +100,6 @@ The executable SQL doesn't match user intent, including:
 - Missing a necessary JOIN to connect related tables
 - Missing WHERE clause for a filtered request
 
-## Interpreting the score
-
-- **0–30**: Low adherence — SQL likely contains semantic mismatches with user intent.
-- **31–69**: Mixed adherence — review the query logic and filtering conditions.
-- **70–100**: Strong adherence — SQL appears to accurately match user intent.
-
-> Consider setting thresholds for alerting or human review based on your domain's risk tolerance (e.g., flag < 50 for review).
-
 ## Example use cases
 
 - Validating that a natural language to SQL assistant correctly interprets user questions.
@@ -126,24 +109,11 @@ The executable SQL doesn't match user intent, including:
 
 **Example**: A data analytics assistant where a user asks "Show me the top 5 customers by total sales" — SQL Adherence validates that the query correctly orders by sales amount in descending order, limits to 5 results, and selects customer information rather than product data.
 
-## Usage
-
-Enable this metric in experiments or Log streams by selecting the SQL Adherence scorer.
-
-<CodeGroup>
-
-```python Python
-from galileo.schema.metrics import GalileoScorers
-metric = GalileoScorers.sql_adherence
-```
-
-</CodeGroup>
-
 ## Best practices
 
 <CardGroup cols={2}>
-  <Card title="Provide the NL query" icon="message">
-    Always include the original natural language query so the evaluator can assess semantic alignment.
+  <Card title="Specify SQL dialect and schema" icon="code">
+    Providing the SQL dialect and schema information helps the evaluator understand dialect-specific syntax and table relationships for more accurate assessment.
   </Card>
   <Card title="Include domain hints" icon="lightbulb">
     Provide domain knowledge hints (e.g., "premium customer means tier = 'gold'") for more accurate intent matching.
