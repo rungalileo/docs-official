@@ -7,18 +7,18 @@ from galileo import GalileoLogger
 from galileo.handlers.langchain import GalileoCallback
 
 # LangChain and LangGraph dependencies
-from langgraph.prebuilt import create_react_agent
-from langchain.schema.runnable.config import RunnableConfig
+from langchain.agents import create_agent
+from langchain_core.runnables.config import RunnableConfig
 
 # Load `.env` variables
 load_dotenv()
 
 # Create a simple assistant for our test (or import one). You can also provide
 # your agent with tools: the session will log their usage
-simple_agent = create_react_agent(
+simple_agent = create_agent(
     name="simple_agent",
     model="openai:o3-mini",  # you can choose any OpenAI model here
-    prompt="You are a friendly assistant that answers the user's questions",
+    system_prompt="You are a friendly assistant that answers the user's questions",
     tools=[],  # (OPTIONAL) provide tools to your agent
 )
 ```
