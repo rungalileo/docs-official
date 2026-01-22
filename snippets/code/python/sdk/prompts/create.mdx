@@ -1,10 +1,11 @@
 ```python Python
-from galileo.__future__ import Message, MessageRole, Prompt
+from galileo import Message, MessageRole
+from galileo.prompts import create_prompt
 
 # Create a prompt with system and user messages
-prompt = Prompt(
+prompt = create_prompt(
     name="storyteller-prompt",
-    messages=[
+    template=[
         Message(role=MessageRole.system,
                 content="You are a great storyteller."),
         Message(role=MessageRole.user,
@@ -12,7 +13,6 @@ prompt = Prompt(
                 Please write a short story about
                 the following topic: {{topic}}
                 """)
-    ],
+    ]
 )
-prompt.create()
 ```

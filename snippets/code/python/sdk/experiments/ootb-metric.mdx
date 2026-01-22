@@ -1,15 +1,12 @@
 ```python Python {8}
-from galileo.__future__ import Dataset, Experiment, Metric
+from galileo.experiments import run_experiment
+from galileo.schema.metrics import GalileoScorers
 
-dataset = Dataset.get(name="countries")
-
-experiment = Experiment(
-    name="finance-experiment",
+results = run_experiment(
+    "finance-experiment",
     dataset=dataset,
-    prompt_name="geography-prompt",
-    metrics=[Metric.scorers.correctness],
-    project_name="my-project",
+    function=llm_call,
+    metrics=[GalileoScorers.correctness],
+    project="my-project",
 )
-experiment.create()
-result = experiment.run()
 ```

@@ -1,17 +1,13 @@
 ```python Python
-from galileo import log
-from galileo.__future__ import LogStream
+from galileo import log, galileo_context
 
 @log
 def make_nested_call():
     # Function implementation
     return "result"
 
-# Get the log stream
-log_stream = LogStream.get(name="my-log-stream", project_name="my-project")
-
 # This will log to the specified project and Log stream
-with log_stream.context():
+with galileo_context(project="my-project", log_stream="my-log-stream"):
     content = make_nested_call()
     print(content)
 ```

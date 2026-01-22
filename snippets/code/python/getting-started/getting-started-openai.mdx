@@ -1,28 +1,23 @@
 ```python Python
-from galileo.__future__ import Configuration, LogStream, Metric
-from galileo import openai
+from galileo import galileo_context
+from galileo.openai import openai
+from galileo.config import GalileoPythonConfig
 from dotenv import load_dotenv
 
 # Load environment variables from the .env file
 load_dotenv()
 
-# Connect to Galileo (reads GALILEO_CONSOLE_URL and GALILEO_API_KEY from env)
-Configuration.connect()
-
-# Get or create a log stream
-log_stream = LogStream.get(name="MyFirstLogStream", project_name="MyFirstEvaluation")
-if not log_stream:
-    log_stream = LogStream(name="MyFirstLogStream", project_name="MyFirstEvaluation")
-    log_stream.create()
-
-# Enable metrics on the log stream
-log_stream.set_metrics([Metric.scorers.context_adherence])
+# Set the project and Log stream, these are created if they don't exist.
+# You can also set these using the GALILEO_PROJECT and GALILEO_LOG_STREAM
+# environment variables.
+galileo_context.init(project="MyFirstEvaluation",
+                     log_stream="MyFirstLogStream")
 
 # Initialize the Galileo OpenAI client wrapper
 client = openai.OpenAI()
 
 # Define a system prompt with guidance
-system_prompt = """
+system_prompt = f"""
 You are a helpful assistant that wants to provide a user as much
 information as possible. Avoid saying I don't know.
 """
@@ -30,28 +25,26 @@ information as possible. Avoid saying I don't know.
 # Define a user prompt with a question
 user_prompt = "Describe Galileo"
 
-# Log interactions using the log stream context
-with log_stream.context():
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ],
-    )
+# Send a request to the LLM
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt}
+    ],
+)
 
 # Print the response
 print(response.choices[0].message.content.strip())
 
-# Query the logged traces from the log stream
-traces = log_stream.get_traces(
-    sort=log_stream.trace_columns["created_at"].descending(),
-    limit=5
-)
+# Show Galileo information after the response
+config = GalileoPythonConfig.get()
+logger = galileo_context.get_logger_instance()
+project_url = f"{config.console_url}project/{logger.project_id}"
+log_stream_url = f"{project_url}/log-streams/{logger.log_stream_id}"
 
-# Display the results
-for trace in traces.to_list():
-    print(f"Input: {trace.get('input')}")
-    print(f"Output: {trace.get('output')}")
-    print(f"Metrics: {trace.get('metrics')}")
+print()
+print("🚀 GALILEO LOG INFORMATION:")
+print(f"🔗 Project   : {project_url}")
+print(f"📝 Log Stream: {log_stream_url}")
 ```

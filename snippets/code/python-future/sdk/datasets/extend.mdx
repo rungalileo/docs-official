@@ -1,0 +1,21 @@
+```python Python (Beta)
+from galileo.__future__ import Dataset
+
+# Get an existing dataset
+dataset = Dataset.get(name="countries")
+
+# Extend with synthetic data
+extended_rows = dataset.extend(
+    prompt="Nutrition and health chatbot",
+    instructions="Questions that an average-health person would be interested in",
+    examples=[
+        "Is cereal for breakfast healthy?",
+        "How many cups of coffee is unhealthy?",
+    ],
+    count=10,
+)
+
+# Print the generated rows
+for row in extended_rows:
+    print(row)
+```

@@ -1,11 +1,8 @@
 ```python Python
-from galileo.__future__ import LogStream
-
-# Get the log stream
-log_stream = LogStream.get(name="my-log-stream", project_name="my-project")
+from galileo import galileo_context
 
 # This will log to the specified project and Log stream
-with log_stream.context():
+with galileo_context(project="my-project", log_stream="my-log-stream"):
     # All operations within this block will be logged to the same trace
     # in the specified project and Log stream
     result = your_function()

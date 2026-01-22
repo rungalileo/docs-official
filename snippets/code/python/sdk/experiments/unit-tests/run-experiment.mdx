@@ -1,14 +1,14 @@
 ```python python
-from galileo.__future__ import Experiment, Metric
+from galileo import GalileoScorers
+from galileo.experiments import run_experiment
 
 def test_run_experiment():
-    experiment = Experiment(
-        name="test_run_experiment",
+    experiment_response = run_experiment(
+        experiment_name="test_run_experiment",
         dataset_name="my-unit-test-dataset",
-        prompt_name="my-unit-test-prompt",
-        metrics=[Metric.scorers.correctness],
-        project_name="my-project",
+        function=my_llm_function,
+        metrics=[
+            GalileoScorers.correctness,
+        ]
     )
-    experiment.create()
-    result = experiment.run()
 ```

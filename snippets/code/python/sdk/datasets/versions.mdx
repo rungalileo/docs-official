@@ -1,19 +1,15 @@
 ```python Python
-from galileo.__future__ import Dataset
-
-# Get an existing dataset
-dataset = Dataset.get(name="countries")
+from galileo.datasets import get_dataset_version_history
 
 # Get the version history
-versions = dataset.get_version_history()
+datasets = get_dataset_version_history(
+    dataset_name="countries"
+)
 
 # List out the rows added with each version
-for version in versions:
+for dataset in datasets.versions:
     print(f"""
-    Version index: {version.get('version_index')},
-    rows added: {version.get('rows_added')}
+    Version index: {dataset.version_index},
+    rows added: {dataset.rows_added}
     """)
-
-# Get specific version of the dataset
-specific_version = dataset.get_version(index=1)
 ```

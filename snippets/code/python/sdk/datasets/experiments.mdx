@@ -1,20 +1,25 @@
 ```python Python
-from galileo.__future__ import Dataset, Experiment, Metric, Prompt
+from galileo.datasets import get_dataset
+from galileo.experiments import run_experiment
+from galileo.prompts import get_prompt
+from galileo.schema.metrics import GalileoScorers
 
 # Get an existing dataset
-dataset = Dataset.get(name="countries")
+dataset = get_dataset(
+    name="countries"
+)
 
 # Get an existing prompt
-prompt = Prompt.get(name="geography-prompt")
+prompt = get_prompt(
+    name="geography-prompt"
+)
 
 # Run an experiment with the dataset and prompt
-experiment = Experiment(
-    name="geography-experiment",
+results = run_experiment(
+    "geography-experiment",
     dataset=dataset,
-    prompt=prompt,
-    metrics=[Metric.scorers.completeness],
-    project_name="my-project",
+    prompt_template=prompt,
+    metrics=[GalileoScorers.completeness],
+    project="my-project",
 )
-experiment.create()
-result = experiment.run()
 ```

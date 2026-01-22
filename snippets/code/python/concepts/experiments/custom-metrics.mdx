@@ -1,10 +1,12 @@
 ```python Python
 import os
-from galileo.__future__ import Dataset, Experiment, LocalMetric, StepType
-from galileo import openai
+from galileo import Trace, Span
+from galileo.experiments import run_experiment
+from galileo.openai import openai
+from galileo.schema.metrics import LocalMetricConfig
 
 # 1. Scorer Function
-def brevity_rank(step) -> str:
+def brevity_rank(step: Span | Trace) -> str:
     """Rank response brevity based on word count."""
     word_count = len(step.output.content.split(" "))
     if word_count <= 3:
@@ -19,25 +21,19 @@ def brevity_aggregator(ranks: list[str]) -> str:
     return "Terrible" if ranks[0] == "Talkative" else ranks[0]
 
 # 3. Configure the Local Metric
-terseness = LocalMetric(
+terseness = LocalMetricConfig[str](
     name="Terseness",
     scorer_fn=brevity_rank,
     aggregator_fn=brevity_aggregator,
-    scorable_types=[StepType.llm],
-    aggregatable_types=[StepType.trace],
 )
 
 # 4. Dataset
-countries_dataset = Dataset(
-    name="countries-terseness",
-    content=[
-        {"input": "Indonesia"},
-        {"input": "New Zealand"},
-        {"input": "Greenland"},
-        {"input": "China"},
-    ]
-)
-countries_dataset.create()
+countries_dataset = [
+    {"input": "Indonesia"},
+    {"input": "New Zealand"},
+    {"input": "Greenland"},
+    {"input": "China"},
+]
 
 # 5. LLM-Call Function
 def llm_call(input):
@@ -65,13 +61,11 @@ def llm_call(input):
     )
 
 # 6. Run the Experiment!
-experiment = Experiment(
-    name="terseness-custom-metric",
+results = run_experiment(
+    "terseness-custom-metric",
     dataset=countries_dataset,
     function=llm_call,
     metrics=[terseness],  # You can add multiple custom metrics here
-    project_name="My first project",
+    project="My first project",
 )
-experiment.create()
-result = experiment.run()
 ```

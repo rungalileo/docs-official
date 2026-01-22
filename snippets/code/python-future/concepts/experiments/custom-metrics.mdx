@@ -1,0 +1,77 @@
+```python Python (Beta)
+import os
+from galileo.__future__ import Dataset, Experiment, LocalMetric, StepType
+from galileo import openai
+
+# 1. Scorer Function
+def brevity_rank(step) -> str:
+    """Rank response brevity based on word count."""
+    word_count = len(step.output.content.split(" "))
+    if word_count <= 3:
+        return "Terse"
+    if word_count <= 5:
+        return "Temperate"
+    return "Talkative"
+
+# 2. Aggregator Function
+def brevity_aggregator(ranks: list[str]) -> str:
+    """Extract the single rank and adjust if it's 'Talkative'."""
+    return "Terrible" if ranks[0] == "Talkative" else ranks[0]
+
+# 3. Configure the Local Metric
+terseness = LocalMetric(
+    name="Terseness",
+    scorer_fn=brevity_rank,
+    aggregator_fn=brevity_aggregator,
+    scorable_types=[StepType.llm],
+    aggregatable_types=[StepType.trace],
+)
+
+# 4. Dataset
+countries_dataset = Dataset(
+    name="countries-terseness",
+    content=[
+        {"input": "Indonesia"},
+        {"input": "New Zealand"},
+        {"input": "Greenland"},
+        {"input": "China"},
+    ]
+)
+countries_dataset.create()
+
+# 5. LLM-Call Function
+def llm_call(input):
+    client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    return (
+        client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": """
+                    You are a geography expert. Always answer as succinctly as possible.
+                    """
+                },
+                {
+                    "role": "user",
+                    "content": f"""
+                    Which continent does the following country belong to: {input}
+                    """
+                },
+            ],
+        )
+        .choices[0]
+        .message.content
+    )
+
+# 6. Run the Experiment!
+experiment = Experiment(
+    name="terseness-custom-metric",
+    dataset=countries_dataset,
+    function=llm_call,
+    metrics=[terseness],  # You can add multiple custom metrics here
+    project_name="My first project",
+)
+experiment.create()
+result = experiment.run()
+```

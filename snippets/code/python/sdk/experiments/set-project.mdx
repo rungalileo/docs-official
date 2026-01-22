@@ -1,14 +1,10 @@
 ```python Python
-from galileo.__future__ import Experiment, Metric
-
-experiment = Experiment(
-    name="my-experiment",
-    dataset_name="countries",
-    prompt_name="geography-prompt",
-    metrics=[Metric.scorers.correctness],
+results = run_experiment(
+    "my-experiment",
+    dataset=dataset,
+    prompt_template=prompt,
+    metrics=[GalileoScorers.correctness],
     # Set the project name here
-    project_name="my-project"
+    project="my-project"
 )
-experiment.create()
-result = experiment.run()
 ```

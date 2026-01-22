@@ -1,15 +1,17 @@
 ```python Python
-import time
-from galileo.__future__ import Experiment, Metric
+# Get the name of the average metric
+average_metric_name = f"average_{GalileoScorers.instruction_adherence.value}"
 
-# Poll till the experiment is complete
-while not experiment.get_status().is_complete:
-    # Sleep for 5 seconds before polling again
+# Poll till the metrics are calculated
+while (
+    experiment.aggregate_metrics is None
+    or average_metric_name
+        not in experiment.aggregate_metrics
+):
+    # If we don't have the metrics calculated,
+    # sleep for 5 seconds before polling again
     time.sleep(5)
-    # Refresh experiment to get latest status
-    experiment.refresh()
 
-# Access aggregate metrics
-metrics = experiment.aggregate_metrics
-average_correctness = metrics.get(f"average_{Metric.scorers.correctness.value}")
+    # Reload the experiment to see if we now have the metrics
+    experiment = get_experiment(experiment_name=experiment_name)
 ```

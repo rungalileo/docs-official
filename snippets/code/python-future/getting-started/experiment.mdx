@@ -1,0 +1,63 @@
+```python Python (Beta)
+from galileo.__future__ import (
+    Configuration,
+    Dataset,
+    Experiment,
+    Message,
+    MessageRole,
+    Metric,
+    Prompt,
+)
+from dotenv import load_dotenv
+
+# Load the environment variables
+load_dotenv()
+
+# Connect to Galileo
+Configuration.connect()
+
+# Create a prompt template, or load it if it already exists
+prompt = Prompt.get(name="My Prompt")
+if not prompt:
+    prompt = Prompt(
+        name="My Prompt",
+        messages=[
+            Message(
+                role=MessageRole.system,
+                content="""
+Galileo is the fastest way to ship reliable apps.
+Galileo brings automation and insight to AI evaluations so you can
+ship with confidence.
+""",
+            ),
+            Message(role=MessageRole.user, content="{{input}}"),
+        ],
+    )
+    prompt.create()
+
+# Create a dataset, or load it if it already exists
+dataset = Dataset.get(name="My Dataset")
+if not dataset:
+    dataset = Dataset(
+        name="My Dataset",
+        content=[
+            {"input": "What is Galileo?"},
+            {"input": "What is Copernicus?"}
+        ],
+    )
+    dataset.create()
+
+# Create and run the experiment
+experiment = Experiment(
+    name="My Experiment",
+    prompt=prompt,
+    dataset=dataset,
+    metrics=[Metric.scorers.context_adherence],
+    project_name="MyFirstEvaluation",
+)
+experiment.create()
+result = experiment.run()
+
+# Show experiment link
+print(f"Experiment: {result.link}")
+```

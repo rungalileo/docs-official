@@ -1,0 +1,15 @@
+```python Python (Beta)
+import time
+from galileo.__future__ import Experiment, Metric
+
+# Poll till the experiment is complete
+while not experiment.get_status().is_complete:
+    # Sleep for 5 seconds before polling again
+    time.sleep(5)
+    # Refresh experiment to get latest status
+    experiment.refresh()
+
+# Access aggregate metrics
+metrics = experiment.aggregate_metrics
+average_correctness = metrics.get(f"average_{Metric.scorers.correctness.value}")
+```

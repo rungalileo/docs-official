@@ -1,15 +1,11 @@
-```python Python {8}
-from galileo.__future__ import Dataset, Experiment
+```python Python {7}
+from galileo.experiments import run_experiment
 
-dataset = Dataset.get(name="countries")
-
-experiment = Experiment(
-    name="finance-experiment",
+results = run_experiment(
+    "finance-experiment",
     dataset=dataset,
-    prompt_name="geography-prompt",
+    function=llm_call,
     metrics=["Compliance - do not recommend any financial actions"],
-    project_name="my-project",
+    project="my-project",
 )
-experiment.create()
-result = experiment.run()
 ```

@@ -1,0 +1,49 @@
+```python Python (Beta)
+from galileo.__future__ import (
+    Dataset,
+    Experiment,
+    Message,
+    MessageRole,
+    Metric,
+    Prompt,
+)
+from galileo.resources.models import PromptRunSettings
+
+project_name = "my-project"
+
+# 1a. If the prompt does not exist, create it:
+prompt = Prompt(
+    name="geography-prompt",
+    messages=[
+        Message(role=MessageRole.system,
+                content="""
+                You are a geography expert.
+                Respond with only the continent name.
+                """),
+        Message(role=MessageRole.user, content="{{input}}")
+    ]
+)
+prompt.create()
+
+# 1b. (OPTIONAL) If the prompt already exists, fetch it:
+# prompt = Prompt.get(name="geography-prompt")
+
+# 2. Run the experiment and get results
+experiment = Experiment(
+    name="geography-experiment",
+    dataset=Dataset.get(name="countries"),
+    prompt=prompt,
+    # Optional: Configure prompt settings
+    prompt_settings=PromptRunSettings(
+        max_tokens=256,
+        # Make sure you have an integration set up
+        # for the model alias you're using
+        model_alias="GPT-4o",
+        temperature=0.8
+    ),
+    metrics=[Metric.scorers.correctness],
+    project_name=project_name
+)
+experiment.create()
+result = experiment.run()
+```
