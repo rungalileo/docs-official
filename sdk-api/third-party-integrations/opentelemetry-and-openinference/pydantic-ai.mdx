@@ -1,0 +1,210 @@
+---
+title: Pydantic AI
+description: Learn how to integrate a Pydantic AI project with Galileo using OpenTelemetry
+---
+
+{/* <!-- markdownlint-disable MD044 --> */}
+
+import SnippetSimpleEnvVars from "/snippets/code/multilingual/env-galileo-simple.mdx";
+import SnippetConfigureOTelEndpoint from "/snippets/content/configure-otel-endpoint.mdx";
+
+{/* <!-- markdownlint-enable MD044 --> */}
+
+Galileo supports logging traces from [Pydantic AI](https://ai.pydantic.dev/) applications using OpenTelemetry.
+
+## Set up OpenTelemetry
+
+To log Pydantic AI applications using Galileo, the first step is to set up OpenTelemetry.
+
+<Steps>
+<Step title="Install the required packages">
+
+Add the Galileo Python SDK and Pydantic AI to your Python environment.
+
+<CodeGroup>
+
+```bash Terminal
+pip install pydantic-ai \
+      galileo \
+      opentelemetry-api \
+      opentelemetry-sdk
+```
+
+</CodeGroup>
+</Step>
+<Step title="Create environment variables for your Galileo settings">
+
+Set environment variables for your Galileo settings, for example in a `.env` file:
+
+<CodeGroup>
+<SnippetSimpleEnvVars/>
+</CodeGroup>
+</Step>
+<Step title="Get your endpoint">
+<SnippetConfigureOTelEndpoint/>
+</Step>
+<Step title="Configure the OpenTelemetry tracer provider">
+
+Use the following code to configure OpenTelemetry with Galileo. This sets up the tracer provider and enables instrumentation for all Pydantic AI agents.
+
+<CodeGroup>
+
+```python Python
+from galileo import galileo_context, otel
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from pydantic_ai import Agent
+
+# Create and configure the tracer provider
+provider = TracerProvider()
+trace.set_tracer_provider(provider)
+
+# Add the Galileo span processor
+otel.add_galileo_span_processor(
+    tracer_provider=provider,
+    processor=otel.GalileoSpanProcessor()
+)
+
+# Enable instrumentation on all agents
+Agent.instrument_all()
+```
+
+</CodeGroup>
+</Step>
+<Step title="Run your application with Galileo context">
+
+Wrap your application code with the `galileo_context` context manager to specify the project and log stream:
+
+<CodeGroup>
+
+```python Python
+from uuid import uuid4
+
+with galileo_context(
+    project="your-project-name",
+    log_stream="your-log-stream",
+    session_id=str(uuid4()),
+):
+    # Your agent code here
+    result = agent.run_sync("Your query")
+```
+
+</CodeGroup>
+
+Your application is now configured to send telemetry to Galileo using OpenTelemetry. Run your application to see traces in your log stream.
+
+</Step>
+</Steps>
+
+## Full example
+
+Here is a full example of a Pydantic AI agent with Galileo logging. This example demonstrates a customer support assistant that can check order status:
+
+- Setting up OpenTelemetry with Galileo
+- Creating an agent with a custom tool
+- Running the agent with proper logging context
+
+To run this example, create a `.env` file with the following values set, or set them as environment variables:
+
+```ini .env
+# OpenAI API key
+OPENAI_API_KEY=your-openai-api-key
+
+# Galileo environment variables
+GALILEO_API_KEY=your-galileo-api-key
+GALILEO_PROJECT=your-galileo-project
+GALILEO_LOG_STREAM=your-log-stream
+```
+
+Remember to update these to match your [Galileo API key](https://app.galileo.ai/settings/api-keys), OpenAI API key, project name, and log stream name.
+
+<CodeGroup>
+
+```python Python
+from uuid import uuid4
+from typing import Dict
+
+from galileo import otel
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from pydantic_ai import Agent, RunContext
+
+# Configure OpenTelemetry with Galileo
+provider = TracerProvider()
+trace.set_tracer_provider(provider)
+otel.add_galileo_span_processor(
+    tracer_provider=provider,
+    processor=otel.GalileoSpanProcessor()
+)
+
+# Enable instrumentation on all agents
+Agent.instrument_all()
+
+# Mock order database
+orders_db: Dict[str, dict] = {
+    "ORD-12345": {
+        "status": "shipped",
+        "tracking": "1Z999AA10123456784",
+        "estimated_delivery": "2025-01-25"
+    },
+    "ORD-12346": {
+        "status": "processing",
+        "tracking": None,
+        "estimated_delivery": "2025-01-27"
+    }
+}
+
+# Create a customer support agent
+support_agent = Agent(
+    "openai:gpt-4o",
+    deps_type=Dict[str, dict],
+    system_prompt=(
+        "You are a helpful customer support assistant. "
+        "Use the `check_order_status` tool to look up order information "
+        "and provide clear, friendly responses to customers."
+    ),
+)
+
+
+@support_agent.tool
+async def check_order_status(ctx: RunContext[Dict[str, dict]], order_id: str) -> str:
+    """Check the status of a customer order"""
+    order = ctx.deps.get(order_id)
+    if not order:
+        return f"Order {order_id} not found"
+
+    status_msg = f"Order {order_id} is currently {order['status']}."
+    if order['tracking']:
+        status_msg += f" Tracking number: {order['tracking']}"
+    if order['estimated_delivery']:
+        status_msg += f" Estimated delivery: {order['estimated_delivery']}"
+
+    return status_msg
+
+
+# Run the agent with Galileo context
+result = support_agent.run_sync(
+    "What's the status of my order ORD-12345?",
+    deps=orders_db
+)
+print(result.output)
+```
+
+</CodeGroup>
+
+## What gets logged
+
+Pydantic AI spans are automatically detected and normalized by Galileo's OpenTelemetry extension. The following span types are supported:
+
+- **Agent runs**: Complete agent executions with input/output messages
+- **Chat completions**: LLM calls with messages and responses
+- **Tool executions**: Individual tool invocations with arguments and results
+- **Tool workflows**: Parent spans that group multiple tool executions
+
+All traces include:
+
+- Input and output messages
+- Tool calls and results
+- Agent configurations
+- Timing and performance metrics
+- Error information (if applicable)
