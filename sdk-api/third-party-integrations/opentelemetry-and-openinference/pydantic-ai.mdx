@@ -3,12 +3,12 @@ title: Pydantic AI
 description: Learn how to integrate a Pydantic AI project with Galileo using OpenTelemetry
 ---
 
-{/* <!-- markdownlint-disable MD044 --> */}
+{/*<!-- markdownlint-disable MD044 -->*/}
 
 import SnippetSimpleEnvVars from "/snippets/code/multilingual/env-galileo-simple.mdx";
 import SnippetConfigureOTelEndpoint from "/snippets/content/configure-otel-endpoint.mdx";
 
-{/* <!-- markdownlint-enable MD044 --> */}
+{/*<!-- markdownlint-enable MD044 -->*/}
 
 Galileo supports logging traces from [Pydantic AI](https://ai.pydantic.dev/) applications using OpenTelemetry.
 
@@ -73,7 +73,7 @@ Agent.instrument_all()
 </Step>
 <Step title="Run your application with Galileo context">
 
-Wrap your application code with the `galileo_context` context manager to specify the project and log stream:
+Wrap your application code with the `galileo_context` context manager to specify the project and Log stream:
 
 <CodeGroup>
 
@@ -91,7 +91,7 @@ with galileo_context(
 
 </CodeGroup>
 
-Your application is now configured to send telemetry to Galileo using OpenTelemetry. Run your application to see traces in your log stream.
+Your application is now configured to send telemetry to Galileo using OpenTelemetry. Run your application to see traces in your Log stream.
 
 </Step>
 </Steps>
@@ -116,7 +116,7 @@ GALILEO_PROJECT=your-galileo-project
 GALILEO_LOG_STREAM=your-log-stream
 ```
 
-Remember to update these to match your [Galileo API key](https://app.galileo.ai/settings/api-keys), OpenAI API key, project name, and log stream name.
+Remember to update these to match your [Galileo API key](https://app.galileo.ai/settings/api-keys), OpenAI API key, project name, and Log stream name.
 
 <CodeGroup>
 
@@ -167,7 +167,9 @@ support_agent = Agent(
 
 
 @support_agent.tool
-async def check_order_status(ctx: RunContext[Dict[str, dict]], order_id: str) -> str:
+async def check_order_status(
+    ctx: RunContext[Dict[str, dict]], order_id: str
+) -> str:
     """Check the status of a customer order"""
     order = ctx.deps.get(order_id)
     if not order:
