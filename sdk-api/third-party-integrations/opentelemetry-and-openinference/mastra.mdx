@@ -35,17 +35,7 @@ npm install @mastra/otel-exporter \
 Set environment variables for your Galileo settings, for example in a `.env` file:
 
 <CodeGroup>
-
-```ini .env
-# OpenAI API key
-OPENAI_API_KEY=your-openai-api-key
-
-# Galileo environment variables
-GALILEO_API_KEY=your-galileo-api-key
-GALILEO_PROJECT=your-galileo-project
-GALILEO_LOG_STREAM=your-log-stream
-```
-
+<SnippetSimpleEnvVars/>
 </CodeGroup>
 </Step>
 <Step title="Get your endpoint">
@@ -108,130 +98,6 @@ Your application is now configured to send telemetry to Galileo using OpenTeleme
 </Step>
 </Steps>
 
-## Full example
-
-Here is a full example of a Mastra agent with Galileo logging. This example demonstrates a customer support assistant that can check order status:
-
-- Setting up OpenTelemetry with Galileo
-- Creating an agent with a custom tool
-- Configuring the Mastra instance with proper observability
-
-To run this example, create a `.env` file with the following values set, or set them as environment variables:
-
-```ini .env
-# OpenAI API key
-OPENAI_API_KEY=your-openai-api-key
-
-# Galileo environment variables
-GALILEO_API_KEY=your-galileo-api-key
-GALILEO_PROJECT=your-galileo-project
-GALILEO_LOG_STREAM=your-log-stream
-```
-
-Remember to update these to match your [Galileo API key](https://app.galileo.ai/settings/api-keys), OpenAI API key, project name, and Log stream name.
-
-<CodeGroup>
-
-```typescript TypeScript
-import { openai } from "@ai-sdk/openai";
-import { Agent } from "@mastra/core/agent";
-import { SamplingStrategyType } from "@mastra/core/ai-tracing";
-import { Mastra } from "@mastra/core/mastra";
-import { createTool } from "@mastra/core/tools";
-import { OtelExporter } from "@mastra/otel-exporter";
-import "dotenv/config";
-import { env } from "node:process";
-import { z } from "zod";
-
-// Mock order database
-const ordersDb: Record<string, any> = {
-  "ORD-12345": {
-    status: "shipped",
-    tracking: "1Z999AA10123456784",
-    estimatedDelivery: "2025-01-25",
-  },
-  "ORD-12346": {
-    status: "processing",
-    tracking: null,
-    estimatedDelivery: "2025-01-27",
-  },
-};
-
-// Create a tool to check order status
-const checkOrderStatusTool = createTool({
-  id: "check-order-status",
-  description: "Check the status of a customer order",
-  inputSchema: z.object({
-    orderId: z.string().describe("The order ID to check"),
-  }),
-  execute: async ({ context: { orderId } }) => {
-    const order = ordersDb[orderId];
-    if (!order) {
-      return { error: `Order ${orderId} not found` };
-    }
-
-    let statusMsg = `Order ${orderId} is currently ${order.status}.`;
-    if (order.tracking) {
-      statusMsg += ` Tracking number: ${order.tracking}`;
-    }
-    if (order.estimatedDelivery) {
-      statusMsg += ` Estimated delivery: ${order.estimatedDelivery}`;
-    }
-
-    return { message: statusMsg };
-  },
-});
-
-// Create the customer support agent
-const supportAgent = new Agent({
-  name: "Customer Support Agent",
-  description: "An agent that helps customers with order inquiries",
-  instructions: `
-You are a helpful customer support assistant.
-Use the check-order-status tool to look up order information
-and provide clear, friendly responses to customers.
-  `,
-  model: openai("gpt-4o"),
-  tools: {
-    checkOrderStatusTool,
-  },
-});
-
-// Configure Mastra with Galileo observability
-export const mastra = new Mastra({
-  agents: {
-    supportAgent,
-  },
-  observability: {
-    configs: {
-      otel: {
-        sampling: { type: SamplingStrategyType.ALWAYS },
-        serviceName: "galileo-mastra-agent",
-        exporters: [
-          new OtelExporter({
-            provider: {
-              custom: {
-                endpoint:
-                  env.GALILEO_CONSOLE_URL ||
-                  "https://api.galileo.ai/otel/traces",
-                headers: {
-                  "Galileo-API-Key": env.GALILEO_API_KEY ?? "",
-                  project: env.GALILEO_PROJECT ?? "",
-                  logstream: env.GALILEO_LOG_STREAM ?? "",
-                },
-                protocol: "http/protobuf",
-              },
-            },
-          }),
-        ],
-      },
-    },
-  },
-});
-```
-
-</CodeGroup>
-
 ## What gets logged
 
 Mastra spans are automatically sent to Galileo through the OpenTelemetry integration. The following information is captured:
@@ -241,19 +107,4 @@ Mastra spans are automatically sent to Galileo through the OpenTelemetry integra
 - **Tool executions**: Tool invocations with arguments and results
 - **Workflows**: Multi-step workflow executions
 
-All traces include:
-
-- Input and output messages
-- Tool calls and results
-- Agent configurations
-- Timing and performance metrics
-- Error information (if applicable)
-
-## Advanced example
-
-You can find a more advanced example in the [Galileo SDK examples repository](https://github.com/rungalileo/sdk-examples/tree/main/typescript/agent/mastra-template-csv-to-questions), which demonstrates:
-
-- Multiple agents working together
-- CSV file processing
-- Workflow orchestration
-- Complex tool interactions
+For a complete working example with tools and workflows, see the [Galileo SDK examples repository](https://github.com/rungalileo/sdk-examples/tree/main/typescript/agent/mastra-template-csv-to-questions).
