@@ -1,0 +1,167 @@
+---
+title: Custom Spans
+description: Create OpenTelemetry spans enriched with Galileo-specific attributes using the start_galileo_span context manager.
+---
+
+The `start_galileo_span` function provides a context manager for creating OpenTelemetry spans that are automatically enriched with Galileo-specific attributes. This enables seamless observability for custom spans within your application while maintaining compatibility with the broader OpenTelemetry ecosystem.
+
+## Prerequisites
+
+Before using `start_galileo_span`, set up the tracer provider with the Galileo span processor:
+
+```python
+from opentelemetry.sdk.trace import TracerProvider
+from galileo.otel import GalileoSpanProcessor, add_galileo_span_processor
+
+tracer_provider = TracerProvider()
+processor = GalileoSpanProcessor(
+    project="your-project-name",      # Optional: falls back on env var
+    logstream="your-logstream-name"   # Optional: falls back on env var
+)
+add_galileo_span_processor(tracer_provider, processor)
+```
+
+<Note>
+Requires the OpenTelemetry extra: `pip install galileo[otel]`
+</Note>
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `GALILEO_PROJECT` | Default project name for trace export |
+| `GALILEO_LOG_STREAM` | Default Log stream for trace organization |
+
+## Basic Usage
+
+```python
+from galileo.otel import start_galileo_span
+from galileo_core.schemas.logging.span import WorkflowSpan
+
+galileo_span = WorkflowSpan(name="my-custom-operation")
+with start_galileo_span(galileo_span) as span:
+    # Your custom logic here
+    span.set_attribute("custom.attribute", "value")
+    result = perform_operation()
+```
+
+## Retriever Spans
+
+Use `RetrieverSpan` for search and retrieval operations. This automatically captures query input and document output with the correct semantic attributes.
+
+```python
+from galileo.otel import start_galileo_span
+from galileo_core.schemas.logging.span import RetrieverSpan
+from galileo_core.schemas.shared.document import Document
+
+retriever_span = RetrieverSpan(name="document-search", input="What is Galileo?")
+with start_galileo_span(retriever_span) as span:
+    documents = search_documents("What is Galileo?")
+    retriever_span.output = [Document(content=doc) for doc in documents]
+```
+
+When a `RetrieverSpan` is provided, the following attributes are set automatically:
+
+| Attribute | Value | Description |
+|-----------|-------|-------------|
+| `db.operation` | `"search"` | Indicates a search/retrieval operation |
+| `gen_ai.input.messages` | JSON array | User query formatted as input message |
+| `gen_ai.output.messages` | JSON array | Retrieved documents formatted as output |
+
+## Supported Span Types
+
+| Span Type | Attributes Set | Description |
+|-----------|---------------|-------------|
+| `WorkflowSpan` | `gen_ai.system` | Base span with Galileo system identifier |
+| `RetrieverSpan` | `gen_ai.system`, `db.operation`, `gen_ai.input.messages`, `gen_ai.output.messages` | Retriever span with search operation details and document results |
+
+<Note>
+Additional span types (LLM spans, Tool spans, Agent spans) will be added in future releases to provide richer semantic attributes for different operation types.
+</Note>
+
+## Function Signature
+
+```python
+@contextmanager
+def start_galileo_span(galileo_span: Span) -> Generator[trace.Span, Any, None]
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `galileo_span` | `Span` | Yes | A Galileo span object containing the span name and optional metadata |
+
+**Returns:** A context manager yielding an OpenTelemetry `Span` object.
+
+## Execution Flow
+
+When `start_galileo_span` is called, the following steps occur:
+
+1. The `TracerProvider` is retrieved (from the context variable or via `trace.get_tracer_provider()`)
+2. A tracer named `"galileo-tracer"` is created
+3. An OpenTelemetry span is started using the `galileo_span.name`
+4. The span is yielded for your code to execute
+5. On exit, Galileo-specific attributes are set (e.g., `gen_ai.system = "galileo-otel"` and any span-type-specific attributes)
+
+## Complete Example
+
+```python
+from galileo.otel import (
+    start_galileo_span,
+    GalileoSpanProcessor,
+    add_galileo_span_processor,
+)
+from galileo_core.schemas.logging.span import WorkflowSpan, RetrieverSpan
+from galileo_core.schemas.shared.document import Document
+from opentelemetry.sdk.trace import TracerProvider
+
+
+def setup_tracing():
+    """Initialize Galileo OpenTelemetry tracing."""
+    tracer_provider = TracerProvider()
+    processor = GalileoSpanProcessor(
+        project="my-ai-application",
+        logstream="production",
+    )
+    add_galileo_span_processor(tracer_provider, processor)
+    return processor
+
+
+def search_knowledge_base(query: str) -> list[str]:
+    """Search with automatic span creation."""
+    retriever_span = RetrieverSpan(name="knowledge-base-search", input=query)
+
+    with start_galileo_span(retriever_span) as span:
+        results = ["Result 1", "Result 2", "Result 3"]
+        retriever_span.output = [Document(content=r) for r in results]
+
+        # Add custom metrics
+        span.set_attribute("search.result_count", len(results))
+        return results
+
+
+def main():
+    processor = setup_tracing()
+
+    # Create a parent span for the workflow
+    workflow_span = WorkflowSpan(name="user-query-workflow")
+
+    with start_galileo_span(workflow_span) as span:
+        span.set_attribute("user.query", "What is machine learning?")
+
+        # Nested retriever span
+        results = search_knowledge_base("What is machine learning?")
+        print(f"Found {len(results)} results")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## Best Practices
+
+- **Initialize `TracerProvider` early** — Set up the `GalileoSpanProcessor` at application startup.
+- **Use descriptive span names** — Provide meaningful names in `Span` for better observability.
+- **Use `RetrieverSpan` for search operations** — This captures document context with the correct semantic attributes.
+- **Add custom attributes** — Use the yielded span to add operation-specific attributes.
+- **Set `RetrieverSpan` output before exiting** — The output must be set before the context manager exits for proper attribute capture.
+- **Nested spans are supported** — Child spans inherit the parent context automatically through OpenTelemetry's context propagation.
