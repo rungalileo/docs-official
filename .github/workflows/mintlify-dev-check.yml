@@ -3,6 +3,7 @@
 name: Mintlify Dev Check
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - main
@@ -15,6 +16,9 @@ jobs:
       pull-requests: write
       contents: read
     name: Check Mintlify Dev Server
+    outputs:
+      output1: ${{ steps.dev_test.outputs.status }}
+      output2: ${{ steps.log_check.outputs.status }}
 
     steps:
       - name: Checkout repository
@@ -23,36 +27,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-
-      - name: Update package.json with Mintlify config if needed
-        run: |
-          if ! grep -q "\"mintlify\":" package.json; then
-            # Create a temporary file with updated JSON
-            jq '. + {
-              "mintlify": {
-                "name": "Documentation",
-                "navigation": [
-                  {
-                    "group": "Getting Started",
-                    "pages": []
-                  }
-                ]
-              }
-            }' package.json > package.json.tmp
-            mv package.json.tmp package.json
-            echo "Added Mintlify configuration to package.json"
-          fi
+          node-version: '24'
 
       - name: Install dependencies
-        run: npm install
+        run: npm install -g mint
 
       - name: Run Mintlify Dev (Short Test)
         id: dev_test
         continue-on-error: true
         run: |
           # Run with direct path to avoid relying on npm scripts
-          timeout 15s npx mintlify dev --config-file ./package.json > dev.log 2>&1 || true
+          timeout 60s mint dev > dev.log 2>&1 || true
           EXIT_CODE=$?
           if [ $EXIT_CODE -ne 0 ] && [ $EXIT_CODE -ne 124 ]; then
             # 124 is the timeout exit code, which is expected
@@ -64,10 +49,9 @@ jobs:
 
       - name: Check for errors in logs
         id: log_check
-        if: always()
         run: |
           # Look for serious errors but ignore expected warnings
-          if grep -i "error" dev.log | grep -v "EADDRINUSE" | grep -v "timeout" | grep -v "warning"; then
+          if grep -i -e "error" -e "warning" dev.log | grep -v "EADDRINUSE" | grep -v "timeout"; then
             echo "Found errors in dev log"
             echo "status=failed" >> $GITHUB_OUTPUT
           else
