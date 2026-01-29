@@ -16,9 +16,6 @@ jobs:
       pull-requests: write
       contents: read
     name: Check Mintlify Dev Server
-    outputs:
-      output1: ${{ steps.dev_test.outputs.status }}
-      output2: ${{ steps.log_check.outputs.status }}
 
     steps:
       - name: Checkout repository
@@ -50,10 +47,13 @@ jobs:
       - name: Check for errors in logs
         id: log_check
         run: |
+          DEV_LOG=""
           # Look for serious errors but ignore expected warnings
           if grep -i -e "error" -e "warning" dev.log | grep -v "EADDRINUSE" | grep -v "timeout"; then
             echo "Found errors in dev log"
             echo "status=failed" >> $GITHUB_OUTPUT
+            DEV_LOG=$(tail -n 100 dev.log)
+            echo "DEV_LOG<<EOF\n$DEV_LOG\nEOF" >> $GITHUB_ENV
           else
             echo "No critical errors found in dev log"
             echo "status=success" >> $GITHUB_OUTPUT
@@ -78,7 +78,7 @@ jobs:
             <summary>Click to see dev log</summary>
 
             ```text
-            $(tail -n 100 dev.log)
+            ${{ env.DEV_LOG }}
             ```
 
             </details>
