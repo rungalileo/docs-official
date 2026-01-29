@@ -47,19 +47,17 @@ jobs:
       - name: Check for errors in logs
         id: log_check
         run: |
-          DEV_LOG=""
           # Look for serious errors but ignore expected warnings
           if grep -i -e "error" -e "warning" dev.log | grep -v "EADDRINUSE" | grep -v "timeout"; then
             echo "Found errors in dev log"
             echo "status=failed" >> $GITHUB_OUTPUT
-            DEV_LOG=$(tail -n 100 dev.log)
-            echo "log=$DEV_LOG" >> $GITHUB_OUTPUT
           else
             echo "No critical errors found in dev log"
             echo "status=success" >> $GITHUB_OUTPUT
           fi
 
       - name: Upload Dev Log (for debug)
+        id: upload_log
         if: steps.dev_test.outputs.status == 'failed' || steps.log_check.outputs.status == 'failed'
         uses: actions/upload-artifact@v4
         with:
@@ -75,11 +73,8 @@ jobs:
             ❌ Mintlify Dev Server Failed!
 
             <details>
-            <summary>Click to see dev log</summary>
-
-            ```text
-            ${{ steps.log_check.outputs.log }}
-            ```
+            
+            Download the [dev log here](${{ steps.upload_log.outputs.artifact_url }}) for more details.
 
             </details>
 
