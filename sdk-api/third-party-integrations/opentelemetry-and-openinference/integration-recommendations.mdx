@@ -3,6 +3,14 @@ title: OpenTelemetry Integration Recommendations
 description: Guidelines for instrumenting your spans to ensure they are valid and properly processed by Galileo's OTLP provider.
 ---
 
+import SpanErrorHandling from "/snippets/code/python/sdk/otel/base/span-error-handling.mdx";
+import OtlpEndpoint from "/snippets/code/multilingual/http/otel/otlp-endpoint.mdx";
+import Response200PartialSuccess from "/snippets/code/multilingual/http/otel/response-200-partial-success.mdx";
+import Response401Unauthorized from "/snippets/code/multilingual/http/otel/response-401-unauthorized.mdx";
+import Response404NotFound from "/snippets/code/multilingual/http/otel/response-404-not-found.mdx";
+import Response415UnsupportedMediaType from "/snippets/code/multilingual/http/otel/response-415-unsupported-media-type.mdx";
+import Response422UnprocessableEntity from "/snippets/code/multilingual/http/otel/response-422-unprocessable-entity.mdx";
+
 Galileo's OTLP provider conforms to [OpenTelemetry](https://opentelemetry.io/) and [OpenInference](https://github.com/Arize-ai/openinference) semantic conventions. To ensure your spans are valid and properly processed, follow these guidelines.
 
 ## Semantic Conventions
@@ -68,12 +76,7 @@ For spans that end in an error, you **must** include:
 - **`error.type`** — Describes the class of error (e.g., `timeout`, `500`, exception name)
 - **Span status** — Should be set to `ERROR` with an appropriate error description
 
-```python
-from opentelemetry.trace import StatusCode
-
-span.set_status(StatusCode.ERROR, "Connection timed out")
-span.set_attribute("error.type", "timeout")
-```
+<SpanErrorHandling />
 
 ## Direct POST Calls to the OTLP Endpoint
 
@@ -81,9 +84,7 @@ You can make direct POST calls to the Galileo OTLP endpoint to send OTLP packets
 
 ### Endpoint
 
-```sh
-POST https://api.galileo.ai/otel/v1/traces
-```
+<OtlpEndpoint />
 
 ### Headers
 
@@ -108,14 +109,7 @@ The request was successfully processed. The response body contains an `ExportTra
 
 If some spans were rejected, the response includes partial success information:
 
-```json
-{
-  "partialSuccess": {
-    "rejectedSpans": 5,
-    "errorMessage": "Group 0: Run not found for logstream ..."
-  }
-}
-```
+<Response200PartialSuccess />
 
 Even when the HTTP status is 200, check for `partialSuccess` in the response to determine if all spans were successfully processed.
 </Accordion>
@@ -123,44 +117,28 @@ Even when the HTTP status is 200, check for `partialSuccess` in the response to 
 <Accordion title="401 Unauthorized">
 The API key is missing or invalid.
 
-```json
-{
-  "detail": "API Key is missing"
-}
-```
+<Response401Unauthorized />
 
 </Accordion>
 
 <Accordion title="404 Not Found">
 The specified project was not found and could not be created.
 
-```json
-{
-  "detail": "Project not found."
-}
-```
+<Response404NotFound />
 
 </Accordion>
 
 <Accordion title="415 Unsupported Media Type">
 The `Content-Type` header is not `application/x-protobuf`.
 
-```json
-{
-  "detail": "<content-type> is not supported, content_type needs to be: 'application/x-protobuf'"
-}
-```
+<Response415UnsupportedMediaType />
 
 </Accordion>
 
 <Accordion title="422 Unprocessable Entity">
 The request could not be processed. Common reasons include no spans found, trace processing failure, or missing Log stream ID.
 
-```json
-{
-  "detail": "No spans found in request."
-}
-```
+<Response422UnprocessableEntity />
 
 </Accordion>
 </AccordionGroup>

@@ -1,0 +1,52 @@
+```python Python
+from galileo.otel import (
+    start_galileo_span,
+    GalileoSpanProcessor,
+    add_galileo_span_processor,
+)
+from galileo_core.schemas.logging.span import WorkflowSpan, RetrieverSpan
+from galileo_core.schemas.shared.document import Document
+from opentelemetry.sdk.trace import TracerProvider
+
+
+def setup_tracing():
+    """Initialize Galileo OpenTelemetry tracing."""
+    tracer_provider = TracerProvider()
+    processor = GalileoSpanProcessor(
+        project="my-ai-application",
+        logstream="production",
+    )
+    add_galileo_span_processor(tracer_provider, processor)
+    return processor
+
+
+def search_knowledge_base(query: str) -> list[str]:
+    """Search with automatic span creation."""
+    retriever_span = RetrieverSpan(name="knowledge-base-search", input=query)
+
+    with start_galileo_span(retriever_span) as span:
+        results = ["Result 1", "Result 2", "Result 3"]
+        retriever_span.output = [Document(content=r) for r in results]
+
+        # Add custom metrics
+        span.set_attribute("search.result_count", len(results))
+        return results
+
+
+def main():
+    processor = setup_tracing()
+
+    # Create a parent span for the workflow
+    workflow_span = WorkflowSpan(name="user-query-workflow")
+
+    with start_galileo_span(workflow_span) as span:
+        span.set_attribute("user.query", "What is machine learning?")
+
+        # Nested retriever span
+        results = search_knowledge_base("What is machine learning?")
+        print(f"Found {len(results)} results")
+
+
+if __name__ == "__main__":
+    main()
+```

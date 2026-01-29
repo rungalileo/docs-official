@@ -1,0 +1,11 @@
+```python Python
+from opentelemetry.sdk.trace import TracerProvider
+from galileo.otel import GalileoSpanProcessor, add_galileo_span_processor
+
+tracer_provider = TracerProvider()
+processor = GalileoSpanProcessor(
+    project="your-project-name",      # Optional: falls back on env var
+    logstream="your-logstream-name"   # Optional: falls back on env var
+)
+add_galileo_span_processor(tracer_provider, processor)
+```

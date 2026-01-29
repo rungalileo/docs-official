@@ -1,0 +1,10 @@
+```python Python
+from galileo.otel import start_galileo_span
+from galileo_core.schemas.logging.span import RetrieverSpan
+from galileo_core.schemas.shared.document import Document
+
+retriever_span = RetrieverSpan(name="document-search", input="What is Galileo?")
+with start_galileo_span(retriever_span) as span:
+    documents = search_documents("What is Galileo?")
+    retriever_span.output = [Document(content=doc) for doc in documents]
+```
