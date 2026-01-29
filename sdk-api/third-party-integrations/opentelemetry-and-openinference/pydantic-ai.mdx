@@ -7,6 +7,7 @@ description: Learn how to integrate a Pydantic AI project with Galileo using Ope
 
 import SnippetSimpleEnvVars from "/snippets/code/multilingual/env-galileo-simple.mdx";
 import SnippetConfigureOTelEndpoint from "/snippets/content/configure-otel-endpoint.mdx";
+import SnippetQuickstartPython from "/snippets/code/python/sdk/otel/pydantic-ai/quickstart-example.mdx"
 
 {/*<!-- markdownlint-enable MD044 -->*/}
 
@@ -46,30 +47,7 @@ Set environment variables for your Galileo settings, for example in a `.env` fil
 <Step title="Configure the OpenTelemetry tracer provider">
 
 Use the following code to configure OpenTelemetry with Galileo. This sets up the tracer provider and enables instrumentation for all Pydantic AI agents.
-
-<CodeGroup>
-
-```python Python
-from galileo import galileo_context, otel
-from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-from pydantic_ai import Agent
-
-# Create and configure the tracer provider
-provider = TracerProvider()
-trace.set_tracer_provider(provider)
-
-# Add the Galileo span processor
-otel.add_galileo_span_processor(
-    tracer_provider=provider,
-    processor=otel.GalileoSpanProcessor()
-)
-
-# Enable instrumentation on all agents
-Agent.instrument_all()
-```
-
-</CodeGroup>
+<SnippetQuickstartPython/>
 </Step>
 </Steps>
 

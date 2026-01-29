@@ -7,6 +7,7 @@ description: Learn how to integrate a Mastra project with Galileo using OpenTele
 
 import SnippetSimpleEnvVars from "/snippets/code/multilingual/env-galileo-simple.mdx";
 import SnippetConfigureOTelEndpoint from "/snippets/content/configure-otel-endpoint.mdx";
+import SnippetQuickstartTypescript from "/snippets/code/typescript/sdk/otel/mastra/quickstart-example.mdx"
 
 {/*<!-- markdownlint-enable MD044 -->*/}
 
@@ -45,53 +46,7 @@ Set environment variables for your Galileo settings, for example in a `.env` fil
 
 In your Mastra configuration file, add the observability configuration with the Galileo OTel exporter:
 
-<CodeGroup>
-
-```typescript TypeScript
-import { SamplingStrategyType } from "@mastra/core/ai-tracing";
-import { Mastra } from "@mastra/core/mastra";
-import { OtelExporter } from "@mastra/otel-exporter";
-import { env } from "node:process";
-
-export const mastra = new Mastra({
-  // Your agents, workflows, etc.
-  agents: {
-    /* ... */
-  },
-  workflows: {
-    /* ... */
-  },
-
-  // Configure observability with Galileo
-  observability: {
-    configs: {
-      otel: {
-        sampling: { type: SamplingStrategyType.ALWAYS },
-        serviceName: "galileo-mastra-agent",
-        exporters: [
-          new OtelExporter({
-            provider: {
-              custom: {
-                endpoint:
-                  env.GALILEO_CONSOLE_URL ||
-                  "https://api.galileo.ai/otel/traces",
-                headers: {
-                  "Galileo-API-Key": env.GALILEO_API_KEY ?? "",
-                  project: env.GALILEO_PROJECT ?? "",
-                  logstream: env.GALILEO_LOG_STREAM ?? "",
-                },
-                protocol: "http/protobuf",
-              },
-            },
-          }),
-        ],
-      },
-    },
-  },
-});
-```
-
-</CodeGroup>
+<SnippetQuickstartTypescript/>
 </Step>
 <Step title="Run your application">
 Your application is now configured to send telemetry to Galileo using OpenTelemetry. Run your application to see traces in your Log stream.
