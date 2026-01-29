@@ -1,0 +1,20 @@
+
+```python Python
+from galileo import otel
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from pydantic_ai import Agent
+
+# Create and configure the tracer provider
+provider = TracerProvider()
+trace.set_tracer_provider(provider)
+
+# Add the Galileo span processor
+otel.add_galileo_span_processor(
+    tracer_provider=provider,
+    processor=otel.GalileoSpanProcessor()
+)
+
+# Enable instrumentation on all agents
+Agent.instrument_all()
+```
