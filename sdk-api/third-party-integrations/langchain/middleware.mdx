@@ -3,6 +3,11 @@ title: Middleware
 description: Learn about using GalileoMiddleware for automatic logging of LangChain agents
 ---
 
+import CustomLogger from "/snippets/code/python/sdk/langchain/middleware/custom-logger.mdx";
+import AddToExistingTrace from "/snippets/code/python/sdk/langchain/middleware/add-to-existing-trace.mdx";
+import ManualFlushControl from "/snippets/code/python/sdk/langchain/middleware/manual-flush-control.mdx";
+import AsyncAgentUsage from "/snippets/code/python/sdk/langchain/middleware/async-agent-usage.mdx";
+
 ## Overview
 
 `GalileoMiddleware` is a middleware component that integrates with LangGraph agents to provide comprehensive tracing and logging. Unlike the callback-based approach, middleware automatically intercepts agent execution at key points:
@@ -38,22 +43,7 @@ The middleware automatically handles all logging internally. When the agent is i
 
 You can provide a custom logger instance to integrate with existing logging infrastructure:
 
-```python
-from galileo.logger import GalileoLogger
-
-# Create a custom logger
-logger = GalileoLogger(
-    project_name="my-agent-project",
-    console_output=True
-)
-
-# Use it with middleware
-agent = create_agent(
-    model,
-    tools=[get_weather, get_stock_price],
-    middleware=[GalileoMiddleware(galileo_logger=logger)]
-)
-```
+<CustomLogger />
 
 ## Trace management
 
@@ -63,41 +53,13 @@ By default, each agent invocation creates a new trace. You can control trace beh
 
 To add agent execution to an existing trace, use a shared logger with `start_new_trace=False`:
 
-```python
-# Create a logger and start a trace
-logger = GalileoLogger()
-session_id = logger.create_session()
-trace_id = logger.create_trace(session_id)
-
-# Create middleware that adds to existing trace
-middleware = GalileoMiddleware(
-    galileo_logger=logger,
-    start_new_trace=False
-)
-
-# The agent execution will be added to the existing trace
-agent = create_agent(model, tools=[...], middleware=[middleware])
-agent.invoke({"messages": [...]})
-```
+<AddToExistingTrace />
 
 ### Manual flush control
 
 If you want to control when logs are flushed (e.g., for batch processing):
 
-```python
-# Disable automatic flushing
-middleware = GalileoMiddleware(
-    galileo_logger=logger,
-    flush_on_chain_end=False
-)
-
-# Execute multiple agent calls
-agent.invoke({"messages": [...]})
-agent.invoke({"messages": [...]})
-
-# Manually flush when ready
-logger.flush()
-```
+<ManualFlushControl />
 
 ## What gets logged
 
@@ -152,19 +114,7 @@ Use `GalileoCallback` when:
 
 `GalileoMiddleware` fully supports asynchronous execution. The middleware automatically handles both sync and async contexts:
 
-```python
-# Async agent usage
-async def main():
-    agent = create_agent(
-        model,
-        tools=[get_weather, get_stock_price],
-        middleware=[GalileoMiddleware()]
-    )
-    result = await agent.ainvoke({
-        "messages": [HumanMessage(content="...")]
-    })
-    print(result)
-```
+<AsyncAgentUsage />
 
 The middleware uses the appropriate handler (`GalileoBaseHandler` or `GalileoAsyncBaseHandler`) based on the execution context.
 
