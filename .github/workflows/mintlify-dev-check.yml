@@ -53,7 +53,7 @@ jobs:
             echo "Found errors in dev log"
             echo "status=failed" >> $GITHUB_OUTPUT
             DEV_LOG=$(tail -n 100 dev.log)
-            echo "DEV_LOG<<EOF\n$DEV_LOG\nEOF" >> $GITHUB_ENV
+            echo "log=$DEV_LOG" >> $GITHUB_OUTPUT
           else
             echo "No critical errors found in dev log"
             echo "status=success" >> $GITHUB_OUTPUT
@@ -78,7 +78,7 @@ jobs:
             <summary>Click to see dev log</summary>
 
             ```text
-            ${{ env.DEV_LOG }}
+            ${{ steps.log_check.outputs.log }}
             ```
 
             </details>
