@@ -1,0 +1,82 @@
+```python Python
+import json
+from galileo.openai import openai
+
+client = openai.OpenAI()
+
+# Define tools
+tools = [
+    {
+        "type": "function",
+        "name": "get_weather",
+        "description": "Get the current weather for a given location",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "description": "The city and state, e.g. San Francisco, CA",
+                },
+            },
+            "required": ["location"],
+        },
+    },
+    {
+        "type": "function",
+        "name": "get_stock_price",
+        "description": "Get the current stock price for a given ticker symbol",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "symbol": {
+                    "type": "string",
+                    "description": "The stock ticker symbol, e.g. AAPL",
+                },
+            },
+            "required": ["symbol"],
+        },
+    },
+]
+
+def get_weather(location: str) -> str:
+    return json.dumps({"location": location, "temperature": 72, "unit": "fahrenheit"})
+
+def get_stock_price(symbol: str) -> str:
+    return json.dumps({"symbol": symbol.upper(), "price": 178.50, "currency": "USD"})
+
+# First call - model decides which tools to use
+user_message = "What's the weather in San Francisco and the stock price of Apple?"
+
+response = client.responses.create(
+    model="gpt-4o",
+    input=user_message,
+    tools=tools,
+)
+
+# Process tool calls and collect results
+input_list = list(response.output)
+
+for item in response.output:
+    if item.type == "function_call":
+        if item.name == "get_weather":
+            result = get_weather(**json.loads(item.arguments))
+        elif item.name == "get_stock_price":
+            result = get_stock_price(**json.loads(item.arguments))
+        else:
+            continue
+
+        input_list.append({
+            "type": "function_call_output",
+            "call_id": item.call_id,
+            "output": result,
+        })
+
+# Second call - model generates final response with tool results
+response = client.responses.create(
+    model="gpt-4o",
+    input=input_list,
+    tools=tools,
+)
+
+print(response.output_text)
+```

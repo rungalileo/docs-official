@@ -1,0 +1,10 @@
+```python Python
+from galileo.otel import start_galileo_span
+from galileo_core.schemas.logging.span import WorkflowSpan
+
+galileo_span = WorkflowSpan(name="my-custom-operation")
+with start_galileo_span(galileo_span) as span:
+    # Your custom logic here
+    span.set_attribute("custom.attribute", "value")
+    result = perform_operation()
+```
