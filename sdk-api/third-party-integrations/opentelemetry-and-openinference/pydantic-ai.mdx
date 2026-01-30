@@ -1,0 +1,63 @@
+---
+title: Pydantic AI
+description: Learn how to integrate a Pydantic AI project with Galileo using OpenTelemetry
+---
+
+{/*<!-- markdownlint-disable MD044 -->*/}
+
+import SnippetSimpleEnvVars from "/snippets/code/multilingual/env-galileo-simple.mdx";
+import SnippetConfigureOTelEndpoint from "/snippets/content/configure-otel-endpoint.mdx";
+import SnippetQuickstartPython from "/snippets/code/python/sdk/otel/pydantic-ai/quickstart-example.mdx"
+
+{/*<!-- markdownlint-enable MD044 -->*/}
+
+Galileo supports logging traces from [Pydantic AI](https://ai.pydantic.dev/) applications using OpenTelemetry.
+
+## Set up OpenTelemetry
+
+To log Pydantic AI applications using Galileo, the first step is to set up OpenTelemetry.
+
+<Steps>
+<Step title="Install the required packages">
+
+Add the Galileo Python SDK and Pydantic AI to your Python environment.
+
+<CodeGroup>
+
+```bash Terminal
+pip install pydantic-ai \
+      galileo \
+      opentelemetry-api \
+      opentelemetry-sdk
+```
+
+</CodeGroup>
+</Step>
+<Step title="Create environment variables for your Galileo settings">
+
+Set environment variables for your Galileo settings, for example in a `.env` file:
+
+<CodeGroup>
+<SnippetSimpleEnvVars/>
+</CodeGroup>
+</Step>
+<Step title="Get your endpoint">
+<SnippetConfigureOTelEndpoint/>
+</Step>
+<Step title="Configure the OpenTelemetry tracer provider">
+
+Use the following code to configure OpenTelemetry with Galileo. This sets up the tracer provider and enables instrumentation for all Pydantic AI agents.
+<SnippetQuickstartPython/>
+</Step>
+</Steps>
+
+## What gets logged
+
+Pydantic AI spans are automatically detected and normalized by Galileo's OpenTelemetry extension. The following span types are supported:
+
+- **Agent runs**: Complete agent executions with input/output messages
+- **Chat completions**: LLM calls with messages and responses
+- **Tool executions**: Individual tool invocations with arguments and results
+- **Tool workflows**: Parent spans that group multiple tool executions
+
+For a complete working example, see the [Galileo SDK examples repository](https://github.com/rungalileo/sdk-examples).

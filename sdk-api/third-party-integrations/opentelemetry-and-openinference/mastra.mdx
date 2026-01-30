@@ -1,0 +1,65 @@
+---
+title: Mastra
+description: Learn how to integrate a Mastra project with Galileo using OpenTelemetry
+---
+
+{/*<!-- markdownlint-disable MD044 -->*/}
+
+import SnippetSimpleEnvVars from "/snippets/code/multilingual/env-galileo-simple.mdx";
+import SnippetConfigureOTelEndpoint from "/snippets/content/configure-otel-endpoint.mdx";
+import SnippetQuickstartTypescript from "/snippets/code/typescript/sdk/otel/mastra/quickstart-example.mdx"
+
+{/*<!-- markdownlint-enable MD044 -->*/}
+
+Galileo supports logging traces from [Mastra](https://mastra.ai/) applications using OpenTelemetry.
+
+## Set up OpenTelemetry
+
+To log Mastra applications using Galileo, the first step is to set up OpenTelemetry.
+
+<Steps>
+<Step title="Add the OpenTelemetry packages to your application">
+
+Add the Mastra OTel Exporter and OpenTelemetry packages to your Mastra application project.
+
+<CodeGroup>
+
+```bash Terminal
+npm install @mastra/otel-exporter \
+      @opentelemetry/exporter-trace-otlp-proto
+```
+
+</CodeGroup>
+</Step>
+<Step title="Create environment variables for your Galileo settings">
+
+Set environment variables for your Galileo settings, for example in a `.env` file:
+
+<CodeGroup>
+<SnippetSimpleEnvVars/>
+</CodeGroup>
+</Step>
+<Step title="Get your endpoint">
+<SnippetConfigureOTelEndpoint/>
+</Step>
+<Step title="Configure OpenTelemetry in your Mastra instance">
+
+In your Mastra configuration file, add the observability configuration with the Galileo OTel exporter:
+
+<SnippetQuickstartTypescript/>
+</Step>
+<Step title="Run your application">
+Your application is now configured to send telemetry to Galileo using OpenTelemetry. Run your application to see traces in your Log stream.
+</Step>
+</Steps>
+
+## What gets logged
+
+Mastra spans are automatically sent to Galileo through the OpenTelemetry integration. The following information is captured:
+
+- **Agent executions**: Complete agent runs with input/output messages
+- **LLM calls**: Model interactions with prompts and responses
+- **Tool executions**: Tool invocations with arguments and results
+- **Workflows**: Multi-step workflow executions
+
+For a complete working example with tools and workflows, see the [Galileo SDK examples repository](https://github.com/rungalileo/sdk-examples/tree/main/typescript/agent/mastra-template-csv-to-questions).
