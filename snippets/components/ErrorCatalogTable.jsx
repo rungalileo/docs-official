@@ -5,6 +5,15 @@ export const ErrorCatalogTable = () => {
   // Run "npm run gen:errors" to regenerate
   const errors =[
     {
+      "error_code": 1000,
+      "error_type": "uncataloged_error",
+      "error_group": "shared",
+      "severity": "high",
+      "default_message": "An unexpected error occurred. Our team has been notified.",
+      "user_action": "Please retry or contact support with the error details.",
+      "retriable": false
+    },
+    {
       "error_code": 1001,
       "error_type": "credentials_error",
       "error_group": "shared",
@@ -846,12 +855,7 @@ export const ErrorCatalogTable = () => {
                                         }}
                                     >
                                         <td style={{ padding: '0.75rem 0.5rem 0.75rem 0.75rem', fontWeight: 500, verticalAlign: 'top', minWidth: '100px' }}>
-                                            <a 
-                                                href={`#error-${error.error_code}`} 
-                                                style={{ color: colors.link, textDecoration: 'none' }}
-                                            >
-                                                {error.error_code}
-                                            </a>
+                                            {error.error_code}
                                         </td>
                                         <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top', color: colors.text, fontFamily: 'monospace', fontSize: '0.75rem' }}>
                                             {error.error_type}
