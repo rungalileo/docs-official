@@ -1,20 +1,9 @@
-import { useState, useEffect } from 'react';
-
 export const ErrorCatalogTable = () => {
   // BEGIN GENERATED ERRORS
   // AUTO-GENERATED - DO NOT EDIT DIRECTLY
   // Generated from errors.yaml by scripts/generate-errors-data.mjs
   // Run "npm run gen:errors" to regenerate
   const errors =[
-    {
-      "error_code": 1000,
-      "error_type": "uncataloged_error",
-      "error_group": "shared",
-      "severity": "high",
-      "default_message": "An unexpected error occurred. Our team has been notified.",
-      "user_action": "Please retry or contact support with the error details.",
-      "retriable": false
-    },
     {
       "error_code": 1001,
       "error_type": "credentials_error",
