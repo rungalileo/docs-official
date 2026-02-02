@@ -5,7 +5,8 @@ description: Learn how to measure the correctness and coherence of an agentic tr
 
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
-import { Scale } from "/snippets/components/scale.mdx"
+import { Scale } from "/snippets/components/scale.mdx";
+import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
 <strong>Agent Flow</strong> is a binary metric that checks if an agent's behavior satisfies all user-defined natural language conditions.
@@ -133,3 +134,55 @@ You should write all the tests in a numbered list. For example:
 ```
 
 Each test should check for one single condition only. Tests should be logically consistent, and well defined.
+
+## Performance Benchmarks
+
+We evaluated Agent Flow against human expert labels on an internal dataset of agentic conversation samples using top frontier models.
+
+| Model | F1 (Flow Satisfied) |
+|:------|:--------:|
+| GPT-4.1 | 0.93 |
+| GPT-4.1-mini (judges=3) | 0.92 |
+| Claude 4.5 Sonnet | 0.95 |
+| Gemini 3 Flash | 0.92 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`
+             precision    recall  f1-score   support
+
+       False     0.9452    0.9200    0.9324        75
+        True     0.9221    0.9467    0.9342        75
+
+    accuracy                         0.9333       150
+   macro avg     0.9336    0.9333    0.9333       150
+weighted avg     0.9336    0.9333    0.9333       150
+  `}
+  negativeLabel="Flow Not Satisfied"
+  positiveLabel="Flow Satisfied"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing Agent Flow, check out the following resources:
+
+### Examples
+
+- [Agent Flow Examples](https://app.galileo.ai) - Log in and explore the "Agent Flow" logstream in the "Preset Metric Examples" project to see this metric in action
+
+### How-to guides
+
+- [Agentic AI Basic Example](/how-to-guides/agentic-ai/basic-example)
+
+### Related Concepts
+
+- [Agentic Metrics Overview](/concepts/metrics/agentic/agentic-overview)
+- [Action Advancement](/concepts/metrics/agentic/action-advancement)
+- [Action Completion](/concepts/metrics/agentic/action-completion)

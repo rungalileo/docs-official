@@ -5,6 +5,7 @@ description: Detect and analyze tool execution errors in AI agents using Galileo
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>Tool Error</strong> detects errors or failures during the execution of Tools.
@@ -148,3 +149,56 @@ When your system experiences tool execution errors, consider these improvements:
 This metric helps you detect whether your tools executed correctly. It's most useful in Agentic Workflows where many Tools get called. It helps you detect and understand patterns in your Tool failures, allowing you to improve reliability over time.
 
 </Note>
+
+## Performance Benchmarks
+
+We evaluated Tool Error against human expert labels on an internal dataset of agentic conversation samples using top frontier models.
+
+| Model | F1 (Error) |
+|:------|:--------:|
+| GPT-4.1 | 0.88 |
+| GPT-4.1-mini (judges=3) | 0.96 |
+| Claude 4.5 Sonnet | 0.94 |
+| Gemini 3 Flash | 0.94 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`
+              precision    recall  f1-score   support
+
+       False     0.9860    0.9810    0.9835       791
+        True     0.8684    0.9000    0.8839       110
+
+    accuracy                         0.9711       901
+   macro avg     0.9272    0.9405    0.9337       901
+weighted avg     0.9717    0.9711    0.9714       901
+  `}
+  negativeLabel="No Error"
+  positiveLabel="Error"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing Tool Error detection, check out the following resources:
+
+### Examples
+
+- [Tool Error Examples](https://app.galileo.ai) - Log in and explore the "Tool Error" logstream in the "Preset Metric Examples" project to see this metric in action
+
+### How-to guides
+
+- [Agentic AI Basic Example](/how-to-guides/agentic-ai/basic-example)
+- [Creating Custom Metrics](/how-to-guides/metrics/create-local-metric/create-local-metric)
+
+### Related Concepts
+
+- [Agentic Metrics Overview](/concepts/metrics/agentic/agentic-overview)
+- [Action Completion](/concepts/metrics/agentic/action-completion)
+- [Action Advancement](/concepts/metrics/agentic/action-advancement)

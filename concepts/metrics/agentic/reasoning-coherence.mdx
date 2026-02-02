@@ -5,6 +5,7 @@ description: Evaluate whether an agent’s reasoning steps are logically consist
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>Reasoning Coherence</strong> assesses whether an agent’s reasoning steps are logically consistent, non-contradictory, and aligned with the intended plan.
@@ -127,3 +128,56 @@ metric = GalileoMetrics.reasoning_coherence
     Use continuous learning via human feedback to improve the judge prompt and rubric over time.
   </Card>
 </CardGroup>
+
+## Performance Benchmarks
+
+We evaluated Reasoning Coherence against human expert labels on an internal dataset of agentic conversation samples using top frontier models.
+
+| Model | F1 (Coherent) |
+|:------|:--------:|
+| GPT-4.1 | 0.88 |
+| GPT-4.1-mini (judges=3) | 0.87 |
+| Claude 4.5 Sonnet | 0.79 |
+| Gemini 3 Flash | 0.88 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`
+              precision    recall  f1-score   support
+
+       False     0.9611    0.7903    0.8674      1345
+        True     0.8087    0.9652    0.8800      1235
+
+    accuracy                         0.8740      2580
+   macro avg     0.8849    0.8778    0.8737      2580
+weighted avg     0.8882    0.8740    0.8734      2580
+  `}
+  negativeLabel="Incoherent"
+  positiveLabel="Coherent"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing Reasoning Coherence, check out the following resources:
+
+### Examples
+
+- [Reasoning Coherence Examples](https://app.galileo.ai) - Log in and explore the "Reasoning Coherence" logstream in the "Preset Metric Examples" project to see this metric in action
+
+### How-to guides
+
+- [Agentic AI Basic Example](/how-to-guides/agentic-ai/basic-example)
+- [Creating Custom Metrics](/how-to-guides/metrics/create-local-metric/create-local-metric)
+
+### Related Concepts
+
+- [Agentic Metrics Overview](/concepts/metrics/agentic/agentic-overview)
+- [Action Completion](/concepts/metrics/agentic/action-completion)
+- [Action Advancement](/concepts/metrics/agentic/action-advancement)

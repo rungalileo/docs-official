@@ -5,6 +5,7 @@ description: Measure semantic equivalence between model outputs and reference an
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>Ground Truth Adherence</strong> measures whether a model's response is semantically equivalent to your reference answer (Ground Truth).
@@ -151,3 +152,51 @@ When responses have low Ground Truth Adherence scores, your model is generating 
 When optimizing for Ground Truth Adherence, remember that there may be multiple valid ways to express the same information. Consider whether strict adherence to specific wording is necessary, or if semantic equivalence is sufficient for your use case.
 
 </Note>
+
+## Performance Benchmarks
+
+We evaluated Ground Truth Adherence against human expert labels on an internal dataset using top frontier models.
+
+| Model | F1 (Adherent) |
+|:------|:--------:|
+| GPT-4.1 | 0.90 |
+| GPT-4.1-mini (judges=3) | 0.91 |
+| Claude 4.5 Sonnet | 0.91 |
+| Gemini 3 Flash | 0.94 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`
+              precision    recall  f1-score   support
+
+       False     0.9749    0.8083    0.8838      1346
+        True     0.8363    0.9792    0.9021      1346
+
+    accuracy                         0.8938      2692
+   macro avg     0.9056    0.8938    0.8930      2692
+weighted avg     0.9056    0.8938    0.8930      2692
+  `}
+  negativeLabel="Not Adherent"
+  positiveLabel="Adherent"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing Ground Truth Adherence, check out the following resources:
+
+### Examples
+
+- [Ground Truth Adherence Examples](https://app.galileo.ai) - Log in and explore the "Ground Truth Adherence" logstream in the "Preset Metric Examples" project to see this metric in action
+
+### Related Concepts
+
+- [Context Adherence](/concepts/metrics/response-quality/context-adherence)
+- [Context Relevance](/concepts/metrics/response-quality/context-relevance)
+- [Correctness](/concepts/metrics/response-quality/correctness)
