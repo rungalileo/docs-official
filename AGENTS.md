@@ -4,7 +4,7 @@ This document provides guidance for AI coding assistants working on the Galileo 
 
 ## Project Overview
 
-This is a **Mintlify-based documentation site** for Galileo, an AI observability and evaluation platform. The documentation is written in MDX (Markdown with JSX) and published to <https://docs.galileo.ai/>.
+This is a **Mintlify-based documentation site** for Galileo, an AI observability and evaluation platform. The documentation is written in MDX (Markdown with JSX) and published to [docs.galileo.ai](https://docs.galileo.ai/).
 
 **Galileo** helps teams monitor, evaluate, and improve their LLM applications through logging, metrics, experiments, and guardrails (Protect).
 
