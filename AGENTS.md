@@ -4,7 +4,7 @@ This document provides guidance for AI coding assistants working on the Galileo 
 
 ## Project Overview
 
-This is a **Mintlify-based documentation site** for Galileo, an AI observability and evaluation platform. The documentation is written in MDX (Markdown with JSX) and published to https://docs.galileo.ai/.
+This is a **Mintlify-based documentation site** for Galileo, an AI observability and evaluation platform. The documentation is written in MDX (Markdown with JSX) and published to <https://docs.galileo.ai/>.
 
 **Galileo** helps teams monitor, evaluate, and improve their LLM applications through logging, metrics, experiments, and guardrails (Protect).
 
@@ -24,7 +24,7 @@ mint broken-links     # Check for broken links before pushing
 
 ## Directory Structure
 
-```
+```text
 docs-official/
 ├── docs.json                 # Main site configuration and navigation
 ├── api/                      # API reference documentation
@@ -131,11 +131,12 @@ Code snippets are stored separately from documentation pages for reusability acr
 
 ### Snippet Location
 
-```
+```text
 snippets/code/{language}/{category}/{feature}/{snippet-name}.mdx
 ```
 
 **Languages:**
+
 - `python/` - Python code examples
 - `typescript/` - TypeScript code examples
 - `multilingual/` - Language-agnostic or environment snippets (e.g., env vars)
@@ -143,7 +144,8 @@ snippets/code/{language}/{category}/{feature}/{snippet-name}.mdx
 - `text/` - Plain text snippets (CLI output, logs, etc.)
 
 **Example paths:**
-```
+
+```text
 snippets/code/python/sdk/wrappers/crewai.mdx
 snippets/code/typescript/sdk/logging/add-llm-span.mdx
 snippets/code/multilingual/env-galileo.mdx
@@ -153,7 +155,7 @@ snippets/code/multilingual/env-galileo.mdx
 
 Snippets are MDX files containing fenced code blocks with a language label:
 
-````mdx
+````markdown
 ```python Python
 from galileo import GalileoLogger
 
@@ -168,13 +170,13 @@ The label after the language (e.g., `Python`) appears as the tab name when used 
 
 **1. Import the snippet at the top of the MDX file:**
 
-```mdx
+```jsx
 import SnippetName from "/snippets/code/python/sdk/wrappers/crewai.mdx";
 ```
 
 **2. Use the snippet in the document:**
 
-```mdx
+```jsx
 <CodeGroup>
   <SnippetName />
 </CodeGroup>
@@ -182,7 +184,7 @@ import SnippetName from "/snippets/code/python/sdk/wrappers/crewai.mdx";
 
 **Multiple language example:**
 
-```mdx
+```jsx
 import SnippetPython from "/snippets/code/python/sdk/logging/example.mdx";
 import SnippetTypeScript from "/snippets/code/typescript/sdk/logging/example.mdx";
 
@@ -209,7 +211,8 @@ Contains reusable JSX components and MDX snippets for complex UI elements:
 - Various `.mdx` files for reusable metric descriptions and UI patterns
 
 **Usage:**
-```mdx
+
+```jsx
 import MetricsTable from "/snippets/components/MetricsTable.jsx";
 
 <MetricsTable />
@@ -224,7 +227,8 @@ Contains reusable content blocks for common documentation patterns:
 - Getting started content blocks
 
 **Example paths:**
-```
+
+```text
 snippets/content/configure-otel-env-vars.mdx
 snippets/content/install-dependencies-openai.mdx
 snippets/content/get-started/
@@ -240,7 +244,7 @@ snippets/content/get-started/
 
 Every `.mdx` file requires YAML frontmatter:
 
-```mdx
+```yaml
 ---
 title: Page Title
 description: Brief description of the page content
@@ -248,17 +252,20 @@ description: Brief description of the page content
 ```
 
 **Required fields:**
+
 - `title` - Page title displayed in navigation and browser tab
 - `description` - Brief description for SEO and page headers
 
 **Optional fields:**
+
 - `tag` - Language/technology badge displayed on the page (e.g., `"Python"`, `"Python, TypeScript"`)
 - `icon` - Custom icon for navigation (e.g., `"house"`, `"paper-plane"`)
 
 ### Common Components
 
 **CodeGroup** - Tabbed code blocks:
-```mdx
+
+```jsx
 <CodeGroup>
   <SnippetPython />
   <SnippetTypeScript />
@@ -266,17 +273,19 @@ description: Brief description of the page content
 ```
 
 **CardGroup** - Grid of navigation cards:
-```mdx
+
+```jsx
 <CardGroup cols={2}>
-  <Card title="Card Title" icon="code" horizontal href="/path/to/page">
+  <Card title="Card Title" icon="code" horizontal href="/concepts/metrics/overview">
     Card description text.
   </Card>
 </CardGroup>
 ```
 
 **Card** - Navigation card:
-```mdx
-<Card title="Title" icon="python" href="/path/to/page">
+
+```jsx
+<Card title="Title" icon="python" href="/sdk-api/overview">
   Description of where this links to.
 </Card>
 ```
@@ -284,7 +293,8 @@ description: Brief description of the page content
 The `horizontal` attribute is optional and changes the card layout.
 
 **Tabs** - Content tabs (alternative to CodeGroup for non-code content):
-```mdx
+
+```jsx
 <Tabs>
   <Tab title="Python">
     Python-specific content here.
@@ -296,7 +306,8 @@ The `horizontal` attribute is optional and changes the card layout.
 ```
 
 **Note/Warning/Info callouts:**
-```mdx
+
+```jsx
 <Note>This is a note callout.</Note>
 <Warning>This is a warning callout.</Warning>
 <Info>This is an info callout.</Info>
@@ -320,7 +331,7 @@ The `horizontal` attribute is optional and changes the card layout.
 
 Use absolute paths from the project root without the `.mdx` extension:
 
-```mdx
+```markdown
 See the [logging guide](/sdk-api/logging/galileo-logger) for more details.
 ```
 
@@ -336,7 +347,7 @@ Store images in `images/` organized by category:
 
 Reference them with absolute paths:
 
-```mdx
+```markdown
 ![Alt text](/images/console-ui/my-screenshot.png)
 ```
 
@@ -378,11 +389,13 @@ Add redirects when moving or renaming pages to preserve existing links.
 Before pushing changes:
 
 1. **Check for broken links:**
+
    ```bash
    mint broken-links
    ```
 
 2. **Run spell check** (excludes auto-generated SDK reference):
+
    ```bash
    vale . --glob='!{sdk-api/**/reference/**/*.*}'
    ```
@@ -390,6 +403,7 @@ Before pushing changes:
 3. **Verify new pages** are added to `docs.json` in the correct navigation group
 
 4. **Test locally:**
+
    ```bash
    mint dev
    ```
