@@ -119,41 +119,6 @@ export const BooleanClassificationReport = ({
             <td style={centerCellStyle}>{posClass.support}</td>
           </tr>
           
-          {/* Empty row for spacing */}
-          <tr style={{ height: "0.5rem" }}><td colSpan={5}></td></tr>
-          
-          {/* Accuracy row */}
-          {parsed.accuracy !== null && (
-            <tr style={rowStyle}>
-              <td style={cellStyle}>Accuracy</td>
-              <td style={centerCellStyle}></td>
-              <td style={centerCellStyle}></td>
-              <td style={centerCellStyle}>{parsed.accuracy.toFixed(2)}</td>
-              <td style={centerCellStyle}>{parsed.totalSupport}</td>
-            </tr>
-          )}
-          
-          {/* Macro avg row */}
-          {parsed.macroAvg && (
-            <tr style={rowStyle}>
-              <td style={cellStyle}>Macro Avg</td>
-              <td style={centerCellStyle}>{parsed.macroAvg.precision.toFixed(2)}</td>
-              <td style={centerCellStyle}>{parsed.macroAvg.recall.toFixed(2)}</td>
-              <td style={centerCellStyle}>{parsed.macroAvg.f1.toFixed(2)}</td>
-              <td style={centerCellStyle}>{parsed.macroAvg.support}</td>
-            </tr>
-          )}
-          
-          {/* Weighted avg row */}
-          {parsed.weightedAvg && (
-            <tr style={rowStyle}>
-              <td style={cellStyle}>Weighted Avg</td>
-              <td style={centerCellStyle}>{parsed.weightedAvg.precision.toFixed(2)}</td>
-              <td style={centerCellStyle}>{parsed.weightedAvg.recall.toFixed(2)}</td>
-              <td style={centerCellStyle}>{parsed.weightedAvg.f1.toFixed(2)}</td>
-              <td style={centerCellStyle}>{parsed.weightedAvg.support}</td>
-            </tr>
-          )}
         </tbody>
       </table>
 
@@ -269,13 +234,31 @@ export const BooleanConfusionMatrix = ({
     padding: "1rem",
     textAlign: "center",
     borderRadius: "8px",
-    minHeight: showCounts ? "80px" : "60px",
+    aspectRatio: "1 / 1",
+    width: "100%",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     border: "1px solid rgba(148, 163, 184, 0.35)",
   });
+
+  const displayPredictedLabels = {
+    left: predictedPositiveLabel,
+    right: predictedNegativeLabel,
+  };
+
+  const displayActualLabels = {
+    top: actualPositiveLabel,
+    bottom: actualNegativeLabel,
+  };
+
+  const displayMatrix = {
+    tl: resolvedMatrix.tp,
+    tr: resolvedMatrix.fn,
+    bl: resolvedMatrix.fp,
+    br: resolvedMatrix.tn,
+  };
 
   return (
     <div style={{ maxWidth: maxWidth + "px", margin: "1rem 0" }}>
@@ -297,32 +280,32 @@ export const BooleanConfusionMatrix = ({
         {/* Row 3: Empty corner + empty corner + predicted class labels */}
         <div></div>
         <div></div>
-        <div style={{ textAlign: "center", padding: "0.5rem", fontSize: "0.75rem", fontWeight: "500", display: "flex", alignItems: "center", justifyContent: "center" }}>{predictedNegativeLabel}</div>
-        <div style={{ textAlign: "center", padding: "0.5rem", fontSize: "0.75rem", fontWeight: "500", display: "flex", alignItems: "center", justifyContent: "center" }}>{predictedPositiveLabel}</div>
+        <div style={{ textAlign: "center", padding: "0.5rem", fontSize: "0.75rem", fontWeight: "500", display: "flex", alignItems: "center", justifyContent: "center" }}>{displayPredictedLabels.left}</div>
+        <div style={{ textAlign: "center", padding: "0.5rem", fontSize: "0.75rem", fontWeight: "500", display: "flex", alignItems: "center", justifyContent: "center" }}>{displayPredictedLabels.right}</div>
 
-        {/* Row 4: "Actual" spanning rows 4-5 + actual negative label + TN + FP */}
+        {/* Row 4: "Actual" spanning rows 4-5 + actual positive label + TP + FN */}
         <div style={{ gridRow: "4 / 6", writingMode: "vertical-rl", transform: "rotate(180deg)", textAlign: "center", fontWeight: "600", fontSize: "0.875rem", padding: "0 0.5rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
           Actual
         </div>
-        <div style={{ padding: "0.5rem", fontSize: "0.75rem", fontWeight: "500", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>{actualNegativeLabel}</div>
-        <div style={cellStyle(resolvedMatrix.tn.pct)}>
-          {showCounts && <div style={{ fontSize: "1.5rem", fontWeight: "700", lineHeight: 1 }}>{resolvedMatrix.tn.count}</div>}
-          <div style={{ fontSize: showCounts ? "0.75rem" : "1rem", fontWeight: showCounts ? "400" : "700", opacity: showCounts ? 0.8 : 1 }}>{formatValue(resolvedMatrix.tn.pct)}</div>
+        <div style={{ padding: "0.5rem", fontSize: "0.75rem", fontWeight: "500", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>{displayActualLabels.top}</div>
+        <div style={cellStyle(displayMatrix.tl.pct)}>
+          {showCounts && <div style={{ fontSize: "1.5rem", fontWeight: "700", lineHeight: 1 }}>{displayMatrix.tl.count}</div>}
+          <div style={{ fontSize: showCounts ? "0.75rem" : "1rem", fontWeight: showCounts ? "400" : "700", opacity: showCounts ? 0.8 : 1 }}>{formatValue(displayMatrix.tl.pct)}</div>
         </div>
-        <div style={cellStyle(resolvedMatrix.fp.pct)}>
-          {showCounts && <div style={{ fontSize: "1.5rem", fontWeight: "700", lineHeight: 1 }}>{resolvedMatrix.fp.count}</div>}
-          <div style={{ fontSize: showCounts ? "0.75rem" : "1rem", fontWeight: showCounts ? "400" : "700", opacity: showCounts ? 0.8 : 1 }}>{formatValue(resolvedMatrix.fp.pct)}</div>
+        <div style={cellStyle(displayMatrix.tr.pct)}>
+          {showCounts && <div style={{ fontSize: "1.5rem", fontWeight: "700", lineHeight: 1 }}>{displayMatrix.tr.count}</div>}
+          <div style={{ fontSize: showCounts ? "0.75rem" : "1rem", fontWeight: showCounts ? "400" : "700", opacity: showCounts ? 0.8 : 1 }}>{formatValue(displayMatrix.tr.pct)}</div>
         </div>
 
-        {/* Row 4: (Actual already spans here) + actual positive label + FN + TP */}
-        <div style={{ padding: "0.5rem", fontSize: "0.75rem", fontWeight: "500", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>{actualPositiveLabel}</div>
-        <div style={cellStyle(resolvedMatrix.fn.pct)}>
-          {showCounts && <div style={{ fontSize: "1.5rem", fontWeight: "700", lineHeight: 1 }}>{resolvedMatrix.fn.count}</div>}
-          <div style={{ fontSize: showCounts ? "0.75rem" : "1rem", fontWeight: showCounts ? "400" : "700", opacity: showCounts ? 0.8 : 1 }}>{formatValue(resolvedMatrix.fn.pct)}</div>
+        {/* Row 4: (Actual already spans here) + actual negative label + FP + TN */}
+        <div style={{ padding: "0.5rem", fontSize: "0.75rem", fontWeight: "500", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>{displayActualLabels.bottom}</div>
+        <div style={cellStyle(displayMatrix.bl.pct)}>
+          {showCounts && <div style={{ fontSize: "1.5rem", fontWeight: "700", lineHeight: 1 }}>{displayMatrix.bl.count}</div>}
+          <div style={{ fontSize: showCounts ? "0.75rem" : "1rem", fontWeight: showCounts ? "400" : "700", opacity: showCounts ? 0.8 : 1 }}>{formatValue(displayMatrix.bl.pct)}</div>
         </div>
-        <div style={cellStyle(resolvedMatrix.tp.pct)}>
-          {showCounts && <div style={{ fontSize: "1.5rem", fontWeight: "700", lineHeight: 1 }}>{resolvedMatrix.tp.count}</div>}
-          <div style={{ fontSize: showCounts ? "0.75rem" : "1rem", fontWeight: showCounts ? "400" : "700", opacity: showCounts ? 0.8 : 1 }}>{formatValue(resolvedMatrix.tp.pct)}</div>
+        <div style={cellStyle(displayMatrix.br.pct)}>
+          {showCounts && <div style={{ fontSize: "1.5rem", fontWeight: "700", lineHeight: 1 }}>{displayMatrix.br.count}</div>}
+          <div style={{ fontSize: showCounts ? "0.75rem" : "1rem", fontWeight: showCounts ? "400" : "700", opacity: showCounts ? 0.8 : 1 }}>{formatValue(displayMatrix.br.pct)}</div>
         </div>
 
         {/* Row 5: Color scale legend spanning columns 3-4 */}
