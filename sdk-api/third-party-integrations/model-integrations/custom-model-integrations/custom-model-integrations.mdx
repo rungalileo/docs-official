@@ -1,0 +1,243 @@
+---
+title: Custom Model Integrations
+description: Learn how to set up custom LLM integrations for non-standard proxies or proprietary authentication protocols.
+---
+
+import SnippetOAuth2TokenFormat from "/snippets/code/multilingual/integrations/custom/oauth2-token-format.mdx";
+import SnippetResponseIntegrationDb from "/snippets/code/multilingual/integrations/custom/response-integration-db.mdx";
+import SnippetPayloadOAuth2Basic from "/snippets/code/multilingual/integrations/custom/payload-oauth2-basic.mdx";
+import SnippetPayloadNoAuth from "/snippets/code/multilingual/integrations/custom/payload-no-auth.mdx";
+import SnippetPayloadCustomLlm from "/snippets/code/multilingual/integrations/custom/payload-custom-llm.mdx";
+import SnippetPayloadOAuth2CustomLlm from "/snippets/code/multilingual/integrations/custom/payload-oauth2-custom-llm.mdx";
+import SnippetCurlCreateNoAuth from "/snippets/code/multilingual/integrations/custom/curl-create-no-auth.mdx";
+import SnippetCurlCreateOAuth2 from "/snippets/code/multilingual/integrations/custom/curl-create-oauth2.mdx";
+import SnippetCurlGetIntegration from "/snippets/code/multilingual/integrations/custom/curl-get-integration.mdx";
+import SnippetOAuth2TokenSerialize from "/snippets/code/python/sdk/integrations/custom/oauth2-token-serialize.mdx";
+import SnippetCustomLlmHandler from "/snippets/code/python/sdk/integrations/custom/custom-llm-handler.mdx";
+
+# Custom Model Integrations
+
+Galileo custom integrations provide a flexible way of setting up model inference (LLM) integrations when there are custom requirements that are not supported by specialized provider integrations. Custom integrations are particularly useful when integrating with non-standard proxies or proprietary authentication or inference protocols.
+
+## Creating a Custom Integration
+
+There are two ways to create or update a custom integration:
+
+### Option 1: Galileo Web UI
+
+1. Navigate to **Settings > Integrations** in the Galileo console
+2. Find the **Custom** integration card and click **Add Integration**
+3. Paste the JSON payload (same format as the API request body) and save
+
+### Option 2: Galileo API
+
+Make a `PUT` request to the custom integrations endpoint:
+
+```
+PUT /integrations/custom
+```
+
+This is an idempotent operation—calling it multiple times with the same configuration will update the existing integration.
+
+**Authentication:** Include your Galileo API key in the request headers:
+
+```
+Galileo-API-Key: <your_api_key>
+```
+
+## Custom Integrations Payload Schema
+
+### CustomIntegrationCreate
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `authentication_type` | `string` | No | Authentication method: `"oauth2"` (default) or `"none"` |
+| `models` | `array[string]` | Yes | List of model names (minimum 1) |
+| `endpoint` | `string` | Yes | Base URL for the custom integration API. Inference requests will be sent to `{endpoint}/chat/completions` |
+| `default_model` | `string` | No | Default model to use. Defaults to the first model in the list |
+| `token` | `string` | Conditional | JSON string with OAuth2 client credentials (see below). Required for `oauth2`, must not be provided for `none` |
+| `authentication_scope` | `string` | No | OAuth2 scope to request when exchanging credentials for an access token |
+| `oauth2_token_url` | `string` | No | OAuth2 token endpoint URL (must support client credentials grant) |
+| `custom_llm_config` | `object` | No | Configuration for a custom LiteLLM handler class |
+
+### CustomLLMConfig
+
+Used when you need a custom Python handler for LLM completions.
+
+Custom LLM classes have full control of the inference process and can perform custom authentication, header, payload and response transformations, and they implement their own inference request processing, enabling support for proprietary protocols.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `file_name` | `string` | Yes | Python file containing the CustomLLM class (e.g., `"my_handler.py"`) |
+| `class_name` | `string` | Yes | Class name (must be a `litellm.CustomLLM` subclass) |
+| `init_kwargs` | `object` | No | Keyword arguments passed to the CustomLLM constructor |
+
+**Validation Rules:**
+- `file_name` must end with `.py`, contain no path separators or spaces, and follow Python identifier rules
+- `class_name` must be a valid Python identifier
+- `init_kwargs` keys must be valid Python identifiers
+
+### OAuth2 Token Format
+
+When `authentication_type` is `"oauth2"`, the `token` field must be a **JSON string** containing OAuth2 client credentials:
+
+<CodeGroup>
+  <SnippetOAuth2TokenFormat />
+</CodeGroup>
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `client_id` | `string` | Yes | OAuth2 client identifier |
+| `client_secret` | `string` | Yes | OAuth2 client secret |
+
+**Important:** The `oauth2_token_url` endpoint must support the [OAuth2 Client Credentials Grant](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4) (RFC 6749 Section 4.4).
+
+#### How OAuth2 Authentication Works
+
+1. When a request is made to the custom LLM endpoint, Galileo exchanges the client credentials for an access token
+2. A POST request is sent to `oauth2_token_url` with:
+   - `Content-Type: application/x-www-form-urlencoded`
+   - Body: `client_id=...&client_secret=...&grant_type=client_credentials&scope=...`
+3. The token endpoint must return a JSON response with an `access_token` field
+4. The access token is used as a Bearer token in the `Authorization` header for LLM requests
+
+## Response
+
+Returns an `IntegrationDB` object:
+
+<CodeGroup>
+  <SnippetResponseIntegrationDb />
+</CodeGroup>
+
+## Examples
+
+### Basic OAuth2 Integration
+
+For integrating with an LLM provider that uses OAuth2 client credentials authentication:
+
+<CodeGroup>
+  <SnippetPayloadOAuth2Basic />
+</CodeGroup>
+
+The `token` field is a JSON string. When constructing this payload programmatically, serialize the credentials object:
+
+<CodeGroup>
+  <SnippetOAuth2TokenSerialize />
+</CodeGroup>
+
+### No Authentication Integration
+
+For internal endpoints or providers that don't require authentication:
+
+<CodeGroup>
+  <SnippetPayloadNoAuth />
+</CodeGroup>
+
+### Integration with Custom LLM Handler
+
+For providers requiring custom request/response handling via a LiteLLM CustomLLM subclass:
+
+<CodeGroup>
+  <SnippetPayloadCustomLlm />
+</CodeGroup>
+
+### OAuth2 with Custom Handler
+
+Combining OAuth2 authentication with a custom LLM handler:
+
+<CodeGroup>
+  <SnippetPayloadOAuth2CustomLlm />
+</CodeGroup>
+
+## cURL Examples
+
+### Create No-Auth Integration
+
+<CodeGroup>
+  <SnippetCurlCreateNoAuth />
+</CodeGroup>
+
+### Create OAuth2 Integration
+
+<CodeGroup>
+  <SnippetCurlCreateOAuth2 />
+</CodeGroup>
+
+### Get Current Integration
+
+<CodeGroup>
+  <SnippetCurlGetIntegration />
+</CodeGroup>
+
+## Writing a Custom LLM Handler
+
+<Warning>
+For security reasons, this feature is only available on Galileo deployments dedicated to a single customer i.e. single-tenant deployments.
+</Warning>
+
+Custom LLMs require the following Galileo service versions:
+- `api`: v1.848.0 or greater
+- `runners`: v.2.239.0 or greater
+
+When using `custom_llm_config`, you need to provide a Python file with a class that extends `litellm.CustomLLM`.
+
+### Deploying Custom Handler Files
+
+Custom LLM handler files must be deployed to the Galileo runners container filesystem.
+
+**Default Location:** `/opt/custom_llms`
+
+Place your handler files directly in this directory (nested paths are not supported). For example:
+- `/opt/custom_llms/my_handler.py`
+- `/opt/custom_llms/enterprise_adapter.py`
+
+**Environment Variables:**
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `GALILEO_CUSTOM_LLMS_ENABLED` | Set to `true` to enable custom LLM support | `false` |
+| `GALILEO_CUSTOM_LLMS_DIRECTORY` | Directory where handler files are located | `/opt/custom_llms` |
+
+**Deployment Options:**
+1. **Volume Mount:** Mount a volume containing your handler files at `/opt/custom_llms`
+2. **Custom Image:** Build a custom runner image with handler files copied to `/opt/custom_llms`
+3. **Custom Directory:** Set `GALILEO_CUSTOM_LLMS_DIRECTORY` to a different path and deploy files there
+
+### Example Handler Implementation
+
+<CodeGroup>
+  <SnippetCustomLlmHandler />
+</CodeGroup>
+
+## Validation Errors
+
+### Token Validation
+
+| Error | Condition |
+|-------|-----------|
+| `"Token is required for OAuth2 authentication"` | `authentication_type` is `oauth2` but `token` is missing |
+| `"Token should not be provided for 'none' authentication type"` | `authentication_type` is `none` but `token` is provided |
+| `"Incomplete credentials provided for custom OAuth2 authentication. Expected dict with keys: 'client_id', 'client_secret'."` | `token` is not valid JSON or missing required fields |
+| `"OAuth2 token URL must be provided for custom OAuth2 authentication."` | `authentication_type` is `oauth2` but `oauth2_token_url` is missing (runtime error) |
+
+### Model Validation
+
+| Error | Condition |
+|-------|-----------|
+| `"List should have at least 1 item"` | `models` array is empty |
+| `"default_model must be in models list"` | `default_model` specified but not in `models` array |
+
+### CustomLLMConfig Validation
+
+| Error | Condition |
+|-------|-----------|
+| `"file_name must end with .py"` | File name doesn't have `.py` extension |
+| `"file_name must not contain path separators"` | File name contains `/` or `\\` |
+| `"file_name must be a valid Python identifier"` | File name (without `.py`) is not a valid identifier |
+| `"class_name must be a valid Python identifier"` | Class name is not a valid Python identifier |
+
+## Security Notes
+
+- Tokens are encrypted before storage
+- OAuth2 client credentials should be kept confidential and rotated regularly
+- Custom LLM handler files should be reviewed for security before deployment
