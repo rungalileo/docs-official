@@ -361,6 +361,26 @@ vale . --glob='!{sdk-api/**/reference/**/*.*}'
 
 Custom vocabulary is defined in `.vale/styles/config/vocabularies/Galileo-Vocab/accept.txt`.
 
+## Markdown Linting
+
+Run markdownlint to check markdown formatting:
+
+```bash
+npx markdownlint-cli2 "**/*.md" "**/*.mdx"
+```
+
+To lint specific files:
+
+```bash
+npx markdownlint-cli2 path/to/file.mdx
+```
+
+Configuration is in `.markdownlint-cli2.jsonc`. Common issues include:
+
+- Missing language specifier on code blocks (use `text` for plain text, `jsx` for components)
+- Missing blank lines around lists and code blocks
+- Bare URLs (use `[text](url)` format instead)
+
 ## Redirects
 
 URL redirects are configured in `docs.json` under the `redirects` array:
@@ -400,12 +420,18 @@ Before pushing changes:
    vale . --glob='!{sdk-api/**/reference/**/*.*}'
    ```
 
-3. **Verify new pages** are added to `docs.json` in the correct navigation group
+3. **Run markdown lint:**
 
-4. **Test locally:**
+   ```bash
+   npx markdownlint-cli2 "**/*.md" "**/*.mdx"
+   ```
+
+4. **Verify new pages** are added to `docs.json` in the correct navigation group
+
+5. **Test locally:**
 
    ```bash
    mint dev
    ```
 
-5. **Add redirects** if renaming or moving existing pages
+6. **Add redirects** if renaming or moving existing pages
