@@ -15,8 +15,6 @@ import SnippetCurlGetIntegration from "/snippets/code/multilingual/integrations/
 import SnippetOAuth2TokenSerialize from "/snippets/code/python/sdk/integrations/custom/oauth2-token-serialize.mdx";
 import SnippetCustomLlmHandler from "/snippets/code/python/sdk/integrations/custom/custom-llm-handler.mdx";
 
-# Custom Model Integrations
-
 Galileo custom integrations provide a flexible way of setting up model inference (LLM) integrations when there are custom requirements that are not supported by specialized provider integrations. Custom integrations are particularly useful when integrating with non-standard proxies or proprietary authentication or inference protocols.
 
 ## Creating a Custom Integration
@@ -33,7 +31,7 @@ There are two ways to create or update a custom integration:
 
 Make a `PUT` request to the custom integrations endpoint:
 
-```
+```text
 PUT /integrations/custom
 ```
 
@@ -41,7 +39,7 @@ This is an idempotent operation—calling it multiple times with the same config
 
 **Authentication:** Include your Galileo API key in the request headers:
 
-```
+```text
 Galileo-API-Key: <your_api_key>
 ```
 
@@ -73,6 +71,7 @@ Custom LLM classes have full control of the inference process and can perform cu
 | `init_kwargs` | `object` | No | Keyword arguments passed to the CustomLLM constructor |
 
 **Validation Rules:**
+
 - `file_name` must end with `.py`, contain no path separators or spaces, and follow Python identifier rules
 - `class_name` must be a valid Python identifier
 - `init_kwargs` keys must be valid Python identifiers
@@ -176,6 +175,7 @@ For security reasons, this feature is only available on Galileo deployments dedi
 </Warning>
 
 Custom LLMs require the following Galileo service versions:
+
 - `api`: v1.848.0 or greater
 - `runners`: v.2.239.0 or greater
 
@@ -188,6 +188,7 @@ Custom LLM handler files must be deployed to the Galileo runners container files
 **Default Location:** `/opt/custom_llms`
 
 Place your handler files directly in this directory (nested paths are not supported). For example:
+
 - `/opt/custom_llms/my_handler.py`
 - `/opt/custom_llms/enterprise_adapter.py`
 
@@ -199,6 +200,7 @@ Place your handler files directly in this directory (nested paths are not suppor
 | `GALILEO_CUSTOM_LLMS_DIRECTORY` | Directory where handler files are located | `/opt/custom_llms` |
 
 **Deployment Options:**
+
 1. **Volume Mount:** Mount a volume containing your handler files at `/opt/custom_llms`
 2. **Custom Image:** Build a custom runner image with handler files copied to `/opt/custom_llms`
 3. **Custom Directory:** Set `GALILEO_CUSTOM_LLMS_DIRECTORY` to a different path and deploy files there
