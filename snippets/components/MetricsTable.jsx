@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react';
-
 export const MetricsTable = () => {
     const metrics = [
         { name: "Action Advancement", link: "/concepts/metrics/agentic/action-advancement", category: "Agentic", node: "Trace", description: "Measures how effectively each action advances toward the goal.", whenToUse: "When assessing whether an agent is making meaningful progress in multi-step tasks.", example: "A travel planning agent that needs to book flights, hotels, and activities in the correct sequence." },
