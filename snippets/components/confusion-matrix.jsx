@@ -86,20 +86,20 @@ export const BooleanClassificationReport = ({
   const tpPct = (tp / tpPlusFn) * 100;
 
   const rowStyle = { borderBottom: "1px solid rgba(148, 163, 184, 0.3)" };
-  const cellStyle = { padding: "0.5rem" };
-  const centerCellStyle = { textAlign: "center", padding: "0.5rem" };
+  const cellStyle = { padding: "0.5rem 0.125rem" };
+  const centerCellStyle = { textAlign: "left", padding: "0.5rem 0.125rem" };
 
   return (
     <div>
       {/* Classification Report Table - full width to match markdown tables */}
-      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "1.5rem", fontSize: "0.875rem" }}>
+      <table style={{ width: "auto", borderCollapse: "collapse", marginBottom: "1.5rem", fontSize: "0.875rem" }}>
         <thead>
           <tr style={{ borderBottom: "2px solid rgba(148, 163, 184, 0.5)" }}>
-            <th style={{ textAlign: "left", padding: "0.5rem", fontWeight: "600" }}></th>
-            <th style={{ textAlign: "center", padding: "0.5rem", fontWeight: "600" }}>Precision</th>
-            <th style={{ textAlign: "center", padding: "0.5rem", fontWeight: "600" }}>Recall</th>
-            <th style={{ textAlign: "center", padding: "0.5rem", fontWeight: "600" }}>F1-Score</th>
-            <th style={{ textAlign: "center", padding: "0.5rem", fontWeight: "600" }}>Support</th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}></th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Precision</th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Recall</th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>F1-Score</th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Support</th>
           </tr>
         </thead>
         <tbody>
@@ -155,12 +155,20 @@ export const BooleanConfusionMatrix = ({
   matrix,
   maxWidth = 520,
   displayFormat = "percentage", // "percentage" or "fraction"
+  fractionDigits = 3,
+  percentageDigits = 1,
+  titlePrefix = "",
 }) => {
   const parseNum = (val) => (val !== undefined && val !== null ? Number(val) : undefined);
   const clampPct = (pct) => Math.max(0, Math.min(100, Number(pct) || 0));
   const formatValue = (pct) => {
     const p = clampPct(pct);
-    return displayFormat === "fraction" ? (p / 100).toFixed(3) : `${p.toFixed(1)}%`;
+    if (displayFormat === "fraction") {
+      const digits = Number.isFinite(Number(fractionDigits)) ? Number(fractionDigits) : 3;
+      return (p / 100).toFixed(digits);
+    }
+    const digits = Number.isFinite(Number(percentageDigits)) ? Number(percentageDigits) : 1;
+    return `${p.toFixed(digits)}%`;
   };
 
   const palette = [
@@ -267,7 +275,7 @@ export const BooleanConfusionMatrix = ({
         <div></div>
         <div></div>
         <div style={{ gridColumn: "3 / 5", textAlign: "center", padding: "0.5rem", fontWeight: "600", fontSize: "1rem" }}>
-          Confusion Matrix (Normalized)
+          {titlePrefix}Confusion Matrix (Normalized)
         </div>
 
         {/* Row 2: Empty corners + "Predicted" spanning columns 3-4 */}
@@ -321,6 +329,249 @@ export const BooleanConfusionMatrix = ({
           <span style={{ fontSize: "0.75rem", fontWeight: "500" }}>{displayFormat === "fraction" ? "1.0" : "100%"}</span>
         </div>
       </div>
+    </div>
+  );
+};
+
+export const MultiLabelConfusionMatrix = ({
+  report,
+  labelOrder,
+  labelDisplayNames = {},
+  decimals = 4,
+  maxWidth = 520,
+  microNegativeLabel = "False",
+  microPositiveLabel = "True",
+  showPerLabelMatrices = true,
+}) => {
+  // Inline helpers (required for MDX/Mintlify compatibility)
+  const toNum = (v) => { if (v == null) return undefined; const n = Number(v); return Number.isFinite(n) ? n : undefined; };
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const sumVals = (obj, keys) => (keys || Object.keys(obj || {})).reduce((a, k) => a + (toNum(obj?.[k]) ?? 0), 0);
+  const getLabels = (lo, pcs) => { if (Array.isArray(lo) && lo.length) return lo; if (pcs && typeof pcs === "object") return Object.keys(pcs); return []; };
+  const deriveCM = ({ precision, recall, positiveSupport, negativeSupport }) => {
+    const P = toNum(positiveSupport), N = toNum(negativeSupport), prec = toNum(precision), rec = toNum(recall);
+    if (P === undefined || N === undefined || prec === undefined || rec === undefined || P < 0 || N < 0) return null;
+    const tp = clamp01(rec) * P, fn = P - tp;
+    let fp = clamp01(prec) > 0 ? tp / clamp01(prec) - tp : 0;
+    if (!Number.isFinite(fp) || fp < 0) fp = 0; if (fp > N) fp = N;
+    const tn = N - fp;
+    return { tnPct: N > 0 ? (tn / N) * 100 : 0, fpPct: N > 0 ? (fp / N) * 100 : 0, fnPct: P > 0 ? (fn / P) * 100 : 0, tpPct: P > 0 ? (tp / P) * 100 : 0 };
+  };
+
+  const labels = getLabels(labelOrder, report?.per_class_support);
+  const perSupport = report?.per_class_support || {};
+  const perNegSupport = report?.per_class_negative_support || {};
+
+  if (!report || labels.length === 0) {
+    return (
+      <div style={{ color: "red", padding: "1rem", border: "1px solid red" }}>
+        MultiLabelConfusionMatrix: Missing or invalid report/labels.
+      </div>
+    );
+  }
+
+  // Phase 1: Aggregation (Micro-averaging)
+  const totalPositiveSupport = sumVals(perSupport, labels);
+  const totalNegativeSupport = sumVals(perNegSupport, labels);
+
+  const microMatrix = deriveCM({
+    precision: report.micro_precision,
+    recall: report.micro_recall,
+    positiveSupport: totalPositiveSupport,
+    negativeSupport: totalNegativeSupport,
+  });
+
+  return (
+    <div>
+      {microMatrix ? (
+        <BooleanConfusionMatrix
+          actualPositiveLabel={microPositiveLabel}
+          actualNegativeLabel={microNegativeLabel}
+          predictedPositiveLabel={microPositiveLabel}
+          predictedNegativeLabel={microNegativeLabel}
+          matrix={{
+            tp: { pct: microMatrix.tpPct },
+            fn: { pct: microMatrix.fnPct },
+            fp: { pct: microMatrix.fpPct },
+            tn: { pct: microMatrix.tnPct },
+          }}
+          displayFormat="fraction"
+          fractionDigits={decimals}
+          maxWidth={maxWidth}
+          titlePrefix="Micro-Averaged "
+        />
+      ) : (
+        <div style={{ color: "red", padding: "1rem", border: "1px solid red" }}>
+          MultiLabelConfusionMatrix: Could not derive micro confusion matrix from report.
+        </div>
+      )}
+
+      {showPerLabelMatrices && (
+        <>
+          <div style={{ fontWeight: "600", fontSize: "0.95rem", margin: "1.25rem 0 0.5rem" }}>Per-label confusion matrices</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
+            {labels.map((label) => {
+              const labelName = labelDisplayNames?.[label] ?? label;
+              const matrix = deriveCM({
+                precision: report?.per_class_precision?.[label],
+                recall: report?.per_class_recall?.[label],
+                positiveSupport: perSupport?.[label],
+                negativeSupport: perNegSupport?.[label],
+              });
+
+              const negativeLabel = `Not ${labelName}`;
+
+              return (
+                <div key={label}>
+                  <div style={{ fontWeight: "600", fontSize: "0.875rem", marginBottom: "0.25rem" }}>{labelName}</div>
+                  {matrix ? (
+                    <BooleanConfusionMatrix
+                      actualPositiveLabel={labelName}
+                      actualNegativeLabel={negativeLabel}
+                      predictedPositiveLabel={labelName}
+                      predictedNegativeLabel={negativeLabel}
+                      matrix={{
+                        tp: { pct: matrix.tpPct },
+                        fn: { pct: matrix.fnPct },
+                        fp: { pct: matrix.fpPct },
+                        tn: { pct: matrix.tnPct },
+                      }}
+                      displayFormat="fraction"
+                      fractionDigits={decimals}
+                      maxWidth={maxWidth}
+                    />
+                  ) : (
+                    <div style={{ color: "red", padding: "0.75rem", border: "1px solid red" }}>
+                      Could not derive confusion matrix for label: <code>{label}</code>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export const MultiLabelClassificationReport = ({
+  report: reportProp,
+  labelOrder: labelOrderProp,
+  labelDisplayNames: labelDisplayNamesProp = {},
+  decimals = 4,
+  maxWidth = 520,
+  showConfusionMatrices = true,
+  showPerLabelMatrices = true,
+  showAverageRows = true,
+}) => {
+  // Inline helpers (required for MDX/Mintlify compatibility)
+  const toNum = (v) => { if (v == null) return undefined; const n = Number(v); return Number.isFinite(n) ? n : undefined; };
+  const sumVals = (obj, keys) => (keys || Object.keys(obj || {})).reduce((a, k) => a + (toNum(obj?.[k]) ?? 0), 0);
+  const getLabels = (lo, pcs) => { if (Array.isArray(lo) && lo.length) return lo; if (pcs && typeof pcs === "object") return Object.keys(pcs); return []; };
+  const fmtMetric = (v, d) => { const n = toNum(v); if (n === undefined) return "—"; return n.toFixed(Number.isFinite(Number(d)) ? Number(d) : 4); };
+
+  // Support both object and JSON string formats for MDX compatibility
+  let report, labelOrder, labelDisplayNames;
+  try {
+    report = typeof reportProp === 'string' ? JSON.parse(reportProp) : reportProp;
+    labelOrder = typeof labelOrderProp === 'string' ? JSON.parse(labelOrderProp) : labelOrderProp;
+    labelDisplayNames = typeof labelDisplayNamesProp === 'string' ? JSON.parse(labelDisplayNamesProp) : labelDisplayNamesProp;
+  } catch (e) {
+    return (
+      <div style={{ color: "red", padding: "1rem", border: "1px solid red" }}>
+        MultiLabelClassificationReport: JSON parse error - {e.message}
+      </div>
+    );
+  }
+
+  const labels = getLabels(labelOrder, report?.per_class_support);
+
+  if (!report || labels.length === 0) {
+    return (
+      <div style={{ color: "red", padding: "1rem", border: "1px solid red" }}>
+        MultiLabelClassificationReport: Missing or invalid report/labels.
+      </div>
+    );
+  }
+
+  const perSupport = report?.per_class_support || {};
+  const totalPositiveSupport = sumVals(perSupport, labels);
+
+  const rowStyle = { borderBottom: "1px solid rgba(148, 163, 184, 0.3)" };
+  const cellStyle = { padding: "0.5rem 0.125rem" };
+  const centerCellStyle = { textAlign: "left", padding: "0.5rem 0.125rem" };
+
+  const avgRowStyle = {
+    ...rowStyle,
+    background: "rgba(148, 163, 184, 0.08)",
+    fontWeight: 600,
+  };
+
+  return (
+    <div>
+      <table style={{ width: "auto", borderCollapse: "collapse", marginBottom: "1.25rem", fontSize: "0.875rem" }}>
+        <thead>
+          <tr style={{ borderBottom: "2px solid rgba(148, 163, 184, 0.5)" }}>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}></th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Precision</th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Recall</th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>F1-Score</th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Support</th>
+          </tr>
+        </thead>
+        <tbody>
+          {labels.map((label) => {
+            const labelName = labelDisplayNames?.[label] ?? label;
+            return (
+              <tr key={label} style={rowStyle}>
+                <td style={cellStyle}>{labelName}</td>
+                <td style={centerCellStyle}>{fmtMetric(report?.per_class_precision?.[label], decimals)}</td>
+                <td style={centerCellStyle}>{fmtMetric(report?.per_class_recall?.[label], decimals)}</td>
+                <td style={centerCellStyle}>{fmtMetric(report?.per_class_f1?.[label], decimals)}</td>
+                <td style={centerCellStyle}>{toNum(perSupport?.[label]) ?? "—"}</td>
+              </tr>
+            );
+          })}
+
+          {showAverageRows && (
+            <>
+              <tr style={avgRowStyle}>
+                <td style={cellStyle}>Micro avg</td>
+                <td style={centerCellStyle}>{fmtMetric(report.micro_precision, decimals)}</td>
+                <td style={centerCellStyle}>{fmtMetric(report.micro_recall, decimals)}</td>
+                <td style={centerCellStyle}>{fmtMetric(report.micro_f1, decimals)}</td>
+                <td style={centerCellStyle}>{totalPositiveSupport}</td>
+              </tr>
+              <tr style={avgRowStyle}>
+                <td style={cellStyle}>Macro avg</td>
+                <td style={centerCellStyle}>{fmtMetric(report.macro_precision, decimals)}</td>
+                <td style={centerCellStyle}>{fmtMetric(report.macro_recall, decimals)}</td>
+                <td style={centerCellStyle}>{fmtMetric(report.macro_f1, decimals)}</td>
+                <td style={centerCellStyle}>{totalPositiveSupport}</td>
+              </tr>
+              <tr style={avgRowStyle}>
+                <td style={cellStyle}>Weighted avg</td>
+                <td style={centerCellStyle}>{fmtMetric(report.weighted_precision, decimals)}</td>
+                <td style={centerCellStyle}>{fmtMetric(report.weighted_recall, decimals)}</td>
+                <td style={centerCellStyle}>{fmtMetric(report.weighted_f1, decimals)}</td>
+                <td style={centerCellStyle}>{totalPositiveSupport}</td>
+              </tr>
+            </>
+          )}
+        </tbody>
+      </table>
+
+      {showConfusionMatrices && (
+        <MultiLabelConfusionMatrix
+          report={report}
+          labelOrder={labels}
+          labelDisplayNames={labelDisplayNames}
+          decimals={decimals}
+          maxWidth={maxWidth}
+          showPerLabelMatrices={showPerLabelMatrices}
+        />
+      )}
     </div>
   );
 };

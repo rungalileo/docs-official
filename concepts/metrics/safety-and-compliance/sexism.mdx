@@ -5,6 +5,7 @@ description: Detect and prevent sexist content in AI systems using Galileo's Sex
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>Sexism Detection</strong> flags whether a response contains sexist content. Output is a binary classification of whether a response is sexist or not.
@@ -17,12 +18,10 @@ Sexism detection is computed through a specialized process:
 <Steps>
   <Step title="Model Architecture">
     The detection system is built on a Small Language Model (SLM) that combines training from both open-source datasets and carefully curated internal datasets to identify various forms of sexist content.
-
-</Step>
+  </Step>
   <Step title="Performance Validation">
     The model demonstrates robust detection capabilities with an 83% accuracy rate when tested against the Explainable Detection of Online Sexism dataset, a widely recognized benchmark for sexism detection.
-
-</Step>
+  </Step>
 </Steps>
 
 ## Optimizing your AI system
@@ -50,6 +49,45 @@ When sexist content is detected in your system, consider these approaches:
 </Card>
 
 <Note>
-Identify responses that contain sexist comments and take preventive measures to ensure fair and unbiased AI interactions.
-
+  Identify responses that contain sexist comments and take preventive measures to ensure fair and unbiased AI interactions.
 </Note>
+
+## Performance Benchmarks
+
+We evaluated Sexism Detection against gold labels on the "test" split of [TomData/TG-sexism_balanced](https://huggingface.co/datasets/TomData/TG-sexism_balanced) open-source dataset using top frontier models.
+
+| Model | F1 (True) |
+|:------|:--------:|
+| GPT-4.1 | 0.91 |
+| GPT-4.1-mini (judges=3) | 0.89 |
+| Claude Sonnet 4.5 | 0.87 |
+| Gemini 3 Flash | 0.89 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`            precision    recall  f1-score   support
+
+  False     0.9340    0.8773    0.9048       807
+   True     0.8842    0.9380    0.9103       806
+
+accuracy                         0.9076      1613
+macro avg     0.9091    0.9076    0.9075      1613
+weighted avg  0.9091    0.9076    0.9075      1613`}
+  negativeLabel="False"
+  positiveLabel="True"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on the TomData/TG-sexism_balanced open-source dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing Sexism Detection, check out the following resources:
+
+### Examples
+
+- [Sexism Examples](https://app.galileo.ai) - Log in and explore the "Sexism" Log stream in the "Preset Metric Examples" Project to see this metric in action.

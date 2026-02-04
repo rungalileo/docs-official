@@ -5,6 +5,7 @@ description: Detect SQL injection attacks and security vulnerabilities in genera
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>SQL Injection</strong> acts as a specialized security filter that determines if the input (NL query) or output (SQL query) contains security risks or injection vulnerabilities.
@@ -142,3 +143,49 @@ Inputs considered (when available):
     Use alongside input sanitization and parameterized queries for defense in depth.
   </Card>
 </CardGroup>
+
+## Performance Benchmarks
+
+We evaluated SQL Injection against human expert labels on an internal dataset of text-to-SQL samples using top frontier models.
+
+| Model | F1 (True) |
+|:------|:--------:|
+| GPT-4.1 | 0.95 |
+| GPT-4.1 Mini | 0.93 |
+| Gemini 3 Flash Preview | 0.97 |
+| Claude Sonnet 4.5 | 0.95 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`            precision    recall  f1-score   support
+
+  False       0.9191    0.9996    0.9577      2399
+   True       0.9995    0.9104    0.9529      2356
+
+accuracy                          0.9554      4755
+macro avg     0.9593    0.9550    0.9553      4755
+weighted avg  0.9590    0.9554    0.9553      4755`}
+  negativeLabel="False"
+  positiveLabel="True"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing SQL Injection, check out the following resources:
+
+### Examples
+
+- [SQL Injection Examples](https://app.galileo.ai) - Log in and explore the "SQL Injection" Log stream in the "Preset Metric Examples" Project to see this metric in action.
+
+### Related Concepts
+
+- [SQL Adherence](/concepts/metrics/text2sql/sql-adherence)
+- [SQL Correctness](/concepts/metrics/text2sql/sql-correctness)
+- [SQL Efficiency](/concepts/metrics/text2sql/sql-efficiency)

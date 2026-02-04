@@ -4,6 +4,7 @@ description: Evaluate whether generated SQL queries are syntactically valid and 
 ---
 
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { BooleanConfusionMatrix, MultiLabelClassificationReport, MultiLabelConfusionMatrix } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>SQL Correctness</strong> assesses whether a generated SQL query is grammatically correct and grounded in the provided database schema.
@@ -120,3 +121,58 @@ Optional inputs:
     Use continuous learning via human feedback to improve the evaluator's accuracy for your specific database and domain.
   </Card>
 </CardGroup>
+
+## Performance Benchmarks
+
+We evaluated SQL Correctness against human expert labels on an internal dataset of text-to-SQL samples using top frontier models.
+
+| Model | Macro F1 |
+|:------|:--------:|
+| GPT-4.1 | 0.92 |
+| GPT-4.1 Mini | 0.92 |
+| Gemini 3 Flash Preview | 0.89 |
+| Claude Sonnet 4.5 | 0.93 |
+
+### GPT-4.1 Multi-Label Classification Report
+
+<MultiLabelClassificationReport
+  report={{
+    micro_f1: 0.9211,
+    micro_precision: 0.8912,
+    micro_recall: 0.9532,
+    macro_f1: 0.9212,
+    macro_precision: 0.8917,
+    macro_recall: 0.9532,
+    weighted_f1: 0.9212,
+    weighted_precision: 0.8917,
+    weighted_recall: 0.9532,
+    per_class_f1: { schematic: 0.9279, syntactic: 0.9145 },
+    per_class_precision: { schematic: 0.9104, syntactic: 0.8731 },
+    per_class_recall: { schematic: 0.9462, syntactic: 0.9602 },
+    per_class_support: { schematic: 2340, syntactic: 2335 },
+    per_class_negative_support: { schematic: 2340, syntactic: 2345 },
+  }}
+  labelOrder={["schematic", "syntactic"]}
+  decimals={4}
+  showConfusionMatrices={true}
+  showPerLabelMatrices={false}
+  showAverageRows={false}
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing SQL Correctness, check out the following resources:
+
+### Examples
+
+- [SQL Correctness Examples](https://app.galileo.ai) - Log in and explore the "SQL Correctness" Log stream in the "Preset Metric Examples" Project to see this metric in action.
+
+### Related Concepts
+
+- [SQL Adherence](/concepts/metrics/text2sql/sql-adherence)
+- [SQL Efficiency](/concepts/metrics/text2sql/sql-efficiency)
+- [SQL Injection](/concepts/metrics/text2sql/sql-injection)
