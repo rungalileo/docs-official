@@ -3,7 +3,7 @@ import os
 from galileo.experiments import run_experiment
 from galileo.datasets import get_dataset
 from galileo.openai import openai
-from galileo.schema.metrics import GalileoScorers
+from galileo import GalileoMetrics
 
 dataset = get_dataset(name="fictional_character_names")
 
@@ -26,9 +26,9 @@ results = run_experiment(
     function=my_custom_llm_runner,
     metrics=[
         # List metrics here
-        GalileoScorers.action_advancement,
-        GalileoScorers.completeness,
-        GalileoScorers.instruction_adherence
+        GalileoMetrics.action_advancement,
+        GalileoMetrics.completeness,
+        GalileoMetrics.instruction_adherence
     ],
 )
 ```
