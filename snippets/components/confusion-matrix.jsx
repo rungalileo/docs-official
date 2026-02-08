@@ -455,6 +455,281 @@ export const MultiLabelConfusionMatrix = ({
   );
 };
 
+export const MultiClassConfusionMatrix = ({
+  matrix,
+  labels,
+  labelDisplayNames = {},
+  maxWidth = 560,
+  displayFormat = "fraction",
+  fractionDigits = 3,
+  percentageDigits = 1,
+}) => {
+  const clampPct = (pct) => Math.max(0, Math.min(100, Number(pct) || 0));
+  const formatValue = (pct) => {
+    const p = clampPct(pct);
+    if (displayFormat === "fraction") {
+      const d = Number.isFinite(Number(fractionDigits)) ? Number(fractionDigits) : 3;
+      return (p / 100).toFixed(d);
+    }
+    const d = Number.isFinite(Number(percentageDigits)) ? Number(percentageDigits) : 1;
+    return `${p.toFixed(d)}%`;
+  };
+
+  const palette = ["#f8fafc", "#eff6ff", "#dbeafe", "#bfdbfe", "#93c5fd", "#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af"];
+  const getBg = (pct) => { const p = clampPct(pct); const idx = p === 100 ? 9 : Math.floor(p / 10); return palette[idx]; };
+  const getColor = (pct) => (clampPct(pct) >= 60 ? "#ffffff" : "#1e3a8a");
+
+  const n = labels.length;
+  if (!matrix || !Array.isArray(matrix) || matrix.length !== n) {
+    return <div style={{ color: "red", padding: "1rem", border: "1px solid red" }}>MultiClassConfusionMatrix: matrix must be an {n}x{n} array matching labels.</div>;
+  }
+
+  const cellSize = Math.max(44, Math.min(72, Math.floor((maxWidth - 120) / n)));
+
+  return (
+    <div style={{ maxWidth: maxWidth + "px", margin: "1rem 0" }}>
+      <div style={{ display: "grid", gridTemplateColumns: `auto repeat(${n}, ${cellSize}px)`, gridTemplateRows: `auto auto auto repeat(${n}, ${cellSize}px) auto`, gap: "2px" }}>
+        {/* Title */}
+        <div></div>
+        <div style={{ gridColumn: `2 / ${n + 2}`, textAlign: "center", padding: "0.375rem", fontWeight: "600", fontSize: "0.95rem" }}>
+          Confusion Matrix (Normalized)
+        </div>
+
+        {/* "Predicted Classes" header */}
+        <div></div>
+        <div style={{ gridColumn: `2 / ${n + 2}`, textAlign: "center", padding: "0.25rem", fontWeight: "600", fontSize: "0.8rem" }}>
+          Predicted Classes
+        </div>
+
+        {/* Predicted class labels row */}
+        <div></div>
+        {labels.map((label, ci) => (
+          <div key={`plabel-${ci}`} style={{ textAlign: "center", padding: "0.125rem", fontSize: "0.65rem", fontWeight: "500", display: "flex", alignItems: "flex-end", justifyContent: "center", wordBreak: "break-word", lineHeight: "1.15" }}>
+            {labelDisplayNames[label] ?? label}
+          </div>
+        ))}
+
+        {/* Data rows with horizontal actual class labels */}
+        {labels.map((rowLabel, ri) => (
+          [
+            <div key={`alabel-${ri}`} style={{ padding: "0.125rem 0.375rem 0.125rem 0", fontSize: "0.65rem", fontWeight: "500", display: "flex", alignItems: "center", justifyContent: "flex-end", whiteSpace: "nowrap", textAlign: "right" }}>
+              {labelDisplayNames[rowLabel] ?? rowLabel}
+            </div>,
+            ...labels.map((colLabel, ci) => {
+              const pct = (matrix[ri][ci] ?? 0) * 100;
+              return (
+                <div key={`cell-${ri}-${ci}`} style={{
+                  background: getBg(pct), color: getColor(pct), padding: "0.125rem", textAlign: "center", borderRadius: "4px",
+                  width: "100%", aspectRatio: "1 / 1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                  border: "1px solid rgba(148, 163, 184, 0.35)",
+                }}>
+                  <div style={{ fontSize: "0.7rem", fontWeight: "700" }}>{formatValue(pct)}</div>
+                </div>
+              );
+            }),
+          ]
+        )).flat()}
+
+        {/* Color scale legend */}
+        <div></div>
+        <div style={{ gridColumn: `2 / ${n + 2}`, marginTop: "0.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <span style={{ fontSize: "0.7rem", fontWeight: "500" }}>{displayFormat === "fraction" ? "0.0" : "0%"}</span>
+          <div style={{ display: "flex", flex: 1, height: "10px", borderRadius: "4px", overflow: "hidden", border: "1px solid rgba(148, 163, 184, 0.35)" }}>
+            {palette.map((color, idx) => (
+              <div key={idx} style={{ flex: 1, height: "100%", background: color }} />
+            ))}
+          </div>
+          <span style={{ fontSize: "0.7rem", fontWeight: "500" }}>{displayFormat === "fraction" ? "1.0" : "100%"}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const MultiClassClassificationReport = ({
+  report,
+  labels: labelsProp,
+  labelDisplayNames: labelDisplayNamesProp = {},
+  decimals = 4,
+  maxWidth = 560,
+  showConfusionMatrix = true,
+}) => {
+  // Parse sklearn classification report string into structured data
+  const parseReport = (reportStr) => {
+    const lines = reportStr.trim().split('\n').filter(line => line.trim());
+    const result = { classes: [], accuracy: null, macroAvg: null, weightedAvg: null, totalSupport: null };
+    for (const line of lines) {
+      const parts = line.trim().split(/\s+/);
+      if (parts[0] === 'precision') continue;
+      if (parts[0] === 'accuracy') {
+        result.accuracy = parseFloat(parts[1]);
+        result.totalSupport = parseInt(parts[2], 10);
+        continue;
+      }
+      if (parts[0] === 'macro' && parts[1] === 'avg') {
+        result.macroAvg = { precision: parseFloat(parts[2]), recall: parseFloat(parts[3]), f1: parseFloat(parts[4]), support: parseInt(parts[5], 10) };
+        continue;
+      }
+      if (parts[0] === 'weighted' && parts[1] === 'avg') {
+        result.weightedAvg = { precision: parseFloat(parts[2]), recall: parseFloat(parts[3]), f1: parseFloat(parts[4]), support: parseInt(parts[5], 10) };
+        continue;
+      }
+      // Multi-word class names: last 4 parts are precision, recall, f1, support; everything before is the name
+      if (parts.length >= 5) {
+        const support = parseInt(parts[parts.length - 1], 10);
+        const f1 = parseFloat(parts[parts.length - 2]);
+        const recall = parseFloat(parts[parts.length - 3]);
+        const precision = parseFloat(parts[parts.length - 4]);
+        if (!isNaN(support) && !isNaN(f1) && !isNaN(recall) && !isNaN(precision)) {
+          const name = parts.slice(0, parts.length - 4).join(' ');
+          result.classes.push({ name, precision, recall, f1, support });
+        }
+      }
+    }
+    return result;
+  };
+
+  // Build row-normalized confusion matrix from classification report data
+  // For each actual class i: cm[i][j] = recall * (predicted_j share)
+  // We reconstruct from per-class recall, precision, and support
+  const buildConfusionMatrix = (classes) => {
+    const n = classes.length;
+    // TP_i = recall_i * support_i
+    const tp = classes.map(c => c.recall * c.support);
+    // precision_i = TP_i / (TP_i + sum_j!=i FP_ji), so predicted_i total = TP_i / precision_i
+    const predTotal = classes.map((c, i) => c.precision > 0 ? tp[i] / c.precision : 0);
+    // FP toward class i from other classes = predTotal_i - TP_i
+    const fpTotal = classes.map((c, i) => Math.max(0, predTotal[i] - tp[i]));
+    // FN from class i = support_i - TP_i
+    const fnTotal = classes.map((c, i) => Math.max(0, c.support - tp[i]));
+
+    // Build raw count matrix and then normalize by row
+    const cm = Array.from({ length: n }, () => Array(n).fill(0));
+    // Diagonal: TP
+    for (let i = 0; i < n; i++) cm[i][i] = tp[i];
+
+    // Distribute FN for row i across off-diagonal columns proportional to FP each column attracts
+    // FN_i (row i, off-diag) should sum to fnTotal[i]
+    // FP_j (col j, off-diag) should sum to fpTotal[j]
+    // Use iterative proportional fitting (IPF) / RAS for consistency
+    if (n > 1) {
+      const rowTargets = fnTotal;
+      const colTargets = fpTotal;
+      // Initialize proportionally
+      const offDiag = Array.from({ length: n }, () => Array(n).fill(0));
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (i !== j) offDiag[i][j] = 1; // uniform seed
+        }
+      }
+      // IPF iterations
+      for (let iter = 0; iter < 50; iter++) {
+        // Scale rows
+        for (let i = 0; i < n; i++) {
+          const rowSum = offDiag[i].reduce((a, v, j) => i !== j ? a + v : a, 0);
+          if (rowSum > 0 && rowTargets[i] > 0) {
+            const factor = rowTargets[i] / rowSum;
+            for (let j = 0; j < n; j++) if (i !== j) offDiag[i][j] *= factor;
+          } else {
+            for (let j = 0; j < n; j++) if (i !== j) offDiag[i][j] = 0;
+          }
+        }
+        // Scale columns
+        for (let j = 0; j < n; j++) {
+          const colSum = offDiag.reduce((a, row, i) => i !== j ? a + row[j] : a, 0);
+          if (colSum > 0 && colTargets[j] > 0) {
+            const factor = colTargets[j] / colSum;
+            for (let i = 0; i < n; i++) if (i !== j) offDiag[i][j] *= factor;
+          } else {
+            for (let i = 0; i < n; i++) if (i !== j) offDiag[i][j] = 0;
+          }
+        }
+      }
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (i !== j) cm[i][j] = Math.max(0, offDiag[i][j]);
+        }
+      }
+    }
+
+    // Row-normalize
+    const normalized = cm.map((row, i) => {
+      const rowSum = classes[i].support;
+      return row.map(v => rowSum > 0 ? v / rowSum : 0);
+    });
+    return normalized;
+  };
+
+  // Support both object and JSON string formats for MDX compatibility
+  let labelsArr, labelDisplayNames;
+  try {
+    labelsArr = typeof labelsProp === 'string' ? JSON.parse(labelsProp) : labelsProp;
+    labelDisplayNames = typeof labelDisplayNamesProp === 'string' ? JSON.parse(labelDisplayNamesProp) : labelDisplayNamesProp;
+  } catch (e) {
+    return <div style={{ color: "red", padding: "1rem", border: "1px solid red" }}>MultiClassClassificationReport: JSON parse error - {e.message}</div>;
+  }
+
+  const parsed = parseReport(report);
+
+  if (parsed.classes.length < 2) {
+    return <div style={{ color: "red", padding: "1rem", border: "1px solid red" }}>MultiClassClassificationReport: Could not parse report. Expected at least 2 classes.</div>;
+  }
+
+  // If labels provided, reorder classes to match; otherwise use parsed order
+  let orderedClasses = parsed.classes;
+  if (Array.isArray(labelsArr) && labelsArr.length > 0) {
+    const classMap = {};
+    for (const c of parsed.classes) classMap[c.name] = c;
+    orderedClasses = labelsArr.map(l => classMap[l]).filter(Boolean);
+  }
+
+  const classLabels = orderedClasses.map(c => c.name);
+  const confusionMatrix = buildConfusionMatrix(orderedClasses);
+
+  const rowStyle = { borderBottom: "1px solid rgba(148, 163, 184, 0.3)" };
+  const cellStyle = { padding: "0.5rem 0.125rem" };
+  const centerCellStyle = { textAlign: "left", padding: "0.5rem 0.125rem" };
+  const fmtMetric = (v) => { const n = Number(v); return Number.isFinite(n) ? n.toFixed(decimals) : "—"; };
+
+  return (
+    <div>
+      <table style={{ width: "auto", borderCollapse: "collapse", marginBottom: "1.25rem", fontSize: "0.875rem" }}>
+        <thead>
+          <tr style={{ borderBottom: "2px solid rgba(148, 163, 184, 0.5)" }}>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}></th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Precision</th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Recall</th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>F1-Score</th>
+            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Support</th>
+          </tr>
+        </thead>
+        <tbody>
+          {orderedClasses.map((cls) => (
+            <tr key={cls.name} style={rowStyle}>
+              <td style={cellStyle}>{labelDisplayNames?.[cls.name] ?? cls.name}</td>
+              <td style={centerCellStyle}>{fmtMetric(cls.precision)}</td>
+              <td style={centerCellStyle}>{fmtMetric(cls.recall)}</td>
+              <td style={centerCellStyle}>{fmtMetric(cls.f1)}</td>
+              <td style={centerCellStyle}>{cls.support}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {showConfusionMatrix && (
+        <MultiClassConfusionMatrix
+          matrix={confusionMatrix}
+          labels={classLabels}
+          labelDisplayNames={labelDisplayNames || {}}
+          maxWidth={maxWidth}
+          displayFormat="fraction"
+          fractionDigits={decimals > 3 ? 3 : decimals}
+        />
+      )}
+    </div>
+  );
+};
+
 export const MultiLabelClassificationReport = ({
   report: reportProp,
   labelOrder: labelOrderProp,
