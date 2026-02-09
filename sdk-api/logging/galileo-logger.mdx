@@ -70,9 +70,17 @@ This approach requires more code than using wrappers or decorators but gives you
 </Card>
 </CardGroup>
 
+## API key/Project/Log stream configuration
+
+The Galileo logger has 3 configuration settings:
+
+- The Galileo API key. This is loaded from the `GALILEO_API_KEY` environment variable.
+- The project to log to. This is either loaded as the project name from the `GALILEO_PROJECT` environment variable, or the project Id from the `GALILEO_PROJECT_ID` environment variable. The most common usage is to load the project name from the `GALILEO_PROJECT` environment variable. The project name or Id can also be set in code, for example when creating a `GalileoLogger` object, or when initializing the Galileo context.
+- The Log stream to log to. This is loaded from the `GALILEO_LOG_STREAM` environment variable. The Log stream name can also be set in code, for example when creating a `GalileoLogger` object, or when initializing the Galileo context.
+
 ## Basic usage
 
-Here's a simple example of using the `GalileoLogger` to log an LLM call:
+Here's a simple example of using the `GalileoLogger` to log an LLM call. This code assumes you have the `GALILEO_API_KEY`, `GALILEO_PROJECT`, and `GALILEO_LOG_STREAM` environment variables set.
 
 <CodeGroup>
   <SnippetSdkLoggingBasicLoggingPython />
