@@ -87,7 +87,7 @@ export const BooleanClassificationReport = ({
 
   const rowStyle = { borderBottom: "1px solid rgba(148, 163, 184, 0.3)" };
   const cellStyle = { padding: "0.5rem 0.125rem" };
-  const centerCellStyle = { textAlign: "left", padding: "0.5rem 0.125rem" };
+  const centerCellStyle = { textAlign: "center", padding: "0.5rem 0.125rem" };
 
   return (
     <div>
@@ -95,11 +95,10 @@ export const BooleanClassificationReport = ({
       <table style={{ width: "auto", borderCollapse: "collapse", marginBottom: "1.5rem", fontSize: "0.875rem" }}>
         <thead>
           <tr style={{ borderBottom: "2px solid rgba(148, 163, 184, 0.5)" }}>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}></th>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Precision</th>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Recall</th>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>F1-Score</th>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Support</th>
+            <th style={{ textAlign: "center", padding: "0.5rem 0.125rem", fontWeight: "600" }}></th>
+            <th style={{ textAlign: "center", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Precision</th>
+            <th style={{ textAlign: "center", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Recall</th>
+            <th style={{ textAlign: "center", padding: "0.5rem 0.125rem", fontWeight: "600" }}>F1-Score</th>
           </tr>
         </thead>
         <tbody>
@@ -109,14 +108,12 @@ export const BooleanClassificationReport = ({
             <td style={centerCellStyle}>{negClass.precision.toFixed(2)}</td>
             <td style={centerCellStyle}>{negClass.recall.toFixed(2)}</td>
             <td style={centerCellStyle}>{negClass.f1.toFixed(2)}</td>
-            <td style={centerCellStyle}>{negClass.support}</td>
           </tr>
           <tr style={rowStyle}>
             <td style={cellStyle}>{positiveLabel}</td>
             <td style={centerCellStyle}>{posClass.precision.toFixed(2)}</td>
             <td style={centerCellStyle}>{posClass.recall.toFixed(2)}</td>
             <td style={centerCellStyle}>{posClass.f1.toFixed(2)}</td>
-            <td style={centerCellStyle}>{posClass.support}</td>
           </tr>
           
         </tbody>
@@ -688,7 +685,7 @@ export const MultiClassClassificationReport = ({
 
   const rowStyle = { borderBottom: "1px solid rgba(148, 163, 184, 0.3)" };
   const cellStyle = { padding: "0.5rem 0.125rem" };
-  const centerCellStyle = { textAlign: "left", padding: "0.5rem 0.125rem" };
+  const centerCellStyle = { textAlign: "center", padding: "0.5rem 0.125rem" };
   const fmtMetric = (v) => { const n = Number(v); return Number.isFinite(n) ? n.toFixed(decimals) : "—"; };
 
   return (
@@ -696,11 +693,10 @@ export const MultiClassClassificationReport = ({
       <table style={{ width: "auto", borderCollapse: "collapse", marginBottom: "1.25rem", fontSize: "0.875rem" }}>
         <thead>
           <tr style={{ borderBottom: "2px solid rgba(148, 163, 184, 0.5)" }}>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}></th>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Precision</th>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Recall</th>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>F1-Score</th>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Support</th>
+            <th style={{ textAlign: "center", padding: "0.5rem 0.125rem", fontWeight: "600" }}></th>
+            <th style={{ textAlign: "center", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Precision</th>
+            <th style={{ textAlign: "center", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Recall</th>
+            <th style={{ textAlign: "center", padding: "0.5rem 0.125rem", fontWeight: "600" }}>F1-Score</th>
           </tr>
         </thead>
         <tbody>
@@ -710,7 +706,6 @@ export const MultiClassClassificationReport = ({
               <td style={centerCellStyle}>{fmtMetric(cls.precision)}</td>
               <td style={centerCellStyle}>{fmtMetric(cls.recall)}</td>
               <td style={centerCellStyle}>{fmtMetric(cls.f1)}</td>
-              <td style={centerCellStyle}>{cls.support}</td>
             </tr>
           ))}
         </tbody>
@@ -742,7 +737,6 @@ export const MultiLabelClassificationReport = ({
 }) => {
   // Inline helpers (required for MDX/Mintlify compatibility)
   const toNum = (v) => { if (v == null) return undefined; const n = Number(v); return Number.isFinite(n) ? n : undefined; };
-  const sumVals = (obj, keys) => (keys || Object.keys(obj || {})).reduce((a, k) => a + (toNum(obj?.[k]) ?? 0), 0);
   const getLabels = (lo, pcs) => { if (Array.isArray(lo) && lo.length) return lo; if (pcs && typeof pcs === "object") return Object.keys(pcs); return []; };
   const fmtMetric = (v, d) => { const n = toNum(v); if (n === undefined) return "—"; return n.toFixed(Number.isFinite(Number(d)) ? Number(d) : 4); };
 
@@ -770,12 +764,9 @@ export const MultiLabelClassificationReport = ({
     );
   }
 
-  const perSupport = report?.per_class_support || {};
-  const totalPositiveSupport = sumVals(perSupport, labels);
-
   const rowStyle = { borderBottom: "1px solid rgba(148, 163, 184, 0.3)" };
   const cellStyle = { padding: "0.5rem 0.125rem" };
-  const centerCellStyle = { textAlign: "left", padding: "0.5rem 0.125rem" };
+  const centerCellStyle = { textAlign: "center", padding: "0.5rem 0.125rem" };
 
   const avgRowStyle = {
     ...rowStyle,
@@ -788,11 +779,10 @@ export const MultiLabelClassificationReport = ({
       <table style={{ width: "auto", borderCollapse: "collapse", marginBottom: "1.25rem", fontSize: "0.875rem" }}>
         <thead>
           <tr style={{ borderBottom: "2px solid rgba(148, 163, 184, 0.5)" }}>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}></th>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Precision</th>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Recall</th>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>F1-Score</th>
-            <th style={{ textAlign: "left", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Support</th>
+            <th style={{ textAlign: "center", padding: "0.5rem 0.125rem", fontWeight: "600" }}></th>
+            <th style={{ textAlign: "center", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Precision</th>
+            <th style={{ textAlign: "center", padding: "0.5rem 0.125rem", fontWeight: "600" }}>Recall</th>
+            <th style={{ textAlign: "center", padding: "0.5rem 0.125rem", fontWeight: "600" }}>F1-Score</th>
           </tr>
         </thead>
         <tbody>
@@ -804,7 +794,6 @@ export const MultiLabelClassificationReport = ({
                 <td style={centerCellStyle}>{fmtMetric(report?.per_class_precision?.[label], decimals)}</td>
                 <td style={centerCellStyle}>{fmtMetric(report?.per_class_recall?.[label], decimals)}</td>
                 <td style={centerCellStyle}>{fmtMetric(report?.per_class_f1?.[label], decimals)}</td>
-                <td style={centerCellStyle}>{toNum(perSupport?.[label]) ?? "—"}</td>
               </tr>
             );
           })}
@@ -816,21 +805,18 @@ export const MultiLabelClassificationReport = ({
                 <td style={centerCellStyle}>{fmtMetric(report.micro_precision, decimals)}</td>
                 <td style={centerCellStyle}>{fmtMetric(report.micro_recall, decimals)}</td>
                 <td style={centerCellStyle}>{fmtMetric(report.micro_f1, decimals)}</td>
-                <td style={centerCellStyle}>{totalPositiveSupport}</td>
               </tr>
               <tr style={avgRowStyle}>
                 <td style={cellStyle}>Macro avg</td>
                 <td style={centerCellStyle}>{fmtMetric(report.macro_precision, decimals)}</td>
                 <td style={centerCellStyle}>{fmtMetric(report.macro_recall, decimals)}</td>
                 <td style={centerCellStyle}>{fmtMetric(report.macro_f1, decimals)}</td>
-                <td style={centerCellStyle}>{totalPositiveSupport}</td>
               </tr>
               <tr style={avgRowStyle}>
                 <td style={cellStyle}>Weighted avg</td>
                 <td style={centerCellStyle}>{fmtMetric(report.weighted_precision, decimals)}</td>
                 <td style={centerCellStyle}>{fmtMetric(report.weighted_recall, decimals)}</td>
                 <td style={centerCellStyle}>{fmtMetric(report.weighted_f1, decimals)}</td>
-                <td style={centerCellStyle}>{totalPositiveSupport}</td>
               </tr>
             </>
           )}
