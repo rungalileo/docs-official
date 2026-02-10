@@ -5,6 +5,7 @@ description: Evaluate factual accuracy in AI outputs using Galileo Guardrail Met
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>Correctness</strong> measures whether a given model response contains factually accurate information.
@@ -77,7 +78,7 @@ It's important to understand the distinction between related metrics:
 </div>
 
 <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Example:</strong> In a text-to-SQL scenario, a response could be factually correct (high Correctness) but not derived from the provided context (low Context Adherence). Conversely, a response could faithfully represent the context
+  <strong>Example:</strong> In a Text-to-SQL scenario, a response could be factually correct (high Correctness) but not derived from the provided context (low Context Adherence). Conversely, a response could faithfully represent the context
   (high Context Adherence) but contain factual errors if the context itself is incorrect.
 </div>
 
@@ -140,3 +141,49 @@ When a response has a low Correctness score, it's likely that the response conta
 When optimizing for Correctness, remember that even human experts can disagree on certain facts. Consider implementing confidence levels for responses, especially in domains with evolving knowledge or subjective elements.
 
 </Note>
+
+## Performance Benchmarks
+
+We evaluated Correctness against human expert labels on an internal dataset using top frontier models.
+
+| Model | F1 (True) |
+|:------|:--------:|
+| GPT-4.1 | 0.90 |
+| GPT-4.1-mini (judges=3) | 0.89 |
+| Claude Sonnet 4.5 | 0.89 |
+| Gemini 3 Flash | 0.92 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`            precision    recall  f1-score   support
+
+  False       0.8494    0.7199    0.7793       282
+   True       0.8701    0.9363    0.9020       565
+
+accuracy                          0.8642       847
+macro avg     0.8597    0.8281    0.8406       847
+weighted avg  0.8632    0.8642    0.8611       847`}
+  negativeLabel="False"
+  positiveLabel="True"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing Correctness, check out the following resources:
+
+### Examples
+
+- [Correctness Examples](https://app.galileo.ai) - Log in and explore the "Correctness" Log Stream in the "Preset Metric Examples" Project to see this metric in action.
+
+### Related Concepts
+
+- [Context Adherence](/concepts/metrics/response-quality/context-adherence)
+- [Context Relevance](/concepts/metrics/response-quality/context-relevance)
+- [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence)

@@ -5,6 +5,7 @@ description: Evaluate whether generated SQL queries semantically align with the 
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { BooleanClassificationReport, BooleanConfusionMatrix } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>SQL Adherence</strong> assesses whether the generated SQL query semantically aligns with the intent of the natural language query provided.
@@ -125,3 +126,49 @@ The executable SQL doesn't match user intent, including:
     Use continuous learning via human feedback to improve the evaluator's understanding of your domain-specific queries.
   </Card>
 </CardGroup>
+
+## Performance Benchmarks
+
+We evaluated SQL Adherence against human expert labels on an internal dataset of natural language to SQL samples using top frontier models.
+
+| Model | F1 (True) |
+|:------|:--------:|
+| GPT-4.1 | 0.91 |
+| GPT-4.1 Mini (judges=3) | 0.92 |
+| Gemini 3 Flash Preview | 0.94 |
+| Claude Sonnet 4.5 | 0.92 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`            precision    recall  f1-score   support
+
+  False       0.9847    0.8203    0.8950      2354
+   True       0.8458    0.9872    0.9111      2350
+
+accuracy                          0.9037      4704
+macro avg     0.9152    0.9038    0.9030      4704
+weighted avg  0.9153    0.9037    0.9030      4704`}
+  negativeLabel="False"
+  positiveLabel="True"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing SQL Adherence, check out the following resources:
+
+### Examples
+
+- [SQL Adherence Examples](https://app.galileo.ai) - Log in and explore the "SQL Adherence" Log Stream in the "Preset Metric Examples" Project to see this metric in action.
+
+### Related Concepts
+
+- [SQL Correctness](/concepts/metrics/text2sql/sql-correctness)
+- [SQL Efficiency](/concepts/metrics/text2sql/sql-efficiency)
+- [SQL Injection](/concepts/metrics/text2sql/sql-injection)

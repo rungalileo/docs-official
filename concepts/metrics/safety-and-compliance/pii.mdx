@@ -5,6 +5,7 @@ description: Detect and protect personally identifiable information in AI system
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { BooleanConfusionMatrix, MultiLabelClassificationReport, MultiLabelConfusionMatrix } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>PII Detection</strong> identifies personally identifiable information spans within a sample (both input and output).
@@ -127,6 +128,32 @@ When PII is detected in your system, consider these approaches:
 </div>
 
 </Card>
+
+## Performance Benchmarks
+
+We evaluated PII Detection against gold labels on the "test" split of [rungalileo/pii](https://huggingface.co/datasets/rungalileo/pii) dataset using top frontier models. This dataset was created from the open-source [gretelai/synthetic_pii_finance_multilingual](https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual) dataset by remapping its labels.
+
+| Model | Macro F1 |
+|:------|:--------:|
+| GPT-4.1 | 0.84 |
+| GPT-4.1 Mini | 0.83 |
+| Gemini 3 Flash Preview | 0.85 |
+| Claude Sonnet 4.5 | 0.83 |
+
+### Classification Report
+
+<MultiLabelClassificationReport
+  report={`{"micro_f1":0.8995,"micro_precision":0.8842,"micro_recall":0.9153,"macro_f1":0.8402,"macro_precision":0.8129,"macro_recall":0.8857,"weighted_f1":0.9068,"weighted_precision":0.9054,"weighted_recall":0.9153,"per_class_f1":{"account_info":0.6048,"address":0.9067,"credit_card_info":0.7961,"date_of_birth":0.8296,"email":0.9706,"name":0.9571,"network_info":0.9589,"password":0.8369,"phone_number":0.9179,"ssn":0.8923,"username":0.5714},"per_class_precision":{"account_info":0.4765,"address":0.9104,"credit_card_info":0.7658,"date_of_birth":0.7414,"email":0.9763,"name":0.9844,"network_info":0.9722,"password":0.8447,"phone_number":0.8729,"ssn":0.9355,"username":0.4615},"per_class_recall":{"account_info":0.8274,"address":0.9030,"credit_card_info":0.8288,"date_of_birth":0.9416,"email":0.9649,"name":0.9312,"network_info":0.9459,"password":0.8293,"phone_number":0.9677,"ssn":0.8529,"username":0.7500},"per_class_support":{"account_info":307,"address":1711,"credit_card_info":146,"date_of_birth":137,"email":427,"name":2036,"network_info":111,"password":164,"phone_number":433,"ssn":68,"username":24},"per_class_negative_support":{"account_info":2169,"address":765,"credit_card_info":2330,"date_of_birth":2339,"email":2049,"name":440,"network_info":2365,"password":2312,"phone_number":2043,"ssn":2408,"username":2452}}`}
+  labelOrder={`["name","address","email","phone_number","account_info","credit_card_info","date_of_birth","network_info","password","ssn","username"]`}
+  decimals={4}
+  showConfusionMatrices={true}
+  showPerLabelMatrices={false}
+  showAverageRows={false}
+/>
+
+<Note>
+  Benchmarks based on the [rungalileo/pii](https://huggingface.co/datasets/rungalileo/pii) evaluation dataset. Performance may vary by use case.
+</Note>
 
 ## Best practices
 
