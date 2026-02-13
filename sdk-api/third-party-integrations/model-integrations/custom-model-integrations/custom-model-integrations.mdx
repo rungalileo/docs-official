@@ -41,7 +41,7 @@ non-standard proxies or proprietary authentication or inference protocols.
   </Step>
   <Step title="Configure Integration">
     Paste the JSON payload (same format as the API request body) and **Save changes**.
-    For example using[Mistral AI](https://mistral.ai/) with the API key authentication format:
+    For example using [Mistral AI](https://mistral.ai/) with the API key authentication format:
 
   <CodeGroup>
     <SnippetPayloadApiKeyMistral/>
@@ -50,7 +50,7 @@ non-standard proxies or proprietary authentication or inference protocols.
   ![Pasting the JSON payload](./custom-mistral-tiny.png)
   </Step>
   <Step title="Test Integration">
-    After saving, test the integration by selecting the correct model from a Playground.
+    After saving, test the integration by selecting one of its models from a Playground.
 
   ![Selecting the custom integration model in the Playground](./selecting-model-from-custom-integration.png)
 
@@ -61,68 +61,15 @@ non-standard proxies or proprietary authentication or inference protocols.
   </Step>
 </Steps>
 
-<Info>
-The examples above cover the most common use cases. Most users won't need to go beyond this point. The sections below are for advanced scenarios like custom LLM handlers and single-tenant deployments.
-</Info>
-
-## Custom Integrations Payload Schema
-<Tip>
+<Note>
 The payload schema used in these examples comes from the [Custom Integrations API](/api-reference/integrations/create-or-update-integration-4). Refer to the API reference for the full list of available fields and options.
-</Tip>
-
-<ResponseField name="authentication_type" type="string">
-  Authentication method: `"oauth2"` (default) or `"none"`. See [OAuth2 token format](#oauth2-token-format).
-</ResponseField>
-
-<ResponseField name="models" type="string[]" required>
-  List of model names (minimum 1).
-</ResponseField>
-
-<ResponseField name="endpoint" type="string" required>
-  Base URL for the custom integration API. Inference requests will be sent to `{endpoint}/chat/completions`.
-</ResponseField>
-
-<ResponseField name="default_model" type="string">
-  Default model to use. Defaults to the first model in the list.
-</ResponseField>
-
-<ResponseField name="token" type="string">
-  JSON string with OAuth2 client credentials (see below). Required for `oauth2`, must not be provided for `none`.
-</ResponseField>
-
-<ResponseField name="authentication_scope" type="string">
-  OAuth2 scope to request when exchanging credentials for an access token. See [OAuth2 token format](#oauth2-token-format).
-</ResponseField>
-
-<ResponseField name="oauth2_token_url" type="string">
-  OAuth2 token endpoint URL (must support client credentials grant).
-</ResponseField>
-
-<ResponseField name="custom_llm_config" type="object">
-  Configuration for a custom LiteLLM handler class.
-</ResponseField>
-
-## OAuth2 token format
-
-When `authentication_type` is `"oauth2"`, the `token` field must be a **JSON string** containing OAuth2 client credentials:
-
-<ResponseField name="client_id" type="string" required>
-  OAuth2 client identifier.
-</ResponseField>
-
-<ResponseField name="client_secret" type="string" required>
-  OAuth2 client secret.
-</ResponseField>
-
-<CodeGroup>
-  <SnippetOAuth2TokenFormat />
-</CodeGroup>
+</Note>
 
 <Note>
 Your `oauth2_token_url` must support the [OAuth2 Client Credentials Grant](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4) (RFC 6749 §4.4). Galileo exchanges the provided `client_id` and `client_secret` for an access token, which is then used as a Bearer token for LLM inference requests.
 </Note>
 
-## Basic Examples
+## JSON Examples
 
 ### API key authentication integration
 
@@ -148,7 +95,11 @@ For internal endpoints or providers that don't require authentication:
   <SnippetPayloadNoAuth />
 </CodeGroup>
 
-## Troubleshooting: custom LLM handlers
+<Tip>
+The examples above cover the most common use cases. Most users won't need to go beyond this point. The sections below are for advanced scenarios like custom LLM handlers and single-tenant deployments.
+</Tip>
+
+## Advance Usage: custom LLM handlers
 
 <Warning>
 Custom LLM handlers are only available on single-tenant Galileo deployments. They require `api` v1.848.0+ and `runners` v2.239.0+.
