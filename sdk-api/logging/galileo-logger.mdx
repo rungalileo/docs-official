@@ -70,17 +70,25 @@ This approach requires more code than using wrappers or decorators but gives you
 </Card>
 </CardGroup>
 
-## API key/Project/Log stream configuration
+## Environment variables
 
-The Galileo logger has 3 configuration settings:
+`GalileoLogger` loads configurations from environment variables:
 
-- The Galileo API key. This is loaded from the `GALILEO_API_KEY` environment variable.
-- The project to log to. This is either loaded as the project name from the `GALILEO_PROJECT` environment variable, or the project Id from the `GALILEO_PROJECT_ID` environment variable. The most common usage is to load the project name from the `GALILEO_PROJECT` environment variable. The project name or Id can also be set in code, for example when creating a `GalileoLogger` object, or when initializing the Galileo context.
-- The Log stream to log to. This is loaded from the `GALILEO_LOG_STREAM` environment variable. The Log stream name can also be set in code, for example when creating a `GalileoLogger` object, or when initializing the Galileo context.
+- Galileo API key in `GALILEO_API_KEY`
+- Project to log to:
+  - Project name in `GALILEO_PROJECT` (most common usage)
+  - Project ID in `GALILEO_PROJECT_ID` (alternative usage)
+- Log stream to log to in `GALILEO_LOG_STREAM`
+
+
+The project name, project ID, or Log stream name can also be set in code (the [`GalileoLogger`](http://localhost:3000/sdk-api/python/reference/logger/logger) SDK reference has more info).
+
+A example `.env` file is available in [this Python SDK repository location](https://github.com/rungalileo/sdk-examples/tree/main/python/logging-samples/galileologger).
+
 
 ## Basic usage
 
-Here's a simple example of using the `GalileoLogger` to log an LLM call. This code assumes you have the `GALILEO_API_KEY`, `GALILEO_PROJECT`, and `GALILEO_LOG_STREAM` environment variables set.
+Here's a simple example of using the `GalileoLogger` to log an LLM call. The full Python code is available as `basic-example.py` in [this folder](https://github.com/rungalileo/sdk-examples/tree/main/python/logging-samples/galileologger).
 
 <CodeGroup>
   <SnippetSdkLoggingBasicLoggingPython />
@@ -296,7 +304,7 @@ See the [`add_single_llm_span_trace` Python SDK docs](/sdk-api/python/reference/
 
 ### Complex trace example
 
-Here's an example of creating a more complex trace with multiple spans:
+Here's an example of creating a more complex trace with multiple spans. The full Python code is available as `retriever-example.py` in [this folder](https://github.com/rungalileo/sdk-examples/tree/main/python/logging-samples/galileologger).
 
 <CodeGroup>
   <SnippetSdkLoggingComplexTraceExamplePython />
