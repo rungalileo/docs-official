@@ -68,11 +68,18 @@ This video demonstrates how to add a custom integration to Galileo:
 
 ### API key authentication integration
 
-For providers that use API key authentication (like [Together AI](https://api.together.ai/)):
+For providers that use API key authentication (like [Together AI](https://www.together.ai/) or [Portkey](https://portkey.ai/)):
 
 <CodeGroup>
   <SnippetPayloadApiKeyTogether />
 </CodeGroup>
+
+<CodeGroup>
+  <SnippetPayloadApiKeyMistral/>
+</CodeGroup>
+
+* Many AI providers expect the `Bearer` prefix before API key value. However, some API providers do not require this prefix.  
+* Refer to your AI provider documentation for more info about the expected format for the `api_key_header` and `api_key_value`. 
 
 ### OAuth2 integration
 
@@ -107,13 +114,35 @@ The schema used in above examples comes from the [Custom Integrations API](/api-
 </Note>
 
 
+## Troubleshooting ideas
+
+- Make sure you have valid authentication credentials (e.g. an API key).
+- Make sure the model name is exactly as specified through the provider.
+- Make sure that requests are being sent to the provider's endpoint.
+
+As an example, use this `curl` command to verify that an API key and model for [Portkey](https://portkey.ai/) has been configured correctly.
+
+```
+curl https://api.portkey.ai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "x-portkey-api-key: $PORTKEY_API_KEY" \
+  -d '{
+    "model": "YOUR_MODEL",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "What is Portkey"}
+    ],
+    "max_tokens": 512
+  }'
+```
+
 ## Advanced usage: custom LLM handlers
 
 <Warning>
 Custom LLM handlers are only available on single-tenant Galileo deployments. They require `api` v1.848.0+ and `runners` v2.239.0+.
 </Warning>
 
-The examples above work when your LLM provider exposes a standard OpenAI-compatible `/chat/completions` endpoint. However, some providers use proprietary request formats, non-standard response structures, or custom authentication flows that can't be handled by configuration alone.
+The [JSON examples](#json-examples) work when your LLM provider exposes a standard OpenAI-compatible `/chat/completions` endpoint. However, some providers use proprietary request formats, non-standard response structures, or custom authentication flows that can't be handled by configuration alone.
 
 For these cases, you can write a **custom LLM handler** — a Python class that gives you full control over how Galileo sends requests to your model and interprets the responses.
 
