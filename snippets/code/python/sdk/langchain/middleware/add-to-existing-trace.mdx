@@ -1,0 +1,16 @@
+```python Python
+# Create a logger and start a trace
+logger = GalileoLogger()
+session_id = logger.create_session()
+trace_id = logger.create_trace(session_id)
+
+# Create middleware that adds to existing trace
+middleware = GalileoMiddleware(
+    galileo_logger=logger,
+    start_new_trace=False
+)
+
+# The agent execution will be added to the existing trace
+agent = create_agent(model, tools=[...], middleware=[middleware])
+agent.invoke({"messages": [...]})
+```

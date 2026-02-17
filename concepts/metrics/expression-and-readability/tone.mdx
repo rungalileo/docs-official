@@ -5,6 +5,7 @@ description: Analyze and optimize the emotional tone of AI responses using Galil
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { MultiClassClassificationReport, MultiClassConfusionMatrix } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>Tone Analysis</strong> classifies the emotional tone of responses into distinct categories to ensure appropriate emotional context.
@@ -105,5 +106,47 @@ When optimizing the emotional tone of your system, consider these approaches:
 
 <Note>
 Recognize and categorize the emotional tone of responses to align with user preferences and context, ensuring appropriate emotional engagement in AI interactions.
-
 </Note>
+
+## Performance Benchmarks
+
+We evaluated the Tone classification model against human expert labels on an internal dataset spanning 8 emotion categories.
+
+| Model | Macro F1 |
+|:------|:--------:|
+| GPT-4.1 | 0.97 |
+| GPT-4.1 Mini | 0.94 |
+| Gemini 3 Flash Preview | 0.97 |
+| Claude Sonnet 4.5 | 0.83 |
+
+### GPT-4.1 Classification Report
+
+<MultiClassClassificationReport
+  report={`              precision    recall  f1-score   support
+
+  anger     0.9886    1.0000    0.9943        87
+  confusion     0.9796    0.9600    0.9697        50
+  fear     0.9870    1.0000    0.9935        76
+  joy     0.9462    0.9888    0.9670        89
+  love     0.9623    0.9444    0.9533        54
+  neutral     0.9873    0.9873    0.9873        79
+  sadness     1.0000    0.9844    0.9921        64
+  surprise     0.9841    0.9394    0.9612        66
+
+  accuracy                         0.9788       565
+  macro avg     0.9794    0.9755    0.9773       565
+weighted avg     0.9790    0.9788    0.9787       565`}
+  maxWidth={720}
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing Tone, check out the following resources:
+
+### Examples
+
+- [Tone Examples](https://app.galileo.ai) - Log in and explore the "Tone" Log Stream in the "Preset Metric Examples" Project to see this metric in action.

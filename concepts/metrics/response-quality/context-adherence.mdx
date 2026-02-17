@@ -3,6 +3,8 @@ title: "Context Adherence"
 description: "Understand Galileo's Context Adherence Metric"
 ---
 
+import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
+
 _**Definition:**_ _Context Adherence_ is a measurement of _closed-domain_ _hallucinations:_ cases where your model said things that were not provided in the context.
 
 If a response is _adherent_ to the context (i.e. it has a value of 1 or close to 1), it only contains information given in the context. If a response is _not adherent_ (i.e. it has a value of 0 or close to 0), it's likely to contain facts not included in the context provided to the model.
@@ -14,3 +16,49 @@ You can also leverage Galileo's [proprietary Evaluation SLMs](https://galileo.ai
 _Context Adherence Luna_ is computed using Galileo in-house small language models (Luna-2). Context Adherence Luna is a cost-effective way to scale up your RAG evaluation workflows.
 
 To leverage Luna-2 for context adherence or other metrics, [reach out to our team](https://galileo.ai/contact-sales).
+
+## Performance Benchmarks
+
+We evaluated Context Adherence against human expert labels on an internal dataset of RAG samples using top frontier models.
+
+| Model | F1 (True) |
+|:------|:--------:|
+| GPT-4.1 | 0.90 |
+| GPT-4.1-mini (judges=3) | 0.90 |
+| Claude Sonnet 4.5 | 0.89 |
+| Gemini 3 Flash | 0.89 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`            precision    recall  f1-score   support
+
+  False       0.8974    0.8920    0.8947       500
+   True       0.8926    0.8980    0.8953       500
+
+accuracy                          0.8950      1000
+macro avg     0.8950    0.8950    0.8950      1000
+weighted avg  0.8950    0.8950    0.8950      1000`}
+  negativeLabel="False"
+  positiveLabel="True"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing Context Adherence, check out the following resources:
+
+### Examples
+
+- [Context Adherence Examples](https://app.galileo.ai) - Log in and explore the "Context Adherence" Log Stream in the "Preset Metric Examples" Project to see this metric in action.
+
+### Related Concepts
+
+- [Context Relevance](/concepts/metrics/response-quality/context-relevance)
+- [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence)
+- [Correctness](/concepts/metrics/response-quality/correctness)

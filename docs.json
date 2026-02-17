@@ -29,11 +29,11 @@
               "getting-started/quickstart",
               "getting-started/evaluate-and-improve/evaluate-and-improve",
               "getting-started/experiments",
-              "getting-started/mcp/setup-galileo-mcp",
               {
                 "group": "Sample Projects",
                 "pages": [
                   "getting-started/sample-projects/sample-projects",
+                  "getting-started/sample-projects/preset-metric-examples",
                   "getting-started/sample-projects/simple-chatbot",
                   "getting-started/sample-projects/multi-agent"
                 ]
@@ -144,11 +144,14 @@
                       "concepts/metrics/response-quality/instruction-adherence",
                       "concepts/metrics/response-quality/chunk-attribution",
                       "concepts/metrics/response-quality/chunk-relevance",
+                      "concepts/metrics/response-quality/chunk-relevance-deprecated",
                       "concepts/metrics/response-quality/completeness",
                       "concepts/metrics/response-quality/context-adherence",
+                      "concepts/metrics/response-quality/context-precision",
                       "concepts/metrics/response-quality/context-relevance",
                       "concepts/metrics/response-quality/correctness",
-                      "concepts/metrics/response-quality/ground-truth-adherence"
+                      "concepts/metrics/response-quality/ground-truth-adherence",
+                      "concepts/metrics/response-quality/precision-at-k"
                     ]
                   },
                   {
@@ -159,6 +162,16 @@
                       "concepts/metrics/safety-and-compliance/pii",
                       "concepts/metrics/safety-and-compliance/sexism",
                       "concepts/metrics/safety-and-compliance/toxicity"
+                    ]
+                  },
+                  {
+                    "group": "Text-to-SQL",
+                    "pages": [
+                      "concepts/metrics/text2sql/text2sql-overview",
+                      "concepts/metrics/text2sql/sql-correctness",
+                      "concepts/metrics/text2sql/sql-adherence",
+                      "concepts/metrics/text2sql/sql-injection",
+                      "concepts/metrics/text2sql/sql-efficiency"
                     ]
                   }
                 ]
@@ -204,14 +217,24 @@
               {
                 "group": "Model Integrations",
                 "pages": [
-                  "sdk-api/third-party-integrations/model-integrations/aws-bedrock/awsbedrock"
+                  "sdk-api/third-party-integrations/model-integrations/aws-bedrock/awsbedrock",
+                  "sdk-api/third-party-integrations/model-integrations/custom-model-integrations/custom-model-integrations"
                 ]
               },
-              "sdk-api/third-party-integrations/opentelemetry-and-openinference",
+              {
+                "group": "OpenTelemetry",
+                "pages": [
+                  "sdk-api/third-party-integrations/opentelemetry-and-openinference",
+                  "sdk-api/third-party-integrations/opentelemetry-and-openinference/integration-recommendations",
+                  "sdk-api/third-party-integrations/opentelemetry-and-openinference/start-galileo-span"
+                ]
+              },
               "sdk-api/third-party-integrations/openai/openai",
               "sdk-api/third-party-integrations/openai-agents/openai-agents",
               "sdk-api/third-party-integrations/opentelemetry-and-openinference/google-adk",
               "sdk-api/third-party-integrations/opentelemetry-and-openinference/strands-agents",
+              "sdk-api/third-party-integrations/opentelemetry-and-openinference/pydantic-ai",
+              "sdk-api/third-party-integrations/opentelemetry-and-openinference/mastra",
               "sdk-api/third-party-integrations/opentelemetry-and-openinference/vercel-ai",
               {
                 "group": "CrewAI",
@@ -225,7 +248,8 @@
                 "pages": [
                   "sdk-api/third-party-integrations/langchain/langchain",
                   "sdk-api/third-party-integrations/langchain/experiments",
-                  "sdk-api/third-party-integrations/langchain/protect"
+                  "sdk-api/third-party-integrations/langchain/protect",
+                  "sdk-api/third-party-integrations/langchain/middleware"
                 ]
               },
               {
@@ -254,6 +278,24 @@
               "references/faqs/errors",
               "references/faqs/find-keys",
               "references/faqs/troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Learn",
+        "icon": "graduation-cap",
+        "pages": [
+          {
+            "group": "Courses",
+            "pages": [
+              "learn/eval-engineering"
+            ]
+          },
+          {
+            "group": "E-books",
+            "pages": [
+              "learn/mastering-gen-ai-series"
             ]
           }
         ]
@@ -340,20 +382,27 @@
                   {
                     "group": "utils",
                     "pages": [
-                      "sdk-api/python/reference/utils/catch_log",
                       "sdk-api/python/reference/utils/datasets",
                       "sdk-api/python/reference/utils/env_helpers",
                       "sdk-api/python/reference/utils/exceptions",
                       "sdk-api/python/reference/utils/headers_data",
-                      "sdk-api/python/reference/utils/logging",
+                      "sdk-api/python/reference/utils/log_config",
                       "sdk-api/python/reference/utils/metrics",
                       "sdk-api/python/reference/utils/projects",
                       "sdk-api/python/reference/utils/prompts",
                       "sdk-api/python/reference/utils/retrievers",
                       "sdk-api/python/reference/utils/serialization",
                       "sdk-api/python/reference/utils/singleton",
+                      "sdk-api/python/reference/utils/span_utils",
                       "sdk-api/python/reference/utils/uuid_utils",
-                      "sdk-api/python/reference/utils/validations"
+                      "sdk-api/python/reference/utils/validations",
+                      {
+                        "group": "decorators",
+                        "pages": [
+                          "sdk-api/python/reference/utils/decorators/exception_handling",
+                          "sdk-api/python/reference/utils/decorators/telemetry_toggle"
+                        ]
+                      }
                     ]
                   }
                 ]
@@ -492,7 +541,6 @@
                         "group": "Variables",
                         "pages": [
                           "sdk-api/typescript/reference/types/variables/GalileoMetrics",
-                          "sdk-api/typescript/reference/types/variables/GalileoScorers",
                           "sdk-api/typescript/reference/types/variables/AgentType",
                           "sdk-api/typescript/reference/types/variables/MessageRole",
                           "sdk-api/typescript/reference/types/variables/ProjectTypes",
@@ -633,6 +681,7 @@
           {
             "group": "API Reference",
             "pages": [
+              "/api/getting-started",
               {
                 "group": "v2",
                 "openapi": {

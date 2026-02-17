@@ -1,0 +1,47 @@
+
+```typescript TypeScript
+import { SamplingStrategyType } from "@mastra/core/ai-tracing";
+import { 
+    Observability,
+    SamplingStrategyType
+} from '@mastra/observability';
+import { OtelExporter } from "@mastra/otel-exporter";
+import { Mastra } from "@mastra/core/mastra";
+import { env } from "node:process";
+
+const ObservabilityEndpoint = env.GALILEO_API_URL || "https://api.galileo.ai";
+
+export const mastra = new Mastra({
+  // Your agents, workflows, etc.
+  agents: {
+    /* ... */
+  },
+  workflows: {
+    /* ... */
+  },
+  // Configure observability with Galileo
+  observability: new Observability({
+      configs: {
+        otel: {
+          sampling: { type: SamplingStrategyType.ALWAYS },
+          serviceName: 'galileo-mastra-agent',
+          exporters: [
+            new OtelExporter({
+              provider: {
+                custom: {
+                  endpoint: `${ObservabilityEndpoint}/otel/v1/traces`,
+                  headers: {
+                    'Galileo-API-Key': process.env.GALILEO_API_KEY ?? '',
+                    'project': env.GALILEO_PROJECT ?? '',
+                    'logstream': env.GALILEO_LOG_STREAM ?? '',
+                  },
+                  protocol: 'http/protobuf',
+                }
+              },
+            }),
+          ]
+        }
+      }
+  }),
+});
+```

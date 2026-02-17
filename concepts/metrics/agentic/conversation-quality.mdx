@@ -5,7 +5,8 @@ description: Learn how to measure the quality of a conversation that a user has 
 
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
-import { Scale } from "/snippets/components/scale.mdx"
+import { Scale } from "/snippets/components/scale.mdx";
+import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
 <strong>Conversation Quality</strong> is a binary metric that assesses whether a chatbot interaction left the user feeling satisfied and positive or frustrated and dissatisfied, based on tone, engagement, and overall experience.
@@ -78,3 +79,54 @@ Common issues that can cause low scores are:
 - Mislabeling external frustration as bot-directed
 - Incomplete logs
 - Abrupt session truncation
+
+## Performance Benchmarks
+
+We evaluated Conversation Quality against human expert labels on an internal dataset of agentic conversation samples using top frontier models.
+
+| Model | F1 (True) |
+|:------|:--------:|
+| GPT-4.1 | 0.89 |
+| GPT-4.1-mini (judges=3) | 0.85 |
+| Claude Sonnet 4.5 | 0.85 |
+| Gemini 3 Flash | 0.88 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`            precision    recall  f1-score   support
+
+  False       0.9100    0.8273    0.8667       110
+   True       0.8538    0.9250    0.8880       120
+
+accuracy                          0.8783       230
+macro avg     0.8819    0.8761    0.8773       230
+weighted avg  0.8807    0.8783    0.8778       230`}
+  negativeLabel="False"
+  positiveLabel="True"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing Conversation Quality, check out the following resources:
+
+### Examples
+
+- [Conversation Quality Examples](https://app.galileo.ai) - Log in and explore the "Conversation Quality" Log Stream in the "Preset Metric Examples" Project to see this metric in action.
+
+### How-to guides
+
+- [Agentic AI Basic Example](/how-to-guides/agentic-ai/basic-example)
+- [Creating Custom Metrics](/how-to-guides/metrics/create-local-metric/create-local-metric)
+
+### Related Concepts
+
+- [Agentic Metrics Overview](/concepts/metrics/agentic/agentic-overview)
+- [Action Completion](/concepts/metrics/agentic/action-completion)
+- [Action Advancement](/concepts/metrics/agentic/action-advancement)
