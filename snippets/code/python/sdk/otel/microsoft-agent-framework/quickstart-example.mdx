@@ -29,14 +29,17 @@ def get_weather(
 ) -> str:
     """Get the weather for a given location."""
     conditions = ["sunny", "cloudy", "rainy", "stormy"]
-    return f"The weather in {location} is {conditions[randint(0, 3)]} with a high of {randint(10, 30)}C."
+    temp = randint(10, 30)
+    condition = conditions[randint(0, 3)]
+    return f"The weather in {location} is {condition}, {temp}C."
 
 
 client = openai.OpenAIChatClient(model_id="gpt-4.1-mini")
 
 agent = client.as_agent(
     name="WeatherAgent",
-    instructions="You are a helpful weather agent. Use the get_weather tool to answer questions.",
+    instructions="You are a helpful weather agent. "
+    "Use the get_weather tool to answer questions.",
     tools=[get_weather],
 )
 
