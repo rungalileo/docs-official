@@ -1,6 +1,6 @@
 ---
 title: Custom Model Integrations
-description: Learn how to set up custom LLM integrations for non-standard proxies or proprietary authentication protocols.
+description: Learn about custom integrations, and how to set them up in Galileo
 ---
 
 import SnippetOAuth2TokenFormat from "/snippets/code/multilingual/integrations/custom/oauth2-token-format.mdx";
@@ -17,35 +17,34 @@ import SnippetCurlGetIntegration from "/snippets/code/multilingual/integrations/
 import SnippetOAuth2TokenSerialize from "/snippets/code/python/sdk/integrations/custom/oauth2-token-serialize.mdx";
 import SnippetCustomLlmHandler from "/snippets/code/python/sdk/integrations/custom/custom-llm-handler.mdx";
 
-This page explains what custom integrations are,
-and how to configure the integration using the Galileo Console.
+## What are custom integrations?
 
-## What are Custom Integrations?
+Galileo's custom integrations provide a flexible way of setting up LLMs that aren't supported through other existing integrations.
+For example, when there are non-standard proxies, proprietary authentications, or proprietary inference protocols.
 
-Galileo custom integrations provide a flexible way of setting up model inference
-(LLM) integrations when there are custom requirements that are not supported by specialized
-provider integrations. Custom integrations are particularly useful when integrating with
-non-standard proxies or proprietary authentication or inference protocols.
+This video demonstrates how to add a custom integration to Galileo:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/qeqIw0KWGns?si=OV8g6v61cg_0FXh5" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-## Configuring Custom Integrations through the Galileo Console
+## Configuring custom integrations in the Galileo console
 
 <Steps>
   <Step title="Navigate to Integrations">
-    Navigate to **Settings** > **[Integrations](https://app.galileo.ai/settings/integrations)** in the Galileo Console.
+    Navigate to **Settings** > **[Integrations](https://app.galileo.ai/settings/integrations)** in the Galileo console.
   </Step>
   <Step title="Add Custom Integration">
     Find the **Custom** integration card and click **Add Integration**
     ![Custom integration in Galileo console](./custom-integration-search.png)
   </Step>
   <Step title="Configure Integration">
-    Paste the JSON payload (same format as the API request body) and **Save changes**.
-    For example using [Mistral AI](https://mistral.ai/) with the API key authentication format:
+    Paste a valid JSON and **Save changes**.<br/><br/>
+    This JSON example uses [PortKey](https://portkey.ai/) and [Mistral](https://mistral.ai/) with API key authentication.<br/>
+    [See more JSON examples](#json-examples)
 
   <CodeGroup>
     <SnippetPayloadApiKeyMistral/>
   </CodeGroup>
+
 
   ![Pasting the JSON payload](./custom-mistral-tiny.png)
   </Step>
@@ -55,37 +54,46 @@ non-standard proxies or proprietary authentication or inference protocols.
   ![Selecting the custom integration model in the Playground](./selecting-model-from-custom-integration.png)
 
   Run a prompt or evaluation that uses the custom integration's model.
-  Check the logs to verify that requests are being sent to your endpoint correctly.
 
   ![Testing the custom integration](./testing-custom-mistral-integration.png)
+
+
+  Note: The models will also be available for use with metrics in Galileo.
+
   </Step>
 </Steps>
 
-<Note>
-The payload schema used in these examples comes from the [Custom Integrations API](/api-reference/integrations/create-or-update-integration-4). Refer to the API reference for the full list of available fields and options.
-</Note>
 
-<Note>
-Your `oauth2_token_url` must support the [OAuth2 Client Credentials Grant](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4) (RFC 6749 §4.4). Galileo exchanges the provided `client_id` and `client_secret` for an access token, which is then used as a Bearer token for LLM inference requests.
-</Note>
-
-## JSON Examples
+## JSON examples
 
 ### API key authentication integration
 
-For providers that use API key authentication (like [Together AI](https://api.together.ai/)):
+For providers that use API key authentication (for example, [Together AI](https://www.together.ai/) or [Portkey](https://portkey.ai/)):
 
 <CodeGroup>
   <SnippetPayloadApiKeyTogether />
 </CodeGroup>
 
-### Basic OAuth2 integration
+<CodeGroup>
+  <SnippetPayloadApiKeyMistral/>
+</CodeGroup>
 
-For integrating with an LLM provider that uses OAuth2 client credentials authentication:
+- Refer to your AI provider documentation for more info about the expected format for the `api_key_header` and `api_key_value`.
+- Many AI providers require an `Authorization` header with a `Bearer` prefix in the API key value. However, some API providers don't have these requirements.
+
+### OAuth2 integration
+
+For providers that uses OAuth2 client credentials authentication:
 
 <CodeGroup>
   <SnippetPayloadOAuth2Basic />
 </CodeGroup>
+
+
+<Note>
+Your `oauth2_token_url` must support the [OAuth2 Client Credentials Grant](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4) (RFC 6749 §4.4). Galileo exchanges the provided `client_id` and `client_secret` for an access token, which is then used as a Bearer token for LLM inference requests.
+</Note>
+
 
 ### No authentication integration
 
@@ -95,17 +103,46 @@ For internal endpoints or providers that don't require authentication:
   <SnippetPayloadNoAuth />
 </CodeGroup>
 
+
 <Tip>
-The examples above cover the most common use cases. Most users won't need to go beyond this point. The sections below are for advanced scenarios like custom LLM handlers and single-tenant deployments.
+The above examples cover the most common use cases. Most users won't need to go beyond this point. The sections below are for advanced scenarios like custom LLM handlers and single-tenant deployments.
 </Tip>
 
-## Advance Usage: Custom LLM Handlers
+
+<Note>
+The schema used in above examples comes from the [Custom Integrations API](/api-reference/integrations/create-or-update-integration-4). Refer to the API reference for the full list of available fields and options.
+</Note>
+
+
+## Troubleshooting ideas
+
+- Make sure you have valid authentication credentials (e.g. an API key).
+- Make sure the model name is exactly as specified through the provider.
+- Make sure that requests are being sent to the provider's endpoint.
+
+As an example, use this `curl` command to verify that an API key and model for [Portkey](https://portkey.ai/) has been configured correctly.
+
+```bash
+curl https://api.portkey.ai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "x-portkey-api-key: $PORTKEY_API_KEY" \
+  -d '{
+    "model": "YOUR_MODEL",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "What is Portkey"}
+    ],
+    "max_tokens": 512
+  }'
+```
+
+## Advanced usage: custom LLM handlers
 
 <Warning>
 Custom LLM handlers are only available on single-tenant Galileo deployments. They require `api` v1.848.0+ and `runners` v2.239.0+.
 </Warning>
 
-The examples above work when your LLM provider exposes a standard OpenAI-compatible `/chat/completions` endpoint. However, some providers use proprietary request formats, non-standard response structures, or custom authentication flows that can't be handled by configuration alone.
+The [JSON examples](#json-examples) work when your LLM provider exposes a standard OpenAI-compatible `/chat/completions` endpoint. However, some providers use proprietary request formats, non-standard response structures, or custom authentication flows that can't be handled by configuration alone.
 
 For these cases, you can write a **custom LLM handler** — a Python class that gives you full control over how Galileo sends requests to your model and interprets the responses.
 
@@ -178,7 +215,7 @@ Place your `.py` files directly in the configured directory (nested paths are no
 3. **Custom directory** — Set `GALILEO_CUSTOM_LLMS_DIRECTORY` to a different path
 
 
-## Security Notes
+## Security notes
 
 - Tokens are encrypted before storage
 - OAuth2 client credentials should be kept confidential and rotated regularly
