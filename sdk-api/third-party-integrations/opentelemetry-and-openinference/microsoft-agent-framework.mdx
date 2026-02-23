@@ -5,6 +5,10 @@ description: Learn how to integrate a Microsoft Agent Framework project with Gal
 
 import ConfigureOTelInvVars from "/snippets/content/configure-otel-env-vars.mdx"
 
+import SnippetSetupTracerProvider from "/snippets/code/python/sdk/otel/microsoft-agent-framework/setup-tracer-provider.mdx"
+
+import SnippetEnableInstrumentation from "/snippets/code/python/sdk/otel/microsoft-agent-framework/enable-instrumentation.mdx"
+
 import SnippetQuickstartPython from "/snippets/code/python/sdk/otel/microsoft-agent-framework/quickstart-example.mdx"
 
 Galileo supports logging traces from [Microsoft Agent Framework](https://github.com/microsoft/agent-framework) applications using OpenTelemetry. The framework has built-in OTel instrumentation, so no extra instrumentation package is needed.
@@ -27,18 +31,7 @@ Once OpenTelemetry is configured, you can use the `GalileoSpanProcessor` to capt
 Set up a `TracerProvider` with the `GalileoSpanProcessor` and register it as the global tracer provider:
 
 <CodeGroup>
-
-```python Python
-from galileo.otel import GalileoSpanProcessor, add_galileo_span_processor
-from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-
-tracer_provider = TracerProvider()
-galileo_processor = GalileoSpanProcessor()
-add_galileo_span_processor(tracer_provider, galileo_processor)
-trace.set_tracer_provider(tracer_provider)
-```
-
+<SnippetSetupTracerProvider/>
 </CodeGroup>
 </Step>
 <Step title="Enable the framework's instrumentation">
@@ -46,13 +39,7 @@ trace.set_tracer_provider(tracer_provider)
 Enable the Microsoft Agent Framework's built-in OTel instrumentation. Set `enable_sensitive_data=True` to send LLM inputs and outputs to Galileo. If set to `False`, only span metadata (timing, token counts, etc.) will be sent.
 
 <CodeGroup>
-
-```python Python
-from agent_framework.observability import enable_instrumentation
-
-enable_instrumentation(enable_sensitive_data=True)
-```
-
+<SnippetEnableInstrumentation/>
 </CodeGroup>
 
 When you run your agent code, traces will be logged to Galileo.
