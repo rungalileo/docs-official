@@ -101,6 +101,10 @@ def check_external(href: str, timeout: float, max_retries: int = 5, backoff_base
     if href.startswith("mailto:"):
         return True, "mailto link"
 
+    # NPM rejects too many checks, so special-case it
+    if href == "https://www.npmjs.com/package/galileo":
+        return True, "Galileo NPM package"
+    
     headers = {
         "User-Agent": "Mozilla/5.0 (compatible; LinkChecker/1.0; +https://github.com/)",
         "Accept": "*/*",

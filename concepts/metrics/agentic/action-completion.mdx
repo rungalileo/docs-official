@@ -3,8 +3,10 @@ title: Action Completion
 description: Understand how to measure whether your agent actually accomplished a user's goals
 ---
 
+import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
+import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 ## Overview
 
@@ -144,9 +146,45 @@ To optimize your agent's performance and ensure high Action Completion scores, f
 | **Value Type** | Percentage (0%-100%) | Percentage (0%-100%) | Percentage (0%-100%) |
 | **Limitations** | Requires multiple LLM calls | May not capture final success | Doesn't measure execution quality |
 
+## Performance Benchmarks
+
+We evaluated Action Completion against human expert labels on an internal dataset of agentic conversation samples using top frontier models.
+
+| Model | F1 (True) |
+|:------|:--------:|
+| GPT-4.1 | 0.92 |
+| GPT-4.1-mini (judges=3) | 0.79 |
+| Claude Sonnet 4.5 | 0.87 |
+| Gemini 3 Flash | 0.92 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`            precision    recall  f1-score   support
+
+  False       0.9286    0.8667    0.8966        45
+   True       0.8966    0.9455    0.9204        55
+
+accuracy                          0.9100       100
+macro avg     0.9126    0.9061    0.9085       100
+weighted avg  0.9110    0.9100    0.9096       100`}
+  negativeLabel="False"
+  positiveLabel="True"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
 ## Related Resources
 
 If you would like to dive deeper or start implementing Action Completion, check out the following resources:
+
+### Examples
+
+- [Action Completion Examples](https://app.galileo.ai) - Log in and explore the "Action Completion" Log Stream in the "Preset Metric Examples" Project to see this metric in action.
 
 ### How-to guides
 

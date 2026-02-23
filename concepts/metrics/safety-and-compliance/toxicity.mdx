@@ -5,6 +5,7 @@ description: Detect and prevent toxic content in AI systems using Galileo's Toxi
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>Toxicity Detection</strong> flags whether a response contains hateful or toxic information.
@@ -111,3 +112,43 @@ When toxic content is detected in your system, consider these approaches:
 Identify responses that contain toxic content and take preventive measures to ensure safe and appropriate AI interactions.
 
 </Note>
+
+## Performance Benchmarks
+
+We evaluated Toxicity Detection against gold labels on the "test" split of [rungalileo/toxicity](https://huggingface.co/datasets/rungalileo/toxicity) dataset using top frontier models. This dataset was created by combining the toxicity labels in [Arsive/toxicity_classification_jigsaw](https://huggingface.co/datasets/Arsive/toxicity_classification_jigsaw).
+
+| Model | F1 (True) |
+|:------|:--------:|
+| GPT-4.1 | 0.88 |
+| GPT-4.1-mini (judges=3) | 0.87 |
+| Claude Sonnet 4.5 | 0.87 |
+| Gemini 3 Flash | 0.87 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`            precision    recall  f1-score   support
+
+  False     0.8422    0.9560    0.8955      3276
+   True     0.9480    0.8174    0.8779      3214
+
+accuracy                         0.8874      6490
+macro avg     0.8951    0.8867    0.8867      6490
+weighted avg  0.8946    0.8874    0.8868      6490`}
+  negativeLabel="False"
+  positiveLabel="True"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on the rungalileo/toxicity dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing Toxicity Detection, check out the following resources:
+
+### Examples
+
+- [Toxicity Examples](https://app.galileo.ai) - Log in and explore the "Toxicity" Log Stream in the "Preset Metric Examples" Project to see this metric in action.

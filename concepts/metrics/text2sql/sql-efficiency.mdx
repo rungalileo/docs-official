@@ -5,6 +5,7 @@ description: Evaluate whether generated SQL queries are structured efficiently a
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { BooleanClassificationReport, BooleanConfusionMatrix } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>SQL Efficiency</strong> acts as a heuristic query cost analyzer, assessing whether a generated SQL query is structured efficiently or poses an availability risk to the database.
@@ -32,7 +33,7 @@ Here's a scale that shows the relationship between SQL Efficiency and potential 
   highDescription="Query is well-structured with no obvious performance issues."
 />
 
-<Note>Scale is 0–100 and is derived from binary judgments converted into a confidence score.</Note>
+<Note>Scale is 0-100 and is derived from binary judgments converted into a confidence score.</Note>
 
 ## Calculation method
 
@@ -166,3 +167,49 @@ WHERE date_col BETWEEN '2023-01-01' AND '2023-12-31'
     Manually review inefficient queries to understand patterns and improve your SQL generation prompts.
   </Card>
 </CardGroup>
+
+## Performance Benchmarks
+
+We evaluated SQL Efficiency against human expert labels on an internal dataset of Text-to-SQL samples using top frontier models.
+
+| Model | F1 (True) |
+|:------|:--------:|
+| GPT-4.1 | 0.90 |
+| GPT-4.1 Mini | 0.87 |
+| Gemini 3 Flash Preview | 0.87 |
+| Claude Sonnet 4.5 | 0.83 |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`            precision    recall  f1-score   support
+
+  False       0.8795    0.9248    0.9016      1437
+   True       0.9208    0.8733    0.8964      1437
+
+accuracy                          0.8991      2874
+macro avg     0.9002    0.8991    0.8990      2874
+weighted avg  0.9002    0.8991    0.8990      2874`}
+  negativeLabel="False"
+  positiveLabel="True"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks based on internal evaluation dataset. Performance may vary by use case.
+</Note>
+
+## Related Resources
+
+If you would like to dive deeper or start implementing SQL Efficiency, check out the following resources:
+
+### Examples
+
+- [SQL Efficiency Examples](https://app.galileo.ai) - Log in and explore the "SQL Efficiency" Log Stream in the "Preset Metric Examples" Project to see this metric in action.
+
+### Related Concepts
+
+- [SQL Adherence](/concepts/metrics/text2sql/sql-adherence)
+- [SQL Correctness](/concepts/metrics/text2sql/sql-correctness)
+- [SQL Injection](/concepts/metrics/text2sql/sql-injection)

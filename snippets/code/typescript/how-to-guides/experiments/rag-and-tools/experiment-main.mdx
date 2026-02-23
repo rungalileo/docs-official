@@ -1,6 +1,6 @@
 ```typescript TypeScript
 import dotenv from "dotenv";
-import { GalileoScorers, runExperiment } from "galileo";
+import { GalileoGalileoMetricsScorers, runExperiment } from "galileo";
 
 import { getUsersHoroscope } from "./app.ts";
 
@@ -24,10 +24,10 @@ dotenv.config();
             return await getUsersHoroscope(row.value)
         },
         metrics: [
-            GalileoScorers.ToolErrorRate,
-            GalileoScorers.ToolSelectionQuality,
-            GalileoScorers.ChunkAttributionUtilization,
-            GalileoScorers.ContextAdherence,
+            GalileoMetrics.toolErrorRate,
+            GalileoMetrics.toolSelectionQuality,
+            GalileoMetrics.chunkAttributionUtilization,
+            GalileoMetrics.contextAdherence,
         ],
         projectName: process.env.GALILEO_PROJECT,
     });

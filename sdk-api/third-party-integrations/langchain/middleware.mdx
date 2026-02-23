@@ -1,0 +1,155 @@
+---
+title: Middleware
+description: Learn about using GalileoMiddleware for automatic logging of LangChain agents
+---
+
+import AddToExistingTrace from "/snippets/code/python/sdk/langchain/middleware/add-to-existing-trace.mdx";
+import AsyncAgentUsage from "/snippets/code/python/sdk/langchain/middleware/async-agent-usage.mdx";
+import CustomLogger from "/snippets/code/python/sdk/langchain/middleware/custom-logger.mdx";
+import ManualFlushControl from "/snippets/code/python/sdk/langchain/middleware/manual-flush-control.mdx";
+
+## Overview
+
+`GalileoMiddleware` is a middleware component that integrates with LangGraph agents to provide comprehensive tracing and logging. Unlike the callback-based approach, middleware automatically intercepts agent execution at key points:
+
+- **Agent lifecycle**: Tracks when an agent starts and completes
+- **Model calls**: Logs all LLM invocations with prompts, responses, and metadata
+- **Tool calls**: Captures tool invocations including function names, arguments, and outputs
+- **Async support**: Full support for both synchronous and asynchronous agent execution
+
+## Basic usage
+
+To use `GalileoMiddleware`, simply add it to the `middleware` parameter when creating a LangChain agent:
+
+<SnippetLangChainMiddlewarePython />
+
+The middleware automatically handles all logging internally. When the agent is invoked:
+
+1. An agent node is created to track the overall execution
+2. Each model call creates an LLM node with prompt and response details
+3. Each tool call creates a tool node with function name, arguments, and output
+4. All nodes are linked hierarchically under the agent node
+
+## Configuration options
+
+`GalileoMiddleware` accepts the following parameters:
+
+- `galileo_logger` (optional): A custom `GalileoLogger` instance. If not provided, a default logger is created.
+- `start_new_trace` (default: `True`): Whether to start a new trace on agent invocation. Set to `False` to add to an existing trace.
+- `flush_on_chain_end` (default: `True`): Whether to flush logs to Galileo when the agent completes.
+- `ingestion_hook` (optional): A callback function that receives `TracesIngestRequest` objects before they're sent to Galileo.
+
+## Custom logger
+
+You can provide a custom logger instance to integrate with existing logging infrastructure:
+
+<CustomLogger />
+
+## Trace management
+
+By default, each agent invocation creates a new trace. You can control trace behavior:
+
+### Add to existing trace
+
+To add agent execution to an existing trace, use a shared logger with `start_new_trace=False`:
+
+<AddToExistingTrace />
+
+### Manual flush control
+
+If you want to control when logs are flushed (e.g., for batch processing):
+
+<ManualFlushControl />
+
+## What gets logged
+
+`GalileoMiddleware` captures the following information:
+
+### Agent node
+
+- Input state (messages)
+- Output state (final messages)
+- Execution time
+
+### Model call nodes
+
+- Model name and configuration (temperature, etc.)
+- Input messages (including system message if present)
+- Output response
+- Tools available to the model
+- Timing metrics (start time, time to first token if available)
+
+### Tool call nodes
+
+- Tool/function name
+- Tool arguments (serialized)
+- Tool output
+- Execution time
+
+## Comparison with GalileoCallback
+
+`GalileoMiddleware` and `GalileoCallback` provide similar functionality but use different approaches:
+
+| Feature | GalileoMiddleware | GalileoCallback |
+|---------|------------------|-----------------|
+| **Integration point** | LangGraph agents via middleware parameter | LangChain components via callbacks parameter |
+| **Setup complexity** | Simple - add to middleware list | Manual - pass to each component |
+| **Agent support** | Native support for LangGraph agents | Requires callback setup |
+| **Flexibility** | Automatic agent-level tracing | Fine-grained control over individual components |
+| **Use case** | LangGraph agents with minimal setup | Complex LangChain applications with custom needs |
+
+Use `GalileoMiddleware` when:
+
+- You're building LangGraph agents
+- You want automatic, drop-in logging
+- You prefer simpler setup
+
+Use `GalileoCallback` when:
+
+- You need fine-grained control over logging
+- You're working with complex LangChain applications
+- You want to log specific components selectively
+
+## Async support
+
+`GalileoMiddleware` fully supports asynchronous execution. The middleware automatically handles both sync and async contexts:
+
+<AsyncAgentUsage />
+
+The middleware uses the appropriate handler (`GalileoBaseHandler` or `GalileoAsyncBaseHandler`) based on the execution context.
+
+## Best practices
+
+1. **Use middleware for LangGraph agents**: For LangGraph-based agents, middleware provides the simplest integration
+2. **Add meaningful metadata**: Include relevant project and session information in your logger configuration
+3. **Configure flush behavior**: For high-volume applications, consider disabling auto-flush and batch your logs
+4. **Share loggers**: Use the same logger instance across middleware for unified trace management
+5. **Monitor execution**: Review the hierarchical traces in Galileo to understand agent behavior
+
+## Example
+
+You can find a complete example of using `GalileoMiddleware` with a LangGraph agent in the [LangChain Middleware Example](https://github.com/rungalileo/sdk-examples/pull/156).
+
+## Next steps
+
+### Related documentation
+
+<CardGroup cols={2}>
+<Card title="GalileoCallback" icon="code" horizontal href="/sdk-api/third-party-integrations/langchain">
+    Use callbacks for fine-grained LangChain logging control.
+</Card>
+<Card title="Experiments" icon="flask" horizontal href="/sdk-api/third-party-integrations/langchain/experiments">
+    Learn how to run and track experiments with LangChain.
+</Card>
+</CardGroup>
+
+### Cookbooks
+
+<CardGroup cols={2}>
+<Card title="Monitor LangChain Agents with Galileo" icon="code" horizontal href="/cookbooks/use-cases/agent-langchain">
+    Learn how to build and monitor a LangChain AI Agent using Galileo for tracing and observability.
+</Card>
+<Card title="Add evaluations to a multi-agent LangGraph application" icon="code" horizontal href="/cookbooks/use-cases/multi-agent-langgraph/multi-agent-langgraph">
+    Learn how to add evaluations to a multi-agent LangGraph chat bot using Galileo
+</Card>
+</CardGroup>

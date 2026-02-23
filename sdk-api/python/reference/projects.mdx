@@ -123,9 +123,11 @@ def get_with_env_fallbacks(self,
 
 Retrieves a project by id or name.
 
-Either `id` or `name` must be provided, but not both. If neither is provided,
-the method will attempt to read from the environment variables `GALILEO_PROJECT_ID`
-and `GALILEO_PROJECT`. If both environment variables are set, a ValueError is raised.
+At least one of `id` or `name` must be provided (directly or via environment).
+If both are provided, `id` takes precedence and `name` is ignored. If neither is
+provided, the method will attempt to read from `GALILEO_PROJECT_ID` and
+`GALILEO_PROJECT`; if both environment variables are set, `GALILEO_PROJECT_ID`
+takes precedence.
 
 **Arguments**
 
@@ -134,7 +136,7 @@ and `GALILEO_PROJECT`. If both environment variables are set, a ValueError is ra
 
 **Raises**
 
-- `ValueError`: If neither or both `id` and `name` are provided.
+- `ValueError`: If neither `id` nor `name` is available (including after env fallbacks).
 - `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
 - `httpx.TimeoutException`: If the request takes longer than Client.timeout.
 
