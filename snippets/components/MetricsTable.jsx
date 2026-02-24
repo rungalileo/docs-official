@@ -65,8 +65,8 @@ export const MetricsTable = () => {
     },
     {
       name: "Completeness",
-      link: "/concepts/metrics/response-quality/completeness",
-      category: "Response Quality",
+      link: "/concepts/metrics/rag/generation-quality/completeness",
+      category: "RAG - Generation Quality",
       node: "LLM Span",
       description: "Measures whether the response addresses all aspects of the user's query.",
       whenToUse: "When evaluating if responses fully address the user's intent.",
@@ -110,8 +110,8 @@ export const MetricsTable = () => {
     },
     {
       name: "Ground Truth Adherence",
-      link: "/concepts/metrics/rag/generation-quality/ground-truth-adherence",
-      category: "RAG - Generation Quality",
+      link: "/concepts/metrics/response-quality/ground-truth-adherence",
+      category: "Response Quality",
       node: "Trace",
       description: "Measures how well the response aligns with established ground truth.",
       whenToUse: "When evaluating model responses against known correct answers.",
