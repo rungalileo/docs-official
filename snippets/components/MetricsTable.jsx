@@ -65,8 +65,8 @@ export const MetricsTable = () => {
     },
     {
       name: "Completeness",
-      link: "/concepts/metrics/rag/generation-quality/completeness",
-      category: "RAG - Generation Quality",
+      link: "/concepts/metrics/response-quality/completeness",
+      category: "Response Quality",
       node: "LLM Span",
       description: "Measures whether the response addresses all aspects of the user's query.",
       whenToUse: "When evaluating if responses fully address the user's intent.",
@@ -101,8 +101,8 @@ export const MetricsTable = () => {
     },
     {
       name: "Correctness (factuality)",
-      link: "/concepts/metrics/rag/generation-quality/correctness",
-      category: "RAG - Generation Quality",
+      link: "/concepts/metrics/response-quality/correctness",
+      category: "Response Quality",
       node: "LLM Span",
       description: "Evaluates the factual accuracy of information provided in the response.",
       whenToUse: "When accuracy of information is critical to your application.",
@@ -119,8 +119,8 @@ export const MetricsTable = () => {
     },
     {
       name: "Instruction Adherence",
-      link: "/concepts/metrics/rag/generation-quality/instruction-adherence",
-      category: "RAG - Generation Quality",
+      link: "/concepts/metrics/response-quality/instruction-adherence",
+      category: "Response Quality",
       node: "LLM Span",
       description: "Assesses whether the model followed the instructions in your prompt template.",
       whenToUse: "When using complex prompts and need to verify the model is following all instructions.",
