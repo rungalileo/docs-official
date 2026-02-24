@@ -3,7 +3,7 @@ title: Simple Chatbot
 description: Get started with the simple chatbot sample project
 ---
 
-import SnippetConfigureIntegrationSteps from "/snippets/content/configure-integration-steps.mdx"
+import SnippetConfigureIntegrationSteps from "/snippets/content/configure-integration-steps.mdx";
 
 The simple chatbot sample project is a demo of a simplistic terminal-based LLM chatbot where you can have a back-and-forth conversation with an LLM. This project comes pre-populated with a Log stream with traces and evaluated metrics, as well as insights to help you improve this project.
 
@@ -12,6 +12,7 @@ The simple chatbot sample project is a demo of a simplistic terminal-based LLM c
 Get the code for the sample project. You can find this project by cloning the Galileo SDK Examples repo.
 
 The code for this project is in the `/python/chatbot/sample-project-chatbot/` or `/typescript/chatbot/sample-project-chatbot/` folder.
+
 </Card>
 </CardGroup>
 
@@ -35,8 +36,8 @@ Navigate to the **Default Log stream** by selecting this project, and selecting 
 
 The Log stream is configured to evaluate the following metrics:
 
-- [Correctness](/concepts/metrics/response-quality/correctness)
-- [Instruction Adherence](/concepts/metrics/response-quality/instruction-adherence)
+- [Correctness](/concepts/metrics/rag/generation-quality/correctness)
+- [Instruction Adherence](/concepts/metrics/rag/generation-quality/instruction-adherence)
 
 For some of the traces, these metrics are evaluated at 100%, showing the chatbot is working well for those inputs. For other traces, these metrics are reporting lower values, showing the chatbot needs some improvements.
 
@@ -96,7 +97,7 @@ To get metrics calculated in Galileo, you will need:
 
 - An integration with an LLM configured. If you don't have an integration configured, then:
 
-    <SnippetConfigureIntegrationSteps/>
+  <SnippetConfigureIntegrationSteps />
 
 ### Get the code
 
@@ -148,9 +149,9 @@ cd azure-inference
 The full source code for all of our sample projects is available in the Galileo [SDK Examples GitHub repo](https://github.com/rungalileo/sdk-examples).
 
 <CardGroup cols={2}>
-<Card title="SDK Examples" icon="code" horizontal href="https://github.com/rungalileo/sdk-examples">
+  <Card title="SDK Examples" icon="code" horizontal href="https://github.com/rungalileo/sdk-examples">
     Check out sample projects using Galileo
-</Card>
+  </Card>
 </CardGroup>
 
 ### Run the code
@@ -177,40 +178,28 @@ npm install
 <Step title="Configure environment variables">
 In each project folder is a `.env.example` file. Rename this file to `.env` and populate the Galileo values:
 
-| Environment Variable  | Value |
-| :-------------------- | :---- |
-| `GALILEO_API_KEY`     | Your API key |
-| `GALILEO_PROJECT`     | The name of your Galileo project - this is preset to `Simple Chatbot` |
-| `GALILEO_LOG_STREAM`  | The name of your Log stream - this is preset to `Default Log stream` |
+| Environment Variable  | Value                                                                                                           |
+| :-------------------- | :-------------------------------------------------------------------------------------------------------------- |
+| `GALILEO_API_KEY`     | Your API key                                                                                                    |
+| `GALILEO_PROJECT`     | The name of your Galileo project - this is preset to `Simple Chatbot`                                           |
+| `GALILEO_LOG_STREAM`  | The name of your Log stream - this is preset to `Default Log stream`                                            |
 | `GALILEO_CONSOLE_URL` | Optional. The URL of your Galileo console for custom deployments. For the fre tier, you don't need to set this. |
 
-<Note>
-You can find these values from the project page for the simple chatbot sample page in the Galileo Console.
-</Note>
+<Note>You can find these values from the project page for the simple chatbot sample page in the Galileo Console.</Note>
 
 Next populate the values for your LLM:
 
 <Tabs>
-<Tab title="OpenAI">
-| Environment Variable | Value |
-| :------------------- | :---- |
-| `OPENAI_API_KEY`     | Your OpenAI API key. If you are using Ollama, set this to `ollama`. If you are using another OpenAI compatible API, then set this to the relevant API key. |
-| `OPENAI_BASE_URL`    | Optional. The base URL of your OpenAI deployment. Leave this commented out if you are using the default OpenAI API. If you are using Ollama, set this to `http://localhost:11434/v1`. If you are using another OpenAI compatible API, then set this to the relevant URL. |
-| `MODEL_NAME`         | The name of the model you are using |
-</Tab>
-<Tab title="Anthropic">
-| Environment Variable | Value |
-| :------------------- | :---- |
-| `ANTHROPIC_API_KEY`  | Your Anthropic API key |
-| `MODEL_NAME`         | The name of the model you are using |
-</Tab>
-<Tab title="Azure AI Inference">
-| Environment Variable.         | Value |
-| :---------------------------- | :---- |
-| `AZURE_AI_INFERENCE_ENDPOINT` | Your Azure AI Foundry endpoint |
-| `AZURE_AI_INFERENCE_API_KEY`  | Your Azure AI Foundry API key |
-| `MODEL_NAME`                  | The name of the model deployment you are using |
-</Tab>
+  <Tab title="OpenAI">
+    | Environment Variable | Value | | :------------------- | :---- | | `OPENAI_API_KEY` | Your OpenAI API key. If you are using Ollama, set this to `ollama`. If you are using another OpenAI compatible API, then set this to the relevant API
+    key. | | `OPENAI_BASE_URL` | Optional. The base URL of your OpenAI deployment. Leave this commented out if you are using the default OpenAI API. If you are using Ollama, set this to `http://localhost:11434/v1`. If you are using another
+    OpenAI compatible API, then set this to the relevant URL. | | `MODEL_NAME` | The name of the model you are using |
+  </Tab>
+  <Tab title="Anthropic">| Environment Variable | Value | | :------------------- | :---- | | `ANTHROPIC_API_KEY` | Your Anthropic API key | | `MODEL_NAME` | The name of the model you are using |</Tab>
+  <Tab title="Azure AI Inference">
+    | Environment Variable. | Value | | :---------------------------- | :---- | | `AZURE_AI_INFERENCE_ENDPOINT` | Your Azure AI Foundry endpoint | | `AZURE_AI_INFERENCE_API_KEY` | Your Azure AI Foundry API key | | `MODEL_NAME` | The name of
+    the model deployment you are using |
+  </Tab>
 </Tabs>
 
 </Step>
@@ -304,25 +293,25 @@ chat_history = [
 
 ```typescript TypeScript
 const chatHistory = [
-    {
-        "role": "system",
-        "content": `
+  {
+    role: "system",
+    content: `
         You are a helpful assistant that can answer questions and provide
         information. If you are not sure about the question, then try to
         answer it to the best of your ability, including extrapolating or
         guessing the answer from your training data.
         `,
-        // This default system prompt can lead to hallucinations, so you
-        // might want to change it.
-        // For example, you could use a more restrictive prompt like:
-        // `
-        // You are a helpful assistant that can answer questions and provide
-        // information. If you don't know the answer, say "I don't know"
-        // instead of making up an answer. Do not under any circumstances
-        // make up an answer.
-        // `
-    }
-]
+    // This default system prompt can lead to hallucinations, so you
+    // might want to change it.
+    // For example, you could use a more restrictive prompt like:
+    // `
+    // You are a helpful assistant that can answer questions and provide
+    // information. If you don't know the answer, say "I don't know"
+    // instead of making up an answer. Do not under any circumstances
+    // make up an answer.
+    // `
+  },
+];
 ```
 
 </CodeGroup>
@@ -365,6 +354,7 @@ You can use this unit test to evaluate different system prompts for your app.
 <Step title="Run the unit test">
 
 Use the following command to run the unit test:
+
 <CodeGroup>
 
 ```python Python
@@ -404,6 +394,7 @@ If you navigate to the experiments list using the **All Experiments** link, you 
 ![A list of experiments with the scores increasing as you go up the list](/getting-started/sample-projects/compare-experiments.webp)
 
 You can then select multiple rows and [compare the experiments in detail](/concepts/experiments/compare).
+
 </Step>
 </Steps>
 
@@ -412,18 +403,18 @@ You can then select multiple rows and [compare the experiments in detail](/conce
 ### Logging with the SDKs
 
 <CardGroup cols={2}>
-<Card title="Learn how to log experiments" icon="flask" horizontal href="/sdk-api/experiments">
+  <Card title="Learn how to log experiments" icon="flask" horizontal href="/sdk-api/experiments">
     Learn how to run experiments with multiple data points using datasets and prompt templates
-</Card>
-<Card title="Galileo logger" icon="code" horizontal href="/sdk-api/logging/galileo-logger">
+  </Card>
+  <Card title="Galileo logger" icon="code" horizontal href="/sdk-api/logging/galileo-logger">
     Log with full control over sessions, traces, and spans using the Galileo logger.
-</Card>
-<Card title="Log decorator" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
+  </Card>
+  <Card title="Log decorator" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
     Quickly add logging to your code with the log decorator and wrapper.
-</Card>
-<Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
+  </Card>
+  <Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
     Manage logging using the Galileo context manager.
-</Card>
+  </Card>
 </CardGroup>
 
 ### How-to guides
@@ -433,31 +424,34 @@ You can then select multiple rows and [compare the experiments in detail](/conce
   Learn how to integrate and use OpenAI's API with Galileo's wrapper client.
   <br/>
 
-  **Python**
+**Python**
+
 </Card>
 
 <Card title="Log Using the @log Decorator" icon="code" href="/how-to-guides/basics/basic-logging-with-decorator/basic-logging-with-decorator" horizontal>
   Learn how to use the Galileo @log decorator to log functions to traces
   <br/>
 
-  **Python**
+**Python**
+
 </Card>
 
 <Card title="Create Traces and Spans" icon="code" href="/how-to-guides/basics/manual-span-creation/manual-span-creation" horizontal>
   Learn how to create log traces and spans manually in your AI apps
   <br/>
 
-  **Python**
+**Python**
+
 </Card>
 </CardGroup>
 
 ### SDK reference
 
 <CardGroup cols={2}>
-<Card title="Python SDK Reference" icon="python" horizontal href="/sdk-api/python/sdk-reference">
+  <Card title="Python SDK Reference" icon="python" horizontal href="/sdk-api/python/sdk-reference">
     The Galileo Python SDK reference.
-</Card>
-<Card title="TypeScript SDK Reference" icon="js" horizontal href="/sdk-api/typescript/sdk-reference">
+  </Card>
+  <Card title="TypeScript SDK Reference" icon="js" horizontal href="/sdk-api/typescript/sdk-reference">
     The Galileo TypeScript SDK reference.
-</Card>
+  </Card>
 </CardGroup>

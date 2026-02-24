@@ -3,7 +3,7 @@ title: Run Experiments in Code
 description: Learn how to run experiments in Galileo using the Galileo SDKs
 ---
 
-{/*<!-- markdownlint-disable MD044 -->*/}
+{/* <!-- markdownlint-disable MD044 --> */}
 
 import SnippetExperimentsPromptPython from "/snippets/code/python/concepts/experiments/prompt.mdx";
 import SnippetExperimentsExistingDatasetPython from "/snippets/code/python/concepts/experiments/existing-dataset.mdx";
@@ -29,7 +29,7 @@ import SnippetExperimentsLoggingWithParentCheckTypeScript from "/snippets/code/t
 import SnippetExperimentCustomMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/custom-metric.mdx";
 import SnippetExperimentOOTBMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/ootb-metric.mdx";
 
-{/*<!-- markdownlint-enable MD044 -->*/}
+{/* <!-- markdownlint-enable MD044 --> */}
 
 As you progress from initial testing to systematic evaluation, you'll want to run experiments to validate your application's performance and behavior. Here are several ways to structure your experiments, starting from the simplest approaches and moving to more sophisticated implementations.
 
@@ -59,6 +59,7 @@ When you call your application code from an experiment, the experiment runner wi
 If you are using the `log` wrapper or a third-party integration, this is handed for you. If you are logging manually you will need to check to see if an experiment is in progress.
 
 See the [Experiment SDK docs](/sdk-api/experiments/running-experiments#get-an-existing-logger-and-check-for-an-existing-trace) for details on how to do this.
+
 </Note>
 
 ```mermaid
@@ -82,8 +83,8 @@ When you run an experiment, you need to define which metrics you want to evaluat
 For out-of-the-box metrics, use the [constants provided by the Galileo SDK](/sdk-api/metrics/metrics).
 
 <CodeGroup>
-<SnippetExperimentOOTBMetricNamePython/>
-<SnippetExperimentOOTBMetricNameTypeScript/>
+  <SnippetExperimentOOTBMetricNamePython />
+  <SnippetExperimentOOTBMetricNameTypeScript />
 </CodeGroup>
 
 For custom metrics, use the name you set when you created the metric. For example, if you have a custom LLM-as-a-judge metric called `"Compliance - do not recommend any financial actions"`:
@@ -93,8 +94,8 @@ For custom metrics, use the name you set when you created the metric. For exampl
 You would pass this to an experiment like this:
 
 <CodeGroup>
-<SnippetExperimentCustomMetricNamePython/>
-<SnippetExperimentCustomMetricNameTypeScript/>
+  <SnippetExperimentCustomMetricNamePython />
+  <SnippetExperimentCustomMetricNameTypeScript />
 </CodeGroup>
 
 ## Work with prompts
@@ -143,8 +144,8 @@ You will need to change your code to use this instead of creating a new logger a
 The Galileo SDK maintains a context that tracks the current logger. You can get this logger with the following code:
 
 <CodeGroup>
-  <SnippetExperimentsGetLoggerPython/>
-  <SnippetExperimentsGetLoggerTypeScript/>
+  <SnippetExperimentsGetLoggerPython />
+  <SnippetExperimentsGetLoggerTypeScript />
 </CodeGroup>
 
 If there isn't a current logger, one will be created by this call, so this will always return a logger.
@@ -152,15 +153,15 @@ If there isn't a current logger, one will be created by this call, so this will 
 Once you have the logger, you can check for an existing trace by accessing the current parent trace from the logger. If this is not set, then there is no active trace.
 
 <CodeGroup>
-  <SnippetExperimentsGetCurrentParentPython/>
-  <SnippetExperimentsGetCurrentParentTypeScript/>
+  <SnippetExperimentsGetCurrentParentPython />
+  <SnippetExperimentsGetCurrentParentTypeScript />
 </CodeGroup>
 
 You can use this to decide if you need to create a new trace in your application. If there is no parent trace, you can safely create a new one.
 
 <CodeGroup>
-  <SnippetExperimentsLoggingWithParentCheckPython/>
-  <SnippetExperimentsLoggingWithParentCheckTypeScript/>
+  <SnippetExperimentsLoggingWithParentCheckPython />
+  <SnippetExperimentsLoggingWithParentCheckTypeScript />
 </CodeGroup>
 
 You can then safely call your code from the experiment runner as well as in your normal application logic. When called from the experiment runner, your traces will be logged to that experiment. When called from your application code, the traces will be logged as normal.
@@ -185,16 +186,14 @@ There are a few important principles to understand when logging experiments in c
 
 ## Ground truth
 
-For [BLUE, ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge), and [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence), you also need to set the ground truth in your dataset. This is set in the `output` column.
+For [BLUE, ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge), and [Ground Truth Adherence](/concepts/metrics/rag/generation-quality/ground-truth-adherence), you also need to set the ground truth in your dataset. This is set in the `output` column.
 
 <CodeGroup>
-  <SnippetExperimentsGroundTruthPython/>
-  <SnippetExperimentsGroundTruthTypeScript/>
+  <SnippetExperimentsGroundTruthPython />
+  <SnippetExperimentsGroundTruthTypeScript />
 </CodeGroup>
 
-<Note>
-If you set the `output` column when using other metrics, the value is not used in the calculation of the metric, but is surfaced in the console. This can be helpful for providing reference output for manual review.
-</Note>
+<Note>If you set the `output` column when using other metrics, the value is not used in the calculation of the metric, but is surfaced in the console. This can be helpful for providing reference output for manual review.</Note>
 
 ## Custom dataset evaluation
 
@@ -237,27 +236,27 @@ The same experimentation patterns shown above apply to these more complex system
 ### Experiments SDK
 
 <CardGroup cols={2}>
-<Card title="Use Datasets in Code" icon="database" horizontal href="/sdk-api/experiments/datasets">
+  <Card title="Use Datasets in Code" icon="database" horizontal href="/sdk-api/experiments/datasets">
     Learn about more datasets, the data driving your experiments.
-</Card>
-<Card title="Prompt Templates" icon="message" horizontal href="/sdk-api/experiments/prompts">
+  </Card>
+  <Card title="Prompt Templates" icon="message" horizontal href="/sdk-api/experiments/prompts">
     Learn how to create and use prompt templates in experiments
-</Card>
+  </Card>
 </CardGroup>
 
 ### Metrics
 
 <CardGroup cols={2}>
-<Card title="Metrics Reference Guide" icon="brain" horizontal href="/sdk-api/metrics/metrics">
+  <Card title="Metrics Reference Guide" icon="brain" horizontal href="/sdk-api/metrics/metrics">
     A list of supported metrics and how to use them in experiments.
-</Card>
-<Card title="Local Metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code#local-metrics">
+  </Card>
+  <Card title="Local Metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code#local-metrics">
     Create and run custom metrics directly in code.
-</Card>
-<Card title="Custom Code-Based Metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code">
+  </Card>
+  <Card title="Custom Code-Based Metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code">
     Create reusable custom metrics right in the Galileo Console.
-</Card>
-<Card title="Custom LLM-as-a-Judge Metrics" icon="brain" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-llm">
+  </Card>
+  <Card title="Custom LLM-as-a-Judge Metrics" icon="brain" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-llm">
     Create reusable custom metrics using LLMs to evaluate your response quality
-</Card>
+  </Card>
 </CardGroup>

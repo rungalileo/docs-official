@@ -1,0 +1,230 @@
+---
+title: Precision @ K
+description: Evaluate the precision of your retrieval system at specific rank positions to optimize Top K and ranking strategies
+---
+
+import { Scale } from "/snippets/components/scale.mdx";
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+
+<DefinitionCard>
+  <strong>Precision @ K</strong> measures the percentage of relevant chunks among the top K retrieved chunks, where K is a specific rank position.
+</DefinitionCard>
+
+Precision @ K is a continuous metric ranging from 0 to 1:
+
+<Scale
+  low="0"
+  lowLabel="Low Precision"
+  high="1"
+  highLabel="High Precision"
+  lowDescription="Few or no chunks in the top K are relevant to the query"
+  highDescription="Most or all chunks in the top K are relevant to the query"
+/>
+
+This metric helps evaluate retrieval quality at specific rank positions and determine the optimal number of chunks to retrieve (Top K). Unlike [Context Precision](/concepts/metrics/rag/retrieval-quality/context-precision), Precision @ K focuses on a specific rank K to assess ranking quality.
+
+## Calculation method
+
+Precision @ K is computed based on [Chunk Relevance](/concepts/metrics/rag/retrieval-quality/chunk-relevance) scores for the top K chunks:
+
+<Steps>
+  <Step title="Chunk Relevance Calculation">
+    First, [Chunk Relevance](/concepts/metrics/rag/retrieval-quality/chunk-relevance) is computed for each retrieved chunk, producing a binary classification (Relevant or Not Relevant) for each chunk.
+
+</Step>
+  <Step title="Rank Ordering">
+    The retrieved chunks are ordered by their rank position (as logged in the retriever span), with position 1 being the highest-ranked chunk.
+
+</Step>
+  <Step title="Top K Selection">
+    The top K chunks are selected based on their rank order, where K is the specified rank position (e.g., K=3 means the top 3 chunks).
+
+</Step>
+  <Step title="Relevance Count">
+    The number of relevant chunks within the top K is counted.
+
+</Step>
+  <Step title="Score Calculation">
+    Precision @ K is computed as the ratio of relevant chunks in the top K to the total number of chunks in the top K (which equals K).
+
+</Step>
+</Steps>
+
+For example, Precision @ 3 measures what percentage of the top 3 chunks are relevant. If 1 out of 3 chunks is relevant, Precision @ 3 = 33%.
+
+## Understanding precision @ K
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>How Precision @ K Helps Optimize Top K</h3>
+  </div>
+
+Precision @ K is particularly valuable for determining the optimal number of chunks to retrieve:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Example scenario:</strong> When retrieving 10 chunks (Top K = 10), Context Precision is 40%, meaning only 4 out of 10 chunks are relevant. This suggests reducing Top K.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Using Precision @ K:</strong> Evaluating Precision @ 4 shows it's only 40%, meaning for 60% of examples, there are useful chunks in ranks 5-10. However, Precision @ 7 is 90%, indicating that for 90% of examples, the most relevant chunks are in the top 7.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Optimization decision:</strong> Reducing Top K from 10 to 7 captures the relevant chunks for most queries while reducing unnecessary retrieval and processing.
+</div>
+
+</Card>
+
+<Note type="info">
+  Precision @ K is differentiated from [Context Precision](/concepts/metrics/rag/retrieval-quality/context-precision): Precision @ K evaluates precision at a specific rank K and helps assess ranking quality, while Context Precision considers all retrieved chunks to measure noise in retrieval.
+</Note>
+
+## Choosing K
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Guidance for Selecting K</h3>
+  </div>
+
+Choosing an appropriate K value depends on the retrieval system's goals, latency and cost constraints, and how much context downstream models can effectively use.
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Start with small K values:</strong> Begin with small values such as K = 1, 3, or 5 to understand how well the very top-ranked chunks support high-quality responses.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Analyze Precision @ multiple K values:</strong> Evaluate Precision @ K across a range of K values (for example, 1, 3, 5, 10) to see where the metric plateaus. Points where precision stops improving significantly often indicate a good upper bound for K.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Balance recall and efficiency:</strong> Larger K values may improve recall by including more relevant chunks, but at the cost of more noise, higher latency, and higher token usage. The chosen K should balance these tradeoffs for the specific application.
+</div>
+
+</Card>
+
+## Optimizing your RAG pipeline
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing Low Precision @ K Scores</h3>
+  </div>
+
+When Precision @ K scores are low, it indicates that many chunks in the top K positions are not relevant. To improve the system:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Optimize Top K value:</strong> Evaluate Precision @ K metrics at different K values to find the optimal number of chunks to retrieve. Reduce K if precision remains high at lower values.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Improve ranking quality:</strong> If Precision @ K is low but higher K values show better precision, focus on improving ranking/reranking to move relevant chunks earlier.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Enhance retrieval quality:</strong> Refine embedding models, similarity search algorithms, or retrieval parameters to better match queries with relevant content.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Implement reranking:</strong> Use a reranking model to improve the order of retrieved chunks, ensuring the most relevant ones appear in the top K positions.
+</div>
+
+</Card>
+
+## Comparing Precision @ K and Context Precision
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Understanding Metric Combinations</h3>
+  </div>
+
+Different combinations of Precision @ K and Context Precision scores reveal different aspects of retrieval system performance:
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>High Precision @ K, High Context Precision:</strong> The retrieval system is performing well overall. The top K positions contain mostly relevant chunks (good ranking), and the overall retrieved set has minimal noise. This indicates both effective ranking and high-quality retrieval.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>High Precision @ K, Low Context Precision:</strong> The top K positions contain mostly relevant chunks (good ranking), but the overall retrieved set has significant noise. This indicates that while the ranking algorithm prioritizes relevant content effectively, the retrieval system is bringing back too many irrelevant chunks beyond the top K. Consider reducing Top K or improving retrieval quality.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Low Precision @ K, High Context Precision:</strong> While the overall retrieval contains mostly relevant chunks (low noise), the ranking is poor. Relevant chunks are distributed throughout the retrieved set rather than concentrated in the top K positions. This suggests the retrieval system finds relevant content but needs better ranking or reranking.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Low Precision @ K, Low Context Precision:</strong> Both metrics indicate problems. The retrieval system has high noise (many irrelevant chunks) and poor ranking (relevant chunks are not in top positions). This suggests fundamental issues with both retrieval quality and ranking that need to be addressed.
+</div>
+
+</Card>
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Determine Optimal Top K" icon="sliders">
+    Evaluating Precision @ K at multiple K values helps find the optimal number of chunks to retrieve for each use case.
+
+</Card>
+  <Card title="Monitor Ranking Quality" icon="arrow-up-arrow-down">
+    Tracking Precision @ K helps ensure retrieval systems rank relevant chunks appropriately in the top positions.
+
+</Card>
+  <Card title="Combine with Context Precision" icon="link">
+    Precision @ K works alongside [Context Precision](/concepts/metrics/rag/retrieval-quality/context-precision) for a comprehensive view of retrieval effectiveness at both specific ranks and overall.
+
+</Card>
+  <Card title="Analyze Across Queries" icon="chart-line">
+    Evaluating Precision @ K across different query types helps identify patterns and optimize retrieval strategies accordingly.
+
+</Card>
+</CardGroup>
+
+<Note>
+When optimizing for Precision @ K, the goal is to find the right balance: a K value that's high enough to capture all relevant chunks but low enough to avoid retrieving too many irrelevant chunks. Evaluating Precision @ K metrics at different K values helps make data-driven decisions about the Top K parameter.
+
+</Note>
+
+## Creating multiple Precision @ K variants in Galileo
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Configuring Multiple K Values</h3>
+  </div>
+
+Many teams benefit from tracking several Precision @ K variants (for example, Precision @ 1, 3, 5, and 10) at the same time to understand how ranking quality changes across different depths of the retrieved set.
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Define separate metric configurations:</strong> Create distinct Precision @ K configurations in Galileo for each K value of interest (such as K = 1, 3, 5, 10) so they appear as separate metrics in experiments and Log Streams.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Use code-based metric customization:</strong> For each additional K value, create a new code-based metric in Galileo, copy the prefilled scorer code from the preset Precision @ K metric, and update the value of K in the code. This allows multiple Precision @ K variants to share the same logic while differing only in the K parameter.
+</div>
+
+</Card>

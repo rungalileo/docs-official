@@ -3,7 +3,7 @@ title: Galileo Logger
 description: Get granular control over logging with the GalileoLogger class
 ---
 
-{/*<!-- markdownlint-disable MD044 -->*/}
+{/* <!-- markdownlint-disable MD044 --> */}
 
 import SnippetSdkLoggingGetLoggerPython from "/snippets/code/python/sdk/logging/logger-from-context.mdx";
 import SnippetSdkLoggingGetLoggerDecoratorPython from "/snippets/code/python/sdk/logging/logger-from-context-log-decorator.mdx";
@@ -45,7 +45,7 @@ import SnippetSdkLoggingContextFlushTypeScript from "/snippets/code/typescript/s
 import SnippetSdkLoggingAddSingleLlmSpanTraceTypeScript from "/snippets/code/typescript/sdk/logging/add-single-llm-span-trace.mdx";
 import SnippetSdkLoggingComplexTraceExampleTypeScript from "/snippets/code/typescript/sdk/logging/complex-trace-example.mdx";
 
-{/*<!-- markdownlint-enable MD044 -->*/}
+{/* <!-- markdownlint-enable MD044 --> */}
 
 The `GalileoLogger` class provides the most granular control over logging in Galileo. You can create a logger yourself, or use one from the current context from inside a decorated or wrapped function or when using a third-party SDK integration.
 
@@ -62,12 +62,12 @@ The `GalileoLogger` class allows you to:
 This approach requires more code than using wrappers or decorators but gives you the most control over the logging process.
 
 <CardGroup cols={2}>
-<Card title="Python SDK reference" icon="code" horizontal href="/sdk-api/python/reference/logger/logger">
+  <Card title="Python SDK reference" icon="code" horizontal href="/sdk-api/python/reference/logger/logger">
     The full SDK reference for the `GalileoLogger` Python class.
-</Card>
-<Card title="TypeScript SDK reference" icon="code" horizontal href="/sdk-api/typescript/reference/README/classes/GalileoLogger">
+  </Card>
+  <Card title="TypeScript SDK reference" icon="code" horizontal href="/sdk-api/typescript/reference/README/classes/GalileoLogger">
     The full SDK reference for the `GalileoLogger` TypeScript class.
-</Card>
+  </Card>
 </CardGroup>
 
 ## Environment variables
@@ -80,11 +80,9 @@ This approach requires more code than using wrappers or decorators but gives you
   - Project ID in `GALILEO_PROJECT_ID` (alternative usage)
 - Log stream to log to in `GALILEO_LOG_STREAM`
 
-
 The project name, project ID, or Log stream name can also be set in code (the [`GalileoLogger`](http://localhost:3000/sdk-api/python/reference/logger/logger) SDK reference has more info).
 
 A example `.env` file is available in [this Python SDK repository location](https://github.com/rungalileo/sdk-examples/tree/main/python/logging-samples/galileologger).
-
 
 ## Basic usage
 
@@ -193,13 +191,13 @@ See the [`start_trace` Python SDK docs](/sdk-api/python/reference/logger/logger#
 
 The `GalileoLogger` supports adding different types of spans to your traces. All spans take the input and output, as well as a name, duration, tags, and other metadata.
 
-| Span Type | Description |
-| :-------- | :---------- |
-| Agent     | A span for logging agent actions. You can specify the agent type, for example a supervisor, planner, router, or judge. |
-| LLM       | A span for logging calls to an LLM. You can specify the number of tokens, time to first token, temperature, model, and any tools. |
+| Span Type | Description                                                                                                                                                 |
+| :-------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent     | A span for logging agent actions. You can specify the agent type, for example a supervisor, planner, router, or judge.                                      |
+| LLM       | A span for logging calls to an LLM. You can specify the number of tokens, time to first token, temperature, model, and any tools.                           |
 | Retriever | A span for logging RAG actions. In the output for this span you can provide all the data returned from the RAG platform for evaluating your RAG processing, |
-| Tool      | A span for logging calls to tools including MCP servers. You can specify the tool call ID to tie to an LLM tool call. |
-| Workflow  | Workflow spans are for creating logical groupings of spans based on different flows in your app. |
+| Tool      | A span for logging calls to tools including MCP servers. You can specify the tool call ID to tie to an LLM tool call.                                       |
+| Workflow  | Workflow spans are for creating logical groupings of spans based on different flows in your app.                                                            |
 
 #### Agent spans
 
@@ -225,7 +223,7 @@ See the [`add_llm_span` Python SDK docs](/sdk-api/python/reference/logger/logger
 
 #### Retriever spans
 
-Retriever spans are for logging calls to RAG systems. You can log the output from the RAG system to evaluate metrics like [Context Adherence](/concepts/metrics/response-quality/context-adherence).
+Retriever spans are for logging calls to RAG systems. You can log the output from the RAG system to evaluate metrics like [Context Adherence](/concepts/metrics/rag/generation-quality/context-adherence).
 
 <CodeGroup>
   <SnippetSdkLoggingAddRetrieverSpanPython />
@@ -280,7 +278,7 @@ Logs are not continuously sent to Galileo to help your application stay performa
   <SnippetSdkLoggingFlushLoggerTypeScript />
 </CodeGroup>
 
-See the [`flush` Python SDK docs](/sdk-api/python/reference/logger/logger#flush) or [`flush` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#flush)  for more details.
+See the [`flush` Python SDK docs](/sdk-api/python/reference/logger/logger#flush) or [`flush` TypeScript SDK docs](/sdk-api/typescript/reference/README/classes/GalileoLogger#flush) for more details.
 
 The flush call on the logger will just flush that specific logger. To flush all loggers, you can flush at the context level.
 
@@ -324,24 +322,24 @@ Here's an example of creating a more complex trace with multiple spans. The full
 ### Basic logging components
 
 <CardGroup cols={2}>
-<Card title="Log decorator" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
+  <Card title="Log decorator" icon="code" horizontal href="/sdk-api/logging/log-decorator/log-decorator">
     Quickly add logging to your code with the log decorator and wrapper.
-</Card>
-<Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
+  </Card>
+  <Card title="Galileo context" icon="code" horizontal href="/sdk-api/logging/galileo-context">
     Manage logging using the Galileo context manager.
-</Card>
+  </Card>
 </CardGroup>
 
 ### Integrations with third-party SDKs
 
 <CardGroup cols={2}>
-<Card title="OpenAI wrapper" icon="code" horizontal href="/sdk-api/third-party-integrations/openai/openai">
+  <Card title="OpenAI wrapper" icon="code" horizontal href="/sdk-api/third-party-integrations/openai/openai">
     Automatically log calls to the OpenAI SDK with a wrapper.
-</Card>
-<Card title="OpenAI Agents trace processor" icon="code" horizontal href="/sdk-api/third-party-integrations/openai-agents/openai-agents">
+  </Card>
+  <Card title="OpenAI Agents trace processor" icon="code" horizontal href="/sdk-api/third-party-integrations/openai-agents/openai-agents">
     Automatically log all the steps in your OpenAI Agent SDK apps using the Galileo trace processor.
-</Card>
-<Card title="LangChain callback" icon="code" horizontal href="/sdk-api/third-party-integrations/langchain/langchain">
+  </Card>
+  <Card title="LangChain callback" icon="code" horizontal href="/sdk-api/third-party-integrations/langchain/langchain">
     Automatically log all the steps in your LangChain or LangGraph application with the Galileo callback.
-</Card>
+  </Card>
 </CardGroup>
