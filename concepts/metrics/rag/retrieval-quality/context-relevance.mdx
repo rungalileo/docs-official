@@ -8,18 +8,32 @@ import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
-  <strong>Context Relevance</strong> measures if the context has enough information to answer the user query.
+  <strong>Context Relevance</strong> measures whether your retrieved context, taken together, contains enough information to fully answer the user query.
 </DefinitionCard>
 
 ## Context relevance
 
-Context Relevance measures if the context has enough information to answer the user query.
+Context Relevance asks whether your retrieved context, as a whole, contains enough information to fully answer the user query.
 
-High Context Relevance values indicate strong confidence that there is enough context to answer the question. Low Context Relevance values are a sign that you need to increase your Top K, modify your retrieval strategy, or use better embeddings.
+High Context Relevance values indicate strong confidence that there is enough context to fully answer the question. Low Context Relevance values are a sign that you need to increase your Top K, modify your retrieval strategy, or use better embeddings.
 
 <Note type="info">
   Context Relevance is differentiated from [Context Adherence](/concepts/metrics/rag/generation-quality/context-adherence): Context Relevance evaluates whether the retrieved context is relevant to a user's query whereas Context Adherence determines how well the response aligns to provided context.
 </Note>
+
+### Chunk Relevance vs. Context Relevance
+
+- **Chunk Relevance** ([Chunk Relevance](/concepts/metrics/rag/retrieval-quality/chunk-relevance)) evaluates **each chunk individually**: does this chunk contain anything useful for answering the query?
+- **Context Relevance** evaluates **the retrieved context as a whole**: do all of these chunks, taken together, cover everything needed to answer the query end-to-end?
+
+Use **Chunk Relevance** when you're tuning chunking or reranking (which chunks should show up at all), and **Context Relevance** when you're deciding if retrieval "succeeded" for a given query and whether to adjust Top K, retriever configuration, or fallback behavior.
+
+### Reading Context Relevance with Context Precision
+
+- **High Context Relevance & High Context Precision**: Retrieved context is both sufficient and mostly noise-free — focus next on generation quality and grounding.
+- **High Context Relevance & Low Context Precision**: The right information is present but mixed with a lot of irrelevant chunks — keep your recall but prune noise (better filters, reranking, or a lower Top K).
+- **Low Context Relevance & High Context Precision**: Most chunks are on-topic, but together they still miss pieces needed for a full answer — broaden retrieval (higher Top K, alternate retriever, or additional data sources).
+- **Low Context Relevance & Low Context Precision**: Retrieval is both incomplete and noisy — revisit embeddings, indexing, and query formulation end-to-end.
 
 ## Best practices
 
