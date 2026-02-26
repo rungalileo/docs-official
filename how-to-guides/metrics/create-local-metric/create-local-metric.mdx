@@ -8,7 +8,6 @@ description: Learn how to create a local metric in Python to use in your experim
 import InstallDependencies from "/snippets/content/install-dependencies-openai-python-only.mdx"
 
 import SnippetScorerFunctionPython from "/snippets/code/python/how-to-guides/metrics/local-metric/scorer-function.mdx";
-import SnippetAggregatorFunctionPython from "/snippets/code/python/how-to-guides/metrics/local-metric/aggregator-function.mdx";
 import SnippetCreateConfigPython from "/snippets/code/python/how-to-guides/metrics/local-metric/create-config.mdx";
 import SnippetCreateDatasetPython from "/snippets/code/python/how-to-guides/metrics/local-metric/create-dataset.mdx";
 import SnippetLLMCallPython from "/snippets/code/python/how-to-guides/metrics/local-metric/llm-call.mdx";
@@ -56,17 +55,9 @@ The Scorer Function assigns one of three ranks — `"Terse"`, `"Temperate"`, or 
 <SnippetScorerFunctionPython/>
 </Step>
 
-<Step title="Create an aggregator function">
-
-Since our Scorer returns a single rank per record, the aggregator examines that rank and returns it — modifying it to flag overly long responses as `"Terrible"`. Add this code to your `experiment.py` file.
-
-<SnippetAggregatorFunctionPython/>
-
-</Step>
-
 <Step title="Create the local metric configuration">
 
-Here, we tell Galileo that our custom metric returns a `str`. We give it a name ("Terseness"), then assign the Scorer and Aggregator. Add this code to your `experiment.py` file.
+Here, we tell Galileo that our custom metric returns a `str`. We give it a name ("Terseness"), then assign the Scorer. Add this code to your `experiment.py` file.
 
 <SnippetCreateConfigPython/>
 
