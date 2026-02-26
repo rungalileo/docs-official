@@ -13,76 +13,6 @@ Response quality metrics help you measure how well your AI system answers user q
 - **You have reference answers and want to know how close the model gets.** [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence) tells you when a response is semantically equivalent to your gold answer and when it drifts away.
 - **The model keeps ignoring or twisting your instructions.** [Instruction Adherence](/concepts/metrics/response-quality/instruction-adherence) highlights where responses fail to follow the structure, constraints, or style you asked for.
 
-## See the difference: Before and after
-
-These examples show what response quality failures look like and how the right metric catches them.
-
-<AccordionGroup>
-<Accordion title="Factual error → Correctness" icon="circle-xmark">
-**Query:** "What is the capital of Australia?"
-
-<table>
-<thead>
-<tr><th>Before (Low Correctness)</th><th>After (High Correctness)</th></tr>
-</thead>
-<tbody>
-<tr>
-<td>"The capital of Australia is Sydney, which is the largest city in the country."</td>
-<td>"The capital of Australia is Canberra. While Sydney is the largest city, Canberra was purpose-built as the capital."</td>
-</tr>
-<tr>
-<td><em>Confidently wrong — Sydney is not the capital</em></td>
-<td><em>Factually accurate with helpful context</em></td>
-</tr>
-</tbody>
-</table>
-</Accordion>
-
-<Accordion title="Drifting from reference → Ground Truth Adherence" icon="bullseye">
-**Query:** "Summarize our refund policy"
-
-**Ground truth:** "Full refunds within 30 days. Store credit after 30 days. No refunds on sale items."
-
-<table>
-<thead>
-<tr><th>Before (Low Ground Truth Adherence)</th><th>After (High Ground Truth Adherence)</th></tr>
-</thead>
-<tbody>
-<tr>
-<td>"We offer flexible refund options including exchanges and partial refunds based on item condition."</td>
-<td>"Full refunds are available within 30 days. After 30 days, you'll receive store credit. Sale items cannot be refunded."</td>
-</tr>
-<tr>
-<td><em>Invents policies not in the reference</em></td>
-<td><em>Semantically equivalent to the gold answer</em></td>
-</tr>
-</tbody>
-</table>
-</Accordion>
-
-<Accordion title="Ignoring instructions → Instruction Adherence" icon="list-check">
-**Prompt:** "Answer in exactly 3 bullet points. Use formal tone. Do not mention competitors."
-
-**Query:** "Why should I use your product?"
-
-<table>
-<thead>
-<tr><th>Before (Low Instruction Adherence)</th><th>After (High Instruction Adherence)</th></tr>
-</thead>
-<tbody>
-<tr>
-<td>"Our product is way better than CompetitorX! Here's why you'll love it: it's fast and easy to use."</td>
-<td>• Our solution provides enterprise-grade performance validated by independent benchmarks.<br/>• Implementation requires minimal engineering effort with comprehensive documentation.<br/>• Dedicated support ensures seamless onboarding and ongoing assistance.</td>
-</tr>
-<tr>
-<td><em>Mentions competitor, casual tone, no bullets</em></td>
-<td><em>3 bullets, formal tone, no competitor mention</em></td>
-</tr>
-</tbody>
-</table>
-</Accordion>
-</AccordionGroup>
-
 ## Diagnose your response quality problem
 
 Not sure which metric to start with? Walk through these symptoms to find the right one.
@@ -120,25 +50,6 @@ Not sure which metric to start with? Walk through these symptoms to find the rig
 <Tip title="Response Quality vs. RAG metrics">
 Response Quality metrics work with or without retrieved context. If you're building a RAG system, combine these with [RAG metrics](/concepts/metrics/rag/rag-overview) — use RAG metrics to evaluate retrieval and grounding, and Response Quality metrics to evaluate factual accuracy and instruction-following.
 </Tip>
-
-## The Galileo eval journey
-
-Response quality metrics are just the starting point. Galileo supports a complete evaluation workflow:
-
-<Steps>
-<Step title="Start with preset metrics">
-Use Correctness, Ground Truth Adherence, and Instruction Adherence out of the box to catch common issues.
-</Step>
-<Step title="Create custom judges">
-Build [LLM-as-a-judge metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm) for domain-specific quality criteria your presets don't cover.
-</Step>
-<Step title="Refine with feedback">
-Use [Continuous Learning via Human Feedback (CLHF)](/concepts/metrics/custom-metrics/continuous-learning-via-human-feedback) to improve judge accuracy over time based on real examples.
-</Step>
-<Step title="Deploy guardrails">
-Distill your refined judges into [Luna guardrails](/sdk-api/protect/protect) for real-time production protection.
-</Step>
-</Steps>
 
 Below is a quick reference table of these Response Quality metrics:
 
