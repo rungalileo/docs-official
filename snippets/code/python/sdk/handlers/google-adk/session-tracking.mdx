@@ -1,0 +1,47 @@
+```python Python
+import asyncio
+from galileo_adk import GalileoADKPlugin
+from google.adk.runners import Runner
+from google.adk.agents import LlmAgent
+from google.genai import types
+
+async def main():
+    plugin = GalileoADKPlugin(project="my-project", log_stream="production")
+    agent = LlmAgent(
+        name="assistant",
+        model="gemini-2.0-flash",
+        instruction="You are helpful."
+    )
+    runner = Runner(agent=agent, plugins=[plugin])
+
+    # All traces in this conversation are grouped together
+    session_id = "conversation-abc"
+
+    # First message
+    message1 = types.Content(
+        parts=[types.Part(text="Hello! What's the capital of France?")]
+    )
+    async for event in runner.run_async(
+        user_id="user-123",
+        session_id=session_id,
+        new_message=message1
+    ):
+        if event.is_final_response():
+            print(f"Response 1: {event.content.parts[0].text}")
+
+    # Follow-up in same session
+    message2 = types.Content(
+        parts=[types.Part(text="What about Germany?")]
+    )
+    async for event in runner.run_async(
+        user_id="user-123",
+        session_id=session_id,
+        new_message=message2
+    ):
+        if event.is_final_response():
+            print(f"Response 2: {event.content.parts[0].text}")
+
+if __name__ == "__main__":
+    # Set environment variables: GALILEO_API_KEY, GOOGLE_API_KEY
+    asyncio.run(main())
+```
