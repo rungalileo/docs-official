@@ -1,0 +1,42 @@
+```python Python
+import asyncio
+from galileo_adk import GalileoADKCallback
+from google.adk.runners import Runner
+from google.adk.agents import LlmAgent
+from google.genai import types
+
+async def main():
+    # Create the Galileo ADK callback
+    callback = GalileoADKCallback(project="my-project", log_stream="production")
+
+    # Attach callbacks directly to your agent
+    agent = LlmAgent(
+        name="assistant",
+        model="gemini-2.0-flash",
+        instruction="You are helpful.",
+        before_agent_callback=callback.before_agent_callback,
+        after_agent_callback=callback.after_agent_callback,
+        before_model_callback=callback.before_model_callback,
+        after_model_callback=callback.after_model_callback,
+        before_tool_callback=callback.before_tool_callback,
+        after_tool_callback=callback.after_tool_callback,
+    )
+
+    # Create the runner without the plugin
+    runner = Runner(agent=agent)
+
+    message = types.Content(
+        parts=[types.Part(text="Hello! How are you?")]
+    )
+    async for event in runner.run_async(
+        user_id="user-123",
+        session_id="session-456",
+        new_message=message
+    ):
+        if event.is_final_response():
+            print(event.content.parts[0].text)
+
+if __name__ == "__main__":
+    # Set environment variables: GALILEO_API_KEY, GOOGLE_API_KEY
+    asyncio.run(main())
+```
