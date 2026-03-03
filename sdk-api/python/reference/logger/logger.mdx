@@ -485,7 +485,8 @@ Can be used in combination with the `ingestion_hook` to ingest modified traces.
 async def async_start_session(self,
                               name: Optional[str]=None,
                               previous_session_id: Optional[str]=None,
-                              external_id: Optional[str]=None) -> str
+                              external_id: Optional[str]=None,
+                              metadata: Optional[dict[str, str]]=None) -> str
 ```
 
 Async start a new session or use an existing session if an external ID is provided.
@@ -500,6 +501,8 @@ Async start a new session or use an existing session if an external ID is provid
 - `external_id` (`Optional[str]`): External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
     Expected format: Unique identifier string.
     Example: "user_session_abc123", "support_ticket_456"
+- `metadata` (`Optional[dict[str, str]]`): User metadata to attach to the session.
+    Example: \{"brand_id": "acme", "environment": "production"\}
 
 **Returns**
 
@@ -618,7 +621,8 @@ Set the session ID for the logger.
 def start_session(self,
                   name: Optional[str]=None,
                   previous_session_id: Optional[str]=None,
-                  external_id: Optional[str]=None) -> str
+                  external_id: Optional[str]=None,
+                  metadata: Optional[dict[str, str]]=None) -> str
 ```
 
 Start a new session or use an existing session if an external ID is provided.
@@ -634,6 +638,8 @@ Start a new session or use an existing session if an external ID is provided.
     project/log stream or experiment; if found, that session will be reused instead of creating a new one.
     Expected format: Unique identifier string.
     Example: "user_session_abc123", "support_ticket_456"
+- `metadata` (`Optional[dict[str, str]]`): User metadata to attach to the session.
+    Example: \{"brand_id": "acme", "environment": "production"\}
 
 **Returns**
 
