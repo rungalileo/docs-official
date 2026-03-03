@@ -1,0 +1,43 @@
+```python Python
+import asyncio
+from galileo_adk import GalileoADKPlugin
+from google.adk.runners import Runner
+from google.adk.agents import LlmAgent
+from google.adk.agents.run_config import RunConfig
+from google.genai import types
+
+async def main():
+    plugin = GalileoADKPlugin(project="my-project", log_stream="production")
+    agent = LlmAgent(
+        name="assistant",
+        model="gemini-2.0-flash",
+        instruction="You are helpful."
+    )
+    runner = Runner(agent=agent, plugins=[plugin])
+
+    # Attach custom metadata to the trace
+    run_config = RunConfig(
+        custom_metadata={
+            "user_tier": "premium",
+            "conversation_id": "conv-abc",
+            "turn": 1,
+            "experiment_group": "A",
+        }
+    )
+
+    message = types.Content(
+        parts=[types.Part(text="Hello! Tell me a fun fact.")]
+    )
+    async for event in runner.run_async(
+        user_id="user-123",
+        session_id="session-456",
+        new_message=message,
+        run_config=run_config,  # Pass the run config with metadata
+    ):
+        if event.is_final_response():
+            print(event.content.parts[0].text)
+
+if __name__ == "__main__":
+    # Set environment variables: GALILEO_API_KEY, GOOGLE_API_KEY
+    asyncio.run(main())
+```
