@@ -3,37 +3,37 @@ title: Run an experiment against a RAG app
 description: Learn how to run experiments against RAG applications
 ---
 
-{/*<!-- markdownlint-disable MD044 -->*/}
+{/* <!-- markdownlint-disable MD044 MD037 --> */}
 
-import InstallDependencies from "/snippets/content/install-dependencies-openai.mdx"
+import InstallDependencies from "/snippets/content/install-dependencies-openai.mdx";
 
-import SnippetImportsPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/imports.mdx"
-import SnippetRAGFunctionPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/rag-function.mdx"
-import SnippetToolsPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/tools.mdx"
-import SnippetLLMInteractionPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/llm-interaction.mdx"
-import SnippetGetHoroscopePython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/get-horoscope.mdx"
-import SnippetMainFunctionPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/main-function.mdx"
-import SnippetLoggingImportsPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/logging-imports.mdx"
-import SnippetMainWithLoggingPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/main-with-logging.mdx"
-import SnippetOpenAIImportPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/openai-import.mdx"
-import SnippetRAGFunctionLogPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/rag-function-log.mdx"
-import SnippetToolFunctionLogPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/tool-function-log.mdx"
-import SnippetExperimentMainFunctionPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/experiment-main.mdx"
+import SnippetImportsPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/imports.mdx";
+import SnippetRAGFunctionPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/rag-function.mdx";
+import SnippetToolsPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/tools.mdx";
+import SnippetLLMInteractionPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/llm-interaction.mdx";
+import SnippetGetHoroscopePython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/get-horoscope.mdx";
+import SnippetMainFunctionPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/main-function.mdx";
+import SnippetLoggingImportsPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/logging-imports.mdx";
+import SnippetMainWithLoggingPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/main-with-logging.mdx";
+import SnippetOpenAIImportPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/openai-import.mdx";
+import SnippetRAGFunctionLogPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/rag-function-log.mdx";
+import SnippetToolFunctionLogPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/tool-function-log.mdx";
+import SnippetExperimentMainFunctionPython from "/snippets/code/python/how-to-guides/experiments/rag-and-tools/experiment-main.mdx";
 
-import SnippetImportsTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/imports.mdx"
-import SnippetRAGFunctionTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/rag-function.mdx"
-import SnippetToolsTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/tools.mdx"
-import SnippetLLMInteractionTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/llm-interaction.mdx"
-import SnippetGetHoroscopeTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/get-horoscope.mdx"
-import SnippetMainFunctionTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/main-function.mdx"
-import SnippetLoggingImportsTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/logging-imports.mdx"
-import SnippetMainWithLoggingTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/main-with-logging.mdx"
-import SnippetOpenAIImportTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/openai-import.mdx"
-import SnippetRAGFunctionLogTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/rag-function-log.mdx"
-import SnippetToolFunctionLogTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/tool-function-log.mdx"
-import SnippetExperimentMainFunctionTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/experiment-main.mdx"
+import SnippetImportsTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/imports.mdx";
+import SnippetRAGFunctionTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/rag-function.mdx";
+import SnippetToolsTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/tools.mdx";
+import SnippetLLMInteractionTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/llm-interaction.mdx";
+import SnippetGetHoroscopeTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/get-horoscope.mdx";
+import SnippetMainFunctionTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/main-function.mdx";
+import SnippetLoggingImportsTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/logging-imports.mdx";
+import SnippetMainWithLoggingTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/main-with-logging.mdx";
+import SnippetOpenAIImportTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/openai-import.mdx";
+import SnippetRAGFunctionLogTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/rag-function-log.mdx";
+import SnippetToolFunctionLogTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/tool-function-log.mdx";
+import SnippetExperimentMainFunctionTypeScript from "/snippets/code/typescript/how-to-guides/experiments/rag-and-tools/experiment-main.mdx";
 
-{/*<!-- markdownlint-enable MD044 -->*/}
+{/* <!-- markdownlint-enable MD044 --> */}
 
 Experiments allow you to test your model, prompts, or application against a set of metrics using pre-defined inputs. This guide explains how to run an experiment against a RAG application, implemented using tool calling. The experiment will measure various metrics associated with tools and RAG.
 
@@ -43,20 +43,20 @@ This example shows how you can take an existing application and run it through a
 
 In this guide you will:
 
-{/*<!-- markdownlint-disable MD051 -->*/}
+{/* <!-- markdownlint-disable MD051 MD037 --> */}
 
 1. [Set up your project with Galileo](#install-dependencies)
 
-    {/*<!-- markdownlint-disable MD051 -->*/}
+   {/* <!-- markdownlint-disable MD051 MD037 --> */}
 
 1. [Create a basic RAG application](#create-a-basic-ragapplication)
 1. [Add logging with Galileo](#add-logging-with-galileo)
 1. [Run your app using an experiment](#run-your-app-using-an-experiment)
 
 <CardGroup cols={1}>
-<Card title="Get the code" icon="code" horizontal href="https://github.com/rungalileo/sdk-examples/tree/main/python/experiments/rag-and-tools">
-You can find the code in this how-to guide in the Galileo SDK examples repo.
-</Card>
+  <Card title="Get the code" icon="code" horizontal href="https://github.com/rungalileo/sdk-examples/tree/main/python/experiments/rag-and-tools">
+    You can find the code in this how-to guide in the Galileo SDK examples repo.
+  </Card>
 </CardGroup>
 
 ## Before you start
@@ -68,7 +68,7 @@ To complete this how-to, you will need:
 - An LLM integration configured to calculate LLM-as-a-judge metrics
 - Your [Galileo API key](/references/faqs/find-keys#galileo-api-key)
 
-<InstallDependencies/>
+<InstallDependencies />
 
 ## Create a basic RAG application
 
@@ -81,8 +81,8 @@ In this section you will create a basic RAG application. This will use tool call
 Add the following imports to your application file:
 
 <CodeGroup>
-<SnippetImportsPython/>
-<SnippetImportsTypeScript/>
+  <SnippetImportsPython />
+  <SnippetImportsTypeScript />
 </CodeGroup>
 
 </Step>
@@ -127,8 +127,8 @@ Add the following code to request the horoscope from OpenAI, calling tools as re
 Add a main function to run the code:
 
 <CodeGroup>
-<SnippetMainFunctionPython/>
-<SnippetMainFunctionTypeScript/>
+  <SnippetMainFunctionPython />
+  <SnippetMainFunctionTypeScript />
 </CodeGroup>
 
 </Step>
@@ -152,7 +152,7 @@ You should see a fake horoscope in the output:
 
 <CodeGroup>
 
-{/*<!-- markdownlint-disable MD013 -->*/}
+{/* <!-- markdownlint-disable MD013 MD037 --> */}
 
 ```output Terminal wrap
 Aquarius, star-sparked visionary and airy water-bearer, your week shimmers with the quirky electricity of Uranus, your modern ruler. You thrive on fresh ideas, freedom, and the thrill of uplifting the collective—and the cosmos is conspiring to delight your inventive, humanitarian heart.
@@ -169,7 +169,7 @@ Lucky glimmers: Tuesday's spontaneity, electric blue, silver accents, the number
 Aquarian mantra: “I pour possibility into the world, and the world pours wonder back to me.”
 ```
 
-{/*<!-- markdownlint-enable MD013 -->*/}
+{/* <!-- markdownlint-enable MD013 --> */}
 
 </CodeGroup>
 
@@ -195,8 +195,8 @@ Add the following imports to the top of your application file:
 Change the main function to create a session and trace before generating the horoscope, then concluding and flushing it afterwards:
 
 <CodeGroup>
-<SnippetMainWithLoggingPython/>
-<SnippetMainWithLoggingTypeScript/>
+  <SnippetMainWithLoggingPython />
+  <SnippetMainWithLoggingTypeScript />
 </CodeGroup>
 
 </Step>
@@ -216,8 +216,8 @@ If you are using Python, update the OpenAI import to the following. If you are u
 Update the mock RAG function to log the call and result as a retriever span:
 
 <CodeGroup>
-<SnippetRAGFunctionLogPython/>
-<SnippetRAGFunctionLogTypeScript/>
+  <SnippetRAGFunctionLogPython />
+  <SnippetRAGFunctionLogTypeScript />
 </CodeGroup>
 
 </Step>
@@ -226,8 +226,8 @@ Update the mock RAG function to log the call and result as a retriever span:
 Update the get horoscope tool function to log the call and result as a tool span:
 
 <CodeGroup>
-<SnippetToolFunctionLogPython/>
-<SnippetToolFunctionLogTypeScript/>
+  <SnippetToolFunctionLogPython />
+  <SnippetToolFunctionLogTypeScript />
 </CodeGroup>
 
 </Step>
@@ -265,11 +265,11 @@ Now that your app is running, let's create an experiment file to run the app as 
 Add the following code to the experiment file to run the get horoscope function in an experiment using a dataset of star signs.
 
 <CodeGroup>
-<SnippetExperimentMainFunctionPython/>
-<SnippetExperimentMainFunctionTypeScript/>
+  <SnippetExperimentMainFunctionPython />
+  <SnippetExperimentMainFunctionTypeScript />
 </CodeGroup>
 
-This code runs the experiment, and calculates [tool error rate](/concepts/metrics/agentic/tool-error), [tool selection quality](/concepts/metrics/agentic/tool-selection-quality), [chunk attribution and utilization](/concepts/metrics/response-quality/chunk-attribution), and [context adherence](/concepts/metrics/response-quality/context-adherence).
+This code runs the experiment, and calculates [tool error rate](/concepts/metrics/agentic/tool-error), [tool selection quality](/concepts/metrics/agentic/tool-selection-quality), [chunk attribution and utilization](/concepts/metrics/rag/generation-quality/chunk-attribution), and [context adherence](/concepts/metrics/rag/generation-quality/context-adherence).
 
 The run experiment function runs the get horoscope code in the experiment. This code has logging for the LLM call, tool call, and RAG retriever code, but does not create a trace or a session. These are created in the applications main function.
 
@@ -315,10 +315,10 @@ Follow the link to see the results of the experiment:
 ## Next steps
 
 <CardGroup cols={2}>
-<Card title="Run experiments in code" icon="code" horizontal href="/sdk-api/experiments/running-experiments">
+  <Card title="Run experiments in code" icon="code" horizontal href="/sdk-api/experiments/running-experiments">
     Learn how to run experiments in unit tests that you can use during development, or in your CI/CD pipelines.
-</Card>
-<Card title="Run experiments in unit tests" icon="code" horizontal href="/sdk-api/experiments/running-experiments-in-unit-tests">
+  </Card>
+  <Card title="Run experiments in unit tests" icon="code" horizontal href="/sdk-api/experiments/running-experiments-in-unit-tests">
     Learn how to run experiments in unit tests that you can use during development, or in your CI/CD pipelines.
-</Card>
+  </Card>
 </CardGroup>

@@ -3,7 +3,7 @@ title: Evaluate Your Traces
 description: Learn how to evaluate metrics for your logged trace with Galileo, and improve your application
 ---
 
-{/*<!-- markdownlint-disable MD044 -->*/}
+{/* <!-- markdownlint-disable MD044 MD037 --> */}
 
 import SnippetUpdatedSystemPromptPython from "/snippets/code/python/getting-started/reference-data-system-prompt.mdx";
 import SnippetEnableMetricsPython from "/snippets/code/python/getting-started/enable-metrics.mdx";
@@ -11,17 +11,17 @@ import SnippetEnableMetricsPython from "/snippets/code/python/getting-started/en
 import SnippetUpdatedSystemPromptTypeScript from "/snippets/code/typescript/getting-started/reference-data-system-prompt.mdx";
 import SnippetEnableMetricsTypeScript from "/snippets/code/typescript/getting-started/enable-metrics.mdx";
 
-import SnippetConfigureIntegrationSteps from "/snippets/content/configure-integration-steps.mdx"
+import SnippetConfigureIntegrationSteps from "/snippets/content/configure-integration-steps.mdx";
 
-{/*<!-- markdownlint-enable MD044 -->*/}
+{/* <!-- markdownlint-enable MD044 --> */}
 
-In the [log to Galileo guide](/getting-started/quickstart), you logged your first trace to Galileo. In this guide, you will evaluate the response from the LLM using the [context adherence metric](/concepts/metrics/response-quality/context-adherence), then improve the prompt, and re-evaluate your application.
+In the [log to Galileo guide](/getting-started/quickstart), you logged your first trace to Galileo. In this guide, you will evaluate the response from the LLM using the [context adherence metric](/concepts/metrics/rag/generation-quality/context-adherence), then improve the prompt, and re-evaluate your application.
 
 ## Configure an LLM integration
 
 To evaluate metrics, you need to set up an LLM integration for the LLM that will be used as a judge.
 
-<SnippetConfigureIntegrationSteps/>
+<SnippetConfigureIntegrationSteps />
 
 ## Log a trace with an evaluated metric
 
@@ -44,8 +44,8 @@ import { enableMetrics, GalileoMetrics } from "galileo";
 Next add the following code to your app file. If you are using Python, add this after the call to `galileo_context.init()`. If you are using TypeScript, add this as the first line in the `async` block.
 
 <CodeGroup>
-<SnippetEnableMetricsPython/>
-<SnippetEnableMetricsTypeScript/>
+  <SnippetEnableMetricsPython />
+  <SnippetEnableMetricsTypeScript />
 </CodeGroup>
 
 This code will enable the context adherence metric for your Log stream, and this metric will then be calculated for all LLM spans that are logged.
@@ -71,11 +71,13 @@ In the Galileo console, select your project, then select the Log stream.
 You can see the trace that was just logged in the **Traces** tab. The context adherence metric will be calculated, showing  low score.
 
 ![A logged trace with a 0% context adherence](/getting-started/evaluate-and-improve/log-stream-traces-low-context-adherence.webp)
+
 </Step>
 <Step title="Get more information on the evaluation">
 Select the trace to drill down for more information. Select the LLM span, and use the arrow next to the context adherence score to see an explanation of the metric.
 
 ![The trace details with an explanation of the metric](/getting-started/evaluate-and-improve/trace-messages-low-context-adherence.webp)
+
 </Step>
 </Steps>
 
@@ -108,7 +110,7 @@ Now the results should show relevant information:
 
 <CodeGroup>
 
-{/*<!-- markdownlint-disable MD013 -->*/}
+{/* <!-- markdownlint-disable MD013 MD037 --> */}
 
 ```output Terminal wrap
 Galileo is an advanced platform designed to streamline the development and deployment of reliable AI applications. It focuses on enhancing the efficiency of AI evaluations through automation and insightful metrics. Here are some of the key features and benefits of using Galileo:
@@ -122,7 +124,7 @@ Galileo is an advanced platform designed to streamline the development and deplo
 In summary, Galileo is a powerful tool for teams seeking to enhance their AI app development capabilities by utilizing automation and insightful metrics for evaluations, leading to faster iterations and improved reliability.
 ```
 
-{/*<!-- markdownlint-enable MD013 -->*/}
+{/* <!-- markdownlint-enable MD013 --> */}
 
 </CodeGroup>
 </Step>
@@ -130,6 +132,7 @@ In summary, Galileo is a powerful tool for teams seeking to enhance their AI app
 A new trace will have been logged. This time, the context adherence score will be higher. Select the trace to see more details.
 
 ![The trace details with an explanation of the metric](/getting-started/evaluate-and-improve/trace-messages-high-context-adherence.webp)
+
 </Step>
 </Steps>
 
@@ -138,29 +141,29 @@ A new trace will have been logged. This time, the context adherence score will b
 ## Next steps
 
 <CardGroup cols={2}>
-<Card title="Sample projects" icon="code" horizontal href="/getting-started/sample-projects/sample-projects">
+  <Card title="Sample projects" icon="code" horizontal href="/getting-started/sample-projects/sample-projects">
     Learn how to get started with the Galileo sample projects that are included in every new account.
-</Card>
-<Card title="Integrate with third-party frameworks" icon="code" horizontal href="/sdk-api/third-party-integrations/overview">
+  </Card>
+  <Card title="Integrate with third-party frameworks" icon="code" horizontal href="/sdk-api/third-party-integrations/overview">
     Learn about the Galileo integrations with third-party SDKs to automatically log your applications
-</Card>
+  </Card>
 </CardGroup>
 
 ### Cookbooks
 
 <CardGroup cols={2}>
-<Card title="Cookbooks" icon="book" horizontal href="/cookbooks/overview">
+  <Card title="Cookbooks" icon="book" horizontal href="/cookbooks/overview">
     Learn how to perform common tasks with Galileo, work with third-party integrations, and use evaluations to solve AI problems
-</Card>
+  </Card>
 </CardGroup>
 
 ### SDK reference
 
 <CardGroup cols={2}>
-<Card title="Python SDK Reference" icon="python" horizontal href="/sdk-api/python/sdk-reference">
+  <Card title="Python SDK Reference" icon="python" horizontal href="/sdk-api/python/sdk-reference">
     The Galileo Python SDK reference.
-</Card>
-<Card title="TypeScript SDK Reference" icon="js" horizontal href="/sdk-api/typescript/sdk-reference">
+  </Card>
+  <Card title="TypeScript SDK Reference" icon="js" horizontal href="/sdk-api/typescript/sdk-reference">
     The Galileo TypeScript SDK reference.
-</Card>
+  </Card>
 </CardGroup>

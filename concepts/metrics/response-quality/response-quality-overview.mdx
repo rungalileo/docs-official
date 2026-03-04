@@ -1,21 +1,59 @@
 ---
 title: Response Quality Metrics
-description: Evaluate the accuracy, completeness, and relevance of your AI's responses using Galileo's response quality metrics
+description: Evaluate how correctly, consistently, and in line with ground truth your AI follows instructions and answers user queries
 ---
 
-import ResponseQuality from "/snippets/components/Response-Quality-Metrics.mdx";
+import ResponseQualityMetrics from "/snippets/components/Response-Quality-Metrics.mdx";
 
-Response quality metrics help you measure how well your AI system answers user questions, follows instructions, and provides useful information. These metrics are key for building reliable, helpful, and user-friendly AI applications.
+Response quality metrics help you measure how well your AI system answers user questions, follows instructions, and provides useful information in any setting — with or without RAG.
 
-Use these metrics when you want to:
+## Problems response quality metrics help you solve
 
-- Ensure your AI's responses are factually correct and complete.
-- Check that the model follows instructions and uses retrieved information effectively.
-- Evaluate how well your system grounds answers in context or source material.
+- **You're not sure whether the model's answers are actually correct.** [Correctness](/concepts/metrics/response-quality/correctness) helps you spot factual mistakes in responses, even when there is no single reference answer.
+- **You have reference answers and want to know how close the model gets.** [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence) tells you when a response is semantically equivalent to your gold answer and when it drifts away.
+- **The model keeps ignoring or twisting your instructions.** [Instruction Adherence](/concepts/metrics/response-quality/instruction-adherence) highlights where responses fail to follow the structure, constraints, or style you asked for.
 
-Below is a quick reference table of all response quality metrics:
+## Diagnose your response quality problem
 
-<ResponseQuality />
+Not sure which metric to start with? Walk through these symptoms to find the right one.
+
+<AccordionGroup>
+<Accordion title="Responses contain factual errors" icon="triangle-exclamation">
+**Diagnosis:** The model is generating incorrect information — either from outdated training data or hallucination.
+
+**Start with:** [Correctness](/concepts/metrics/response-quality/correctness) to systematically identify factually wrong statements.
+
+**When to use this vs. Ground Truth Adherence:** Use Correctness when you don't have reference answers and want to catch general factual mistakes. Use Ground Truth Adherence when you have gold-standard answers to compare against.
+</Accordion>
+
+<Accordion title="Responses don't match expected answers" icon="not-equal">
+**Diagnosis:** You have reference answers (from experts, previous systems, or test datasets) and the model's outputs don't align with them.
+
+**Start with:** [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence) to measure semantic similarity to your gold answers.
+
+**Note:** This metric requires ground truth data, so it's primarily used in experiments and test suites, not real-time production monitoring.
+</Accordion>
+
+<Accordion title="The model ignores my prompt rules" icon="ban">
+**Diagnosis:** You've specified constraints (format, length, tone, prohibited topics) but the model keeps violating them.
+
+**Start with:** [Instruction Adherence](/concepts/metrics/response-quality/instruction-adherence) to detect when responses break your prompt's rules.
+
+**Common instruction failures:** Ignoring format requirements (JSON, bullets, tables), exceeding length limits, using wrong tone, mentioning prohibited topics, skipping required elements.
+</Accordion>
+</AccordionGroup>
+
+<Warning title="Common pitfall">
+**High Correctness + Low Instruction Adherence?** The model knows the right answer but isn't presenting it the way you asked. This is a prompt engineering issue — your instructions may need to be more explicit or positioned differently (system prompt vs. user message).
+</Warning>
+
+<Tip title="Response Quality vs. RAG metrics">
+Response Quality metrics work with or without retrieved context. If you're building a RAG system, combine these with [RAG metrics](/concepts/metrics/rag/rag-overview) — use RAG metrics to evaluate retrieval and grounding, and Response Quality metrics to evaluate factual accuracy and instruction-following.
+</Tip>
+
+Below is a quick reference table of these Response Quality metrics:
+
+<ResponseQualityMetrics />
 
 ---
 
