@@ -25,11 +25,11 @@ This metric helps evaluate the quality of retrieval systems by measuring how man
 
 ## Calculation method
 
-Context Precision is computed using [Chunk Relevance](/concepts/metrics/response-quality/chunk-relevance) scores:
+Context Precision is computed using [Chunk Relevance](/concepts/metrics/rag/retrieval-quality/chunk-relevance) scores:
 
 <Steps>
   <Step title="Chunk Relevance Calculation">
-    First, [Chunk Relevance](/concepts/metrics/response-quality/chunk-relevance) is computed for each retrieved chunk, producing a binary classification (Relevant or Not Relevant) for each chunk.
+    First, [Chunk Relevance](/concepts/metrics/rag/retrieval-quality/chunk-relevance) is computed for each retrieved chunk, producing a binary classification (Relevant or Not Relevant) for each chunk.
 
 </Step>
   <Step title="Numerator Calculation">
@@ -83,7 +83,7 @@ This example illustrates Context Precision:
 </Card>
 
 <Note type="info">
-  Context Precision is differentiated from [Precision @ K](/concepts/metrics/response-quality/precision-at-k): Context Precision considers all retrieved chunks to measure noise in retrieval, while Precision @ K evaluates precision at a specific rank K and helps assess ranking quality.
+  Context Precision is differentiated from [Precision @ K](/concepts/metrics/rag/retrieval-quality/precision-at-k): Context Precision considers all retrieved chunks to measure noise in retrieval, while Precision @ K evaluates precision at a specific rank K and helps assess ranking quality.
 </Note>
 
 ## Optimizing your RAG pipeline
@@ -151,6 +151,13 @@ Different combinations of Context Precision and Precision @ K scores reveal diff
 
 </Card>
 
+### Reading Context Precision with Context Relevance
+
+- **High Context Precision & High Context Relevance**: Most retrieved chunks are relevant and, together, contain everything needed to answer the query — you're in a good place; focus on generation quality next.
+- **High Context Precision & Low Context Relevance**: Retrieved chunks are mostly on-topic but still don't cover all required information — widen retrieval (increase Top K, use an alternate retriever, or add data sources).
+- **Low Context Precision & High Context Relevance**: The necessary information is there but buried in noise — keep your recall and reduce irrelevant chunks via better filters, reranking, or a smaller Top K.
+- **Low Context Precision & Low Context Relevance**: Retrieval is both noisy and insufficient — you likely need deeper changes to embeddings, indexing strategy, or how queries are formed.
+
 ## Best practices
 
 <CardGroup cols={2}>
@@ -159,7 +166,7 @@ Different combinations of Context Precision and Precision @ K scores reveal diff
 
 </Card>
   <Card title="Combine with Precision @ K" icon="link">
-    Context Precision works alongside [Precision @ K](/concepts/metrics/response-quality/precision-at-k) to understand both overall precision and precision at specific ranks.
+    Context Precision works alongside [Precision @ K](/concepts/metrics/rag/retrieval-quality/precision-at-k) to understand both overall precision and precision at specific ranks.
 
 </Card>
   <Card title="Monitor Retrieval Quality" icon="chart-line">

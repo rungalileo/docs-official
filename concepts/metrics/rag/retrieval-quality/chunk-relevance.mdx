@@ -89,7 +89,14 @@ This example illustrates chunk relevance:
 
 </Card>
 
-Chunk Relevance forms the foundation for other retrieval metrics, including [Context Precision](/concepts/metrics/response-quality/context-precision) and [Precision @ K](/concepts/metrics/response-quality/precision-at-k).
+Chunk Relevance forms the foundation for other retrieval metrics, including [Context Precision](/concepts/metrics/rag/retrieval-quality/context-precision) and [Precision @ K](/concepts/metrics/rag/retrieval-quality/precision-at-k).
+
+### Chunk Relevance vs. Context Relevance
+
+- **Chunk Relevance** answers: "Is this specific chunk useful for this query?" Use it when you want to debug retrieval at the **chunk level** — pruning noisy chunks, tuning your chunking strategy, or checking which documents are actually helpful.
+- **Context Relevance** ([Context Relevance](/concepts/metrics/rag/retrieval-quality/context-relevance)) answers: "Taken together, does my retrieved context contain enough information to answer the query?" Use it when you want a **single signal for the whole retrieved context** — deciding whether to increase Top K, change your retriever, or trigger a fallback flow.
+
+In practice, start with **Context Relevance** to see if retrieval is working at all, then drill down with **Chunk Relevance** to understand which specific chunks are helping or hurting.
 
 ## Optimizing your RAG pipeline
 
@@ -127,7 +134,7 @@ When many chunks are marked as <Pill label="Not Relevant" />, it indicates issue
 
 <CardGroup cols={2}>
   <Card title="Combine with Other Metrics" icon="link">
-    Chunk Relevance works alongside [Context Precision](/concepts/metrics/response-quality/context-precision) and [Precision @ K](/concepts/metrics/response-quality/precision-at-k) for a comprehensive view of retrieval effectiveness.
+    Chunk Relevance works alongside [Context Precision](/concepts/metrics/rag/retrieval-quality/context-precision) and [Precision @ K](/concepts/metrics/rag/retrieval-quality/precision-at-k) for a comprehensive view of retrieval effectiveness.
 
 </Card>
   <Card title="Optimize Retrieval Strategy" icon="sliders">
