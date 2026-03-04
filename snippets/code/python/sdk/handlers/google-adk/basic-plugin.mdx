@@ -1,0 +1,37 @@
+```python Python
+import asyncio
+from galileo_adk import GalileoADKPlugin
+from google.adk.runners import Runner
+from google.adk.agents import LlmAgent
+from google.genai import types
+
+async def main():
+    # Create the Galileo ADK plugin
+    plugin = GalileoADKPlugin(project="my-project", log_stream="production")
+
+    # Create your agent
+    agent = LlmAgent(
+        name="assistant",
+        model="gemini-2.0-flash",
+        instruction="You are helpful."
+    )
+
+    # Pass the plugin to the Runner
+    runner = Runner(agent=agent, plugins=[plugin])
+
+    # Run the agent
+    message = types.Content(
+        parts=[types.Part(text="Hello! What can you help me with?")]
+    )
+    async for event in runner.run_async(
+        user_id="user-123",
+        session_id="session-456",
+        new_message=message
+    ):
+        if event.is_final_response():
+            print(event.content.parts[0].text)
+
+if __name__ == "__main__":
+    # Set environment variables: GALILEO_API_KEY, GOOGLE_API_KEY
+    asyncio.run(main())
+```
