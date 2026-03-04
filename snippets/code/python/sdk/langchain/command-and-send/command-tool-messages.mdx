@@ -1,0 +1,27 @@
+```python Python
+from typing import Any
+
+from langchain_core.messages import ToolMessage
+from langchain_core.tools import tool
+from langgraph.types import Command
+
+
+@tool
+def lookup_order(order_id: str) -> Command:
+    """Look up an order by ID and return the result as a Command."""
+    # Simulate an order lookup
+    order_data = {"order_id": order_id, "status": "shipped", "total": 49.99}
+
+    # Return a Command that includes a ToolMessage in the state update.
+    # Galileo automatically extracts the ToolMessage for proper logging.
+    return Command(
+        update={
+            "messages": [
+                ToolMessage(
+                    content=f"Order {order_id}: status={order_data['status']}, total=${order_data['total']}",
+                    tool_call_id="placeholder",  # LangGraph fills this automatically
+                )
+            ]
+        }
+    )
+```
