@@ -1,0 +1,98 @@
+---
+title: Set Up Alerts on Logs
+description: Learn how to set up alerts and be automatically notified when things go wrong
+
+
+---
+
+{/*<!-- markdownlint-disable MD044 -->*/}
+
+import InstallDependencies from "/snippets/content/install-dependencies-openai.mdx"
+
+import SnippetCreateAppPython from "/snippets/code/python/how-to-guides/basics/basic-example/create-app.mdx";
+
+import SnippetCreateAppTypeScript from "/snippets/code/typescript/how-to-guides/basics/basic-example/create-app.mdx";
+
+{/*<!-- markdownlint-enable MD044 -->*/}
+
+## Overview
+
+Galileo enables you to get alerted whenever unexpected things happen. For example:
+
+* Your cost is higher than expected
+* Your model is hallucinating more than you want
+* Users are entering foul language into your app
+
+To successfully set up an alert, you will need to have [logged your first trace](/getting-started/quickstart). 
+
+![System metrics in alerts](/images/console-ui/alerts-default-system-metrics.png)
+
+These system metrics are available for alerts by default: Status Code, Cost, Latency. 
+
+[Add metrics](/concepts/metrics/overview) to enable more alerts.
+
+
+## Example alerts
+
+Each alert configuration includes:
+- a metric e.g. Cost, Correctness, Context Adherence
+- an aggregation function: Average, Minimum, Maximum, Count, Sum
+- a threshold e.g. > 0.5
+- a time window e.g. 1 hour 
+
+![Example alert-configuration](/images/console-ui/alerts-configuration-input.png)
+
+
+A few example alerts:
+
+- Exceeding costs: If you want to get alerted with an uptick in cost (above $100/day), select `Cost` Sum `>` 100 in the last day
+- Hallucinations: If you want to get alerted when there's an extreme hallucination, select `Correctness` or `Context Adherence` Count `=` 1 for values `=` 0 in the last 15 minutes.
+- Hallucination average: If you want to get alerted when hallucinations are probable (e.g. 20% below perfect threshold), select `Correctness` or `Context Adherence` Average `<=` 0.80 
+
+More example alerts are shown below:
+
+![Example alerts](/images/console-ui/alerts-configuration-example.png)
+
+## Email notifications 
+
+To set up email alerts, add your recipients’ email addresses.
+
+![Setting up email notifications for alerts](/images/console-ui/alerts-email-notifications-active.png)
+
+When emails have been added, the top right corner of the section will show "Active".
+
+From the email notification (example below), you can click on the “Open logstream" link to open find the problematic traces.
+
+![Example email notifications for alerts](/images/console-ui/alerts-email-notifications-example.png)
+
+## Slack notifications 
+
+To set up Slack alerts, you'll need to configure your workspace to receive Slack messages via webhook URLs. 
+
+Follow <a href="https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/" target="_blank">Slack's instructions to generate a webhook URL</a>.
+
+A few pointers:
+
+1.  [Create a Slack app](https://api.slack.com/apps/new). If you don't have an existing manifest file, choose the "From scratch" option to create the app.
+
+2.  Pick an App Name like "Galileo Alerts" that will help identify the Slack app that the notifications will come from.
+
+3.  Go to the "Incoming Webhooks" page of your Slack app, and enable the toggle to "Activate Incoming Webhooks".
+
+4. Click "Add New Webhook" and choose the Slack channel you'd like Galileo's Alerts to go to. (You  can also test the webhook by direct messaging your user account.)
+
+![Empty Slack notification for alerts](/images/console-ui/alerts-slack-notifications-inactive.png)
+
+5. Copy the generated webhook URL from Slack, and paste it into Galileo's Slack Notification section.
+
+6. In the "Notes" section, add the name of the channel that's getting notified.
+
+![Test Slack notification for alerts](/images/console-ui/alerts-slack-notifications-test.png)
+
+7. Try sending a test message to webhook to verify the connection.
+
+![Active Slack notification for alerts](/images/console-ui/alerts-slack-notifications-active.png)
+
+When a Slack notification have been added, the top right corner of the section will show "Active".
+
+
