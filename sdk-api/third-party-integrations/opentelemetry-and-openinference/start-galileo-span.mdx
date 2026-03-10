@@ -8,6 +8,8 @@ description: Create OpenTelemetry spans enriched with Galileo-specific attribute
 import SetupTracerProvider from "/snippets/code/python/sdk/otel/base/setup-tracer-provider.mdx";
 import BasicWorkflowSpan from "/snippets/code/python/sdk/otel/base/basic-workflow-span.mdx";
 import RetrieverSpan from "/snippets/code/python/sdk/otel/base/retriever-span.mdx";
+import ToolSpan from "/snippets/code/python/sdk/otel/base/tool-span.mdx";
+import WorkflowSpan from "/snippets/code/python/sdk/otel/base/workflow-span.mdx";
 import StartGalileoSpanSignature from "/snippets/code/python/sdk/otel/base/start-galileo-span-signature.mdx";
 import StartGalileoSpanCompleteExample from "/snippets/code/python/sdk/otel/base/start-galileo-span-complete-example.mdx";
 
@@ -36,6 +38,24 @@ Requires the OpenTelemetry extra: `pip install galileo[otel]`
 
 <BasicWorkflowSpan />
 
+## Tool Spans
+
+Use `ToolSpan` for tool/function execution operations. This captures tool invocation details including the tool name, arguments, and results.
+
+<ToolSpan />
+
+When a `ToolSpan` is provided, the following attributes are set automatically:
+
+| Attribute | Value | Description |
+|-----------|-------|-------------|
+| `gen_ai.operation.name` | `"execute_tool"` | Indicates a tool execution operation |
+| `gen_ai.tool.name` | Tool name | Name of the tool being executed |
+| `gen_ai.tool.call.arguments` | String | Tool input arguments |
+| `gen_ai.tool.call.result` | String | Tool output result |
+| `gen_ai.tool.call.id` | String | Unique identifier for the tool call (if provided) |
+| `gen_ai.input.messages` | JSON array | Tool input formatted as message |
+| `gen_ai.output.messages` | JSON array | Tool output formatted as message |
+
 ## Retriever Spans
 
 Use `RetrieverSpan` for search and retrieval operations. This automatically captures query input and document output with the correct semantic attributes.
@@ -50,16 +70,26 @@ When a `RetrieverSpan` is provided, the following attributes are set automatical
 | `gen_ai.input.messages` | JSON array | User query formatted as input message |
 | `gen_ai.output.messages` | JSON array | Retrieved documents formatted as output |
 
+## Workflow Spans
+
+Use `WorkflowSpan` for higher-level orchestration units that coordinate multiple sub-operations, such as chains, pipelines, or multi-step processes.
+
+<WorkflowSpan />
+
+When a `WorkflowSpan` is provided, the following attributes are set automatically:
+
+| Attribute | Value | Description |
+|-----------|-------|-------------|
+| `gen_ai.input.messages` | JSON array | Workflow input formatted as user message |
+| `gen_ai.output.messages` | JSON array | Workflow output formatted as assistant message or document list |
+
 ## Supported Span Types
 
 | Span Type | Attributes Set | Description |
 |-----------|---------------|-------------|
-| `WorkflowSpan` | `gen_ai.system` | Base span with Galileo system identifier |
+| `WorkflowSpan` | `gen_ai.system`, `gen_ai.input.messages`, `gen_ai.output.messages` | Orchestration span for pipelines and multi-step processes |
+| `ToolSpan` | `gen_ai.system`, `gen_ai.operation.name`, `gen_ai.tool.name`, `gen_ai.tool.call.*`, `gen_ai.input.messages`, `gen_ai.output.messages` | Tool execution span with invocation details |
 | `RetrieverSpan` | `gen_ai.system`, `db.operation`, `gen_ai.input.messages`, `gen_ai.output.messages` | Retriever span with search operation details and document results |
-
-<Note>
-Additional span types (LLM spans, Tool spans, Agent spans) will be added in future releases to provide richer semantic attributes for different operation types.
-</Note>
 
 ## Function Signature
 
@@ -89,7 +119,7 @@ When `start_galileo_span` is called, the following steps occur:
 
 - **Initialize `TracerProvider` early** — Set up the `GalileoSpanProcessor` at application startup.
 - **Use descriptive span names** — Provide meaningful names in `Span` for better observability.
-- **Use `RetrieverSpan` for search operations** — This captures document context with the correct semantic attributes.
+- **Choose the right span type** — Use `ToolSpan` for function calls, `RetrieverSpan` for search operations, and `WorkflowSpan` for orchestration.
 - **Add custom attributes** — Use the yielded span to add operation-specific attributes.
-- **Set `RetrieverSpan` output before exiting** — The output must be set before the context manager exits for proper attribute capture.
+- **Set span output before exiting** — The output must be set before the context manager exits for proper attribute capture.
 - **Nested spans are supported** — Child spans inherit the parent context automatically through OpenTelemetry's context propagation.

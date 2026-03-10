@@ -3,13 +3,13 @@ title: OpenTelemetry Integration Recommendations
 description: Guidelines for instrumenting your spans to ensure they are valid and properly processed by Galileo's OTLP provider.
 ---
 
-import SpanErrorHandling from "/snippets/code/python/sdk/otel/base/span-error-handling.mdx";
 import OtlpEndpoint from "/snippets/code/multilingual/http/otel/otlp-endpoint.mdx";
 import Response200PartialSuccess from "/snippets/code/multilingual/http/otel/response-200-partial-success.mdx";
 import Response401Unauthorized from "/snippets/code/multilingual/http/otel/response-401-unauthorized.mdx";
 import Response404NotFound from "/snippets/code/multilingual/http/otel/response-404-not-found.mdx";
 import Response415UnsupportedMediaType from "/snippets/code/multilingual/http/otel/response-415-unsupported-media-type.mdx";
 import Response422UnprocessableEntity from "/snippets/code/multilingual/http/otel/response-422-unprocessable-entity.mdx";
+import SpanErrorHandling from "/snippets/code/python/sdk/otel/base/span-error-handling.mdx";
 
 Galileo's OTLP provider conforms to [OpenTelemetry](https://opentelemetry.io/) and [OpenInference](https://github.com/Arize-ai/openinference) semantic conventions. To ensure your spans are valid and properly processed, follow these guidelines.
 
@@ -52,9 +52,10 @@ For a span to be considered valid, it must include certain **required** attribut
 | Attribute | Requirement Level | Description | Example |
 |-----------|------------------|-------------|---------|
 | `gen_ai.operation.name` | **Required** | Should be `execute_tool` | `execute_tool` |
-| `tool.name` (OpenInference) | **Required** | Name of the tool being used | `get_weather`, `calculate` |
-| **Input** | **Required** | Tool call arguments. Use `gen_ai.tool.call.arguments` (OpenTelemetry) or `input.value` (OpenInference) | `{"location": "NYC", "unit": "fahrenheit"}` |
-| **Output** | **Required** | Tool call result. Use `gen_ai.tool.call.result` (OpenTelemetry) or `output.value` (OpenInference) | `{"temperature": 72, "condition": "sunny"}` |
+| `gen_ai.tool.name` | **Required** | Name of the tool being used | `get_weather`, `calculate` |
+| `gen_ai.tool.call.id` | Recommended | Unique identifier for the tool call | `call_abc123` |
+| **Input** | **Required** | Tool call arguments. Use `gen_ai.tool.call.arguments` and `gen_ai.input.messages` (OpenTelemetry) or `input.value` (OpenInference) | `{"location": "NYC", "unit": "fahrenheit"}` |
+| **Output** | **Required** | Tool call result. Use `gen_ai.tool.call.result` and `gen_ai.output.messages` (OpenTelemetry) or `output.value` (OpenInference) | `{"temperature": 72, "condition": "sunny"}` |
 
 ### Retriever Spans
 
@@ -67,6 +68,20 @@ For a span to be considered valid, it must include certain **required** attribut
 
 <Note>
 Retriever spans are typically detected automatically when `db.operation` is set to `query` or `search`. The output should be a list of documents, which will be formatted appropriately by Galileo's OTLP provider.
+</Note>
+
+### Workflow Spans
+
+Workflow spans represent higher-level orchestration units that coordinate multiple sub-operations, such as chains, pipelines, or multi-step processes.
+
+| Attribute | Requirement Level | Description | Example |
+|-----------|------------------|-------------|---------|
+| Span name | **Required** | Descriptive name of the workflow | `document_processing_pipeline` |
+| **Input** | **Required** | Input data to the workflow. Use `gen_ai.input.messages` with user message format | `[{"role": "user", "content": "Process this document"}]` |
+| **Output** | **Required** | Output from the workflow. Use `gen_ai.output.messages` with assistant message or document list format | `[{"role": "assistant", "content": "Processing complete"}]` |
+
+<Note>
+Workflow spans are useful for grouping related operations together. When using the Galileo SDK's `start_galileo_span` helper, workflow spans can contain nested child spans for LLM calls, tool executions, and retriever operations.
 </Note>
 
 ## Error Handling
