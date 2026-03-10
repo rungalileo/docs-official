@@ -127,16 +127,20 @@ Your dataset needs at minimum an `input` column and a `generated_output` column.
 |---|---|---|
 | `input` | Yes | The user query or prompt input |
 | `generated_output` | Yes | The output from your AI system. Must have data in at least one of the first 100 rows. |
-| `ground_truth` | No | Expected answer — used by Ground Truth Adherence, BLEU, and ROUGE metrics |
+| `ground_truth` | No | Expected answer — used by Ground Truth Adherence, BLEU, and ROUGE metrics. The SDK also accepts `output` as an alias for backward compatibility. |
 | `metadata` | No | Additional context for filtering or grouping |
+
+<Note>
+**Column naming:** The SDK accepts both `ground_truth` and `output` for the reference/expected answer column. Internally they map to the same field. In the Galileo Console and CSV exports, this column is displayed as "Ground Truth". We recommend using `ground_truth` in new datasets for clarity.
+</Note>
 
 ### Flow determination
 
 When you call `run_experiment`:
 
 - If you provide a `prompt_template`, the prompt-driven flow is always used (even if the dataset has a `generated_output` column)
-- If you omit `prompt_template` and the dataset has a `generated_output` column, the generated output flow is used
-- If you omit `prompt_template` and the dataset has no `generated_output` column, an error is returned
+- If you omit `prompt_template` and the dataset has a `generated_output` column with at least one non-empty value in the first 100 rows, the generated output flow is used
+- If you omit `prompt_template` and the dataset has no `generated_output` column, or the column exists but has no non-empty values in the sampled rows, an error is returned
 
 ## Set the metrics for your experiment
 
