@@ -12,7 +12,7 @@ dataset = [
     {
         "input": "Explain quantum computing in one sentence.",
         "generated_output": "Quantum computing uses qubits to perform calculations exponentially faster than classical computers.",
-        # No ground_truth here — metrics like factuality still work without it
+        # No ground_truth here — metrics like completeness and context_adherence still work without it
     },
 ]
 
@@ -20,8 +20,8 @@ results = run_experiment(
     "evaluate-my-output",
     dataset=dataset,
     metrics=[
-        GalileoMetrics.factuality,       # Works without ground_truth
-        GalileoMetrics.groundedness,      # Works without ground_truth
+        GalileoMetrics.completeness,        # Works without ground_truth
+        GalileoMetrics.context_adherence,    # Works without ground_truth
     ],
     project="my-project",
 )
