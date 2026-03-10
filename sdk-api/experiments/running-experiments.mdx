@@ -28,6 +28,8 @@ import SnippetExperimentsGetCurrentParentTypeScript from "/snippets/code/typescr
 import SnippetExperimentsLoggingWithParentCheckTypeScript from "/snippets/code/typescript/concepts/experiments/logging-with-parent-check.mdx";
 import SnippetExperimentCustomMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/custom-metric.mdx";
 import SnippetExperimentOOTBMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/ootb-metric.mdx";
+import SnippetExperimentsGeneratedOutputPython from "/snippets/code/python/concepts/experiments/generated-output.mdx";
+import SnippetExperimentsGeneratedOutputInlinePython from "/snippets/code/python/concepts/experiments/generated-output-inline.mdx";
 
 {/* <!-- markdownlint-enable MD044 --> */}
 
@@ -65,16 +67,76 @@ See the [Experiment SDK docs](/sdk-api/experiments/running-experiments#get-an-ex
 ```mermaid
 flowchart TD
     A[Dataset] --> B[Experiment Runner]
-    B --> C[Prompt Template + LLM]
-    B --> D[Existing Application Logic]
-    C --> E[Results Logged to Galileo]
-    D --> E[Results Logged to Galileo]
-    E --> F[Metrics Evaluated]
+    B --> C["Generated Output (no LLM needed)"]
+    B --> D[Prompt Template + LLM]
+    B --> E[Custom Application Logic]
+    C --> F[Metrics Evaluated]
+    D --> F
+    E --> F
+    F --> G[Results in Galileo Console]
 ```
 
 All the traces logged to Galileo can then be evaluated using the [metrics of your choice](/sdk-api/metrics/metrics).
 
 If you are building experiments into your production application, you will need to enable a way to call the experiment runner. For example, you can do this inside a unit test.
+
+<Tip>
+**Which approach should I use?**
+
+| Approach | When to use | Output generation |
+|---|---|---|
+| **Generated output** (recommended) | You already have output from your AI system to evaluate | No LLM generation needed — output already exists in your dataset |
+| **Prompt template** | You want Galileo to generate output using a prompt and an LLM | LLM generates output |
+| **Custom function** | You need to run complex application logic (RAG, agents, multi-step) | Your application generates output |
+</Tip>
+
+## Evaluate pre-generated output
+
+<Note>
+**New in v1.49.0** — This is the simplest way to run experiments. Bring your own data from any system — production logs, external LLMs, or manual curation — and evaluate it directly. No prompt template needed, no custom function, no output generation.
+</Note>
+
+If you already have output from your AI system, you can evaluate it directly in Galileo without regenerating anything. Unlike the prompt-driven flow where Galileo calls an LLM to generate output, this flow uses the output that already exists in your dataset. You only pay for metric computation.
+
+This is ideal for:
+
+- **Evaluating production output**: Export traces from your live system, run quality metrics to find issues
+- **Comparing model providers**: Collect output from OpenAI, Anthropic, and Gemini offline, then score them all in Galileo
+- **Regression testing**: After improving your RAG pipeline, run the same metrics on new output to see if scores improved
+- **A/B testing**: Run the same inputs through two different systems, put both outputs in datasets, compare metric scores
+
+### How it works
+
+1. Create a dataset with an `input` column and a `generated_output` column
+2. Call `run_experiment` without a `prompt_template` — Galileo detects the `generated_output` column automatically
+3. Metrics are computed directly on the existing output — no LLM calls needed for generation
+
+### Using an existing dataset
+
+<SnippetExperimentsGeneratedOutputPython />
+
+### Using an inline dataset
+
+<SnippetExperimentsGeneratedOutputInlinePython />
+
+### Dataset columns
+
+Your dataset needs at minimum an `input` column and a `generated_output` column. Optionally include `ground_truth` for metrics like [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence).
+
+| Column | Required | Description |
+|---|---|---|
+| `input` | Yes | The user query or prompt input |
+| `generated_output` | Yes | The output from your AI system. Must have data in at least one of the first 100 rows. |
+| `ground_truth` | No | Expected answer — used by Ground Truth Adherence, BLEU, and ROUGE metrics |
+| `metadata` | No | Additional context for filtering or grouping |
+
+### Flow determination
+
+When you call `run_experiment`:
+
+- If you provide a `prompt_template`, the prompt-driven flow is always used (even if the dataset has a `generated_output` column)
+- If you omit `prompt_template` and the dataset has a `generated_output` column, the generated output flow is used
+- If you omit `prompt_template` and the dataset has no `generated_output` column, an error is returned
 
 ## Set the metrics for your experiment
 

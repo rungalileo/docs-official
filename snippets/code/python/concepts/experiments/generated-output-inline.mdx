@@ -1,0 +1,27 @@
+```python Python
+from galileo.experiments import run_experiment
+from galileo import GalileoMetrics
+
+# Create a dataset inline with your existing output
+dataset = [
+    {
+        "input": "What is the capital of France?",
+        "generated_output": "The capital of France is Paris.",
+        "ground_truth": "Paris",  # Optional — for Ground Truth Adherence metric
+    },
+    {
+        "input": "Explain quantum computing in one sentence.",
+        "generated_output": "Quantum computing uses qubits to perform calculations exponentially faster than classical computers.",
+    },
+]
+
+results = run_experiment(
+    "evaluate-my-output",
+    dataset=dataset,
+    metrics=[
+        GalileoMetrics.factuality,
+        GalileoMetrics.groundedness,
+    ],
+    project="my-project",
+)
+```

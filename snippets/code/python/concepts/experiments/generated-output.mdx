@@ -1,0 +1,21 @@
+```python Python
+from galileo.experiments import run_experiment
+from galileo.datasets import get_dataset
+from galileo import GalileoMetrics
+
+# Use a dataset that has input + generated_output columns
+# No prompt template needed — Galileo evaluates the existing output directly
+dataset = get_dataset(name="production-chatbot-responses")
+
+results = run_experiment(
+    "evaluate-chatbot-output",
+    dataset=dataset,
+    metrics=[
+        GalileoMetrics.factuality,
+        GalileoMetrics.groundedness,
+        GalileoMetrics.context_adherence,
+    ],
+    project="my-project",
+    # No prompt_template — the dataset already contains the output to evaluate
+)
+```
