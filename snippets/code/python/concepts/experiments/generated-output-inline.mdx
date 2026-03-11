@@ -1,21 +1,26 @@
 ```python Python
+from galileo.datasets import create_dataset
 from galileo.experiments import run_experiment
 from galileo import GalileoMetrics
 
-# Dataset with generated_output — no prompt template needed
-dataset = [
-    {
-        "input": "What is the capital of France?",
-        "generated_output": "The capital of France is Paris.",
-        "ground_truth": "Paris",  # Optional — enables Ground Truth Adherence metric
-    },
-    {
-        "input": "Explain quantum computing in one sentence.",
-        "generated_output": "Quantum computing uses qubits to perform calculations exponentially faster than classical computers.",
-        # No ground_truth here — metrics like completeness and context_adherence still work without it
-    },
-]
+# Step 1: Create dataset with generated_output column
+dataset = create_dataset(
+    name="my-eval-dataset",
+    content=[
+        {
+            "input": "What is the capital of France?",
+            "generated_output": "The capital of France is Paris.",
+            "ground_truth": "Paris",  # Optional — enables Ground Truth Adherence metric
+        },
+        {
+            "input": "Explain quantum computing in one sentence.",
+            "generated_output": "Quantum computing uses qubits to perform calculations exponentially faster than classical computers.",
+            # No ground_truth here — metrics like completeness and context_adherence still work without it
+        },
+    ],
+)
 
+# Step 2: Run experiment — no prompt template needed
 results = run_experiment(
     "evaluate-my-output",
     dataset=dataset,
