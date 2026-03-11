@@ -110,6 +110,15 @@ This is ideal for:
 2. Call `run_experiment` without a `prompt_template` — Galileo detects the `generated_output` column automatically
 3. Metrics are computed directly on the existing output — no LLM calls needed for generation
 
+### Using this flow
+
+You can use this flow in two ways:
+
+1. **Already have a Galileo dataset?** Pass it directly to `run_experiment(...)`.
+2. **Have local Python data** (e.g., a list of dictionaries)? First upload it with `create_dataset(...)`, then pass the returned dataset to `run_experiment(...)`.
+
+In both cases, the dataset must contain `input` and `generated_output` columns. You can optionally include `ground_truth` for metrics like Ground Truth Adherence.
+
 ### Example
 
 <Note>This flow is currently supported in the Python SDK (v1.49.0+). TypeScript support uses the same API — omit `promptTemplate` to use this flow.</Note>
