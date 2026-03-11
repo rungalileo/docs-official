@@ -24,6 +24,9 @@ import SnippetTagsAndMetadataTypeScript6 from '/snippets/code/typescript/tags-an
 import SnippetTagsAndMetadataTypeScript7 from '/snippets/code/typescript/tags-and-metadata/tags-and-metadata-ts-7.mdx';
 import SnippetTagsAndMetadataTypeScript8 from '/snippets/code/typescript/tags-and-metadata/tags-and-metadata-ts-8.mdx';
 
+import SnippetSessionMetadataPython from '/snippets/code/python/sdk/logging/start-logger-session-metadata.mdx';
+import SnippetSessionMetadataTypeScript from '/snippets/code/typescript/sdk/logging/start-logger-session-metadata.mdx';
+
 {/*<!-- markdownlint-enable MD044 -->*/}
 
 Galileo’s **Tags and Metadata** feature enables teams to label, categorize, and organize model interactions in a structured way.
@@ -31,7 +34,7 @@ This structured labeling is essential for building reproducible, observable, and
 
 
 Tags and Metadata provide additional context to your logs and traces.
-By adding Tags and Metadata to logged Traces and Spans, teams can:
+By adding Tags and Metadata to logged Sessions, Traces, and Spans, teams can:
 
 - Track and compare experiments.
 - View a clear timeline of how an agent’s behavior evolves across experiments.
@@ -39,7 +42,7 @@ By adding Tags and Metadata to logged Traces and Spans, teams can:
 
 ## Overview
 
-**Tags** and **Metadata** are added to logged Traces and Spans.
+**Tags** and **Metadata** are added to logged Sessions, Traces, and Spans.
 
 **Tags** - short, flat labels (strings) you assign to a trace or span to make them easy to group and filter.
 
@@ -206,6 +209,24 @@ You will see the data logged to the Span. This includes:
 </Step>
 
 </Steps>
+
+## Session metadata
+
+In addition to adding metadata to Traces and Spans, you can also add metadata to [Sessions](/concepts/logging/sessions/sessions-overview). Session metadata allows you to attach structured information like customer IDs, environment names, or application versions at the session level.
+
+To add metadata to a session, pass the `metadata` parameter when starting a session:
+
+<CodeGroup>
+  <SnippetSessionMetadataPython />
+  <SnippetSessionMetadataTypeScript />
+</CodeGroup>
+
+Session metadata keys and values follow the same rules as Trace and Span metadata:
+- Keys and values are strings (max 256 characters each)
+
+<Note>
+Session metadata is visible as columns in the Sessions view. Use the column selector to display specific metadata keys. Session metadata is not currently shown in the Trace detail view.
+</Note>
 
 ## Best practices
 
