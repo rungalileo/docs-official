@@ -28,6 +28,7 @@ import SnippetExperimentsGetCurrentParentTypeScript from "/snippets/code/typescr
 import SnippetExperimentsLoggingWithParentCheckTypeScript from "/snippets/code/typescript/concepts/experiments/logging-with-parent-check.mdx";
 import SnippetExperimentCustomMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/custom-metric.mdx";
 import SnippetExperimentOOTBMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/ootb-metric.mdx";
+import SnippetExperimentsGeneratedOutputInlinePython from "/snippets/code/python/concepts/experiments/generated-output-inline.mdx";
 
 {/* <!-- markdownlint-enable MD044 --> */}
 
@@ -56,7 +57,7 @@ For each row in a dataset, a new trace is created, and either the prompt templat
 <Note>
 When you call your application code from an experiment, the experiment runner will start a new session and trace for every row in your dataset. You will need to ensure your application code doesn't start a new session or trace manually, or conclude or flush the trace.
 
-If you are using the `log` wrapper or a third-party integration, this is handed for you. If you are logging manually you will need to check to see if an experiment is in progress.
+If you are using the `log` wrapper or a third-party integration, this is handled for you. If you are logging manually you will need to check to see if an experiment is in progress.
 
 See the [Experiment SDK docs](/sdk-api/experiments/running-experiments#get-an-existing-logger-and-check-for-an-existing-trace) for details on how to do this.
 
@@ -65,49 +66,100 @@ See the [Experiment SDK docs](/sdk-api/experiments/running-experiments#get-an-ex
 ```mermaid
 flowchart TD
     A[Dataset] --> B[Experiment Runner]
-    B --> C[Prompt Template + LLM]
-    B --> D[Existing Application Logic]
-    C --> E[Results Logged to Galileo]
-    D --> E[Results Logged to Galileo]
-    E --> F[Metrics Evaluated]
+    B --> C[Prompt Template]
+    B --> D[Generated Output]
+    B --> E[Custom Function]
+    C --> F[Metrics Evaluated]
+    D --> F
+    E --> F
+    F --> G[Results in Galileo Console]
 ```
 
 All the traces logged to Galileo can then be evaluated using the [metrics of your choice](/sdk-api/metrics/metrics).
 
 If you are building experiments into your production application, you will need to enable a way to call the experiment runner. For example, you can do this inside a unit test.
 
-## Set the metrics for your experiment
+<Tip>
+**Which approach should I use?**
 
-When you run an experiment, you need to define which metrics you want to evaluate for each row in the dataset.
+| Approach | When to use | Output generation |
+|---|---|---|
+| [**Generated output**](#run-experiments-with-generated-output) | You already have output from your AI system to evaluate | No LLM generation needed — output already exists in your dataset |
+| [**Prompt template**](#run-experiments-with-prompt-template) | You want Galileo to generate output using a prompt and an LLM | LLM generates output |
+| [**Custom function**](#run-experiments-with-custom-function) | You need to run complex application logic (RAG, agents, multi-step) | Your application generates output |
 
-For out-of-the-box metrics, use the [constants provided by the Galileo SDK](/sdk-api/metrics/metrics).
+</Tip>
 
-<CodeGroup>
-  <SnippetExperimentOOTBMetricNamePython />
-  <SnippetExperimentOOTBMetricNameTypeScript />
-</CodeGroup>
+## Run experiments with prompt template
 
-For custom metrics, use the name you set when you created the metric. For example, if you have a custom LLM-as-a-judge metric called `"Compliance - do not recommend any financial actions"`:
-
-![A metric called Compliance - do not recommend any financial actions](/concepts/metrics/custom-metrics/metric-name.webp)
-
-You would pass this to an experiment like this:
-
-<CodeGroup>
-  <SnippetExperimentCustomMetricNamePython />
-  <SnippetExperimentCustomMetricNameTypeScript />
-</CodeGroup>
-
-## Work with prompts
-
-The simplest way to get started with experimentation is by evaluating prompts directly against datasets. This is especially valuable during the initial prompt development and refinement phase, where you want to test different prompt variations. Assuming you've previously created a dataset, you can use the following code to run an experiment:
+A simple way to get started with experimentation is by evaluating prompts against datasets. This is especially valuable during the initial prompt development and refinement phase, where you want to test different prompt variations. Assuming you've previously created a dataset, you can use the following code to run an experiment:
 
 <CodeGroup>
   <SnippetExperimentsPromptPython />
   <SnippetExperimentsPromptTypeScript />
 </CodeGroup>
 
-## Run experiments with custom functions
+
+## Run experiments with generated output
+
+<Note>
+**As of Galileo Python SDK [v1.50.1+](https://pypi.org/project/galileo/)** — Bring your own data from any system (production logs, external LLMs, or manual curation) and evaluate it directly.
+</Note>
+
+If you already have output from your AI system, you can evaluate it directly in Galileo without regenerating anything. Unlike the prompt-driven flow where Galileo calls an LLM to generate output, this flow uses the output that already exists in your dataset. You only pay for metric computation.
+
+This is ideal for:
+
+- **Evaluating production output**: Export traces from your live system, run quality metrics to find issues
+- **Comparing model providers**: Collect output from OpenAI, Anthropic, and Gemini offline, then score them all in Galileo
+- **Regression testing**: After improving your RAG pipeline, run the same metrics on new output to see if scores improved
+- **A/B testing**: Run the same inputs through two different systems, put both outputs in datasets, compare metric scores
+
+### How it works
+
+1. Create a dataset with an `input` column and a `generated_output` column
+2. Call `run_experiment` without a `prompt_template` — Galileo detects the `generated_output` column automatically
+3. Metrics are computed directly on the existing output — no LLM calls needed for generation
+
+### Example
+
+<Note>This flow is currently supported in the Python SDK (v1.50.1+). TypeScript support uses the same API — omit `promptTemplate` to use this flow.</Note>
+
+<SnippetExperimentsGeneratedOutputInlinePython />
+
+### Using this flow
+
+You can use this flow in two ways:
+
+1. **Already have a Galileo dataset?** Pass it directly to `run_experiment(...)`.
+2. **Have local Python data** (e.g., a list of dictionaries)? First upload it with `create_dataset(...)`, then pass the returned dataset to `run_experiment(...)`.
+
+
+#### Dataset columns
+
+Your dataset needs at minimum an `input` column and a `generated_output` column.
+
+| Column | Required | Description |
+|---|---|---|
+| `input` | Yes | The user query or prompt input |
+| `generated_output` | Yes | The output from your AI system. Must have data in at least one of the first 100 rows. |
+| `ground_truth` | No | Expected answer — used by the [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence) metric. The SDK also accepts `output` as an alias for backward compatibility. |
+| `metadata` | No | Additional context for filtering or grouping |
+
+<Note>
+**Column naming:** The SDK accepts both `ground_truth` and `output` for the reference/expected answer column. Internally they map to the same field. In the Galileo Console and CSV exports, this column is displayed as "Ground Truth". We recommend using `ground_truth` in new datasets for clarity.
+</Note>
+
+#### Flow determination
+
+When you call `run_experiment`:
+
+- If you provide a `prompt_template`, the prompt-driven flow is always used (even if the dataset has a `generated_output` column).
+- If you omit `prompt_template` and the dataset has a `generated_output` column with at least one non-empty value in the first 100 rows, the generated output flow is used.
+- If you omit `prompt_template` and the dataset has no `generated_output` column, or the column exists but has no non-empty values in the sampled rows, an error is returned.
+
+
+## Run experiments with custom function
 
 Once you're comfortable with basic prompt testing, you might want to evaluate more complex parts of your app using your datasets. This approach is particularly useful when you have a generation function in your app that takes a set of inputs, which you can model with a dataset.
 
@@ -184,16 +236,39 @@ There are a few important principles to understand when logging experiments in c
 - Every row in a dataset is a new trace. If you create new traces manually, they will not be used.
 - Do not conclude or flush the logger in your experiment, the experiment will do this for you.
 
-## Ground truth
 
-For [BLUE, ROUGE](/concepts/metrics/expression-and-readability/bleu-and-rouge), and [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence), you also need to set the ground truth in your dataset. This is set in the `output` column.
+## Set metrics for your experiment
+
+When you run an experiment, you need to define which metrics you want to evaluate for each row in the dataset.
+
+For out-of-the-box metrics, use the [constants provided by the Galileo SDK](/sdk-api/metrics/metrics).
+
+<CodeGroup>
+  <SnippetExperimentOOTBMetricNamePython />
+  <SnippetExperimentOOTBMetricNameTypeScript />
+</CodeGroup>
+
+For custom metrics, use the name you set when you created the metric. For example, if you have a custom LLM-as-a-judge metric called `"Compliance - do not recommend any financial actions"`:
+
+![A metric called Compliance - do not recommend any financial actions](/concepts/metrics/custom-metrics/metric-name.webp)
+
+You would pass this to an experiment like this:
+
+<CodeGroup>
+  <SnippetExperimentCustomMetricNamePython />
+  <SnippetExperimentCustomMetricNameTypeScript />
+</CodeGroup>
+
+### Ground truth
+
+For [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence), you also need to set the ground truth in your dataset. This is set in the `ground_truth` column.
 
 <CodeGroup>
   <SnippetExperimentsGroundTruthPython />
   <SnippetExperimentsGroundTruthTypeScript />
 </CodeGroup>
 
-<Note>If you set the `output` column when using other metrics, the value is not used in the calculation of the metric, but is surfaced in the console. This can be helpful for providing reference output for manual review.</Note>
+<Note>If you set the `ground_truth` column when using other metrics, the value is not used in the calculation of the metric, but can be added to the Galileo console under the "Dataset Ground Truth" column. This can be helpful for manual review.</Note>
 
 ## Custom dataset evaluation
 

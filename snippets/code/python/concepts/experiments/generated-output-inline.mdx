@@ -1,0 +1,45 @@
+```python Python
+from galileo.datasets import create_dataset, get_dataset
+from galileo.experiments import run_experiment
+from galileo import GalileoMetrics
+
+from dotenv import load_dotenv
+load_dotenv()
+
+# Option A: Create a new dataset from local data
+dataset = create_dataset(
+    name="my-eval-dataset",
+    content=[
+        {
+            "input": "What is the capital of France?",
+            "generated_output": "The capital of France is Paris.",
+            # Optional — enables Ground Truth Adherence
+            "ground_truth": "Paris",
+        },
+        {
+            "input": "Explain quantum computing in one sentence.",
+            "generated_output": (
+                "Quantum computing uses qubits to perform"
+                " calculations exponentially faster than"
+                " classical computers."
+            ),
+            # No ground_truth — other metrics still work
+        },
+    ],
+)
+
+# Option B: Or use an existing Galileo dataset (just uncomment one line below)
+# dataset = get_dataset(name="my-existing-dataset")
+
+# Run experiment — no prompt template needed
+results = run_experiment(
+    "evaluate-my-output",
+    dataset=dataset,
+    metrics=[
+        GalileoMetrics.completeness,
+        GalileoMetrics.context_adherence,
+        GalileoMetrics.ground_truth_adherence,  # Uses ground_truth when available
+    ],
+    project="my-project",
+)
+```
