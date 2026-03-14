@@ -10,6 +10,10 @@ title: GalileoLogger
 
 Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
 
+## Implements
+
+- `IGalileoLogger`
+
 ## Constructors
 
 ### Constructor
@@ -60,14 +64,7 @@ Configuration for the agent span. Only `input` is required. This creates a paren
 
 ###### agentType?
 
-\| `"default"`
-\| `"planner"`
-\| `"react"`
-\| `"reflection"`
-\| `"router"`
-\| `"classifier"`
-\| `"supervisor"`
-\| `"judge"`
+[`AgentType`](/sdk-api/typescript/reference/types/type-aliases/AgentType)
 
 (Optional) The type of agent. One of: 'default', 'planner', 'react', 'reflection', 'router', 'classifier', 'supervisor', 'judge'. Defaults to 'default'.
 
@@ -137,6 +134,12 @@ The input content for the agent.
 
 The created agent span.
 
+#### Implementation of
+
+```ts
+IGalileoLogger.addAgentSpan;
+```
+
 ---
 
 ### addChildSpanToParent()
@@ -165,6 +168,12 @@ The span to add as a child to the current parent.
 #### Throws
 
 Error if no trace or parent span exists.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.addChildSpanToParent;
+```
 
 ---
 
@@ -196,6 +205,12 @@ Configuration for the LLM span. All parameters are optional except `input` and `
 
 (Optional) Duration of the span in nanoseconds.
 
+###### events?
+
+[`Event`](/sdk-api/typescript/reference/types/type-aliases/Event)[]
+
+(Optional) Array of events associated with the span.
+
 ###### input
 
 [`LlmSpanAllowedInputType`](/sdk-api/typescript/reference/types/type-aliases/LlmSpanAllowedInputType)
@@ -220,6 +235,10 @@ The input content for the LLM span. Accepts string, Message, or arrays of these.
 
 (Optional) Name for the span.
 
+###### numCachedInputTokens?
+
+`number`
+
 ###### numInputTokens?
 
 `number`
@@ -231,6 +250,10 @@ The input content for the LLM span. Accepts string, Message, or arrays of these.
 `number`
 
 (Optional) Number of tokens in the output.
+
+###### numReasoningTokens?
+
+`number`
 
 ###### output
 
@@ -282,7 +305,7 @@ The output content from the LLM span. Accepts string, Message, or arrays of thes
 
 ###### tools?
 
-`any`[]
+`JsonObject`[]
 
 (Optional) Array of tool definitions available to the LLM.
 
@@ -297,6 +320,97 @@ The output content from the LLM span. Accepts string, Message, or arrays of thes
 [`LlmSpan`](/sdk-api/typescript/reference/types/classes/LlmSpan)
 
 The created LLM span, which is automatically added to the current parent.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.addLlmSpan;
+```
+
+---
+
+### addProtectSpan()
+
+```ts
+addProtectSpan(options: object): ToolSpan;
+```
+
+Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
+
+Add a new Protect tool span to the current parent.
+This is a specialized method for logging Galileo Protect tool spans.
+
+#### Parameters
+
+##### options
+
+Configuration for the Protect span.
+
+###### createdAt?
+
+`Date`
+
+(Optional) The timestamp when the span was created.
+
+###### metadata?
+
+`Record`\<`string`, `string`\>
+
+(Optional) Additional metadata as key-value pairs.
+
+###### payload
+
+`Payload`
+
+Input to the Protect invoke method. Payload object with input and/or output attributes.
+
+###### redactedPayload?
+
+`Payload`
+
+(Optional) Redacted version of the payload.
+
+###### redactedResponse?
+
+`ProtectResponse`
+
+(Optional) Redacted version of the response.
+
+###### response?
+
+`ProtectResponse`
+
+(Optional) Output from the Protect invoke method. Response object with text, traceMetadata, and status.
+
+###### statusCode?
+
+`number`
+
+(Optional) HTTP status code or execution status (e.g., 200 for success).
+
+###### stepNumber?
+
+`number`
+
+(Optional) The step number in a multi-step process.
+
+###### tags?
+
+`string`[]
+
+(Optional) Array of tags to categorize the span.
+
+#### Returns
+
+[`ToolSpan`](/sdk-api/typescript/reference/types/classes/ToolSpan)
+
+The created Protect tool span.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.addProtectSpan;
+```
 
 ---
 
@@ -388,6 +502,12 @@ The output documents or results. Accepts string, Record\<string, string\>, Docum
 
 The created retriever span.
 
+#### Implementation of
+
+```ts
+IGalileoLogger.addRetrieverSpan;
+```
+
 ---
 
 ### addSingleLlmSpanTrace()
@@ -436,6 +556,12 @@ Configuration for the single LLM span trace. All parameters are optional except 
 `number`
 
 (Optional) Duration of the span in nanoseconds.
+
+###### events?
+
+[`Event`](/sdk-api/typescript/reference/types/type-aliases/Event)[]
+
+(Optional) Array of events associated with the span.
 
 ###### input
 
@@ -523,7 +649,7 @@ The output content from the LLM span.
 
 ###### tools?
 
-`any`[]
+`JsonObject`[]
 
 (Optional) Array of tool definitions. Expected format: Array\<\{ type: 'function', function: \{ name: string, description?: string, parameters?: object \} \}\>.
 
@@ -542,6 +668,369 @@ The created trace containing the single LLM span.
 #### Throws
 
 Error if a trace or span is already in progress.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.addSingleLlmSpanTrace;
+```
+
+---
+
+### addSingleRetrieverSpanTrace()
+
+```ts
+addSingleRetrieverSpanTrace(options: object): Trace;
+```
+
+Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
+
+Create a new trace with a single retriever span. This is a convenience method that combines trace creation
+and retriever span creation in one call. The trace is automatically concluded, so no need to call conclude().
+
+#### Parameters
+
+##### options
+
+Configuration for the single retriever span trace. All parameters are optional except `input` and `output`.
+
+###### createdAt?
+
+`Date`
+
+(Optional) The timestamp when the span was created.
+
+###### datasetInput?
+
+`string`
+
+(Optional) Input data for dataset evaluation.
+
+###### datasetMetadata?
+
+`Record`\<`string`, `string`\>
+
+(Optional) Metadata for dataset evaluation.
+
+###### datasetOutput?
+
+`string`
+
+(Optional) Expected output for dataset evaluation.
+
+###### durationNs?
+
+`number`
+
+(Optional) Duration of the span in nanoseconds.
+
+###### input
+
+`string`
+
+The input query for the retriever span.
+
+###### metadata?
+
+`Record`\<`string`, `string`\>
+
+(Optional) Additional metadata as key-value pairs.
+
+###### name?
+
+`string`
+
+(Optional) Name for the span.
+
+###### output
+
+[`RetrieverSpanAllowedOutputType`](/sdk-api/typescript/reference/types/type-aliases/RetrieverSpanAllowedOutputType)
+
+The output documents or results from the retriever span.
+
+###### redactedInput?
+
+`string`
+
+(Optional) Redacted version of the input query.
+
+###### redactedOutput?
+
+[`RetrieverSpanAllowedOutputType`](/sdk-api/typescript/reference/types/type-aliases/RetrieverSpanAllowedOutputType)
+
+(Optional) Redacted version of the output.
+
+###### spanStepNumber?
+
+`number`
+
+(Optional) The step number for the span in a multi-step process.
+
+###### statusCode?
+
+`number`
+
+(Optional) HTTP status code or execution status (e.g., 200 for success).
+
+###### tags?
+
+`string`[]
+
+(Optional) Array of tags to categorize the span.
+
+#### Returns
+
+[`Trace`](/sdk-api/typescript/reference/types/classes/Trace)
+
+The created trace containing the single retriever span.
+
+#### Throws
+
+Error if a trace or span is already in progress.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.addSingleRetrieverSpanTrace;
+```
+
+---
+
+### addSingleToolSpanTrace()
+
+```ts
+addSingleToolSpanTrace(options: object): Trace;
+```
+
+Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
+
+Create a new trace with a single tool span. This is a convenience method that combines trace creation
+and tool span creation in one call. The trace is automatically concluded, so no need to call conclude().
+
+#### Parameters
+
+##### options
+
+Configuration for the single tool span trace. Only `input` is required.
+
+###### createdAt?
+
+`Date`
+
+(Optional) The timestamp when the span was created.
+
+###### datasetInput?
+
+`string`
+
+(Optional) Input data for dataset evaluation.
+
+###### datasetMetadata?
+
+`Record`\<`string`, `string`\>
+
+(Optional) Metadata for dataset evaluation.
+
+###### datasetOutput?
+
+`string`
+
+(Optional) Expected output for dataset evaluation.
+
+###### durationNs?
+
+`number`
+
+(Optional) Duration of the span in nanoseconds.
+
+###### input
+
+`string`
+
+The input parameters for the tool span.
+
+###### metadata?
+
+`Record`\<`string`, `string`\>
+
+(Optional) Additional metadata as key-value pairs.
+
+###### name?
+
+`string`
+
+(Optional) Name for the span (e.g., the tool name or function name).
+
+###### output?
+
+`string`
+
+(Optional) The output result from the tool span.
+
+###### redactedInput?
+
+`string`
+
+(Optional) Redacted version of the input.
+
+###### redactedOutput?
+
+`string`
+
+(Optional) Redacted version of the output.
+
+###### spanStepNumber?
+
+`number`
+
+(Optional) The step number for the span in a multi-step process.
+
+###### statusCode?
+
+`number`
+
+(Optional) HTTP status code or execution status (e.g., 200 for success).
+
+###### tags?
+
+`string`[]
+
+(Optional) Array of tags to categorize the span.
+
+###### toolCallId?
+
+`string`
+
+(Optional) Unique identifier for the tool call.
+
+#### Returns
+
+[`Trace`](/sdk-api/typescript/reference/types/classes/Trace)
+
+The created trace containing the single tool span.
+
+#### Throws
+
+Error if a trace or span is already in progress.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.addSingleToolSpanTrace;
+```
+
+---
+
+### addSingleWorkflowSpanTrace()
+
+```ts
+addSingleWorkflowSpanTrace(options: object): Trace;
+```
+
+Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
+
+Create a new trace with a single workflow span. This is a convenience method that combines trace creation
+and workflow span creation in one call. The trace is automatically concluded, so no need to call conclude().
+
+#### Parameters
+
+##### options
+
+Configuration for the single workflow span trace. Only `input` is required.
+
+###### createdAt?
+
+`Date`
+
+(Optional) The timestamp when the span was created.
+
+###### datasetInput?
+
+`string`
+
+(Optional) Input data for dataset evaluation.
+
+###### datasetMetadata?
+
+`Record`\<`string`, `string`\>
+
+(Optional) Metadata for dataset evaluation.
+
+###### datasetOutput?
+
+`string`
+
+(Optional) Expected output for dataset evaluation.
+
+###### durationNs?
+
+`number`
+
+(Optional) Duration of the span in nanoseconds.
+
+###### input
+
+`string`
+
+The input content for the workflow span.
+
+###### metadata?
+
+`Record`\<`string`, `string`\>
+
+(Optional) Additional metadata as key-value pairs.
+
+###### name?
+
+`string`
+
+(Optional) Name for the span.
+
+###### output?
+
+`string`
+
+(Optional) The output result from the workflow span.
+
+###### redactedInput?
+
+`string`
+
+(Optional) Redacted version of the input.
+
+###### redactedOutput?
+
+`string`
+
+(Optional) Redacted version of the output.
+
+###### spanStepNumber?
+
+`number`
+
+(Optional) The step number for the span in a multi-step process.
+
+###### tags?
+
+`string`[]
+
+(Optional) Array of tags to categorize the span.
+
+#### Returns
+
+[`Trace`](/sdk-api/typescript/reference/types/classes/Trace)
+
+The created trace containing the single workflow span.
+
+#### Throws
+
+Error if a trace or span is already in progress.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.addSingleWorkflowSpanTrace;
+```
 
 ---
 
@@ -639,6 +1128,12 @@ The input parameters for the tool.
 
 The created tool span.
 
+#### Implementation of
+
+```ts
+IGalileoLogger.addToolSpan;
+```
+
 ---
 
 ### addWorkflowSpan()
@@ -725,6 +1220,12 @@ The input content for the workflow.
 
 The created workflow span.
 
+#### Implementation of
+
+```ts
+IGalileoLogger.addWorkflowSpan;
+```
+
 ---
 
 ### clearSession()
@@ -735,50 +1236,117 @@ clearSession(): void;
 
 Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
 
+Clears the current session ID.
+
 #### Returns
 
 `void`
+
+#### Implementation of
+
+```ts
+IGalileoLogger.clearSession;
+```
 
 ---
 
 ### conclude()
 
 ```ts
-conclude(__namedParameters: object):
+conclude(options: object):
   | undefined
   | StepWithChildSpans;
 ```
 
 Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
 
+Concludes the current trace or span, or all active traces/spans if concludeAll is true.
+
 #### Parameters
 
-##### \_\_namedParameters
+##### options
+
+Configuration for concluding.
 
 ###### concludeAll?
 
 `boolean`
 
+(Optional) Whether to conclude all active traces/spans. Defaults to false.
+
 ###### durationNs?
 
 `number`
+
+(Optional) Duration in nanoseconds.
 
 ###### output?
 
 `string`
 
+(Optional) The output content to set.
+
 ###### redactedOutput?
 
 `string`
+
+(Optional) The redacted output content to set.
 
 ###### statusCode?
 
 `number`
 
+(Optional) HTTP status code or execution status.
+
 #### Returns
 
 \| `undefined`
 \| [`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans)
+
+The current parent after concluding, or undefined if all traces/spans were concluded.
+
+#### Throws
+
+Error if no trace or span exists to conclude.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.conclude;
+```
+
+---
+
+### continueTrace()
+
+```ts
+continueTrace(traceId: string, parentId?: string): Promise<void>;
+```
+
+Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
+
+Continues an existing trace (and optionally a parent span) for distributed tracing.
+Fetches the trace (and span if parentId is provided) from the API and sets them as current context.
+
+#### Parameters
+
+##### traceId
+
+`string`
+
+The ID of the trace to continue.
+
+##### parentId?
+
+`string`
+
+(Optional) The ID of the parent span to continue under.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when the trace (and optional span) context is set.
 
 ---
 
@@ -792,10 +1360,20 @@ currentParent():
 
 Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
 
+Get the current parent from context or instance.
+
 #### Returns
 
 \| `undefined`
 \| [`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans)
+
+The current parent span or trace, or undefined if none exists.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.currentParent;
+```
 
 ---
 
@@ -807,9 +1385,19 @@ currentSessionId(): undefined | string;
 
 Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
 
+Gets the current session ID.
+
 #### Returns
 
 `undefined` \| `string`
+
+The current session ID, or undefined if no session is active.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.currentSessionId;
+```
 
 ---
 
@@ -821,9 +1409,43 @@ flush(): Promise<Trace[]>;
 
 Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
 
+Flushes all traces to the server. Concludes any active traces before flushing.
+
 #### Returns
 
 `Promise`\<[`Trace`](/sdk-api/typescript/reference/types/classes/Trace)[]\>
+
+A promise that resolves to an array of flushed traces.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.flush;
+```
+
+---
+
+### hasActiveTrace()
+
+```ts
+hasActiveTrace(): boolean;
+```
+
+Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
+
+Check if there is an active trace.
+
+#### Returns
+
+`boolean`
+
+True if there is a current parent (trace or span), false otherwise.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.hasActiveTrace;
+```
 
 ---
 
@@ -835,11 +1457,46 @@ isLoggingDisabled(): boolean;
 
 Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
 
-Check if logging is disabled
+Checks if logging is disabled.
 
 #### Returns
 
 `boolean`
+
+True if logging is disabled, false otherwise.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.isLoggingDisabled;
+```
+
+---
+
+### previousParent()
+
+```ts
+previousParent():
+  | undefined
+  | StepWithChildSpans;
+```
+
+Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
+
+Get the previous parent (second-to-last item in the parent stack).
+
+#### Returns
+
+\| `undefined`
+\| [`StepWithChildSpans`](/sdk-api/typescript/reference/types/classes/StepWithChildSpans)
+
+The previous parent span or trace, or undefined if less than 2 items in the stack.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.previousParent;
+```
 
 ---
 
@@ -851,15 +1508,25 @@ setSessionId(sessionId: string): void;
 
 Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
 
+Sets the session ID for the logger.
+
 #### Parameters
 
 ##### sessionId
 
 `string`
 
+The session ID to set.
+
 #### Returns
 
 `void`
+
+#### Implementation of
+
+```ts
+IGalileoLogger.setSessionId;
+```
 
 ---
 
@@ -871,110 +1538,165 @@ startSession(options: object): Promise<string>;
 
 Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
 
-Start a session in the active logger instance.
+Starts a session in the active logger instance. If an externalId is provided, searches for an existing session with that external ID and reuses it if found.
 
-If an `externalId` is provided, the method will first search for an existing session
-with that external ID. If found, it will reuse that session instead of creating a new one.
-This allows you to maintain persistent sessions across multiple runs or associate sessions
-with external identifiers (e.g., user IDs, conversation IDs).
+Note: When an existing session is found via externalId, it is returned as-is. All other options
+(name, previousSessionId, metadata) are ignored - they only apply when creating a new session.
+To update an existing session, use an explicit update method.
 
 #### Parameters
 
 ##### options
 
-Configuration for the session
+Configuration for the session.
 
 ###### externalId?
 
 `string`
 
-An external identifier for the session. If a session with this
-external ID already exists, it will be reused instead of creating
-a new session (optional)
+(Optional) An external identifier for the session. If a session with this external ID already exists, it will be reused instead of creating a new session.
+
+###### metadata?
+
+`Record`\<`string`, `string`\>
+
+(Optional) User metadata for the session as key-value string pairs. Only applied when creating a new session.
 
 ###### name?
 
 `string`
 
-The name of the session (optional)
+(Optional) The name of the session. Only applied when creating a new session.
 
 ###### previousSessionId?
 
 `string`
 
-The ID of a previous session to link to (optional)
+(Optional) The ID of a previous session to link to. Creates a reference to the previous session but does not inherit its metadata. Only applied when creating a new session.
 
 #### Returns
 
 `Promise`\<`string`\>
 
-The ID of the session (either newly created or existing)
+A promise that resolves to the ID of the session (either newly created or existing).
+
+#### Implementation of
+
+```ts
+IGalileoLogger.startSession;
+```
 
 ---
 
 ### startTrace()
 
 ```ts
-startTrace(__namedParameters: object): Trace;
+startTrace(options: object): Trace;
 ```
 
 Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
 
+Starts a new trace.
+
 #### Parameters
 
-##### \_\_namedParameters
+##### options
+
+Configuration for the trace.
 
 ###### createdAt?
 
 `Date`
 
+(Optional) The timestamp when the trace was created.
+
 ###### datasetInput?
 
 `string`
+
+(Optional) Input data for dataset evaluation.
 
 ###### datasetMetadata?
 
 `Record`\<`string`, `string`\>
 
+(Optional) Metadata for dataset evaluation.
+
 ###### datasetOutput?
 
 `string`
+
+(Optional) Expected output for dataset evaluation.
 
 ###### durationNs?
 
 `number`
 
+(Optional) Duration of the trace in nanoseconds.
+
+###### externalId?
+
+`string`
+
+(Optional) External identifier for the trace.
+
 ###### input
 
 `string`
+
+The input content for the trace.
 
 ###### metadata?
 
 `Record`\<`string`, `string`\>
 
+(Optional) Additional metadata as key-value pairs.
+
 ###### name?
 
 `string`
+
+(Optional) Name for the trace.
 
 ###### output?
 
 `string`
 
+(Optional) The output content for the trace.
+
 ###### redactedInput?
 
 `string`
+
+(Optional) Redacted version of the input.
 
 ###### redactedOutput?
 
 `string`
 
+(Optional) Redacted version of the output.
+
 ###### tags?
 
 `string`[]
 
+(Optional) Array of tags to categorize the trace.
+
 #### Returns
 
 [`Trace`](/sdk-api/typescript/reference/types/classes/Trace)
+
+The created trace.
+
+#### Throws
+
+Error if a trace is already in progress.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.startTrace;
+```
 
 ---
 
@@ -986,9 +1708,50 @@ terminate(): Promise<void>;
 
 Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
 
+Terminates the logger. In batch mode, flushes all traces. In streaming mode, waits for all tasks to complete.
+
 #### Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves when termination is complete.
+
+#### Implementation of
+
+```ts
+IGalileoLogger.terminate;
+```
+
+---
+
+### create()
+
+```ts
+static create(config: GalileoLoggerConfigExtended): Promise<GalileoLogger>;
+```
+
+Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
+
+Static factory method to create and initialize a logger.
+Use this instead of `new GalileoLogger()` when traceId or spanId are provided.
+
+#### Parameters
+
+##### config
+
+`GalileoLoggerConfigExtended` = `{}`
+
+Logger configuration
+
+#### Returns
+
+`Promise`\<`GalileoLogger`\>
+
+Promise that resolves to a fully initialized logger
+
+#### Throws
+
+Error if config validation fails or trace/span initialization fails
 
 ---
 
@@ -1005,11 +1768,15 @@ static getLastOutput(node?: BaseSpan):
 
 Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/galileo-logger.ts)
 
+Gets the last output from a span or its children recursively.
+
 #### Parameters
 
 ##### node?
 
 [`BaseSpan`](/sdk-api/typescript/reference/types/classes/BaseSpan)
+
+(Optional) The span node to get output from.
 
 #### Returns
 
@@ -1018,3 +1785,5 @@ Defined in: [src/utils/galileo-logger.ts](https://github.com/rungalileo/galileo-
 `output?`: `string`;
 `redactedOutput?`: `string`;
 \}
+
+The output and redacted output, or undefined if not found.
