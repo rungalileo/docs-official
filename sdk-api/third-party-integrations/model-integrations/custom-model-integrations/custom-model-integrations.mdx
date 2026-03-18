@@ -5,9 +5,6 @@ description: Learn about custom integrations, and how to set them up in Galileo
 
 import SnippetOAuth2TokenFormat from "/snippets/code/multilingual/integrations/custom/oauth2-token-format.mdx";
 import SnippetResponseIntegrationDb from "/snippets/code/multilingual/integrations/custom/response-integration-db.mdx";
-import SnippetPayloadOAuth2Basic from "/snippets/code/multilingual/integrations/custom/payload-oauth2-basic.mdx";
-import SnippetPayloadNoAuth from "/snippets/code/multilingual/integrations/custom/payload-no-auth.mdx";
-import SnippetPayloadApiKeyTogether from "/snippets/code/multilingual/integrations/custom/payload-api-key-together.mdx";
 import SnippetPayloadApiKey from "/snippets/code/multilingual/integrations/custom/payload-api-key.mdx";
 import SnippetPayloadCustomLlm from "/snippets/code/multilingual/integrations/custom/payload-custom-llm.mdx";
 import SnippetPayloadOAuth2CustomLlm from "/snippets/code/multilingual/integrations/custom/payload-oauth2-custom-llm.mdx";
@@ -38,7 +35,7 @@ This video demonstrates how to add a custom integration to Galileo:
   </Step>
   <Step title="Configure Integration">
     Paste a valid JSON and **Save changes**.<br/><br/>
-    This JSON example uses API key authentication. [See more examples](#json-examples).
+    This JSON example uses API key authentication. See [JSON properties](#json-properties) below for an explanation of these and other properties, and instrutions for other authentication types.
 
   <CodeGroup>
     <SnippetPayloadApiKey/>
@@ -63,54 +60,86 @@ This video demonstrates how to add a custom integration to Galileo:
 </Steps>
 
 
-## JSON examples
+## JSON properties
 
-### API key authentication integration
+### Authentication properties
 
-For providers that use API key authentication (for example, [Together AI](https://www.together.ai/) or [Portkey](https://portkey.ai/)):
+#### API key authentication
 
-<CodeGroup>
-  <SnippetPayloadApiKeyTogether />
-</CodeGroup>
+For providers that use API key authentication (for example, [Portkey](https://portkey.ai/)), specify the following properties:
 
-<CodeGroup>
-  <SnippetPayloadApiKey/>
-</CodeGroup>
+- `"authentication_type"`: `"api_key"`.
+- `"api_key_header"`: The name of the header that the AI provider uses for API key authentication.
+  For example, for Portkey the name is `"x-portkey-api-key"`.
+  Consult your AI provider's documentation to find out what is the header name that it requires.
+- `"api_key_value"`: The API key to be used. 
 
-- Refer to your AI provider documentation for more info about the expected format for the `api_key_header` and `api_key_value`.
-- Many AI providers require an `Authorization` header with a `Bearer` prefix in the API key value. However, some API providers don't have these requirements.
+#### Bearer token authentication
 
-### OAuth2 integration
+For providers that use a static, pre-defined token for authentication (for example, [Together AI](https://www.together.ai/)), specify the following properties:
+
+- `"authentication_type"`: `"api_key"`.
+- `"api_key_header"`: `"Authorization"`.
+- `"api_key_value"`: `"Bearer: YOUR_TOKEN"` where `YOUR_TOKEN` is a long text sequence representing the authentication token.
+
+#### OAuth2 authentication
 
 For providers that require dynamically-generated bearer tokens:
 
-<CodeGroup>
-  <SnippetPayloadOAuth2Basic />
-</CodeGroup>
-
+- `"authentication_type"`: `"oauth2"`.
+- `"oauth2_token_url"`: Endpoint URL of the OAuth2 server. This endpoint must be compatible with the [OAuth2 Client Credentials Grant](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4).
+- `"authentication_scope"`: `"YOUR_SCOPE"` (optional, passed to the OAuth2 endpoint as the `scope` property of the token request payload).
+- `"token"`: `"{\"client_id\": \"YOUR_CLIENT_ID\", \"client_secret\": \"YOUR_CLIENT_SECRET\"}"` (an escaped JSON string containing the static client ID and secret that will be sent to the OAuth2 endpoint).
 
 <Note>
-Your `oauth2_token_url` must support the [OAuth2 Client Credentials Grant](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4) (RFC 6749 §4.4). Galileo exchanges the provided `client_id` and `client_secret` for an access token, which is then used as a Bearer token for LLM inference requests.
+The `access_token` field of the OAuth2 endpoint's JSON response will be used as a Bearer token for LLM inference requests.
 </Note>
 
-
-### No authentication integration
+#### No authentication
 
 For internal endpoints or providers that don't require authentication:
 
-<CodeGroup>
-  <SnippetPayloadNoAuth />
-</CodeGroup>
-
+- `"authentication_type"`: `"none"`.
 
 <Tip>
-The above examples cover the most common use cases. Most users won't need to go beyond this point. The sections below are for advanced scenarios like custom LLM handlers and single-tenant deployments.
+The above examples cover the most common use cases. Most users won't need to read beyond this point. The sections below are for advanced scenarios like custom LLM handlers and single-tenant deployments.
 </Tip>
 
+### Model properties
 
-<Note>
-The schema used in above examples comes from the [Custom Integrations API](/api-reference/integrations/create-or-update-integration-4). Refer to the API reference for the full list of available fields and options.
-</Note>
+The `model_properties` JSON property is used to configure the models that the AI provider supports.
+
+For each model, the following properties are available:
+
+- `"name"`: Name of the model on the AI provider. The value is passed verbatim to the AI provider on the inference request.
+- `"alias"`: The unique identifier of the model in Galileo. The value is displayed in the user interface when selecting models. If not provided, `name` will be used as a default value.
+- `"based_on"`: An optional alias of a built-in Galileo model.
+  If provided, the `supported_parameters` of the built-in model will be used for this custom integration model.
+- `"supported_parameters"`: A list of parameters that the custom model supports. Alternative to `based_on`,
+  with the difference that instead of copying the parameter names from a built-in model, it directly provides the list.
+
+If neither `based_on` or `supported_parameters` are provided, this parameter list will be used by default:
+`["frequency_penalty", "max_tokens", "presence_penalty", "stop", "temperature", "top_p"]`.
+
+List of built-in model aliases that can be used with `based_on`:
+
+<Accordion title="Click to expand">
+  Hidden content here.
+</Accordion>
+
+### General properties
+
+- `"default_model"`: `name` of the model to be used by default when a model is not selected. If not provided, defaults to the first model in `model_properties`.
+- `"endpoint"`: URL of the AI provider's Chat Completions endpoint.
+- `"custom_header_mapping"`: A dictionary mapping internal fields (`job_id`, `user_id`, `project_id`, `run_id`)
+  to custom header names that will be set on inference requests.
+- `"headers"`: A dictionary of header names as keys, and their corresponding values.
+  Will be set on the inference request, overriding any existing value.
+
+
+## API schema
+
+To configure custom integrations via Galileo's API instead of via the UI, refer to the [Custom Integrations API reference](/api-reference/integrations/create-or-update-integration-4).
 
 
 ## Troubleshooting
