@@ -14,13 +14,24 @@ import SnippetConfigureIntegrationSteps from "/snippets/content/configure-integr
 
 Experiments allow you to evaluate prompts, models, and your application code, using well-defined inputs, against metrics of your choice.
 
-## Configure an LLM integration
+## Run your experiment with UI
+
+
+
+
+
+
+## Run your experiment with code
+
+
+### Prerequisite: Configure an LLM integration
 
 To run an experiment using [prompts](/sdk-api/experiments/prompts) and a [dataset](/sdk-api/experiments/datasets), you need to set up an LLM integration. This can be used both to run the prompt using your dataset, and to evaluate the response against a metric.
 
 <SnippetConfigureIntegrationSteps/>
 
-## Run your experiment with code
+### Prerequisite: Configure an LLM integration
+
 
 <Steps>
 <Step title="Install dependencies">
@@ -63,7 +74,7 @@ Create a file called `app.py` (Python) or `app.ts` (TypeScript) and add the foll
 </CodeGroup>
 
 <Note>
-This code defaults to using GPT-4o. If you want to use a different model, update the `model_alias` in the prompt settings passed to the call to run experiment.
+This code defaults to using `gpt-5-mini`. If you want to use a different model, update the `model_alias` in the prompt settings passed to the call to run experiment.
 </Note>
 
 This code creates a prompt containing a system prompt and user prompt, and the user prompt has a mustache template to inject rows from the dataset. It also creates a dataset.
@@ -73,6 +84,7 @@ It then uses these to run an experiment, measuring context adherence.
 If the prompt or dataset already exist, they are loaded instead of being recreated.
 </Step>
 <Step title="Run your application">
+<a id="run-application" /> 
 Run your application using the following command in your terminal:
 
 <CodeGroup>
