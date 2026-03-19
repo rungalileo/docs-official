@@ -1,0 +1,37 @@
+```python main.py
+import os
+
+from dotenv import load_dotenv
+from galileo.experiments import run_experiment
+from galileo.schema.metrics import GalileoMetrics
+
+load_dotenv()
+
+# Disable the native Galileo logger — OTel handles tracing
+os.environ["GALILEO_LOGGING_DISABLED"] = "true"
+
+from agent import run_agent
+
+DATASET = [
+    {
+        "input": "Can you look up the account details for ACCT-1001?",
+        "output": "lookup_account(account_id='ACCT-1001')",
+    },
+    {
+        "input": "What is the current balance for ACCT-1002?",
+        "output": "lookup_account(account_id='ACCT-1002')",
+    },
+]
+
+results = run_experiment(
+    "my-otel-experiment",
+    dataset=DATASET,
+    function=run_agent,
+    metrics=[
+        GalileoMetrics.tool_error_rate,
+        GalileoMetrics.instruction_adherence,
+        GalileoMetrics.tool_selection_quality,
+    ],
+    project=os.environ["GALILEO_PROJECT"],
+)
+```
