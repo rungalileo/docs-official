@@ -96,7 +96,7 @@ The experiment runner calls your function once per dataset row. Your function re
 
 <SnippetRunAgent />
 
-The function should handle both `str` and `dict` inputs, since the experiment runner passes the deserialized row data which can be in either format depending on your dataset structure.
+The function should handle both `str` and `dict` inputs, since the experiment runner passes the parsed row data which can be in either format depending on your dataset structure.
 
 ## Run the experiment
 
@@ -113,12 +113,12 @@ Set `GALILEO_LOGGING_DISABLED=true` **before** importing your agent module. The 
 | Parameter | Description |
 |---|---|
 | `experiment_name` | Name shown in the Galileo console. If a duplicate name exists, a timestamp is appended automatically |
-| `dataset` | A list of dicts with `input` and optional `output` (ground truth) fields, a Galileo `Dataset` object, or a dataset name |
+| `dataset` | A list of dictionaries with `input` and optional `output` (ground truth) fields, a Galileo `Dataset` object, or a dataset name |
 | `dataset_id` | ID of an existing Galileo dataset. Alternative to `dataset` |
 | `dataset_name` | Name of an existing Galileo dataset. Alternative to `dataset` |
 | `function` | Your entry point function, called once per dataset row |
 | `metrics` | List of [metrics](/sdk-api/metrics/metrics) to evaluate. Supports built-in, [custom LLM-as-a-judge](/concepts/metrics/custom-metrics/custom-metrics-ui-llm), and [local metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-code#local-metrics) |
-| `project` | Project name (can also be set via `GALILEO_PROJECT` env var) |
+| `project` | Project name (can also be set via the `GALILEO_PROJECT` environment variable) |
 | `project_id` | Project ID. Alternative to `project` |
 | `experiment_tags` | Dictionary of key-value pairs to tag the experiment for filtering and comparison |
 
