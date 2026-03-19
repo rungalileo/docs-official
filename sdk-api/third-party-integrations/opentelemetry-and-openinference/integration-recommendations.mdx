@@ -94,8 +94,27 @@ The following headers are required:
 |--------|-------------|
 | `Galileo-API-Key` | Your Galileo API key |
 | `project` or `projectid` | Project name or project ID (at least one required) |
-| `logstream` or `logstreamid` | Log stream name or Log stream ID (at least one required) |
+| `logstream` or `logstreamid` | Log stream name or Log stream ID (required for logging, omit when using `experimentid`) |
+| `experimentid` | Experiment ID. Routes traces to an experiment instead of a Log stream. Mutually exclusive with `logstream`/`logstreamid` |
 | `Content-Type` | Must be `application/x-protobuf` |
+
+### Resource Attributes
+
+When sending spans for experiments, you can attach Galileo-specific resource attributes to the spans in the protobuf payload. These attributes are used by the backend to route traces and attach ground truth data for metric evaluation.
+
+<Note>
+If you are using the `GalileoSpanProcessor` from the Galileo SDK, these attributes are set automatically. You only need to set them manually when making direct POST calls.
+</Note>
+
+| Attribute | Required | Description |
+|-----------|----------|-------------|
+| `galileo.project.name` | No | Project name. Overrides the `project` header if set |
+| `galileo.experiment.id` | No | Experiment ID. Routes the trace to an experiment |
+| `galileo.logstream.name` | No | Log stream name. Ignored when `galileo.experiment.id` is set |
+| `galileo.session.id` | No | Session ID for grouping related traces |
+| `galileo.dataset.input` | No | Ground truth input for the dataset row (JSON string). Used by metrics like [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence) |
+| `galileo.dataset.output` | No | Expected output for the dataset row (JSON string). Used as ground truth for metric evaluation |
+| `galileo.dataset.metadata` | No | Additional metadata for the dataset row (JSON string) |
 
 ### Request Body
 
