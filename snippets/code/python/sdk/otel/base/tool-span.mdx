@@ -1,0 +1,13 @@
+```python Python
+from galileo.otel import start_galileo_span
+from galileo_core.schemas.logging.span import ToolSpan
+
+tool_span = ToolSpan(
+    name="get_weather",
+    input='{"location": "San Francisco", "unit": "celsius"}',
+    tool_call_id="call_abc123"
+)
+with start_galileo_span(tool_span) as span:
+    result = get_weather(location="San Francisco", unit="celsius")
+    tool_span.output = '{"temperature": 18, "condition": "sunny"}'
+```
