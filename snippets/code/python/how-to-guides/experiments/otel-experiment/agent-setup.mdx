@@ -1,0 +1,61 @@
+```python agent.py
+import asyncio
+import os
+from typing import Any
+
+from agent_framework import openai, tool
+from agent_framework.observability import enable_instrumentation
+from galileo.otel import GalileoSpanProcessor, add_galileo_span_processor
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+
+# ── OTel Setup ───────────────────────────────────────────────────────────────
+tracer_provider = TracerProvider()
+galileo_processor = GalileoSpanProcessor()
+add_galileo_span_processor(tracer_provider, galileo_processor)
+trace.set_tracer_provider(tracer_provider)
+
+enable_instrumentation(enable_sensitive_data=True)
+
+# ── Tools ────────────────────────────────────────────────────────────────────
+@tool(approval_mode="never_require")
+def lookup_account(account_id: str) -> str:
+    """Look up account details by account ID."""
+    accounts = {
+        "ACCT-1001": {"name": "Alice", "plan": "Premium", "balance": 120.00},
+        "ACCT-1002": {"name": "Bob", "plan": "Basic", "balance": 45.50},
+    }
+    account = accounts.get(account_id)
+    if account:
+        return f"Account {account_id}: {account}"
+    return f"Account {account_id} not found."
+
+# ── Agent ────────────────────────────────────────────────────────────────────
+client = openai.OpenAIChatClient(model_id="gpt-4.1-mini")
+
+agent = client.as_agent(
+    name="BillingAgent",
+    instructions="You are a helpful billing assistant. Use the lookup_account "
+    "tool to find customer account details.",
+    tools=[lookup_account],
+)
+
+
+# ── Experiment Entry Point ───────────────────────────────────────────────────
+async def _run_agent_async(user_message: str) -> str:
+    session = agent.create_session()
+    result = await agent.run(user_message, session=session)
+    return getattr(result, "text", str(result)).strip()
+
+
+def run_agent(input_data: Any) -> str:
+    """Called by Galileo's run_experiment for each dataset row."""
+    if isinstance(input_data, str):
+        user_message = input_data
+    elif isinstance(input_data, dict):
+        user_message = input_data.get("input", "")
+    else:
+        raise TypeError(f"Unsupported input type: {type(input_data)!r}")
+
+    return asyncio.run(_run_agent_async(user_message))
+```
