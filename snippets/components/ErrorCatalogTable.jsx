@@ -147,6 +147,34 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 1015,
+      "error_type": "configuration_error",
+      "error_group": "shared",
+      "severity": "high",
+      "default_message": "A configuration error prevented the operation from completing.",
+      "user_action": "Check your integration configuration and retry.",
+      "retriable": false
+    },
+    {
+      "error_code": 1016,
+      "error_type": "data_validation_error",
+      "error_group": "shared",
+      "severity": "medium",
+      "default_message": "Input data failed validation checks.",
+      "user_action": "Check your input data format and retry.",
+      "retriable": false
+    },
+    {
+      "error_code": 1017,
+      "error_type": "data_validation_error",
+      "error_group": "shared",
+      "severity": "medium",
+      "default_message": "Invalid role specified in share request.",
+      "user_action": "Make sure the role is one of the allowed values.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
       "error_code": 2000,
       "error_type": "data_validation_error",
       "error_group": "metrics",
@@ -204,6 +232,106 @@ export const ErrorCatalogTable = () => {
       "default_message": "Cannot perform this operation while the metric feedback queue is not accepting new feedback.",
       "user_action": "Please either let the feedback queue finish applying to the metric, or abort the generating/reviewing feedback queue.",
       "http_status_code": 409,
+      "retriable": false
+    },
+    {
+      "error_code": 2006,
+      "error_type": "workflow_error",
+      "error_group": "metrics",
+      "severity": "medium",
+      "default_message": "Custom scorer validation failed.",
+      "user_action": "Check your custom scorer code for errors.",
+      "retriable": false
+    },
+    {
+      "error_code": 2008,
+      "error_type": "system_error",
+      "error_group": "metrics",
+      "severity": "high",
+      "default_message": "The scoring model is temporarily unavailable.",
+      "user_action": "Please retry. If the issue persists, contact support.",
+      "retriable": true
+    },
+    {
+      "error_code": 2009,
+      "error_type": "not_applicable_reason",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "Required input data for this metric is missing.",
+      "user_action": "Ensure all required fields (e.g., ground truth, tools) are provided for this metric.",
+      "retriable": false
+    },
+    {
+      "error_code": 2010,
+      "error_type": "not_applicable_reason",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "This record returned an error, so the metric cannot be computed.",
+      "user_action": "Investigate the error on the original record. Metrics are computed once the record succeeds.",
+      "retriable": false
+    },
+    {
+      "error_code": 2011,
+      "error_type": "not_applicable_reason",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "This record was excluded by metric sampling settings.",
+      "user_action": "Adjust your sampling rules if you want this record scored.",
+      "retriable": false
+    },
+    {
+      "error_code": 2012,
+      "error_type": "not_applicable_reason",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "No child spans are eligible for this metric.",
+      "user_action": "Check that child spans match the metric's required types.",
+      "retriable": false
+    },
+    {
+      "error_code": 2013,
+      "error_type": "not_applicable_reason",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "This metric does not apply to this record type.",
+      "user_action": "This metric only applies to specific span types. No action needed.",
+      "retriable": false
+    },
+    {
+      "error_code": 2014,
+      "error_type": "not_applicable_reason",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "This record was excluded by a metric filter condition.",
+      "user_action": "Adjust the metric's filter conditions if you want this record scored.",
+      "retriable": false
+    },
+    {
+      "error_code": 2015,
+      "error_type": "not_applicable_reason",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "This metric does not aggregate scores from child spans.",
+      "user_action": "See individual child spans for their scores.",
+      "retriable": false
+    },
+    {
+      "error_code": 2016,
+      "error_type": "data_validation_error",
+      "error_group": "metrics",
+      "severity": "medium",
+      "default_message": "Cannot recompute metrics because the number of matching steps exceeds the allowed limit.",
+      "user_action": "Refine your filters to reduce the number of steps before recomputing metrics.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 2017,
+      "error_type": "llm_api_error",
+      "error_group": "metrics",
+      "severity": "high",
+      "default_message": "File upload(s) to LLM Provider failed.",
+      "user_action": "Update LLM Provider configuration.",
       "retriable": false
     },
     {
@@ -324,6 +452,46 @@ export const ErrorCatalogTable = () => {
       "default_message": "The specified dataset version does not exist.",
       "user_action": "Select a different version from the dataset version dropdown, or use the latest version.",
       "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 3512,
+      "error_type": "data_validation_error",
+      "error_group": "experiment",
+      "severity": "high",
+      "default_message": "Your selected Dataset doesn't have generated output values. Please provide a Prompt that uses {{input}} to generate outputs.",
+      "user_action": "Upload a dataset with a non-empty 'generated_output' column, or provide a Prompt that uses {{input}} to generate outputs.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 3513,
+      "error_type": "data_validation_error",
+      "error_group": "experiment",
+      "severity": "high",
+      "default_message": "A dataset is required for the generated output flow.",
+      "user_action": "Attach a dataset to the experiment before triggering it.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 3514,
+      "error_type": "configuration_error",
+      "error_group": "experiment",
+      "severity": "high",
+      "default_message": "A model must be configured to run a prompt template. Please select a model and integration before running the experiment.",
+      "user_action": "Select a model and integration in the experiment settings before running.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 3515,
+      "error_type": "data_validation_error",
+      "error_group": "experiment",
+      "severity": "medium",
+      "default_message": "Playground jobs cannot be created on experiments that already have traces.",
+      "user_action": "Create a new experiment run, or use an experiment that has no existing traces.",
+      "http_status_code": 400,
       "retriable": false
     },
     {
@@ -464,6 +632,16 @@ export const ErrorCatalogTable = () => {
       "default_message": "Dataset column validation failed. The 'input' column is required, or invalid columns are present.",
       "user_action": "Ensure your dataset contains the 'input' column. Optional columns are ground_truth, generated_output, and metadata.",
       "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 4014,
+      "error_type": "system_error",
+      "error_group": "dataset",
+      "severity": "high",
+      "default_message": "Dataset could not be loaded after creation.",
+      "user_action": "Retry the operation; if it persists, contact support with the dataset ID.",
+      "http_status_code": 500,
       "retriable": false
     },
     {
@@ -624,6 +802,406 @@ export const ErrorCatalogTable = () => {
       "default_message": "This user is not assigned as an annotator to this annotation queue.",
       "user_action": "Verify the user ID and annotation queue are correct.",
       "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 8004,
+      "error_type": "not_found_error",
+      "error_group": "annotations",
+      "severity": "medium",
+      "default_message": "User not found.",
+      "user_action": "Check the user ID and try again.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 8005,
+      "error_type": "data_validation_error",
+      "error_group": "annotations",
+      "severity": "medium",
+      "default_message": "Too many records to add to the annotation queue.",
+      "user_action": "Select fewer records to add and try again.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 8006,
+      "error_type": "permission_error",
+      "error_group": "annotations",
+      "severity": "medium",
+      "default_message": "You do not have permission to perform this action on the annotation queue.",
+      "user_action": "Verify you have the required permissions (read, update, etc.) for this annotation queue.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 8007,
+      "error_type": "data_validation_error",
+      "error_group": "annotations",
+      "severity": "medium",
+      "default_message": "A rubric with this name already exists in this annotation queue.",
+      "user_action": "Try a different name that is not already present in the listed rubrics of this queue.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 8008,
+      "error_type": "data_validation_error",
+      "error_group": "annotations",
+      "severity": "medium",
+      "default_message": "New ordering must include all rubrics in the queue, and only rubrics in this queue.",
+      "user_action": "Ensure your ordering includes all rubrics currently in the queue, with no extra or missing rubric IDs.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 8009,
+      "error_type": "system_error",
+      "error_group": "annotations",
+      "severity": "high",
+      "default_message": "Failed to create rating for annotation.",
+      "user_action": "Retry the request; if it persists, contact support with the annotation ID and details.",
+      "http_status_code": 500,
+      "retriable": false
+    },
+    {
+      "error_code": 8500,
+      "error_type": "credentials_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "Social login verification failed.",
+      "user_action": "Verify the SSO provider configuration and try again.",
+      "http_status_code": 401,
+      "retriable": false
+    },
+    {
+      "error_code": 8501,
+      "error_type": "data_validation_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "Unsupported social login provider.",
+      "user_action": "Use a supported SSO provider and retry.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 8502,
+      "error_type": "configuration_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "SAML is not configured for this environment.",
+      "user_action": "Contact your administrator to enable SAML authentication.",
+      "http_status_code": 501,
+      "retriable": false
+    },
+    {
+      "error_code": 8503,
+      "error_type": "credentials_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "SAML response validation or authentication failed.",
+      "user_action": "Contact your administrator to verify the IdP configuration and try again.",
+      "http_status_code": 401,
+      "retriable": false
+    },
+    {
+      "error_code": 8504,
+      "error_type": "credentials_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "Failed to fetch GitHub user information with provided access token.",
+      "user_action": "Re-authenticate with GitHub and try again.",
+      "http_status_code": 401,
+      "retriable": false
+    },
+    {
+      "error_code": 8505,
+      "error_type": "data_validation_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "Could not determine email from GitHub account.",
+      "user_action": "Ensure the GitHub account has a verified email address.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 8506,
+      "error_type": "data_validation_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "Email or subject not found in SSO token.",
+      "user_action": "Contact your administrator to configure the identity provider to send email claims.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 8507,
+      "error_type": "system_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "Failed to create system user.",
+      "user_action": "Retry the request or contact support if it persists.",
+      "http_status_code": 500,
+      "retriable": false
+    },
+    {
+      "error_code": 8508,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "You do not have permission to perform this action.",
+      "user_action": "Verify you have the required permissions.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 8509,
+      "error_type": "system_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "Failed to resolve organization during SSO role sync.",
+      "user_action": "Retry login; if the issue persists, contact support.",
+      "http_status_code": 500,
+      "retriable": false
+    },
+    {
+      "error_code": 8510,
+      "error_type": "data_validation_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "No valid organization-role assignments found in the SSO token.",
+      "user_action": "Ask your administrator to map organization-role claims in the identity provider.",
+      "http_status_code": 401,
+      "retriable": false
+    },
+    {
+      "error_code": 8511,
+      "error_type": "system_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "Failed to resolve organization after SSO role sync.",
+      "user_action": "Retry login; if the issue persists, contact support.",
+      "http_status_code": 500,
+      "retriable": false
+    },
+    {
+      "error_code": 8512,
+      "error_type": "system_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "Failed to resolve user membership after SSO role sync.",
+      "user_action": "Retry login; if the issue persists, contact support.",
+      "http_status_code": 500,
+      "retriable": false
+    },
+    {
+      "error_code": 8513,
+      "error_type": "system_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "Organization could not be loaded after SSO-driven creation.",
+      "user_action": "Retry login; if the issue persists, contact support.",
+      "http_status_code": 500,
+      "retriable": false
+    },
+    {
+      "error_code": 8514,
+      "error_type": "credentials_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "Account locked. Please reset your password.",
+      "user_action": "Reset your password using the \"Forgot password\" link, or contact your administrator.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 8515,
+      "error_type": "configuration_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "Email and password login is disabled for this environment.",
+      "user_action": "Use your organization's SSO provider to log in, or contact your administrator.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 9000,
+      "error_type": "not_found_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The view does not exist in the current project, or you do not have access to it.",
+      "user_action": "Go back to your project and select an existing view, or create a new one.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 9001,
+      "error_type": "not_found_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The requested view could not be found.",
+      "user_action": "Please verify and try again.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 9002,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The view does not belong to this resource.",
+      "user_action": "Please choose a different view.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 9003,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The view does not belong to the current project.",
+      "user_action": "Please choose a valid view for the current project.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 9004,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "A view with this name already exists in this project.",
+      "user_action": "Please try with a different name for this view.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 9005,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "Cannot change the view from project-level to user-level.",
+      "user_action": "Create a new user-level view instead of changing visibility from Project to User.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 9006,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "Cannot delete the default view.",
+      "user_action": "Set a different view as default before deleting this one.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 9007,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "Cannot change visibility of the default view.",
+      "user_action": "Set a different view as default before changing visibility of this one.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 9500,
+      "error_type": "system_error",
+      "error_group": "authorization",
+      "severity": "high",
+      "default_message": "The authorization service is temporarily unavailable.",
+      "user_action": "Please retry in a few moments. If the problem persists, contact your administrator to verify the health of the authorization service.",
+      "retriable": true,
+      "http_status_code": 503
+    },
+    {
+      "error_code": 10000,
+      "error_type": "data_validation_error",
+      "error_group": "user_preferences",
+      "severity": "medium",
+      "default_message": "Invalid preference scope. For project-scoped preferences, include project_id and either log_stream_id or experiment_id. For global preferences, omit them.",
+      "user_action": "Check the scope rules and provide only the IDs required for that scope.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 10001,
+      "error_type": "configuration_error",
+      "error_group": "user_preferences",
+      "severity": "medium",
+      "default_message": "Only organization admins can set global preferences.",
+      "user_action": "Ask an org admin to update the global preferences.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 10002,
+      "error_type": "configuration_error",
+      "error_group": "user_preferences",
+      "severity": "medium",
+      "default_message": "You can only set preferences for your own account.",
+      "user_action": "Use your own user account when updating preferences.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 10003,
+      "error_type": "not_found_error",
+      "error_group": "user_preferences",
+      "severity": "low",
+      "default_message": "User preference not found.",
+      "user_action": "Please save the user preferences first and try again.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 10004,
+      "error_type": "data_validation_error",
+      "error_group": "user_preferences",
+      "severity": "medium",
+      "default_message": "Preference already exists.",
+      "user_action": "Please retry updating the preference again.",
+      "retriable": true,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 10500,
+      "error_type": "data_validation_error",
+      "error_group": "logstream",
+      "severity": "medium",
+      "default_message": "A log stream with this name already exists for this project.",
+      "user_action": "Please use another name.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 10501,
+      "error_type": "data_validation_error",
+      "error_group": "logstream",
+      "severity": "medium",
+      "default_message": "Log stream cannot be created in this project type.",
+      "user_action": "Use a different project that supports log streams.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 10502,
+      "error_type": "system_error",
+      "error_group": "logstream",
+      "severity": "high",
+      "default_message": "Failed to load created log stream.",
+      "user_action": "Retry the operation; if it persists, contact support.",
+      "http_status_code": 500,
+      "retriable": false
+    },
+    {
+      "error_code": 11000,
+      "error_type": "data_validation_error",
+      "error_group": "organization",
+      "severity": "medium",
+      "default_message": "Organization name results in a slug that is too long.",
+      "user_action": "Use a shorter organization name and try again.",
+      "http_status_code": 422,
       "retriable": false
     }
   ];
