@@ -14,16 +14,37 @@ import SnippetConfigureIntegrationSteps from "/snippets/content/configure-integr
 
 Experiments allow you to evaluate prompts, models, and your application code, using well-defined inputs, against metrics of your choice.
 
-## Configure an LLM integration
+## Run an experiment with UI
 
-To run an experiment using [prompts](/sdk-api/experiments/prompts) and a [dataset](/sdk-api/experiments/datasets), you need to set up an LLM integration. This can be used both to run the prompt using your dataset, and to evaluate the response against a metric.
+In the Galileo console UI, "Create Experiment" buttons allow you to easily add experiments to a project.
+
+![Create Experiment button](/images/console-ui/experiment-create-button.png)
+
+You can use a sample dataset and sample prompt to create your first experiment.
+
+![Create Experiment modal](/images/console-ui/experiment-create-modal.png)
+
+If you don't already have an integration (e.g. with OpenAI), a "Configure integration" link appears for you to add a valid integration for a prompt.
+
+![Create Experiment result](/images/console-ui/experiment-create-result.png)
+
+After successfully creating an experiment, you can view the results from the "Experiments" page of a Galileo project.
+
+
+## Run an experiment with code
+
+### Prerequisite: Configure an LLM integration
+
+To run an experiment using a [prompt](/sdk-api/experiments/prompts) and a [dataset](/sdk-api/experiments/datasets), you need to set up an LLM integration. An integration is also required to evaluate LLM outputs with metrics.
 
 <SnippetConfigureIntegrationSteps/>
 
-## Run your experiment with code
+### Example experiment with code
+
+Below is a step-by-step guide. [Jump to the application code.](#step-create-your-app-code)
 
 <Steps>
-<Step title="Install dependencies">
+<Step title="Install dependencies" id="step-install-dependencies">
 Install the **Galileo SDK**, and the dotenv package using the following command in your terminal:
 
 <CodeGroup>
@@ -38,7 +59,7 @@ npm install galileo tsx dotenv
 
 </CodeGroup>
 </Step>
-<Step title="Set up your environment variables">
+<Step title="Set up your environment variables" id="step-set-up-env-vars">
 Create an `.env` file in your project folder, and set:
 
 - Your [Galileo API key](https://app.galileo.ai/settings/api-keys)
@@ -55,7 +76,7 @@ GALILEO_PROJECT="your-galileo-project-name"
 
 </CodeGroup>
 </Step>
-<Step title="Create your application code">
+<Step title="Create your application code" id="step-create-your-app-code">
 Create a file called `app.py` (Python) or `app.ts` (TypeScript) and add the following code:
 <CodeGroup>
 <SnippetExperimentPython />
@@ -63,7 +84,7 @@ Create a file called `app.py` (Python) or `app.ts` (TypeScript) and add the foll
 </CodeGroup>
 
 <Note>
-This code defaults to using GPT-4o. If you want to use a different model, update the `model_alias` in the prompt settings passed to the call to run experiment.
+This code defaults to using `gpt-5-mini`. If you want to use a different model, update the `model_alias` in the prompt settings passed to the call to run experiment.
 </Note>
 
 This code creates a prompt containing a system prompt and user prompt, and the user prompt has a mustache template to inject rows from the dataset. It also creates a dataset.
@@ -72,7 +93,7 @@ It then uses these to run an experiment, measuring context adherence.
 
 If the prompt or dataset already exist, they are loaded instead of being recreated.
 </Step>
-<Step title="Run your application">
+<Step title="Run your application" id="step-run-your-application">
 Run your application using the following command in your terminal:
 
 <CodeGroup>
@@ -87,7 +108,7 @@ npx tsx app.ts
 
 </CodeGroup>
 </Step>
-<Step title="View the results in your terminal">
+<Step title="View the results in your terminal" id="step-view-the-results">
 <CodeGroup>
 
 ```output Terminal
@@ -102,7 +123,7 @@ Results will be available at https://app.galileo.ai/project/.../experiments/...
 
 </CodeGroup>
 </Step>
-<Step title="See the experiment in Galileo">
+<Step title="See the experiment in Galileo" id="step-see-the-experiment-in-ui">
 Open the experiment in the Galileo console using the URL output to your terminal. You will see the logged experiment with 2 rows, one for each entry in the dataset.
 
 ![The experiment in Galileo with 2 traces](/getting-started/experiments/experiment-traces.webp)
