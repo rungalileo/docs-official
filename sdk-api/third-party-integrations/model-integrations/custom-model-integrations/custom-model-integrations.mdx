@@ -19,7 +19,7 @@ import AliasesBedrock from "/snippets/code/multilingual/integrations/custom/alia
 import AliasesDatabricks from "/snippets/code/multilingual/integrations/custom/aliases/aliases-databricks.mdx";
 import AliasesMistral from "/snippets/code/multilingual/integrations/custom/aliases/aliases-mistral.mdx";
 import AliasesNvidia from "/snippets/code/multilingual/integrations/custom/aliases/aliases-nvidia.mdx";
-import AliasesOpenai from "/snippets/code/multilingual/integrations/custom/aliases/aliases-openai.mdx";
+import AliasesOpenAI from "/snippets/code/multilingual/integrations/custom/aliases/aliases-openai.mdx";
 import AliasesVertexAi from "/snippets/code/multilingual/integrations/custom/aliases/aliases-vertex-ai.mdx";
 import AliasesWriter from "/snippets/code/multilingual/integrations/custom/aliases/aliases-writer.mdx";
 
@@ -81,7 +81,7 @@ For providers that use API key authentication (for example, [Portkey](https://po
 - `"api_key_header"`: The name of the header that the AI provider uses for API key authentication.
   For example, for Portkey the name is `"x-portkey-api-key"`.
   Consult your AI provider's documentation to find out what is the header name that it requires.
-- `"api_key_value"`: The API key to be used. 
+- `"api_key_value"`: The API key to be used.
 
 #### Bearer token authentication
 
@@ -153,7 +153,7 @@ List of built-in model aliases that can be used with `based_on`:
       <AliasesNvidia />
     </Accordion>
     <Accordion title="OpenAI">
-      <AliasesOpenai />
+      <AliasesOpenAI />
     </Accordion>
     <Accordion title="Vertex AI">
       <AliasesVertexAi />
@@ -207,7 +207,8 @@ curl https://api.portkey.ai/v1/chat/completions \
 Custom LLM handlers are only available on single-tenant Galileo deployments. They require `api` v1.848.0+ and `runners` v2.239.0+.
 </Warning>
 
-The [JSON examples](#json-examples) work when your LLM provider exposes a standard OpenAI-compatible `/chat/completions` endpoint. However, some providers use proprietary request formats, non-standard response structures, or custom authentication flows that can't be handled by configuration alone.
+The [JSON properties](#json-properties) example works when your LLM provider exposes a standard OpenAI-compatible `/chat/completions` endpoint.
+However, some providers use proprietary request formats, non-standard response structures, or custom authentication flows that can't be handled by configuration alone.
 
 For these cases, you can write a **custom LLM handler** — a Python class that gives you full control over how Galileo sends requests to your model and interprets the responses.
 
