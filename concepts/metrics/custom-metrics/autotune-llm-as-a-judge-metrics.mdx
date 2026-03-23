@@ -1,0 +1,92 @@
+---
+title: Improve LLM-as-a-Judge Metrics with Autotune
+description: Use Autotune to turn expert feedback into a structured tuning workflow that improves LLM-as-a-judge metric accuracy over time
+---
+
+LLM-as-a-judge metrics evaluate quality of LLM applications at scale, but may not always reflect your team's domain-specific standards out of the box. Applied to a new domain, a metric can produce false positives, false negatives, or miss important edge cases — usually because the metric prompt doesn't fully capture your evaluation criteria.
+
+Fixing this manually is time-consuming and hard to scale. Teams typically rewrite prompts, test changes, and repeat that cycle across multiple rounds with no guarantee the result matches what a domain expert would expect.
+
+Autotune converts expert feedback into a structured tuning workflow. Annotators and subject matter experts review metric outputs, correct results, and explain their reasoning in natural language. Galileo aggregates that feedback, adapts the metric prompt, and shows exactly what changed.
+
+## When to use Autotune
+
+- A metric is being applied to a new domain or use case
+- Reviewers consistently disagree with metric outputs
+- Domain-specific edge cases aren't captured in the current prompt
+- Manual prompt tuning is too slow to scale
+
+## How it works
+
+<Steps>
+<Step title="Review metric results across logs">
+Examine metric outputs across your logged spans, traces, or sessions to identify where the metric is underperforming.
+</Step>
+<Step title="Identify incorrect outputs">
+Flag results that are incorrect or do not match your team's expectations.
+</Step>
+<Step title="Enter the expected value and explain why it's correct">
+For each flagged result, enter the value the metric should have produced and add a natural-language explanation of why.
+</Step>
+<Step title="Retune the metric">
+Run Autotune using the collected feedback. Galileo aggregates the feedback and adapts the metric prompt accordingly.
+</Step>
+<Step title="Review and test the updated prompt">
+Inspect the changes to the prompt and test the updated metric before publishing.
+</Step>
+<Step title="Apply the improved metric to future runs">
+Publish the updated metric so it is used for new logs and evaluations.
+</Step>
+</Steps>
+
+<Note>
+You can optionally recompute historical results with the updated metric after publishing.
+</Note>
+
+## How to use Autotune
+
+See Autotune in action:
+
+<iframe
+  width="100%"
+  height="400"
+  src="https://www.youtube.com/embed/coGbIzaVud4"
+  title="Autotune: Improve LLM-as-a-Judge Metrics with Expert Feedback"
+  frameBorder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
+
+## How to provide good feedback
+
+Autotune supports unlimited feedback per metric, so quality improves as your team adds examples and rationale. Good feedback should include:
+
+- What output the metric should have produced
+- Why the corrected result is right
+
+Vague corrections like "this seems off" give insufficient signal to adapt the prompt.
+
+## Which metrics are supported?
+
+| Category | Supported |
+| :--- | :--- |
+| Metric types | Out-of-the-box and custom LLM-as-a-judge metrics |
+| Output types | Boolean, categorical, percentage, count, and discrete |
+| Metric levels | Spans, traces, and sessions |
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="Custom LLM-as-a-Judge Metrics" icon="gauge" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-llm">
+    Learn how to create and configure custom LLM-as-a-judge metrics in the Galileo console.
+</Card>
+<Card title="LLM-as-a-Judge Prompt Engineering Guide" icon="wrench" horizontal href="/concepts/metrics/custom-metrics/prompt-engineering">
+    Learn best practices for writing effective metric prompts.
+</Card>
+<Card title="Continuous Learning via Human Feedback" icon="users" horizontal href="/concepts/metrics/custom-metrics/continuous-learning-via-human-feedback">
+    Explore how human feedback can be used to continuously improve your metrics over time.
+</Card>
+<Card title="Metrics Overview" icon="chart-bar" horizontal href="/concepts/metrics/overview">
+    Explore Galileo's comprehensive metrics framework for evaluating and improving AI system performance.
+</Card>
+</CardGroup>
