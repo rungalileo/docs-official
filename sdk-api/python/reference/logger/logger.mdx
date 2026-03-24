@@ -77,11 +77,11 @@ def add_agent_span(self,
                    name: Optional[str]=None,
                    duration_ns: Optional[int]=None,
                    created_at: Optional[datetime]=None,
-                   metadata: Optional[dict[str, str]]=None,
+                   metadata: Optional[dict[str, MetadataValue]]=None,
                    tags: Optional[list[str]]=None,
                    agent_type: Optional[AgentType]=None,
                    step_number: Optional[int]=None,
-                   status_code: Optional[int]=None) -> AgentSpan
+                   status_code: Optional[int]=None) -> LoggedAgentSpan
 ```
 
 Add an agent type span to the current parent.
@@ -114,7 +114,7 @@ Add an agent type span to the current parent.
 
 **Returns**
 
-- `AgentSpan`: The created span.
+- `LoggedAgentSpan`: The created span.
 
 ### add_llm_span
 
@@ -129,7 +129,7 @@ def add_llm_span(self,
                  name: Optional[str]=None,
                  created_at: Optional[datetime]=None,
                  duration_ns: Optional[int]=None,
-                 metadata: Optional[dict[str, str]]=None,
+                 metadata: Optional[dict[str, MetadataValue]]=None,
                  tags: Optional[list[str]]=None,
                  num_input_tokens: Optional[int]=None,
                  num_output_tokens: Optional[int]=None,
@@ -203,7 +203,7 @@ def add_protect_span(self,
                      response: Optional[Response]=None,
                      redacted_response: Optional[Response]=None,
                      created_at: Optional[datetime]=None,
-                     metadata: Optional[dict[str, str]]=None,
+                     metadata: Optional[dict[str, MetadataValue]]=None,
                      tags: Optional[list[str]]=None,
                      status_code: Optional[int]=None,
                      step_number: Optional[int]=None) -> ToolSpan
@@ -247,7 +247,7 @@ def add_retriever_span(self,
                        name: Optional[str]=None,
                        duration_ns: Optional[int]=None,
                        created_at: Optional[datetime]=None,
-                       metadata: Optional[dict[str, str]]=None,
+                       metadata: Optional[dict[str, MetadataValue]]=None,
                        tags: Optional[list[str]]=None,
                        status_code: Optional[int]=None,
                        step_number: Optional[int]=None) -> RetrieverSpan
@@ -285,7 +285,7 @@ def add_single_llm_span_trace(self,
                               name: Optional[str]=None,
                               created_at: Optional[datetime]=None,
                               duration_ns: Optional[int]=None,
-                              metadata: Optional[dict[str, str]]=None,
+                              metadata: Optional[dict[str, MetadataValue]]=None,
                               tags: Optional[list[str]]=None,
                               num_input_tokens: Optional[int]=None,
                               num_output_tokens: Optional[int]=None,
@@ -295,8 +295,8 @@ def add_single_llm_span_trace(self,
                               time_to_first_token_ns: Optional[int]=None,
                               dataset_input: Optional[str]=None,
                               dataset_output: Optional[str]=None,
-                              dataset_metadata: Optional[dict[str, str]]=None,
-                              span_step_number: Optional[int]=None) -> Trace
+                              dataset_metadata: Optional[dict[str, MetadataValue]]=None,
+                              span_step_number: Optional[int]=None) -> LoggedTrace
 ```
 
 Create a new trace with a single span and add it to the list of traces.
@@ -356,7 +356,7 @@ The trace is automatically concluded.
 
 **Returns**
 
-- `Trace`: The created trace.
+- `LoggedTrace`: The created trace.
 
 ### add_tool_span
 
@@ -369,7 +369,7 @@ def add_tool_span(self,
                   name: Optional[str]=None,
                   duration_ns: Optional[int]=None,
                   created_at: Optional[datetime]=None,
-                  metadata: Optional[dict[str, str]]=None,
+                  metadata: Optional[dict[str, MetadataValue]]=None,
                   tags: Optional[list[str]]=None,
                   status_code: Optional[int]=None,
                   tool_call_id: Optional[str]=None,
@@ -419,10 +419,10 @@ def add_workflow_span(self,
                       name: Optional[str]=None,
                       duration_ns: Optional[int]=None,
                       created_at: Optional[datetime]=None,
-                      metadata: Optional[dict[str, str]]=None,
+                      metadata: Optional[dict[str, MetadataValue]]=None,
                       tags: Optional[list[str]]=None,
                       step_number: Optional[int]=None,
-                      status_code: Optional[int]=None) -> WorkflowSpan
+                      status_code: Optional[int]=None) -> LoggedWorkflowSpan
 ```
 
 Add a workflow span to the current parent. This is useful when you want to create a nested workflow span
@@ -455,19 +455,19 @@ move out of the nested workflow, use conclude().
 
 **Returns**
 
-- `WorkflowSpan`: The created span.
+- `LoggedWorkflowSpan`: The created span.
 
 ### async_flush
 
 ```python
-async def async_flush(self) -> list[Trace]
+async def async_flush(self) -> list[LoggedTrace]
 ```
 
 Async upload all traces to Galileo.
 
 **Returns**
 
-- `List[Trace]`: The list of uploaded traces.
+- `list[LoggedTrace]`: The list of uploaded traces.
 
 ### async_ingest_traces
 
@@ -512,8 +512,8 @@ Async start a new session or use an existing session if an external ID is provid
 
 ```python
 def conclude(self,
-             output: Optional[str]=None,
-             redacted_output: Optional[str]=None,
+             output: Optional[IngestOutputType]=None,
+             redacted_output: Optional[IngestOutputType]=None,
              duration_ns: Optional[int]=None,
              status_code: Optional[int]=None,
              conclude_all: bool=False) -> Optional[StepWithChildSpans]
@@ -525,8 +525,12 @@ workflow spans, this will point the workflow back to the parent of the current w
 
 **Arguments**
 
-- `output` (`Optional[str]`): Output of the node.
-- `redacted_output` (`Optional[str]`): Output that removes any sensitive information (redacted output of the node).
+- `output` (`Optional[IngestOutputType]`): Output of the node.
+    For traces, only str or list[IngestContentBlock]
+    are stored directly; other types (Message, Sequence[Document]) are
+    auto-coerced to JSON strings.
+    For workflow/agent spans, all IngestOutputType variants are accepted as-is.
+- `redacted_output` (`Optional[IngestOutputType]`): Output that removes any sensitive information (redacted output of the node).
 - `duration_ns` (`Optional[int]`): Duration of the node in nanoseconds.
 - `status_code` (`Optional[int]`): Status code of the node execution.
 - `conclude_all` (`bool`): If True, all spans will be concluded, including the current span. False by default.
@@ -538,14 +542,14 @@ workflow spans, this will point the workflow back to the parent of the current w
 ### flush
 
 ```python
-def flush(self) -> list[Trace]
+def flush(self) -> list[LoggedTrace]
 ```
 
 Upload all traces to Galileo.
 
 **Returns**
 
-- `List[Trace]`: The list of uploaded traces.
+- `list[LoggedTrace]`: The list of uploaded traces.
 
 ### get_tracing_headers
 
@@ -649,8 +653,8 @@ Start a new session or use an existing session if an external ID is provided.
 
 ```python
 def start_trace(self,
-                input: StepAllowedInputType | dict,
-                redacted_input: Optional[StepAllowedInputType | dict]=None,
+                input: Union[TextOrContentBlocks, dict],
+                redacted_input: Optional[Union[TextOrContentBlocks, dict]]=None,
                 name: Optional[str]=None,
                 duration_ns: Optional[int]=None,
                 created_at: Optional[datetime]=None,
@@ -659,7 +663,7 @@ def start_trace(self,
                 dataset_input: Optional[str]=None,
                 dataset_output: Optional[str]=None,
                 dataset_metadata: Optional[dict[str, MetadataValue]]=None,
-                external_id: Optional[str]=None) -> Trace
+                external_id: Optional[str]=None) -> LoggedTrace
 ```
 
 Create a new trace and add it to the list of traces.
@@ -668,13 +672,14 @@ Once this trace is complete, you can close it out by calling conclude().
 
 **Arguments**
 
-- `input` (`StepAllowedInputType | dict`): Input to the node.
-    Expected format: String, dict (auto-converted to JSON), or sequence of Message objects.
+- `input` (`TextOrContentBlocks | dict`): Input to the node.
+    Expected format: String, dict (auto-converted to JSON),
+    or list of IngestContentBlock objects for multimodal content.
     Examples -
         - String: "User query: What is the weather today?"
         - Dict: `{"query": "hello", "context": "world"}` (auto-converted to JSON string)
-        - Messages: `[Message(content="Hello", role=MessageRole.user)]`
-- `redacted_input` (`Optional[StepAllowedInputType | dict]`): Input that removes any sensitive information (redacted input).
+        - Content blocks: `[TextContentBlock(text="Analyze"), DataContentBlock(...)]`
+- `redacted_input` (`Optional[TextOrContentBlocks | dict]`): Input that removes any sensitive information (redacted input).
     Same format as input parameter.
 - `name` (`Optional[str]`): Name of the trace.
     Example: "weather_query_trace", "customer_support_session"
@@ -696,7 +701,7 @@ Once this trace is complete, you can close it out by calling conclude().
 
 **Returns**
 
-- `Trace`: The created trace.
+- `LoggedTrace`: The created trace.
 
 ### terminate
 
