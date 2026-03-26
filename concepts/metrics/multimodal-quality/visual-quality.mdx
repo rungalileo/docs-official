@@ -3,9 +3,11 @@ title: Visual Quality
 description: Evaluate whether the quality of an input image in an LLM span is sufficient for the associated text prompt task to be reliably performed
 ---
 
+import { Pill } from "/snippets/components/pill.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
 import { Scale } from "/snippets/components/scale.mdx";
+import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
   <strong>Visual Quality</strong> is a binary metric that judges whether the quality of an input image in an LLM span is sufficient for the task described in the adjoining text prompt to be reliably performed.
@@ -45,6 +47,13 @@ This is a **boolean** metric, returning a confidence score that the image qualit
 | **0** | Low Quality  | The quality of the image is low and information required for performing the task is unprocessable |
 | **1** | High Quality | The quality of the image is high and performing the task is feasible                              |
 
+## How to interpret Visual Quality
+
+Visual Quality answers one question: is the image quality good enough to reliably perform the specific task described in the adjoining text prompt?
+
+- If the image is <Pill label="High Quality" />, task-critical information is visible and processable.
+- If the image is <Pill label="Low Quality" />, artifacts (blur, glare, compression, darkness, occlusion, crop, distortion) make task-critical information unprocessable.
+
 ## When to use this metric
 
 <MetricWhenToUse
@@ -69,6 +78,41 @@ This is a **boolean** metric, returning a confidence score that the image qualit
   ]}
 />
 
+## Example scenario
+
+<Card>
+  <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+    <div style={{fontSize: '1.25rem', color: 'var(--primary-color)'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Reading a serial number from a photo</h3>
+  </div>
+
+<div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>Task prompt:</strong> “Read the device serial number and return it exactly.”
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>
+    High Quality (<Pill label="High Quality" />
+    ):
+  </strong>{" "}
+  The serial number region is in focus, not occluded, and the characters are legible.
+</div>
+
+<div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
+  <strong>
+    Low Quality (<Pill label="Low Quality" />
+    ):
+  </strong>{" "}
+  Motion blur or glare obscures the serial number region, making characters unreadable and the task infeasible.
+</div>
+
+</Card>
+
 ## Inputs considered
 
 The evaluator examines the following when available:
@@ -77,6 +121,20 @@ The evaluator examines the following when available:
 - The text prompt that defines the task the model is expected to perform on that image
 
 Quality is evaluated strictly with respect to whether the task described in the prompt can be completed; a low-resolution image that is perfectly adequate for one task may be insufficient for another.
+
+## Calculation method
+
+Visual Quality is computed through a multi-step process:
+
+<Steps>
+  <Step title="Task grounding">The evaluator reads the adjoining text prompt to identify what information in the image is required to complete the task.</Step>
+  <Step title="Visual evidence review">The evaluator inspects the image for quality issues (blur, glare, compression, darkness, occlusion, crop, distortion) that affect task-critical regions.</Step>
+  <Step title="Binary decision">
+    The evaluator returns a binary label: <Pill label="High Quality" /> if the task is feasible from the visual evidence, otherwise <Pill label="Low Quality" />.
+  </Step>
+</Steps>
+
+<Note>This metric is typically computed by prompting an LLM with access to the image and the text prompt, which may require additional LLM calls to compute and can impact usage and billing.</Note>
 
 ## What constitutes high quality (1)
 
@@ -108,7 +166,44 @@ Quality is evaluated strictly with respect to whether the task described in the 
   </Card>
 </CardGroup>
 
+## Performance Benchmarks
+
+We will publish Visual Quality benchmark results once an internal evaluation dataset and gold labels are available.
+
+<Note>Benchmarks for this metric are not yet published. When available, this section will include model-level performance and a classification report with a normalized confusion matrix.</Note>
+
+<Note type="warning">Placeholder benchmarks below are rendered only as a template. Replace the table values and the classification report string with your real benchmark outputs.</Note>
+
+| Model             | F1 (True) |
+| :---------------- | :-------: |
+| GPT-4.1           |   0.84    |
+| Claude Sonnet 4.6 |   0.81    |
+| Gemini 3.1 Flash  |   0.85    |
+
+### GPT-4.1 Classification Report
+
+<BooleanClassificationReport
+  report={`            precision    recall  f1-score   support
+
+False 0.0000 0.0000 0.0000 1
+True 0.0000 0.0000 0.0000 1
+
+accuracy 0.0000 2
+macro avg 0.0000 0.0000 0.0000 2
+weighted avg 0.0000 0.0000 0.0000 2`}
+negativeLabel="Low Quality"
+positiveLabel="High Quality"
+negativeClass="False"
+positiveClass="True"
+/>
+
 ## Related Resources
+
+If you would like to dive deeper or start implementing Visual Quality, check out the following resources:
+
+### Examples
+
+- [Visual Quality Examples](https://app.galileo.ai) - Log in and explore the "Visual Quality" Log Stream in the "Preset Metric Examples" Project to see this metric in action.
 
 ### Related Concepts
 
