@@ -1025,6 +1025,26 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 8516,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "Your email is not allowed. Please contact Galileo's support.",
+      "user_action": "Verify that you are using an authorized email address, or contact support for assistance.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 8517,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "This user account has been disabled. Please contact Galileo's support.",
+      "user_action": "Contact Galileo's support team to resolve account access.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
       "error_code": 9000,
       "error_type": "not_found_error",
       "error_group": "component_view",
