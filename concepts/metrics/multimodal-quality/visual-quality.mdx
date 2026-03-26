@@ -1,6 +1,6 @@
 ---
 title: Visual Quality
-description: Evaluate whether the quality of an input image in an LLM span is sufficient for the associated text prompt task to be reliably performed
+description: Evaluate whether the quality of an input / PDF in an LLM span is sufficient for the associated text prompt task to be reliably performed
 ---
 
 import { Pill } from "/snippets/components/pill.mdx";
@@ -10,49 +10,29 @@ import { Scale } from "/snippets/components/scale.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
-  <strong>Visual Quality</strong> is a binary metric that judges whether the quality of an input image in an LLM span is sufficient for the task described in the adjoining text prompt to be reliably performed.
+  <strong>Visual Quality</strong> is a binary metric that judges whether the quality of an input image / PDF in an LLM span is sufficient for the task described in the adjoining text prompt to be reliably performed.
 </DefinitionCard>
 
-The Visual Quality metric is task-grounded rather than purely aesthetic: an image is considered high quality only if the specific task can be completed reliably from the visual evidence. An image is considered low quality when blur, glare, compression artifacts, darkness, occlusion, crop, distortion, or other degradation makes task-critical information unprocessable.
-
-This is a **boolean** metric, returning a confidence score that the image quality is sufficient for the task. The score ranges from 0% (no confidence the image quality is sufficient) to 100% (complete confidence that the image quality is sufficient).
+The Visual Quality metric is task-grounded rather than purely aesthetic: an image / PDF is considered high quality only if the specific task can be completed reliably from the visual evidence. An image / PDF is considered low quality when blur, glare, compression artifacts, darkness, occlusion, crop, distortion, or other degradation makes task-critical information unprocessable.
 
 ## Visual Quality at a glance
 
-| Property                       | Description                                    |
-| :----------------------------- | :--------------------------------------------- |
-| **Name**                       | Visual Quality                                 |
-| **Category**                   | Multimodal Quality                             |
-| **Metric Level**               | LLM Span                                       |
-| **LLM-as-a-judge Support**     | ✅                                             |
-| **Luna Support**               | ❌                                             |
-| **Protect Runtime Protection** | ❌                                             |
-| **Value Type**                 | Boolean shown as a percentage confidence score |
+| Property                       | Description        |
+| :----------------------------- | :----------------- |
+| **Name**                       | Visual Quality     |
+| **Category**                   | Multimodal Quality |
+| **Metric Level**               | LLM Span           |
+| **LLM-as-a-judge Support**     | ✅                 |
+| **Luna Support**               | ❌                 |
+| **Protect Runtime Protection** | ❌                 |
+| **Value Type**                 | boolean            |
 
 ## Score interpretation
 
-<Scale
-  low="0"
-  mid="50%"
-  high="100%"
-  lowLabel="Low Quality"
-  midLabel="Borderline"
-  highLabel="High Quality"
-  lowDescription="Image quality is insufficient — blur, glare, compression, darkness, occlusion, or other artifacts make task-critical information unprocessable"
-  highDescription="Image quality is sufficient — task-critical information is clearly visible and the task can be reliably performed from the visual evidence"
-/>
-
-| Score | Label        | Meaning                                                                                           |
-| :---- | :----------- | :------------------------------------------------------------------------------------------------ |
-| **0** | Low Quality  | The quality of the image is low and information required for performing the task is unprocessable |
-| **1** | High Quality | The quality of the image is high and performing the task is feasible                              |
-
-## How to interpret Visual Quality
-
-Visual Quality answers one question: is the image quality good enough to reliably perform the specific task described in the adjoining text prompt?
-
-- If the image is <Pill label="High Quality" />, task-critical information is visible and processable.
-- If the image is <Pill label="Low Quality" />, artifacts (blur, glare, compression, darkness, occlusion, crop, distortion) make task-critical information unprocessable.
+| Score     | Label        | Meaning                                                                                                 |
+| :-------- | :----------- | :------------------------------------------------------------------------------------------------------ |
+| **False** | Low Quality  | The quality of the image / PDF is low and information required for performing the task is unprocessable |
+| **True**  | High Quality | The quality of the image / PDF is high and performing the task is feasible                              |
 
 ## When to use this metric
 
@@ -130,49 +110,29 @@ Visual Quality is computed through a multi-step process:
   <Step title="Task grounding">The evaluator reads the adjoining text prompt to identify what information in the image is required to complete the task.</Step>
   <Step title="Visual evidence review">The evaluator inspects the image for quality issues (blur, glare, compression, darkness, occlusion, crop, distortion) that affect task-critical regions.</Step>
   <Step title="Binary decision">
-    The evaluator returns a binary label: <Pill label="High Quality" /> if the task is feasible from the visual evidence, otherwise <Pill label="Low Quality" />.
+    The evaluator returns a binary label: <Pill label="True" /> if the task is feasible from the visual evidence, otherwise <Pill label="False" />.
   </Step>
 </Steps>
 
 <Note>This metric is typically computed by prompting an LLM with access to the image and the text prompt, which may require additional LLM calls to compute and can impact usage and billing.</Note>
 
-## What constitutes high quality (1)
-
-- All task-relevant regions of the image are clearly visible and unobstructed
-- Sharpness, brightness, contrast, and compression level are sufficient to read or interpret task-critical information
-- No artifacts (glare, motion blur, heavy JPEG blocking, severe vignetting) prevent reliable interpretation
-
-## What constitutes low quality (0)
-
-- Blur, glare, or compression artifacts obscure information the task requires
-- Darkness or overexposure makes key regions unreadable
-- Occlusion or cropping removes task-critical content from the frame
-- Distortion (e.g. extreme lens distortion) prevents reliable spatial interpretation
-
 ## Best practices
 
 <CardGroup cols={2}>
-  <Card title="Pair with the task prompt" icon="link">
-    Always evaluate Visual Quality in the context of the specific task prompt; the same image can be high quality for one task and low quality for another.
+  <Card title="Duplicate and create custom metric" icon="link">
+    We recommend you to duplicate this metric, modify the prompt and define your task in the prompt for better performance.
   </Card>
-  <Card title="Set a routing threshold" icon="code-branch">
-    Define a minimum acceptable confidence score and route low-quality inputs to a fallback path (e.g. request a new image or skip the span).
+  <Card title="Use metric as a diagnostic tool" icon="chart-line">
+    Visual Quality helps you diagnose why a certain action wasn't completed by the agent, by telling if image quality was the reason.
   </Card>
-  <Card title="Log quality signals" icon="chart-line">
-    Capture Visual Quality scores over time to identify systematic input quality issues, such as a consistently poor camera source.
-  </Card>
-  <Card title="Combine with Visual Fidelity" icon="layer-group">
-    Use Visual Quality on input images and Visual Fidelity on generated images to cover both ends of a multimodal pipeline.
+  <Card title="Combine with Action Completion" icon="layer-group">
+    Use Action Completion to check if your agent is completing the user asks, then use Visual Quality to diagnose where action completion is low.
   </Card>
 </CardGroup>
 
 ## Performance Benchmarks
 
-We will publish Visual Quality benchmark results once an internal evaluation dataset and gold labels are available.
-
-<Note>Benchmarks for this metric are not yet published. When available, this section will include model-level performance and a classification report with a normalized confusion matrix.</Note>
-
-<Note type="warning">Placeholder benchmarks below are rendered only as a template. Replace the table values and the classification report string with your real benchmark outputs.</Note>
+We evaluated Visual Quality against human expert labels on an internal dataset of varied samples using top frontier models.
 
 | Model             | F1 (True) |
 | :---------------- | :-------: |
@@ -207,5 +167,4 @@ If you would like to dive deeper or start implementing Visual Quality, check out
 
 ### Related Concepts
 
-- [Visual Fidelity](/concepts/metrics/multimodal-quality/visual-fidelity)
-- [Interruption Detection](/concepts/metrics/multimodal-quality/interruption-detection)
+- [Action Completion](/concepts/metrics/agentic/action-advancement)
