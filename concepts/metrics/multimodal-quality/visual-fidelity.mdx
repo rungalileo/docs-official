@@ -1,0 +1,113 @@
+---
+title: Visual Fidelity
+description: Evaluate whether a generated image in an LLM span complies with every applicable provided brand rule based on visible evidence
+---
+
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
+import { Scale } from "/snippets/components/scale.mdx";
+
+<DefinitionCard>
+  <strong>Visual Fidelity</strong> is a binary metric that evaluates whether a generated image in an LLM span satisfies every applicable provided brand rule, based solely on visible evidence in the image.
+</DefinitionCard>
+
+The Visual Fidelity metric is a rule-adherence check: using only visible evidence from the image and the provided brand rules, the evaluator determines whether the image satisfies every applicable rule. The metric is grounded in explicit rule compliance rather than pure aesthetics, prompt reconstruction, or any separate image-quality standard not written in the rules.
+
+This is a **boolean** metric, returning a confidence score that the generated image is compliant. The score ranges from 0% (no confidence the image is compliant) to 100% (complete confidence that the image is compliant).
+
+## Visual Fidelity at a glance
+
+| Property                       | Description                                    |
+| :----------------------------- | :--------------------------------------------- |
+| **Name**                       | Visual Fidelity                                |
+| **Category**                   | Multimodal Quality                             |
+| **Metric Level**               | LLM Span                                       |
+| **LLM-as-a-judge Support**     | ✅                                             |
+| **Luna Support**               | ❌                                             |
+| **Protect Runtime Protection** | ❌                                             |
+| **Value Type**                 | Boolean shown as a percentage confidence score |
+
+## Score interpretation
+
+<Scale
+  low="0"
+  mid="50%"
+  high="100%"
+  lowLabel="Non-Compliant"
+  midLabel="Borderline"
+  highLabel="Compliant"
+  lowDescription="One or more applicable provided rules are violated based on visible evidence in the image"
+  highDescription="All applicable provided rules pass based on visible evidence in the image"
+/>
+
+| Score | Label         | Meaning                                                                                   |
+| :---- | :------------ | :---------------------------------------------------------------------------------------- |
+| **0** | Non-Compliant | One or more applicable provided rules are violated based on visible evidence in the image |
+| **1** | Compliant     | All applicable provided rules pass based on visible evidence in the image                 |
+
+## When to use this metric
+
+<MetricWhenToUse
+  description="Visual Fidelity is useful whenever your pipeline generates images that must conform to explicit brand, style, or content rules"
+  useCases={[
+    {
+      title: "Brand and style guideline enforcement",
+      description: "Verify that AI-generated marketing or product images conform to color palettes, logo placement, typography, and layout rules defined in your brand guidelines.",
+    },
+    {
+      title: "Content policy compliance",
+      description: "Confirm that generated images follow explicit content rules, such as prohibited objects, required safety symbols, or mandatory disclosures.",
+    },
+    {
+      title: "Template and layout adherence",
+      description: "Check that generated images match required compositional rules, such as text zones, bleed areas, or safe-region constraints.",
+    },
+    {
+      title: "Regression testing for image generation pipelines",
+      description: "Detect regressions when model versions or prompts change by re-running the same rule set against newly generated images.",
+    },
+  ]}
+/>
+
+## Inputs considered
+
+The evaluator examines the following when available:
+
+- The generated image produced by the LLM span (output image)
+- The set of provided brand or content rules that apply to the image
+
+Only rules that are **applicable** to the generated image are evaluated; inapplicable rules are skipped and do not affect the score. Compliance is determined solely from what is **visually observable** — the evaluator does not infer intent or reconstruct the original prompt.
+
+## What constitutes compliant (1)
+
+- Every applicable rule in the provided rule set passes based on visible evidence in the image
+- No rule violation is detectable from the image alone, regardless of other quality dimensions
+
+## What constitutes non-compliant (0)
+
+- At least one applicable rule is violated by visible evidence in the image
+- Examples: a prohibited color is used, a required logo is missing, restricted content is present, a mandatory text zone is empty
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Write observable rules" icon="eye">
+    Each rule should describe something that can be confirmed or denied from visual inspection alone. Avoid rules that require knowledge of the generation prompt or model internals.
+  </Card>
+  <Card title="Keep rules atomic" icon="list-check">
+    Express one constraint per rule so that a failing rule identifies a specific violation rather than a bundle of requirements.
+  </Card>
+  <Card title="Version your rule sets" icon="code-branch">
+    Treat brand rule sets as versioned artifacts so changes in guidelines can be tracked and their effect on compliance scores can be measured.
+  </Card>
+  <Card title="Combine with Visual Quality" icon="layer-group">
+    Use Visual Quality on input images and Visual Fidelity on generated images to cover both ends of a multimodal pipeline.
+  </Card>
+</CardGroup>
+
+## Related Resources
+
+### Related Concepts
+
+- [Visual Quality](/concepts/metrics/multimodal-quality/visual-quality)
+- [Interruption Detection](/concepts/metrics/multimodal-quality/interruption-detection)

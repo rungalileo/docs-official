@@ -1,0 +1,116 @@
+---
+title: Visual Quality
+description: Evaluate whether the quality of an input image in an LLM span is sufficient for the associated text prompt task to be reliably performed
+---
+
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
+import { Scale } from "/snippets/components/scale.mdx";
+
+<DefinitionCard>
+  <strong>Visual Quality</strong> is a binary metric that judges whether the quality of an input image in an LLM span is sufficient for the task described in the adjoining text prompt to be reliably performed.
+</DefinitionCard>
+
+The Visual Quality metric is task-grounded rather than purely aesthetic: an image is considered high quality only if the specific task can be completed reliably from the visual evidence. An image is considered low quality when blur, glare, compression artifacts, darkness, occlusion, crop, distortion, or other degradation makes task-critical information unprocessable.
+
+This is a **boolean** metric, returning a confidence score that the image quality is sufficient for the task. The score ranges from 0% (no confidence the image quality is sufficient) to 100% (complete confidence that the image quality is sufficient).
+
+## Visual Quality at a glance
+
+| Property                       | Description                                    |
+| :----------------------------- | :--------------------------------------------- |
+| **Name**                       | Visual Quality                                 |
+| **Category**                   | Multimodal Quality                             |
+| **Metric Level**               | LLM Span                                       |
+| **LLM-as-a-judge Support**     | ✅                                             |
+| **Luna Support**               | ❌                                             |
+| **Protect Runtime Protection** | ❌                                             |
+| **Value Type**                 | Boolean shown as a percentage confidence score |
+
+## Score interpretation
+
+<Scale
+  low="0"
+  mid="50%"
+  high="100%"
+  lowLabel="Low Quality"
+  midLabel="Borderline"
+  highLabel="High Quality"
+  lowDescription="Image quality is insufficient — blur, glare, compression, darkness, occlusion, or other artifacts make task-critical information unprocessable"
+  highDescription="Image quality is sufficient — task-critical information is clearly visible and the task can be reliably performed from the visual evidence"
+/>
+
+| Score | Label        | Meaning                                                                                           |
+| :---- | :----------- | :------------------------------------------------------------------------------------------------ |
+| **0** | Low Quality  | The quality of the image is low and information required for performing the task is unprocessable |
+| **1** | High Quality | The quality of the image is high and performing the task is feasible                              |
+
+## When to use this metric
+
+<MetricWhenToUse
+  description="Visual Quality is useful when your pipeline passes user-supplied or externally-sourced images into an LLM span alongside a text task prompt"
+  useCases={[
+    {
+      title: "Document and form processing",
+      description: "Detect scanned or photographed documents where blur, skew, or low resolution would prevent reliable OCR or data extraction.",
+    },
+    {
+      title: "Visual question answering",
+      description: "Ensure input images are clear enough for the model to answer questions about specific details such as labels, faces, or charts.",
+    },
+    {
+      title: "Product or asset inspection",
+      description: "Flag images where lighting, occlusion, or compression artifacts prevent reliable defect detection or classification.",
+    },
+    {
+      title: "Pre-processing quality gate",
+      description: "Use as an upstream filter to skip or re-request images before passing them to downstream analysis steps.",
+    },
+  ]}
+/>
+
+## Inputs considered
+
+The evaluator examines the following when available:
+
+- The raw input image provided to the LLM span
+- The text prompt that defines the task the model is expected to perform on that image
+
+Quality is evaluated strictly with respect to whether the task described in the prompt can be completed; a low-resolution image that is perfectly adequate for one task may be insufficient for another.
+
+## What constitutes high quality (1)
+
+- All task-relevant regions of the image are clearly visible and unobstructed
+- Sharpness, brightness, contrast, and compression level are sufficient to read or interpret task-critical information
+- No artifacts (glare, motion blur, heavy JPEG blocking, severe vignetting) prevent reliable interpretation
+
+## What constitutes low quality (0)
+
+- Blur, glare, or compression artifacts obscure information the task requires
+- Darkness or overexposure makes key regions unreadable
+- Occlusion or cropping removes task-critical content from the frame
+- Distortion (e.g. extreme lens distortion) prevents reliable spatial interpretation
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Pair with the task prompt" icon="link">
+    Always evaluate Visual Quality in the context of the specific task prompt; the same image can be high quality for one task and low quality for another.
+  </Card>
+  <Card title="Set a routing threshold" icon="code-branch">
+    Define a minimum acceptable confidence score and route low-quality inputs to a fallback path (e.g. request a new image or skip the span).
+  </Card>
+  <Card title="Log quality signals" icon="chart-line">
+    Capture Visual Quality scores over time to identify systematic input quality issues, such as a consistently poor camera source.
+  </Card>
+  <Card title="Combine with Visual Fidelity" icon="layer-group">
+    Use Visual Quality on input images and Visual Fidelity on generated images to cover both ends of a multimodal pipeline.
+  </Card>
+</CardGroup>
+
+## Related Resources
+
+### Related Concepts
+
+- [Visual Fidelity](/concepts/metrics/multimodal-quality/visual-fidelity)
+- [Interruption Detection](/concepts/metrics/multimodal-quality/interruption-detection)
