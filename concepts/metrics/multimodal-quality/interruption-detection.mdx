@@ -150,17 +150,11 @@ Interruption Detection is computed through a multi-step process:
 ## Best practices
 
 <CardGroup cols={2}>
-  <Card title="Include speaker attribution" icon="user-tag">
-    Log each turn with a clear speaker label (user vs. agent) so the evaluator can correctly identify who spoke and in what order.
+  <Card title="Keep the trace inputs and outputs clean" icon="clock">
+    Ensure only the latest user query is the trace input (free of chat history), and the last LLM span's output as the trace output
   </Card>
-  <Card title="Log overlap and timing signals" icon="clock">
-    Where your audio pipeline captures overlap events or timestamps, include them in trace metadata to improve detection accuracy.
-  </Card>
-  <Card title="Tune endpointing thresholds" icon="sliders">
-    Use Interruption Detection scores to calibrate VAD and endpointing settings — high premature barge-in rates suggest endpointing is too aggressive.
-  </Card>
-  <Card title="Monitor user barge-in separately" icon="chart-line">
-    Track user barge-in as a distinct signal for agent response length; high rates often indicate agent turns are too long or not relevant enough.
+  <Card title="Include transcripts" icon="user-tag">
+    Add the test versions of the trace inputs and outputs alongside the audio files.
   </Card>
 </CardGroup>
 
