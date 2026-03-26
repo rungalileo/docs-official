@@ -6,7 +6,6 @@ description: Detect turn-taking violations in audio-based agent conversations, i
 import { Pill } from "/snippets/components/pill.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
-import { Scale } from "/snippets/components/scale.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 
 <DefinitionCard>
@@ -20,42 +19,29 @@ Interruption Detection evaluates the full list of trace inputs and outputs in a 
 - **Premature agent barge-in**: The agent begins its response before the user's intent is complete
 - **User barge-in**: The user speaks while the agent is still speaking
 
-This is a **boolean** metric, returning a confidence score that an interruption occurred. The score ranges from 0% (no confidence an interruption occurred) to 100% (complete confidence that at least one interruption occurred).
-
 ## Interruption Detection at a glance
 
-| Property                       | Description                                    |
-| :----------------------------- | :--------------------------------------------- |
-| **Name**                       | Interruption Detection                         |
-| **Category**                   | Multimodal Quality                             |
-| **Metric Level**               | Session                                        |
-| **LLM-as-a-judge Support**     | ✅                                             |
-| **Luna Support**               | ❌                                             |
-| **Protect Runtime Protection** | ❌                                             |
-| **Value Type**                 | Boolean shown as a percentage confidence score |
+| Property                       | Description                                   |
+| :----------------------------- | :-------------------------------------------- |
+| **Name**                       | Interruption Detection                        |
+| **Category**                   | Multimodal Quality                            |
+| **Metric Level**               | Session (List of trace inputs / outputs only) |
+| **LLM-as-a-judge Support**     | ✅                                            |
+| **Luna Support**               | ❌                                            |
+| **Protect Runtime Protection** | ❌                                            |
+| **Value Type**                 | Boolean                                       |
 
 ## Score interpretation
 
-<Scale
-  low="0"
-  mid="50%"
-  high="100%"
-  lowLabel="No Interruption"
-  midLabel="Possible Interruption"
-  highLabel="Interruption Detected"
-  lowDescription="No turn-taking violations detected in the session"
-  highDescription="At least one turn-taking violation was detected — agent overlap, premature barge-in, or user barge-in"
-/>
-
-| Score | Label                 | Meaning                                                        |
-| :---- | :-------------------- | :------------------------------------------------------------- |
-| **0** | No Interruption       | No turn-taking violations were detected in the session         |
-| **1** | Interruption Detected | At least one turn-taking violation was detected in the session |
+| Score     | Label                 | Meaning                                                        |
+| :-------- | :-------------------- | :------------------------------------------------------------- |
+| **False** | No Interruption       | No turn-taking violations were detected in the session         |
+| **True**  | Interruption Detected | At least one turn-taking violation was detected in the session |
 
 Use this score as a single session-level signal:
 
-- <Pill label="No Interruption" /> means no overlap or barge-in was detected.
-- <Pill label="Interruption Detected" /> means at least one interruption event occurred (agent overlap, premature agent barge-in, or user barge-in).
+- <Pill label="False" /> means no overlap or barge-in was detected.
+- <Pill label="True" /> means at least one interruption event occurred (agent overlap, premature agent barge-in, or user barge-in).
 
 ## When to use this metric
 
@@ -140,9 +126,9 @@ Use this score as a single session-level signal:
 Interruption Detection operates at the **session level** and is computed over the full list of trace inputs and outputs for that session. The evaluator examines:
 
 - The ordered sequence of speaker turns (agent and user) across all traces in the session
-- Speaker attribution signals and, where available, timing or overlap metadata embedded in trace inputs/outputs
+- Audio files of the user and assistant turns
 
-<Note>Accuracy improves when traces include explicit speaker attribution and overlap or timestamp signals. When only turn ordering is available, the metric approximates interruption based on conversational sequencing.</Note>
+<Note>Accuracy improves when trace inputs and outputs inlcude the user / assistant audio files alongside the transcripts.</Note>
 
 ## Calculation method
 
@@ -155,7 +141,7 @@ Interruption Detection is computed through a multi-step process:
     speech.
   </Step>
   <Step title="Binary decision">
-    Return <Pill label="Interruption Detected" /> if any interruption event occurs in the session; otherwise return <Pill label="No Interruption" />.
+    Return <Pill label="True" /> if any interruption event occurs in the session; otherwise return <Pill label="False" />.
   </Step>
 </Steps>
 
@@ -180,30 +166,25 @@ Interruption Detection is computed through a multi-step process:
 
 ## Performance Benchmarks
 
-We will publish Interruption Detection benchmark results once an internal evaluation dataset and gold labels are available.
+We evaluated Interruption Detection against human expert labels on an internal dataset of varied samples using top frontier models.
 
-<Note>Benchmarks for this metric are not yet published. When available, this section will include model-level performance and a classification report with a normalized confusion matrix.</Note>
+| Model          | F1 (True) |
+| :------------- | :-------: |
+| GPT-audio      |   0.69    |
+| Gemini 3 Flash |   0.93    |
+| Gemini 3 Pro   |   0.94    |
 
-<Note type="warning">Placeholder benchmarks below are rendered only as a template. Replace the table values and the classification report string with your real benchmark outputs.</Note>
-
-| Model                   | F1 (True) |
-| :---------------------- | :-------: |
-| GPT-4.1                 |   0.00    |
-| GPT-4.1-mini (judges=3) |   0.00    |
-| Claude Sonnet 4.5       |   0.00    |
-| Gemini 3 Flash          |   0.00    |
-
-### GPT-4.1 Classification Report
+### Gemini 3 Flash Classification Report
 
 <BooleanClassificationReport
   report={`            precision    recall  f1-score   support
 
-False 0.0000 0.0000 0.0000 1
-True 0.0000 0.0000 0.0000 1
+False 0.93 0.94 0.94 651
+True 0.93 0.91 0.92 546
 
-accuracy 0.0000 2
-macro avg 0.0000 0.0000 0.0000 2
-weighted avg 0.0000 0.0000 0.0000 2`}
+accuracy 0.93 1197
+macro avg 0.93 0.93 0.93 1197
+weighted avg 0.93 0.93 0.93 1197`}
 negativeLabel="No Interruption"
 positiveLabel="Interruption Detected"
 negativeClass="False"
