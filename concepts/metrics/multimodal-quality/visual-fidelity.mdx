@@ -15,44 +15,26 @@ import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/c
 
 The Visual Fidelity metric is a rule-adherence check: using only visible evidence from the image and the provided brand rules, the evaluator determines whether the image satisfies every applicable rule. The metric is grounded in explicit rule compliance rather than pure aesthetics, prompt reconstruction, or any separate image-quality standard not written in the rules.
 
-This is a **boolean** metric, returning a confidence score that the generated image is compliant. The score ranges from 0% (no confidence the image is compliant) to 100% (complete confidence that the image is compliant).
+<Note>To use this metric, you will need to duplicate and edit the prompt to provide your rules in the specified section of the prompt.</Note>
 
 ## Visual Fidelity at a glance
 
-| Property                       | Description                                    |
-| :----------------------------- | :--------------------------------------------- |
-| **Name**                       | Visual Fidelity                                |
-| **Category**                   | Multimodal Quality                             |
-| **Metric Level**               | LLM Span                                       |
-| **LLM-as-a-judge Support**     | ✅                                             |
-| **Luna Support**               | ❌                                             |
-| **Protect Runtime Protection** | ❌                                             |
-| **Value Type**                 | Boolean shown as a percentage confidence score |
+| Property                       | Description        |
+| :----------------------------- | :----------------- |
+| **Name**                       | Visual Fidelity    |
+| **Category**                   | Multimodal Quality |
+| **Metric Level**               | LLM Span           |
+| **LLM-as-a-judge Support**     | ✅                 |
+| **Luna Support**               | ❌                 |
+| **Protect Runtime Protection** | ❌                 |
+| **Value Type**                 | Boolean            |
 
 ## Score interpretation
 
-<Scale
-  low="0"
-  mid="50%"
-  high="100%"
-  lowLabel="Non-Compliant"
-  midLabel="Borderline"
-  highLabel="Compliant"
-  lowDescription="One or more applicable provided rules are violated based on visible evidence in the image"
-  highDescription="All applicable provided rules pass based on visible evidence in the image"
-/>
-
-| Score | Label         | Meaning                                                                                   |
-| :---- | :------------ | :---------------------------------------------------------------------------------------- |
-| **0** | Non-Compliant | One or more applicable provided rules are violated based on visible evidence in the image |
-| **1** | Compliant     | All applicable provided rules pass based on visible evidence in the image                 |
-
-## How to interpret Visual Fidelity
-
-Visual Fidelity is a rule-adherence check over a generated image:
-
-- If the image is <Pill label="Compliant" />, all applicable provided rules pass based on visible evidence in the image.
-- If the image is <Pill label="Non-Compliant" />, one or more applicable rules are violated based on visible evidence in the image.
+| Score     | Label         | Meaning                                                                                   |
+| :-------- | :------------ | :---------------------------------------------------------------------------------------- |
+| **False** | Non-Compliant | One or more applicable provided rules are violated based on visible evidence in the image |
+| **True**  | Compliant     | All applicable provided rules pass based on visible evidence in the image                 |
 
 ## When to use this metric
 
@@ -136,16 +118,6 @@ Visual Fidelity is computed through a multi-step process:
 
 <Note>This metric is typically computed by prompting an LLM with access to the generated image and the provided rules, which may require additional LLM calls to compute and can impact usage and billing.</Note>
 
-## What constitutes compliant (1)
-
-- Every applicable rule in the provided rule set passes based on visible evidence in the image
-- No rule violation is detectable from the image alone, regardless of other quality dimensions
-
-## What constitutes non-compliant (0)
-
-- At least one applicable rule is violated by visible evidence in the image
-- Examples: a prohibited color is used, a required logo is missing, restricted content is present, a mandatory text zone is empty
-
 ## Best practices
 
 <CardGroup cols={2}>
@@ -158,18 +130,14 @@ Visual Fidelity is computed through a multi-step process:
   <Card title="Version your rule sets" icon="code-branch">
     Treat brand rule sets as versioned artifacts so changes in guidelines can be tracked and their effect on compliance scores can be measured.
   </Card>
-  <Card title="Combine with Visual Quality" icon="layer-group">
-    Use Visual Quality on input images and Visual Fidelity on generated images to cover both ends of a multimodal pipeline.
+  <Card title="Combine with Instruction Adherence" icon="layer-group">
+    Use Instruction Adherence to also check if your LLM generating images is following your instructions.
   </Card>
 </CardGroup>
 
 ## Performance Benchmarks
 
-We will publish Visual Fidelity benchmark results once an internal evaluation dataset and gold labels are available.
-
-<Note>Benchmarks for this metric are not yet published. When available, this section will include model-level performance and a classification report with a normalized confusion matrix.</Note>
-
-<Note type="warning">Placeholder benchmarks below are rendered only as a template. Replace the table values and the classification report string with your real benchmark outputs.</Note>
+We evaluated Visual Fidelity against human expert labels on an internal dataset of varied samples using top frontier models.
 
 | Model             | F1 (True) |
 | :---------------- | :-------: |
@@ -204,5 +172,4 @@ If you would like to dive deeper or start implementing Visual Fidelity, check ou
 
 ### Related Concepts
 
-- [Visual Quality](/concepts/metrics/multimodal-quality/visual-quality)
-- [Interruption Detection](/concepts/metrics/multimodal-quality/interruption-detection)
+- [Instruction Adherence](/concepts/metrics/response-quality/instruction-adherence)
