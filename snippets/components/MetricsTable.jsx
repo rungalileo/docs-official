@@ -132,7 +132,7 @@ export const MetricsTable = () => {
       category: "Multimodal Quality",
       node: "Session (trace inputs/outputs only)",
       description: "Detects turn-taking violations in audio-based conversations, including overlap and barge-in events.",
-      whenToUse: "When evaluating voice agents where smooth turn-taking and endpointing are critical.",
+      whenToUse: "When evaluating voice agents where smooth turn-taking and endpoint are critical.",
       example: "A voice assistant where the agent must not speak over the user, and must avoid cutting users off mid-utterance.",
     },
     {
