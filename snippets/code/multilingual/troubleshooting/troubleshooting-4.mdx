@@ -14,6 +14,14 @@ workflowSpan = logger.addWorkflowSpan(
 import { GalileoLogger } from "galileo";
 const logger = new GalileoLogger();
 
+// Initialize a new trace
+const trace = await logger.startTrace({
+  input: "Your prompt",
+  name: "Example Trace Name",
+  tags: ["example_tag1", "example_tag2"],
+  metadata: { example_key: "example_value" },
+});
+
 // Create a workflow span (parent span)
 const workflowSpan = logger.addWorkflowSpan({
   input: "Processing workflow",
