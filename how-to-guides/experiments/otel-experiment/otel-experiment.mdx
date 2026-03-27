@@ -30,7 +30,7 @@ In this guide you will:
 When you run an experiment with a custom function, Galileo's experiment runner:
 
 1. Creates an experiment and sets the `experiment_id` in the Galileo context.
-2. For each row in the dataset, it calls your function and wraps the call with dataset context (ground truth input, output, and metadata).
+2. For each row in the dataset, it calls your function and wraps the call with dataset context (input, ground truth, and metadata).
 3. The `GalileoSpanProcessor` reads this context and attaches it to every OTel span your framework creates.
 4. Spans are exported to Galileo's OTLP endpoint with the experiment ID, routing them to the experiment instead of a regular Log stream.
 
@@ -113,7 +113,7 @@ Set `GALILEO_LOGGING_DISABLED=true` **before** importing your agent module. The 
 | Parameter | Description |
 |---|---|
 | `experiment_name` | Name shown in the Galileo console. If a duplicate name exists, a timestamp is appended automatically |
-| `dataset` | A list of dictionaries with `input` and optional `output` (ground truth) fields, a Galileo `Dataset` object, or a dataset name |
+| `dataset` | A list of dictionaries with `input` and optional `ground_truth` fields, a Galileo `Dataset` object, or a dataset name |
 | `dataset_id` | ID of an existing Galileo dataset. Alternative to `dataset` |
 | `dataset_name` | Name of an existing Galileo dataset. Alternative to `dataset` |
 | `function` | Your entry point function, called once per dataset row |
@@ -124,7 +124,7 @@ Set `GALILEO_LOGGING_DISABLED=true` **before** importing your agent module. The 
 
 ### Ground truth
 
-When your dataset includes an `output` field, this value is attached to the OTel spans as ground truth. Metrics like [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence) use this to evaluate the agent's response.
+When your dataset includes a `ground_truth` field, this value is attached to the OTel spans as ground truth. Metrics like [Ground Truth Adherence](/concepts/metrics/response-quality/ground-truth-adherence) use this to evaluate the agent's response.
 
 The experiment runner uses `galileo_dataset_context` to attach the ground truth to the OTel context, so it is available to the `GalileoSpanProcessor` without any manual configuration.
 
