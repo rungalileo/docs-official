@@ -542,7 +542,6 @@
   retriable: false
   telemetry_tags: ["metrics", "file_upload"]
 
-
 # =============================================================================
 # SECTION 3: PLAYGROUND & EXPERIMENTS ERRORS (3000-3999)
 # =============================================================================
@@ -1225,7 +1224,6 @@
   http_status_code: 500
   telemetry_tags: ["annotation_queue", "ratings"]
 
-
 # =============================================================================
 # SECTION 9: AUTHENTICATION ERRORS (8500-8999)
 # =============================================================================
@@ -1397,6 +1395,36 @@
   user_action: Use your organization's SSO provider to log in, or contact your administrator.
   http_status_code: 403
   telemetry_tags: ["auth", "feature_flag"]
+
+# Email domain not allowed
+- error_code: 8516
+  error_type: permission_error
+  error_group: authentication
+  severity: medium
+  default_message: Your email is not allowed. Please contact Galileo's support.
+  user_action: Verify that you are using an authorized email address, or contact support for assistance.
+  http_status_code: 403
+  telemetry_tags: ["auth", "email_domain"]
+
+# User account disabled
+- error_code: 8517
+  error_type: permission_error
+  error_group: authentication
+  severity: high
+  default_message: This user account has been disabled. Please contact Galileo's support.
+  user_action: Contact Galileo's support team to resolve account access.
+  http_status_code: 403
+  telemetry_tags: ["auth", "account_disabled"]
+
+# Email with plus (+) suffix is not allowed
+- error_code: 8518
+  error_type: data_validation_error
+  error_group: authentication
+  severity: medium
+  default_message: "Email addresses with '+' suffixes are not allowed."
+  user_action: Use your primary email address without the '+' suffix.
+  http_status_code: 422
+  telemetry_tags: ["auth", "email_validation"]
 
 # =============================================================================
 # SECTION 10: COMPONENT VIEW ERRORS (9000-9499)
