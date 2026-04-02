@@ -8,7 +8,7 @@ title: metrics
 
 ```python
 def create_metric_configs(project_id: str,
-                          run_id: str,
+                          run_id: Optional[str],
                           metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]
 ```
 
@@ -17,11 +17,19 @@ Process metrics and create scorer configurations for experiments or log streams.
 This unified function categorizes metrics into server-side and client-side types,
 validates they exist, and registers server-side metrics with Galileo.
 
+Metrics can be specified as:
+- GalileoMetrics enum values (human-readable labels like "Correctness")
+- Metric objects with name and optional version
+- UUID strings (scorer IDs for direct lookup)
+- Plain strings (searched by label with name fallback)
+- LocalMetricConfig objects (processed client-side)
+
 **Arguments**
 
 - `project_id` (`str`): The ID of the project
-- `run_id` (`str`): The ID of the run (can be experiment ID or log stream ID)
-- `metrics` (`builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]`): List of metrics to configure
+- `run_id` (`Optional[str]`): The ID of the run (can be experiment ID or log stream ID).
+    When None, scorer registration is skipped (trigger=True flow).
+- `metrics` (`list`): List of metrics to configure
 
 **Raises**
 
@@ -29,6 +37,6 @@ validates they exist, and registers server-side metrics with Galileo.
 
 **Returns**
 
-- `tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]`: A tuple containing:
+- `tuple[list[ScorerConfig], list[LocalMetricConfig]]`: A tuple containing:
 - List of ScorerConfig objects for server-side metrics configured in Galileo
 - List of LocalMetricConfig objects for client-side metrics to process locally

@@ -166,7 +166,8 @@ and then returns the content of the extended dataset.
 
 **Raises**
 
-- `DatasetAPIException`: If the request to extend the dataset fails.
+- `DatasetAPIException`: If the request to extend the dataset fails, or if the completed job reports
+an "Unexpected error" in its progress message.
 - `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
 - `httpx.TimeoutException`: If the request takes longer than Client.timeout.
 
@@ -238,6 +239,27 @@ does not exist.
 **Returns**
 
 - `List[Dataset]`: A list of datasets.
+
+### update
+
+```python
+def update(self, id: str, *, name: str) -> 'Dataset'
+```
+
+Update a dataset's metadata.
+
+**Arguments**
+
+- `id` (`str`): The ID of the dataset to update.
+- `name` (`str`): The new name for the dataset.
+
+**Raises**
+
+- `DatasetAPIException`: If the API call fails or returns a validation error.
+
+**Returns**
+
+- `Dataset`: The updated dataset.
 
 ## convert_dataset_row_to_record
 
