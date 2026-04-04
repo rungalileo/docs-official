@@ -134,12 +134,14 @@ Our simple application will have a `main` function where everything happens. The
 
 Below, we give the session a unique `name` and `external id`. The name helps us find the session more easily in the Galileo Console. The `external id` is to link this session to external tracing: for example, linking to a conversation ID in your chatbot app by an ID created inside that app.
 
+You can also pass an optional `metadata` dictionary of string key-value pairs to attach structured information to the session, such as customer IDs, environment names, or application versions. Metadata keys appear as filterable columns in the Sessions table in the Galileo Console.
+
 <CodeGroup>
 <StartSessionSnippet />
 </CodeGroup>
 
 <Note>
-Treat `logger.start_session` like a lifecycle event, and call it before any code you want to monitor. The `name` and `external id` arguments are optional but recommended.
+Treat `logger.start_session` like a lifecycle event, and call it before any code you want to monitor. The `name`, `external id`, and `metadata` arguments are all optional.
 </Note>
 </Step>
 
