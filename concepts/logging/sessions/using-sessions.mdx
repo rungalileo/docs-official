@@ -236,8 +236,11 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
     ```python Python
     from galileo import galileo_context
 
-    # Create a new session
-    galileo_context.start_session(""" ...optional args """)
+    # Create a new session (with optional metadata)
+    galileo_context.start_session(
+        name="My Session",
+        metadata={"brand_id": "acme", "env": "production"},
+    )
 
     # Application logic follows
 
@@ -249,8 +252,11 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
     import { getLogger } from 'galileo';
     const logger = getLogger();
 
-    // Create a new session
-    logger.startSession(/* ...optional args */);
+    // Create a new session (with optional metadata)
+    logger.startSession({
+      name: "My Session",
+      metadata: { brand_id: "acme", env: "production" },
+    });
 
     // Application logic follows
 
