@@ -1,0 +1,20 @@
+```python Python
+import os
+from opentelemetry.sdk.trace import TracerProvider
+from galileo.otel import GalileoSpanProcessor, add_galileo_span_processor
+from galileo_a2a import A2AInstrumentor
+
+# 1. Create an OTel TracerProvider with Galileo export
+provider = TracerProvider()
+processor = GalileoSpanProcessor(
+    project=os.environ.get("GALILEO_PROJECT", "my-a2a-project"),
+    logstream=os.environ.get("GALILEO_LOG_STREAM", "dev"),
+)
+add_galileo_span_processor(provider, processor)
+
+# 2. Instrument A2A — all client and server calls are now traced
+instrumentor = A2AInstrumentor()
+instrumentor.instrument(tracer_provider=provider, agent_name="my-agent")
+
+# Your A2A code runs as normal — traces are sent to Galileo automatically
+```

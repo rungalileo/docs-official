@@ -1,0 +1,21 @@
+```python Python
+import uuid
+from a2a.client import ClientConfig, ClientFactory
+from a2a.types import AgentCard, Message, Role, TextPart
+
+# Create an A2A client — all calls are automatically traced
+factory = ClientFactory(config=ClientConfig(streaming=True))
+client = factory.create(agent_card)
+
+# Send a message — creates an "a2a.client.send_message" span
+message = Message(
+    message_id=str(uuid.uuid4()),
+    role=Role.user,
+    parts=[TextPart(text="Tell me about Paris")],
+    context_id="session-123",  # Mapped to session.id in Galileo
+)
+
+async for event in client.send_message(message):
+    # Each event is tracked in the span
+    print(event)
+```

@@ -1,0 +1,93 @@
+```python Python
+import uuid
+from a2a.server.agent_execution import AgentExecutor, RequestContext
+from a2a.server.apps.jsonrpc.starlette_app import A2AStarletteApplication
+from a2a.server.events import EventQueue, InMemoryQueueManager
+from a2a.server.request_handlers.default_request_handler import DefaultRequestHandler
+from a2a.server.tasks import InMemoryTaskStore
+from a2a.types import (
+    AgentCapabilities, AgentCard, AgentSkill,
+    Message, Role, TaskState, TaskStatus, TaskStatusUpdateEvent, TextPart,
+)
+from starlette.applications import Starlette
+
+
+class MyAgentExecutor(AgentExecutor):
+    """A2A executor — on_message_send is traced."""
+
+    async def execute(
+        self,
+        context: RequestContext,
+        event_queue: EventQueue,
+    ) -> None:
+        question = context.get_user_input()
+
+        # Signal work in progress
+        await event_queue.enqueue_event(
+            TaskStatusUpdateEvent(
+                task_id=context.task_id,
+                context_id=context.context_id,
+                status=TaskStatus(state=TaskState.working),
+                final=False,
+            )
+        )
+
+        # Your agent logic here
+        answer = f"Processed: {question}"
+
+        # Signal completion with response
+        await event_queue.enqueue_event(
+            TaskStatusUpdateEvent(
+                task_id=context.task_id,
+                context_id=context.context_id,
+                status=TaskStatus(
+                    state=TaskState.completed,
+                    message=Message(
+                        message_id=str(uuid.uuid4()),
+                        role=Role.agent,
+                        parts=[TextPart(text=answer)],
+                        task_id=context.task_id,
+                        context_id=context.context_id,
+                    ),
+                ),
+                final=True,
+            )
+        )
+
+    async def cancel(
+        self,
+        context: RequestContext,
+        event_queue: EventQueue,
+    ) -> None:
+        await event_queue.enqueue_event(
+            TaskStatusUpdateEvent(
+                task_id=context.task_id,
+                context_id=context.context_id,
+                status=TaskStatus(state=TaskState.canceled),
+                final=True,
+            )
+        )
+
+
+# Set up the A2A server — handlers are automatically traced
+agent_card = AgentCard(
+    name="my-agent",
+    description="Example A2A agent with tracing",
+    url="http://localhost:9867",
+    version="1.0.0",
+    capabilities=AgentCapabilities(streaming=True),
+    skills=[AgentSkill(id="example", name="Example", description="Example skill")],
+    default_input_modes=["text/plain"],
+    default_output_modes=["text/plain"],
+)
+
+handler = DefaultRequestHandler(
+    agent_executor=MyAgentExecutor(),
+    task_store=InMemoryTaskStore(),
+    queue_manager=InMemoryQueueManager(),
+)
+
+a2a_app = A2AStarletteApplication(agent_card=agent_card, http_handler=handler)
+app = Starlette()
+a2a_app.add_routes_to_app(app)
+```
