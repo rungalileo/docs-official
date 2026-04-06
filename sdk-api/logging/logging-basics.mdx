@@ -1,6 +1,6 @@
 ---
 title: Instrumentation
-description: Learn the basics of instrumenting your application with Galileo using the Galileo SDKs
+description: Instrumentation connects your application to Galileo so you can capture sessions, traces, spans, and other runtime data for observability and evaluation.
 ---
 
 {/*<!-- markdownlint-disable MD044 -->*/}
@@ -15,37 +15,22 @@ import SnippetSdkLoggingContextGetLoggerTypeScript from "/snippets/code/typescri
 
 {/*<!-- markdownlint-enable MD044 -->*/}
 
-**Log streams** are the core building blocks used for evaluations. Log streams belong to a **project**, with one project containing one or more Log streams. The way you structure this varies depending on your organizational preferences or standards, but a typical model would be:
+## Ways to instrument
 
-- A **[project](/concepts/projects)** represents a distinct application. For example - a customer facing chatbot and an internal HR chatbot would be 2 separate projects.
-- A **[Log stream](/sdk-api/logging/logging-basics)** represents a distinct environment in that project that you want to monitor. For example, a dev Log stream for your development work, a staging Log stream for your staging environment, and a production Log stream for your production application.
+Galileo provides 3 ways to instrument your application:
 
-This allows you to evaluate each separate deployment of each application separately, such as to compare changes in your staging environment to production before a rollout, or to add different metrics to a dev environment to reflect new capabilities.
+- **[The Galileo Logger](/sdk-api/logging/galileo-logger)** - You can create a logger, and manually manage sessions, traces, spans and more. This logger can be passed around your application to create traces and add spans as needed.
+- **[Log Decorator](/sdk-api/logging/log-decorator/log-decorator)** - You can decorate or wrap functions with the log decorator to have spans created automatically. If you don't have an active session or trace, one will be created. You can also access the logger used by the decorator for manual control.
+- **[Third-party integrations](/sdk-api/third-party-integrations/overview)** - Galileo integrates SDKs like the OpenAI SDK, the OpenAI Agents SDK, and LangChain/LangGraph. These integrations manage logging for you, automatically creating sessions, traces and spans as needed.
 
-## Structure of Log streams
+In addition, there is a [Galileo context manager](/sdk-api/logging/galileo-context) that provides top level control over logging, such as setting the project and Log stream, flushing all loggers, and managing sessions.
 
-When logging applications, **Log streams** are made up of zero or more **sessions**, which are in turn made up of **traces**, which contain **spans**. **Experiments** can be thought of as a single session, containing multiple traces made up of spans.
+All the logging methods can be mixed and matched, and combined with the Galileo Context.
 
-- **[Sessions](/concepts/logging/sessions/sessions-overview)** represent logical groupings of traces for actions involving an AI that may contain multiple steps. For example, in a chatbot, the entire conversation with a single user would be a session.
-- **[Traces](/sdk-api/logging/galileo-logger#start-a-trace)** represent one complete interaction with an AI that may contain multiple calls and interactions. For example, inside a chatbot app sending a single message, having the AI handle it using tool calls or RAG, then returning a response, would be a single trace.
-- **[Spans](/sdk-api/logging/galileo-logger#add-spans)** represent distinct operations inside a trace. Each LLM call, tool call, or step in an agentic workflow would be an individual span. For example, in a chatbot app the initial message sent to the LLM, calls to tools based off the LLM response, follow-up LLM calls would all be separate spans.
+For example:
 
-Metrics are configured at the Log stream level, allowing different metrics for different Log streams.
-
-```mermaid
-flowchart LR
-    metrics[Metrics] --> trace
-
-    subgraph trace[" "]
-        logstreams --> project[Project]
-        sessions --> logstreams[Log streams]
-        traces --> sessions[Sessions]
-        spans[Spans] --> traces[Traces]
-
-    end
-```
-
-To log to Galileo using the SDK, you use a `GalileoLogger` object that is configured to point to a specific project and Log stream, then from there you can create sessions and traces, and add log spans to a trace. This logger can be created manually, or automatically using a range of wrappers, decorators and integrations with third party SDKs.
+- In a chatbot app using LangGraph, you can start sessions for each distinct user conversation with the Galileo context, then have the Galileo LangGraph callback log each chat message as a separate trace automatically.
+- In an agentic app, you can wrap top level calls with the `log` decorator to start a trace, access the log that was created by the decorator to add workflow spans, then have spans added automatically under these workflow spans using the OpenAI Agents SDK integration.
 
 ## Initial setup
 
@@ -105,43 +90,6 @@ You can also use the current context to get a logger for a particular project an
 </CodeGroup>
 
 If you are using experiments, you can set the project name in the call to run the experiment, and the Log stream name is generated for you. Learn more in our [experiment SDK docs](/sdk-api/experiments/experiments#project).
-
-## Logging flow
-
-The typical logging flow follows these steps:
-
-```mermaid
-flowchart LR
-    startSession[Start Session] --> trace[Traces]
-
-    subgraph trace[Traces]
-        createTrace[Create Trace] --> addSpan[Add Spans]
-        addSpan --> concludeTrace[Conclude Trace]
-    end
-
-    trace[Traces] --> flushLogs[Flush Logs]
-```
-
-Starting sessions is optional - if you don't start a session, then all traces are automatically each logged to new autogenerated sessions.
-
-Using the Galileo SDK you can either do all these steps manually, or you can use a range of wrappers, decorators and integrations with third-party SDKs, where most of this is handled for you.
-
-## Logging components
-
-Galileo provides 3 ways to log your application code:
-
-- **[The Galileo Logger](/sdk-api/logging/galileo-logger)** - You can create a logger, and manually manage sessions, traces, spans and more. This logger can be passed around your application to create traces and add spans as needed.
-- **[Log Decorator](/sdk-api/logging/log-decorator/log-decorator)** - You can decorate or wrap functions with the log decorator to have spans created automatically. If you don't have an active session or trace, one will be created. You can also access the logger used by the decorator for manual control.
-- **[Third-party integrations](/sdk-api/third-party-integrations/overview)** - Galileo integrates SDKs like the OpenAI SDK, the OpenAI Agents SDK, and LangChain/LangGraph. These integrations manage logging for you, automatically creating sessions, traces and spans as needed.
-
-In addition, there is a [Galileo context manager](/sdk-api/logging/galileo-context) that provides top level control over logging, such as setting the project and Log stream, flushing all loggers, and managing sessions.
-
-All the logging methods can be mixed and matched, and combined with the Galileo Context.
-
-For example:
-
-- In a chatbot app using LangGraph, you can start sessions for each distinct user conversation with the Galileo context, then have the Galileo LangGraph callback log each chat message as a separate trace automatically.
-- In an agentic app, you can wrap top level calls with the `log` decorator to start a trace, access the log that was created by the decorator to add workflow spans, then have spans added automatically under these workflow spans using the OpenAI Agents SDK integration.
 
 ## Next steps
 
