@@ -7,10 +7,6 @@ tag: "Python"
 {/*<!-- markdownlint-disable MD044 -->*/}
 
 import SnippetQuickstart from "/snippets/code/python/sdk/otel/a2a/quickstart.mdx";
-import SnippetMultiAgent from "/snippets/code/python/sdk/otel/a2a/multi-agent-tracing.mdx";
-import SnippetClient from "/snippets/code/python/sdk/otel/a2a/client-example.mdx";
-import SnippetServer from "/snippets/code/python/sdk/otel/a2a/server-example.mdx";
-import ConfigureOTelInvVars from "/snippets/content/configure-otel-env-vars.mdx";
 
 {/*<!-- markdownlint-enable MD044 -->*/}
 
@@ -29,47 +25,31 @@ pip install galileo-a2a
 ## Quick start
 
 <Steps>
-<ConfigureOTelInvVars/>
-<Step title="Register the span processor and instrument A2A">
+<Step title="Set your environment variables">
 
-Create an OTel `TracerProvider` with the Galileo span processor, then call `A2AInstrumentor().instrument()` to automatically trace all A2A client and server calls.
+```ini .env
+GALILEO_API_KEY="your-galileo-api-key"
+GALILEO_PROJECT="your-galileo-project-name"
+GALILEO_LOG_STREAM="your-galileo-log-stream"
+```
+
+</Step>
+<Step title="Instrument A2A">
 
 <CodeGroup>
 <SnippetQuickstart/>
 </CodeGroup>
 
-Once instrumented, all A2A interactions are automatically logged to Galileo, including:
-
-- Client calls: `send_message`, `get_task`, `cancel_task`, `get_card`
-- Server handlers: `on_message_send`, `on_message_send_stream`
-- Cross-agent trace context propagation
-- Task lifecycle state tracking
+Once instrumented, all A2A interactions are automatically logged to Galileo, including client calls, server handlers, cross-agent trace context propagation, and task lifecycle tracking.
 
 </Step>
 </Steps>
 
 ## How it works
 
-`galileo-a2a` uses OpenTelemetry auto-instrumentation to monkey-patch the `a2a-sdk`. When you call `instrument()`, it wraps both client and server methods to create spans and propagate trace context automatically.
+`galileo-a2a` uses OpenTelemetry auto-instrumentation to wrap both client and server methods in the `a2a-sdk`. When a client agent sends a message to a server agent, trace context is injected into the A2A request metadata. The server-side instrumentation extracts this context and creates child spans under the same trace, giving you a single distributed trace across all agents.
 
-### Cross-agent trace correlation
-
-When a client agent sends a message to a server agent, `galileo-a2a` injects trace context into the A2A request metadata. The server-side instrumentation extracts this context and creates child spans under the same trace, giving you a single distributed trace across all agents.
-
-This means you can see the full request flow — from the orchestrator's decision to delegate, through the A2A network call, to the downstream agent's execution — all in one trace in Galileo.
-
-### Session tracking
-
-A2A uses `context_id` to group related messages into conversations. `galileo-a2a` maps `context_id` to `session.id` in OpenTelemetry, so all interactions within the same conversation are grouped into a Galileo session automatically.
-
-### Task state tracking
-
-A2A tasks go through lifecycle states (`submitted`, `working`, `completed`, `failed`, `canceled`, `rejected`). `galileo-a2a` captures these transitions as span attributes:
-
-- `a2a.task.state` — the final task state
-- `a2a.task.id` — the task identifier
-- Error states (`failed`, `rejected`, `canceled`) automatically mark the span as `ERROR`
-- Completed tasks set `gen_ai.response.finish_reasons` to `"stop"`
+A2A's `context_id` is automatically mapped to `session.id`, so all interactions within the same conversation are grouped into a Galileo session.
 
 ## Configuration
 
@@ -88,56 +68,15 @@ Environment variables for Galileo configuration:
 | `GALILEO_PROJECT` | The Galileo project to log traces to |
 | `GALILEO_LOG_STREAM` | The Log stream within the project |
 
-## Client instrumentation
-
-The instrumentor automatically wraps all `BaseClient` methods:
-
-| Method | Span name | Operation |
-|--------|-----------|-----------|
-| `send_message` | `a2a.client.send_message` | `invoke_agent` |
-| `get_task` | `a2a.client.gettask` | `execute_tool` |
-| `cancel_task` | `a2a.client.canceltask` | `execute_tool` |
-| `get_card` | `a2a.client.getcard` | `execute_tool` |
-
-<CodeGroup>
-<SnippetClient/>
-</CodeGroup>
-
-## Server instrumentation
-
-The instrumentor wraps `DefaultRequestHandler` methods:
-
-| Method | Span name |
-|--------|-----------|
-| `on_message_send` | `a2a.server.on_message_send` |
-| `on_message_send_stream` | `a2a.server.on_message_send_stream` |
-
-Server spans automatically extract trace context from incoming requests, creating child spans under the calling agent's trace.
-
-<CodeGroup>
-<SnippetServer/>
-</CodeGroup>
-
-## Multi-agent tracing with LangChain
-
-For full-stack observability, combine `galileo-a2a` with other OpenTelemetry instrumentors. This gives you a single distributed trace spanning A2A protocol calls, LangChain/LangGraph workflows, and LLM calls.
-
-<CodeGroup>
-<SnippetMultiAgent/>
-</CodeGroup>
-
-In this setup, a single trace captures:
-
-1. The orchestrator's LangGraph workflow nodes
-2. The A2A client call to the downstream agent
-3. The A2A server handling the request
-4. The downstream agent's LangChain execution and LLM calls
+<Note>
+**AGNTCY compatibility:** `galileo-a2a` is compatible with the [AGNTCY Observe SDK](https://docs.agntcy.org/pages/agntcy/observe-sdk/). If an incoming request uses the AGNTCY `observe` metadata key instead of `galileo_observe`, the instrumentor will extract trace context from it. Galileo's key takes precedence when both are present.
+</Note>
 
 ## Span attributes
 
-All spans created by `galileo-a2a` include these attributes:
-
 {/*<!-- markdownlint-disable MD013 -->*/}
+
+<Expandable title="All span attributes created by galileo-a2a">
 
 | Attribute | Description |
 |-----------|-------------|
@@ -152,20 +91,9 @@ All spans created by `galileo-a2a` include these attributes:
 | `a2a.task.state` | The final task state (`completed`, `failed`, etc.) |
 | `a2a.context_id` / `session.id` | The conversation context ID |
 
+</Expandable>
+
 {/*<!-- markdownlint-enable MD013 -->*/}
-
-## AGNTCY compatibility
-
-`galileo-a2a` is compatible with the [AGNTCY Observe SDK](https://docs.agntcy.org/pages/agntcy/observe-sdk/). If an incoming request uses the AGNTCY `observe` metadata key instead of `galileo_observe`, the instrumentor will extract trace context from it. Galileo's key takes precedence when both are present.
-
-## Cleanup
-
-To remove instrumentation at shutdown:
-
-```python
-instrumentor.uninstrument()
-tracer_provider.shutdown()
-```
 
 ## Next steps
 
