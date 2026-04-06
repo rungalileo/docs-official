@@ -22,7 +22,7 @@ const openai = wrapOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
 // This will create a single span trace in the current session
 const firstResult = await openai.chat.completions.create({
     messages: [{"role": "user", "content": "Tell me about the Roman Empire"}],
-    model: "gpt-4o"
+    model: "gpt-4.1-mini"
 });
 
 // This second call will create a new single span trace inside the same session
@@ -31,7 +31,7 @@ const secondResult = await openai.chat.completions.create({
         "role": "user",
         "content": `Summarize this: ${firstResult.choices[0].message.content}`
     }],
-    model: "gpt-4o"
+    model: "gpt-4.1-mini"
 });
 
 console.log(secondResult.choices[0].message.content);

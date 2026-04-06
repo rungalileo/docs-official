@@ -28,12 +28,12 @@ async function runPromptExperiment() {
   await runExperiment({
     name: "geography-experiment",
     // Name of a dataset you created
-    dataset: getDataset({name:"countries"}),
+    dataset: await getDataset({name:"countries"}),
     promptTemplate: prompt,
     promptSettings: {
-      max_tokens: 256,
+      maxTokens: 256,
       // Make sure you have an integration set up for the model alias you're using
-      model_alias: "GPT-4o",
+      modelAlias: "gpt-4.1-mini",
       temperature: 0.8,
     },
     metrics: [GalileoMetrics.correctness],
