@@ -1,6 +1,7 @@
 ---
 title: Log Streams
-description: Anatomy of a log stream
+description: Log streams collect and organize the sessions, traces, and spans your application sends to Galileo. Log Streams belong to a project (An AI application) and can be used to represent an environment such as Dev or Production.
+
 ---
 
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
@@ -8,13 +9,19 @@ import ViewSessionsInConsole from "/snippets/content/view-sessions-in-console.md
 
 ## Structure of Log streams
 
-When logging applications, **Log streams** are made up of zero or more **sessions**, which are in turn made up of **traces**, which contain **spans**. **Experiments** can be thought of as a single session, containing multiple traces made up of spans.
 
-- **[Sessions](/concepts/logging/sessions/sessions-overview)** represent logical groupings of traces for actions involving an AI that may contain multiple steps. For example, in a chatbot, the entire conversation with a single user would be a session.
-- **[Traces](/sdk-api/logging/galileo-logger#start-a-trace)** represent one complete interaction with an AI that may contain multiple calls and interactions. For example, inside a chatbot app sending a single message, having the AI handle it using tool calls or RAG, then returning a response, would be a single trace.
-- **[Spans](/sdk-api/logging/galileo-logger#add-spans)** represent distinct operations inside a trace. Each LLM call, tool call, or step in an agentic workflow would be an individual span. For example, in a chatbot app the initial message sent to the LLM, calls to tools based on the LLM response, follow-up LLM calls would all be separate spans.
+When logging applications, **Log streams** are made up of zero or more **sessions**, which are in turn made up of **traces**, which contain **spans**.
 
-Metrics are configured at the Log stream level, allowing different metrics for different Log streams.
+
+
+
+
+
+- [**Span**](/sdk-api/logging/galileo-logger#add-spans): The smallest logging unit, typically representing a single operation, function call, or request. Each user message, model API call, or model tool usage generates a *Span*.
+- [**Trace**](/sdk-api/logging/galileo-logger#start-a-trace): When multiple spans occur as part of a single logical operation (e.g. a request that triggers several downstream calls) they form a *Trace*. Traces allow you to see parent/child relationships among spans.
+- **Session**: A collection of one or more traces that together represent an entire interaction, or multi-step evaluation. A Session bundles related traces so that you can analyze an entire workflow end to end, even if it spans multiple services, threads, or agents.
+
+[Metrics](/concepts/metrics/overview) are configured at the Log stream level, allowing different metrics for different Log streams.
 
 ```mermaid
 flowchart LR
@@ -49,15 +56,10 @@ Starting sessions is optional - if you don't start a session, then all traces ar
 
 Using the Galileo SDK you can either do all these steps manually, or you can use a range of wrappers, decorators and integrations with third-party SDKs, where most of this is handled for you.
 
-## Core concepts
 
-Let's take a look at the building blocks of a session.
 
-### Span → trace → session
 
-- [**Span**](/sdk-api/logging/galileo-logger#add-spans): The smallest logging unit the system, typically representing a single operation, function call, or request. Each user message, model API call, or model tool usage generates a *Span*.
-- [**Trace**](/sdk-api/logging/galileo-logger#start-a-trace): When multiple spans occur as part of a single logical operation (e.g. a request that triggers several downstream calls) they form a *Trace*. Traces allow you to see parent/child relationships among spans.
-- **Session**: A collection of one or more traces that together represent an entire interaction, or multi-step evaluation. A Session bundles related traces so that you can analyze an entire workflow end to end, even if it spans multiple services, threads, or agents.
+
 
 ## How do sessions differ from Log streams?
 
@@ -98,6 +100,5 @@ Learn how to [create and use sessions](/concepts/logging/sessions/using-sessions
 ## Related resources
 
 - [**Using Sessions**](/concepts/logging/sessions/using-sessions) - Create and view sessions in Galileo
-- [**Log streams**](/sdk-api/logging/logging-basics) - Learn about Log streams in Galileo.
 - [**Spans**](/sdk-api/logging/galileo-logger#add-spans) - Learn about the building blocks of Traces in Galileo.
 - [**Traces**](/sdk-api/logging/galileo-logger#start-a-trace) - Learn about Traces, and different ways to create them.
