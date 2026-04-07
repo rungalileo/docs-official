@@ -11,7 +11,7 @@ dotenv.config();
 // environment variables.
 init({
     projectName: "MyFirstEvaluation",
-    logStreamName: "MyFirstLogStream"
+    logstream: "MyFirstLogStream"
 });
 
 // Create an Anthropic client
@@ -29,7 +29,10 @@ const userPrompt = "Describe Galileo";
 const modelName = "claude-sonnet-4-5";
 
 // Get the Galileo logger instance
-const galileoLogger = getLogger();
+const galileoLogger = getLogger({
+    projectName: "MyFirstEvaluation",
+    logstream: "MyFirstLogStream"
+});
 
 (async () => {
     // Start a session

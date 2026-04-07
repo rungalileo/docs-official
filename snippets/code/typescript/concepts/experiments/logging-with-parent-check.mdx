@@ -19,8 +19,8 @@ async function processMessage(input: any) {
 
   // If we are not in an experiment, we conclude and flush the trace
   if (!isInExperiment) {
-    galileoLogger.conclude("Some output");
-    galileoLogger.flush();
+    galileoLogger.conclude({ output: "Some output" });
+    await galileoLogger.flush();
   }
 };
 ```

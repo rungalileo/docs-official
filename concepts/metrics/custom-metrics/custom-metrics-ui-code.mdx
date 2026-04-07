@@ -145,11 +145,19 @@ from galileo import GalileoMetrics, LlmSpan
 def scorer_fn(*, step_object: LlmSpan, **kwargs) -> float:
     # Access required metrics via step_object.metrics
     # These metrics were selected in the "Required Metrics" dropdown
-    correctness = step_object.metrics[GalileoMetrics.correctness]
+
+    # Boolean metrics (e.g. correctness) return a list of 0/1 values,
+    # one per judge. Use sum()/len() to get the fraction that passed.
+    correctness_votes = step_object.metrics[GalileoMetrics.correctness]
+    correctness_score = (
+        sum(correctness_votes) / len(correctness_votes)
+        if correctness_votes else 0.0
+    )
+
     adherence = step_object.metrics[GalileoMetrics.context_adherence]
 
-    # Only calculate adherence if correctness is high
-    if correctness < 0.7:
+    # Only calculate adherence if the majority of judges rated it as correct
+    if correctness_score < 0.7:
         return 0.0
 
     return adherence

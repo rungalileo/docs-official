@@ -39,13 +39,20 @@ Calculate a metric only when another metric meets certain criteria:
 from galileo import GalileoMetrics, LlmSpan
 
 def scorer_fn(*, step_object: LlmSpan, **kwargs) -> float:
-    # Only calculate adherence if correctness score is high
-    correctness = step_object.metrics[GalileoMetrics.correctness]
-    if correctness < 0.7:
-        return 0.0  # Skip adherence calculation for incorrect inputs
+    # Boolean metrics like correctness return a list of 0/1 values,
+    # one per judge. Compute the fraction of judges that agreed.
+    correctness_votes = step_object.metrics[GalileoMetrics.correctness]
+    correctness_score = (
+        sum(correctness_votes) / len(correctness_votes)
+        if correctness_votes else 0.0
+    )
 
-    # Calculate adherence for correct inputs
-    adherence = step_object.metrics[GalileoMetrics.context_adherence]
+    if correctness_score < 0.7:
+        return 0.0
+
+    adherence = step_object.metrics[
+        GalileoMetrics.context_adherence
+    ]
     return adherence
 ```
 
@@ -168,6 +175,32 @@ def scorer_fn(*, step_object: LlmSpan, **kwargs) -> float:
 
     # Use the metric values in your logic
     return (adherence + custom_score) / 2
+```
+
+### Boolean vs. float metrics
+
+Different Galileo metrics return different value types:
+
+- **Float metrics** (e.g. `completeness`) return a single
+  `float` between 0 and 1.
+- **Boolean metrics** (e.g. `correctness`) are evaluated by multiple judges and return a `list[int]` at the root level, where each element is `0` (false) or `1` (true) — one value per judge.
+
+When using a boolean metric in your composite scorer, you must handle the list:
+
+```python
+# Boolean metric — returns a list of 0/1 values, one per judge
+correctness_votes = step_object.metrics[GalileoMetrics.correctness]
+# e.g. [1, 0, 1] when 3 judges ran
+
+# Get the fraction of judges that agreed (0.0 – 1.0)
+correctness_score = (
+    sum(correctness_votes) / len(correctness_votes)
+    if correctness_votes else 0.0
+)
+
+# Or check if any/all judges agreed
+passed_any = any(v == 1 for v in correctness_votes)
+passed_all = all(v == 1 for v in correctness_votes)
 ```
 
 ## Complete example: multi-level session metric
