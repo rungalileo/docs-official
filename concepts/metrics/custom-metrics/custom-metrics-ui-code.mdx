@@ -149,7 +149,10 @@ def scorer_fn(*, step_object: LlmSpan, **kwargs) -> float:
     # Boolean metrics (e.g. correctness) return a list of 0/1 values,
     # one per judge. Use sum()/len() to get the fraction that passed.
     correctness_votes = step_object.metrics[GalileoMetrics.correctness]
-    correctness_score = sum(correctness_votes) / len(correctness_votes) if correctness_votes else 0.0
+    correctness_score = (
+        sum(correctness_votes) / len(correctness_votes)
+        if correctness_votes else 0.0
+    )
 
     adherence = step_object.metrics[GalileoMetrics.context_adherence]
 
