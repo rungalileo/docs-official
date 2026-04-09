@@ -1,0 +1,19 @@
+```python Python (Beta)
+import os
+from galileo import LogStream
+from galileo import openai
+
+# Get the log stream
+log_stream = LogStream.get(name="my-log-stream", project_name="my-project")
+
+# Initialize the Galileo wrapped OpenAI client
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+# This will log to the specified log stream
+with log_stream.context():
+    chat_completion = client.chat.completions.create(
+        messages=[{"role": "user", "content": "Say this is a test"}],
+        model="gpt-4o"
+    )
+    print(chat_completion.choices[0].message.content)
+```
