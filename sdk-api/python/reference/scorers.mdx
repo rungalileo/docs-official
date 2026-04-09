@@ -11,7 +11,7 @@ title: scorers
 ```python
 def get_scorer_version(self,
                        scorer_id: UUID,
-                       version: int) -> Union[Unset, BaseScorerVersionResponse]
+                       version: int) -> Unset | BaseScorerVersionResponse
 ```
 
 **Arguments**
@@ -27,8 +27,8 @@ def get_scorer_version(self,
 
 ```python
 def list(self,
-         name: Optional[str]=None,
-         types: Optional[list[ScorerTypes]]=None) -> list[ScorerResponse]
+         name: str | None=None,
+         types: list[ScorerTypes] | None=None) -> list[ScorerResponse]
 ```
 
 Lists scorers, optionally filtering by name and/or type.
@@ -48,6 +48,43 @@ will return scorers where the name is "my_scorer" AND the type is either "llm" O
 
 - `A list of scorers that match the filter criteria.`: 
 
+### list_by_ids
+
+```python
+def list_by_ids(self,
+                scorer_ids: builtins.list[str]) -> builtins.list[ScorerResponse]
+```
+
+List scorers by their UUIDs.
+
+**Arguments**
+
+- `scorer_ids`: UUID strings of scorers to retrieve.
+
+**Returns**
+
+- `A list of scorers matching the given IDs.`: 
+
+### list_by_labels
+
+```python
+def list_by_labels(self,
+                   labels: builtins.list[str],
+                   strict: bool=False) -> builtins.list[ScorerResponse]
+```
+
+List scorers by label.
+
+**Arguments**
+
+- `labels`: Label values to search for.
+- `strict`: When False (default), also matches by scorer name as a fallback
+    for custom scorers that have no label set.
+
+**Returns**
+
+- `A list of scorers matching the label (or name) criteria.`: 
+
 ## ScorerSettings
 
 ### create
@@ -56,7 +93,7 @@ will return scorers where the name is "my_scorer" AND the type is either "llm" O
 def create(self,
            project_id: str,
            run_id: str,
-           scorers: list[ScorerConfig]) -> Optional[Union[HTTPValidationError, RunScorerSettingsResponse]]
+           scorers: list[ScorerConfig]) -> HTTPValidationError | RunScorerSettingsResponse | None
 ```
 
 **Arguments**

@@ -87,7 +87,7 @@ local_metrics = enable_metrics(
 
 ```python
 def enable_metrics(self,
-                   metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]) -> builtins.list[LocalMetricConfig]
+                   metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str]) -> builtins.list[LocalMetricConfig]
 ```
 
 Enable metrics directly on this log stream instance.
@@ -188,8 +188,8 @@ for local_metric in local_metrics:
 def create(self,
            name: str,
            *,
-           project_id: Optional[str]=None,
-           project_name: Optional[str]=None) -> LogStream
+           project_id: str | None=None,
+           project_name: str | None=None) -> LogStream
 ```
 
 Creates a new log stream. Exactly one of `project_id` or `project_name` must be provided.
@@ -216,9 +216,9 @@ Creates a new log stream. Exactly one of `project_id` or `project_name` must be 
 ```python
 def enable_metrics(self,
                    *,
-                   log_stream_name: Optional[str]=None,
-                   project_name: Optional[str]=None,
-                   metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]) -> builtins.list[LocalMetricConfig]
+                   log_stream_name: str | None=None,
+                   project_name: str | None=None,
+                   metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str]) -> builtins.list[LocalMetricConfig]
 ```
 
 Enable metrics for a log stream by configuring scorers.
@@ -294,10 +294,10 @@ scorer_configs, local_metrics = log_streams.enable_metrics(
 ```python
 def get(self,
         *,
-        id: Optional[str]=None,
-        name: Optional[str]=None,
-        project_id: Optional[str]=None,
-        project_name: Optional[str]=None) -> Optional[LogStream]
+        id: str | None=None,
+        name: str | None=None,
+        project_id: str | None=None,
+        project_name: str | None=None) -> LogStream | None
 ```
 
 Retrieves a log stream by id or name.
@@ -325,8 +325,8 @@ Retrieves a log stream by id or name.
 ```python
 def list(self,
          *,
-         project_id: Optional[str]=None,
-         project_name: Optional[str]=None) -> builtins.list[LogStream]
+         project_id: str | None=None,
+         project_name: str | None=None) -> builtins.list[LogStream]
 ```
 
 Lists all log streams. Exactly one of `project_id` or `project_name` must be provided.
@@ -350,8 +350,8 @@ Lists all log streams. Exactly one of `project_id` or `project_name` must be pro
 
 ```python
 def create_log_stream(name: str,
-                      project_id: Optional[str]=None,
-                      project_name: Optional[str]=None) -> LogStream
+                      project_id: str | None=None,
+                      project_name: str | None=None) -> LogStream
 ```
 
 Creates a new log stream. Exactly one of `project_id` or `project_name` must be provided.
@@ -373,9 +373,9 @@ Creates a new log stream. Exactly one of `project_id` or `project_name` must be 
 
 ```python
 def enable_metrics(*,
-                   log_stream_name: Optional[str]=None,
-                   project_name: Optional[str]=None,
-                   metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]) -> builtins.list[LocalMetricConfig]
+                   log_stream_name: str | None=None,
+                   project_name: str | None=None,
+                   metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str]) -> builtins.list[LocalMetricConfig]
 ```
 
 Enable metrics for a log stream with flexible parameter and environment variable support.
@@ -475,9 +475,9 @@ for local_metric in local_metrics:
 
 ```python
 def get_log_stream(*,
-                   name: Optional[str]=None,
-                   project_id: Optional[str]=None,
-                   project_name: Optional[str]=None) -> Optional[LogStream]
+                   name: str | None=None,
+                   project_id: str | None=None,
+                   project_name: str | None=None) -> LogStream | None
 ```
 
 Retrieves a log stream by name. Exactly one of `project_id` or `project_name` must be provided.
@@ -502,8 +502,8 @@ Retrieves a log stream by name. Exactly one of `project_id` or `project_name` mu
 
 ```python
 def list_log_streams(*,
-                     project_id: Optional[str]=None,
-                     project_name: Optional[str]=None) -> list[LogStream]
+                     project_id: str | None=None,
+                     project_name: str | None=None) -> list[LogStream]
 ```
 
 Lists all log streams. Exactly one of `project_id` or `project_name` must be provided.
