@@ -1,0 +1,62 @@
+```typescript TypeScript
+import { GalileoCallback, GalileoLogger } from "galileo";
+import {
+  Annotation,
+  StateGraph,
+  START,
+  END,
+  Send,
+} from "@langchain/langgraph";
+
+// Define the overall state with a reducer that concatenates summary arrays
+const OverallStateAnnotation = Annotation.Root({
+  topics: Annotation<string[]>,
+  summaries: Annotation<string[]>({
+    reducer: (current, update) => [...current, ...update],
+    default: () => [],
+  }),
+});
+
+// Define the per-topic state
+const SummaryStateAnnotation = Annotation.Root({
+  topic: Annotation<string>,
+  summaries: Annotation<string[]>({
+    reducer: (current, update) => [...current, ...update],
+    default: () => [],
+  }),
+});
+
+// Dispatch each topic to a summarize node in parallel
+function fanOut(state: typeof OverallStateAnnotation.State): Send[] {
+  return state.topics.map((t) => new Send("summarize", { topic: t }));
+}
+
+// Summarize a single topic
+function summarize(
+  state: typeof SummaryStateAnnotation.State
+): Partial<typeof SummaryStateAnnotation.State> {
+  // In practice, you would call an LLM here
+  return { summaries: [`Summary of ${state.topic}`] };
+}
+
+// Build the graph
+const graph = new StateGraph(OverallStateAnnotation)
+  .addNode("summarize", summarize)
+  .addConditionalEdges(START, fanOut)
+  .addEdge("summarize", END);
+
+const app = graph.compile();
+
+// Run with Galileo logging — each Send is captured automatically
+const logger = new GalileoLogger({
+  projectName: "langgraph-send-example",
+});
+const galileoCallback = new GalileoCallback(logger);
+
+const result = await app.invoke(
+  { topics: ["AI safety", "Quantum computing", "Climate change"] },
+  { callbacks: [galileoCallback] }
+);
+
+console.log(result.summaries);
+```

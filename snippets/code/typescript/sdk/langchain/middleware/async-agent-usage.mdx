@@ -1,0 +1,38 @@
+```typescript TypeScript
+import { GalileoCallback } from "galileo";
+import { ChatOpenAI } from "@langchain/openai";
+import { HumanMessage } from "@langchain/core/messages";
+import { createAgent } from "langchain";
+import { tool } from "@langchain/core/tools";
+import { z } from "zod";
+
+// Define tools
+const getWeather = tool(
+  async ({ city }: { city: string }) => {
+    return `The weather in ${city} is sunny, 72F.`;
+  },
+  {
+    name: "get_weather",
+    description: "Get the current weather for a city",
+    schema: z.object({ city: z.string() }),
+  }
+);
+
+// Create the Galileo callback
+const callback = new GalileoCallback();
+
+// Create the agent with tools
+const llm = new ChatOpenAI({ model: "gpt-4o" });
+const agent = createAgent({
+  model: llm,
+  tools: [getWeather],
+});
+
+// Invoke the agent — async is handled natively by GalileoCallback
+const result = await agent.invoke(
+  { messages: [new HumanMessage("What's the weather in San Francisco?")] },
+  { callbacks: [callback] }
+);
+
+console.log(result);
+```

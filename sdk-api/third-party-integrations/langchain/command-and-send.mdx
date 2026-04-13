@@ -3,15 +3,19 @@ title: Command and Send
 description: Learn how Galileo logs LangGraph Command and Send types for advanced control flow
 ---
 
-import CommandBasic from "/snippets/code/python/sdk/langchain/command-and-send/command-basic.mdx";
-import SendBasic from "/snippets/code/python/sdk/langchain/command-and-send/send-basic.mdx";
-import CommandToolMessages from "/snippets/code/python/sdk/langchain/command-and-send/command-tool-messages.mdx";
+import CommandBasicPython from "/snippets/code/python/sdk/langchain/command-and-send/command-basic.mdx";
+import SendBasicPython from "/snippets/code/python/sdk/langchain/command-and-send/send-basic.mdx";
+import CommandToolMessagesPython from "/snippets/code/python/sdk/langchain/command-and-send/command-tool-messages.mdx";
+
+import CommandBasicTypeScript from "/snippets/code/typescript/sdk/langchain/command-and-send/command-basic.mdx";
+import SendBasicTypeScript from "/snippets/code/typescript/sdk/langchain/command-and-send/send-basic.mdx";
+import CommandToolMessagesTypeScript from "/snippets/code/typescript/sdk/langchain/command-and-send/command-tool-messages.mdx";
 
 ## Overview
 
 LangGraph provides two types for advanced graph control flow:
 
-- **`Command`** — Combines a state update with routing in a single return value. Instead of using conditional edges, a node can return `Command(update={...}, goto="next_node")` to update state and control which node runs next.
+- **`Command`** — Combines a state update with routing in a single return value. Instead of using conditional edges, a node can return a `Command` with an `update` and `goto` to update state and control which node runs next.
 - **`Send`** — Enables map-reduce (fan-out) patterns by dispatching work to a node with custom state. Returning a list of `Send` objects from an edge function runs the target node once per `Send`, in parallel.
 
 Both types are useful for building dynamic, multi-path agents in LangGraph.
@@ -27,7 +31,8 @@ Both types are useful for building dynamic, multi-path agents in LangGraph.
 `Command` lets a node update state and route to the next node in one step, replacing the need for separate conditional edges.
 
 <CodeGroup>
-  <CommandBasic />
+  <CommandBasicPython />
+  <CommandBasicTypeScript />
 </CodeGroup>
 
 In this example, the `classify` node returns a `Command` that sets the `category` field and routes to either `billing_handler` or `general_handler`. Galileo captures the full `Command` return value, including the routing decision.
@@ -37,17 +42,19 @@ In this example, the `classify` node returns a `Command` that sets the `category
 `Send` enables fan-out patterns where multiple instances of a node run in parallel, each with different input state.
 
 <CodeGroup>
-  <SendBasic />
+  <SendBasicPython />
+  <SendBasicTypeScript />
 </CodeGroup>
 
-Here, `fan_out` returns a list of `Send` objects — one per topic. LangGraph runs the `summarize` node for each topic in parallel, and the results are aggregated via the `operator.add` reducer. Galileo logs each parallel execution.
+Here, `fan_out` returns a list of `Send` objects — one per topic. LangGraph runs the `summarize` node for each topic in parallel, and the results are aggregated via a list-concatenation reducer. Galileo logs each parallel execution.
 
 ## Command with tool messages
 
 When a tool returns a `Command`, it can include a `ToolMessage` in the state update. Galileo automatically extracts the `ToolMessage` for proper tool-call logging.
 
 <CodeGroup>
-  <CommandToolMessages />
+  <CommandToolMessagesPython />
+  <CommandToolMessagesTypeScript />
 </CodeGroup>
 
 This pattern is useful when a tool needs to both return a result to the LLM (via `ToolMessage`) and update other parts of the graph state at the same time.

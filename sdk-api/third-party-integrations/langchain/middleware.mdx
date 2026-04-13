@@ -3,10 +3,15 @@ title: Middleware
 description: Learn about using GalileoMiddleware for automatic logging of LangChain agents
 ---
 
-import AddToExistingTrace from "/snippets/code/python/sdk/langchain/middleware/add-to-existing-trace.mdx";
-import AsyncAgentUsage from "/snippets/code/python/sdk/langchain/middleware/async-agent-usage.mdx";
-import CustomLogger from "/snippets/code/python/sdk/langchain/middleware/custom-logger.mdx";
-import ManualFlushControl from "/snippets/code/python/sdk/langchain/middleware/manual-flush-control.mdx";
+import AddToExistingTracePython from "/snippets/code/python/sdk/langchain/middleware/add-to-existing-trace.mdx";
+import AsyncAgentUsagePython from "/snippets/code/python/sdk/langchain/middleware/async-agent-usage.mdx";
+import CustomLoggerPython from "/snippets/code/python/sdk/langchain/middleware/custom-logger.mdx";
+import ManualFlushControlPython from "/snippets/code/python/sdk/langchain/middleware/manual-flush-control.mdx";
+
+import AddToExistingTraceTypeScript from "/snippets/code/typescript/sdk/langchain/middleware/add-to-existing-trace.mdx";
+import AsyncAgentUsageTypeScript from "/snippets/code/typescript/sdk/langchain/middleware/async-agent-usage.mdx";
+import CustomLoggerTypeScript from "/snippets/code/typescript/sdk/langchain/middleware/custom-logger.mdx";
+import ManualFlushControlTypeScript from "/snippets/code/typescript/sdk/langchain/middleware/manual-flush-control.mdx";
 
 ## Overview
 
@@ -21,7 +26,9 @@ import ManualFlushControl from "/snippets/code/python/sdk/langchain/middleware/m
 
 To use `GalileoMiddleware`, simply add it to the `middleware` parameter when creating a LangChain agent:
 
-<SnippetLangChainMiddlewarePython />
+<Note>
+  In the TypeScript SDK, `GalileoMiddleware` is not available. Use `GalileoCallback` with the same constructor options to achieve equivalent functionality.
+</Note>
 
 The middleware automatically handles all logging internally. When the agent is invoked:
 
@@ -43,7 +50,10 @@ The middleware automatically handles all logging internally. When the agent is i
 
 You can provide a custom logger instance to integrate with existing logging infrastructure:
 
-<CustomLogger />
+<CodeGroup>
+  <CustomLoggerPython />
+  <CustomLoggerTypeScript />
+</CodeGroup>
 
 ## Trace management
 
@@ -51,15 +61,21 @@ By default, each agent invocation creates a new trace. You can control trace beh
 
 ### Add to existing trace
 
-To add agent execution to an existing trace, use a shared logger with `start_new_trace=False`:
+To add agent execution to an existing trace, use a shared logger with `start_new_trace` set to `False` (Python) or `false` (TypeScript):
 
-<AddToExistingTrace />
+<CodeGroup>
+  <AddToExistingTracePython />
+  <AddToExistingTraceTypeScript />
+</CodeGroup>
 
 ### Manual flush control
 
 If you want to control when logs are flushed (e.g., for batch processing):
 
-<ManualFlushControl />
+<CodeGroup>
+  <ManualFlushControlPython />
+  <ManualFlushControlTypeScript />
+</CodeGroup>
 
 ## What gets logged
 
@@ -88,35 +104,40 @@ If you want to control when logs are flushed (e.g., for batch processing):
 
 ## Comparison with GalileoCallback
 
-`GalileoMiddleware` and `GalileoCallback` provide similar functionality but use different approaches:
+`GalileoMiddleware` (Python) and `GalileoCallback` (Python and TypeScript) provide similar functionality but use different approaches:
 
-| Feature | GalileoMiddleware | GalileoCallback |
+| Feature | GalileoMiddleware (Python only) | GalileoCallback (Python and TypeScript) |
 |---------|------------------|-----------------|
 | **Integration point** | LangGraph agents via middleware parameter | LangChain components via callbacks parameter |
 | **Setup complexity** | Simple - add to middleware list | Manual - pass to each component |
 | **Agent support** | Native support for LangGraph agents | Requires callback setup |
 | **Flexibility** | Automatic agent-level tracing | Fine-grained control over individual components |
+| **Language support** | Python only | Python and TypeScript |
 | **Use case** | LangGraph agents with minimal setup | Complex LangChain applications with custom needs |
 
 Use `GalileoMiddleware` when:
 
-- You're building LangGraph agents
+- You're building LangGraph agents **in Python**
 - You want automatic, drop-in logging
 - You prefer simpler setup
 
 Use `GalileoCallback` when:
 
+- You're using **TypeScript** (middleware is not available)
 - You need fine-grained control over logging
 - You're working with complex LangChain applications
 - You want to log specific components selectively
 
 ## Async support
 
-`GalileoMiddleware` fully supports asynchronous execution. The middleware automatically handles both sync and async contexts:
+`GalileoMiddleware` (Python) fully supports asynchronous execution. The middleware automatically handles both sync and async contexts. In TypeScript, `GalileoCallback` handles async natively.
 
-<AsyncAgentUsage />
+<CodeGroup>
+  <AsyncAgentUsagePython />
+  <AsyncAgentUsageTypeScript />
+</CodeGroup>
 
-The middleware uses the appropriate handler (`GalileoBaseHandler` or `GalileoAsyncBaseHandler`) based on the execution context.
+In Python, the middleware uses the appropriate handler (`GalileoBaseHandler` or `GalileoAsyncBaseHandler`) based on the execution context. In TypeScript, `GalileoCallback` works with both sync and async invocations.
 
 ## Best practices
 

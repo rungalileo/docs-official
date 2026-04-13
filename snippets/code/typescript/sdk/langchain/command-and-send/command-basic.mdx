@@ -1,0 +1,69 @@
+```typescript TypeScript
+import { GalileoCallback, GalileoLogger } from "galileo";
+import {
+  Annotation,
+  StateGraph,
+  START,
+  END,
+  Command,
+} from "@langchain/langgraph";
+
+// Define the state
+const StateAnnotation = Annotation.Root({
+  query: Annotation<string>,
+  category: Annotation<string>,
+  response: Annotation<string>,
+});
+
+// Classify the query and route to the appropriate handler
+function classify(state: typeof StateAnnotation.State): Command {
+  const query = state.query;
+  // In practice, you might use an LLM to classify the query
+  if (query.toLowerCase().includes("refund")) {
+    return new Command({
+      update: { category: "billing" },
+      goto: "billing_handler",
+    });
+  }
+  return new Command({
+    update: { category: "general" },
+    goto: "general_handler",
+  });
+}
+
+function billingHandler(
+  state: typeof StateAnnotation.State
+): Partial<typeof StateAnnotation.State> {
+  return { response: `Billing support for: ${state.query}` };
+}
+
+function generalHandler(
+  state: typeof StateAnnotation.State
+): Partial<typeof StateAnnotation.State> {
+  return { response: `General support for: ${state.query}` };
+}
+
+// Build the graph
+const graph = new StateGraph(StateAnnotation)
+  .addNode("classify", classify, { ends: ["billing_handler", "general_handler"] })
+  .addNode("billing_handler", billingHandler)
+  .addNode("general_handler", generalHandler)
+  .addEdge(START, "classify")
+  .addEdge("billing_handler", END)
+  .addEdge("general_handler", END);
+
+const app = graph.compile();
+
+// Run with Galileo logging — Command routing is captured automatically
+const logger = new GalileoLogger({
+  projectName: "langgraph-command-example",
+});
+const galileoCallback = new GalileoCallback(logger);
+
+const result = await app.invoke(
+  { query: "I need a refund for my last order" },
+  { callbacks: [galileoCallback] }
+);
+
+console.log(result.response);
+```

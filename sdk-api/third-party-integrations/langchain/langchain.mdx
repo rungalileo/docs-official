@@ -18,6 +18,7 @@ import SnippetLangChainCustomLoggerTypeScript from "/snippets/code/typescript/sd
 import SnippetLangChainChainsTypeScript from "/snippets/code/typescript/sdk/wrappers/langchain-chains.mdx";
 import SnippetLangChainMetadataTypeScript from "/snippets/code/typescript/sdk/wrappers/langchain-metadata.mdx";
 import SnippetLangChainNewSessionTypeScript from "/snippets/code/typescript/sdk/wrappers/langchain-new-session.mdx";
+import SnippetLangChainAsyncTypeScript from "/snippets/code/typescript/sdk/wrappers/langchain-async.mdx";
 import SnippetLangChainAddToTraceTypeScript from "/snippets/code/typescript/sdk/wrappers/langchain-add-trace.mdx";
 
 {/*<!-- markdownlint-enable MD044 -->*/}
@@ -65,12 +66,14 @@ For each of these events, the callback logs relevant information to Galileo, suc
 
 The GalileoCallback automatically handles nested chains and agents, creating a hierarchical trace that reflects the structure of your LangChain application.
 
-### Python asynchronous callbacks
+### Asynchronous callbacks
 
-In Python, there are separate callbacks for synchronous and asynchronous code. If you are using the asynchronous LangChain or LangGraph API, use the [`GalileoAsyncCallback` callback handler](/sdk-api/python/reference/handlers/langchain/async_handler).
+In Python, there are separate callbacks for synchronous and asynchronous code. If you are using the asynchronous LangChain or LangGraph API, use the [`GalileoAsyncCallback` callback handler](/sdk-api/python/reference/handlers/langchain/async_handler). 
+In TypeScript, the standard `GalileoCallback` handles async natively — no separate class is needed.
 
 <CodeGroup>
   <SnippetLangChainAsyncPython/>
+  <SnippetLangChainAsyncTypeScript/>
 </CodeGroup>
 
 ## Use a custom logger
@@ -95,7 +98,7 @@ To add the chain or LLM call invocation as a new trace to an existing session, c
   <SnippetLangChainNewSessionTypeScript/>
 </CodeGroup>
 
-To add the chain or LLM call invocation to an existing trace, ensure the trace is started, and set the `start_new_trace` parameter to `False`.
+To add the chain or LLM call invocation to an existing trace, ensure the trace is started, and set the `start_new_trace` parameter to `False` (Python) or `false` (TypeScript).
 
 <CodeGroup>
   <SnippetLangChainAddToTracePython/>
