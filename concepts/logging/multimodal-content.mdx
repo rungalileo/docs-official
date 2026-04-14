@@ -1,0 +1,158 @@
+---
+title: Log Multimodal Content
+description: Log images, audio, and documents alongside text in your Galileo traces
+---
+
+Galileo supports logging multimodal content as part of your traces, giving you full
+observability over multimodal AI applications — voice assistants, document analysis
+pipelines, image-based workflows, and more. Content can be sent as base64-encoded
+data or as external URLs.
+
+## Prerequisites
+
+Install the Galileo Python SDK:
+
+```bash
+pip install galileo
+```
+
+Set the following in your `.env` file:
+
+```bash
+GALILEO_API_KEY=your-api-key
+```
+
+## Log with GalileoLogger
+
+Import the content block types you need:
+
+```python Python
+from galileo.logger import GalileoLogger
+from galileo.schema.content_blocks import TextContentBlock, DataContentBlock
+```
+
+### Log content from a URL
+
+Pass an external URL directly using `DataContentBlock`:
+
+```python Python
+logger = GalileoLogger()
+logger.start_trace(
+    input=[
+        TextContentBlock(text="Describe this image"),
+        DataContentBlock(modality="image", url="https://example.com/photo.png"),
+    ],
+    project="my-project",
+)
+logger.add_llm_span(
+    input=[{"role": "user", "content": "Describe this image"}],
+    output={"role": "assistant", "content": "It's a cat."},
+    model="gpt-4o",
+)
+logger.conclude(output="It's a cat.")
+logger.flush()
+```
+
+### Log local files using base64 encoding
+
+Encode local files and pass them using the `base64` and `mime_type` fields:
+
+```python Python
+import base64
+from pathlib import Path
+from galileo.logger import GalileoLogger
+from galileo.schema.content_blocks import TextContentBlock, DataContentBlock
+
+image_b64 = base64.b64encode(Path("photo.png").read_bytes()).decode()
+audio_b64 = base64.b64encode(Path("recording.wav").read_bytes()).decode()
+pdf_b64   = base64.b64encode(Path("report.pdf").read_bytes()).decode()
+
+logger = GalileoLogger()
+logger.start_trace(
+    input=[
+        TextContentBlock(text="Analyze all of these files"),
+        DataContentBlock(modality="image",    base64=image_b64, mime_type="image/png"),
+        DataContentBlock(modality="audio",    base64=audio_b64, mime_type="audio/wav"),
+        DataContentBlock(modality="document", base64=pdf_b64,   mime_type="application/pdf"),
+    ],
+    project="my-project",
+)
+logger.add_llm_span(
+    input=[{"role": "user", "content": "Analyze all of these files"}],
+    output={
+        "role": "assistant",
+        "content": "The image shows a cat, the audio is a piano note, and the PDF is a quarterly report.",
+    },
+    model="gpt-4o",
+)
+logger.conclude(
+    output="The image shows a cat, the audio is a piano note, and the PDF is a quarterly report."
+)
+logger.flush()
+```
+
+Supported modalities for `DataContentBlock`: `image`, `audio`, `document`.
+
+## Log with the LangChain handler
+
+The LangChain handler automatically converts multimodal content in messages to
+structured content blocks. Pass multimodal messages as you normally would with LangChain:
+
+```python Python
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage
+from galileo.handlers.langchain import GalileoCallback
+
+callback = GalileoCallback()
+llm = ChatOpenAI(model="gpt-4o", callbacks=[callback])
+
+response = llm.invoke([
+    HumanMessage(content=[
+        {"type": "text",      "text": "What's in this image?"},
+        {"type": "image_url", "image_url": {"url": "https://example.com/photo.png"}},
+    ])
+])
+```
+
+Supported LangChain content types: `text`, `image_url`, `audio_url`, `document_url`,
+`input_image`, `input_audio`. Base64 data URIs are also supported — the handler
+extracts the payload and mime type automatically.
+
+## Evaluate multimodal traces with custom metrics
+
+To evaluate multimodal traces, create a custom LLM metric and enable the multimodal
+capabilities that match your trace content:
+
+1. Go to **Metrics** and create a new custom LLM metric.
+1. Under capabilities, select **Image/PDF** or **Audio** depending on your content type.
+1. Configure a supported model integration:
+   - **Image/PDF**: use the OpenAI integration with a `gpt-4o` model
+   - **Audio**: use the Vertex AI integration with a `gemini-2.0` model
+1. For Vertex AI, configure a separate GCP bucket and credentials for file uploads.
+1. Enable the metric on your log stream **before** logging traces.
+
+<Note>
+Metrics are only computed when the trace contains at least one attachment matching
+the enabled capability. For example, a metric with **Image/PDF** enabled will return
+N/A if the trace contains only audio, or if the trace has no attachments.
+</Note>
+
+## Known limitations
+
+- API readback returns `List[ContentBlock]` as JSON-stringified strings rather than
+  native list objects. The data is complete and parseable.
+- The LangChain handler stores the full serialized message list on the trace. Content
+  blocks are nested inside the message's content field rather than at the top level.
+- Recompute is not currently supported for multimodal metrics.
+- Multimodal metrics are not supported in playground or prompt experiments.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Galileo Logger" href="/sdk-api/logging/galileo-logger">
+    Learn more about logging traces with GalileoLogger.
+  </Card>
+  <Card title="LangChain and LangGraph integration" href="/integrations/langchain">
+    Learn more about the full Galileo LangChain integration.
+  </Card>
+</CardGroup>
