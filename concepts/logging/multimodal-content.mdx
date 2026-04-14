@@ -14,14 +14,6 @@ Galileo supports logging multimodal content alongside text in your traces, so yo
 - evaluate quality and behavior using multimodal metrics
 - debug failures with full input context, not just text representations
 
-## Supported formats
-
-| Modality | Formats |
-| :--- | :--- |
-| Image | `png`, `jpeg`, `mp4` |
-| Audio | `mp3`, `wav` |
-| Document | `pdf` |
-
 ---
 
 ## Before you begin
@@ -175,15 +167,9 @@ Enable these directly on your Log stream — no configuration needed:
 
 1. Go to **Metrics** and create a new custom LLM metric.
 1. Under capabilities, select **Image/PDF** or **Audio**.
-1. Configure a model integration:
-
-| Modality | Provider | Recommended model |
-| :--- | :--- | :--- |
-| Image / PDF | OpenAI | `gpt-4.1` or later |
-| Audio | Vertex AI | `gemini-2.5` or later |
-
-4. For Vertex AI, configure a separate GCP bucket and credentials for file uploads.
-4. Enable the metric on your Log stream **before** logging content.
+1. Configure a model integration. See [supported models](#supported-models) below.
+1. For Vertex AI, configure a separate GCP bucket and credentials for file uploads.
+1. Enable the metric on your Log stream **before** logging content.
 
 <Note>
 Metrics are only computed when the trace contains at least one attachment matching
@@ -214,3 +200,22 @@ blocks are nested inside the message's `content` field rather than at the top le
     Learn more about the full Galileo LangChain integration.
   </Card>
 </CardGroup>
+
+---
+
+## Reference
+
+### Supported formats
+
+| Modality | Formats |
+| :--- | :--- |
+| Image | `png`, `jpeg`, `mp4` |
+| Audio | `mp3`, `wav` |
+| Document | `pdf` |
+
+### Supported models
+
+| Modality | Provider | Recommended model |
+| :--- | :--- | :--- |
+| Image / PDF | OpenAI | `gpt-4.1` or later |
+| Audio | Vertex AI | `gemini-2.5` or later |
