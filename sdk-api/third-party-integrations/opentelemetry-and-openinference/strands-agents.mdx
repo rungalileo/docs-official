@@ -49,6 +49,29 @@ When you run your Strands Agent code, traces will be logged to Galileo.
 </Step>
 </Steps>
 
+## Opt in to experimental OpenTelemetry semantic conventions
+
+Starting in `strands-agents` v1.34.0, the Strands Agents SDK can emit generative AI traces using either the legacy OpenTelemetry semantic conventions or the newer experimental conventions:
+
+- **Legacy mode** (default) — uses attributes such as `gen_ai.system` along with legacy event shapes.
+- **Experimental mode** — follows the latest OpenTelemetry generative AI semantic conventions, using `gen_ai.provider.name` and structured `gen_ai.client.inference.operation.details` events that carry inputs, outputs, and system instructions.
+
+Galileo automatically detects and maps both modes, so traces from either mode will appear in your Galileo Log stream without any changes to your Galileo setup.
+
+If you want to opt in to the experimental conventions, set the following environment variable before your Strands Agent starts:
+
+<CodeGroup>
+
+```ini .env
+OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental
+```
+
+</CodeGroup>
+
+<Note>
+`OTEL_SEMCONV_STABILITY_OPT_IN` is read by the Strands Agents SDK at startup. Make sure it is exported in your process environment (or loaded from your `.env` file) before `StrandsTelemetry` is initialized.
+</Note>
+
 ## Full example
 
 Here is a full example based off the [Strands Agent quickstart](https://strandsagents.com/latest/documentation/docs/user-guide/quickstart/). You can find this project in the [Galileo SDK examples repo](https://github.com/rungalileo/sdk-examples/tree/main/python/agent/strands-agent).
