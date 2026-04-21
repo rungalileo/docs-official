@@ -174,13 +174,10 @@ For best results, use GPT-5 or later (OpenAI) for image and PDF evaluation, and 
 
 ## Known limitations
 
-**API readback returns content blocks as JSON strings.** When you log `List[ContentBlock]` as trace input or output, the readback API returns them as JSON-stringified strings rather than native list objects. The data is complete and parseable — it's a serialization artifact, not data loss.
-
-**LangChain handler stores the full message list.** The handler serializes the entire message structure (e.g., `[{"content": [...blocks...], "role": "user"}]`) to the trace input/output, not bare content blocks. A follow-up pass will clean this up so trace-level I/O uses bare content blocks where appropriate.
-
-**Recompute is not supported for multimodal metrics.** This is tracked and in progress.
-
-**Multimodal metrics are not supported in playground or prompt experiments.**
+- **API readback returns content blocks as JSON strings.** `List[ContentBlock]` values are returned as JSON-stringified strings rather than native list objects. The data is complete and parseable.
+- **LangChain handler stores the full message list.** Trace input/output contains the full serialized message structure (e.g., `[{"content": [...blocks...], "role": "user"}]`), not bare content blocks.
+- **Recompute is not supported for multimodal metrics.**
+- **Multimodal metrics are not supported in playground or prompt experiments.**
 
 ---
 
