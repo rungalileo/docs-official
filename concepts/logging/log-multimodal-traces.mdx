@@ -114,10 +114,6 @@ response = llm.invoke([
 
 Supported content types: `text`, `image_url`, `audio_url`, `document_url`, `input_image`, `input_audio`. Base64 data URIs are supported — the handler extracts the payload and mime type automatically.
 
-<Note>
-The LangChain handler stores the full serialized message list on the trace. Content blocks are nested inside the message's `content` field rather than at the top level. See [Known limitations](#known-limitations) below.
-</Note>
-
 ---
 
 ## View multimodal content in your traces
@@ -160,18 +156,6 @@ Metrics compute only when the trace contains at least one attachment matching th
 
 ---
 
-## Known limitations
-
-**API readback returns content blocks as JSON strings.** When you log `List[ContentBlock]` as trace input or output, the readback API returns them as JSON-stringified strings rather than native list objects. The data is complete and parseable — it's a serialization artifact, not data loss.
-
-**LangChain handler stores the full message list.** The handler serializes the entire message structure (e.g., `[{"content": [...blocks...], "role": "user"}]`) to the trace input/output, not bare content blocks. A follow-up pass will clean this up so trace-level I/O uses bare content blocks where appropriate.
-
-**Recompute is not supported for multimodal metrics.** This is tracked and in progress.
-
-**Multimodal metrics are not supported in playground or prompt experiments.**
-
----
-
 ## Reference
 
 ### Supported formats
@@ -185,6 +169,18 @@ Metrics compute only when the trace contains at least one attachment matching th
 ### Recommended models
 
 For best results, use GPT-5 or later (OpenAI) for image and PDF evaluation, and Gemini 3+ via Vertex AI for audio.
+
+---
+
+## Known limitations
+
+**API readback returns content blocks as JSON strings.** When you log `List[ContentBlock]` as trace input or output, the readback API returns them as JSON-stringified strings rather than native list objects. The data is complete and parseable — it's a serialization artifact, not data loss.
+
+**LangChain handler stores the full message list.** The handler serializes the entire message structure (e.g., `[{"content": [...blocks...], "role": "user"}]`) to the trace input/output, not bare content blocks. A follow-up pass will clean this up so trace-level I/O uses bare content blocks where appropriate.
+
+**Recompute is not supported for multimodal metrics.** This is tracked and in progress.
+
+**Multimodal metrics are not supported in playground or prompt experiments.**
 
 ---
 
