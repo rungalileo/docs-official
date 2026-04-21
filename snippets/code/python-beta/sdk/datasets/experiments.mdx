@@ -11,7 +11,8 @@ prompt = Prompt.get(name="geography-prompt")
 if prompt is None:
     raise ValueError("Prompt 'geography-prompt' not found")
 
-# Run an experiment with the dataset and prompt
+# Create and run the experiment in one step
+# (create() triggers the run automatically)
 experiment = Experiment(
     name="geography-experiment",
     dataset=dataset,
@@ -20,5 +21,4 @@ experiment = Experiment(
     project_name="my-project",
 )
 experiment.create()
-result = experiment.run()
 ```
