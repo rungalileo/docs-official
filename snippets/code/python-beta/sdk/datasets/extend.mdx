@@ -3,7 +3,8 @@ from galileo import Dataset
 
 # Get an existing dataset
 dataset = Dataset.get(name="countries")
-assert dataset is not None, "Dataset 'countries' not found"
+if dataset is None:
+    raise ValueError("Dataset 'countries' not found")
 
 # Extend with synthetic data.
 # Note: unlike the non-beta extend_dataset() which is a pure generator,

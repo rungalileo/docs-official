@@ -3,11 +3,13 @@ from galileo import Dataset
 
 # Get a dataset by name
 dataset = Dataset.get(name="countries")
-assert dataset is not None, "Dataset 'countries' not found"
+if dataset is None:
+    raise ValueError("Dataset 'countries' not found")
 
 # Get a dataset by ID
 dataset = Dataset.get(id="dataset-id")
-assert dataset is not None, "Dataset with given ID not found"
+if dataset is None:
+    raise ValueError("Dataset with given ID not found")
 
 # Get its content
 content = dataset.get_content()

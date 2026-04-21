@@ -3,7 +3,8 @@ from galileo import Dataset
 
 # Get an existing dataset
 dataset = Dataset.get(name="countries")
-assert dataset is not None, "Dataset 'countries' not found"
+if dataset is None:
+    raise ValueError("Dataset 'countries' not found")
 
 # Get the version history
 version_history = dataset.get_versions()

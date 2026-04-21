@@ -3,7 +3,8 @@ from galileo import Dataset
 
 # Get an existing dataset
 dataset = Dataset.get(name="countries")
-assert dataset is not None, "Dataset 'countries' not found"
+if dataset is None:
+    raise ValueError("Dataset 'countries' not found")
 
 # Add new rows to the dataset
 dataset.add_rows([
