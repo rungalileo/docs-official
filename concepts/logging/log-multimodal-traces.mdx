@@ -9,7 +9,7 @@ Galileo supports multimodal content in traces so you can:
 
 - Inspect the exact image, audio clip, or document your model received
 - Evaluate quality and behavior using multimodal metrics
-- Debug failures with complete input context
+- Debug failures with full input context
 
 ---
 
@@ -27,7 +27,7 @@ Galileo supports multimodal content in traces so you can:
 
 Use `DataContentBlock` with the `url` field. No encoding required.
 
-```python
+```python Python
 from galileo.logger import GalileoLogger
 from galileo.schema.content_blocks import TextContentBlock, DataContentBlock
 
@@ -54,7 +54,7 @@ logger.flush()
 
 Encode local files as base64 and pass them with the `base64` and `mime_type` fields. This works for images, audio, and documents in a single trace:
 
-```python
+```python Python
 import base64
 from pathlib import Path
 from galileo.logger import GalileoLogger
@@ -96,7 +96,7 @@ logger.flush()
 
 The LangChain handler converts multimodal message content to structured content blocks automatically. Pass multimodal messages the same way you normally would with LangChain — no extra setup:
 
-```python
+```python Python
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 from galileo.handlers.langchain import GalileoCallback
@@ -144,7 +144,7 @@ Galileo provides out-of-the-box multimodal LLM-as-a-judge metrics and custom met
 
 1. Go to **Metrics** and create a new custom LLM metric.
 2. Under capabilities, select **Image/PDF** or **Audio**.
-3. Configure a model integration. See [recommended models](#recommended-models) below.
+3. Configure a model integration. See [recommended models](#supported-formats-and-models) below.
 4. Enable the metric on your Log stream **before** logging content.
 
 <Note>
@@ -153,7 +153,7 @@ Metrics compute only when the trace contains at least one attachment matching th
 
 ---
 
-## Reference
+## Supported formats and models
 
 ### Supported formats
 
