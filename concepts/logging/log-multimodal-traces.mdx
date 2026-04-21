@@ -112,7 +112,7 @@ response = llm.invoke([
 ])
 ```
 
-Supported content types: `text`, `image_url`, `audio_url`, `document_url`, `input_image`, `input_audio`. Base64 data URIs are supported — the handler extracts the payload and mime type automatically.
+Supported content types: `text`, `image_url`, `audio_url`, `document_url`, `input_image`, and `input_audio`. Base64 data URIs are also supported — the handler extracts the payload and MIME type automatically.
 
 ---
 
@@ -128,7 +128,7 @@ Multimodal content renders inline in the Log stream alongside span inputs and ou
 
 ## Evaluate multimodal traces
 
-Galileo provides out-of-the-box multimodal LLM-as-a-judge metrics and custom metric configuration for spans, traces, and sessions that contain multimodal content.
+Galileo provides out-of-the-box LLM-as-a-judge metrics for multimodal content. You can also configure custom LLM-as-a-judge metrics on any span, trace, or session that contains multimodal content.
 
 ### Out-of-the-box metrics
 
@@ -144,7 +144,7 @@ Galileo provides out-of-the-box multimodal LLM-as-a-judge metrics and custom met
 
 1. Go to **Metrics** and create a new custom LLM metric.
 2. Under capabilities, select **Image/PDF** or **Audio**.
-3. Configure a model integration. See [recommended models](#supported-formats-and-models) below.
+3. Configure a model integration. See [suggested models](#supported-formats-and-models) below.
 4. Enable the metric on your Log stream **before** logging content.
 
 <Note>
@@ -165,14 +165,14 @@ Metrics compute only when the trace contains at least one attachment matching th
 
 ### Recommended models
 
-For best results, use GPT-5 or later (OpenAI) for image and PDF evaluation, and Gemini 3+ via Vertex AI for audio. For Vertex AI, configure a separate GCP bucket and credentials for file uploads. See [how to set up a Vertex AI integration](https://v2galileo.mintlify.app/api-reference/integrations/create-or-update-vertex-ai-integration#create-or-update-vertex-ai-integration).
+For best results, use GPT-5 or later (OpenAI) for image and PDF evaluation, and Gemini 3+ via Vertex AI for audio. If using Vertex AI, you will also need to configure a separate GCP bucket and credentials for file uploads. See [how to set up a Vertex AI integration](https://v2galileo.mintlify.app/api-reference/integrations/create-or-update-vertex-ai-integration#create-or-update-vertex-ai-integration).
 
 ---
 
 ## Known limitations
 
 - **API readback returns content blocks as JSON strings.** `List[ContentBlock]` values are returned as JSON-stringified strings rather than native list objects. The data is complete and parseable.
-- **LangChain handler stores the full message list.** Trace input/output contains the full serialized message structure (e.g., `[{"content": [...blocks...], "role": "user"}]`), not bare content blocks.
+- **LangChain handler stores the full message list.** The trace's input and output fields contain the full serialized message structure (e.g., `[{"content": [...blocks...], "role": "user"}]`), not bare content blocks.
 - **Recompute is not supported for multimodal metrics.**
 - **Multimodal metrics are not supported in playground or prompt experiments.**
 
