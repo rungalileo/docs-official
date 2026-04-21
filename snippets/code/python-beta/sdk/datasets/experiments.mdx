@@ -3,18 +3,22 @@ from galileo import Dataset, Experiment, Metric, Prompt
 
 # Get an existing dataset
 dataset = Dataset.get(name="countries")
+if dataset is None:
+    raise ValueError("Dataset 'countries' not found")
 
 # Get an existing prompt
 prompt = Prompt.get(name="geography-prompt")
+if prompt is None:
+    raise ValueError("Prompt 'geography-prompt' not found")
 
-# Run an experiment with the dataset and prompt
+# Create and run the experiment in one step
+# (create() triggers the run automatically)
 experiment = Experiment(
     name="geography-experiment",
     dataset=dataset,
     prompt=prompt,
-    metrics=[Metric.scorers.completeness],
+    metrics=[Metric.metrics.completeness],
     project_name="my-project",
 )
 experiment.create()
-result = experiment.run()
 ```
