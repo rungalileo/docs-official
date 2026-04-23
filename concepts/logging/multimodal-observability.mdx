@@ -144,7 +144,7 @@ Galileo provides out-of-the-box LLM-as-a-judge metrics for multimodal content. Y
 
 1. Go to **Metrics** and create a new custom LLM metric.
 2. Under capabilities, select **Image/PDF** or **Audio**.
-3. Configure a model integration. See [suggested models](#supported-formats-and-models) below.
+3. Configure a model integration. See [suggested models](#suggested-models) below.
 4. Enable the metric on your Log stream **before** logging content.
 
 <Note>
@@ -172,6 +172,7 @@ For best results, use GPT-5 or later (OpenAI) for image and PDF evaluation, and 
 ## Known limitations
 
 - **LangChain handler stores the full message list.** The trace's input and output fields contain the full serialized message structure (e.g., `[{"content": [...blocks...], "role": "user"}]`), not bare content blocks.
+- **Multimodal attachments are not supported via OpenTelemetry or native callbacks** (e.g., Google ADK, CrewAI). Use GalileoLogger or the LangChain/LangGraph callback instead.
 - **Multimodal metrics are not supported in playground or prompt experiments.**
 
 ---
