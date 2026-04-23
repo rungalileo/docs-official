@@ -18,7 +18,7 @@ Galileo supports logging multimodal content on trace inputs and outputs, giving 
 | Method | Use when... |
 | :--- | :--- |
 | **GalileoLogger — log an external URL** | Your content is already hosted externally and accessible via URL |
-| **GalileoLogger — from a local file** | You're working with files on disk and need to upload them directly |
+| **GalileoLogger — upload local files** | You're working with files on disk and need to upload them directly |
 | **LangChain handler** | Your app already uses LangChain — multimodal content converts automatically |
 
 ---
@@ -50,7 +50,7 @@ logger.flush()
 
 ---
 
-## Option 2: Log from a local file
+## Option 2: Upload local files
 
 Encode local files as base64 and pass them with the `base64` and `mime_type` fields. This works for images, audio, and documents in a single trace. The example below assumes `photo.png`, `recording.wav`, and `report.pdf` are in the same directory as your script:
 
@@ -163,7 +163,7 @@ Metrics compute only when the trace contains at least one attachment matching th
 | Audio | `mp3`, `wav` |
 | Document | `pdf` |
 
-### Recommended models
+### Suggested models
 
 For best results, use GPT-5 or later (OpenAI) for image and PDF evaluation, and Gemini 3+ via Vertex AI for audio. If using Vertex AI, you will also need to configure a separate GCP bucket and credentials for file uploads. See [how to set up a Vertex AI integration](https://v2galileo.mintlify.app/api-reference/integrations/create-or-update-vertex-ai-integration#create-or-update-vertex-ai-integration).
 
