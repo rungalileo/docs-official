@@ -11,7 +11,7 @@ dotenv.config();
 // environment variables.
 init({
     projectName: "MyFirstEvaluation",
-    logStreamName: "MyFirstLogStream"
+    logstream: "MyFirstLogStream"
 });
 
 // Create an Azure OpenAI service wrapper
@@ -40,10 +40,16 @@ const userPrompt = "Describe Galileo";
     console.log(response.choices[0].message.content);
 
     // Flush logs before exiting
-    await flush();
+    await flush({
+        projectName: "MyFirstEvaluation",
+        logstream: "MyFirstLogStream"
+    });
 
     // Show Galileo information after the response
-    const galileoLogger = getLogger();
+    const galileoLogger = getLogger({
+        projectName: "MyFirstEvaluation",
+        logstream: "MyFirstLogStream"
+    });
     const galileoConsoleUrl = (process.env.GALILEO_CONSOLE_URL ??
                                "https://app.galileo.ai").replace(/\/+$/, "");
     const projectUrl = `${galileoConsoleUrl}/project/${galileoLogger.client.projectId}`;

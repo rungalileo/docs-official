@@ -11,7 +11,7 @@ dotenv.config();
 // environment variables.
 init({
     projectName: "MyFirstEvaluation",
-    logStreamName: "MyFirstLogStream"
+    logstream: "MyFirstLogStream"
 });
 
 // Create an OpenAI wrapper
@@ -40,7 +40,10 @@ const userPrompt = "Describe Galileo";
     console.log(response.choices[0].message.content);
 
     // Flush logs before exiting
-    await flush();
+    await flush({
+        projectName: "MyFirstEvaluation",
+        logstream: "MyFirstLogStream"
+    });
 
     // Show Galileo information after the response
     const galileoLogger = getLogger();

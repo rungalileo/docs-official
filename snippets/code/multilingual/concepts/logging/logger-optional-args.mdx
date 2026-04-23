@@ -25,8 +25,24 @@ new GalileoLogger({
     /**  name of target logstream for the logger instance */
     logStreamName?: string;
     /**  ID of an experiment to which this log session will be linked */
+    projectId?: string;
+    /**  ID of target project for the logger instance */
+    logStreamId?: string;
+    /**  ID of target logstream for the logger instance */
     experimentId?: string;
     /**  ID of a previous session to which this log session will be linked */
     sessionId?: string;
+    /** Locally-defined metrics that should be used on spans/traces from
+        this session: See 'Custom Metrics' for more information */
+    localMetrics?: LocalMetricConfig[];
+    /** Logger mode: "batch" or "streaming". Defaults to "batch" if not set.
+        - "batch": Batches traces and sends on flush() (default)
+        - "streaming": Enables streaming tracing with immediate
+          updates to backend */
+    mode?: string;
+    /** Optional callback invoked on `flush()` in batch mode with the payload
+        that would be sent to the API. When set, it runs instead of the
+        default `ingestTraces` call—use for custom delivery. */
+    ingestionHook?: (request: LogTracesIngestRequest) => Promise<void> | void;
 })
 ```

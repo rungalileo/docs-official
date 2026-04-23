@@ -3,16 +3,24 @@ from galileo import GalileoLogger
 logger = GalileoLogger()
 
 ## Create a workflow span (parent span)
-workflowSpan = logger.addWorkflowSpan(
+workflowSpan = logger.add_workflow_span(
     input="Processing workflow",
     name="Main Workflow",
-    metadata={ workflow_type: "test" },
+    metadata={ "workflow_type": "test" },
     tags=["workflow"])
 ```
 
-````typescript TypeScript
+```typescript TypeScript
 import { GalileoLogger } from "galileo";
 const logger = new GalileoLogger();
+
+// Initialize a new trace
+const trace = await logger.startTrace({
+  input: "Your prompt",
+  name: "Example Trace Name",
+  tags: ["example_tag1", "example_tag2"],
+  metadata: { example_key: "example_value" },
+});
 
 // Create a workflow span (parent span)
 const workflowSpan = logger.addWorkflowSpan({
