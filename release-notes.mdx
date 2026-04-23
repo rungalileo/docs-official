@@ -7,6 +7,133 @@ description: Recent updates and enhancements to Galileo
 {/* <!-- markdownlint-disable MD024 MD037 --> Repeated headings */}
 
 
+<Update label="2026-04-10" description="Updates to Playgrounds, Logs filter, Custom Model Integration, OpenAI models, Annotation Queues">
+
+## Key new features and improvements
+
+
+### Playgrounds update
+
+Galileo's Playgrounds can now dynamically detect datasets' variables -- making it easier to add variables to playground prompts.
+
+![Playground variables](images/release-notes/2026-04-10/playground-variables.png)
+
+### Logs filter update
+
+Galileo's Logs can now automatically display available columns to filter.
+
+![Filter by column name](images/release-notes/2026-04-10/filter-by-column-name.png)
+
+### Custom model integration update
+
+Galileo's [custom model integrations](https://v2docs.galileo.ai/sdk-api/third-party-integrations/model-integrations/custom-model-integrations/custom-model-integrations) now support model properties for users who wish to further customize LLM integration parameters.
+
+[Learn more](https://v2docs.galileo.ai/sdk-api/third-party-integrations/model-integrations/custom-model-integrations/custom-model-integrations#model-properties)
+
+### OpenAI models update
+
+GPT 5.4 Mini and Nano models are now available in Playground, Prompt store, Synthetic Data Generation, and Metrics Hub.
+
+### Annotation queues (enterprise beta) update
+
+Keyboard shortcuts and auto advance are now available in Annotation Queues. Annotators can use these features to speed up their work.
+
+![Annotation Queues: Auto advance and keyboard shortcuts](images/release-notes/2026-04-10/annotation-queues-auto-advance.png)
+
+[Learn more](https://v2docs.galileo.ai/concepts/annotations/overview#annotation-queues-enterprise-beta)
+
+</Update>
+
+
+<Update label="2026-03-27" description="Autotune, Editable trends view, Metric roll-up features, Dataset and Experiments UI improvements">
+
+## Key new features and improvements
+
+### Autotune
+
+Galileo now supports Autotune, an enhancement to Continuous Learning via Human Feedback (CLHF) to improve performance of LLM-as-a-judge metrics. Instead of manually tuning prompts, anyone on your team can provide feedback in natural language to:
+
+<iframe
+  className="w-full aspect-video rounded-xl"
+  src="https://www.youtube.com/embed/fwlhZ6-W-I4"
+  title="Autotune: Improve LLM-as-a-Judge Metrics with Expert Feedback"
+  frameBorder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
+
+- correct metric outputs and enter expected values
+- let Galileo adapt the metric prompt and show exactly what changed
+- test prompt changes before publishing and optionally recompute historical results
+- apply improvements to future runs across out-of-the-box and custom LLM-as-a-judge metrics
+
+To autotune a metric, hover over any LLM-as-a-judge metric and click **Add feedback**. [Learn more](https://v2docs.galileo.ai/concepts/metrics/autotune-llm-as-a-judge-metrics).
+
+### Editable trends view
+
+Galileo now supports a fully editable trends view, giving every team control over exactly what they monitor — all from the same logstream.
+
+<iframe
+  className="w-full aspect-video rounded-xl"
+  src="https://www.loom.com/embed/bcdd51decc874adfb5e69464d4df7473"
+  title="Editable Trends View"
+  frameBorder="0"
+  allowFullScreen
+></iframe>
+
+- drag, reorder, duplicate, and delete widgets and sections in edit mode
+- customize each widget's aggregation, properties and visualization type
+- customize and persist filters, time range, and interval settings
+
+To get started, go to **Logstreams → Trends** and click **Edit layout**.
+
+### Metric roll-up features
+
+Span and Trace level metrics are now rolled up to the Session level for any metrics computed in the logstreams. This helps you identify problematic sessions that might need more investigation without digging deeper into Trace and Span levels.
+
+You can now customize the logic used to roll-up metric computations. For example, you can customize how Span-level metrics are shown at Trace and Session levels.
+
+![Metric roll-up logic modal (a new metric)](images/release-notes/2026-03-27/metric-rollup-new-metric.png)
+
+This new roll-up option appears on metrics with "Output type" of "Count" or "Percentage". A new "Roll-up logic" menu item appears on existing metrics with count and percentage output types.
+
+![Metric roll-up logic menu item (existing metric)](images/release-notes/2026-03-27/metric-rollup-existing-metric.png)
+
+Metrics with "Output type" of "Boolean" are now shown as "true" and "false" (instead of percentage, as previously).
+
+![Metric roll-up boolean](images/release-notes/2026-03-27/metric-rollup-boolean-metric.png)
+
+### Datasets UI improvements
+
+![Dataset 4 columns example](images/release-notes/2026-03-27/dataset-fields-example.avif)
+
+Datasets in the Galileo Console UI now support 4 columns:
+
+- Input
+- Generated Output
+- Ground Truth
+- Metadata
+
+The previous column "Reference Output" has been renamed to "Ground Truth".
+
+[Learn more](https://v2docs.galileo.ai/sdk-api/experiments/datasets#dataset-fields)
+
+### Experiments UI improvements
+
+![Create Experiment button](images/release-notes/2026-03-27/create-experiment-button.png)
+
+New "Create Experiment" buttons allow you to easily create experiments through the Galileo Console UI.
+
+![Create Experiment modal](images/release-notes/2026-03-27/create-experiment-from-dataset-modal.png)
+
+Furthermore, you can now create experiments from datasets without requiring an LLM to re-generate output data. Simply include your existing pre-generated data in the dataset column "Generated Output".
+
+![Create Experiment menu in Datasets](images/release-notes/2026-03-27/create-experiment-from-dataset-menu.png)
+
+[Learn more](/getting-started/experiments)
+
+</Update>
+
 <Update label="2026-03-13" description="Galileo's Agent Control, OpenAI model update, Google ADK update, Python and TypeScript SDK updates">
 
 ## Key new features and improvements
@@ -1007,7 +1134,7 @@ Here is a multi-turn conversation about state capitals of the US:
 
 ### Adapting LLM metrics with CLHF
 
-The free Galileo offering now supports [**Continuous Learning for Human Feedback** (CLHF)](concepts/metrics/custom-metrics/continuous-learning-via-human-feedback) which helps users easily adapt LLM metrics for their app by providing human feedback. As you start using Galileo Preset LLM-powered metrics (e.g. Context Adherence or Instruction Adherence), or start creating your own LLM-powered metrics, you might not always agree with the results. This capability helps you solve this problem.
+The free Galileo offering now supports [**Autotune**](/concepts/metrics/autotune-llm-as-a-judge-metrics) which helps users easily adapt LLM metrics for their app by providing human feedback. As you start using Galileo Preset LLM-powered metrics (e.g. Context Adherence or Instruction Adherence), or start creating your own LLM-powered metrics, you might not always agree with the results. This capability helps you solve this problem.
 
 As you identify mistakes in your metrics, you can provide ‘feedback' to ‘auto-improve' your metrics. Your feedback gets translated (by LLMs) into few-shot examples that are appended to the Metric's prompt.
 

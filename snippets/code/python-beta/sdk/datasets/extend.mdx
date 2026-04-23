@@ -1,0 +1,26 @@
+```python Python (Beta)
+from galileo import Dataset
+
+# Get an existing dataset
+dataset = Dataset.get(name="countries")
+if dataset is None:
+    raise ValueError("Dataset 'countries' not found")
+
+# Extend with synthetic data.
+# Note: unlike the non-beta extend_dataset() which is a pure generator,
+# dataset.extend() automatically persists the generated rows to the server
+# before returning — no separate save step is needed.
+new_rows = dataset.extend(
+    prompt="Nutrition and health chatbot",
+    instructions="Questions that an average-health person would be interested in",
+    examples=[
+        "Is cereal for breakfast healthy?",
+        "How many cups of coffee is unhealthy?",
+    ],
+    count=10,
+)
+
+# Print the generated rows (already saved to the dataset)
+for row in new_rows:
+    print(row)
+```
