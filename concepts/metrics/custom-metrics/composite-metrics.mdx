@@ -48,7 +48,7 @@ def scorer_fn(*, step_object: LlmSpan, **kwargs) -> float:
     )
 
     if correctness_score < 0.7:
-        return 0.0
+        return 0.0  # Skip adherence calculation for incorrect inputs
 
     adherence = step_object.metrics[
         GalileoMetrics.context_adherence
@@ -181,9 +181,8 @@ def scorer_fn(*, step_object: LlmSpan, **kwargs) -> float:
 
 Different Galileo metrics return different value types:
 
-- **Float metrics** (e.g. `completeness`) return a single
-  `float` between 0 and 1.
-- **Boolean metrics** (e.g. `correctness`) are evaluated by multiple judges and return a `list[int]` at the root level, where each element is `0` (false) or `1` (true) — one value per judge.
+- **Float metrics** (e.g. `context_adherence`, `context_relevance`) return a single `float` between 0 and 1.
+- **Boolean metrics** (e.g. `correctness`, `context_adherence`, `completeness`) are evaluated by multiple judges and return a `list[int]` at the root level, where each element is `0` (false) or `1` (true) — one value per judge.
 
 When using a boolean metric in your composite scorer, you must handle the list:
 
@@ -276,7 +275,6 @@ def scorer_fn(*, step_object: Session, **kwargs) -> float:
 
     # Return weighted average across all levels
     return (session_avg + trace_avg + llm_avg + retriever_avg + tool_avg) / 5
-]
 ```
 
 ## Best practices

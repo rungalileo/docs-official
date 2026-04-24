@@ -1,0 +1,27 @@
+```typescript TypeScript
+import { GalileoCallback } from "galileo";
+import { ChatOpenAI } from "@langchain/openai";
+import { HumanMessage } from "@langchain/core/messages";
+
+// Create a callback handler
+// In the TypeScript SDK, GalileoCallback handles async natively —
+// there is no separate async class
+const callback = new GalileoCallback();
+
+// Initialize the LLM with the callback
+const llm = new ChatOpenAI({
+  model: "gpt-4o",
+  temperature: 0.7,
+  callbacks: [callback],
+});
+
+// Create a message with the user's query
+const messages = [
+  new HumanMessage("What is LangChain and how is it used with OpenAI?"),
+];
+
+// Make the async API call
+const response = await llm.invoke(messages);
+
+console.log(response.content);
+```

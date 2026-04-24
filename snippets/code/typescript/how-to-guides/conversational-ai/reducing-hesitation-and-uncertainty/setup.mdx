@@ -1,0 +1,18 @@
+```typescript TypeScript
+import { OpenAI } from "openai";
+import { observe } from "galileo";
+import { wrapOpenAI } from "galileo/wrappers";
+
+const openai = wrapOpenAI(new OpenAI({ apiKey: "" }));
+
+const callOpenAI = async (country: string) => {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{ role: "user", content: `What is the capital of ${country}?` }],
+  });
+  return response.choices[0].message.content;
+};
+
+const prompt = "Tell me about climate change.";
+await callOpenAI(prompt);
+```
