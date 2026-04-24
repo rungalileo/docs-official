@@ -33,7 +33,16 @@ For example, when there are non-standard proxies, proprietary authentications, o
 
 This video demonstrates how to add a custom integration to Galileo:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/qeqIw0KWGns?si=OV8g6v61cg_0FXh5" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<iframe
+  width="560"
+  height="315"
+  src="https://www.youtube.com/embed/qeqIw0KWGns?si=OV8g6v61cg_0FXh5"
+  title="YouTube video player"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  referrerpolicy="strict-origin-when-cross-origin"
+  allowfullscreen
+></iframe>
 
 ## Configuring custom integrations in the Galileo console
 
@@ -49,28 +58,28 @@ This video demonstrates how to add a custom integration to Galileo:
     Paste a valid JSON and **Save changes**.<br/><br/>
     This JSON example uses API key authentication. See [JSON properties](#json-properties) below for an explanation of these and other properties, and instructions for other authentication types.
 
-  <CodeGroup>
-    <SnippetPayloadApiKey/>
-  </CodeGroup>
+{" "}
 
+<CodeGroup>
+  <SnippetPayloadApiKey />
+</CodeGroup>
 
-  ![Pasting the JSON payload](./pasting-json.png)
+![Pasting the JSON payload](./pasting-json.png)
+
   </Step>
   <Step title="Test Integration">
     After saving, test the integration by selecting one of its models from a Playground.
 
-  ![Selecting the custom integration model in the Playground](./select-model.png)
+![Selecting the custom integration model in the Playground](./select-model.png)
 
-  Run a prompt or evaluation that uses the custom integration's model.
+Run a prompt or evaluation that uses the custom integration's model.
 
-  ![Testing the custom integration](./sample-prompt.png)
+![Testing the custom integration](./sample-prompt.png)
 
-
-  Note: The models will also be available for use with metrics in Galileo.
+Note: The models will also be available for use with metrics in Galileo.
 
   </Step>
 </Steps>
-
 
 ## JSON properties
 
@@ -111,9 +120,7 @@ For providers that require dynamically-generated bearer tokens:
 - `"authentication_scope"`: `"YOUR_SCOPE"` (optional, passed to the OAuth2 endpoint as the `scope` property of the token request payload).
 - `"token"`: `"{\"client_id\": \"YOUR_CLIENT_ID\", \"client_secret\": \"YOUR_CLIENT_SECRET\"}"` (an escaped JSON string containing the static client ID and secret that will be sent to the OAuth2 endpoint).
 
-<Note>
-The `access_token` field of the OAuth2 endpoint's JSON response will be used as a Bearer token for LLM inference requests.
-</Note>
+<Note>The `access_token` field of the OAuth2 endpoint's JSON response will be used as a Bearer token for LLM inference requests.</Note>
 
 <CodeGroup>
   <SnippetPayloadOAuth2 />
@@ -129,9 +136,7 @@ For internal endpoints or providers that don't require authentication:
   <SnippetPayloadNoAuth />
 </CodeGroup>
 
-<Tip>
-The above examples cover the most common use cases. Most users won't need to read beyond this point. The sections below are for advanced scenarios like custom LLM handlers and single-tenant deployments.
-</Tip>
+<Tip>The above examples cover the most common use cases. Most users won't need to read beyond this point. The sections below are for advanced scenarios like custom LLM handlers and single-tenant deployments.</Tip>
 
 ### Model properties
 
@@ -192,11 +197,9 @@ List of built-in model aliases that can be used with `based_on`:
 - `"headers"`: A dictionary of header names as keys, and their corresponding values.
   Will be set on the inference request, overriding any existing value.
 
-
 ## API schema
 
 To configure custom integrations via Galileo's API instead of via the UI, refer to the [Custom Integrations API reference](/api-reference/integrations/create-or-update-custom-integration).
-
 
 ## Troubleshooting
 
@@ -222,9 +225,7 @@ curl https://api.portkey.ai/v1/chat/completions \
 
 ## Advanced usage: custom LLM handlers
 
-<Warning>
-Custom LLM handlers are only available on single-tenant Galileo deployments. They require `api` v1.848.0+ and `runners` v2.239.0+.
-</Warning>
+<Warning>Custom LLM handlers are only available on single-tenant Galileo deployments. They require `api` v1.848.0+ and `runners` v2.239.0+.</Warning>
 
 The [JSON properties](#json-properties) example works when your LLM provider exposes a standard OpenAI-compatible `/chat/completions` endpoint.
 However, some providers use proprietary request formats, non-standard response structures, or custom authentication flows that can't be handled by configuration alone.
@@ -268,13 +269,9 @@ Reference your handler using the `custom_llm_config` field:
   <SnippetPayloadCustomLlm />
 </CodeGroup>
 
-<Note>
-The [model properties](#model-properties) and [general properties](#general-properties) also apply to custom LLM handler JSON configuration.
-</Note>
+<Note>The [model properties](#model-properties) and [general properties](#general-properties) also apply to custom LLM handler JSON configuration.</Note>
 
-<Note>
-The custom LLM handler receives the `endpoint` as the `api_base` parameter. It's up to the handler's implementation to use it or ignore it.
-</Note>
+<Note>The custom LLM handler receives the `endpoint` as the `api_base` parameter. It's up to the handler's implementation to use it or ignore it.</Note>
 
 ### Deploying handler files
 
@@ -300,7 +297,6 @@ Place your `.py` files directly in the configured directory (nested paths are no
 1. **Volume mount** — Mount a volume containing your handler files at `/opt/custom_llms`
 2. **Custom image** — Build a custom runner image with handler files copied in
 3. **Custom directory** — Set `GALILEO_CUSTOM_LLMS_DIRECTORY` to a different path
-
 
 ## Security notes
 

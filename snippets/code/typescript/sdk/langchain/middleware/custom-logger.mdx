@@ -1,0 +1,19 @@
+```typescript TypeScript
+import { GalileoCallback, GalileoLogger } from "galileo";
+
+// Create a custom logger
+const logger = new GalileoLogger({
+  projectName: "my-agent-project",
+  logStreamName: "agent-execution",
+});
+
+// In the TypeScript SDK, use GalileoCallback with a custom logger
+// (GalileoMiddleware is not available in TypeScript)
+const callback = new GalileoCallback(logger);
+
+// Pass the callback to your LangChain/LangGraph agent
+const result = await agent.invoke(
+  { messages: [...] },
+  { callbacks: [callback] }
+);
+```
