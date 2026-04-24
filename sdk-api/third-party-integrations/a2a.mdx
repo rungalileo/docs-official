@@ -1,0 +1,86 @@
+---
+title: Google A2A
+description: Trace Google A2A (Agent-to-Agent) protocol interactions with Galileo for multi-agent observability
+---
+
+import ConfigureOTelInvVars from "/snippets/content/configure-otel-env-vars.mdx"
+
+import SnippetQuickstartPython from "/snippets/code/python/sdk/otel/a2a/quickstart-example.mdx"
+
+Galileo traces [Google A2A](https://github.com/google/A2A) interactions using the `galileo-a2a` instrumentor — giving you a single distributed trace across agents, including LLM calls, tool use, and cross-agent handoffs.
+
+## Setup
+
+<Steps>
+<ConfigureOTelInvVars/>
+<Step title="Install and instrument A2A">
+
+<CodeGroup>
+
+```bash Terminal
+pip install galileo-a2a opentelemetry-instrumentation-langchain
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```python Python
+from galileo_a2a import A2AInstrumentor
+from opentelemetry.instrumentation.langchain import LangchainInstrumentor
+
+# Trace A2A protocol
+A2AInstrumentor().instrument(tracer_provider=provider, agent_name="my-agent")
+
+# Trace LangChain/LangGraph agents, LLM calls, and tools
+LangchainInstrumentor().instrument(tracer_provider=provider)
+```
+
+</CodeGroup>
+
+All `a2a-sdk` client and server methods are now traced automatically.
+</Step>
+</Steps>
+
+## How it works
+
+When Agent A calls Agent B, trace context is propagated through A2A message metadata. Both agents' spans appear in **one distributed trace**:
+
+```text
+Agent A: LangGraph orchestrator             Agent B: LangChain researcher
++-----------------------------------+       +------------------------------+
+| invoke_agent LangGraph            |       | a2a.server.on_message_send   |
+|  +-- plan (LLM)                   |       |  +-- invoke_agent LangGraph  |
+|  +-- delegate                     |  a2a  |     +-- LLM + tool_calls     |
+|  |    +-- a2a.client.send_message |-----> |     +-- search_kb (tool)     |
+|  +-- synthesize (LLM)             |  ctx  |     +-- LLM final answer     |
++-----------------------------------+       +------------------------------+
+                            Single trace in Galileo
+```
+
+A2A `context_id` is mapped to `session.id`, grouping all interactions in the same conversation into one Galileo session.
+
+## Full example
+
+Two LangGraph agents in one script. Agent A (orchestrator) plans, delegates to Agent B via A2A, then synthesizes. Agent B (researcher) uses a tool and LLM to answer. Copy-paste and run.
+
+<CodeGroup>
+
+```bash Terminal
+pip install galileo-a2a "galileo[otel]" langchain langchain-openai langgraph \
+    opentelemetry-instrumentation-langchain uvicorn starlette sse-starlette
+```
+
+</CodeGroup>
+
+```ini .env
+GALILEO_API_KEY=your-galileo-api-key
+GALILEO_PROJECT=your-galileo-project
+GALILEO_LOG_STREAM=your-log-stream
+OPENAI_API_KEY=your-openai-api-key
+GALILEO_CONSOLE_URL=your-galileo-cluster-url
+```
+
+<CodeGroup>
+<SnippetQuickstartPython/>
+</CodeGroup>
