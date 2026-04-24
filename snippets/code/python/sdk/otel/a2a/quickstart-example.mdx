@@ -90,8 +90,12 @@ class OrchestratorState(TypedDict):
 
 def build_orchestrator(client):
     async def plan(state: OrchestratorState) -> dict:
-        result = await create_agent(llm,
-            system_prompt="Formulate a travel research question. Reply with ONLY the question.",
+        prompt = (
+            "Formulate a travel research question."
+            " Reply with ONLY the question."
+        )
+        result = await create_agent(
+            llm, system_prompt=prompt,
         ).ainvoke({"messages": [("user", state["user_query"])]})
         return {"research_query": result["messages"][-1].content}
 
@@ -104,14 +108,28 @@ def build_orchestrator(client):
         async for event in client.send_message(msg):
             if isinstance(event, tuple):
                 task = event[0]
-                if task.status and task.status.state == TaskState.completed and task.status.message:
-                    return {"response": getattr(task.status.message.parts[0].root, "text", "")}
+                is_done = (
+                    task.status
+                    and task.status.state == TaskState.completed
+                    and task.status.message
+                )
+                if is_done:
+                    text = getattr(
+                        task.status.message.parts[0].root,
+                        "text", "",
+                    )
+                    return {"response": text}
         return {"response": ""}
 
     async def synthesize(state: OrchestratorState) -> dict:
-        result = await create_agent(llm,
-            system_prompt="Create a brief 3-day itinerary from the research.",
-        ).ainvoke({"messages": [("user", f"Research:\n{state['response']}\n\nCreate itinerary.")]})
+        prompt = "Create a brief 3-day itinerary from the research."
+        user_msg = (
+            f"Research:\n{state['response']}"
+            "\n\nCreate itinerary."
+        )
+        result = await create_agent(
+            llm, system_prompt=prompt,
+        ).ainvoke({"messages": [("user", user_msg)]})
         return {"plan": result["messages"][-1].content}
 
     graph = StateGraph(OrchestratorState)
@@ -144,11 +162,19 @@ async def main():
 
     # Run Agent A
     client = ClientFactory(
-        config=ClientConfig(streaming=True, httpx_client=httpx.AsyncClient(timeout=httpx.Timeout(120))),
+        config=ClientConfig(
+            streaming=True,
+            httpx_client=httpx.AsyncClient(
+                timeout=httpx.Timeout(120),
+            ),
+        ),
     ).create(CARD)
-    result = await build_orchestrator(client).ainvoke(
-        {"user_query": "Plan a 3-day trip to Paris", "research_query": "", "response": "", "plan": ""},
-    )
+    result = await build_orchestrator(client).ainvoke({
+        "user_query": "Plan a 3-day trip to Paris",
+        "research_query": "",
+        "response": "",
+        "plan": "",
+    })
     print(result["plan"])
 
     server.should_exit = True
