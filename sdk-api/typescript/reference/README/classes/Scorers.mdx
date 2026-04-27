@@ -50,16 +50,19 @@ The scorer creation options.
 \| (
 \| \{
 `case_sensitive?`: `boolean`;
-`filter_type?`: `"string"`;
 `name`: `"node_name"`;
-`operator`: `"eq"` \| `"ne"` \| `"contains"`;
-`value`: `string`;
+`operator`: `"eq"` \| `"one_of"` \| `"ne"` \| `"contains"` \| `"not_in"`;
+`value`: `string` \| `string`[];
 \}
 \| \{
-`filter_type?`: `"map"`;
 `key`: `string`;
 `name`: `"metadata"`;
-`operator`: `"eq"` \| `"ne"` \| `"not_in"` \| `"one_of"`;
+`operator`: `"eq"` \| `"one_of"` \| `"ne"` \| `"not_in"`;
+`value`: `string` \| `string`[];
+\}
+\| \{
+`name`: `"modality"`;
+`operator`: `"eq"` \| `"one_of"` \| `"ne"` \| `"not_in"`;
 `value`: `string` \| `string`[];
 \})[];
 `input_type?`: \| `null`
@@ -84,7 +87,9 @@ The scorer creation options.
 \| `"discrete"`
 \| `"freeform"`
 \| `"percentage"`
-\| `"multilabel"`;
+\| `"multilabel"`
+\| `"retrieved_chunk_list_boolean"`
+\| `"boolean_multilabel"`;
 `scoreable_node_types?`: `null` \| `string`[];
 \}
 
@@ -106,16 +111,19 @@ Whether to enable chain of thought for this scorer. Defaults to False for llm sc
 \| (
 \| \{
 `case_sensitive?`: `boolean`;
-`filter_type?`: `"string"`;
 `name`: `"node_name"`;
-`operator`: `"eq"` \| `"ne"` \| `"contains"`;
-`value`: `string`;
+`operator`: `"eq"` \| `"one_of"` \| `"ne"` \| `"contains"` \| `"not_in"`;
+`value`: `string` \| `string`[];
 \}
 \| \{
-`filter_type?`: `"map"`;
 `key`: `string`;
 `name`: `"metadata"`;
-`operator`: `"eq"` \| `"ne"` \| `"not_in"` \| `"one_of"`;
+`operator`: `"eq"` \| `"one_of"` \| `"ne"` \| `"not_in"`;
+`value`: `string` \| `string`[];
+\}
+\| \{
+`name`: `"modality"`;
+`operator`: `"eq"` \| `"one_of"` \| `"ne"` \| `"not_in"`;
 `value`: `string` \| `string`[];
 \})[]
 
@@ -167,6 +175,8 @@ Num Judges
 \| `"freeform"`
 \| `"percentage"`
 \| `"multilabel"`
+\| `"retrieved_chunk_list_boolean"`
+\| `"boolean_multilabel"`
 
 **Description**
 
@@ -538,6 +548,64 @@ Lists scorers with optional filtering and built-in pagination.
 [`ScorerTypes`](/sdk-api/typescript/reference/types/enumerations/ScorerTypes)[]
 
 (Optional) Filter by scorer types.
+
+#### Returns
+
+`Promise`\<[`ScorerResponse`](/sdk-api/typescript/reference/types/type-aliases/ScorerResponse)[]\>
+
+A promise that resolves to an array of scorers.
+
+---
+
+### listByIds()
+
+```ts
+listByIds(ids: string[]): Promise<ScorerResponse[]>;
+```
+
+Defined in: [src/entities/scorers.ts](https://github.com/rungalileo/galileo-js/blob/main/src/entities/scorers.ts)
+
+Lists scorers by ID with built-in pagination.
+
+#### Parameters
+
+##### ids
+
+`string`[]
+
+Scorer IDs to search for.
+
+#### Returns
+
+`Promise`\<[`ScorerResponse`](/sdk-api/typescript/reference/types/type-aliases/ScorerResponse)[]\>
+
+A promise that resolves to an array of scorers.
+
+---
+
+### listByLabels()
+
+```ts
+listByLabels(labels: string[], strict: boolean): Promise<ScorerResponse[]>;
+```
+
+Defined in: [src/entities/scorers.ts](https://github.com/rungalileo/galileo-js/blob/main/src/entities/scorers.ts)
+
+Lists scorers by label with built-in pagination.
+
+#### Parameters
+
+##### labels
+
+`string`[]
+
+Labels to search for.
+
+##### strict
+
+`boolean` = `false`
+
+When false, also matches by scorer name as fallback. Defaults to false.
 
 #### Returns
 

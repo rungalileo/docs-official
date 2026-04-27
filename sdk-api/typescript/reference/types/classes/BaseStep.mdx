@@ -14,7 +14,6 @@ Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/gali
 
 - [`BaseSpan`](/sdk-api/typescript/reference/types/classes/BaseSpan)
 - [`RetrieverSpan`](/sdk-api/typescript/reference/types/classes/RetrieverSpan)
-- [`ToolSpan`](/sdk-api/typescript/reference/types/classes/ToolSpan)
 
 ## Constructors
 
@@ -86,6 +85,16 @@ Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/gali
 
 ```ts
 optional externalId: string;
+```
+
+Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts)
+
+---
+
+### id
+
+```ts
+id: string;
 ```
 
 Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts)
@@ -205,14 +214,14 @@ Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/gali
 ### toJSON()
 
 ```ts
-toJSON(): Record<string, any>;
+toJSON(): SerializedStep;
 ```
 
 Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts)
 
 #### Returns
 
-`Record`\<`string`, `any`\>
+[`SerializedStep`](/sdk-api/typescript/reference/types/interfaces/SerializedStep)
 
 ---
 
@@ -231,18 +240,28 @@ Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/gali
 `T` =
 \| `string`
 \| \{
-`content`: `string`;
+`content`: \| `string`
+\| (
+\| \{
+`text`: `string`;
+`type`: `"text"`;
+\}
+\| \{
+`file_id`: `string`;
+`type`: `"file"`;
+\})[];
 `role`: \| `"function"`
 \| `"agent"`
 \| `"tool"`
-\| `"user"`
 \| `"assistant"`
 \| `"developer"`
-\| `"system"`;
+\| `"system"`
+\| `"user"`;
 `tool_call_id?`: `null` \| `string`;
 `tool_calls?`: `null` \| `object`[];
 \}
 \| `string`[]
+\| `Date`
 \| [`Document`](/sdk-api/typescript/reference/types/classes/Document)
 \| `Record`\<`string`, `string`\>
 \| [`Document`](/sdk-api/typescript/reference/types/classes/Document)[]
