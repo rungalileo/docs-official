@@ -96,6 +96,16 @@ Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/gali
 
 ---
 
+### events?
+
+```ts
+optional events: Event[];
+```
+
+Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts)
+
+---
+
 ### externalId?
 
 ```ts
@@ -120,6 +130,20 @@ Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/gali
 
 ---
 
+### id
+
+```ts
+id: string;
+```
+
+Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts)
+
+#### Inherited from
+
+[`BaseSpan`](/sdk-api/typescript/reference/types/classes/BaseSpan).[`id`](/sdk-api/typescript/reference/types/classes/BaseSpan.mdx#id)
+
+---
+
 ### input
 
 ```ts
@@ -131,7 +155,17 @@ Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/gali
 #### content
 
 ```ts
-content: string;
+content:
+  | string
+  | (
+  | {
+  text: string;
+  type: "text";
+}
+  | {
+  file_id: string;
+  type: "file";
+})[];
 ```
 
 Content
@@ -143,10 +177,10 @@ role:
   | "function"
   | "agent"
   | "tool"
-  | "user"
   | "assistant"
   | "developer"
-  | "system";
+  | "system"
+  | "user";
 ```
 
 #### tool_call_id?
@@ -220,7 +254,17 @@ Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/gali
 #### content
 
 ```ts
-content: string;
+content:
+  | string
+  | (
+  | {
+  text: string;
+  type: "text";
+}
+  | {
+  file_id: string;
+  type: "file";
+})[];
 ```
 
 Content
@@ -232,10 +276,10 @@ role:
   | "function"
   | "agent"
   | "tool"
-  | "user"
   | "assistant"
   | "developer"
-  | "system";
+  | "system"
+  | "user";
 ```
 
 #### tool_call_id?
@@ -271,7 +315,17 @@ Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/gali
 #### content
 
 ```ts
-content: string;
+content:
+  | string
+  | (
+  | {
+  text: string;
+  type: "text";
+}
+  | {
+  file_id: string;
+  type: "file";
+})[];
 ```
 
 Content
@@ -283,10 +337,10 @@ role:
   | "function"
   | "agent"
   | "tool"
-  | "user"
   | "assistant"
   | "developer"
-  | "system";
+  | "system"
+  | "user";
 ```
 
 #### tool_call_id?
@@ -322,7 +376,17 @@ Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/gali
 #### content
 
 ```ts
-content: string;
+content:
+  | string
+  | (
+  | {
+  text: string;
+  type: "text";
+}
+  | {
+  file_id: string;
+  type: "file";
+})[];
 ```
 
 Content
@@ -334,10 +398,10 @@ role:
   | "function"
   | "agent"
   | "tool"
-  | "user"
   | "assistant"
   | "developer"
-  | "system";
+  | "system"
+  | "user";
 ```
 
 #### tool_call_id?
@@ -417,7 +481,7 @@ Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/gali
 ### tools?
 
 ```ts
-optional tools: Record<string, any>[];
+optional tools: JsonObject[];
 ```
 
 Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts)
@@ -455,14 +519,14 @@ Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/gali
 ### toJSON()
 
 ```ts
-toJSON(): Record<string, any>;
+toJSON(): SerializedLlmSpan;
 ```
 
 Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts)
 
 #### Returns
 
-`Record`\<`string`, `any`\>
+[`SerializedLlmSpan`](/sdk-api/typescript/reference/types/interfaces/SerializedLlmSpan)
 
 #### Overrides
 
@@ -485,18 +549,28 @@ Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/gali
 `T` =
 \| `string`
 \| \{
-`content`: `string`;
+`content`: \| `string`
+\| (
+\| \{
+`text`: `string`;
+`type`: `"text"`;
+\}
+\| \{
+`file_id`: `string`;
+`type`: `"file"`;
+\})[];
 `role`: \| `"function"`
 \| `"agent"`
 \| `"tool"`
-\| `"user"`
 \| `"assistant"`
 \| `"developer"`
-\| `"system"`;
+\| `"system"`
+\| `"user"`;
 `tool_call_id?`: `null` \| `string`;
 `tool_calls?`: `null` \| `object`[];
 \}
 \| `string`[]
+\| `Date`
 \| [`Document`](/sdk-api/typescript/reference/types/classes/Document)
 \| `Record`\<`string`, `string`\>
 \| [`Document`](/sdk-api/typescript/reference/types/classes/Document)[]

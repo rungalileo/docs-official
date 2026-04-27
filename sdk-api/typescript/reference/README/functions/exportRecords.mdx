@@ -15,12 +15,13 @@ function exportRecords(
       columnIds?: string[];
       experimentId?: null | string;
       exportFormat?: "csv" | "jsonl";
+      fileName?: null | string;
       filters?: object[] | object[] | object[] | object[] | object[] | object[];
       logStreamId?: null | string;
       metricsTestingId?: null | string;
       redact?: boolean;
       rootType: "trace" | "session" | "span";
-      sort?: {
+      sort?: null | {
         ascending?: boolean;
         columnId: string;
         sortType?: "column";
@@ -47,12 +48,14 @@ Defaults to the first log stream available if `logStreamId` and `experimentId` a
 `columnIds?`: `string`[];
 `experimentId?`: `null` \| `string`;
 `exportFormat?`: `"csv"` \| `"jsonl"`;
+`fileName?`: `null` \| `string`;
 `filters?`: `object`[] \| `object`[] \| `object`[] \| `object`[] \| `object`[] \| `object`[];
 `logStreamId?`: `null` \| `string`;
 `metricsTestingId?`: `null` \| `string`;
 `redact?`: `boolean`;
 `rootType`: `"trace"` \| `"session"` \| `"span"`;
-`sort?`: \{
+`sort?`: \| `null`
+\| \{
 `ascending?`: `boolean`;
 `columnId`: `string`;
 `sortType?`: `"column"`;
