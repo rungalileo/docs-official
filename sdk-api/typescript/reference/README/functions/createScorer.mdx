@@ -81,16 +81,19 @@ Whether to enable chain of thought for this scorer. Defaults to False for llm sc
 \| (
 \| \{
 `case_sensitive?`: `boolean`;
-`filter_type?`: `"string"`;
 `name`: `"node_name"`;
-`operator`: `"eq"` \| `"ne"` \| `"contains"`;
-`value`: `string`;
+`operator`: `"eq"` \| `"one_of"` \| `"ne"` \| `"contains"` \| `"not_in"`;
+`value`: `string` \| `string`[];
 \}
 \| \{
-`filter_type?`: `"map"`;
 `key`: `string`;
 `name`: `"metadata"`;
-`operator`: `"eq"` \| `"ne"` \| `"not_in"` \| `"one_of"`;
+`operator`: `"eq"` \| `"one_of"` \| `"ne"` \| `"not_in"`;
+`value`: `string` \| `string`[];
+\}
+\| \{
+`name`: `"modality"`;
+`operator`: `"eq"` \| `"one_of"` \| `"ne"` \| `"not_in"`;
 `value`: `string` \| `string`[];
 \})[]
 
@@ -142,6 +145,8 @@ Num Judges
 \| `"freeform"`
 \| `"percentage"`
 \| `"multilabel"`
+\| `"retrieved_chunk_list_boolean"`
+\| `"boolean_multilabel"`
 
 **Description**
 
