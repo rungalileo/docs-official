@@ -7,9 +7,9 @@ title: experiments
 ## create_experiment
 
 ```python
-def create_experiment(project_id: Optional[str]=None,
-                      experiment_name: Optional[str]=None,
-                      project_name: Optional[str]=None) -> ExperimentResponse
+def create_experiment(project_id: str | None=None,
+                      experiment_name: str | None=None,
+                      project_name: str | None=None) -> ExperimentResponse
 ```
 
 Create an experiment with the specified parameters.
@@ -35,9 +35,9 @@ or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID envi
 ## get_experiment
 
 ```python
-def get_experiment(project_id: Optional[str]=None,
-                   experiment_name: Optional[str]=None,
-                   project_name: Optional[str]=None) -> Optional[ExperimentResponse]
+def get_experiment(project_id: str | None=None,
+                   experiment_name: str | None=None,
+                   project_name: str | None=None) -> ExperimentResponse | None
 ```
 
 Get an experiment with the specified parameters.
@@ -63,8 +63,8 @@ or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID envi
 ## get_experiments
 
 ```python
-def get_experiments(project_id: Optional[str]=None,
-                    project_name: Optional[str]=None) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]
+def get_experiments(project_id: str | None=None,
+                    project_name: str | None=None) -> HTTPValidationError | list[ExperimentResponse] | None
 ```
 
 Get experiments from the specified Project.
@@ -87,16 +87,17 @@ Get experiments from the specified Project.
 ```python
 def run_experiment(experiment_name: str,
                    *,
-                   prompt_template: Optional[PromptTemplate]=None,
-                   prompt_settings: Optional[PromptRunSettings]=None,
-                   project: Optional[str]=None,
-                   project_id: Optional[str]=None,
-                   dataset: Optional[Union[Dataset, list[Union[dict[str, Any], str]], str]]=None,
-                   dataset_id: Optional[str]=None,
-                   dataset_name: Optional[str]=None,
-                   metrics: Optional[list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]]=None,
-                   function: Optional[Callable]=None,
-                   experiment_tags: Optional[dict[str, str]]=None) -> Any
+                   prompt_template: PromptTemplate | None=None,
+                   prompt_settings: PromptRunSettings | dict[str, Any] | None=None,
+                   project: str | None=None,
+                   project_id: str | None=None,
+                   dataset: Dataset | list[dict[str, Any] | str] | str | None=None,
+                   dataset_id: str | None=None,
+                   dataset_name: str | None=None,
+                   metrics: list[GalileoMetrics | Metric | LocalMetricConfig | str] | None=None,
+                   function: Callable | None=None,
+                   experiment_tags: dict[str, str] | None=None,
+                   on_error: Callable[[Exception], None] | None=None) -> Any
 ```
 
 Run an experiment with the specified parameters.
@@ -113,7 +114,8 @@ The project can be specified by providing exactly one of the project name (via t
 
 - `experiment_name`: Name of the experiment
 - `prompt_template`: Template for prompts
-- `prompt_settings`: Settings for prompt runs
+- `prompt_settings`: Settings for prompt runs. Accepts a ``PromptRunSettings`` instance or a plain ``dict``
+    with matching field names, which will be coerced to ``PromptRunSettings`` automatically.
 - `project`: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
 - `project_id`: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
 - `dataset`: Dataset object, list of records, or dataset name
@@ -122,6 +124,10 @@ The project can be specified by providing exactly one of the project name (via t
 - `metrics`: List of metrics to evaluate
 - `function`: Optional function to run with the experiment
 - `experiment_tags`: Optional dictionary of key-value pairs to tag the experiment with
+- `on_error`: Optional callback invoked with the exception when a flush error occurs. Only applies
+    to the function flow — ignored in the prompt-template flow (a warning is logged if
+    provided there). Creation errors always propagate regardless of this callback. If None,
+    flush errors are logged as warnings. Defaults to None.
 
 **Raises**
 

@@ -7,9 +7,9 @@ title: datasets
 ## load_dataset
 
 ```python
-def load_dataset(dataset: Union['Dataset', list[Union[dict[str, Any], str]], str, None],
-                 dataset_id: Optional[str],
-                 dataset_name: Optional[str]) -> Optional['Dataset']
+def load_dataset(dataset: Union['Dataset', list[dict[str, Any] | str], str, None],
+                 dataset_id: str | None,
+                 dataset_name: str | None) -> Optional['Dataset']
 ```
 
 Load dataset based on provided parameters.
@@ -31,9 +31,9 @@ Load dataset based on provided parameters.
 ## load_dataset_and_records
 
 ```python
-def load_dataset_and_records(dataset: Union['Dataset', list[Union[dict[str, Any], str]], str, None],
-                             dataset_id: Optional[str],
-                             dataset_name: Optional[str]) -> tuple[Optional['Dataset'], list[DatasetRecord]]
+def load_dataset_and_records(dataset: Union['Dataset', list[dict[str, Any] | str], str, None],
+                             dataset_id: str | None,
+                             dataset_name: str | None) -> tuple[Optional['Dataset'], list[DatasetRecord]]
 ```
 
 Load dataset and records based on provided parameters.
@@ -51,3 +51,25 @@ Load dataset and records based on provided parameters.
 **Returns**
 
 - `Tuple containing (Dataset object or None, records list)`: 
+
+## normalize_dataset_rows
+
+```python
+def normalize_dataset_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]
+```
+
+Normalize dataset rows by renaming ``ground_truth`` to ``output``.
+
+Allows callers to use either field name. ``output`` takes precedence when both
+are present. The caller's original dicts are never mutated.
+
+## remap_output_to_ground_truth
+
+```python
+def remap_output_to_ground_truth(content: DatasetContent) -> DatasetContent
+```
+
+Renames 'output' back to 'ground_truth' in DatasetContent returned by the API.
+
+The API stores ground_truth as 'output' internally. This is the inverse of
+normalize_dataset_rows, applied when reading content back out.
