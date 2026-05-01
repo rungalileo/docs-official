@@ -1,0 +1,205 @@
+---
+title: "Distributed Tracing with OpenTelemetry"
+description: "Stitch traces across two agents in different processes using OTel and the GalileoSpanProcessor."
+---
+
+When two agents run in separate processes and call each other over HTTP, OpenTelemetry's W3C `traceparent` header carries the trace context across the wire. Galileo joins all spans that share a trace ID into a single trace.
+
+<Info>
+  If both services are Python and use the Galileo SDK directly, [Distributed Tracing (Beta)](/sdk-api/logging/distributed-tracing) is simpler. Use the OTel approach when your services use different agent frameworks (Microsoft Agent Framework, Google ADK, LangChain, etc.) or different languages.
+</Info>
+
+## What you'll see in Galileo
+
+A single user request to **Agent A** that delegates to **Agent B** produces one trace:
+
+```text
+POST /ask                              ← Agent A: FastAPI server span (workflow)
+  invoke_agent OrchestratorAgent       ← Agent A: MAF agent span
+    HTTP POST /research                ← Agent A: requests client span (workflow)
+      POST /research                   ← Agent B: FastAPI server span (workflow)
+        invoke_agent research_agent    ← Agent B: ADK agent span
+          gemini.generate_content      ← Agent B: LLM span
+```
+
+## Setup
+
+```ini .env
+OPENAI_API_KEY=sk-...  # find your key at https://platform.openai.com/api-keys
+GOOGLE_API_KEY=...   # find your key at https://aistudio.google.com
+
+GALILEO_API_KEY=...
+GALILEO_PROJECT=otel-distributed-tracing
+GALILEO_LOG_STREAM=default
+
+AGENT_B_URL=http://localhost:8001
+```
+
+```text requirements.txt
+fastapi
+uvicorn[standard]
+requests
+python-dotenv
+galileo[otel]
+opentelemetry-instrumentation-fastapi
+opentelemetry-instrumentation-requests
+agent-framework
+agent-framework-openai
+google-adk
+openinference-instrumentation-google-adk
+```
+
+`GalileoSpanProcessor` reads `GALILEO_API_KEY`, `GALILEO_PROJECT`, and `GALILEO_LOG_STREAM` from the environment and exports OTLP directly to Galileo's OTel endpoint. No collector required.
+
+## Agent A: Microsoft Agent Framework, calls Agent B
+
+```python agent_a.py
+import os
+import requests
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+from galileo.otel import GalileoSpanProcessor, add_galileo_span_processor
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+
+from agent_framework import openai, tool
+from agent_framework.observability import enable_instrumentation
+
+load_dotenv()
+
+# Set the global tracer provider before any instrumentor runs.
+tracer_provider = TracerProvider()
+add_galileo_span_processor(tracer_provider, GalileoSpanProcessor())
+trace.set_tracer_provider(tracer_provider)
+
+# injects traceparent on outbound HTTP
+RequestsInstrumentor().instrument()
+# MAF built-in OTel
+enable_instrumentation(enable_sensitive_data=True)
+
+AGENT_B_URL = os.environ["AGENT_B_URL"]
+
+
+@tool(approval_mode="never_require")
+def delegate_research(topic: str) -> str:
+    """Ask the research agent for facts about a topic."""
+    r = requests.post(f"{AGENT_B_URL}/research", json={"topic": topic}, timeout=60)
+    r.raise_for_status()
+    return r.json()["findings"]
+
+
+orchestrator = openai.OpenAIChatClient(model="gpt-4.1-mini").as_agent(
+    name="OrchestratorAgent",
+    instructions="Use delegate_research to gather facts, then answer the user clearly.",
+    tools=[delegate_research],
+)
+
+app = FastAPI()
+FastAPIInstrumentor.instrument_app(app)
+
+
+class AskRequest(BaseModel):
+    question: str
+
+
+@app.post("/ask")
+async def ask(req: AskRequest):
+    return {"answer": str(await orchestrator.run(req.question))}
+```
+
+## Agent B: Google ADK research agent
+
+```python agent_b.py
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+from galileo.otel import GalileoSpanProcessor, add_galileo_span_processor
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
+from openinference.instrumentation.google_adk import GoogleADKInstrumentor
+from google.adk.agents.llm_agent import Agent
+from google.adk.runners import InMemoryRunner
+from google.genai.types import Content, Part
+
+load_dotenv()
+
+tracer_provider = TracerProvider()
+add_galileo_span_processor(tracer_provider, GalileoSpanProcessor())
+trace.set_tracer_provider(tracer_provider)
+
+GoogleADKInstrumentor().instrument(tracer_provider=tracer_provider)
+
+agent = Agent(
+    model="gemini-2.5-flash",
+    name="research_agent",
+    instruction="Return 3-5 concise key facts about the topic.",
+)
+runner = InMemoryRunner(agent=agent, app_name="otel-dt-demo")
+
+app = FastAPI()
+FastAPIInstrumentor.instrument_app(app)
+
+
+class ResearchRequest(BaseModel):
+    topic: str
+
+
+@app.post("/research")
+async def research(req: ResearchRequest):
+    session = await runner.session_service.create_session(
+        app_name="otel-dt-demo", user_id="user"
+    )
+    findings = ""
+    # Drain the full async generator. Returning early closes it from a
+    # different asyncio context and breaks OTel context-token cleanup.
+    async for event in runner.run_async(
+        user_id="user",
+        session_id=session.id,
+        new_message=Content(role="user", parts=[Part(text=req.topic)]),
+    ):
+        if event.is_final_response() and event.content and event.content.parts:
+            findings = event.content.parts[0].text
+    return {"findings": findings}
+```
+
+## Run it
+
+```bash
+pip install -r requirements.txt
+
+# Terminal 1
+uvicorn agent_b:app --port 8001
+
+# Terminal 2
+uvicorn agent_a:app --port 8000
+
+# Terminal 3
+curl -s -X POST http://localhost:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Tell me about Voyager 1."}' | jq
+```
+
+Open the `otel-distributed-tracing` project in Galileo, Log stream `default`. You'll see one trace covering both agents:
+
+![Distributed trace in Galileo console showing both Agent A (Microsoft Agent Framework) and Agent B (Google ADK) spans nested under one trace](/sdk-api/logging/otel-dist-trace.png)
+
+## Self-hosted Galileo
+
+import SnippetConfigureOTelEndpoint from "/snippets/content/configure-otel-endpoint.mdx"
+
+<SnippetConfigureOTelEndpoint/>
+
+Set `GALILEO_API_ENDPOINT` in `.env`; `GalileoSpanProcessor` picks it up automatically.
+
+## Related
+
+- [Distributed Tracing (Beta)](/sdk-api/logging/distributed-tracing): Galileo's native Python SDK distributed mode.
+- [Microsoft Agent Framework integration](/sdk-api/third-party-integrations/opentelemetry-and-openinference/microsoft-agent-framework)
+- [Google ADK (OpenTelemetry) integration](/sdk-api/third-party-integrations/opentelemetry-and-openinference/google-adk)
