@@ -64,9 +64,9 @@ To poll the experiment, you retrieve it by name. If you used a non-unique name w
 <SnippetPythonGetExperimentBeta />
 </CodeGroup>
 
-The returned experiment has an aggregate metrics property that will be set when the metrics have been calculated. This is a dictionary containing the average values, keyed off of `average_<metric_name>`, where `<metric_name>` is the value of the metric used, such as the value of a `GalileoMetrics`, or the name of a custom metric.
+The returned experiment has a `get_metric_aggregate()` method that returns full aggregate statistics — `avg`, `min`, `max`, `p50`, `p90`, `p95`, `p99` — for a specific metric. Pass a `GalileoMetrics` enum value, a human-readable label, or a metric name string. The method returns `None` when the metric has not yet been calculated.
 
-You can check the returned experiment for this property, and the metrics. If these are not yet set, wait a few seconds, re-get the experiment and check again.
+Check whether the metric is `None` and, if so, wait a few seconds, re-fetch the experiment and try again.
 
 <CodeGroup>
 <SnippetPythonPollExperiment />
