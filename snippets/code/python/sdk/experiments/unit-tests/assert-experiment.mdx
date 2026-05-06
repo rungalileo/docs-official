@@ -1,4 +1,8 @@
 ```python Python
-# Assert that the average metric exceeds a certain threshold
-assert experiment.aggregate_metrics[average_metric_name] >= 0.95
+# Use experiment_columns to find the metric UUID for a named metric
+col_map = {col.label: col for col in experiment.experiment_columns}
+correctness_key = col_map["Correctness"].id.removeprefix("metrics/")
+
+# Assert that the average correctness exceeds a certain threshold
+assert experiment.metric_aggregates[correctness_key].avg >= 0.95
 ```

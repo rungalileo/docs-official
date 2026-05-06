@@ -1,14 +1,7 @@
 ```python Python
-# Get the name of the average metric
-average_metric_name = f"average_{GalileoMetrics.instruction_adherence.value}"
-
-# Poll till the metrics are calculated
-while (
-    experiment.aggregate_metrics is None
-    or average_metric_name
-        not in experiment.aggregate_metrics
-):
-    # If we don't have the metrics calculated,
+# Poll until the metrics are calculated
+while not experiment.metric_aggregates:
+    # If we don't have the metrics calculated yet,
     # sleep for 5 seconds before polling again
     time.sleep(5)
 
