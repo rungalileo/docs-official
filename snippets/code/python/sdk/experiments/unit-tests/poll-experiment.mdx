@@ -1,10 +1,11 @@
 ```python Python
-# Poll until the metrics are calculated
-while not experiment.metric_aggregates:
-    # If we don't have the metrics calculated yet,
-    # sleep for 5 seconds before polling again
+from galileo.schema.metrics import GalileoMetrics
+
+# Poll until the specific metric is computed
+while experiment.get_metric_aggregate(GalileoMetrics.instruction_adherence) is None:
+    # If the metric isn't ready yet, sleep before polling again
     time.sleep(5)
 
-    # Reload the experiment to see if we now have the metrics
+    # Reload the experiment to get the latest results
     experiment = get_experiment(experiment_name=experiment_name)
 ```
