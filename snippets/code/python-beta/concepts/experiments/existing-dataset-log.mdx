@@ -1,0 +1,21 @@
+```python Python (Beta)
+from galileo import Dataset, GalileoMetrics, log
+from galileo.experiments import run_experiment
+
+dataset = Dataset.get(name="countries")
+
+@log(span_type="llm", name="My Span")
+def llm_call(input):
+    # Custom function code
+    return result
+
+# Function-based experiments still go through run_experiment;
+# the future Experiment class doesn't support function= yet.
+results = run_experiment(
+    "geography-experiment",
+    dataset_name=dataset.name,
+    function=llm_call,
+    metrics=[GalileoMetrics.correctness],
+    project="my-project",
+)
+```
