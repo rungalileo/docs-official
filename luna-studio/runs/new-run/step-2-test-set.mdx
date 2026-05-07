@@ -1,0 +1,106 @@
+---
+title: "Step 2 — Test set"
+description: "Pick or upload the labelled dataset Luna will evaluate the fine-tuned metric against."
+---
+
+The test set is the **ground truth** for the run. After training, Luna scores the resulting metric against this dataset and reports F1, AUC-ROC, and other diagnostics on the [Run details](/luna-studio/runs/run-details) page.
+
+<Frame caption="Step 2 — pick an existing test set or add a new one">
+  ![Test set step](/images/luna-studio/runs/new-run-test-set.png)
+</Frame>
+
+## Pick an existing test set
+
+The **Test set** select shows test sets you've already added to this org. Each option includes a row count and source label, e.g. `rag-eval-dataset-v2 — 320 rows · Uploaded`.
+
+Type into the select to filter by name.
+
+## Add a new test set
+
+If you don't have one yet, click the dropdown's **Add new test set** action. The **Add test set** modal opens.
+
+<Frame caption="Add test set modal opened from Step 2 — same flow as the Datasets page">
+  ![Add test set modal](/images/luna-studio/runs/new-run-add-test-set.png)
+</Frame>
+
+The modal title is **Add test set** with the subtitle "Test sets are curated labelled examples used to evaluate your metric." Three sources are available — see [Add a dataset](/luna-studio/datasets/add-a-dataset) for a complete reference.
+
+<CardGroup cols={3}>
+  <Card title="Upload from local" icon="upload">
+    Drag-and-drop a `.csv` or `.jsonl` file.
+  </Card>
+  <Card title="Fetch from URL" icon="link">
+    Paste an `http://`, `https://`, `s3://`, or `gs://` URL.
+  </Card>
+  <Card title="Import from Galileo" icon="cloud-arrow-down">
+    Browse datasets in your connected Galileo workspace.
+  </Card>
+</CardGroup>
+
+Required columns: **input** and **label**. The expected column hint is shown in the modal.
+
+<Note>
+  Importing from Galileo requires an active [Galileo integration](/luna-studio/integrations/galileo). If one
+  isn't configured, Luna Studio prompts you to add it inline before the import panel appears.
+</Note>
+
+## What happens after you select a test set
+
+The picker collapses and is replaced by a **Selected dataset card**:
+
+- **Title** &mdash; the dataset name.
+- **Subtitle** &mdash; row and column counts, source, and the test/eval split, e.g. `320 rows · 3 columns · Uploaded · 80% → ~256 for eval`.
+- **Validation status line** &mdash; one of:
+  - _Validating…_ (with a spinner) — Luna is checking the schema.
+  - _Validated_ — the dataset is ready.
+  - _Validated with warnings_ — usable, but check the warnings.
+  - _Validation error: {message}_ — the dataset is unusable until fixed.
+- **F1 score pill** (if available) — colored by threshold.
+
+A **Change** link in the card returns the picker so you can swap to a different dataset.
+
+<Frame caption="Step 2 with a validation error — the wizard blocks Next until the schema is valid">
+  ![Test set validation error](/images/luna-studio/runs/new-run-test-set-error.png)
+</Frame>
+
+## Dataset preview
+
+If validation completes and a preview is available, a table renders below the card with three columns:
+
+| Column | What it shows               |
+| ------ | --------------------------- |
+| `#`    | Row index.                  |
+| Input  | The text the metric scores. |
+| Label  | The ground-truth value.     |
+
+The preview shows up to 100 rows. If your dataset has more, a footer shows "Showing first 100 of N rows."
+
+## Validation rules
+
+The exact rules depend on the metric output type, but the basics:
+
+- The file must contain an `input` column.
+- It must contain a `label` column.
+- Labels must be parseable for the metric's output type. (For Boolean metrics: true/false-like values; for Numeric: numbers; etc.)
+
+If validation fails, the card shows a destructive status line. You can swap to a different dataset using the **Change** link.
+
+For more on the validation lifecycle, see [Dataset validation](/luna-studio/datasets/validation).
+
+## Validation gate for Step 2
+
+You can advance to Step 3 once:
+
+- A test set is selected, **and**
+- Validation has completed without an error (warnings are okay).
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Step 3 — Training set" icon="dumbbell" href="/luna-studio/runs/new-run/step-3-training-set">
+    Generate from the test set, or upload your own.
+  </Card>
+  <Card title="Add a dataset" icon="database" href="/luna-studio/datasets/add-a-dataset">
+    Reference for all three dataset sources.
+  </Card>
+</CardGroup>

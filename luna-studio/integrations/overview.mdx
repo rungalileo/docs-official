@@ -1,0 +1,105 @@
+---
+title: "Integrations overview"
+description: "Org-scoped credentials for the LLM providers and Galileo features Luna Studio uses."
+---
+
+The **Integrations** page is where you store API keys, service accounts, and other credentials for the external services Luna Studio talks to. Integrations are **org-scoped** — once added, every project in your org can use them.
+
+<Frame caption="Integrations page grouped by category — LLM, Galileo, Training platform, Authentication, and Storage">
+  ![Integrations page](/images/luna-studio/integrations/integrations-page.png)
+</Frame>
+
+## When to add integrations
+
+You'll need integrations for:
+
+- **Generating training sets** &mdash; the model picked in [Step 3 of the new-run wizard](/luna-studio/runs/new-run/step-3-training-set#generate-from-test-set) (gpt-5, gpt-4o, or claude-3.7-sonnet) calls its provider through the matching integration.
+- **Importing from Galileo** &mdash; the [Galileo integration](/luna-studio/integrations/galileo) unlocks "Import from Galileo" as a dataset source.
+- **Registering metrics** &mdash; the [Galileo integration](/luna-studio/integrations/galileo) is also used when you publish a fine-tuned metric to the Galileo metrics store.
+
+You don't need every provider — most users start with one (OpenAI or Anthropic) and add more later.
+
+## Categories
+
+Integrations are split into two categories on the page:
+
+### LLM Integration (12 cards)
+
+| Provider                                                   | Auth                                            |
+| ---------------------------------------------------------- | ----------------------------------------------- |
+| [OpenAI](/luna-studio/integrations/llm-providers#openai)               | API key (`sk-...`)                              |
+| [Anthropic](/luna-studio/integrations/llm-providers#anthropic)         | API key (`sk-ant-...`)                          |
+| [Azure](/luna-studio/integrations/llm-providers#azure)                 | URL + API key                                   |
+| [Vertex AI](/luna-studio/integrations/llm-providers#vertex-ai)         | Service-account JSON; optional GCS file uploads |
+| [Mistral](/luna-studio/integrations/llm-providers#mistral)             | API key                                         |
+| [NVIDIA](/luna-studio/integrations/llm-providers#nvidia)               | NIM hostname + API key                          |
+| [Databricks](/luna-studio/integrations/llm-providers#databricks)       | Hostname + API key                              |
+| [Writer](/luna-studio/integrations/llm-providers#writer)               | API key + optional Organization ID              |
+| [Vegas Gateway](/luna-studio/integrations/llm-providers#vegas-gateway) | URL + API key + Use Case                        |
+| [AWS Bedrock](/luna-studio/integrations/aws-bedrock-sagemaker)         | AWS Access Key or Assumed Role                  |
+| [AWS SageMaker](/luna-studio/integrations/aws-bedrock-sagemaker)       | AWS Access Key or Assumed Role + model configs  |
+| [Custom](/luna-studio/integrations/custom)                             | JSON model_properties config                    |
+
+### Galileo Integration (1 card)
+
+The [Galileo integration](/luna-studio/integrations/galileo) is a single API key that unlocks platform-level features (importing datasets, registering metrics).
+
+## Page layout
+
+- **Search** &mdash; the input on the right of the page header filters cards by name. Use it when the list is long.
+- **Cards** &mdash; each integration shows its brand glyph, name, and a one-line description. Inactive integrations have an **Add integration** button; active integrations show an **Active** dot plus **Update** and **Remove** buttons.
+
+## Add an integration
+
+<Steps>
+  <Step title="Click **Add integration** on the card">
+    A modal opens titled `{Provider name} integration`.
+  </Step>
+
+<Step title="Fill in the required fields">
+  Required fields are marked. JSON fields validate as you type — invalid JSON disables the **Save
+  changes** button.
+</Step>
+
+  <Step title="(Optional) Acknowledge the disclaimer">
+    Some providers show a switch with the copy:
+
+    > I acknowledge that by using this feature, I am sending my data to {name} through its APIs.
+
+    Toggle it on if shown.
+
+  </Step>
+
+  <Step title="Click **Save changes**">
+    The modal closes and the card flips to **Active**.
+  </Step>
+</Steps>
+
+## Update or remove an integration
+
+- **Update** &mdash; reopens the same modal pre-filled with the current values.
+- **Remove** &mdash; opens a confirmation dialog titled "Remove {name}?" with a destructive **Confirm** button.
+
+## Empty search results
+
+If your search doesn't match any integration, the page shows:
+
+> No integrations found
+> Try a different search term
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="LLM providers" icon="bolt" href="/luna-studio/integrations/llm-providers">
+    Field-by-field reference for all 9 LLM providers.
+  </Card>
+  <Card title="AWS Bedrock & SageMaker" icon="aws" href="/luna-studio/integrations/aws-bedrock-sagemaker">
+    Access Key vs Assumed Role, plus SageMaker model configuration.
+  </Card>
+  <Card title="Galileo integration" icon="link" href="/luna-studio/integrations/galileo">
+    The single API key that unlocks platform features.
+  </Card>
+  <Card title="Custom integration" icon="code" href="/luna-studio/integrations/custom">
+    JSON model_properties config for in-house or unsupported models.
+  </Card>
+</CardGroup>

@@ -1,0 +1,150 @@
+---
+title: "Quickstart"
+description: "Sign up, configure your first integration, run a training, and register the resulting metric — end-to-end in about 15 minutes."
+---
+
+This walkthrough takes you from a fresh sign-up to a registered custom metric. By the end, you'll have one project, one training run, and one metric available in the Galileo metrics store.
+
+## Before you start
+
+You'll need:
+
+- An email address for the Luna Studio account.
+- An API key for at least one LLM provider — typically [OpenAI](https://platform.openai.com/api-keys), [Anthropic](https://console.anthropic.com/settings/keys), or Google Vertex AI.
+- A small labelled dataset (CSV or JSONL with `input` and `label` columns). 100–500 rows is plenty for a first run.
+- _Optional but recommended:_ a [Galileo](/what-is-galileo) API key, so you can import datasets and register metrics into the Galileo platform.
+
+<Tip>
+  Don't have a labelled dataset yet? Luna Studio can **generate a training set** from a small test
+  set — see [Step 6](#step-6-add-a-training-set). You'll still need a test set with at least 50 rows
+  for evaluation.
+</Tip>
+
+## Walkthrough
+
+<Steps>
+  <Step title="Sign up">
+    Go to [luna-studio.dev.rungalileo.io](https://luna-studio.dev.rungalileo.io) and create an account.
+
+    <Frame caption="Create a Luna Studio account">
+      ![Sign up screen](/images/luna-studio/auth/sign-up.png)
+    </Frame>
+
+    Enter an email and a password (8+ characters), accept the terms, and click **Create account**. See [Sign up](/luna-studio/account/sign-up) for the full screen reference.
+
+  </Step>
+
+  <Step title="Connect your first LLM provider">
+    On first launch, Luna Studio drops you into the onboarding wizard. Pick **OpenAI**, **Vertex AI**, or **Anthropic** and click **Add integration** on the card.
+
+    <Frame caption="Onboarding, step 1 — connect at least one LLM provider">
+      ![Onboarding step 1](/images/luna-studio/onboarding/step-1-providers.png)
+    </Frame>
+
+    A modal opens with the fields the provider needs (typically an API key). Paste it and click **Save changes**.
+
+    Optionally add the **Galileo** integration in the section below — this unlocks the "Import from Galileo" dataset source later.
+
+  </Step>
+
+  <Step title="Create your first project">
+    Click **Continue** and enter a project name (e.g. `support-tone-classifier`). Click **Continue** again — Luna Studio creates the project and routes you to its **Training runs** page.
+
+    <Frame caption="Onboarding, step 2 — name your first project">
+      ![Onboarding step 2](/images/luna-studio/onboarding/step-2-create-project.png)
+    </Frame>
+
+  </Step>
+
+<Step title="Start a new training run">
+  On the project page, click **New run** in the top right. The wizard opens at **Step 1 — Metric**.
+</Step>
+
+  <Step title="Pick a metric (Step 1)">
+    Pick a predefined metric from the dropdown, grouped by **RAG Quality**, **Safety**, and **Instruction Following**. For a first run, **Toxicity** or **Instruction adherence** are good starting points.
+
+    <Frame caption="New run, Step 1 — pick the metric you want to fine-tune">
+      ![Metric step](/images/luna-studio/runs/new-run-metric.png)
+    </Frame>
+
+    Or click the dropdown's **Use custom prompt** option to write your own LLM-as-judge prompt. See [Step 1: Metric](/luna-studio/runs/new-run/step-1-metric) for the full reference.
+
+    Click **Next step**.
+
+  </Step>
+
+  <Step title="Add a test set (Step 2)">
+    Pick an existing test set from the dropdown, or click **Add new test set** to upload one.
+
+    <Frame caption="New run, Step 2 — pick or upload a test set to evaluate against">
+      ![Test set step](/images/luna-studio/runs/new-run-test-set.png)
+    </Frame>
+
+    Test sets need an `input` column and a `label` column. Luna validates the file as soon as you upload it — wait for the **Validated** status before continuing.
+
+    Click **Next step**.
+
+  </Step>
+
+  <Step title="Add a training set (Step 3)" id="step-6-add-a-training-set">
+    Choose a training source:
+
+    - **Generate from test set** (recommended for a first run) — Luna uses 20% of your test set as seeds and generates ~3,000 labelled training samples via an LLM-as-judge prompt.
+    - **Add training logs** — upload your own labelled production logs.
+
+    <Frame caption="New run, Step 3 — generate a training set from your test set or upload one">
+      ![Training set step](/images/luna-studio/runs/new-run-training-set.png)
+    </Frame>
+
+    If you pick Generate, a drawer opens. Pick a model (gpt-5, gpt-4o, or claude-3.7-sonnet) and click **Generate sample dataset**. Review the sample rows, deselect any that look wrong, and click **Generate final dataset**.
+
+    Click **Next step**.
+
+  </Step>
+
+  <Step title="Confirm and launch (Step 4)">
+    Review the run summary. Pick a base model — **Luna Small** trains fastest; **Luna Large** captures more nuance.
+
+    <Frame caption="New run, Step 4 — pick a base model and launch fine-tuning">
+      ![Config and launch step](/images/luna-studio/runs/new-run-config-launch.png)
+    </Frame>
+
+    Click **Confirm and launch**. The run enters the **Queued** state and you're routed back to the project page.
+
+  </Step>
+
+  <Step title="Wait for training to complete">
+    Training runs progress through **Queued → Training → Fine-tuned**. Click the run row to open its details page and see live status.
+
+    Once the run reaches **Fine-tuned**, the run details page shows a metrics grid (F1 score, AUC-ROC, etc.) versus a baseline.
+
+    <Frame caption="Run details for a fine-tuned run, ready to register">
+      ![Run details](/images/luna-studio/runs/run-details.png)
+    </Frame>
+
+  </Step>
+
+  <Step title="Register your metric">
+    Happy with the result? Click **Register metric** in the run details footer. Enter a metric name and click **Register**.
+
+    Your metric now appears in the [Galileo metrics store](/concepts/metrics/overview) and can be used across Galileo for evaluation, observability, and guardrails. The run's status flips to **Registered**.
+
+  </Step>
+</Steps>
+
+## What's next
+
+<CardGroup cols={2}>
+  <Card title="Core concepts" icon="book-open" href="/luna-studio/core-concepts">
+    Understand the relationships between projects, runs, metrics, and datasets.
+  </Card>
+  <Card title="New run wizard" icon="wand-magic-sparkles" href="/luna-studio/runs/new-run/overview">
+    Deep dive on every step of the new run flow.
+  </Card>
+  <Card title="Datasets" icon="database" href="/luna-studio/datasets/overview">
+    Manage your test sets and training sets.
+  </Card>
+  <Card title="Integrations" icon="plug" href="/luna-studio/integrations/overview">
+    Add API keys for all 12 supported LLM providers.
+  </Card>
+</CardGroup>

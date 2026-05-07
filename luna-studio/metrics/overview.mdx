@@ -1,0 +1,64 @@
+---
+title: "Metrics overview"
+description: "Browse, create, and register custom metrics across your project."
+---
+
+The **Metrics** page (sidebar → **Metrics**) is where you see every metric in your project — both fine-tuned ones produced by training runs and standalone custom metrics you defined directly.
+
+<Frame caption="Metrics page listing every metric with its status, source run, and last update">
+  ![Metrics page](/images/luna-studio/metrics/metrics-home.png)
+</Frame>
+
+## Metrics table
+
+The table has these columns:
+
+| Column      | What it shows                                                                                                          |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Metric name | The metric name.                                                                                                       |
+| Status      | The metric's [lifecycle status](/luna-studio/metrics/lifecycle-and-statuses): Queued, Training, Fine-tuned, Registered, or Failed. |
+| Created at  | When the metric was created.                                                                                           |
+| Last run    | When the most recent training run for this metric finished.                                                            |
+| Actions     | For **Fine-tuned** metrics only: a **Register metric** action link.                                                    |
+
+## Top-bar actions
+
+- **Search** &mdash; filter the table by metric name.
+- **Create custom metric** &mdash; primary button. Opens the [Create custom metric](/luna-studio/metrics/custom-metrics) modal.
+
+## Where metrics come from
+
+Metrics in Luna Studio come from two places:
+
+1. **Training runs.** Every [run](/luna-studio/runs/lifecycle) produces exactly one metric. After Step 1 of the new-run wizard, the metric is implicitly created and tracks the run's status.
+2. **Direct creation.** Click **Create custom metric** to define a metric outside of a run. This is useful when you want to publish the same prompt-based metric without fine-tuning, or when you're prepping a metric for a future run.
+
+## Register a metric
+
+Once a metric reaches **Fine-tuned**, the **Register metric** action appears in the row's Actions cell. Clicking it opens the same modal documented in [Register a metric](/luna-studio/runs/register-metric).
+
+## Lifecycle
+
+Metrics share the same five-state lifecycle as runs:
+
+- **Queued** → **Training** → **Fine-tuned** → **Registered**
+- (or **Failed** at any point)
+
+See [Lifecycle and statuses](/luna-studio/metrics/lifecycle-and-statuses) for the visual reference.
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Custom metrics" icon="code" href="/luna-studio/metrics/custom-metrics">
+    Create a metric outside of the new-run wizard.
+  </Card>
+  <Card title="Lifecycle and statuses" icon="arrows-rotate" href="/luna-studio/metrics/lifecycle-and-statuses">
+    Visual reference for the five status pills.
+  </Card>
+  <Card title="Register a metric" icon="circle-check" href="/luna-studio/runs/register-metric">
+    Publish a Fine-tuned metric to the Galileo metrics store.
+  </Card>
+  <Card title="New run wizard" icon="play" href="/luna-studio/runs/new-run/overview">
+    Launch a training run that produces a metric.
+  </Card>
+</CardGroup>

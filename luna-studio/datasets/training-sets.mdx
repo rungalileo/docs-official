@@ -1,0 +1,106 @@
+---
+title: "Training sets"
+description: "The dataset used to fine-tune the base model during a run."
+---
+
+A **training set** is the dataset that fine-tunes your [base model](/luna-studio/core-concepts#base-models) during a [training run](/luna-studio/runs/lifecycle). Training sets are typically much larger than test sets — ~3,000 rows is normal — and can be either labelled or unlabelled.
+
+## Sources
+
+There are four ways to create a training set:
+
+<CardGroup cols={2}>
+  <Card title="Generate from test set" icon="wand-magic-sparkles">
+    Luna uses 20% of your test set as seeds and synthesizes ~3,000 labelled rows via an LLM-as-judge
+    prompt.
+  </Card>
+  <Card title="Upload" icon="upload">
+    Drag-and-drop a `.csv` or `.jsonl` file from your machine.
+  </Card>
+  <Card title="Fetch from URL" icon="link">
+    Pull a file from an `http://`, `https://`, `s3://`, or `gs://` URL.
+  </Card>
+  <Card title="Import from Galileo" icon="cloud-arrow-down">
+    Pull a labelled or unlabelled dataset from your connected Galileo workspace.
+  </Card>
+</CardGroup>
+
+The **Generate** flow happens inside the [new-run wizard](/luna-studio/runs/new-run/step-3-training-set#generate-from-test-set). The other three are available from the [Datasets page](/luna-studio/datasets/overview) **Add training set** button or from Step 3 of the wizard.
+
+## Schema
+
+Training sets need at least one column:
+
+| Column  | Required  | Notes                                                        |
+| ------- | --------- | ------------------------------------------------------------ |
+| `input` | Yes       | The text the metric will be trained on.                      |
+| `label` | Sometimes | Required for **labelled** training. Optional for unlabelled. |
+
+### Labelled vs. unlabelled
+
+- **Labelled** &mdash; every row has a `label` column matching the metric's output type. Required if you want supervised fine-tuning.
+- **Unlabelled** &mdash; rows have an `input` only. Luna can still fine-tune, but uses a different objective. Useful for distribution adaptation when you have lots of unlabelled production logs.
+
+When you upload a training set, Luna Studio shows a **Dataset is labeled** checkbox so you can disambiguate. The checkbox surfaces:
+
+- A green check when the label column is present.
+- A red error chip ("Dataset is missing column **label**") when it isn't.
+
+## Generated training sets
+
+The most common path for a first run is **Generate from test set**. The flow:
+
+1. Luna uses 20% of your test set as seed examples.
+2. The LLM you pick (gpt-5, gpt-4o, or claude-3.7-sonnet) synthesizes ~3,000 labelled samples following the metric prompt.
+3. You preview ~200 rows and confirm them, optionally regenerating with feedback.
+4. Luna generates the full training set.
+
+See [Step 3 — Training set](/luna-studio/runs/new-run/step-3-training-set#generate-from-test-set) for the full reference.
+
+The resulting dataset shows up on the [Datasets page](/luna-studio/datasets/overview) with source **Generated** and a subtitle like "Generated from rag-eval-v2".
+
+## File formats
+
+For uploads and URL fetches:
+
+- **CSV** &mdash; standard comma-separated. Headers required.
+- **JSONL** &mdash; one JSON object per line, with `input` and (optionally) `label` keys.
+
+## Training set details page
+
+Click any training set row on the Datasets page to open its [Dataset details](/luna-studio/datasets/dataset-details) page. For training sets, the details panel additionally shows:
+
+- **Source** &mdash; for generated training sets, an interactive chip linking to the originating test set with a sub-label like "20% used in training set".
+- **Runs** &mdash; a list of interactive chips, each linking to a run that consumed this training set.
+
+The preview table includes an **Origin** column showing where each row came from:
+
+| Origin in row   | Renders as                                                     |
+| --------------- | -------------------------------------------------------------- |
+| Generated       | Muted "Generated" text.                                        |
+| {test-set-name} | Interactive chip — click to open that test set's details page. |
+
+## Used in metric
+
+The **Used in metric** column shows every metric whose runs reference this training set. If empty, the training set isn't being used — safe to delete.
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card
+    title="Generate from test set"
+    icon="wand-magic-sparkles"
+    href="/luna-studio/runs/new-run/step-3-training-set"
+  >
+    The most common path for first runs.
+  </Card>
+  <Card title="Add a dataset" icon="upload" href="/luna-studio/datasets/add-a-dataset">
+    Walk through the Upload / URL / Galileo flows.
+  </Card>
+  <Card title="Test sets" icon="speedometer" href="/luna-studio/datasets/test-sets">
+    The other dataset type — used to evaluate the metric.
+  </Card>
+  <Card title="Validation" icon="circle-check" href="/luna-studio/datasets/validation">
+    Schema and content checks Luna runs.
+  </Card>
+</CardGroup>

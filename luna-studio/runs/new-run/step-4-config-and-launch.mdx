@@ -1,0 +1,83 @@
+---
+title: "Step 4 — Config and launch"
+description: "Review the run summary, pick a base model, and launch training."
+---
+
+The final step is a summary view. Everything you've configured shows up as a card; you can jump back to any step with a **Change** link. The only new field is the base model.
+
+<Frame caption="Step 4 — pick a base model, name the run, and launch">
+  ![Step 4: config and launch](/images/luna-studio/runs/new-run-config-launch.png)
+</Frame>
+
+## Run summary
+
+The page is titled **Run summary** with one card per artifact:
+
+| Card         | What it shows                                                                                                                  |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| Metric       | Selected metric template or custom prompt with a sparkles icon.                                                                |
+| Test set     | Selected test set with validation status and (if available) F1 score pill.                                                     |
+| Training set | Selected training set with validation status. For uploads with a label column, the line reads "Dataset validated and labeled". |
+| Base model   | A select with three options (see below).                                                                                       |
+
+Each card has a **Change** link in the top right that jumps you back to that step.
+
+## Pick a base model
+
+The **Base model** select offers three options:
+
+| Option      | Trade-off                                                                              |
+| ----------- | -------------------------------------------------------------------------------------- |
+| Luna Small  | Trains fastest. Best for narrow, well-scoped metrics where the signal is clear.        |
+| Luna Medium | Balanced. The default if you're not sure where to start.                               |
+| Luna Large  | Slowest to train. Captures more nuance — best for subjective or compositional metrics. |
+
+Hover the info icon for the helper copy: _"Larger variants train slower but can capture more nuance."_
+
+<Tip>
+  Don't optimize for the largest model on a first run. Start with **Luna Small** or **Luna Medium**,
+  see whether the resulting metric is good enough, then escalate only if you need more nuance.
+</Tip>
+
+## Confirm and launch
+
+The footer button is **Confirm and launch** with a play icon. Clicking it:
+
+1. Disables the button and shows a loading state.
+2. Submits the run to Luna Studio.
+3. Routes you back to the [Training runs](/luna-studio/projects/training-runs-home) page, where the new run appears with status **Queued**.
+
+The run progresses through **Queued → Training → Fine-tuned** on its own. You can leave the app and check back later — see [Run lifecycle](/luna-studio/runs/lifecycle).
+
+## What if I need to change something?
+
+Use the **Change** link on any summary card. You'll jump back to that step with your previous selection preserved. Step through to Step 4 again and re-launch.
+
+## What launches when I click Confirm?
+
+Submitting the run:
+
+1. Saves the run with status **Queued**.
+2. Allocates training resources for the picked base model.
+3. Begins fine-tuning on the training set.
+4. Evaluates the resulting metric against the test set.
+5. Transitions the run to **Fine-tuned** (or **Failed**).
+
+You don't need to keep the page open. Cancellation isn't supported today — once a run is **Training**, it runs to completion or failure.
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Run lifecycle" icon="arrows-rotate" href="/luna-studio/runs/lifecycle">
+    The five statuses your run will flow through.
+  </Card>
+  <Card title="Run details" icon="circle-info" href="/luna-studio/runs/run-details">
+    What you'll see for each status.
+  </Card>
+  <Card title="Register a metric" icon="circle-check" href="/luna-studio/runs/register-metric">
+    Once the run is Fine-tuned, publish it.
+  </Card>
+  <Card title="Troubleshooting" icon="bug" href="/luna-studio/reference/troubleshooting">
+    What to do if a run fails.
+  </Card>
+</CardGroup>

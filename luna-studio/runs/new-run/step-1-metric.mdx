@@ -1,0 +1,93 @@
+---
+title: "Step 1 — Metric"
+description: "Pick a predefined metric template or write a custom LLM-as-judge prompt."
+---
+
+The first step asks: _what should this metric measure?_ You can pick from a curated list of templates, or click **Use custom prompt** to write your own.
+
+<Frame caption="Step 1 — pick a built-in metric or define your own with a custom prompt">
+  ![Metric step](/images/luna-studio/runs/new-run-metric.png)
+</Frame>
+
+## Pick a predefined metric
+
+The **Metric** select is searchable. Options are organized into three groups:
+
+### RAG Quality
+
+| Template          | What it measures                                                     |
+| ----------------- | -------------------------------------------------------------------- |
+| Context adherence | Whether the answer sticks to the retrieved context.                  |
+| Completeness      | Whether the answer covers all relevant information from the context. |
+| Chunk attribution | Which retrieved chunks each part of the answer is grounded in.       |
+
+### Safety
+
+| Template      | What it measures                                                    |
+| ------------- | ------------------------------------------------------------------- |
+| Toxicity      | Whether the response contains toxic, harmful, or offensive content. |
+| PII detection | Whether the response leaks personally identifiable information.     |
+
+### Instruction Following
+
+| Template              | What it measures                                                          |
+| --------------------- | ------------------------------------------------------------------------- |
+| Instruction adherence | Whether the response follows the instructions in the prompt.              |
+| Tone consistency      | Whether the response maintains a consistent tone across multi-turn calls. |
+
+## Inspect a selected template
+
+Once you pick a template, the form expands to show a read-only **Metric details** panel:
+
+- **Output type** &mdash; the metric's return shape (Boolean, Floating Point, Categorical, Percentage, Multilabel, Numeric). See [Output types](/luna-studio/core-concepts#metrics).
+- **Step** &mdash; the trace step the metric runs against (LLM span, Retriever, Agent span, Trace).
+- **Modality** &mdash; fixed to **Text** today.
+- **Prompt** &mdash; the LLM-as-judge prompt the template uses, in a read-only textarea.
+
+Use this view to confirm the template is appropriate before continuing — particularly the **Step**, since a metric meant for a Retriever step won't fire on plain LLM spans.
+
+## Write a custom prompt
+
+For metrics that don't fit a template, click the dropdown's **Use custom prompt** option (with a `+` icon). The form switches into editable mode.
+
+<Frame caption="Step 1 with Custom prompt expanded — write your own LLM-as-judge prompt for the metric">
+  ![Custom metric prompt](/images/luna-studio/runs/new-run-metric-custom.png)
+</Frame>
+
+In custom mode, you fill in:
+
+| Field       | Notes                                                                                   |
+| ----------- | --------------------------------------------------------------------------------------- |
+| Output type | Pick one of Boolean / Floating Point / Categorical / Percentage / Multilabel / Numeric. |
+| Step        | Pick LLM span / Retriever / Agent span / Trace.                                         |
+| Modality    | Read-only (**Text**).                                                                   |
+| Prompt      | The LLM-as-judge prompt. Required.                                                      |
+
+<Tip>
+  Custom prompts work best when they're concrete and constrained. State exactly what counts as
+  "true" vs "false", give an example or two in the prompt, and avoid open-ended grading scales.
+</Tip>
+
+## Validation
+
+You can advance to Step 2 once:
+
+- A predefined metric is picked, **or**
+- A custom prompt is written and the **Output type** and **Step** are filled in.
+
+The **Next step** button is disabled until the rule is satisfied.
+
+## Tooltip help
+
+Hover the info icon next to the **Metric** label to see: _"Select the metric to optimize for this training run."_
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Step 2 — Test set" icon="speedometer" href="/luna-studio/runs/new-run/step-2-test-set">
+    Pick the labelled dataset Luna evaluates against.
+  </Card>
+  <Card title="Custom metrics" icon="code" href="/luna-studio/metrics/custom-metrics">
+    Reference for output types, steps, and prompt-writing tips.
+  </Card>
+</CardGroup>

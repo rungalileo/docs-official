@@ -1,0 +1,132 @@
+---
+title: "LLM providers"
+description: "Field-by-field reference for the nine standard LLM provider integrations."
+---
+
+Luna Studio supports nine standard LLM providers, plus AWS Bedrock/SageMaker (covered in [a separate page](/luna-studio/integrations/aws-bedrock-sagemaker)) and a [Custom JSON config](/luna-studio/integrations/custom) for in-house models.
+
+All standard providers use the same modal flow:
+
+<Steps>
+  <Step title="Click **Add integration**">
+    On the provider's card on the [Integrations](/luna-studio/integrations/overview) page.
+  </Step>
+  <Step title="Fill in the required fields">
+    All fields below are required unless explicitly marked optional.
+  </Step>
+  <Step title="Click **Save changes**">The card flips to **Active**.</Step>
+</Steps>
+
+<Frame caption="Standard LLM provider integration modal — paste your API key to connect">
+  ![Standard integration modal](/images/luna-studio/integrations/integration-modal.png)
+</Frame>
+
+## OpenAI
+
+| Field   | Notes                                                                                                 |
+| ------- | ----------------------------------------------------------------------------------------------------- |
+| API Key | Starts with `sk-...`. Get it at [platform.openai.com/api-keys](https://platform.openai.com/api-keys). |
+
+The modal includes a "Find your key at openai.com" link in the footer.
+
+## Anthropic
+
+| Field   | Notes                                                                                                                   |
+| ------- | ----------------------------------------------------------------------------------------------------------------------- |
+| API Key | Starts with `sk-ant-...`. Get it at [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys). |
+
+The modal includes a "Find your key at claude.com" link in the footer.
+
+## Azure
+
+Azure OpenAI uses two fields because every deployment has its own endpoint URL.
+
+| Field   | Notes                                    |
+| ------- | ---------------------------------------- |
+| URL     | Your Azure OpenAI resource endpoint.     |
+| API Key | The resource's primary or secondary key. |
+
+## Vertex AI
+
+Google Vertex AI integrations use a service-account JSON pasted into a textarea.
+
+| Field                | Notes                                                                                   |
+| -------------------- | --------------------------------------------------------------------------------------- |
+| Credentials JSON     | The full service-account JSON. Pasted into a code-editor textarea with live validation. |
+| Support file uploads | Optional switch. When **on**, four additional fields appear (below).                    |
+
+If **Support file uploads** is on, the modal also asks for:
+
+| Field                           | Notes                                                          |
+| ------------------------------- | -------------------------------------------------------------- |
+| GCS service-account credentials | Service-account JSON for the GCS bucket Luna Studio writes to. |
+| Bucket name                     | The destination GCS bucket.                                    |
+| Object path prefix              | Defaults to `galileo-uploads`. Optional.                       |
+
+<Note>
+  The "Support file uploads" toggle is only required if you'll be uploading large files through
+  Vertex's file API. For text-only training and evaluation, leave it off.
+</Note>
+
+## Mistral
+
+| Field   | Notes                                                       |
+| ------- | ----------------------------------------------------------- |
+| API Key | Get it at [console.mistral.ai](https://console.mistral.ai). |
+
+## NVIDIA
+
+NVIDIA NIM endpoints are self-hosted, so the integration takes both a hostname and a key.
+
+| Field    | Notes                                              |
+| -------- | -------------------------------------------------- |
+| Hostname | The NIM endpoint, e.g. `https://nim.example.com`.  |
+| API Key  | The token that authenticates against the endpoint. |
+
+## Databricks
+
+Databricks model serving endpoints follow the same pattern.
+
+| Field    | Notes                               |
+| -------- | ----------------------------------- |
+| Hostname | Your Databricks workspace URL.      |
+| API Key  | A Databricks personal access token. |
+
+## Writer
+
+| Field           | Notes                                                 |
+| --------------- | ----------------------------------------------------- |
+| API Key         | Required.                                             |
+| Organization ID | Optional. Use it if your account spans multiple orgs. |
+
+## Vegas Gateway
+
+The Vegas Gateway is an internal LLM proxy used by some teams. It needs three fields:
+
+| Field    | Notes                                                               |
+| -------- | ------------------------------------------------------------------- |
+| URL      | The gateway endpoint.                                               |
+| API Key  | Authentication token.                                               |
+| Use Case | A use-case identifier required by the gateway for cost attribution. |
+
+## Acknowledgement disclaimer
+
+Some integrations show a switch in the modal with the copy:
+
+> I acknowledge that by using this feature, I am sending my data to {name} through its APIs.
+
+If your provider's modal includes it, toggle it on before saving.
+
+## Updating credentials
+
+Click **Update** on an active card to reopen the same modal pre-filled. Saving overwrites the previous credentials. There's no separate "rotate" flow — just paste the new value and save.
+
+## Removing an integration
+
+Click **Remove** on the card, then **Remove** again in the confirmation dialog. The integration's credentials are deleted from your org. Any active training run that depends on it will keep running using the credentials it captured at launch.
+
+## Where to go next
+
+- AWS-specific flow → [AWS Bedrock and SageMaker](/luna-studio/integrations/aws-bedrock-sagemaker).
+- Custom JSON config → [Custom integration](/luna-studio/integrations/custom).
+- Galileo platform features → [Galileo integration](/luna-studio/integrations/galileo).
