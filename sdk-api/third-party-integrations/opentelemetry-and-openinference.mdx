@@ -3,7 +3,12 @@ title: Overview
 description: Learn how to integrate Galileo with OpenTelemetry and OpenInference for comprehensive observability and tracing
 ---
 
-import ConfigureOTel from "/snippets/content/configure-otel.mdx"
+{/*<!-- markdownlint-disable MD044 -->*/}
+
+import SnippetSimpleEnvVars from "/snippets/code/multilingual/env-galileo.mdx"
+import SnippetConfigureOTelEndpoint from "/snippets/content/configure-otel-endpoint.mdx"
+
+{/*<!-- markdownlint-enable MD044 -->*/}
 
 This guide explains how to integrate Galileo with [OpenTelemetry](https://opentelemetry.io/) and [OpenInference](https://github.com/Arize-ai/openinference) for comprehensive observability and tracing of your AI/ML workflows using industry-standard tools.
 
@@ -11,13 +16,136 @@ This guide explains how to integrate Galileo with [OpenTelemetry](https://opente
 
 The first step is to configure OpenTelemetry.
 
-<ConfigureOTel/>
+<Steps>
+<Step title="Installation">
 
-You can now use this trace processor either using a framework that supports OTel directly, or via OpenInference.
+Add the Galileo SDK and OpenTelemetry packages to your project:
+
+<CodeGroup>
+
+```bash Python
+pip install opentelemetry-api opentelemetry-sdk \
+            opentelemetry-exporter-otlp
+```
+
+```bash TypeScript
+npm install galileo \
+      @opentelemetry/sdk-trace-node \
+      @opentelemetry/exporter-trace-otlp-proto
+```
+
+</CodeGroup>
+
+For Python, the `opentelemetry-api` and `opentelemetry-sdk` packages provide the core OpenTelemetry functionality. The `opentelemetry-exporter-otlp` package enables sending traces to Galileo's OTLP endpoint.
+
+For TypeScript, the `galileo` package includes the `GalileoSpanProcessor` which handles OTLP export configuration automatically. The `@opentelemetry/sdk-trace-node` and `@opentelemetry/exporter-trace-otlp-proto` packages are required peer dependencies.
+</Step>
+<Step title="Create environment variables for your Galileo settings">
+
+Set environment variables for your Galileo settings, for example in a `.env` file.
+These environment variables are consumed by the `GalileoSpanProcessor` to authenticate
+and route traces to the correct Galileo Project and Log stream:
+
+<CodeGroup>
+
+<SnippetSimpleEnvVars/>
+
+</CodeGroup>
+</Step>
+<Step title="Self-hosted deployments: Set the OTel endpoint">
+
+<Note>
+Skip this step if you are using Galileo Cloud.
+</Note>
+
+<SnippetConfigureOTelEndpoint/>
+
+The convention is to store this in the `GALILEO_CONSOLE_URL` environment variable. For example:
+
+<CodeGroup>
+
+```python Python
+os.environ["GALILEO_CONSOLE_URL"] = "https://api.galileo.ai"
+```
+
+```typescript TypeScript
+process.env.GALILEO_CONSOLE_URL = "https://api.galileo.ai";
+```
+
+</CodeGroup>
+</Step>
+<Step title="Initialize and create the Galileo span processor">
+
+The `GalileoSpanProcessor` automatically configures authentication
+and metadata using your environment variables. It also:
+
+- Auto-builds OTLP headers using your Galileo credentials
+- Configures the correct OTLP trace endpoint
+- Registers a batch span processor that exports traces to Galileo
+
+<CodeGroup>
+
+```python Python
+from galileo import otel  
+
+# GalileoSpanProcessor (no manual OTLP config required) loads the env vars for 
+# the Galileo API key, Project, and Log stream. Make sure to set them first. 
+galileo_span_processor = otel.GalileoSpanProcessor(
+    # Optional parameters if not set, uses env var
+    # project=os.environ["GALILEO_PROJECT"], 
+    # logstream=os.environ.get("GALILEO_LOG_STREAM"),  
+)
+```
+
+```typescript TypeScript
+import { GalileoSpanProcessor } from 'galileo';
+
+// GalileoSpanProcessor (no manual OTLP config required) loads the env vars for
+// the Galileo API key, Project, and Log stream. Make sure to set them first.
+const processor = new GalileoSpanProcessor({
+    // Optional parameters if not set, uses env var
+    // project: process.env.GALILEO_PROJECT,
+    // logstream: process.env.GALILEO_LOG_STREAM,
+});
+```
+
+</CodeGroup>
+</Step>
+<Step title="Register the span processor">
+
+The span processor can now be registered with an OTel trace provider.
+
+<CodeGroup>
+
+```python Python
+from opentelemetry.sdk import trace as trace_sdk
+
+tracer_provider = trace_sdk.TracerProvider()
+tracer_provider.add_span_processor(galileo_span_processor)
+```
+
+```typescript TypeScript
+import { addGalileoSpanProcessor } from 'galileo';
+import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
+
+const provider = new NodeTracerProvider();
+addGalileoSpanProcessor(provider, processor);
+provider.register();
+```
+
+</CodeGroup>
+</Step>
+</Steps>
+
+You can now use this trace provider either using a framework that supports OTel directly, or via OpenInference.
 
 ## OpenInference
 
-Now you can enable automatic tracing for your framework and LLM operations using OpenInference instrumentors. These add AI-specific semantic conventions to your traces.
+<Note>
+OpenInference instrumentors are currently available for Python only. For TypeScript/Node.js applications, use framework-specific OTel integrations such as [Vercel AI SDK](/sdk-api/third-party-integrations/opentelemetry-and-openinference/vercel-ai) or [Mastra](/sdk-api/third-party-integrations/opentelemetry-and-openinference/mastra).
+</Note>
+
+You can enable automatic tracing for your framework and LLM operations using OpenInference instrumentors. These add AI-specific semantic conventions to your traces.
 
 For example, to instrument LangChain and OpenAI start by adding the relevant OpenInference packages:
 
@@ -70,7 +198,10 @@ Learn how to integrate with some popular frameworks using OpenTelemetry and Open
 <Card title="Strands Agents" icon="python" horizontal href="/sdk-api/third-party-integrations/opentelemetry-and-openinference/strands-agents">
     Learn how to integrate a Strands Agents project with Galileo using OpenTelemetry.
 </Card>
-<Card title="Vercel AI SDK" icon="python" horizontal href="/sdk-api/third-party-integrations/opentelemetry-and-openinference/vercel-ai">
+<Card title="Vercel AI SDK" icon="js" horizontal href="/sdk-api/third-party-integrations/opentelemetry-and-openinference/vercel-ai">
     Learn how to integrate a Vercel AI SDK project with Galileo using OpenTelemetry.
+</Card>
+<Card title="Mastra" icon="js" horizontal href="/sdk-api/third-party-integrations/opentelemetry-and-openinference/mastra">
+    Learn how to integrate a Mastra project with Galileo using OpenTelemetry.
 </Card>
 </CardGroup>
