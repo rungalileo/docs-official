@@ -65,11 +65,11 @@ The convention is to store this in the `GALILEO_CONSOLE_URL` environment variabl
 <CodeGroup>
 
 ```python Python
-os.environ["GALILEO_CONSOLE_URL"] = "https://api.galileo.ai"
+os.environ["GALILEO_CONSOLE_URL"] = "https://console.galileo.example.com"
 ```
 
 ```typescript TypeScript
-process.env.GALILEO_CONSOLE_URL = "https://api.galileo.ai";
+process.env.GALILEO_CONSOLE_URL = "https://console.galileo.example.com";
 ```
 
 </CodeGroup>
@@ -138,6 +138,60 @@ provider.register();
 </Steps>
 
 You can now use this trace provider either using a framework that supports OTel directly, or via OpenInference.
+
+### Complete TypeScript/Node.js example
+
+Here's a complete, runnable example that sets up the `GalileoSpanProcessor` with OpenTelemetry
+and creates a traced operation. You can copy this and run it to see traces appear in the Galileo console.
+
+<CodeGroup>
+
+```typescript TypeScript
+import dotenv from "dotenv";
+import { NodeSDK } from "@opentelemetry/sdk-node";
+import { AlwaysOnSampler } from "@opentelemetry/sdk-trace-node";
+import { GalileoSpanProcessor } from "galileo";
+import { trace } from "@opentelemetry/api";
+
+// Load GALILEO_API_KEY, GALILEO_PROJECT, GALILEO_LOG_STREAM from .env
+dotenv.config();
+
+async function main() {
+  // 1. Start the OTel SDK with GalileoSpanProcessor
+  const sdk = new NodeSDK({
+    spanProcessors: [new GalileoSpanProcessor()],
+    sampler: new AlwaysOnSampler(),
+  });
+  sdk.start();
+
+  // 2. Use the tracer to create spans
+  const tracer = trace.getTracer("my-app");
+
+  tracer.startActiveSpan("my-workflow", async (span) => {
+    span.setAttribute("input", "What is the capital of France?");
+
+    // Simulate some work (e.g., an LLM call)
+    const result = "The capital of France is Paris.";
+
+    span.setAttribute("output", result);
+    span.end();
+  });
+
+  // 3. Shut down to ensure all traces are exported
+  await sdk.shutdown();
+
+  console.log("Traces sent to Galileo!");
+}
+
+main();
+```
+
+</CodeGroup>
+
+<Note>
+Make sure your `.env` file has `GALILEO_API_KEY`, `GALILEO_PROJECT`, and `GALILEO_LOG_STREAM` set.
+If you're using a self-hosted deployment, also set `GALILEO_CONSOLE_URL`.
+</Note>
 
 ## OpenInference
 
