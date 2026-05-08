@@ -16,51 +16,8 @@ function runExperiment<T>(
 
 Defined in: [src/utils/experiments.ts](https://github.com/rungalileo/galileo-js/blob/main/src/utils/experiments.ts)
 
-Runs an experiment by processing each row of a dataset through a specified function.
+Runs an experiment by processing each row of a dataset through a specified function or prompt template.
 If metrics are provided, they will be used to evaluate the experiment.
-
-Usage:
-
-```typescript
-// Run an experiment with a runner function
-const results = await runExperiment({
-  name: 'my-experiment',
-  dataset: [{ country: 'France'}],
-  function: async (input) => {
-       const response = await openai.chat.completions.create({
-         model: 'gpt-4o-mini',
-         messages: [
-           {
-             role: 'user',
-             content: `What is the capital of ${input['country']}?`
-           }
-         ]
-       });
-       return response.choices[0].message.content;
-     },
-  metrics: ['accuracy'],
-  projectName: 'my-project'
-});
-
-// Run an experiment with a prompt template
-const promptTemplate = await createPromptTemplate({
-  template: [{ role: 'user', content: 'What is the capital of {{ country }}?' }],
-  name: 'my-prompt-template',
-  projectName: 'my-project'
-});
-
-const results = await runExperiment({
-  name: 'my-experiment',
-  dataset: [{ country: 'France' }],
-  promptTemplate
-  metrics: ['accuracy'],
-  projectName: 'my-project'
-});
-```
-
-The project can be specified by providing exactly one of the project name
-(via the 'project' parameter or the GALILEO_PROJECT environment variable)
-or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID environment variable).
 
 ## Type Parameters
 
@@ -72,10 +29,12 @@ or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID envi
 
 ### params
 
-`RunExperimentParams`\<`T`\>
+[`RunExperimentParams`](/sdk-api/typescript/reference/types/type-aliases/RunExperimentParams)\<`T`\>
+
+The experiment run parameters.
 
 ## Returns
 
-`Promise`\<`RunExperimentOutput`\>
+`Promise`\<[`RunExperimentOutput`](/sdk-api/typescript/reference/types/type-aliases/RunExperimentOutput)\>
 
-Array of outputs from the processing function
+A promise that resolves to the experiment run output.
