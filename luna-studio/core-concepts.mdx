@@ -24,15 +24,15 @@ flowchart LR
 
 ## Projects
 
-A **project** is the top-level container. It groups training runs that share a goal — typically tuning a single metric for a single application or domain.
+A **project** is the top-level container. It groups training runs that share a goal — typically tuning multiple metrics for a single application or domain. This also closely maps to the concept of a project in Galileo.
 
 Examples of well-scoped projects:
 
-- `support-tone-classifier` — train a metric that scores how on-brand a support agent's reply sounds.
-- `rag-evaluator` — train a metric that scores whether a RAG answer is grounded in retrieved chunks.
-- `pii-detector` — train a metric that flags responses leaking personally identifiable information.
+- `customer-support-copilot` — improve an assistant that helps support teams draft accurate, on-brand responses.
+- `enterprise-search-assistant` — improve a RAG-style assistant that answers employee questions from internal knowledge sources.
+- `sales-engineering-assistant` — improve an assistant that helps teams respond to RFPs, questionnaires, and technical buyer questions.
 
-You can create as many projects as you want. Projects show on the **Projects** page (the home of the app at `/{org}`).
+You can create as many projects as you want. Projects show on the **Projects** page.
 
 See [Projects overview](/luna-studio/projects/overview).
 
@@ -40,34 +40,47 @@ See [Projects overview](/luna-studio/projects/overview).
 
 A **training run** is a single attempt at fine-tuning a metric. Each run captures four inputs:
 
-| Input        | What it is                                                                                     |
-| ------------ | ---------------------------------------------------------------------------------------------- |
-| Metric       | A predefined metric template (e.g. Toxicity) or a custom prompt you wrote.                     |
-| Test set     | A small labelled dataset used **only for evaluation** at the end of the run.                   |
-| Training set | A larger labelled dataset used to fine-tune the base model. Often generated from the test set. |
-| Base model   | One of **Luna Small**, **Luna Medium**, or **Luna Large** — the underlying [Luna evaluator model](/concepts/luna/luna). |
+| Input        | What it is                                                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------------------------- |
+| Metric       | A predefined metric template (e.g. Toxicity) or a custom prompt you wrote.                                          |
+| Test set     | A small labelled dataset used for **data generation (20%) and evaluation (80%)** at the end of the run.             |
+| Training set | A larger labelled dataset used to fine-tune the base model. Often generated from the test set.                      |
+| Base model   | One of **Luna Small** (recommended) or **Luna Large** — the underlying [Luna evaluator model](/concepts/luna/luna). |
 
 Runs have a **lifecycle status**: Queued → Training → Fine-tuned → Registered. A run can also fail (status: Failed). See [Run lifecycle](/luna-studio/runs/lifecycle) for the full state machine.
 
 ## Metrics
 
-A **metric** is a function that takes some part of an LLM trace and returns a score. Luna Studio supports six **output types**:
+A **metric** is a function that takes some part of an LLM trace and returns a score.
+
+### Output types
+
+Luna Studio currently supports two **output types**:
 
 - **Boolean** — true/false (e.g. "is this toxic?").
-- **Floating Point** — a number in a range (e.g. confidence score).
 - **Categorical** — one of a fixed set of labels.
+
+Not supported yet:
+
+- **Floating Point** — a number in a range (e.g. confidence score).
 - **Percentage** — a number between 0 and 100.
 - **Multilabel** — multiple categorical labels per input.
 - **Numeric** — an unbounded number.
 
-Each metric runs against a specific **step** in a Galileo trace:
+### Input types
+
+Each metric runs against a specific **step** in Galileo. Luna Studio currently supports the following input types:
 
 - **LLM span** — a single LLM call.
-- **Retriever** — a single retrieval step.
-- **Agent span** — a single agent step.
-- **Trace** — the full request/response trace.
+- **Retriever span** — a single retrieval step.
+- **Trace input / output only** — the input / output / both of the trace.
 
-Today, Luna Studio metrics operate over the **Text** modality only.
+Not supported yet:
+
+- **Trace** — the full request/response trace.
+- **Session** — a single user session.
+
+**Multimodality support** - Today, Luna Studio metrics operate over the **Text** modality only.
 
 A metric flows through the same lifecycle as the run that produced it: Queued, Training, Fine-tuned, Registered, Failed.
 
@@ -81,27 +94,26 @@ Luna Studio splits datasets into two flavors:
 
 A **test set** is a small, hand-labelled dataset used to evaluate a fine-tuned metric. Test sets are the "ground truth" for the run — they should be labelled carefully and should not be seen during training.
 
-Required columns: **input**, **label**.
+Required columns: depends on the input type of the metric, for more details see [Prerequisites](/luna-studio/prerequisites).
 
 ### Training sets
 
-A **training set** is the dataset used to fine-tune the base model. Training sets can be:
+A **training set** is the dataset used to fine-tune the Luna metric. Training sets can be:
 
-- **Generated from a test set** — Luna uses ~20% of the test set as seed examples and generates ~3,000 labelled samples via an LLM-as-judge prompt.
-- **Uploaded** — your own labelled production logs (CSV or JSONL).
+- **Generated from a test set** — Luna Studio uses ~20% of the test set as seed examples and generates ~3,000 labelled using the LLM-as-judge prompt and a synthetic data generation pipeline.
+- **Uploaded** — your own labelled / unlabelled production logs (CSV or JSONL).
 - **Imported from Galileo** — pulled from a project in your connected Galileo workspace.
 
 See [Datasets overview](/luna-studio/datasets/overview).
 
 ## Base models
 
-Luna Studio fine-tunes one of three Luna base models:
+Luna Studio fine-tunes one of two Luna base models:
 
-| Model       | Trade-off                                                                      |
-| ----------- | ------------------------------------------------------------------------------ |
-| Luna Small  | Fastest training, smallest serving cost. Good for narrow, well-scoped metrics. |
-| Luna Medium | Balanced. The default if you're not sure.                                      |
-| Luna Large  | Slowest to train; captures more nuance. Use for subjective or complex metrics. |
+| Model      | Trade-off                                                                               |
+| ---------- | --------------------------------------------------------------------------------------- |
+| Luna Small | Default. Fastest training, smallest serving cost. Good for narrow, well-scoped metrics. |
+| Luna Large | Slowest to train; captures more nuance. Use for subjective or complex metrics.          |
 
 Pick the base model in **Step 4 — Config and launch** of the new-run wizard.
 
@@ -109,12 +121,14 @@ For accuracy benchmarks, GPU latency tables, and the underlying SLM architecture
 
 ## Integrations
 
-To run anything, Luna Studio needs API keys for the LLM providers it talks to:
+To run anything, Luna Studio needs provider credentials for the services it talks to:
 
-- **For metric generation** (Step 3 — Training set): an API key for whichever model you select in the Generate drawer (gpt-5, gpt-4o, or claude-3.7-sonnet).
+- **For metric generation** (Step 3 — Training set): the credentials for whichever model provider you select in the Generate drawer (gpt-5, gpt-4o, or claude-3.7-sonnet).
 - **For Galileo features** (Import from Galileo, Register metric): a Galileo API key.
 
 Integrations are **org-scoped** — once added, every member of your org and every project can use them. See [Integrations overview](/luna-studio/integrations/overview).
+
+Luna Studio can also be deployed against different training platforms, including Vertex AI Pipelines, AzureML Pipelines, SageMaker Pipelines, and Kubernetes. Those deployment-level integrations are fixed when the application is deployed, rather than configured by end users at runtime.
 
 ## Lifecycle statuses
 
@@ -134,7 +148,7 @@ See [Lifecycle and statuses](/luna-studio/metrics/lifecycle-and-statuses) for st
   <Card title="Quickstart" icon="rocket" href="/luna-studio/quickstart">
     A 15-minute, end-to-end tour of the product.
   </Card>
-  <Card title="New run wizard" icon="wand-magic-sparkles" href="/luna-studio/runs/new-run/overview">
+  <Card title="New run deep dive" icon="wand-magic-sparkles" href="/luna-studio/runs/new-run/overview">
     Step-by-step reference for the four-step run creation flow.
   </Card>
   <Card title="Glossary" icon="book" href="/luna-studio/reference/glossary">

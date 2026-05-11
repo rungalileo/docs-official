@@ -1,132 +1,166 @@
 ---
 title: "LLM providers"
-description: "Field-by-field reference for the nine standard LLM provider integrations."
+description: "Choose and configure the right LLM integration for the models you want to use in Luna Studio."
 ---
 
-Luna Studio supports nine standard LLM providers, plus AWS Bedrock/SageMaker (covered in [a separate page](/luna-studio/integrations/aws-bedrock-sagemaker)) and a [Custom JSON config](/luna-studio/integrations/custom) for in-house models.
+Use this page to decide which LLM integration fits your setup, then connect it so your org can use those models across Luna Studio.
 
-All standard providers use the same modal flow:
+## When you need an LLM integration
+
+Add an LLM integration when you want to:
+
+- Generate the training data for a run from a test set.
+- Label the training data with a LLM-as-judge prompt.
+
+## Choose the right integration
+
+| If you use...                                                        | Choose...                                               |
+| -------------------------------------------------------------------- | ------------------------------------------------------- |
+| OpenAI, Anthropic, Mistral, Writer, or another named hosted provider | One of the [named providers](#named-providers)          |
+| Azure-hosted OpenAI deployments                                      | [Azure](#azure)                                         |
+| Google Vertex AI                                                     | [Vertex AI](#vertex-ai)                                 |
+| Models hosted through AWS Bedrock or SageMaker                       | [AWS-hosted models](#aws-hosted-models)                 |
+| An internal proxy, self-hosted model, or unsupported provider        | [Custom models and proxies](#custom-models-and-proxies) |
+
+## Add an integration
 
 <Steps>
-  <Step title="Click Add integration">
-    On the provider's card on the [Integrations](/luna-studio/integrations/overview) page.
-  </Step>
-  <Step title="Fill in the required fields">
-    All fields below are required unless explicitly marked optional.
-  </Step>
-  <Step title="Click Save changes">The card flips to **Active**.</Step>
+  <Step title="Open Integrations">Go to the [Integrations page](/luna-studio/integrations/overview).</Step>
+  <Step title="Choose the provider you want to use">Pick the provider that matches where your team's models live today.</Step>
+  <Step title="Enter the required credentials">Most providers need an API key. Some enterprise or self-hosted setups also need a URL, region, or service-account credentials.</Step>
+  <Step title="Save the integration">Once saved, the integration becomes available to your whole org.</Step>
 </Steps>
 
-<Frame caption="Standard LLM provider integration modal — paste your API key to connect">
-  ![Standard integration modal](/images/luna-studio/integrations/integration-modal.png)
-</Frame>
+<Frame caption="Add an LLM integration from the Integrations page">![Standard integration modal](/images/luna-studio/integrations/integration-modal.png)</Frame>
 
-## OpenAI
+## Named providers
 
-| Field   | Notes                                                                                                 |
-| ------- | ----------------------------------------------------------------------------------------------------- |
-| API Key | Starts with `sk-...`. Get it at [`platform.openai.com/api-keys`](https://platform.openai.com/api-keys). |
+Choose one of these when Luna Studio already supports your provider directly.
 
-The modal includes a "Find your key at `openai.com`" link in the footer.
+### OpenAI
 
-## Anthropic
+Best for teams using OpenAI directly.
 
-| Field   | Notes                                                                                                                   |
-| ------- | ----------------------------------------------------------------------------------------------------------------------- |
-| API Key | Starts with `sk-ant-...`. Get it at [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys). |
+| What you'll need | Notes                                                                                                     |
+| ---------------- | --------------------------------------------------------------------------------------------------------- |
+| API key          | Starts with `sk-...`. Get it from [`platform.openai.com/api-keys`](https://platform.openai.com/api-keys). |
 
-The modal includes a "Find your key at claude.com" link in the footer.
+### Anthropic
+
+Best for teams using Anthropic directly.
+
+| What you'll need | Notes                                                                                                                     |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| API key          | Starts with `sk-ant-...`. Get it from [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys). |
+
+### Mistral
+
+Best for teams using Mistral directly.
+
+| What you'll need | Notes                                                           |
+| ---------------- | --------------------------------------------------------------- |
+| API key          | Get it from [`console.mistral.ai`](https://console.mistral.ai). |
+
+### NVIDIA
+
+Best when your team already has access to an NVIDIA NIM endpoint.
+
+| What you'll need | Notes                                                     |
+| ---------------- | --------------------------------------------------------- |
+| Hostname         | Your NIM endpoint, for example `https://nim.example.com`. |
+| API key          | The token used to authenticate to that endpoint.          |
+
+### Databricks
+
+Best for models exposed through Databricks model serving.
+
+| What you'll need | Notes                               |
+| ---------------- | ----------------------------------- |
+| Hostname         | Your Databricks workspace URL.      |
+| API key          | A Databricks personal access token. |
+
+### Writer
+
+Best for teams using Writer-hosted models.
+
+| What you'll need | Notes                                                        |
+| ---------------- | ------------------------------------------------------------ |
+| API key          | Required.                                                    |
+| Organization ID  | Optional. Use it if your Writer account spans multiple orgs. |
+
+### Vegas Gateway
+
+Best for teams using an internal gateway managed by Galileo.
+
+| What you'll need | Notes                                                      |
+| ---------------- | ---------------------------------------------------------- |
+| URL              | The gateway endpoint.                                      |
+| API key          | Authentication token.                                      |
+| Use case         | Identifier used by the gateway for routing or attribution. |
 
 ## Azure
 
-Azure OpenAI uses two fields because every deployment has its own endpoint URL.
+Use Azure when your team runs OpenAI models through Azure OpenAI rather than directly through OpenAI.
 
-| Field   | Notes                                    |
-| ------- | ---------------------------------------- |
-| URL     | Your Azure OpenAI resource endpoint.     |
-| API Key | The resource's primary or secondary key. |
+| What you'll need | Notes                                    |
+| ---------------- | ---------------------------------------- |
+| URL              | Your Azure OpenAI resource endpoint.     |
+| API key          | The resource's primary or secondary key. |
 
 ## Vertex AI
 
-Google Vertex AI integrations use a service-account JSON pasted into a textarea.
+Use Vertex AI when your team manages Gemini or other models through Google Cloud.
 
-| Field                | Notes                                                                                   |
-| -------------------- | --------------------------------------------------------------------------------------- |
-| Credentials JSON     | The full service-account JSON. Pasted into a code-editor textarea with live validation. |
-| Support file uploads | Optional switch. When **on**, four additional fields appear (below).                    |
+| What you'll need    | Notes                                                                           |
+| ------------------- | ------------------------------------------------------------------------------- |
+| Credentials JSON    | The full Vertex AI service-account JSON.                                        |
+| File upload support | Optional. Turn this on only if you'll upload files through Vertex-backed flows. |
 
-If **Support file uploads** is on, the modal also asks for:
+If you enable file upload support, you'll also need the GCS bucket details Luna Studio should use for those uploads.
 
-| Field                           | Notes                                                          |
-| ------------------------------- | -------------------------------------------------------------- |
-| GCS service-account credentials | Service-account JSON for the GCS bucket Luna Studio writes to. |
-| Bucket name                     | The destination GCS bucket.                                    |
-| Object path prefix              | Defaults to `galileo-uploads`. Optional.                       |
+<Note>For text-only evaluation and training flows, most teams can leave file upload support off.</Note>
 
-<Note>
-  The "Support file uploads" toggle is only required if you'll be uploading large files through
-  Vertex's file API. For text-only training and evaluation, leave it off.
-</Note>
+## AWS-hosted models
 
-## Mistral
+Use AWS-hosted models when your team serves models through Bedrock or SageMaker.
 
-| Field   | Notes                                                       |
-| ------- | ----------------------------------------------------------- |
-| API Key | Get it at [`console.mistral.ai`](https://console.mistral.ai). |
+### AWS Bedrock
 
-## NVIDIA
+Bedrock is the simpler AWS option. Once Luna Studio can authenticate to your AWS account and region, it can use the Bedrock models available there.
 
-NVIDIA NIM endpoints are self-hosted, so the integration takes both a hostname and a key.
+| What you'll need                   | Notes                                          |
+| ---------------------------------- | ---------------------------------------------- |
+| Access key and secret, or role ARN | Use whichever auth path your AWS team prefers. |
+| Region                             | The AWS region where Bedrock is enabled.       |
 
-| Field    | Notes                                              |
-| -------- | -------------------------------------------------- |
-| Hostname | The NIM endpoint, e.g. `https://nim.example.com`.  |
-| API Key  | The token that authenticates against the endpoint. |
+### AWS SageMaker
 
-## Databricks
+Use SageMaker when your team serves its own model endpoints in AWS.
 
-Databricks model serving endpoints follow the same pattern.
+| What you'll need                   | Notes                                                                                         |
+| ---------------------------------- | --------------------------------------------------------------------------------------------- |
+| Access key and secret, or role ARN | Use whichever auth path your AWS team prefers.                                                |
+| Region                             | The AWS region where your SageMaker endpoints run.                                            |
+| Model endpoint details             | Luna Studio needs to know which SageMaker endpoint to call for each model you want to expose. |
 
-| Field    | Notes                               |
-| -------- | ----------------------------------- |
-| Hostname | Your Databricks workspace URL.      |
-| API Key  | A Databricks personal access token. |
+If your SageMaker endpoint uses a non-standard request or response format, you may also need to provide request and response mappings so Luna Studio can send prompts and read model output correctly.
 
-## Writer
+## Custom models and proxies
 
-| Field           | Notes                                                 |
-| --------------- | ----------------------------------------------------- |
-| API Key         | Required.                                             |
-| Organization ID | Optional. Use it if your account spans multiple orgs. |
+Use Custom when your model setup does not fit one of the named integrations above.
 
-## Vegas Gateway
+Common examples:
 
-The Vegas Gateway is an internal LLM proxy used by some teams. It needs three fields:
+- an internal LLM gateway
+- an OpenAI-compatible proxy
+- a self-hosted model endpoint
+- a provider Luna Studio does not yet support directly
 
-| Field    | Notes                                                               |
-| -------- | ------------------------------------------------------------------- |
-| URL      | The gateway endpoint.                                               |
-| API Key  | Authentication token.                                               |
-| Use Case | A use-case identifier required by the gateway for cost attribution. |
+The Custom integration lets you define one or more models in JSON, including the endpoint, request format, and any headers needed for authentication.
 
-## Acknowledgement disclaimer
+<Tip>Start with a named provider whenever possible. Use Custom when you need extra flexibility for an internal or unsupported setup.</Tip>
 
-Some integrations show a switch in the modal with the copy:
+## Update or remove an integration
 
-> I acknowledge that by using this feature, I am sending my data to {name} through its APIs.
-
-If your provider's modal includes it, toggle it on before saving.
-
-## Updating credentials
-
-Click **Update** on an active card to reopen the same modal pre-filled. Saving overwrites the previous credentials. There's no separate "rotate" flow — just paste the new value and save.
-
-## Removing an integration
-
-Click **Remove** on the card, then **Remove** again in the confirmation dialog. The integration's credentials are deleted from your org. Any active training run that depends on it will keep running using the credentials it captured at launch.
-
-## Where to go next
-
-- AWS-specific flow → [AWS Bedrock and SageMaker](/luna-studio/integrations/aws-bedrock-sagemaker).
-- Custom JSON config → [Custom integration](/luna-studio/integrations/custom).
-- Galileo platform features → [Galileo integration](/luna-studio/integrations/galileo).
+- **Update** reopens the integration so you can replace keys, URLs, or other settings.
+- **Remove** deletes that integration from your org. Runs already in progress keep using the credentials they captured at launch.

@@ -22,24 +22,14 @@ flowchart LR
 
 ### Queued
 
-The run was accepted but training hasn't started yet. Most runs sit in **Queued** for less than a minute while Luna Studio allocates resources.
-
-**What you see in the UI:** the [Run details](/luna-studio/runs/run-details) page shows "Run is queued and will start training shortly."
+The run was accepted but training hasn't started yet. The time a run spends in Queued state depends on the max number of GPUs allocated to Luna Studio by your organization and current number of trainings running.
+For example if max GPUs is 2, and 2 trainings are running already, your run will remain in queued till 1 existing run finishes training.
 
 ### Training
 
-The base model is fine-tuning on your training set. Training time depends on the base model:
+The base model is fine-tuning on your training set. Typical training times vary between 2-5 hours.
 
-- **Luna Small** &mdash; fastest, typically minutes.
-- **Luna Medium** &mdash; balanced.
-- **Luna Large** &mdash; slowest, can take longer for large training sets.
-
-**What you see in the UI:** the run details page shows "Training in progress. Metrics will appear here once it completes." The status pill shows a spinner.
-
-<Note>
-  You can leave the page during training — the run continues server-side. When you come back, the
-  page reflects the current state.
-</Note>
+<Note>You can leave the page during training — the run continues server-side. When you come back, the page reflects the current state.</Note>
 
 ### Fine-tuned
 
@@ -50,8 +40,6 @@ Training succeeded. Luna Studio has evaluated the resulting metric against the t
 ### Registered
 
 You've published the metric to the Galileo metrics store. It's now usable across the Galileo platform for evaluation, observability, and guardrails.
-
-**What you see in the UI:** the status pill flips to **Registered**. The **Register metric** footer disappears (the action is no longer relevant). The run row in the project table no longer shows the **Register metric** action link.
 
 ### Failed
 
@@ -64,32 +52,3 @@ Something went wrong during training or validation.
 - **Provider error** &mdash; an external LLM API returned an error during generation.
 
 If the failure is transient, you can launch a new run with the same configuration. The existing run stays in **Failed** for audit.
-
-## How statuses appear in the UI
-
-The status pill renders consistently everywhere it appears (runs table, run details header, metrics table):
-
-| Status     | Visual                          |
-| ---------- | ------------------------------- |
-| Queued     | Hollow dot, neutral colour.     |
-| Training   | Spinner.                        |
-| Fine-tuned | Filled dot, blue/positive.      |
-| Registered | Filled check, success colour.   |
-| Failed     | Filled alert icon, destructive. |
-
-See [Lifecycle and statuses](/luna-studio/metrics/lifecycle-and-statuses) for visual examples and accessibility notes.
-
-## Filtering by status
-
-The [Training runs](/luna-studio/projects/training-runs-home) page has a multi-select **Status** filter. Use it to see, e.g., only **Failed** runs you need to debug, or only **Fine-tuned** runs ready for registration.
-
-## Where to go next
-
-<CardGroup cols={2}>
-  <Card title="Run details" icon="circle-info" href="/luna-studio/runs/run-details">
-    What you see for each status, in detail.
-  </Card>
-  <Card title="Register a metric" icon="circle-check" href="/luna-studio/runs/register-metric">
-    The Fine-tuned → Registered transition.
-  </Card>
-</CardGroup>

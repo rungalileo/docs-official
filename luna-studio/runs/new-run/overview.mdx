@@ -5,22 +5,11 @@ description: "Four steps from picking a metric to launching a fine-tuning job."
 
 The new-run wizard walks you from a blank slate to a queued training run in four steps. Each step adds one ingredient to the run; the final step lets you review and launch.
 
-## When you'll use it
-
-You launch the wizard whenever you want a new fine-tuning attempt. Common reasons:
-
-- First run for a new metric template.
-- Iterating on the training set (regenerate, swap source, etc.).
-- Trying a different base model (Luna Small → Luna Medium → Luna Large).
-- Comparing a custom prompt against a predefined template.
-
 ## Open the wizard
 
 From the project's [Training runs](/luna-studio/projects/training-runs-home) page, click **New run** in the top right. The wizard takes over the page.
 
-<Frame caption="The new run wizard opens on Step 1 — Metric">
-  ![New run wizard step 1](/images/luna-studio/runs/new-run-metric.png)
-</Frame>
+<Frame caption="The new run wizard opens on Step 1 — Metric">![New run wizard step 1](/images/luna-studio/runs/new-run-metric.png)</Frame>
 
 ## The four steps
 
@@ -34,46 +23,10 @@ From the project's [Training runs](/luna-studio/projects/training-runs-home) pag
   <Card title="Step 3 — Training set" icon="dumbbell" href="/luna-studio/runs/new-run/step-3-training-set">
     Generate from the test set, or upload your own production logs.
   </Card>
-  <Card
-    title="Step 4 — Config and launch"
-    icon="play"
-    href="/luna-studio/runs/new-run/step-4-config-and-launch"
-  >
+  <Card title="Step 4 — Config and launch" icon="play" href="/luna-studio/runs/new-run/step-4-config-and-launch">
     Review summary, pick a base model, and launch.
   </Card>
 </CardGroup>
-
-## Wizard navigation
-
-The header strip at the top of the wizard always shows:
-
-- **Run name** &mdash; defaults to `New Run N` (where N is one more than the count of existing runs). Click the pencil icon to rename it via the **Edit run name** modal.
-- **Stepper** &mdash; the four-step indicator from `jupiter-ds`. Completed steps show a checkmark.
-
-The footer always shows:
-
-- **Back** &mdash; returns to the previous step. Hidden on Step 1.
-- **Cancel** &mdash; abandons the wizard and returns to the project page. Any unsaved progress is lost.
-- **Next step / Confirm and launch** &mdash; advances to the next step. On Step 4, this becomes **Confirm and launch** (with a play icon) and shows a loading state during launch.
-
-The next-step button is disabled until the current step's selections are valid.
-
-## Validation gates
-
-Each step has a "can proceed" rule:
-
-| Step                 | You can advance once...                                            |
-| -------------------- | ------------------------------------------------------------------ |
-| Step 1: Metric       | A metric is selected. For custom prompts, the prompt is non-empty. |
-| Step 2: Test set     | A test set is selected and validation hasn't returned an error.    |
-| Step 3: Training set | A training set is selected and (for uploads) is valid + labelled.  |
-| Step 4: Launch       | A base model is selected.                                          |
-
-## Cancel and resume?
-
-The wizard keeps state only while you're on the page. If you cancel, navigate away, or refresh, your wizard progress is lost. **The run is not created until you click Confirm and launch.**
-
-If you launched the wizard but want to take a break — finish to Step 4 and don't click Launch. (Alternatively, exit and start fresh later.)
 
 ## Where to go next
 

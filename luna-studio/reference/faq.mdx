@@ -12,10 +12,7 @@ If your question isn't answered here, check [Troubleshooting](/luna-studio/refer
   Luna Studio is Galileo's web app for **fine-tuning custom evaluation metrics** for LLM applications. You bring a small labelled test set, optionally generate a training set, fine-tune a Luna base model, and register the resulting metric back into the [Galileo metrics store](/concepts/metrics/overview). See [Welcome](/luna-studio/index) for the longer pitch.
 </Accordion>
 
-<Accordion title="Who is it for?">
-ML and AI engineers who need evaluation metrics tailored to a specific domain (legal, healthcare,
-RAG over internal docs, etc.) and don't want to write fine-tuning code from scratch.
-</Accordion>
+<Accordion title="Who is it for?">ML and AI engineers who need evaluation metrics tailored to a specific domain (legal, healthcare, RAG over internal docs, etc.) and don't want to write fine-tuning code from scratch.</Accordion>
 
 <Accordion title="How is Luna Studio different from Galileo?">
   Galileo is the broader platform — evaluation, observability, guardrails. Luna Studio is the metric-fine-tuning workspace inside Galileo. Metrics produced in Luna Studio are registered to the Galileo metrics store, where they're usable across the rest of the platform.
@@ -32,21 +29,16 @@ RAG over internal docs, etc.) and don't want to write fine-tuning code from scra
 <Accordion title="Do I have to upload a training set?">
   No. The most common path is **Generate from test set** — Luna synthesizes a ~3,000-row training set from 20% of your test set. See [Step 3](/luna-studio/runs/new-run/step-3-training-set#generate-from-test-set).
 
-  Upload your own training set when you have labelled production logs that better represent the distribution you want to evaluate.
+Upload your own training set when you have labelled production logs that better represent the distribution you want to evaluate.
 
 </Accordion>
 
 <Accordion title="Can my training set be unlabelled?">
-For uploads, yes — uncheck the **Dataset is labeled** checkbox in [Step
-3](/luna-studio/runs/new-run/step-3-training-set#training-set-completed) of the wizard. Luna will fine-tune
-with a different objective (distribution adaptation rather than supervised classification).
-Generated training sets are always labelled.
+  For uploads, yes — uncheck the **Dataset is labeled** checkbox in [Step 3](/luna-studio/runs/new-run/step-3-training-set#training-set-completed) of the wizard. Luna will fine-tune with a different objective (distribution adaptation rather
+  than supervised classification). Generated training sets are always labelled.
 </Accordion>
 
-<Accordion title="Can I reuse a test set across multiple projects?">
-Yes. Datasets are **org-scoped**, not project-scoped. Once you've added a test set, every project
-in your org can use it.
-</Accordion>
+<Accordion title="Can I reuse a test set across multiple projects?">Yes. Datasets are **org-scoped**, not project-scoped. Once you've added a test set, every project in your org can use it.</Accordion>
 
 <Accordion title="What file formats are supported?">
   `.csv` and `.jsonl`. Both must include an `input` column; test sets and labelled training sets also need a `label` column. See [Add a dataset](/luna-studio/datasets/add-a-dataset#format-reference).
@@ -61,16 +53,13 @@ in your org can use it.
 </Accordion>
 
 <Accordion title="Which output type should I pick?">
-Pick the simplest type that captures what you need: - **Boolean** — yes/no questions. -
-**Categorical** — picking from a fixed list. - **Percentage** — when you want a 0–100 score with
-explicit bounds. - **Floating Point / Numeric** — open-ended scores. - **Multilabel** — multiple
-labels per input.
+  Pick the simplest type that captures what you need: - **Boolean** — yes/no questions. - **Categorical** — picking from a fixed list. - **Percentage** — when you want a 0–100 score with explicit bounds. - **Floating Point / Numeric** —
+  open-ended scores. - **Multilabel** — multiple labels per input.
 </Accordion>
 
 <Accordion title="What's a 'step' on a metric?">
-The **step** is which part of a Galileo trace the metric runs against: a single LLM call (LLM
-span), a retrieval step (Retriever), an agent step (Agent span), or the full trace (Trace). See
-[Custom metrics](/luna-studio/metrics/custom-metrics#steps-in-detail).
+  The **step** is which part of a Galileo trace the metric runs against: a single LLM call (LLM span), a retrieval step (Retriever), an agent step (Agent span), or the full trace (Trace). See [Custom
+  metrics](/luna-studio/metrics/custom-metrics#steps-in-detail).
 </Accordion>
 
 <Accordion title="Can I edit a registered metric?">
@@ -85,11 +74,7 @@ span), a retrieval step (Retriever), an agent step (Agent span), or the full tra
   Start with **Luna Small** for narrow, well-scoped metrics where the signal is clear (e.g. detecting profanity). Use **Luna Medium** as a default. Use **Luna Large** for subjective or compositional metrics (e.g. "is this a high-quality answer?"). See [Step 4](/luna-studio/runs/new-run/step-4-config-and-launch#pick-a-base-model).
 </Accordion>
 
-<Accordion title="How long does training take?">
-Depends on the base model and training set size. **Luna Small** typically finishes in minutes.
-**Luna Large** can take longer, especially on training sets near the upper limit. The [Run
-details](/luna-studio/runs/run-details) page shows live status while you wait.
-</Accordion>
+<Accordion title="How long does training take?">Depends on the base model and training set size. **Luna Small** typically finishes in minutes. **Luna Large** can take longer, especially on training sets near the upper limit.</Accordion>
 
 <Accordion title="Can I cancel a training run?">
   Not today. Once a run is **Training**, it runs to completion or failure. We're tracking this for a future release.
@@ -100,20 +85,17 @@ details](/luna-studio/runs/run-details) page shows live status while you wait.
 
 <AccordionGroup>
 <Accordion title="Which providers does Luna Studio support?">
-  Twelve LLM providers (OpenAI, Anthropic, Azure, Vertex AI, Mistral, NVIDIA, Databricks, Writer, Vegas Gateway, AWS Bedrock, AWS SageMaker, Custom) plus Galileo. See [Integrations overview](/luna-studio/integrations/overview).
+  Luna Studio supports named hosted providers, Azure, Vertex AI, AWS-hosted models, custom model
+  setups, and Galileo. See [Integrations overview](/luna-studio/integrations/overview).
 </Accordion>
 
-<Accordion title="Are integrations org-wide or project-specific?">
-**Org-wide.** Once added, every project and every member of your org can use them.
-</Accordion>
+<Accordion title="Are integrations org-wide or project-specific?">**Org-wide.** Once added, every project and every member of your org can use them.</Accordion>
 
-<Accordion title="Do I need a Galileo integration?">
-Only if you want to **import datasets from Galileo** or **register metrics** to the Galileo
-metrics store. See [Galileo integration](/luna-studio/integrations/galileo).
-</Accordion>
+<Accordion title="Do I need a Galileo integration?">Only if you want to **import datasets from Galileo** or **register metrics** to the Galileo metrics store. See [Galileo integration](/luna-studio/integrations/galileo).</Accordion>
 
 <Accordion title="What's the Custom integration for?">
-  For in-house models, OpenAI-compatible proxies, or providers that aren't covered by the named integrations. You configure them with a JSON `model_properties` array. See [Custom integration](/luna-studio/integrations/custom).
+  For in-house models, OpenAI-compatible proxies, or providers that aren't covered by the named
+  integrations. See [Custom models and proxies](/luna-studio/integrations/llm-providers#custom-models-and-proxies).
 </Accordion>
 </AccordionGroup>
 

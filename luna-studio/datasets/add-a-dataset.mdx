@@ -3,14 +3,12 @@ title: "Add a dataset"
 description: "Reference for the three dataset sources: Upload, Fetch from URL, and Import from Galileo."
 ---
 
-{/*<!-- markdownlint-disable-next-line MD044 -->*/}
+{/* <!-- markdownlint-disable-next-line MD044 --> */}
 import GalileoIntegrationRequired from "/snippets/content/luna-studio/galileo-integration-required.mdx";
 
 The **Add dataset** modal is reused everywhere you can pick a dataset source — the Datasets page, [Step 2 of the new-run wizard](/luna-studio/runs/new-run/step-2-test-set), and [Step 3](/luna-studio/runs/new-run/step-3-training-set). The title and copy adapt to whether you're adding a test set or a training set, but the three sources are the same.
 
-<Frame caption="Add new dataset modal — pick a source: local upload, URL, or Galileo import">
-  ![Add dataset modal](/images/luna-studio/datasets/add-dataset-modal.png)
-</Frame>
+<Frame caption="Add new dataset modal — pick a source: local upload, URL, or Galileo import">![Add dataset modal](/images/luna-studio/datasets/add-dataset-modal.png)</Frame>
 
 ## The three sources
 
@@ -32,18 +30,14 @@ A hint at the bottom of the modal lists the expected columns: **input** and **la
 
 ## Upload from local
 
-<Frame caption="Upload from local — file dropped in, ready to validate and import">
-  ![Add dataset, uploaded](/images/luna-studio/datasets/add-dataset-uploaded.png)
-</Frame>
+<Frame caption="Upload from local — file dropped in, ready to validate and import">![Add dataset, uploaded](/images/luna-studio/datasets/add-dataset-uploaded.png)</Frame>
 
 <Steps>
 <Step title="Pick the Upload from local card">
   A drop zone replaces the source picker.
 </Step>
 
-<Step title="Drag the file in or click the drop zone">
-Accepted file types: `.csv` and `.jsonl`. Other types are rejected.
-</Step>
+<Step title="Drag the file in or click the drop zone">Accepted file types: `.csv` and `.jsonl`. Other types are rejected.</Step>
 
 <Step title="Click Add">
   Luna uploads the file and starts validation. The modal closes; the dataset appears with a status line of **Validating…**, then **Validated** (or **Validated with warnings** / **Validation error**).
@@ -71,19 +65,14 @@ input,label
 
 ## Fetch from URL
 
-<Frame caption="Fetch from URL — paste an https://, s3://, or gs:// link">
-  ![Add dataset, URL](/images/luna-studio/datasets/add-dataset-url.png)
-</Frame>
+<Frame caption="Fetch from URL — paste an https://, s3://, or gs:// link">![Add dataset, URL](/images/luna-studio/datasets/add-dataset-url.png)</Frame>
 
 <Steps>
 <Step title="Pick the Fetch from URL card">
   A URL input replaces the source picker.
 </Step>
 
-<Step title="Paste a URL">
-Acceptable schemes: `http://`, `https://`, `s3://`, `gs://`. The input validates the format
-inline.
-</Step>
+<Step title="Paste a URL">Acceptable schemes: `http://`, `https://`, `s3://`, `gs://`. The input validates the format inline.</Step>
 
 <Step title="Click Add">
   Luna fetches the file and starts validation. Cloud URLs (`s3://`, `gs://`) require the relevant integration to be configured if the bucket isn't public.
@@ -92,16 +81,14 @@ inline.
 
 ### Authentication for cloud URLs
 
-- **`s3://`** &mdash; uses the credentials in your [AWS integration](/luna-studio/integrations/aws-bedrock-sagemaker), if any. For public buckets, no auth is needed.
+- **`s3://`** &mdash; uses the credentials in your [AWS-hosted models integration](/luna-studio/integrations/llm-providers#aws-hosted-models), if any. For public buckets, no auth is needed.
 - **`gs://`** &mdash; uses the GCS credentials in your [Vertex AI integration](/luna-studio/integrations/llm-providers#vertex-ai) (when **Support file uploads** is on).
 
 If Luna can't fetch the URL, the dataset shows up with status **Validation error: Could not fetch URL**.
 
 ## Import from Galileo
 
-<Frame caption="Import from Galileo — browse datasets in your connected Galileo workspace">
-  ![Add dataset, Galileo import](/images/luna-studio/datasets/add-dataset-galileo.png)
-</Frame>
+<Frame caption="Import from Galileo — browse datasets in your connected Galileo workspace">![Add dataset, Galileo import](/images/luna-studio/datasets/add-dataset-galileo.png)</Frame>
 
 <GalileoIntegrationRequired />
 
@@ -109,13 +96,11 @@ If Luna can't fetch the URL, the dataset shows up with status **Validation error
 <Step title="Pick the Import from Galileo card">
   The Galileo import panel replaces the source picker.
 
-  If a Galileo integration isn't configured, Luna Studio first opens the [Galileo integration modal](/luna-studio/integrations/galileo). After saving, the import panel appears.
+If a Galileo integration isn't configured, Luna Studio first opens the [Galileo integration modal](/luna-studio/integrations/galileo). After saving, the import panel appears.
 
 </Step>
 
-<Step title="Search for the dataset">
-Type into the search input. Each row in the list shows the dataset name plus a row count.
-</Step>
+<Step title="Search for the dataset">Type into the search input. Each row in the list shows the dataset name plus a row count.</Step>
 
 <Step title="Click Import on a row">
   Each row has its own **Import** action — clicking it imports that dataset into Luna Studio. The modal closes immediately after import (no separate **Add** button is shown for Galileo).
