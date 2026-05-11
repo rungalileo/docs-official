@@ -1,9 +1,9 @@
 ---
 title: "Step 2 — Test set"
-description: "Pick or upload the labelled dataset Luna will evaluate the fine-tuned metric against."
+description: "Pick or upload the labelled dataset Luna Studio will evaluate the fine-tuned metric against."
 ---
 
-The test set is the **ground truth** for the run. After training, Luna scores the resulting metric against this dataset and reports F1, AUC-ROC, and other diagnostics on the Run details page.
+The test set is the **ground truth** for the run. After training, Luna Studio scores the resulting metric against this dataset and reports F1, AUC-ROC, and other result KPIs on the Run details page.
 
 <Frame caption="Step 2 — pick an existing test set or add a new one">![Test set step](/images/luna-studio/runs/new-run-test-set.png)</Frame>
 
@@ -33,57 +33,24 @@ The modal title is **Add test set** with the subtitle "Test sets are curated lab
   </Card>
 </CardGroup>
 
-Required columns: **input** and **label**. The expected column hint is shown in the modal.
+Required columns: depends on the metric's input type, for more details see [Prerequisites](/luna-studio/prerequisites).
 
 <Note>Importing from Galileo requires an active [Galileo integration](/luna-studio/integrations/galileo). If one isn't configured, Luna Studio prompts you to add it inline before the import panel appears.</Note>
 
-## What happens after you select a test set
+## Validation
 
-The picker collapses and is replaced by a **Selected dataset card**:
-
-- **Title** &mdash; the dataset name.
-- **Subtitle** &mdash; row and column counts, source, and the test/eval split, e.g. `320 rows · 3 columns · Uploaded · 80% → ~256 for eval`.
-- **Validation status line** &mdash; one of:
-  - _Validating…_ (with a spinner) — Luna is checking the schema.
-  - _Validated_ — the dataset is ready.
-  - _Validated with warnings_ — usable, but check the warnings.
-  - _Validation error: {message}_ — the dataset is unusable until fixed.
-- **F1 score pill** (if available) — colored by threshold.
-
-A **Change** link in the card returns the picker so you can swap to a different dataset.
+Luna Studio runs validation on the test set to ensure it meets the required schema / format / content rules.
+If there are any validation errors, they will be highlighted (See example below).
 
 <Frame caption="Step 2 with a validation error — the flow blocks Next until the schema is valid">![Test set validation error](/images/luna-studio/runs/new-run-test-set-error.png)</Frame>
 
 ## Dataset preview
 
-If validation completes and a preview is available, a table renders below the card with three columns:
-
-| Column | What it shows               |
-| ------ | --------------------------- |
-| `#`    | Row index.                  |
-| Input  | The text the metric scores. |
-| Label  | The ground-truth value.     |
+If validation completes, you should see a preview of the test set rows.
 
 The preview shows up to 100 rows. If your dataset has more, a footer shows "Showing first 100 of N rows."
 
-## Validation rules
-
-The exact rules depend on the metric output type, but the basics:
-
-- The file must contain an `input` column.
-- It must contain a `label` column.
-- Labels must be parseable for the metric's output type. (For Boolean metrics: true/false-like values; for Numeric: numbers; etc.)
-
-If validation fails, the card shows a destructive status line. You can swap to a different dataset using the **Change** link.
-
-For more on the validation lifecycle, see [Dataset validation](/luna-studio/datasets/validation).
-
-## Validation gate for Step 2
-
-You can advance to Step 3 once:
-
-- A test set is selected, **and**
-- Validation has completed without an error (warnings are okay).
+<Tip>Use the **Caculate F1 score** button to see the F1 score of your LLM-as-judge prompt on the selected test set. This is your benchmark score which Luna Studio will aim to achieve with a Luna metric.</Tip>
 
 ## Where to go next
 

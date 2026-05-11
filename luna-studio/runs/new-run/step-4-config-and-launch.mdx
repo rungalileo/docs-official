@@ -1,11 +1,11 @@
 ---
 title: "Step 4 — Config and launch"
-description: "Review the run summary, pick a base model, and launch training."
+description: "Review the run summary and launch training."
 ---
 
-The final step is a summary view. Everything you've configured shows up as a card; you can jump back to any step with a **Change** link. The only new field is the base model.
+The final step is a summary view. Everything you've configured shows up as a card; you can jump back to any step with a **Change** link.
 
-<Frame caption="Step 4 — pick a base model, name the run, and launch">![Step 4: config and launch](/images/luna-studio/runs/new-run-config-launch.png)</Frame>
+<Frame caption="Step 4 — Check your run summary and launch">![Step 4: config and launch](/images/luna-studio/runs/new-run-config-launch.png)</Frame>
 
 ## Run summary
 
@@ -16,51 +16,19 @@ The page is titled **Run summary** with one card per artifact:
 | Metric       | Selected metric template or custom prompt with a sparkles icon.                                                                |
 | Test set     | Selected test set with validation status and (if available) F1 score pill.                                                     |
 | Training set | Selected training set with validation status. For uploads with a label column, the line reads "Dataset validated and labeled". |
-| Base model   | A select with three options (see below).                                                                                       |
+| Base model   | Pre-selected base model based on the approved Luna model for your organization.                                                |
 
 Each card has a **Change** link in the top right that jumps you back to that step.
 
-## Pick a base model
-
-The **Base model** select offers three options:
-
-| Option      | Trade-off                                                                              |
-| ----------- | -------------------------------------------------------------------------------------- |
-| Luna Small  | Trains fastest. Best for narrow, well-scoped metrics where the signal is clear.        |
-| Luna Medium | Balanced. The default if you're not sure where to start.                               |
-| Luna Large  | Slowest to train. Captures more nuance — best for subjective or compositional metrics. |
-
-Hover the info icon for the helper copy: _"Larger variants train slower but can capture more nuance."_
-
-See [Luna-2](/concepts/luna/luna) for accuracy benchmarks and per-GPU latency tables that can guide which base model to pick.
-
-<Tip>Don't optimize for the largest model on a first run. Start with **Luna Small** or **Luna Medium**, see whether the resulting metric is good enough, then escalate only if you need more nuance.</Tip>
-
 ## Confirm and launch
 
-The footer button is **Confirm and launch** with a play icon. Clicking it:
-
-1. Disables the button and shows a loading state.
-2. Submits the run to Luna Studio.
-3. Routes you back to the [Training runs](/luna-studio/projects/training-runs-home) page, where the new run appears with status **Queued**.
-
-The run progresses through **Queued → Training → Fine-tuned** on its own. You can leave the app and check back later — see [Run lifecycle](/luna-studio/runs/lifecycle).
-
-## What if I need to change something?
-
-Use the **Change** link on any summary card. You'll jump back to that step with your previous selection preserved. Step through to Step 4 again and re-launch.
-
-## What launches when I click Confirm?
-
-Submitting the run:
+When you click the **Confirm and launch** button, the run is submitted to Luna Studio and the following happens:
 
 1. Saves the run with status **Queued**.
 2. Allocates training resources for the picked base model.
 3. Begins fine-tuning on the training set.
 4. Evaluates the resulting metric against the test set.
 5. Transitions the run to **Fine-tuned** (or **Failed**).
-
-You don't need to keep the page open. Cancellation isn't supported today — once a run is **Training**, it runs to completion or failure.
 
 ## Where to go next
 

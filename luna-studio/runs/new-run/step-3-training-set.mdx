@@ -3,23 +3,20 @@ title: "Step 3 — Training set"
 description: "Generate a training set from your test set or add your own training logs."
 ---
 
-Step 3 is where the magic happens. The training set is the dataset that fine-tunes your base model — typically much larger than the test set (~3,000 rows vs. a few hundred). You have two options for sourcing it.
+The training set is the dataset that fine-tunes your base model — typically much larger than the test set (~3,000 rows vs. a few hundred). You have two options for sourcing it.
 
-<Frame caption="Step 3 — pick a training data source: generate from your test set or add training logs">
-  ![Training set step](/images/luna-studio/runs/new-run-training-set.png)
-</Frame>
+<Frame caption="Step 3 — pick a training data source: generate from your test set or add training logs">![Training set step](/images/luna-studio/runs/new-run-training-set.png)</Frame>
 
-## Two training sources
+## The 3 training dataset sources
 
-The step opens with a section heading **Training data source** and two selectable cards:
+The step opens with a section heading **Training data source** and three selectable cards:
 
 <CardGroup cols={2}>
   <Card title="Generate from test set" icon="wand-magic-sparkles">
-    Uses 20% of your test set as seed examples to generate ~3,000 labelled training samples via an
-    LLM-as-judge prompt. **Recommended for first runs.**
+    Uses 20% of your test set as seed examples to generate ~3,000 labelled training samples via a synthetic dataset generator. **Recommended for first runs.**
   </Card>
   <Card title="Add training logs" icon="upload">
-    Upload or import raw production logs (labelled or unlabelled).
+    Upload or import your own raw production logs (labelled or unlabelled). If they are unlablled, Luna Studio will use the LLM-as-judge prompt to label these logs and use them for training.
   </Card>
 </CardGroup>
 
@@ -27,62 +24,50 @@ Pick one — clicking either card opens its respective sub-flow.
 
 ## Generate from test set
 
-Clicking **Generate from test set** opens a 1024px right drawer with three phases.
+This option uses a synthetic dataset generator to create a training set from your test set. You will have 3 steps -
 
-<Frame caption="Generate from test set drawer, configure phase — pick a model and dataset name before generating samples">
-  ![Generate drawer, config phase](/images/luna-studio/runs/new-run-generate-config.png)
-</Frame>
+1. Configure the generator and generate a sample dataset
+2. Review the sample data and provide feedback to the generator
+3. Generate the final dataset once you are happy with the samples
 
-### Phase 1 — Configure
+### Configure the generator
 
-The drawer is split into a left config form and a right preview pane.
+The generator is configured with the following settings:
 
-**Left side fields:**
+<Frame caption="Generate from test set drawer, configure phase — pick a model and dataset name before generating samples">![Generate drawer, config phase](/images/luna-studio/runs/new-run-generate-config.png)</Frame>
 
-| Field                | Notes                                                                                                                                                             |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Test set (read-only) | Shows your selected test set with the caption "Uses 20% of test set as seed examples".                                                                            |
-| Model                | The LLM that generates the training samples. Options: `gpt-5`, `gpt-4o`, `claude-3.7-sonnet`. Tooltip: "Larger models produce higher-quality data but cost more." |
-| Output dataset name  | Defaults to `generated-training-set`. Tooltip: "Display name for the resulting training dataset."                                                                 |
-| Metric (read-only)   | Includes a **View prompt** popover so you can re-check the metric prompt.                                                                                         |
-| Advanced settings    | Accordion. Placeholder copy today: future generation knobs (sampling, max tokens) will live here.                                                                 |
+| Field                | Notes                                                                                                                                                            |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Test set (read-only) | Shows your selected test set with the caption "Uses 20% of test set as seed examples".                                                                           |
+| Model                | The LLM that generates the training samples. Options: depends on the LLM provider you have configured. Using larger models is preferred for better quality data. |
+| Output dataset name  | Provide a name for the output dataset like `project-ABC-metric-PQR-training-set-v1`. Defaults to `generated-training-set`.                                       |
+| Metric (read-only)   | Includes a **View prompt** popover so you can re-check the metric prompt.                                                                                        |
+| Advanced settings    | Some advanced knobs to try (Not recommended for first runs)                                                                                                      |
 
-The right side shows: _Sample data will appear here._
+Click **Generate sample dataset** at the bottom of the drawer, once you are happy with the settings.
 
-Click **Generate sample dataset** at the bottom of the drawer.
+### Review the sample data
 
-### Phase 2 — Generating
+<Frame caption="Generate from test set drawer, review phase — approve sample rows or regenerate before kicking off the full run">![Generate drawer, review phase](/images/luna-studio/runs/new-run-generate-review.png)</Frame>
 
-The form dims and the right side shows a polite live-region spinner with "Generating sample data...". Generation typically takes a minute or two.
+You're reviewing ~200 sample rows before kicking off the full generation.
 
-### Phase 3 — Review
+#### Provide feedback and Regenerate samples
 
-<Frame caption="Generate from test set drawer, review phase — approve sample rows or regenerate before kicking off the full run">
-  ![Generate drawer, review phase](/images/luna-studio/runs/new-run-generate-review.png)
-</Frame>
+You can provide feedback by selecting the rows that look wrong and clicking the **Regenerate** button. Once you click the button, the **Regenerate dataset** modal opens with a radio group of reasons:
 
-The right side becomes a full-width sample table. You're reviewing ~200 sample rows before kicking off the full generation.
-
-The review panel includes:
-
-- An info banner titled **Review sample data** explaining the row-feedback flow.
-- A **Regenerate** outline button (enabled once any row is selected).
-- A dataset preview table with a checkbox column. The selection counter announces "X of Y rows selected".
-
-#### Regenerate samples
-
-If many of the samples look wrong, click **Regenerate**. The **Regenerate dataset** modal opens with a radio group of reasons:
-
-| Reason                     | When to pick it                                                       |
-| -------------------------- | --------------------------------------------------------------------- |
-| Samples are too repetitive | The generated rows look almost identical to each other.               |
-| Labels look incorrect      | The labels don't match what the inputs deserve.                       |
-| Inputs are off-topic       | The inputs don't reflect the kind of data your application sees.      |
-| Provide own feedback       | Free-form textarea reveals — describe what's wrong in your own words. |
+| Reason                     | When to pick it                                                  |
+| -------------------------- | ---------------------------------------------------------------- |
+| Samples are too repetitive | The generated rows look almost identical to each other.          |
+| Labels look incorrect      | The labels don't match what the inputs deserve.                  |
+| Inputs are off-topic       | The inputs don't reflect the kind of data your application sees. |
+| Provide own feedback       | Free-form text — describe what's wrong in your own words.        |
 
 Click **Regenerate** to kick off another sample generation.
 
-The **Regenerate** button in the modal stays disabled until either a reason is picked or, for "Provide own feedback", the textarea is non-empty.
+The **Regenerate** button in the modal stays disabled until either a reason is picked or, for "Provide own feedback", the text is non-empty.
+
+Note - you can provide feedback upto 3 times. You can also track the cycles in the UI.
 
 #### Generate the final dataset
 
@@ -106,47 +91,23 @@ Clicking the card opens the **Add training set** modal — the same generic data
   </Card>
 </CardGroup>
 
-For a complete reference of the modal, see [Add a dataset](/luna-studio/datasets/add-a-dataset).
+### Validation
+
+Luna Studio runs validation on the training set to ensure it meets the required schema / format / content rules.
+If there are any validation errors, they will be highlighted (See example below).
+
+For more details, see [Validation](/luna-studio/datasets/validation).
 
 ## Training set completed
 
 After either flow finishes, the step replaces the picker with a **Selected dataset card** and (if available) a preview table.
 
-<Frame caption="Step 3 once a training set is selected — the picker collapses into a card with a row preview">
-  ![Training set completed](/images/luna-studio/runs/new-run-training-set-completed.png)
-</Frame>
-
-The card includes:
-
-- **Title** &mdash; the training set name.
-- **Subtitle** &mdash; row count and source, e.g. `2,500 rows · Generated from rag-eval-dataset-v2`.
-- **Change** link &mdash; returns to the picker so you can switch to a different source.
-
-For uploaded sources only, a **Dataset is labeled** checkbox appears below the card. It surfaces:
-
-- A green check when the dataset has a `label` column.
-- A red error chip ("Dataset is missing column **label**") otherwise.
-
-A **Validation status line** below the card shows Validating / Validated / Warning / Error — same as on Step 2.
-
-Below the card, a dataset preview table renders the first 100 rows. The Label column is hidden for unlabelled training sets.
-
-## Validation gate for Step 3
-
-You can advance to Step 4 once:
-
-- A training set is selected, **and**
-- Validation has completed without an error (warnings are okay), **and**
-- For uploaded sources, the labelled-column check passes (or the **Dataset is labeled** checkbox is unchecked, signaling unlabelled training).
+<Frame caption="Step 3 once a training set is selected — the picker collapses into a card with a row preview">![Training set completed](/images/luna-studio/runs/new-run-training-set-completed.png)</Frame>
 
 ## Where to go next
 
 <CardGroup cols={2}>
-  <Card
-    title="Step 4 — Config and launch"
-    icon="play"
-    href="/luna-studio/runs/new-run/step-4-config-and-launch"
-  >
+  <Card title="Step 4 — Config and launch" icon="play" href="/luna-studio/runs/new-run/step-4-config-and-launch">
     Pick a base model and launch.
   </Card>
   <Card title="Training sets reference" icon="dumbbell" href="/luna-studio/datasets/training-sets">
