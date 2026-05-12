@@ -1,9 +1,9 @@
-```python main.py
+```python Python (Beta) main.py
 import os
 
 from dotenv import load_dotenv
+from galileo import Metric
 from galileo.experiments import run_experiment
-from galileo.schema.metrics import GalileoMetrics
 
 load_dotenv()
 
@@ -23,14 +23,16 @@ DATASET = [
     },
 ]
 
+# Function-based experiments still go through run_experiment;
+# the Experiment class doesn't support function= yet.
 results = run_experiment(
     "my-otel-experiment",
     dataset=DATASET,
     function=run_agent,
     metrics=[
-        GalileoMetrics.tool_error_rate,
-        GalileoMetrics.instruction_adherence,
-        GalileoMetrics.tool_selection_quality,
+        Metric.metrics.tool_error_rate,
+        Metric.metrics.instruction_adherence,
+        Metric.metrics.tool_selection_quality,
     ],
     project=os.environ["GALILEO_PROJECT"],
 )

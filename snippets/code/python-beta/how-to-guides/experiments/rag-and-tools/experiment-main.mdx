@@ -1,7 +1,7 @@
-```python Python
+```python Python (Beta)
 import os
 
-from galileo import GalileoMetrics
+from galileo import Metric
 from galileo.experiments import run_experiment
 
 from app import get_users_horoscope
@@ -19,16 +19,17 @@ def main():
         {"input": "Leo"},
     ]
 
-    # Run the experiment
+    # Function-based experiments still go through run_experiment;
+    # the Experiment class doesn't support function= yet.
     results = run_experiment(
         "horoscope-experiment",
         dataset=dataset,
         function=get_users_horoscope,
         metrics=[
-            GalileoMetrics.tool_error_rate,
-            GalileoMetrics.tool_selection_quality,
-            GalileoMetrics.chunk_attribution_utilization,
-            GalileoMetrics.context_adherence,
+            Metric.metrics.tool_error_rate,
+            Metric.metrics.tool_selection_quality,
+            Metric.metrics.chunk_attribution_utilization,
+            Metric.metrics.context_adherence,
         ],
         project=os.environ["GALILEO_PROJECT"],
     )
