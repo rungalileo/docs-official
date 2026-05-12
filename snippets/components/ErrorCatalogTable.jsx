@@ -28,8 +28,8 @@ export const ErrorCatalogTable = () => {
       "error_type": "llm_api_error",
       "error_group": "shared",
       "severity": "high",
-      "default_message": "Provider rate limit exceeded. Please retry after a short wait.",
-      "user_action": "Reduce request frequency or upgrade quota.",
+      "default_message": "The AI provider rate-limited the request.",
+      "user_action": "Retry later, or contact the AI provider to raise your rate limit.",
       "retriable": true,
       "http_status_code": 429
     },
@@ -244,6 +244,16 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 2007,
+      "error_type": "data_validation_error",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "Scorer name conflicts with a reserved Galileo metric suffix.",
+      "user_action": "Rename your scorer to avoid names ending with reserved suffixes. Reserved suffixes are used internally by Galileo to store metric metadata (e.g., _status, _error_message, _explanation, _rationale, _metric_cost). Choose a name that does not end with any of these.\n",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
       "error_code": 2008,
       "error_type": "system_error",
       "error_group": "metrics",
@@ -332,6 +342,24 @@ export const ErrorCatalogTable = () => {
       "severity": "high",
       "default_message": "File upload(s) to LLM Provider failed.",
       "user_action": "Update LLM Provider configuration.",
+      "retriable": false
+    },
+    {
+      "error_code": 2018,
+      "error_type": "not_applicable_reason",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "This metric does not support the file modalities attached to this record.",
+      "user_action": "Use metrics that provide the required multimodal capabilities for files attached to this record.",
+      "retriable": false
+    },
+    {
+      "error_code": 2019,
+      "error_type": "not_applicable_reason",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "Cost tracking is not yet accurate for multimodal LLM calls.",
+      "user_action": "Cost will be reported once accurate multimodal cost tracking is implemented.",
       "retriable": false
     },
     {
@@ -645,6 +673,24 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 5000,
+      "error_type": "credentials_error",
+      "error_group": "signals",
+      "severity": "high",
+      "default_message": "Signals authentication failed. The LLM provider rejected the credentials.",
+      "user_action": "Verify your LLM provider API key and update it if expired.",
+      "retriable": false
+    },
+    {
+      "error_code": 5001,
+      "error_type": "llm_api_error",
+      "error_group": "signals",
+      "severity": "high",
+      "default_message": "The LLM provider rate limit was exceeded.",
+      "user_action": "Wait a moment and retry, or check your LLM provider quota.",
+      "retriable": true
+    },
+    {
       "error_code": 7000,
       "error_type": "credentials_error",
       "error_group": "integrations",
@@ -762,6 +808,16 @@ export const ErrorCatalogTable = () => {
       "default_message": "Failed to instantiate the CustomLLM class with the provided init_kwargs.",
       "user_action": "Check the init_kwargs match the class constructor parameters.",
       "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 7012,
+      "error_type": "not_found_error",
+      "error_group": "integrations",
+      "severity": "medium",
+      "default_message": "No integration of this type was found for your account.",
+      "user_action": "Verify you have access to an integration of this type.",
+      "http_status_code": 404,
       "retriable": false
     },
     {
@@ -1025,6 +1081,36 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 8516,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "Your email is not allowed. Please contact Galileo's support.",
+      "user_action": "Verify that you are using an authorized email address, or contact support for assistance.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 8517,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "This user account has been disabled. Please contact Galileo's support.",
+      "user_action": "Contact Galileo's support team to resolve account access.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 8518,
+      "error_type": "data_validation_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "Email addresses with '+' suffixes are not allowed.",
+      "user_action": "Use your primary email address without the '+' suffix.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
       "error_code": 9000,
       "error_type": "not_found_error",
       "error_group": "component_view",
@@ -1192,6 +1278,16 @@ export const ErrorCatalogTable = () => {
       "default_message": "Failed to load created log stream.",
       "user_action": "Retry the operation; if it persists, contact support.",
       "http_status_code": 500,
+      "retriable": false
+    },
+    {
+      "error_code": 10503,
+      "error_type": "data_validation_error",
+      "error_group": "logstream",
+      "severity": "medium",
+      "default_message": "Unknown column requested in log stream query.",
+      "user_action": "Check the column names in your query and try again.",
+      "http_status_code": 400,
       "retriable": false
     },
     {
