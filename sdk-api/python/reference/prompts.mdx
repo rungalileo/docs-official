@@ -11,9 +11,9 @@ title: prompts
 ```python
 def create(self,
            name: str,
-           template: Union[builtins.list[Message], str],
-           project_id: Optional[str]=None,
-           project_name: Optional[str]=None) -> PromptTemplate
+           template: builtins.list[Message] | str,
+           project_id: str | None=None,
+           project_name: str | None=None) -> PromptTemplate
 ```
 
 Create a new global prompt template.
@@ -38,10 +38,7 @@ Create a new global prompt template.
 ### delete
 
 ```python
-def delete(self,
-           *,
-           template_id: Optional[str]=None,
-           name: Optional[str]=None) -> None
+def delete(self, *, template_id: str | None=None, name: str | None=None) -> None
 ```
 
 Delete a global prompt template by ID or name.
@@ -60,10 +57,10 @@ Delete a global prompt template by ID or name.
 ```python
 def list(self,
          *,
-         name_filter: Optional[str]=None,
-         project_id: Optional[str]=None,
-         project_name: Optional[str]=None,
-         limit: Union[Unset, int]=100,
+         name_filter: str | None=None,
+         project_id: str | None=None,
+         project_name: str | None=None,
+         limit: Unset | int=100,
          starting_token: int=0) -> builtins.list[PromptTemplate]
 ```
 
@@ -92,9 +89,9 @@ List global prompt templates with optional filtering.
 def render_template(self,
                     *,
                     template: str,
-                    data: Union[DatasetData, StringData],
-                    starting_token: Union[Unset, int]=0,
-                    limit: Union[Unset, int]=100) -> RenderTemplateResponse
+                    data: DatasetData | StringData,
+                    starting_token: Unset | int=0,
+                    limit: Unset | int=100) -> RenderTemplateResponse
 ```
 
 Render a template with provided data.
@@ -146,9 +143,7 @@ This class will be removed in a future version.</Danger>
 ### create
 
 ```python
-def create(self,
-           name: str,
-           template: Union[builtins.list[Message], str]) -> PromptTemplate
+def create(self, name: str, template: builtins.list[Message] | str) -> PromptTemplate
 ```
 
 Create a template in this project.
@@ -177,7 +172,7 @@ Delete a template by name from this project.
 ### get
 
 ```python
-def get(self, *, name: str) -> Optional[PromptTemplate]
+def get(self, *, name: str) -> PromptTemplate | None
 ```
 
 Get a template by name from this project.
@@ -206,9 +201,9 @@ List templates for this project.
 
 ```python
 def create_prompt(name: str,
-                  template: Union[builtins.list[Message], str],
-                  project_id: Optional[str]=None,
-                  project_name: Optional[str]=None) -> PromptTemplate
+                  template: builtins.list[Message] | str,
+                  project_id: str | None=None,
+                  project_name: str | None=None) -> PromptTemplate
 ```
 
 Create a new global prompt template.
@@ -264,10 +259,10 @@ Create a new global prompt template.
 
 ```python
 def delete_prompt(*,
-                  id: Optional[str]=None,
-                  name: Optional[str]=None,
-                  project_id: Optional[str]=None,
-                  project_name: Optional[str]=None) -> None
+                  id: str | None=None,
+                  name: str | None=None,
+                  project_id: str | None=None,
+                  project_name: str | None=None) -> None
 ```
 
 Delete a global prompt template by ID or name.
@@ -293,10 +288,10 @@ You must provide either 'id' or 'name', but not both.
 
 ```python
 def get_prompt(*,
-               id: Optional[str]=None,
-               name: Optional[str]=None,
-               project_id: Optional[str]=None,
-               project_name: Optional[str]=None) -> Optional[PromptTemplate]
+               id: str | None=None,
+               name: str | None=None,
+               project_id: str | None=None,
+               project_name: str | None=None) -> PromptTemplate | None
 ```
 
 Retrieves a global prompt template.
@@ -321,7 +316,7 @@ You must provide either 'id' or 'name', but not both.
 ## get_prompt_template
 
 ```python
-def get_prompt_template(name: str, project: str) -> Optional[PromptTemplate]
+def get_prompt_template(name: str, project: str) -> PromptTemplate | None
 ```
 
 Get a prompt template by name from a specific project.
@@ -342,10 +337,10 @@ removed in a future version.</Danger>
 ## get_prompts
 
 ```python
-def get_prompts(name_filter: Optional[str]=None,
-                project_id: Optional[str]=None,
-                project_name: Optional[str]=None,
-                limit: Union[Unset, int]=100) -> builtins.list[PromptTemplate]
+def get_prompts(name_filter: str | None=None,
+                project_id: str | None=None,
+                project_name: str | None=None,
+                limit: Unset | int=100) -> builtins.list[PromptTemplate]
 ```
 
 List global prompt templates with optional filtering.
@@ -390,9 +385,9 @@ This function is deprecated and will be removed in a future version.</Danger>
 ```python
 def render_template(*,
                     template: str,
-                    data: Union[DatasetData, StringData, list[str], str],
-                    starting_token: Union[Unset, int]=0,
-                    limit: Union[Unset, int]=100) -> RenderTemplateResponse
+                    data: DatasetData | StringData | list[str] | str,
+                    starting_token: Unset | int=0,
+                    limit: Unset | int=100) -> RenderTemplateResponse
 ```
 
 Render a template with provided data.
@@ -420,8 +415,8 @@ Render a template with provided data.
 
 ```python
 def update_prompt(*,
-                  id: Optional[str]=None,
-                  name: Optional[str]=None,
+                  id: str | None=None,
+                  name: str | None=None,
                   new_name: str) -> PromptTemplate
 ```
 
