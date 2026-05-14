@@ -16,6 +16,9 @@ import SnippetExperimentsCustomDatasetPython from "/snippets/code/python/concept
 import SnippetExperimentsCustomDatasetPythonBeta from "/snippets/code/python-beta/concepts/experiments/custom-dataset.mdx";
 import SnippetExperimentsCustomMetricsPython from "/snippets/code/python/concepts/experiments/custom-metrics.mdx";
 import SnippetExperimentsCustomMetricsPythonBeta from "/snippets/code/python-beta/concepts/experiments/custom-metrics.mdx";
+import SnippetExperimentsGetLoggerPython from "/snippets/code/python/concepts/experiments/get-logger.mdx";
+import SnippetExperimentsGetCurrentParentPython from "/snippets/code/python/concepts/experiments/get-current-parent.mdx";
+import SnippetExperimentsLoggingWithParentCheckPython from "/snippets/code/python/concepts/experiments/logging-with-parent-check.mdx";
 import SnippetExperimentCustomMetricNamePython from "/snippets/code/python/sdk/experiments/custom-metric.mdx";
 import SnippetExperimentCustomMetricNamePythonBeta from "/snippets/code/python-beta/sdk/experiments/custom-metric.mdx";
 import SnippetExperimentOOTBMetricNamePython from "/snippets/code/python/sdk/experiments/ootb-metric.mdx";
@@ -27,6 +30,9 @@ import SnippetExperimentsExistingDatasetLogDecoratorTypeScript from "/snippets/c
 import SnippetExperimentsGroundTruthTypeScript from "/snippets/code/typescript/concepts/experiments/ground-truth.mdx";
 import SnippetExperimentsCustomDatasetTypeScript from "/snippets/code/typescript/concepts/experiments/custom-dataset.mdx";
 import SnippetExperimentsCustomMetricsTypeScript from "/snippets/code/typescript/concepts/experiments/custom-metrics.mdx";
+import SnippetExperimentsGetLoggerTypeScript from "/snippets/code/typescript/concepts/experiments/get-logger.mdx";
+import SnippetExperimentsGetCurrentParentTypeScript from "/snippets/code/typescript/concepts/experiments/get-current-parent.mdx";
+import SnippetExperimentsLoggingWithParentCheckTypeScript from "/snippets/code/typescript/concepts/experiments/logging-with-parent-check.mdx";
 import SnippetExperimentCustomMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/custom-metric.mdx";
 import SnippetExperimentOOTBMetricNameTypeScript from "/snippets/code/typescript/sdk/experiments/ootb-metric.mdx";
 import SnippetExperimentsGeneratedOutputInlinePython from "/snippets/code/python/concepts/experiments/generated-output-inline.mdx";
@@ -60,7 +66,9 @@ For each row in a dataset, a new trace is created, and either the prompt templat
 <Note>
 When you call your application code from an experiment, the experiment runner will start a new session and trace for every row in your dataset. You will need to ensure your application code doesn't start a new session or trace manually, or conclude or flush the trace.
 
-If you are using the `log` wrapper or a third-party integration, this is handled for you. If you are logging manually, see [Custom function logging principles](#custom-function-logging-principles) below.
+If you are using the `log` wrapper or a third-party integration, this is handled for you. If you are logging manually you will need to check to see if an experiment is in progress.
+
+See the [Experiment SDK docs](/sdk-api/experiments/running-experiments#get-an-existing-logger-and-check-for-an-existing-trace) for details on how to do this.
 
 </Note>
 
@@ -198,6 +206,33 @@ To enable this, you will need to make some small changes to your application log
 When functions in your application are run by the `run_experiment` call, a logger is created by the experiment runner, and a trace is started. This logger can be passed through the application, accessed using the `@log` decorator or by calling [`galileo_context.get_logger_instance()`](/sdk-api/python/reference/decorator#get-logger-instance) in Python, or [`getLogger`](/sdk-api/typescript/reference/README/functions/getLogger) in TypeScript.
 
 You will need to change your code to use this instead of creating a new logger and starting a new trace.
+
+#### Get an existing logger and check for an existing trace
+
+The Galileo SDK maintains a context that tracks the current logger. You can get this logger with the following code:
+
+<CodeGroup>
+  <SnippetExperimentsGetLoggerPython />
+  <SnippetExperimentsGetLoggerTypeScript />
+</CodeGroup>
+
+If there isn't a current logger, one will be created by this call, so this will always return a logger.
+
+Once you have the logger, you can check for an existing trace by accessing the current parent trace from the logger. If this is not set, then there is no active trace.
+
+<CodeGroup>
+  <SnippetExperimentsGetCurrentParentPython />
+  <SnippetExperimentsGetCurrentParentTypeScript />
+</CodeGroup>
+
+You can use this to decide if you need to create a new trace in your application. If there is no parent trace, you can safely create a new one.
+
+<CodeGroup>
+  <SnippetExperimentsLoggingWithParentCheckPython />
+  <SnippetExperimentsLoggingWithParentCheckTypeScript />
+</CodeGroup>
+
+You can then safely call your code from the experiment runner as well as in your normal application logic. When called from the experiment runner, your traces will be logged to that experiment. When called from your application code, the traces will be logged as normal.
 
 #### Using third-party integrations with experiments
 
