@@ -14,11 +14,11 @@ function init(options: GetLoggerOptions & object): Promise<void>;
 
 Defined in: [src/singleton.ts](https://github.com/rungalileo/galileo-js/blob/main/src/singleton.ts)
 
-Get/Create new logger (like getLogger()), but also provides session initialization.
-If no options are provided, defaults to the following environment variables:
+Gets or creates a logger and optionally initializes a session.
 
-- GALILEO_PROJECT_NAME
-- GALILEO_LOG_STREAM_NAME
+Note: When startNewSession is true and an existing session is found via externalId, it is returned as-is.
+All other session options (sessionName, previousSessionId, metadata) are ignored in that case -
+they only apply when creating a new session. To update an existing session, use an explicit update method.
 
 ## Parameters
 
@@ -31,3 +31,5 @@ Configuration options to initialize the logger
 ## Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves when initialization is complete
