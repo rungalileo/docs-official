@@ -489,13 +489,15 @@ Key types
 
 Resolving UUIDs to human labels
 --------------------------------
-Use :attr:`experiment_columns` to look up the display label and legacy metric name for each UUID::
+Use :attr:`experiment_columns` to look up the display label and legacy metric name for each UUID:
 
-    cols = experiment.experiment_columns
-    for metric_id, agg in (experiment.metric_aggregates or {}).items():
-        col = cols.get(f"metrics/{metric_id}")   # None for system metrics
-        label = col.label if col else metric_id  # fall back to raw key
-        print(f"{label}: avg={agg.avg:.3f}")
+```python
+cols = experiment.experiment_columns
+for metric_id, agg in (experiment.metric_aggregates or {}).items():
+    col = cols.get(f"metrics/{metric_id}")   # None for system metrics
+    label = col.label if col else metric_id  # fall back to raw key
+    print(f"{label}: avg={agg.avg:.3f}")
+```
 
 The ``MetricAggregates`` object exposes: ``avg``, ``min_``, ``max_``, ``sum_``, ``count``,
 ``pct``, ``p50``, ``p90``, ``p95``, ``p99``, ``value_distribution``.
