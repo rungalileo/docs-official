@@ -375,3 +375,121 @@ The options used to locate the dataset.
 `Promise`\<[`DatasetProject`](/sdk-api/typescript/reference/types/type-aliases/DatasetProject)[]\>
 
 A promise that resolves to the list of projects that use the dataset.
+
+---
+
+### getRecordsForDataset()
+
+```ts
+static getRecordsForDataset(options: object): Promise<DatasetRecord[]>;
+```
+
+Defined in: [src/entities/datasets.ts](https://github.com/rungalileo/galileo-js/blob/main/src/entities/datasets.ts)
+
+Gets dataset records for a dataset identified by ID or name.
+
+#### Parameters
+
+##### options
+
+The options used to locate the dataset.
+
+###### datasetId?
+
+`string`
+
+(Optional) The ID of the dataset.
+
+###### datasetName?
+
+`string`
+
+(Optional) The name of the dataset.
+
+#### Returns
+
+`Promise`\<[`DatasetRecord`](/sdk-api/typescript/reference/types/interfaces/DatasetRecord)[]\>
+
+A promise that resolves to the list of dataset records.
+
+---
+
+### loadDatasetAndRecords()
+
+```ts
+static loadDatasetAndRecords(options: object): Promise<[null | Dataset, DatasetRecord[]]>;
+```
+
+Defined in: [src/entities/datasets.ts](https://github.com/rungalileo/galileo-js/blob/main/src/entities/datasets.ts)
+
+Loads dataset and records based on provided parameters.
+
+Priority order:
+
+1. datasetId (explicit ID)
+2. datasetName (explicit name)
+3. dataset as string (interpreted as name)
+4. dataset as Dataset object
+5. dataset as array of records
+
+#### Parameters
+
+##### options
+
+Dataset loading options
+
+###### dataset?
+
+\| `string`
+\| [`DatasetDBType`](/sdk-api/typescript/reference/types/type-aliases/DatasetDBType)
+\| `Record`\<`string`, `unknown`\>[]
+
+Dataset object, array of records, or dataset name (string)
+
+###### datasetId?
+
+`string`
+
+Optional explicit dataset ID
+
+###### datasetName?
+
+`string`
+
+Optional explicit dataset name
+
+###### projectName?
+
+`string`
+
+Optional project name for dataset lookup
+
+#### Returns
+
+`Promise`\<\[`null` \| [`Dataset`](/sdk-api/typescript/reference/README/classes/Dataset), [`DatasetRecord`](/sdk-api/typescript/reference/types/interfaces/DatasetRecord)[]\]\>
+
+Promise resolving to tuple of [Dataset | null, DatasetRecord[]]
+
+#### Throws
+
+Error if no valid dataset information is provided
+
+---
+
+### recoverDatasetRecords()
+
+```ts
+static recoverDatasetRecords(dataset: Dataset): Promise<DatasetRecord[]>;
+```
+
+Defined in: [src/entities/datasets.ts](https://github.com/rungalileo/galileo-js/blob/main/src/entities/datasets.ts)
+
+#### Parameters
+
+##### dataset
+
+[`Dataset`](/sdk-api/typescript/reference/README/classes/Dataset)
+
+#### Returns
+
+`Promise`\<[`DatasetRecord`](/sdk-api/typescript/reference/types/interfaces/DatasetRecord)[]\>
