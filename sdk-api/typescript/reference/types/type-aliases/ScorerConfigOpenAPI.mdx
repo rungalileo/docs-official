@@ -37,7 +37,12 @@ Whether to enable chain of thought for this scorer. Defaults to False for llm sc
 ### filters?
 
 ```ts
-optional filters: (object & NodeNameFilter | object & MetadataFilter)[] | null;
+optional filters:
+  | (
+  | object & NodeNameFilter
+  | object & MetadataFilter
+  | object & ModalityFilter)[]
+  | null;
 ```
 
 Defined in: [src/types/openapi.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/openapi.types.ts)
@@ -96,6 +101,20 @@ Type of model to use for this scorer. slm maps to luna, and llm maps to plus
 
 ---
 
+### multimodal_capabilities?
+
+```ts
+optional multimodal_capabilities: MultimodalCapability[] | null;
+```
+
+Defined in: [src/types/openapi.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/openapi.types.ts)
+
+Multimodal Capabilities
+
+Multimodal capabilities which this scorer can utilize in its evaluation.
+
+---
+
 ### name?
 
 ```ts
@@ -129,6 +148,30 @@ optional output_type: OutputTypeEnum | null;
 Defined in: [src/types/openapi.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/openapi.types.ts)
 
 What type of output to use for model-based scorers (boolean, categorical, etc.).
+
+---
+
+### roll_up_method?
+
+```ts
+optional roll_up_method: RollUpMethodDisplayOptions | null;
+```
+
+Defined in: [src/types/openapi.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/openapi.types.ts)
+
+---
+
+### score_type?
+
+```ts
+optional score_type: string | null;
+```
+
+Defined in: [src/types/openapi.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/openapi.types.ts)
+
+Score Type
+
+Return type of code scorers (e.g., 'bool', 'int', 'float', 'str').
 
 ---
 
