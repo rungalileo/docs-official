@@ -13,6 +13,7 @@ offering methods for managing log streams and their associated metrics.
 
 **Examples**
 
+```python
 # Create a new log stream and persist it
 log_stream = LogStream(name="Production Logs", project_name="My AI Project").create()
 
@@ -35,6 +36,7 @@ local_metrics = log_stream.enable_metrics([
 
 # Refresh log stream state from API
 log_stream.refresh()
+```
 
 ### context
 
@@ -49,6 +51,7 @@ for this log stream, eliminating the need to specify project and log stream name
 
 **Examples**
 
+```python
 log_stream = LogStream.get(
     name="Production Logs",
     project_name="My AI Project"
@@ -57,6 +60,7 @@ log_stream = LogStream.get(
 with log_stream.context():
     # Your logging code here
     response = openai_client.chat.completions.create(...)
+```
 
 ### create
 
@@ -68,8 +72,10 @@ Persist this log stream to the API.
 
 **Examples**
 
+```python
 log_stream = LogStream(name="Production Logs", project_name="My AI Project").create()
 assert log_stream.is_synced()
+```
 
 ### export_records
 
@@ -127,9 +133,11 @@ Get the list of metrics currently enabled on this log stream.
 
 **Examples**
 
+```python
 log_stream = LogStream.get(name="Production Logs", project_name="My Project")
 current_metrics = log_stream.get_metrics()
 print(f"Currently enabled: {current_metrics}")
+```
 
 ### get_sessions
 
@@ -264,8 +272,10 @@ and sets the state to SYNCED.
 
 **Examples**
 
+```python
 log_stream.refresh()
 assert log_stream.is_synced()
+```
 
 ### session_columns
 
@@ -277,6 +287,7 @@ Get available columns for sessions in this log stream.
 
 **Examples**
 
+```python
 log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
 columns = log_stream.session_columns
 
@@ -288,6 +299,7 @@ sessions = log_stream.get_sessions(
     filters=[columns["model"].equals("gpt-4o-mini")],
     sort=columns["created_at"].descending()
 )
+```
 
 ### set_metrics
 
@@ -319,6 +331,7 @@ Get available columns for spans in this log stream.
 
 **Examples**
 
+```python
 log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
 columns = log_stream.span_columns
 
@@ -330,6 +343,7 @@ spans = log_stream.get_spans(
     filters=[columns["input"].contains("world")],
     sort=columns["created_at"].descending()
 )
+```
 
 ### trace_columns
 
@@ -341,6 +355,7 @@ Get available columns for traces in this log stream.
 
 **Examples**
 
+```python
 log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
 columns = log_stream.trace_columns
 
@@ -352,3 +367,4 @@ traces = log_stream.get_traces(
     filters=[columns["input"].contains("largest")],
     sort=columns["created_at"].descending()
 )
+```

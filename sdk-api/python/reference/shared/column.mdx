@@ -17,6 +17,7 @@ data_type and sortable attributes, ensuring only valid operations are performed.
 
 **Examples**
 
+```python
 # Access columns from a log stream
 log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
 
@@ -28,6 +29,7 @@ traces = log_stream.get_traces(
     ],
     sort=log_stream.trace_columns["created_at"].descending()
 )
+```
 
 ### after
 
@@ -166,7 +168,9 @@ Filter for boolean columns that are False.
 
 **Examples**
 
+```python
 log_stream.session_columns["has_error"].is_false()
+```
 
 ### is_true
 
@@ -178,7 +182,9 @@ Filter for boolean columns that are True.
 
 **Examples**
 
+```python
 log_stream.session_columns["has_error"].is_true()
+```
 
 ### less_than
 
@@ -282,6 +288,7 @@ Inherits from `Mapping[str, Column]` to provide a read-only mapping interface.
 
 **Examples**
 
+```python
 log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
 
 # Access a column by ID
@@ -298,3 +305,4 @@ for column in log_stream.trace_columns.values():
 # Check if a column exists
 if "input" in log_stream.trace_columns:
     print("Input column exists")
+```
