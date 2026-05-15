@@ -4,13 +4,16 @@
   "description": "Mintlify Documentation",
   "private": true,
   "scripts": {
-    "dev": "mintlify dev",
-    "build": "mintlify build",
-    "lint:markdown": "markdownlint-cli2",
-    "lint:markdown:fix": "markdownlint-cli2 --fix"
+    "gen:errors": "node scripts/generate-errors-data.mjs",
+    "generate:errors": "node scripts/generate-errors-json.mjs",
+    "predev": "npm run gen:errors",
+    "dev": "mint dev",
+    "prebuild": "npm run gen:errors",
+    "lint:markdown": "markdownlint-cli2 \"**/*.{md,mdx}\" --config .markdownlint.jsonc",
+    "lint:markdown:fix": "markdownlint-cli2 \"**/*.{md,mdx}\" --config .markdownlint.jsonc --fix"
   },
   "dependencies": {
-    "@mintlify/components": "^0.3.15",
-    "mintlify": "^4.0.525"
+    "js-yaml": "^4.1.0",
+    "mint": "^4.2.307"
   }
 }

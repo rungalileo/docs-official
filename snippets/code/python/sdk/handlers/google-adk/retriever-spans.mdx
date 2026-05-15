@@ -1,0 +1,14 @@
+```python Python
+from galileo_adk import galileo_retriever
+from google.adk.tools import FunctionTool
+
+@galileo_retriever
+def search_docs(query: str) -> str:
+    """Search the knowledge base."""
+    # Your retrieval logic here
+    results = my_vector_db.search(query)
+    return "\n".join(r["content"] for r in results)
+
+# Wrap in a FunctionTool - Galileo will log this as a retriever span
+tool = FunctionTool(search_docs)
+```

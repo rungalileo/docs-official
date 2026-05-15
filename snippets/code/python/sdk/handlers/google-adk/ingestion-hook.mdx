@@ -1,0 +1,55 @@
+```python Python
+import asyncio
+import os
+from galileo import GalileoLogger
+from galileo_adk import GalileoADKPlugin
+from google.adk.runners import Runner
+from google.adk.agents import LlmAgent
+from google.genai import types
+
+# Create a Galileo logger for custom trace handling
+logger = GalileoLogger(
+    project=os.getenv("GALILEO_PROJECT", "my-project"),
+    log_stream=os.getenv("GALILEO_LOG_STREAM", "dev"),
+)
+
+def my_ingestion_hook(request):
+    """Hook that captures traces locally and forwards to Galileo."""
+    if hasattr(request, "traces") and request.traces:
+        print(f"\n[Ingestion Hook] Intercepted {len(request.traces)} trace(s)")
+        for trace in request.traces:
+            spans = getattr(trace, "spans", []) or []
+            span_types = [getattr(s, "type", "unknown") for s in spans]
+            print(f"  - Trace with {len(spans)} span(s): {span_types}")
+
+    # Session management: same external_id returns the same Galileo session
+    galileo_session_id = logger.start_session(external_id=request.session_external_id)
+    request.session_id = galileo_session_id
+
+    # Forward traces to Galileo
+    logger.ingest_traces(request)
+
+async def main():
+    # Create plugin with custom ingestion hook
+    plugin = GalileoADKPlugin(ingestion_hook=my_ingestion_hook)
+
+    agent = LlmAgent(
+        name="assistant",
+        model="gemini-2.0-flash",
+        instruction="You are helpful."
+    )
+    runner = Runner(agent=agent, plugins=[plugin])
+
+    message = types.Content(parts=[types.Part(text="Hello!")])
+    async for event in runner.run_async(
+        user_id="user-123",
+        session_id="session-456",
+        new_message=message
+    ):
+        if event.is_final_response():
+            print(event.content.parts[0].text)
+
+if __name__ == "__main__":
+    # Set environment variables: GALILEO_API_KEY, GOOGLE_API_KEY
+    asyncio.run(main())
+```

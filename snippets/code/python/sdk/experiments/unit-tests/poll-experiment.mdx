@@ -1,17 +1,11 @@
 ```python Python
-# Get the name of the average metric
-average_metric_name = f"average_{GalileoMetrics.instruction_adherence.value}"
+from galileo.schema.metrics import GalileoMetrics
 
-# Poll till the metrics are calculated
-while (
-    experiment.aggregate_metrics is None
-    or average_metric_name
-        not in experiment.aggregate_metrics
-):
-    # If we don't have the metrics calculated,
-    # sleep for 5 seconds before polling again
+# Poll until the specific metric is computed
+while experiment.get_metric_aggregate(GalileoMetrics.instruction_adherence) is None:
+    # If the metric isn't ready yet, sleep before polling again
     time.sleep(5)
 
-    # Reload the experiment to see if we now have the metrics
+    # Reload the experiment to get the latest results
     experiment = get_experiment(experiment_name=experiment_name)
 ```

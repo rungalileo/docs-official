@@ -1,0 +1,16 @@
+### Retrieval Quality
+
+| Name | Description | Supported Nodes | When to Use | Example Use Case |
+|:-----|:------------|:---------------|:------------|:-----------------|
+| [Chunk Relevance](/concepts/metrics/rag/retrieval-quality/chunk-relevance) | Measures whether each retrieved chunk contains information that could help answer the user's query. | Retriever span | When evaluating the relevance of individual retrieved chunks to the query. | A RAG system that needs to ensure each retrieved document chunk contributes useful information toward answering user questions. |
+| [Context Relevance (Query Adherence)](/concepts/metrics/rag/retrieval-quality/context-relevance) | Evaluates whether the retrieved context is relevant to the user's query. | Retriever span | When assessing the quality of your retrieval system's results. | An internal knowledge base search that retrieves company policies relevant to specific employee questions. |
+| [Context Precision](/concepts/metrics/rag/retrieval-quality/context-precision) | Measures the percentage of relevant chunks in the retrieved context, weighted by their position in the retrieval order. | Retriever span | When evaluating the overall quality of your retrieval system's results and ranking effectiveness. | A document search system that needs to ensure retrieved chunks are relevant and properly ranked by importance. |
+| [Precision @ K](/concepts/metrics/rag/retrieval-quality/precision-at-k) | Measures the percentage of relevant chunks among the top K retrieved chunks at a specific rank position. | Retriever span | When determining the optimal number of chunks to retrieve (Top K) and evaluating ranking quality at specific positions. | A RAG system that needs to optimize retrieval parameters to balance between capturing all relevant chunks and avoiding irrelevant ones. |
+
+### Generation Quality
+
+| Name | Description | Supported Nodes | When to Use | Example Use Case |
+|:-----|:------------|:---------------|:------------|:-----------------|
+| [Chunk Attribution Utilization](/concepts/metrics/rag/generation-quality/chunk-attribution) | Assesses whether the response uses the retrieved chunks in its response, and properly attributes information to source documents. | Retriever span | When implementing RAG systems and want to ensure proper attribution and that retrieved information is used efficiently. | A legal research assistant that must cite specific cases and statutes when providing legal information. |
+| [Context Adherence](/concepts/metrics/rag/generation-quality/context-adherence) | Measures how well the response aligns with the provided context. | LLM span | When you want to ensure the model is grounding its responses in the provided context. | A financial advisor bot that must base investment recommendations on the client's specific financial situation and goals. |
+| [Completeness](/concepts/metrics/rag/generation-quality/completeness) | Measures how thoroughly the response covers the relevant information available in the provided context. | LLM span | When evaluating if responses fully address the user's intent. | A healthcare chatbot, when provided with a patient's medical record as context, must include all relevant critical information from that record in its response. |

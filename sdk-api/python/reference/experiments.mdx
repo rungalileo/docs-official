@@ -7,9 +7,12 @@ title: experiments
 ## create_experiment
 
 ```python
-def create_experiment(project_id: Optional[str]=None,
-                      experiment_name: Optional[str]=None,
-                      project_name: Optional[str]=None) -> ExperimentResponse
+def create_experiment(project_id: str | None=None,
+                      experiment_name: str | None=None,
+                      project_name: str | None=None,
+                      *,
+                      experiment_group: str | None=None,
+                      experiment_group_id: str | None=None) -> ExperimentResponse
 ```
 
 Create an experiment with the specified parameters.
@@ -22,10 +25,19 @@ or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID envi
 - `project_id`: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
 - `experiment_name`: Name of the experiment. Required.
 - `project`: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
+- `experiment_group`: Optional name of an experiment group to assign this experiment to. If a group with
+    this name does not exist in the project, the API auto-creates it.
+- `experiment_group_id`: Optional UUID of an existing experiment group. If the group does not exist in this
+    project, the SDK raises ``galileo.NotFoundError`` (HTTP 404,
+    API error_code 3520).
+    If both ``experiment_group_id`` and ``experiment_group`` are provided, the API
+    uses the ID and silently ignores the name.
 
 **Raises**
 
-- `ValueError`: If `experiment_name` is not provided, or if the project cannot be resolved from `project_id` or `project`.
+- `ValueError`: If `experiment_name` is not provided or if the project cannot be resolved from
+`project_id` or `project`.
+- `galileo.NotFoundError`: If ``experiment_group_id`` is provided but the group does not exist in the project.
 - `HTTPValidationError`: If there's a validation error in returning an ExperimentResponse.
 
 **Returns**
@@ -35,9 +47,9 @@ or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID envi
 ## get_experiment
 
 ```python
-def get_experiment(project_id: Optional[str]=None,
-                   experiment_name: Optional[str]=None,
-                   project_name: Optional[str]=None) -> Optional[ExperimentResponse]
+def get_experiment(project_id: str | None=None,
+                   experiment_name: str | None=None,
+                   project_name: str | None=None) -> ExperimentResponse | None
 ```
 
 Get an experiment with the specified parameters.
@@ -63,40 +75,89 @@ or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID envi
 ## get_experiments
 
 ```python
-def get_experiments(project_id: Optional[str]=None,
-                    project_name: Optional[str]=None) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]
+def get_experiments(project_id: str | None=None,
+                    project_name: str | None=None,
+                    *,
+                    experiment_group: str | None=None,
+                    experiment_group_id: str | None=None) -> HTTPValidationError | list[ExperimentResponse] | None
 ```
 
 Get experiments from the specified Project.
+
+When no group filter is given, returns all experiments in the project (existing
+behavior, calls ``GET /projects/{id}/experiments``). When ``experiment_group`` or
+``experiment_group_id`` is provided, returns only experiments assigned to that group
+(calls ``POST /projects/{id}/experiments/search`` and pages internally).
 
 **Arguments**
 
 - `project_id`: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using ``project``
 - `project_name`: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using ``project_id``
+- `experiment_group`: Optional experiment-group name to filter by. Returns only experiments assigned to
+    a group with this name. Mutually compatible with ``experiment_group_id``: if both
+    are provided, both filters are sent and the API resolves precedence.
+- `experiment_group_id`: Optional experiment-group UUID to filter by. Returns only experiments assigned to
+    this group.
 
 **Raises**
 
 - `HTTPValidationError`: If there's a validation error in returning a list of ExperimentResponse
+- `httpx.HTTPStatusError`: If the search endpoint returns a non-2xx response (only when a group filter is set).
 
 **Returns**
 
-- `List of ExperimentResponse results`: 
+- `List of ExperimentResponse results. When a filter is set, the list is scoped to the`: 
+
+## list_experiment_groups
+
+```python
+def list_experiment_groups(project_id: str | None=None,
+                           project_name: str | None=None) -> list[ExperimentGroupResponse]
+```
+
+List all experiment groups in a project.
+
+Calls ``POST /projects/{project_id}/experiment-groups/query`` and pages through
+every group internally. The full list is returned in a single call; customers
+do not need to handle pagination tokens.
+
+The project can be specified by providing exactly one of the project name (via the
+``project_name`` parameter or the ``GALILEO_PROJECT`` environment variable) or the
+project ID (via the ``project_id`` parameter or the ``GALILEO_PROJECT_ID``
+environment variable).
+
+**Arguments**
+
+- `project_id`: Optional project ID. Takes preference over the ``GALILEO_PROJECT_ID`` env var.
+- `project_name`: Optional project name. Takes preference over the ``GALILEO_PROJECT`` env var.
+
+**Raises**
+
+- `ValueError`: If the project cannot be resolved.
+- `httpx.HTTPStatusError`: If the API returns a non-2xx response.
+
+**Returns**
+
+- `list[ExperimentGroupResponse]`: All experiment groups in the project.
 
 ## run_experiment
 
 ```python
 def run_experiment(experiment_name: str,
                    *,
-                   prompt_template: Optional[PromptTemplate]=None,
-                   prompt_settings: Optional[PromptRunSettings]=None,
-                   project: Optional[str]=None,
-                   project_id: Optional[str]=None,
-                   dataset: Optional[Union[Dataset, list[Union[dict[str, Any], str]], str]]=None,
-                   dataset_id: Optional[str]=None,
-                   dataset_name: Optional[str]=None,
-                   metrics: Optional[list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]]=None,
-                   function: Optional[Callable]=None,
-                   experiment_tags: Optional[dict[str, str]]=None) -> Any
+                   prompt_template: PromptTemplate | None=None,
+                   prompt_settings: PromptRunSettings | dict[str, Any] | None=None,
+                   project: str | None=None,
+                   project_id: str | None=None,
+                   dataset: Dataset | list[dict[str, Any] | str] | str | None=None,
+                   dataset_id: str | None=None,
+                   dataset_name: str | None=None,
+                   metrics: list[GalileoMetrics | Metric | LocalMetricConfig | str] | None=None,
+                   function: Callable | None=None,
+                   experiment_tags: dict[str, str] | None=None,
+                   on_error: Callable[[Exception], None] | None=None,
+                   experiment_group: str | None=None,
+                   experiment_group_id: str | None=None) -> Any
 ```
 
 Run an experiment with the specified parameters.
@@ -113,7 +174,8 @@ The project can be specified by providing exactly one of the project name (via t
 
 - `experiment_name`: Name of the experiment
 - `prompt_template`: Template for prompts
-- `prompt_settings`: Settings for prompt runs
+- `prompt_settings`: Settings for prompt runs. Accepts a ``PromptRunSettings`` instance or a plain ``dict``
+    with matching field names, which will be coerced to ``PromptRunSettings`` automatically.
 - `project`: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
 - `project_id`: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
 - `dataset`: Dataset object, list of records, or dataset name
@@ -122,10 +184,25 @@ The project can be specified by providing exactly one of the project name (via t
 - `metrics`: List of metrics to evaluate
 - `function`: Optional function to run with the experiment
 - `experiment_tags`: Optional dictionary of key-value pairs to tag the experiment with
+- `on_error`: Optional callback invoked with the exception when a flush error occurs. Only applies
+    to the function flow — ignored in the prompt-template flow (a warning is logged if
+    provided there). Creation errors always propagate regardless of this callback. If None,
+    flush errors are logged as warnings. Defaults to None.
+- `experiment_group`: Optional name of an experiment group to assign this run to. If a group with this
+    name does not exist in the project, the API auto-creates it. If neither
+    ``experiment_group`` nor ``experiment_group_id`` is provided and the run has a
+    dataset, the API auto-creates a group named ``"<dataset_name> Experiment Group"``;
+    otherwise the run lands in the project's system "Ungrouped" group.
+- `experiment_group_id`: Optional UUID of an existing experiment group. If the group does not exist in this
+    project, the SDK raises ``galileo.NotFoundError`` (HTTP 404,
+    API error_code 3520) before the run is created.
+    If both ``experiment_group_id`` and ``experiment_group`` are provided, the API
+    uses the ID and silently ignores the name.
 
 **Raises**
 
-- `ValueError`: If required parameters are missing or invalid
+- `ValueError`: If required parameters are missing or invalid.
+- `galileo.NotFoundError`: If ``experiment_group_id`` is provided but the group does not exist in the project.
 
 **Returns**
 

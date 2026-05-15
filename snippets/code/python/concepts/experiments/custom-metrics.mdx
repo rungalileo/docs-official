@@ -15,19 +15,13 @@ def brevity_rank(step: Span | Trace) -> str:
         return "Temperate"
     return "Talkative"
 
-# 2. Aggregator Function
-def brevity_aggregator(ranks: list[str]) -> str:
-    """Extract the single rank and adjust if it's 'Talkative'."""
-    return "Terrible" if ranks[0] == "Talkative" else ranks[0]
-
-# 3. Configure the Local Metric
+# 2. Configure the Local Metric
 terseness = LocalMetricConfig[str](
     name="Terseness",
-    scorer_fn=brevity_rank,
-    aggregator_fn=brevity_aggregator,
+    scorer_fn=brevity_rank
 )
 
-# 4. Dataset
+# 3. Dataset
 countries_dataset = [
     {"input": "Indonesia"},
     {"input": "New Zealand"},
@@ -35,7 +29,7 @@ countries_dataset = [
     {"input": "China"},
 ]
 
-# 5. LLM-Call Function
+# 4. LLM-Call Function
 def llm_call(input):
     client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     return (
@@ -60,7 +54,7 @@ def llm_call(input):
         .message.content
     )
 
-# 6. Run the Experiment!
+# 5. Run the Experiment!
 results = run_experiment(
     "terseness-custom-metric",
     dataset=countries_dataset,

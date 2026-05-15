@@ -1,0 +1,52 @@
+```python Python
+from typing import TypedDict
+
+from langchain_openai import ChatOpenAI
+from langgraph.graph import StateGraph, START, END
+from langgraph.types import Command
+
+from galileo.handlers.langchain.handler import GalileoCallback
+
+
+class State(TypedDict):
+    query: str
+    category: str
+    response: str
+
+
+def classify(state: State) -> Command:
+    """Classify the query and route to the appropriate handler."""
+    query = state["query"]
+    # In practice, you might use an LLM to classify the query
+    if "refund" in query.lower():
+        return Command(update={"category": "billing"}, goto="billing_handler")
+    return Command(update={"category": "general"}, goto="general_handler")
+
+
+def billing_handler(state: State) -> dict:
+    return {"response": f"Billing support for: {state['query']}"}
+
+
+def general_handler(state: State) -> dict:
+    return {"response": f"General support for: {state['query']}"}
+
+
+# Build the graph
+graph = StateGraph(State)
+graph.add_node("classify", classify)
+graph.add_node("billing_handler", billing_handler)
+graph.add_node("general_handler", general_handler)
+graph.add_edge(START, "classify")
+graph.add_edge("billing_handler", END)
+graph.add_edge("general_handler", END)
+
+app = graph.compile()
+
+# Run with Galileo logging — Command routing is captured automatically
+galileo_callback = GalileoCallback(project="langgraph-command-example")
+result = app.invoke(
+    {"query": "I need a refund for my last order"},
+    config={"callbacks": [galileo_callback]},
+)
+print(result["response"])
+```

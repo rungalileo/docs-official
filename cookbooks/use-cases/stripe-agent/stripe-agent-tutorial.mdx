@@ -60,6 +60,7 @@ Create a new project by clicking on the **New Project** button on the upper righ
 Once that is created, click on the profile icon in the upper right hand side of the page, navigate on the drop-down menu to API keys. From the API Keys screen, select **Create New Key**. Save the key within your environment file with the project name and Log stream name you've created.
 
 ![A gif showing how to create your API keys within Galileo](/cookbooks/use-cases/custom-metric-startup-sim/2025-07-create-api-key-small.gif)
+
 </Step>
 
 <Step title="Setting the metrics you want to track">
@@ -71,7 +72,7 @@ Look for the name of your project, and open it up to the Log stream you've got y
 
 Click on the **Trace** view and see your most recent runs listed below, it should look something like below.
 
-From this view, navigate to the upper right hand side of your screen and click on the **Configure Metrics** button.  A side panel should appear with a set of different metrics from you to choose from.
+From this view, navigate to the upper right hand side of your screen and click on the **Configure Metrics** button. A side panel should appear with a set of different metrics from you to choose from.
 
 ![An image with an arrow pointing to the **Configure Metrics** button from within the Log stream interface.](/cookbooks/use-cases/custom-metric-startup-sim/2025-07-configure-metrics-button.webp)
 
@@ -79,7 +80,7 @@ Based on the [Galileo documentation](https://v2docs.galileo.ai/concepts/metrics/
 
 - **[Tool Error](https://v2docs.galileo.ai/concepts/metrics/agentic/tool-error)**: Detects errors during tool execution
 - **[Tool Selection Quality](https://v2docs.galileo.ai/concepts/metrics/agentic/tool-selection-quality)**: Determines if the agent selected the correct tool and arguments
-- **[Context Adherence](https://v2docs.galileo.ai/concepts/metrics/response-quality/context-adherence)**: Measures closed-domain hallucinations
+- **[Context Adherence](/concepts/metrics/rag/generation-quality/context-adherence)**: Measures closed-domain hallucinations
 
 </Step>
 </Steps>
@@ -147,6 +148,11 @@ GALILEO_LOG_STREAM=production                    # Your Galileo Log stream Name
 # deployments where you may have your own custom cluster.
 # GALILEO_CONSOLE_URL=https://console.galileo.ai
 
+# OPTIONAL
+# Set the verbosity level of the Galileo SDK (from most to least verbose):
+# debug, info, warn, error, silent (default)
+# GALILEO_LOG_LEVEL=debug
+
 # Agent Configuration
 AGENT_NAME=StripePaymentAgent
 AGENT_DESCRIPTION=An AI agent that helps with Stripe payment operations
@@ -208,6 +214,7 @@ npm run web
 ```
 
 The application will run on `http://localhost:3000`
+
 </Step>
 </Steps>
 
@@ -235,9 +242,9 @@ Go to your [Galileo Dashboard](https://app.galileo.ai) and navigate to your proj
 Click on your Log stream to view traces, sessions, and metrics. You'll be able to monitor agent performance over time.
 
 ![Stripe Agent Log stream](/cookbooks/use-cases/stripe-agent/stripe-agent-images/2025-08-06-stripe-agent-log-stream.webp)
+
 </Step>
 </Steps>
-
 
 ## Understanding the agent architecture
 
@@ -336,7 +343,7 @@ The main workflow in `agents/StripeAgent.ts` ties everything together and adds G
    ```typescript
    const result = await this.agentExecutor.invoke({
      input: userInput,
-     callbacks: [this.galileoCallback]
+     callbacks: [this.galileoCallback],
    });
    ```
 
@@ -401,7 +408,6 @@ Let's examine the Stripe tools to understand how they work and where Galileo fit
 
 3. **Request processing:**
    The tools handle various Stripe operations:
-
    - **List products**: Fetches available products and pricing
    - **Create payment links**: Generates payment URLs for customers
    - **Customer management**: Creates and manages customer records
@@ -416,7 +422,7 @@ The tools themselves don't directly use Galileo. Instead, the main agent wraps t
 ```typescript
 const result = await this.agentExecutor.invoke({
   input: userInput,
-  callbacks: [this.galileoCallback]
+  callbacks: [this.galileoCallback],
 });
 ```
 
@@ -565,8 +571,9 @@ const customPrompt = ChatPromptTemplate.fromMessages([
 Additional configuration options:
 
 ```ini
-# Verbose logging
-VERBOSE=true
+# Verbose level of logging (from most to least verbose):
+# debug, info, warn, error, silent (default)
+GALILEO_LOG_LEVEL=debug
 
 # Custom Galileo console URL (for enterprise deployments)
 # GALILEO_CONSOLE_URL=https://console.galileo.ai
@@ -642,7 +649,7 @@ curl -H "Authorization: Bearer $OPENAI_API_KEY" \
 Enable verbose logging for troubleshooting:
 
 ```bash
-VERBOSE=true npm run interactive
+GALILEO_LOG_LEVEL=error npm run interactive
 ```
 
 ### Manual Trace Flushing

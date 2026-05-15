@@ -10,7 +10,7 @@ See our [contributing guide](./.github/CONTRIBUTING.md) for more details.
 
 This repo has a devcontainer configured so you can run in VS Code with the dev containers extension and Docker, or in a code space, and have an isolated environment with all the relevant tools installed.
 
-This container installs the Mintlify CLI as well as Vale for spellchecking. It also has some recommended extensions. If you find any other extensions useful, please add thm to the `devcontainer.json` file.
+This container installs the Mintlify CLI as well as Vale for spellchecking. It also has some recommended extensions. If you find any other extensions useful, please add them to the `devcontainer.json` file.
 
 ## Build and view the docs
 

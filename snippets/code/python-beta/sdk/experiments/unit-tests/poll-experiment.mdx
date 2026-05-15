@@ -1,0 +1,11 @@
+```python Python (Beta)
+import time
+from galileo.schema.metrics import GalileoMetrics
+
+# Poll until the specific metric is computed
+while experiment.get_metric_aggregate(GalileoMetrics.correctness) is None:
+    # Sleep before polling again
+    time.sleep(5)
+    # Refresh the experiment to get the latest results
+    experiment.refresh()
+```

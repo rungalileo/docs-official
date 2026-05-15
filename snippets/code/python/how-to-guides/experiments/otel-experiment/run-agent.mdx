@@ -1,0 +1,18 @@
+```python agent.py
+async def _run_agent_async(user_message: str) -> str:
+    session = agent.create_session()
+    result = await agent.run(user_message, session=session)
+    return getattr(result, "text", str(result)).strip()
+
+
+def run_agent(input_data: Any) -> str:
+    """Called by Galileo's run_experiment for each dataset row."""
+    if isinstance(input_data, str):
+        user_message = input_data
+    elif isinstance(input_data, dict):
+        user_message = input_data.get("input", "")
+    else:
+        raise TypeError(f"Unsupported input type: {type(input_data)!r}")
+
+    return asyncio.run(_run_agent_async(user_message))
+```

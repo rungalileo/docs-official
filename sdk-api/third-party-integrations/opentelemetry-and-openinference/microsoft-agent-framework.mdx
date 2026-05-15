@@ -1,0 +1,69 @@
+---
+title: Microsoft Agent Framework
+description: Learn how to integrate a Microsoft Agent Framework project with Galileo using OpenTelemetry
+---
+
+import ConfigureOTelInvVars from "/snippets/content/configure-otel-env-vars.mdx"
+
+import SnippetSetupTracerProvider from "/snippets/code/python/sdk/otel/microsoft-agent-framework/setup-tracer-provider.mdx"
+
+import SnippetEnableInstrumentation from "/snippets/code/python/sdk/otel/microsoft-agent-framework/enable-instrumentation.mdx"
+
+import SnippetQuickstartPython from "/snippets/code/python/sdk/otel/microsoft-agent-framework/quickstart-example.mdx"
+
+Galileo supports logging traces from [Microsoft Agent Framework](https://github.com/microsoft/agent-framework) applications using OpenTelemetry. The framework has built-in OTel instrumentation, so no extra instrumentation package is needed.
+
+## Set up OpenTelemetry
+
+To log Microsoft Agent Framework traces using Galileo, the first step is to set up OpenTelemetry.
+
+<Steps>
+<ConfigureOTelInvVars/>
+</Steps>
+
+## Log a Microsoft Agent Framework agent using OpenTelemetry
+
+Once OpenTelemetry is configured, you can use the `GalileoSpanProcessor` to capture traces from your agent.
+
+<Steps>
+<Step title="Create the tracer provider with the Galileo span processor">
+
+Set up a `TracerProvider` with the `GalileoSpanProcessor` and register it as the global tracer provider:
+
+<CodeGroup>
+<SnippetSetupTracerProvider/>
+</CodeGroup>
+</Step>
+<Step title="Enable the framework's instrumentation">
+
+Enable the Microsoft Agent Framework's built-in OTel instrumentation. Set `enable_sensitive_data=True` to send LLM inputs and outputs to Galileo. If set to `False`, only span metadata (timing, token counts, etc.) will be sent.
+
+<CodeGroup>
+<SnippetEnableInstrumentation/>
+</CodeGroup>
+
+When you run your agent code, traces will be logged to Galileo.
+</Step>
+</Steps>
+
+## Full example
+
+Here is a full example based on the Microsoft Agent Framework's tool calling sample. You can find this project in the [Galileo SDK examples repo](https://github.com/rungalileo/sdk-examples/tree/main/python/agent/microsoft-agent-framework).
+
+To run this example, create a `.env` file with the following values set, or set them as environment variables:
+
+```ini .env
+# OpenAI environment variables
+OPENAI_API_KEY=your-openai-api-key
+
+# Galileo environment variables
+GALILEO_API_KEY=your-galileo-api-key
+GALILEO_PROJECT=your-galileo-project
+GALILEO_LOG_STREAM=your-log-stream
+```
+
+Remember to update these to match your [Galileo API key](https://app.galileo.ai/settings/api-keys), project name, and Log stream name.
+
+<CodeGroup>
+<SnippetQuickstartPython/>
+</CodeGroup>

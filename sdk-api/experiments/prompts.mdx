@@ -5,36 +5,49 @@ description: Learn how to create and use prompt templates in experiments
 
 {/*<!-- markdownlint-disable MD044 -->*/}
 
+import SnippetSdkDatasetsExperimentsPythonBeta from "/snippets/code/python-beta/sdk/datasets/experiments.mdx";
 import SnippetSdkPromptsCreatePython from "/snippets/code/python/sdk/prompts/create.mdx";
-import SnippetSdkPromptsGetPython from "/snippets/code/python/sdk/prompts/get.mdx";
-import SnippetSdkPromptsListPython from "/snippets/code/python/sdk/prompts/list.mdx";
+import SnippetSdkPromptsCreatePythonBeta from "/snippets/code/python-beta/sdk/prompts/create.mdx";
 import SnippetSdkPromptsDeletePython from "/snippets/code/python/sdk/prompts/delete.mdx";
+import SnippetSdkPromptsDeletePythonBeta from "/snippets/code/python-beta/sdk/prompts/delete.mdx";
 import SnippetSdkPromptsExperimentPython from "/snippets/code/python/sdk/datasets/experiments.mdx";
-import SnippetSdkPromptsTestDataPython from "/snippets/code/python/sdk/experiments/test-data.mdx";
+import SnippetSdkPromptsGetPython from "/snippets/code/python/sdk/prompts/get.mdx";
+import SnippetSdkPromptsGetPythonBeta from "/snippets/code/python-beta/sdk/prompts/get.mdx";
+import SnippetSdkPromptsListPython from "/snippets/code/python/sdk/prompts/list.mdx";
+import SnippetSdkPromptsListPythonBeta from "/snippets/code/python-beta/sdk/prompts/list.mdx";
 import SnippetSdkPromptsReferenceDataSetPython from "/snippets/code/python/sdk/experiments/reference-dataset.mdx";
+import SnippetSdkPromptsTestDataPython from "/snippets/code/python/sdk/experiments/test-data.mdx";
 
 import SnippetSdkPromptsCreateTypeScript from "/snippets/code/typescript/sdk/prompts/create.mdx";
-import SnippetSdkPromptsGetTypeScript from "/snippets/code/typescript/sdk/prompts/get.mdx";
-import SnippetSdkPromptsListTypeScript from "/snippets/code/typescript/sdk/prompts/list.mdx";
 import SnippetSdkPromptsDeleteTypeScript from "/snippets/code/typescript/sdk/prompts/delete.mdx";
 import SnippetSdkPromptsExperimentTypeScript from "/snippets/code/typescript/sdk/datasets/experiments.mdx";
-import SnippetSdkPromptsTestDataTypeScript from "/snippets/code/typescript/sdk/experiments/test-data.mdx";
+import SnippetSdkPromptsGetTypeScript from "/snippets/code/typescript/sdk/prompts/get.mdx";
+import SnippetSdkPromptsListTypeScript from "/snippets/code/typescript/sdk/prompts/list.mdx";
 import SnippetSdkPromptsReferenceDataSetTypeScript from "/snippets/code/typescript/sdk/experiments/reference-dataset.mdx";
+import SnippetSdkPromptsTestDataTypeScript from "/snippets/code/typescript/sdk/experiments/test-data.mdx";
 
 {/*<!-- markdownlint-enable MD044 -->*/}
 
-Prompts in Galileo allow you to create, store, and reuse prompts across your experiments. They provide a structured way to manage your prompts and ensure consistency in your LLM interactions.
+Prompts in Galileo allow you to create, store, and reuse LLM prompts across your experiments. They provide a structured way to manage your LLM interactions.
 
-Prompts can be created an managed at an organization, or project level.
+## Prompts in the Galileo console
 
-## Create prompts
+
+![Prompts in the Galileo console](/images/prompts-in-console.png)
+
+The **Prompts** page of the Galileo console shows you the existing prompts associated with your selected project. Click on **All prompts** to view all prompts in your organization. Click the **Create Prompt** button to create a new prompt.
+
+## Prompts in code
+
+### Create prompts
 
 <CodeGroup>
   <SnippetSdkPromptsCreatePython />
+  <SnippetSdkPromptsCreatePythonBeta />
   <SnippetSdkPromptsCreateTypeScript />
 </CodeGroup>
 
-### Connect prompt templates to dataset inputs
+#### Connect prompt templates to dataset inputs
 
 When you use datasets in Galileo, the attributes stored in the input in your dataset are made available to your prompt templates using mustache templating.  This allows you to create dynamic prompts that adapt to the data in each row.
 
@@ -55,50 +68,54 @@ To reference fields from your dataset in your prompt, use double curly braces:
 - `{{ city }}` will be replaced with the value of the `city` field inside the `input` dictionary.
 - `{{ days }}` will be replaced with the value of the `days` field inside the `input` dictionary.
 
-## Get prompts
+### Get prompts
 
 Once prompts have been created in Galileo, they can be retrieved by name. For project level prompts, pass in either the project name or Id.
 
 <CodeGroup>
   <SnippetSdkPromptsGetPython />
+  <SnippetSdkPromptsGetPythonBeta />
   <SnippetSdkPromptsGetTypeScript />
 </CodeGroup>
 
-## List prompts
+### List prompts
 
 To list all prompt templates in a project or organization:
 
 <CodeGroup>
   <SnippetSdkPromptsListPython />
+  <SnippetSdkPromptsListPythonBeta />
   <SnippetSdkPromptsListTypeScript />
 </CodeGroup>
 
-## Delete prompts
+### Delete prompts
 
 To delete a prompt:
 
 <CodeGroup>
   <SnippetSdkPromptsDeletePython />
+  <SnippetSdkPromptsDeletePythonBeta />
   <SnippetSdkPromptsDeleteTypeScript />
 </CodeGroup>
 
-## Use prompts in experiments
+### Use prompts in experiments
 
 Prompts can be used in experiments to evaluate different prompt templates:
 
 <CodeGroup>
   <SnippetSdkPromptsExperimentPython />
+  <SnippetSdkDatasetsExperimentsPythonBeta />
   <SnippetSdkPromptsExperimentTypeScript />
 </CodeGroup>
 
-## Best practices
+### Best practices
 
 When working with prompts:
 
 1. Use descriptive names that reflect the prompt's purpose
 1. Include clear system messages to set context
 1. Document any required input variables
-1. Version your templates appropriately
+1. Version your prompt templates appropriately
 1. Test prompt templates with various inputs before using in production
 
 ## Related resources
