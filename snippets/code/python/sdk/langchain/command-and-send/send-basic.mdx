@@ -1,0 +1,48 @@
+```python Python
+import operator
+from typing import Annotated, TypedDict
+
+from langchain_openai import ChatOpenAI
+from langgraph.graph import StateGraph, START, END
+from langgraph.types import Send
+
+from galileo.handlers.langchain.handler import GalileoCallback
+
+
+class OverallState(TypedDict):
+    topics: list[str]
+    summaries: Annotated[list[str], operator.add]
+
+
+class SummaryState(TypedDict):
+    topic: str
+    summaries: Annotated[list[str], operator.add]
+
+
+def fan_out(state: OverallState) -> list[Send]:
+    """Dispatch each topic to a summarize node in parallel."""
+    return [Send("summarize", {"topic": t}) for t in state["topics"]]
+
+
+def summarize(state: SummaryState) -> dict:
+    """Summarize a single topic."""
+    # In practice, you would call an LLM here
+    return {"summaries": [f"Summary of {state['topic']}"]}
+
+
+# Build the graph
+graph = StateGraph(OverallState)
+graph.add_node("summarize", summarize)
+graph.add_conditional_edges(START, fan_out)
+graph.add_edge("summarize", END)
+
+app = graph.compile()
+
+# Run with Galileo logging — each Send is captured automatically
+galileo_callback = GalileoCallback(project="langgraph-send-example")
+result = app.invoke(
+    {"topics": ["AI safety", "Quantum computing", "Climate change"]},
+    config={"callbacks": [galileo_callback]},
+)
+print(result["summaries"])
+```

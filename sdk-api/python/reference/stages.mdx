@@ -7,13 +7,13 @@ title: stages
 ## create_protect_stage
 
 ```python
-def create_protect_stage(project_id: Optional[Union[str, UUID4]]=None,
-                         project_name: Optional[str]=None,
-                         name: Optional[str]=None,
+def create_protect_stage(project_id: str | UUID4 | None=None,
+                         project_name: str | None=None,
+                         name: str | None=None,
                          stage_type: StageType=StageType.local,
                          pause: bool=False,
-                         prioritized_rulesets: Optional[Sequence[Ruleset]]=None,
-                         description: Optional[str]=None) -> Optional[StageDB]
+                         prioritized_rulesets: Sequence[Ruleset] | None=None,
+                         description: str | None=None) -> StageDB | None
 ```
 
 Creates a new stage.
@@ -36,10 +36,10 @@ Creates a new stage.
 ## get_protect_stage
 
 ```python
-def get_protect_stage(project_id: Optional[Union[str, UUID4]]=None,
-                      project_name: Optional[str]=None,
-                      stage_id: Optional[Union[str, UUID4]]=None,
-                      stage_name: Optional[str]=None) -> Optional[StageDB]
+def get_protect_stage(project_id: str | UUID4 | None=None,
+                      project_name: str | None=None,
+                      stage_id: str | UUID4 | None=None,
+                      stage_name: str | None=None) -> StageDB | None
 ```
 
 Retrieves a stage by its ID or name, within a given project.
@@ -60,10 +60,10 @@ Retrieves a stage by its ID or name, within a given project.
 ## pause_protect_stage
 
 ```python
-def pause_protect_stage(project_id: Optional[Union[str, UUID4]]=None,
-                        project_name: Optional[str]=None,
-                        stage_id: Optional[Union[str, UUID4]]=None,
-                        stage_name: Optional[str]=None) -> Optional[StageDB]
+def pause_protect_stage(project_id: str | UUID4 | None=None,
+                        project_name: str | None=None,
+                        stage_id: str | UUID4 | None=None,
+                        stage_name: str | None=None) -> StageDB | None
 ```
 
 Pauses the specified stage.
@@ -85,10 +85,10 @@ Pauses a stage using either its ID or name within the context of a project.
 ## resume_protect_stage
 
 ```python
-def resume_protect_stage(project_id: Optional[Union[str, UUID4]]=None,
-                         project_name: Optional[str]=None,
-                         stage_id: Optional[Union[str, UUID4]]=None,
-                         stage_name: Optional[str]=None) -> Optional[StageDB]
+def resume_protect_stage(project_id: str | UUID4 | None=None,
+                         project_name: str | None=None,
+                         stage_id: str | UUID4 | None=None,
+                         stage_name: str | None=None) -> StageDB | None
 ```
 
 Resumes a previously paused stage.
@@ -106,11 +106,11 @@ Resumes a stage using either its ID or name within the context of a project.
 ## update_protect_stage
 
 ```python
-def update_protect_stage(project_id: Optional[Union[str, UUID4]]=None,
-                         project_name: Optional[str]=None,
-                         stage_id: Optional[Union[str, UUID4]]=None,
-                         stage_name: Optional[str]=None,
-                         prioritized_rulesets: Optional[Sequence[Ruleset]]=None) -> Optional[StageDB]
+def update_protect_stage(project_id: str | UUID4 | None=None,
+                         project_name: str | None=None,
+                         stage_id: str | UUID4 | None=None,
+                         stage_name: str | None=None,
+                         prioritized_rulesets: Sequence[Ruleset] | None=None) -> StageDB | None
 ```
 
 Updates a stage's rulesets, creating a new version.

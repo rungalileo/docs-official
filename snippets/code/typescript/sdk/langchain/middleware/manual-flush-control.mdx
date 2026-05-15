@@ -1,0 +1,22 @@
+```typescript TypeScript
+import { GalileoCallback, GalileoLogger } from "galileo";
+
+const logger = new GalileoLogger({
+  projectName: "my-project",
+  logStreamName: "batch-execution",
+});
+
+// Disable automatic flushing (flushOnChainEnd = false)
+const callback = new GalileoCallback(
+  logger,
+  true,  // startNewTrace
+  false  // flushOnChainEnd — we will flush manually
+);
+
+// Execute multiple agent calls — traces accumulate in memory
+await agent.invoke({ messages: [...] }, { callbacks: [callback] });
+await agent.invoke({ messages: [...] }, { callbacks: [callback] });
+
+// Manually flush when ready
+await logger.flush();
+```

@@ -1,0 +1,12 @@
+```python Python
+from galileo.otel import start_galileo_span
+from galileo_core.schemas.logging.span import WorkflowSpan
+
+workflow_span = WorkflowSpan(
+    name="document-processing-pipeline",
+    input="Summarize the quarterly report"
+)
+with start_galileo_span(workflow_span) as span:
+    result = process_document("Summarize the quarterly report")
+    workflow_span.output = "The quarterly report shows 15% revenue growth..."
+```

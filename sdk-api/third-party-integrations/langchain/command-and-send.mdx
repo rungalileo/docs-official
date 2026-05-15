@@ -1,0 +1,100 @@
+---
+title: Command and Send
+description: Learn how Galileo logs LangGraph Command and Send types for advanced control flow
+---
+
+{/*<!-- markdownlint-disable MD044 -->*/}
+
+import CommandBasicPython from "/snippets/code/python/sdk/langchain/command-and-send/command-basic.mdx";
+import SendBasicPython from "/snippets/code/python/sdk/langchain/command-and-send/send-basic.mdx";
+import CommandToolMessagesPython from "/snippets/code/python/sdk/langchain/command-and-send/command-tool-messages.mdx";
+
+import CommandBasicTypeScript from "/snippets/code/typescript/sdk/langchain/command-and-send/command-basic.mdx";
+import SendBasicTypeScript from "/snippets/code/typescript/sdk/langchain/command-and-send/send-basic.mdx";
+import CommandToolMessagesTypeScript from "/snippets/code/typescript/sdk/langchain/command-and-send/command-tool-messages.mdx";
+
+{/*<!-- markdownlint-disable MD044 -->*/}
+
+## Overview
+
+LangGraph provides two types for advanced graph control flow:
+
+- **`Command`** — Combines a state update with routing in a single return value. Instead of using conditional edges, a node can return a `Command` with an `update` and `goto` to update state and control which node runs next.
+- **`Send`** — Enables map-reduce (fan-out) patterns by dispatching work to a node with custom state. Returning a list of `Send` objects from an edge function runs the target node once per `Send`, in parallel.
+
+Both types are useful for building dynamic, multi-path agents in LangGraph.
+
+## Galileo support
+
+<Note>
+  Galileo's `GalileoCallback` and `GalileoAsyncCallback` handle `Command` and `Send` automatically. No additional configuration is needed — just pass the callback as usual and all control flow data is captured.
+</Note>
+
+## Using Command
+
+`Command` lets a node update state and route to the next node in one step, replacing the need for separate conditional edges.
+
+<CodeGroup>
+  <CommandBasicPython />
+  <CommandBasicTypeScript />
+</CodeGroup>
+
+In this example, the `classify` node returns a `Command` that sets the `category` field and routes to either `billing_handler` or `general_handler`. Galileo captures the full `Command` return value, including the routing decision.
+
+## Using Send
+
+`Send` enables fan-out patterns where multiple instances of a node run in parallel, each with different input state.
+
+<CodeGroup>
+  <SendBasicPython />
+  <SendBasicTypeScript />
+</CodeGroup>
+
+Here, `fan_out` returns a list of `Send` objects — one per topic. LangGraph runs the `summarize` node for each topic in parallel, and the results are aggregated via a list-concatenation reducer. Galileo logs each parallel execution.
+
+## Command with tool messages
+
+When a tool returns a `Command`, it can include a `ToolMessage` in the state update. Galileo automatically extracts the `ToolMessage` for proper tool-call logging.
+
+<CodeGroup>
+  <CommandToolMessagesPython />
+  <CommandToolMessagesTypeScript />
+</CodeGroup>
+
+This pattern is useful when a tool needs to both return a result to the LLM (via `ToolMessage`) and update other parts of the graph state at the same time.
+
+## What gets logged
+
+Galileo serializes `Command` and `Send` objects and captures their fields in the trace:
+
+### Command fields
+
+| Field | Description |
+|-------|-------------|
+| `update` | The state update dictionary applied by the command |
+| `goto` | The target node(s) the command routes to |
+| `graph` | The subgraph to send the command to (if applicable) |
+| `resume` | The resume value for interrupt-based workflows |
+
+### Send fields
+
+| Field | Description |
+|-------|-------------|
+| `node` | The target node to dispatch work to |
+| `arg` | The custom state passed to the target node |
+
+All fields are serialized recursively, including nested messages and complex objects.
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="Logging" icon="code" horizontal href="/sdk-api/third-party-integrations/langchain/langchain">
+    Set up GalileoCallback for LangChain and LangGraph logging.
+</Card>
+<Card title="Middleware" icon="layer-group" horizontal href="/sdk-api/third-party-integrations/langchain/middleware">
+    Use GalileoMiddleware for automatic LangGraph agent logging.
+</Card>
+<Card title="Experiments" icon="flask" horizontal href="/sdk-api/third-party-integrations/langchain/experiments">
+    Run and track experiments with LangChain.
+</Card>
+</CardGroup>

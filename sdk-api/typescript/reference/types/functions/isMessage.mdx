@@ -12,15 +12,17 @@ title: isMessage
 function isMessage(
   obj: any,
 ): obj is {
-  content: string;
+  content:
+    | string
+    | ({ text: string; type: "text" } | { file_id: string; type: "file" })[];
   role:
     | "function"
     | "agent"
     | "tool"
-    | "user"
     | "assistant"
     | "developer"
-    | "system";
+    | "system"
+    | "user";
   tool_call_id?: null | string;
   tool_calls?:
     | null
@@ -38,4 +40,4 @@ Defined in: [src/types/message.types.ts](https://github.com/rungalileo/galileo-j
 
 ## Returns
 
-obj is \{ content: string; role: "function" \| "agent" \| "tool" \| "user" \| "assistant" \| "developer" \| "system"; tool_call_id?: null \| string; tool_calls?: null \| \{ function: \{ arguments: string; name: string \}; id: string \}\[\] \}
+obj is \{ content: string \| (\{ text: string; type: "text" \} \| \{ file_id: string; type: "file" \})\[\]; role: "function" \| "agent" \| "tool" \| "assistant" \| "developer" \| "system" \| "user"; tool_call_id?: null \| string; tool_calls?: null \| \{ function: \{ arguments: string; name: string \}; id: string \}\[\] \}

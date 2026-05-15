@@ -7,15 +7,21 @@
 # used for classification, documentation, and customer-facing error display.
 #
 # Error Code Ranges (see ERROR_CODE_RANGES.md for details):
-#   - 1000-1499: Shared & customer-facing errors (used across all features)
-#   - 2000-2499: Metrics-specific errors
+#   - 1000-1999: Shared & customer-facing errors (used across all features)
+#   - 2000-2999: Metrics-specific errors
 #   - 3000-3499: Playground errors
 #   - 3500-3999: Experiment errors
 #   - 4000-4499: Dataset errors
-#   - 5000-5499: Logstream Insights (LSI) errors
+#   - 5000-5499: Signals errors
 #   - 6000-6499: Protect (security/guardrails) errors
 #   - 7000-7499: Integrations errors
-#   - 8000-8999: Reserved for future features (training, observe, etc.)
+#   - 8000-8499: Annotation queue errors
+#   - 8500-8999: Authentication errors (SSO, SAML, etc.)
+#   - 9000-9499: Component view errors
+#   - 9500-9999: Authorization errors (Cerbos, etc.)
+#   - 10000-10499: User preferences errors
+#   - 10500-10999: Logstream errors
+#   - 11000-11499: Organization errors
 #
 # Schema: See ErrorCatalogEntry model in orbit/libs/python/error_management/models/
 #
@@ -37,7 +43,7 @@
 #        system_error, not_found_error, configuration_error, uncataloged_error
 #
 #   3. error_group: str
-#      - Feature grouping: "shared", "metrics", "playground", "dataset", "lsi"
+#      - Feature grouping: "shared", "metrics", "playground", "dataset", "signals"
 #      - Must match the error_code range (e.g., 2000-2999 → "metrics")
 #
 #   4. severity: ErrorSeverity
@@ -76,7 +82,7 @@
 # =============================================================================
 #
 # Description: Common errors used across all features (Metrics, Playground,
-#              Experiments, Dataset, LSI). These are high-frequency errors that
+#              Experiments, Dataset, Signals). These are high-frequency errors that
 #              affect multiple features.
 #
 # When to add here:
@@ -119,11 +125,10 @@
   error_type: llm_api_error
   error_group: shared
   severity: high
-  default_message: Provider rate limit exceeded. Please retry after a short wait.
-  user_action: Reduce request frequency or upgrade quota.
+  default_message: The AI provider rate-limited the request.
+  user_action: Retry later, or contact the AI provider to raise your rate limit.
   retriable: true
   http_status_code: 429
-  exception_class: setgalileo.exceptions.llm.LLMError
   message_patterns:
     - "rate limit"
     - "quota exceeded"
@@ -246,7 +251,6 @@
   exception_class: galileo_core.exceptions.http.GalileoHTTPException
   telemetry_tags: ["http"]
 
-
 # Already shared with target
 - error_code: 1011
   error_type: data_validation_error
@@ -286,7 +290,41 @@
   default_message: The request references the same user multiple times.
   user_action: Ensure each user is specified only once.
   http_status_code: 422
-  telemetry_tags: [ "collaboration", "validation" ]
+  telemetry_tags: ["collaboration", "validation"]
+
+# Configuration error (SSL, client setup, system configuration)
+- error_code: 1015
+  error_type: configuration_error
+  error_group: shared
+  severity: high
+  default_message: A configuration error prevented the operation from completing.
+  user_action: Check your integration configuration and retry.
+  retriable: false
+  exception_class: setgalileo.exceptions.configuration.ConfigurationError
+  telemetry_tags: ["configuration"]
+
+# Data validation error (mismatched lengths, invalid types, missing outputs)
+- error_code: 1016
+  error_type: data_validation_error
+  error_group: shared
+  severity: medium
+  default_message: Input data failed validation checks.
+  user_action: Check your input data format and retry.
+  retriable: false
+  exception_class: setgalileo.exceptions.data.DataError
+  telemetry_tags: ["data_validation"]
+
+# Shared with an invalid role
+- error_code: 1017
+  error_type: data_validation_error
+  error_group: shared
+  severity: medium
+  default_message: Invalid role specified in share request.
+  user_action: Make sure the role is one of the allowed values.
+  http_status_code: 422
+  message_patterns:
+    - "invalid role"
+  telemetry_tags: ["collaboration", "validation"]
 
 # =============================================================================
 # SECTION 2: METRICS ERRORS (2000-2999)
@@ -388,6 +426,154 @@
     - "cannot add feedback"
     - "cannot create scorer version"
   telemetry_tags: ["metrics", "scorer_feedback"]
+
+# Metrics-specific: Custom scorer code validation failed
+- error_code: 2006
+  error_type: workflow_error
+  error_group: metrics
+  severity: medium
+  default_message: Custom scorer validation failed.
+  user_action: Check your custom scorer code for errors.
+  retriable: false
+  telemetry_tags: ["metrics", "scorer_validation"]
+
+# Metrics-specific: Scorer name conflicts with reserved auxiliary metric suffix
+- error_code: 2007
+  error_type: data_validation_error
+  error_group: metrics
+  severity: low
+  http_status_code: 422
+  default_message: Scorer name conflicts with a reserved Galileo metric suffix.
+  user_action: >
+    Rename your scorer to avoid names ending with reserved suffixes.
+    Reserved suffixes are used internally by Galileo to store metric metadata
+    (e.g., _status, _error_message, _explanation, _rationale, _metric_cost).
+    Choose a name that does not end with any of these.
+  retriable: false
+  telemetry_tags: ["metrics", "scorer_validation"]
+
+# Metrics-specific: Model server connection or timeout error
+- error_code: 2008
+  error_type: system_error
+  error_group: metrics
+  severity: high
+  default_message: The scoring model is temporarily unavailable.
+  user_action: Please retry. If the issue persists, contact support.
+  retriable: true
+  telemetry_tags: ["metrics", "model_server"]
+
+# --- Metric N/A reason codes (informational, not errors) ---
+
+# Metrics-specific: Required input data missing for metric computation
+- error_code: 2009
+  error_type: not_applicable_reason
+  error_group: metrics
+  severity: low
+  default_message: Required input data for this metric is missing.
+  user_action: Ensure all required fields (e.g., ground truth, tools) are provided for this metric.
+  retriable: false
+  telemetry_tags: ["metrics", "missing_input"]
+
+# Metrics-specific: Record returned an error, metric skipped
+- error_code: 2010
+  error_type: not_applicable_reason
+  error_group: metrics
+  severity: low
+  default_message: This record returned an error, so the metric cannot be computed.
+  user_action: Investigate the error on the original record. Metrics are computed once the record succeeds.
+  retriable: false
+  telemetry_tags: ["metrics", "record_error"]
+
+# Metrics-specific: Record excluded by metric sampling settings
+- error_code: 2011
+  error_type: not_applicable_reason
+  error_group: metrics
+  severity: low
+  default_message: This record was excluded by metric sampling settings.
+  user_action: Adjust your sampling rules if you want this record scored.
+  retriable: false
+  telemetry_tags: ["metrics", "sampling"]
+
+# Metrics-specific: No child spans eligible for this metric
+- error_code: 2012
+  error_type: not_applicable_reason
+  error_group: metrics
+  severity: low
+  default_message: No child spans are eligible for this metric.
+  user_action: Check that child spans match the metric's required types.
+  retriable: false
+  telemetry_tags: ["metrics", "structural"]
+
+# Metrics-specific: Metric does not apply to this record type
+- error_code: 2013
+  error_type: not_applicable_reason
+  error_group: metrics
+  severity: low
+  default_message: This metric does not apply to this record type.
+  user_action: This metric only applies to specific span types. No action needed.
+  retriable: false
+  telemetry_tags: ["metrics", "type_mismatch"]
+
+# Metrics-specific: Record excluded by metric filter condition
+- error_code: 2014
+  error_type: not_applicable_reason
+  error_group: metrics
+  severity: low
+  default_message: This record was excluded by a metric filter condition.
+  user_action: Adjust the metric's filter conditions if you want this record scored.
+  retriable: false
+  telemetry_tags: ["metrics", "filter"]
+
+# Metrics-specific: Metric does not support rollup from children
+- error_code: 2015
+  error_type: not_applicable_reason
+  error_group: metrics
+  severity: low
+  default_message: This metric does not aggregate scores from child spans.
+  user_action: See individual child spans for their scores.
+  retriable: false
+  telemetry_tags: ["metrics", "rollup"]
+
+# Metrics-specific: Recompute exceeds maximum allowed steps
+- error_code: 2016
+  error_type: data_validation_error
+  error_group: metrics
+  severity: medium
+  default_message: Cannot recompute metrics because the number of matching steps exceeds the allowed limit.
+  user_action: Refine your filters to reduce the number of steps before recomputing metrics.
+  http_status_code: 422
+  retriable: false
+  telemetry_tags: ["metrics", "recompute", "limit"]
+
+# Metrics-specific: LLM Provider file upload failed
+- error_code: 2017
+  error_type: llm_api_error
+  error_group: metrics
+  severity: high
+  default_message: File upload(s) to LLM Provider failed.
+  user_action: Update LLM Provider configuration.
+  retriable: false
+  telemetry_tags: ["metrics", "file_upload"]
+
+# Metrics-specific: Record has file modalities unsupported by the metric
+- error_code: 2018
+  error_type: not_applicable_reason
+  error_group: metrics
+  severity: low
+  default_message: This metric does not support the file modalities attached to this record.
+  user_action: Use metrics that provide the required multimodal capabilities for files attached to this record.
+  retriable: false
+  telemetry_tags: ["metrics", "multimodal"]
+
+# Metrics-specific: Cost tracking unavailable for multimodal LLM calls
+- error_code: 2019
+  error_type: not_applicable_reason
+  error_group: metrics
+  severity: low
+  default_message: Cost tracking is not yet accurate for multimodal LLM calls.
+  user_action: Cost will be reported once accurate multimodal cost tracking is implemented.
+  retriable: false
+  telemetry_tags: ["metrics", "multimodal", "cost"]
 
 # =============================================================================
 # SECTION 3: PLAYGROUND & EXPERIMENTS ERRORS (3000-3999)
@@ -557,6 +743,131 @@
     - "version.*not found for dataset"
   telemetry_tags: ["experiment", "datasets"]
 
+# No prompt template and no generated_output in dataset
+- error_code: 3512
+  error_type: data_validation_error
+  error_group: experiment
+  severity: high
+  default_message: "Your selected Dataset doesn't have generated output values. Please provide a Prompt that uses {{input}} to generate outputs."
+  user_action: "Upload a dataset with a non-empty 'generated_output' column, or provide a Prompt that uses {{input}} to generate outputs."
+  http_status_code: 422
+  message_patterns:
+    - "doesn't have generated output"
+    - "provide a Prompt.*generate outputs"
+  telemetry_tags: ["experiment", "validation"]
+
+# Dataset required for generated output flow
+- error_code: 3513
+  error_type: data_validation_error
+  error_group: experiment
+  severity: high
+  default_message: A dataset is required for the generated output flow.
+  user_action: Attach a dataset to the experiment before triggering it.
+  http_status_code: 422
+  message_patterns:
+    - "dataset.*required.*generated output"
+  telemetry_tags: ["experiment", "validation"]
+
+# Model configuration required for prompt-driven flow
+- error_code: 3514
+  error_type: configuration_error
+  error_group: experiment
+  severity: high
+  default_message: A model must be configured to run a prompt template. Please select a model and integration before running the experiment.
+  user_action: Select a model and integration in the experiment settings before running.
+  http_status_code: 422
+  message_patterns:
+    - "model must be configured.*prompt template"
+  telemetry_tags: ["experiment", "validation"]
+
+# Playground jobs cannot be created on experiments with traces
+- error_code: 3515
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: Playground jobs cannot be created on experiments that already have traces.
+  user_action: Create a new experiment run, or use an experiment that has no existing traces.
+  http_status_code: 400
+  message_patterns:
+    - "cannot be created on experiments with traces"
+  telemetry_tags: ["experiment", "playground", "validation"]
+
+# Experiment group not found in project
+- error_code: 3520
+  error_type: not_found_error
+  error_group: experiment
+  severity: medium
+  default_message: The specified experiment group could not be found in this project.
+  user_action: Verify the experiment group ID and try again, or use an experiment group name to create one automatically.
+  http_status_code: 404
+  message_patterns:
+    - "experiment group.*not found in this project"
+  telemetry_tags: ["experiment", "experiment_group"]
+
+# Target experiment group belongs to a different project
+- error_code: 3521
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: The target experiment group belongs to a different project.
+  user_action: Choose an experiment group from the current project and try again.
+  http_status_code: 400
+  message_patterns:
+    - "target experiment group belongs to a different project"
+  telemetry_tags: ["experiment", "experiment_group", "validation"]
+
+# Target experiment group not found during move
+- error_code: 3522
+  error_type: not_found_error
+  error_group: experiment
+  severity: medium
+  default_message: The target experiment group could not be found.
+  user_action: Verify the target experiment group and try again.
+  http_status_code: 404
+  message_patterns:
+    - "target experiment group.*not found"
+  telemetry_tags: ["experiment", "experiment_group"]
+
+# System experiment group cannot be renamed or deleted
+- error_code: 3523
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: System experiment groups are managed by the platform and cannot be renamed or deleted.
+  user_action: Choose a different experiment group or create a new custom experiment group.
+  http_status_code: 400
+  message_patterns:
+    - "system experiment groups are managed by the platform"
+    - "cannot be renamed"
+    - "cannot be deleted"
+  telemetry_tags: ["experiment", "experiment_group", "system"]
+
+# Experiment group name already exists
+- error_code: 3525
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: An experiment group with this name already exists in this project.
+  user_action: Choose a different experiment group name and try again.
+  http_status_code: 400
+  message_patterns:
+    - "experiment group with name.*already exists"
+  telemetry_tags: ["experiment", "experiment_group", "validation"]
+
+# Invalid experiment group move request
+- error_code: 3527
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: The experiment group move request is invalid.
+  user_action: Verify the experiments and target experiment group, then try again.
+  http_status_code: 400
+  message_patterns:
+    - "experiments not found in this project"
+    - "only experiment and playground runs can be moved between experiment groups"
+    - "either target_experiment_group_id or target_experiment_group_name must be provided"
+  telemetry_tags: ["experiment", "experiment_group", "validation"]
+
 # =============================================================================
 # SECTION 4: DATASET ERRORS (4000-4999)
 # =============================================================================
@@ -704,37 +1015,53 @@
   http_status_code: 422
   telemetry_tags: ["dataset", "schema", "validation"]
 
+# Dataset not found after creation
+- error_code: 4014
+  error_type: system_error
+  error_group: dataset
+  severity: high
+  default_message: Dataset could not be loaded after creation.
+  user_action: Retry the operation; if it persists, contact support with the dataset ID.
+  http_status_code: 500
+  telemetry_tags: ["dataset"]
+
 # =============================================================================
-# SECTION 5: LOGSTREAM INSIGHTS (LSI) ERRORS (5000-5999)
+# SECTION 5: SIGNALS ERRORS (5000-5999) [previously: Logstream Insights (LSI)]
 # =============================================================================
 #
-# Description: Errors specific to Logstream Insights feature. These include
-#              LSI-specific processing errors, trace/span analysis failures,
-#              and LSI-specific validation errors.
+# Description: Errors specific to the Signals feature. These include
+#              Signals-specific processing errors, trace/span analysis failures,
+#              and Signals-specific validation errors.
 #
 # When to add here:
-#   - LSI processing failures
+#   - Signals processing failures
 #   - Trace/span analysis errors
-#   - LSI-specific validation errors
-#   - LSI job/batch processing errors
+#   - Signals-specific validation errors
+#   - Signals job/batch processing errors
 #
-# Note: Error codes in this range are reserved for future LSI-specific errors.
-#       Add new entries below as needed.
+# Note: Add new entries below as needed.
 #
 # =============================================================================
 
-# TODO: Add LSI-specific error codes here (5000-5999)
-# Example structure:
-# - error_code: 5000
-#   error_type: system_error
-#   error_group: lsi
-#   severity: high
-#   default_message: Logstream Insights processing failed.
-#   user_action: Retry the operation; if it persists, contact support.
-#   retriable: true
-#   message_patterns:
-#     - "lsi processing failed"
-#   telemetry_tags: ["lsi"]
+# Authentication failed (invalid or missing LLM provider API key)
+- error_code: 5000
+  error_type: credentials_error
+  error_group: signals
+  severity: high
+  default_message: Signals authentication failed. The LLM provider rejected the credentials.
+  user_action: Verify your LLM provider API key and update it if expired.
+  retriable: false
+  telemetry_tags: ["signals", "auth"]
+
+# LLM provider rate limit or quota exceeded
+- error_code: 5001
+  error_type: llm_api_error
+  error_group: signals
+  severity: high
+  default_message: The LLM provider rate limit was exceeded.
+  user_action: Wait a moment and retry, or check your LLM provider quota.
+  retriable: true
+  telemetry_tags: ["signals", "ratelimit"]
 
 # =============================================================================
 # SECTION 7: INTEGRATIONS ERRORS (7000-7499)
@@ -875,6 +1202,14 @@
   http_status_code: 400
   telemetry_tags: ["integrations", "custom_llm"]
 
+- error_code: 7012
+  error_type: not_found_error
+  error_group: integrations
+  severity: medium
+  default_message: No integration of this type was found for your account.
+  user_action: Verify you have access to an integration of this type.
+  http_status_code: 404
+
 # =============================================================================
 # SECTION 8: ANNOTATION QUEUE ERRORS (8000-8499)
 # =============================================================================
@@ -939,3 +1274,573 @@
   message_patterns:
     - "annotator.*not found"
   telemetry_tags: ["annotation_queue"]
+
+# Invalid user ID when adding user to annotation queue
+- error_code: 8004
+  error_type: not_found_error
+  error_group: annotations
+  severity: medium
+  default_message: User not found.
+  user_action: Check the user ID and try again.
+  http_status_code: 404
+  telemetry_tags: ["annotation_queue"]
+
+# Adding too many records to annotation queue
+- error_code: 8005
+  error_type: data_validation_error
+  error_group: annotations
+  severity: medium
+  default_message: Too many records to add to the annotation queue.
+  user_action: Select fewer records to add and try again.
+  http_status_code: 400
+  telemetry_tags: ["annotation_queue"]
+
+# Permission denied for annotation queue
+- error_code: 8006
+  error_type: permission_error
+  error_group: annotations
+  severity: medium
+  default_message: You do not have permission to perform this action on the annotation queue.
+  user_action: Verify you have the required permissions (read, update, etc.) for this annotation queue.
+  http_status_code: 403
+  message_patterns:
+    - "permission.*denied"
+    - "do not have permission"
+    - "not allowed"
+  telemetry_tags: ["annotation_queue", "permissions"]
+
+# Rubric name already exists in annotation queue
+- error_code: 8007
+  error_type: data_validation_error
+  error_group: annotations
+  severity: medium
+  default_message: A rubric with this name already exists in this annotation queue.
+  user_action: Try a different name that is not already present in the listed rubrics of this queue.
+  http_status_code: 400
+  message_patterns:
+    - "rubric.*name.*already exists"
+    - "rubric.*already exists.*queue"
+    - "template.*name.*already exists.*queue"
+  telemetry_tags: ["annotation_queue", "rubric", "template"]
+
+# Invalid rubric ordering in annotation queue
+- error_code: 8008
+  error_type: data_validation_error
+  error_group: annotations
+  severity: medium
+  default_message: New ordering must include all rubrics in the queue, and only rubrics in this queue.
+  user_action: Ensure your ordering includes all rubrics currently in the queue, with no extra or missing rubric IDs.
+  http_status_code: 400
+  message_patterns:
+    - "ordering must include all rubrics"
+    - "only rubrics in this queue"
+    - "invalid.*ordering"
+  telemetry_tags: ["annotation_queue", "rubric", "ordering"]
+
+# Failed to create rating
+- error_code: 8009
+  error_type: system_error
+  error_group: annotations
+  severity: high
+  default_message: Failed to create rating for annotation.
+  user_action: Retry the request; if it persists, contact support with the annotation ID and details.
+  http_status_code: 500
+  telemetry_tags: ["annotation_queue", "ratings"]
+
+# =============================================================================
+# SECTION 9: AUTHENTICATION ERRORS (8500-8999)
+# =============================================================================
+#
+# Description: Errors specific to authentication, SSO, and identity providers.
+#
+# When to add here:
+#   - Password authentication failures
+#   - OIDC/SAML SSO failures
+#   - Authentication token expiration
+#
+# =============================================================================
+
+# SSO token verification failed
+- error_code: 8500
+  error_type: credentials_error
+  error_group: authentication
+  severity: high
+  default_message: Social login verification failed.
+  user_action: Verify the SSO provider configuration and try again.
+  http_status_code: 401
+  telemetry_tags: ["auth", "sso"]
+
+# Unsupported social login provider
+- error_code: 8501
+  error_type: data_validation_error
+  error_group: authentication
+  severity: medium
+  default_message: Unsupported social login provider.
+  user_action: Use a supported SSO provider and retry.
+  http_status_code: 400
+  telemetry_tags: ["auth", "sso"]
+
+# SAML not configured
+- error_code: 8502
+  error_type: configuration_error
+  error_group: authentication
+  severity: high
+  default_message: SAML is not configured for this environment.
+  user_action: Contact your administrator to enable SAML authentication.
+  http_status_code: 501
+  telemetry_tags: ["auth", "sso", "config"]
+
+# SAML response validation failed
+- error_code: 8503
+  error_type: credentials_error
+  error_group: authentication
+  severity: high
+  default_message: SAML response validation or authentication failed.
+  user_action: Contact your administrator to verify the IdP configuration and try again.
+  http_status_code: 401
+  telemetry_tags: ["auth", "sso"]
+
+# GitHub user fetch failed
+- error_code: 8504
+  error_type: credentials_error
+  error_group: authentication
+  severity: high
+  default_message: Failed to fetch GitHub user information with provided access token.
+  user_action: Re-authenticate with GitHub and try again.
+  http_status_code: 401
+  telemetry_tags: ["auth", "sso", "github"]
+
+# GitHub email missing
+- error_code: 8505
+  error_type: data_validation_error
+  error_group: authentication
+  severity: medium
+  default_message: Could not determine email from GitHub account.
+  user_action: Ensure the GitHub account has a verified email address.
+  http_status_code: 422
+  telemetry_tags: ["auth", "sso", "github"]
+
+# SSO token missing email/subject
+- error_code: 8506
+  error_type: data_validation_error
+  error_group: authentication
+  severity: medium
+  default_message: Email or subject not found in SSO token.
+  user_action: Contact your administrator to configure the identity provider to send email claims.
+  http_status_code: 422
+  telemetry_tags: ["auth", "sso"]
+
+# System user creation failed
+- error_code: 8507
+  error_type: system_error
+  error_group: authentication
+  severity: high
+  default_message: Failed to create system user.
+  user_action: Retry the request or contact support if it persists.
+  http_status_code: 500
+  telemetry_tags: ["auth", "sso"]
+
+# Unauthorized action
+- error_code: 8508
+  error_type: permission_error
+  error_group: authentication
+  severity: medium
+  default_message: You do not have permission to perform this action.
+  user_action: Verify you have the required permissions.
+  http_status_code: 403
+  telemetry_tags: ["auth", "permissions"]
+
+# SSO org-role sync produced no resolvable org slug
+- error_code: 8509
+  error_type: system_error
+  error_group: authentication
+  severity: high
+  default_message: Failed to resolve organization during SSO role sync.
+  user_action: Retry login; if the issue persists, contact support.
+  http_status_code: 500
+  telemetry_tags: ["auth", "sso", "org_sync"]
+
+# SSO token missing valid org-role assignments
+- error_code: 8510
+  error_type: data_validation_error
+  error_group: authentication
+  severity: medium
+  default_message: No valid organization-role assignments found in the SSO token.
+  user_action: Ask your administrator to map organization-role claims in the identity provider.
+  http_status_code: 401
+  telemetry_tags: ["auth", "sso", "org_sync"]
+
+# SSO org-role sync resolved slug but organization fetch failed
+- error_code: 8511
+  error_type: system_error
+  error_group: authentication
+  severity: high
+  default_message: Failed to resolve organization after SSO role sync.
+  user_action: Retry login; if the issue persists, contact support.
+  http_status_code: 500
+  telemetry_tags: ["auth", "sso", "org_sync"]
+
+# SSO org-role sync resolved org but user membership lookup failed
+- error_code: 8512
+  error_type: system_error
+  error_group: authentication
+  severity: high
+  default_message: Failed to resolve user membership after SSO role sync.
+  user_action: Retry login; if the issue persists, contact support.
+  http_status_code: 500
+  telemetry_tags: ["auth", "sso", "org_sync"]
+
+# SSO created organization but failed to reload it by slug
+- error_code: 8513
+  error_type: system_error
+  error_group: authentication
+  severity: high
+  default_message: Organization could not be loaded after SSO-driven creation.
+  user_action: Retry login; if the issue persists, contact support.
+  http_status_code: 500
+  telemetry_tags: ["auth", "sso", "org_sync"]
+
+# Account locked due to repeated failed login attempts
+- error_code: 8514
+  error_type: credentials_error
+  error_group: authentication
+  severity: high
+  default_message: Account locked. Please reset your password.
+  user_action: Reset your password using the "Forgot password" link, or contact your administrator.
+  http_status_code: 403
+  telemetry_tags: ["auth", "lockout"]
+
+- error_code: 8515
+  error_type: configuration_error
+  error_group: authentication
+  severity: medium
+  default_message: Email and password login is disabled for this environment.
+  user_action: Use your organization's SSO provider to log in, or contact your administrator.
+  http_status_code: 403
+  telemetry_tags: ["auth", "feature_flag"]
+
+# Email domain not allowed
+- error_code: 8516
+  error_type: permission_error
+  error_group: authentication
+  severity: medium
+  default_message: Your email is not allowed. Please contact Galileo's support.
+  user_action: Verify that you are using an authorized email address, or contact support for assistance.
+  http_status_code: 403
+  telemetry_tags: ["auth", "email_domain"]
+
+# User account disabled
+- error_code: 8517
+  error_type: permission_error
+  error_group: authentication
+  severity: high
+  default_message: This user account has been disabled. Please contact Galileo's support.
+  user_action: Contact Galileo's support team to resolve account access.
+  http_status_code: 403
+  telemetry_tags: ["auth", "account_disabled"]
+
+# Email with plus (+) suffix is not allowed
+- error_code: 8518
+  error_type: data_validation_error
+  error_group: authentication
+  severity: medium
+  default_message: "Email addresses with '+' suffixes are not allowed."
+  user_action: Use your primary email address without the '+' suffix.
+  http_status_code: 422
+  telemetry_tags: ["auth", "email_validation"]
+
+# =============================================================================
+# SECTION 10: COMPONENT VIEW ERRORS (9000-9499)
+# =============================================================================
+#
+# Description: Errors specific to the Component View feature. These include
+#              component view management errors, validation errors, and
+#              resource not found errors.
+#
+# When to add here:
+#   - Component view creation/update failures
+#   - Component view validation errors
+#   - Component view not found errors
+#   - Component view duplicate name errors
+#   - Component view visibility and deletion restrictions
+#
+# =============================================================================
+
+# Component view not found
+- error_code: 9000
+  error_type: not_found_error
+  error_group: component_view
+  severity: medium
+  default_message: The view does not exist in the current project, or you do not have access to it.
+  user_action: Go back to your project and select an existing view, or create a new one.
+  http_status_code: 404
+  message_patterns:
+    - "view does not exist.*does not belong.*project"
+    - "does not belong to the current project"
+    - "current user does not have access.*view"
+    - "does not have access to this view"
+    - "component view.*not found"
+  telemetry_tags: ["component_view"]
+
+# Component view run not found
+- error_code: 9001
+  error_type: not_found_error
+  error_group: component_view
+  severity: medium
+  default_message: The requested view could not be found.
+  user_action: Please verify and try again.
+  http_status_code: 404
+  message_patterns:
+    - "component view run.*not found"
+    - "run.*not found.*component view"
+  telemetry_tags: ["component_view"]
+
+# Component view run belongs to different project
+- error_code: 9002
+  error_type: data_validation_error
+  error_group: component_view
+  severity: medium
+  default_message: The view does not belong to this resource.
+  user_action: Please choose a different view.
+  http_status_code: 422
+  message_patterns:
+    - "run.*belongs to.*different project"
+    - "component view run.*different project"
+  telemetry_tags: ["component_view", "validation"]
+
+# Component view project ID mismatch
+- error_code: 9003
+  error_type: data_validation_error
+  error_group: component_view
+  severity: medium
+  default_message: The view does not belong to the current project.
+  user_action: Please choose a valid view for the current project.
+  http_status_code: 422
+  message_patterns:
+    - "project.*id.*mismatch"
+    - "component view.*project.*mismatch"
+  telemetry_tags: ["component_view", "validation"]
+
+# Component view duplicate name
+- error_code: 9004
+  error_type: data_validation_error
+  error_group: component_view
+  severity: medium
+  default_message: A view with this name already exists in this project.
+  user_action: Please try with a different name for this view.
+  http_status_code: 400
+  message_patterns:
+    - "component view.*name.*already exists"
+    - "component view.*already exists"
+  telemetry_tags: ["component_view"]
+
+# Component view cannot change visibility from project to user
+- error_code: 9005
+  error_type: data_validation_error
+  error_group: component_view
+  severity: medium
+  default_message: Cannot change the view from project-level to user-level.
+  user_action: Create a new user-level view instead of changing visibility from Project to User.
+  http_status_code: 422
+  message_patterns:
+    - "cannot change.*visibility.*project.*user"
+    - "visibility.*cannot.*change"
+  telemetry_tags: ["component_view", "validation"]
+
+# Component view cannot delete default
+- error_code: 9006
+  error_type: data_validation_error
+  error_group: component_view
+  severity: medium
+  default_message: Cannot delete the default view.
+  user_action: Set a different view as default before deleting this one.
+  http_status_code: 422
+  message_patterns:
+    - "cannot delete.*default"
+    - "default.*cannot.*delete"
+  telemetry_tags: ["component_view", "validation"]
+
+# Component view cannot change visibility of default
+- error_code: 9007
+  error_type: data_validation_error
+  error_group: component_view
+  severity: medium
+  default_message: Cannot change visibility of the default view.
+  user_action: Set a different view as default before changing visibility of this one.
+  http_status_code: 400
+  message_patterns:
+    - "cannot change.*visibility.*default"
+    - "visibility.*default.*cannot.*change"
+  telemetry_tags: ["component_view", "validation"]
+
+# =============================================================================
+# SECTION 11: AUTHORIZATION ERRORS (9500-9999)
+# =============================================================================
+#
+# Description: Authorization service (e.g., Authz) errors—unavailability,
+#              request failures, and policy evaluation failures.
+#
+# =============================================================================
+
+# Authorization service (Authz) unavailable or request failed
+- error_code: 9500
+  error_type: system_error
+  error_group: authorization
+  severity: high
+  default_message: The authorization service is temporarily unavailable.
+  user_action: Please retry in a few moments. If the problem persists, contact your administrator to verify the health of the authorization service.
+  http_status_code: 503
+  retriable: true
+  telemetry_tags: ["authz", "authorization"]
+
+# =============================================================================
+# SECTION 12: USER PREFERENCES ERRORS (10000-10499)
+# =============================================================================
+#
+# Description: Errors specific to adding or updating user preferences.
+#
+# When to add here:
+#   - Adding or updating user preferences
+#   - User preferences validation errors
+#   - User preferences not found errors
+#
+# =============================================================================
+
+# User preference scope validation (project_id, run_id mismatch)
+- error_code: 10000
+  error_type: data_validation_error
+  error_group: user_preferences
+  severity: medium
+  default_message: Invalid preference scope. For project-scoped preferences, include project_id and either log_stream_id or experiment_id. For global preferences, omit them.
+  user_action: Check the scope rules and provide only the IDs required for that scope.
+  http_status_code: 400
+  telemetry_tags: ["user_preferences", "validation"]
+
+# Only admins can set global preferences
+- error_code: 10001
+  error_type: configuration_error
+  error_group: user_preferences
+  severity: medium
+  default_message: Only organization admins can set global preferences.
+  user_action: Ask an org admin to update the global preferences.
+  http_status_code: 403
+  telemetry_tags: ["user_preferences", "authorization"]
+
+# Can only set preferences for yourself
+- error_code: 10002
+  error_type: configuration_error
+  error_group: user_preferences
+  severity: medium
+  default_message: You can only set preferences for your own account.
+  user_action: Use your own user account when updating preferences.
+  http_status_code: 403
+  telemetry_tags: ["user_preferences", "authorization"]
+
+# User preference not found
+- error_code: 10003
+  error_type: not_found_error
+  error_group: user_preferences
+  severity: low
+  default_message: User preference not found.
+  user_action: Please save the user preferences first and try again.
+  http_status_code: 404
+  telemetry_tags: ["user_preferences"]
+
+# User preference conflict (concurrent unique constraint race)
+- error_code: 10004
+  error_type: data_validation_error
+  error_group: user_preferences
+  severity: medium
+  default_message: Preference already exists.
+  user_action: Please retry updating the preference again.
+  http_status_code: 409
+  retriable: true
+  telemetry_tags: ["user_preferences", "conflict"]
+
+# =============================================================================
+# SECTION 13: LOGSTREAM ERRORS (10500-10999)
+# =============================================================================
+#
+# Description: Logstream-specific errors (ingestion, queries, configuration).
+#
+# When to add here:
+#   - Log stream name conflicts or duplicate name errors
+#   - Project type validation (log stream cannot be created in project type)
+#   - Ingestion or query failures
+#   - Failed to load a newly created log stream
+#   - Logstream-specific validation or configuration errors
+#
+# =============================================================================
+
+# Log stream name already exists
+- error_code: 10500
+  error_type: data_validation_error
+  error_group: logstream
+  severity: medium
+  default_message: A log stream with this name already exists for this project.
+  user_action: Please use another name.
+  http_status_code: 400
+  message_patterns:
+    - "log stream.*already exists"
+  telemetry_tags: ["logstream"]
+
+# Log stream task type cannot be created in project type
+- error_code: 10501
+  error_type: data_validation_error
+  error_group: logstream
+  severity: medium
+  default_message: Log stream cannot be created in this project type.
+  user_action: Use a different project that supports log streams.
+  http_status_code: 400
+  message_patterns:
+    - "log stream.*task type"
+    - "log stream.*cannot be created"
+  telemetry_tags: ["logstream"]
+
+# Failed to load created log stream
+- error_code: 10502
+  error_type: system_error
+  error_group: logstream
+  severity: high
+  default_message: Failed to load created log stream.
+  user_action: Retry the operation; if it persists, contact support.
+  http_status_code: 500
+  telemetry_tags: ["logstream"]
+
+# Unknown column requested in log stream query
+- error_code: 10503
+  error_type: data_validation_error
+  error_group: logstream
+  severity: medium
+  default_message: Unknown column requested in log stream query.
+  user_action: Check the column names in your query and try again.
+  http_status_code: 400
+  telemetry_tags: ["logstream"]
+
+
+# =============================================================================
+# SECTION 14: ORGANIZATION ERRORS (11000-11499)
+# =============================================================================
+#
+# Description: Organization-level errors (settings, membership, limits, etc.).
+#
+# When to add here:
+#   - Organization not found or invalid
+#   - Organization membership or role validation errors
+#   - Organization settings or configuration errors
+#   - Organization-level limits or quota errors
+#
+# =============================================================================
+
+# Organization slug exceeds maximum length
+- error_code: 11000
+  error_type: data_validation_error
+  error_group: organization
+  severity: medium
+  default_message: Organization name results in a slug that is too long.
+  user_action: Use a shorter organization name and try again.
+  http_status_code: 422
+  message_patterns:
+    - "slug.*too long"
+    - "organization name.*too long"
+  telemetry_tags: ["organization", "validation"]
