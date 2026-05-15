@@ -140,19 +140,25 @@ To create a composite metric in the UI:
 <CodeGroup>
 
 ```python Python
+from statistics import mean
 from galileo import GalileoMetrics, LlmSpan
 
 def scorer_fn(*, step_object: LlmSpan, **kwargs) -> float:
     # Access required metrics via step_object.metrics
     # These metrics were selected in the "Required Metrics" dropdown
-    correctness = step_object.metrics[GalileoMetrics.correctness]
-    adherence = step_object.metrics[GalileoMetrics.context_adherence]
 
-    # Only calculate adherence if correctness is high
-    if correctness < 0.7:
+    # Multi-judge metrics (e.g. correctness, context_adherence) return
+    # a list of 0/1 values, one per judge. Use mean() to get the score.
+    correctness_score = mean(
+        step_object.metrics[GalileoMetrics.correctness] or [0]
+    )
+
+    if correctness_score < 0.7:
         return 0.0
 
-    return adherence
+    return mean(
+        step_object.metrics[GalileoMetrics.context_adherence] or [0]
+    )
 ```
 
 </CodeGroup>

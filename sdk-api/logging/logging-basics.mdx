@@ -1,11 +1,12 @@
 ---
-title: Logging Basics
-description: Learn the basics of logging using the Galileo SDKs
+title: Instrumentation
+description: Learn the basics of instrumenting your application with Galileo using the Galileo SDKs
 ---
 
 {/*<!-- markdownlint-disable MD044 -->*/}
 
 import SnippetSdkLoggingContextInitPython from "/snippets/code/python/sdk/logging/context-init.mdx";
+import SnippetSdkLoggingContextInitPythonBeta from "/snippets/code/python-beta/sdk/logging/context-init.mdx";
 import SnippetSdkLoggingCreateLoggerWithProjectPython from "/snippets/code/python/sdk/logging/create-logger-with-project.mdx";
 import SnippetSdkLoggingContextGetLoggerPython from "/snippets/code/python/sdk/logging/context-get-logger.mdx";
 
@@ -28,7 +29,7 @@ When logging applications, **Log streams** are made up of zero or more **session
 
 - **[Sessions](/concepts/logging/sessions/sessions-overview)** represent logical groupings of traces for actions involving an AI that may contain multiple steps. For example, in a chatbot, the entire conversation with a single user would be a session.
 - **[Traces](/sdk-api/logging/galileo-logger#start-a-trace)** represent one complete interaction with an AI that may contain multiple calls and interactions. For example, inside a chatbot app sending a single message, having the AI handle it using tool calls or RAG, then returning a response, would be a single trace.
-- **[Spans](/sdk-api/logging/galileo-logger#add-spans)** represent distinct operations inside a trace. Each LLM call, tool call, or step in an agentic workflow would be an individual span. For example, in a chatbot app the initial message sent to the LLM, calls to tools based off the LLM response, follow and up LLM calls would all be separate spans.
+- **[Spans](/sdk-api/logging/galileo-logger#add-spans)** represent distinct operations inside a trace. Each LLM call, tool call, or step in an agentic workflow would be an individual span. For example, in a chatbot app the initial message sent to the LLM, calls to tools based off the LLM response, follow-up LLM calls would all be separate spans.
 
 Metrics are configured at the Log stream level, allowing different metrics for different Log streams.
 
@@ -87,6 +88,7 @@ To set at the context level, use this code. After running this code, every trace
 
 <CodeGroup>
     <SnippetSdkLoggingContextInitPython />
+    <SnippetSdkLoggingContextInitPythonBeta />
     <SnippetSdkLoggingContextInitTypeScript />
 </CodeGroup>
 
@@ -131,7 +133,7 @@ Using the Galileo SDK you can either do all these steps manually, or you can use
 Galileo provides 3 ways to log your application code:
 
 - **[The Galileo Logger](/sdk-api/logging/galileo-logger)** - You can create a logger, and manually manage sessions, traces, spans and more. This logger can be passed around your application to create traces and add spans as needed.
-- **[log decorator](/sdk-api/logging/log-decorator/log-decorator)** - You can decorate or wrap functions with the log decorator to have spans created automatically. If you don't have an active session or trace, one will be created. You can also access the logger used by the decorator for manual control.
+- **[Log Decorator](/sdk-api/logging/log-decorator/log-decorator)** - You can decorate or wrap functions with the log decorator to have spans created automatically. If you don't have an active session or trace, one will be created. You can also access the logger used by the decorator for manual control.
 - **[Third-party integrations](/sdk-api/third-party-integrations/overview)** - Galileo integrates SDKs like the OpenAI SDK, the OpenAI Agents SDK, and LangChain/LangGraph. These integrations manage logging for you, automatically creating sessions, traces and spans as needed.
 
 In addition, there is a [Galileo context manager](/sdk-api/logging/galileo-context) that provides top level control over logging, such as setting the project and Log stream, flushing all loggers, and managing sessions.

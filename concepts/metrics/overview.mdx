@@ -3,20 +3,20 @@ title: Metrics Overview
 description: Explore Galileo's comprehensive metrics framework for evaluating and improving AI system performance across multiple dimensions
 ---
 
-import SafetyAndComplianceMetrics from "/snippets/components/Safety-And-Compliance-Metrics.mdx";
 import AgenticPerformanceMetrics from "/snippets/components/Agentic-Performance-Metrics.mdx";
 import ModelConfidenceMetrics from "/snippets/components/Model-Confidence-Metrics.mdx";
 import ExpressionAndReadabilityMetrics from "/snippets/components/Expression-And-Readability-Metrics.mdx";
+import SafetyAndComplianceMetrics from "/snippets/components/Safety-And-Compliance-Metrics.mdx";
 import Text2SQLMetrics from "/snippets/components/Text2SQL-Metrics.mdx";
-import SnippetConfigureIntegrationSteps from "/snippets/content/configure-integration-steps.mdx"
+import SnippetConfigureIntegrationSteps from "/snippets/content/configure-integration-steps.mdx";
 
 Galileo comes with a set of ready to use [Out-of-the-Box metrics](/concepts/metrics/metric-comparison) that allow you to see how your AI is performing. With these metrics, you can quickly spot problems, track improvements, and make your AI work better for your users. These metrics apply to different node types (such as session, trace, or different span types), depending on the metric.
 
-You can then expand these metrics with custom metrics, creating using [LLM-as-a-judge](/concepts/metrics/custom-metrics/custom-metrics-ui-llm), or [custom code-based metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-code).
+You can then expand these metrics with custom metrics, using [LLM-as-a-judge](/concepts/metrics/custom-metrics/custom-metrics-ui-llm), or [custom code-based metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-code).
 
-To calculate Out-of-the-Box metrics, or LLM-as-a-judge metrics, you first need to configure an integration with an LLM, or to [Luna-2](/concepts/luna/luna). [Connect Galileo to your language model](/concepts/metrics/overview#configure-galileo-for-out-of-the-box-and-llm-as-a-judge-metrics) by adding your API key on the [integrations page](https://app.galileo.ai/settings/integrations) from within the Galileo application.
+To calculate Out-of-the-Box metrics, or LLM-as-a-judge metrics, you first need to configure an integration with an LLM, or [Luna-2](/concepts/luna/luna). [Connect Galileo to your language model](/concepts/metrics/overview#configure-galileo-for-out-of-the-box-and-llm-as-a-judge-metrics) by adding your API key on the [integrations page](https://app.galileo.ai/settings/integrations) from within the Galileo application.
 
-You can improve the metric calculation based on your requirements using [continuous learning via human feedback (CLHF)](/concepts/metrics/custom-metrics/continuous-learning-via-human-feedback). This allows you to continuously provide feedback in natural language that automatically improves the metrics to align better with your domain, or expected inputs and outputs.
+You can improve the metric calculation based on your requirements using [Autotune](/concepts/metrics/autotune-llm-as-a-judge-metrics). This allows you to continuously provide feedback in natural language that automatically improves the metrics to align better with your domain, or expected inputs and outputs.
 
 Metrics can be used with [experiments](/concepts/experiments/running-experiments-in-console#step-5-add-metrics), and [Log Streams](/concepts/logging/configure-metrics/configure-metrics).
 
@@ -26,7 +26,7 @@ Most Out-of-the-Box metrics and all LLM-as-a-judge metrics are LLM-based metrics
 LLM-based metrics use an LLM to evaluate inputs and outputs.
 To use these metrics from Log Streams or Experiments, you first need to configure an integration with an LLM platform.
 
-<SnippetConfigureIntegrationSteps/>
+<SnippetConfigureIntegrationSteps />
 
 ## Using metrics effectively
 
@@ -41,7 +41,7 @@ To get the most value from Galileo's metrics:
 
 ## Out-of-the-Box metric categories
 
-Our metrics can be broken down into seven key categories, each addressing a specific aspect of AI system performance. Many times, folks benefit from using metrics from more than one category, depending on the metrics that matter most to them. Galileo also supports [custom metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm) that are able to be implemented alongside the Out-of-the-Box metric options.
+Our metrics can be broken down into seven key categories, each addressing a specific aspect of AI system performance. You may benefit from using metrics from more than one category. Galileo also supports [custom metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm) that are able to be implemented alongside the Out-of-the-Box metric options.
 
 The [Metrics Comparison](/concepts/metrics/metric-comparison) provides a full list of the Out-of-the-Box metrics for each category.
 
@@ -69,11 +69,19 @@ The [Metrics Comparison](/concepts/metrics/metric-comparison) provides a full li
 | :----------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | When you want to flag low-confidence responses for review, improve system reliability, or better understand model uncertainty. | <ul><li>Flagging uncertain answers in a customer support chatbot for human review</li><li>Identifying low-confidence predictions in a medical diagnosis assistant</li><li>Improving user trust by surfacing confidence scores in AI-generated content</li></ul> |
 
-### 4. Response quality metrics
+### 4. Multimodal quality metrics
+
+[Multimodal Quality Metrics](/concepts/metrics/multimodal-quality/multimodal-quality-overview) evaluate whether multimodal inputs and outputs (such as images and audio conversations) are usable and compliant for the task at hand.
+
+| When to Use                                                                                           | Example Use Cases                                                                                                                                                                                     |
+| :---------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| When your AI workflow includes images or audio conversations and you need quality/compliance signals. | <ul><li>Gating blurry document photos before extraction</li><li>Enforcing brand rules on generated marketing images</li><li>Detecting turn-taking issues in voice agents (overlap/barge-in)</li></ul> |
+
+### 5. Response quality metrics
 
 [Response Quality Metrics](/concepts/metrics/response-quality/response-quality-overview) help you evaluate how correctly, consistently, and in line with ground truth your AI follows instructions and answers user queries in any setting — with or without RAG (correctness, instruction adherence, ground truth adherence).
 
-### 5. RAG metrics
+### 6. RAG metrics
 
 [RAG Metrics](/concepts/metrics/rag/rag-overview) help you evaluate retrieval and generation quality in RAG pipelines, including retrieval quality (chunk relevance, context relevance, context precision, Precision @ K) and generation quality (chunk attribution utilization, context adherence, completeness).
 
@@ -81,7 +89,7 @@ The [Metrics Comparison](/concepts/metrics/metric-comparison) provides a full li
 | :---------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | When evaluating how well retrieval systems find relevant context and how well models use that context to produce accurate, complete, and well-grounded responses. | <ul><li>Measuring factual accuracy in a medical information system</li><li>Evaluating how well a RAG system uses retrieved information</li><li>Assessing if customer service responses address all parts of a query</li></ul> |
 
-### 6. Safety and compliance metrics
+### 7. Safety and compliance metrics
 
 [Safety And Compliance Metrics](/concepts/metrics/safety-and-compliance/safety-and-compliance-overview) identify potential risks, harmful content, bias, or privacy concerns in AI interactions.
 
@@ -89,7 +97,7 @@ The [Metrics Comparison](/concepts/metrics/metric-comparison) provides a full li
 | :--------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | When ensuring AI systems meet regulatory requirements, protect user privacy, and avoid generating harmful or biased content. | <ul><li>Detecting PII in healthcare chatbot conversations</li><li>Identifying potential prompt injection attacks in public-facing systems</li><li>Measuring bias in hiring or loan approval recommendation systems</li></ul> |
 
-### 7. Text-to-SQL metrics
+### 8. Text-to-SQL metrics
 
 [Text-to-SQL metrics](/concepts/metrics/text2sql/text2sql-overview) evaluate the accuracy and effectiveness of SQL queries generated by AI models from natural language inputs.
 
@@ -106,7 +114,7 @@ The [Metrics Comparison](/concepts/metrics/metric-comparison) provides a full li
   <Card title="Custom code-based metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code">
     Learn how to create, register, and use custom metrics to evaluate your LLM applications
   </Card>
-  <Card title="Customizing Your LLM-Powered Metrics via CLHF" icon="message" horizontal href="/concepts/metrics/custom-metrics/continuous-learning-via-human-feedback">
-    Learn how to customize your LLM-powered metrics with Continuous Learning via Human Feedback
+  <Card title="Improve LLM-as-a-Judge Metrics with Autotune" icon="message" horizontal href="/concepts/metrics/autotune-llm-as-a-judge-metrics">
+    Learn how to improve your LLM-as-a-judge metrics using expert feedback with Autotune
   </Card>
 </CardGroup>

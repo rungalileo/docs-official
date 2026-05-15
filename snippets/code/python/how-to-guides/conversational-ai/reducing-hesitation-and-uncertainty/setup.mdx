@@ -1,0 +1,15 @@
+```python Python
+import os
+from galileo.openai import openai
+from dotenv import load_dotenv
+load_dotenv()
+
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+prompt = "Tell me about climate change."
+response = client.chat.completions.create(
+model="gpt-4o",
+messages=[{"role": "system", "content": prompt}],
+)
+print(response.choices[0].message.content.strip())
+```
