@@ -45,6 +45,7 @@
               "sdk-api/logging/galileo-context",
               "concepts/logging/multimodal-observability",
               "sdk-api/logging/distributed-tracing",
+              "sdk-api/logging/distributed-tracing-otel",
               "sdk-api/logging/tags-and-metadata",
               {
                 "group": "How-to guides",
@@ -211,6 +212,7 @@
             "group": "Integrations",
             "pages": [
               "sdk-api/third-party-integrations/overview",
+              "sdk-api/third-party-integrations/a2a",
               {
                 "group": "CrewAI",
                 "pages": ["sdk-api/third-party-integrations/crewai/crewai", "sdk-api/third-party-integrations/crewai/experiments"]
@@ -234,6 +236,17 @@
                 "pages": ["sdk-api/third-party-integrations/model-integrations/aws-bedrock/awsbedrock", "sdk-api/third-party-integrations/model-integrations/custom-model-integrations/custom-model-integrations"]
               },
               {
+                "group": "Model Costs",
+                "pages": [
+                  "concepts/costs/model-pricing-settings",
+                  "concepts/costs/integration-costs"
+                ]
+              },
+              "sdk-api/third-party-integrations/opentelemetry-and-openinference/mastra",
+              "sdk-api/third-party-integrations/opentelemetry-and-openinference/microsoft-agent-framework",
+              "sdk-api/third-party-integrations/openai/openai",
+              "sdk-api/third-party-integrations/openai-agents/openai-agents",
+              {
                 "group": "OpenTelemetry",
                 "pages": [
                   "sdk-api/third-party-integrations/opentelemetry-and-openinference",
@@ -241,13 +254,9 @@
                   "sdk-api/third-party-integrations/opentelemetry-and-openinference/start-galileo-span"
                 ]
               },
-              "sdk-api/third-party-integrations/opentelemetry-and-openinference/mastra",
-              "sdk-api/third-party-integrations/opentelemetry-and-openinference/microsoft-agent-framework",
-              "sdk-api/third-party-integrations/openai/openai",
-              "sdk-api/third-party-integrations/openai-agents/openai-agents",
               "sdk-api/third-party-integrations/opentelemetry-and-openinference/pydantic-ai",
               "sdk-api/third-party-integrations/opentelemetry-and-openinference/strands-agents",
-              "sdk-api/third-party-integrations/opentelemetry-and-openinference/vercel-ai",
+              "sdk-api/third-party-integrations/opentelemetry-and-openinference/vercel-ai",            
               {
                 "group": "How-to guides",
                 "pages": [
@@ -295,30 +304,47 @@
               {
                 "group": "galileo",
                 "pages": [
+                  "sdk-api/python/reference/agent_control",
+                  "sdk-api/python/reference/collaborator",
+                  "sdk-api/python/reference/configuration",
+                  "sdk-api/python/reference/dataset",
                   "sdk-api/python/reference/datasets",
                   "sdk-api/python/reference/decorator",
                   "sdk-api/python/reference/exceptions",
+                  "sdk-api/python/reference/experiment",
                   "sdk-api/python/reference/experiments",
                   "sdk-api/python/reference/experiment_tags",
                   "sdk-api/python/reference/export",
+                  "sdk-api/python/reference/integration",
                   "sdk-api/python/reference/job_progress",
+                  "sdk-api/python/reference/log_stream",
                   "sdk-api/python/reference/log_streams",
+                  "sdk-api/python/reference/metric",
                   "sdk-api/python/reference/metrics",
+                  "sdk-api/python/reference/model",
                   "sdk-api/python/reference/otel",
+                  "sdk-api/python/reference/project",
                   "sdk-api/python/reference/projects",
+                  "sdk-api/python/reference/prompt",
                   "sdk-api/python/reference/prompts",
                   "sdk-api/python/reference/protect",
+                  "sdk-api/python/reference/provider",
                   "sdk-api/python/reference/runs",
                   "sdk-api/python/reference/scorers",
                   "sdk-api/python/reference/search",
                   "sdk-api/python/reference/stages",
                   "sdk-api/python/reference/traces",
                   "sdk-api/python/reference/tracing",
+                  "sdk-api/python/reference/types",
                   {
                     "group": "handlers",
                     "pages": [
                       "sdk-api/python/reference/handlers/base_async_handler",
                       "sdk-api/python/reference/handlers/base_handler",
+                      {
+                        "group": "agent_control",
+                        "pages": ["sdk-api/python/reference/handlers/agent_control/bridge"]
+                      },
                       {
                         "group": "crewai",
                         "pages": ["sdk-api/python/reference/handlers/crewai/handler"]
@@ -344,6 +370,20 @@
                   {
                     "group": "openai",
                     "pages": ["sdk-api/python/reference/openai/extractors", "sdk-api/python/reference/openai/response_generator"]
+                  },
+                  {
+                    "group": "shared",
+                    "pages": [
+                      "sdk-api/python/reference/shared/base",
+                      "sdk-api/python/reference/shared/column",
+                      "sdk-api/python/reference/shared/exceptions",
+                      "sdk-api/python/reference/shared/experiment_result",
+                      "sdk-api/python/reference/shared/filter",
+                      "sdk-api/python/reference/shared/project_resolver",
+                      "sdk-api/python/reference/shared/query_result",
+                      "sdk-api/python/reference/shared/sort",
+                      "sdk-api/python/reference/shared/utils"
+                    ]
                   },
                   {
                     "group": "utils",
@@ -389,9 +429,6 @@
                       "sdk-api/typescript/reference/README/classes/Datasets",
                       "sdk-api/typescript/reference/README/classes/GalileoEvaluateApiClient",
                       "sdk-api/typescript/reference/README/classes/GalileoEvaluateWorkflow",
-                      "sdk-api/typescript/reference/README/classes/GalileoObserveApiClient",
-                      "sdk-api/typescript/reference/README/classes/GalileoObserveCallback",
-                      "sdk-api/typescript/reference/README/classes/GalileoObserveWorkflow",
                       "sdk-api/typescript/reference/README/classes/Jobs",
                       "sdk-api/typescript/reference/README/classes/Projects",
                       "sdk-api/typescript/reference/README/classes/Scorers",
@@ -404,7 +441,6 @@
                       "sdk-api/typescript/reference/README/functions/addRowsToDataset",
                       "sdk-api/typescript/reference/README/functions/createCustomLlmMetric",
                       "sdk-api/typescript/reference/README/functions/createDataset",
-                      "sdk-api/typescript/reference/README/functions/createDatasetRecord",
                       "sdk-api/typescript/reference/README/functions/createExperiment",
                       "sdk-api/typescript/reference/README/functions/createLogStream",
                       "sdk-api/typescript/reference/README/functions/createMetricConfigs",
@@ -437,19 +473,15 @@
                       "sdk-api/typescript/reference/README/functions/log",
                       "sdk-api/typescript/reference/README/functions/runExperiment",
                       "sdk-api/typescript/reference/README/functions/wrapOpenAI",
-                      "sdk-api/typescript/reference/README/functions/addProjectUserCollaborators",
                       "sdk-api/typescript/reference/README/functions/convertDatasetRowToRecord",
                       "sdk-api/typescript/reference/README/functions/createCodeScorerVersion",
                       "sdk-api/typescript/reference/README/functions/createCustomCodeMetric",
                       "sdk-api/typescript/reference/README/functions/createLlmScorerVersion",
-                      "sdk-api/typescript/reference/README/functions/createRunScorerSettings",
-                      "sdk-api/typescript/reference/README/functions/createScorer",
                       "sdk-api/typescript/reference/README/functions/deleteProject",
                       "sdk-api/typescript/reference/README/functions/deleteScorer",
                       "sdk-api/typescript/reference/README/functions/exportRecords",
                       "sdk-api/typescript/reference/README/functions/flushAll",
                       "sdk-api/typescript/reference/README/functions/getAllLoggers",
-                      "sdk-api/typescript/reference/README/functions/getDatasetRecordsFromArray",
                       "sdk-api/typescript/reference/README/functions/getDatasetVersion",
                       "sdk-api/typescript/reference/README/functions/getDatasetVersionHistory",
                       "sdk-api/typescript/reference/README/functions/getJob",
@@ -459,8 +491,6 @@
                       "sdk-api/typescript/reference/README/functions/listDatasetProjects",
                       "sdk-api/typescript/reference/README/functions/listProjectUserCollaborators",
                       "sdk-api/typescript/reference/README/functions/logScorerJobsStatus",
-                      "sdk-api/typescript/reference/README/functions/populateLocalMetrics",
-                      "sdk-api/typescript/reference/README/functions/removeProjectUserCollaborator",
                       "sdk-api/typescript/reference/README/functions/renderPrompt",
                       "sdk-api/typescript/reference/README/functions/reset",
                       "sdk-api/typescript/reference/README/functions/resetAll",
@@ -546,9 +576,7 @@
                           "sdk-api/typescript/reference/types/interfaces/StepWithChildSpansOptions",
                           "sdk-api/typescript/reference/types/interfaces/ToolSpanOptions",
                           "sdk-api/typescript/reference/types/interfaces/TraceOptions",
-                          "sdk-api/typescript/reference/types/interfaces/WorkflowSpanOptions",
-                          "sdk-api/typescript/reference/README/interfaces/JobProgressLogger",
-                          "sdk-api/typescript/reference/README/interfaces/PollJobOptions"
+                          "sdk-api/typescript/reference/types/interfaces/WorkflowSpanOptions"
                         ]
                       },
                       {
@@ -844,8 +872,8 @@
       "destination": "/release-notes"
     },
     {
-      "source": "/ui-redirect/custom-model-integrations",
-      "destination": "/sdk-api/third-party-integrations/model-integrations/custom-model-integrations/custom-model-integrations#json-examples"
+      "source": "/ui-redirect/custom-model-integrations-json-examples",
+      "destination": "/sdk-api/third-party-integrations/model-integrations/custom-model-integrations/custom-model-integrations#json-properties"
     },
     {
       "source": "/ui-redirect/clhf",
@@ -866,6 +894,102 @@
     {
       "source": "/ui-redirect/getting-started",
       "destination": "/getting-started/quickstart"
+    },
+    {
+      "source": "/ui-redirect/metric-agentic-workflow-advancement",
+      "destination": "/concepts/metrics/agentic/action-advancement"
+    },
+    {
+      "source": "/ui-redirect/metric-agentic-workflow-success",
+      "destination": "/concepts/metrics/agentic/action-completion"
+    },
+    {
+      "source": "/ui-redirect/metric-bleu",
+      "destination": "/concepts/metrics/expression-and-readability/bleu-and-rouge"
+    },
+    {
+      "source": "/ui-redirect/metric-chunk-attribution-utilization",
+      "destination": "/concepts/metrics/rag/generation-quality/chunk-attribution"
+    },
+    {
+      "source": "/ui-redirect/metric-completeness",
+      "destination": "/concepts/metrics/rag/generation-quality/completeness"
+    },
+    {
+      "source": "/ui-redirect/metric-context-adherence",
+      "destination": "/concepts/metrics/rag/generation-quality/context-adherence"
+    },
+    {
+      "source": "/ui-redirect/metric-context-relevance",
+      "destination": "/concepts/metrics/rag/retrieval-quality/context-relevance"
+    },
+    {
+      "source": "/ui-redirect/metric-correctness",
+      "destination": "/concepts/metrics/response-quality/correctness"
+    },
+    {
+      "source": "/ui-redirect/metric-ground-truth-adherence",
+      "destination": "/concepts/metrics/response-quality/ground-truth-adherence"
+    },
+    {
+      "source": "/ui-redirect/metric-instruction-adherence",
+      "destination": "/concepts/metrics/response-quality/instruction-adherence"
+    },
+    {
+      "source": "/ui-redirect/metric-input-pii",
+      "destination": "/concepts/metrics/safety-and-compliance/pii"
+    },
+    {
+      "source": "/ui-redirect/metric-output-pii",
+      "destination": "/concepts/metrics/safety-and-compliance/pii"
+    },
+    {
+      "source": "/ui-redirect/metric-input-sexist",
+      "destination": "/concepts/metrics/safety-and-compliance/sexism"
+    },
+    {
+      "source": "/ui-redirect/metric-output-sexist",
+      "destination": "/concepts/metrics/safety-and-compliance/sexism"
+    },
+    {
+      "source": "/ui-redirect/metric-input-tone",
+      "destination": "/concepts/metrics/expression-and-readability/tone"
+    },
+    {
+      "source": "/ui-redirect/metric-output-tone",
+      "destination": "/concepts/metrics/expression-and-readability/tone"
+    },
+    {
+      "source": "/ui-redirect/metric-input-toxicity",
+      "destination": "/concepts/metrics/safety-and-compliance/toxicity"
+    },
+    {
+      "source": "/ui-redirect/metric-output-toxicity",
+      "destination": "/concepts/metrics/safety-and-compliance/toxicity"
+    },
+    {
+      "source": "/ui-redirect/metric-prompt-injection",
+      "destination": "/concepts/metrics/safety-and-compliance/prompt-injection"
+    },
+    {
+      "source": "/ui-redirect/metric-prompt-perplexity",
+      "destination": "/concepts/metrics/model-confidence/prompt-perplexity"
+    },
+    {
+      "source": "/ui-redirect/metric-rouge",
+      "destination": "/concepts/metrics/expression-and-readability/bleu-and-rouge"
+    },
+    {
+      "source": "/ui-redirect/metric-tool-error-rate",
+      "destination": "/concepts/metrics/agentic/tool-error"
+    },
+    {
+      "source": "/ui-redirect/metric-tool-selection-quality",
+      "destination": "/concepts/metrics/agentic/tool-selection-quality"
+    },
+    {
+      "source": "/ui-redirect/metric-uncertainty",
+      "destination": "/concepts/metrics/model-confidence/uncertainty"
     },
     {
       "source": "/galileo",

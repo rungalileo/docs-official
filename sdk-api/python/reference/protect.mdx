@@ -8,15 +8,15 @@ title: protect
 
 ```python
 async def ainvoke_protect(payload: Payload,
-                          prioritized_rulesets: Optional[Sequence[Ruleset]]=None,
-                          project_id: Optional[UUID4]=None,
-                          project_name: Optional[str]=None,
-                          stage_id: Optional[UUID4]=None,
-                          stage_name: Optional[str]=None,
-                          stage_version: Optional[int]=None,
+                          prioritized_rulesets: Sequence[Ruleset] | None=None,
+                          project_id: UUID4 | None=None,
+                          project_name: str | None=None,
+                          stage_id: UUID4 | None=None,
+                          stage_name: str | None=None,
+                          stage_version: int | None=None,
                           timeout: float=TIMEOUT_SECS,
-                          metadata: Optional[dict[str, str]]=None,
-                          headers: Optional[dict[str, str]]=None) -> Optional[Union[Response, HTTPValidationError]]
+                          metadata: dict[str, str] | None=None,
+                          headers: dict[str, str] | None=None) -> Response | HTTPValidationError | None
 ```
 
 Asynchronously invoke Protect with the given payload.
@@ -50,15 +50,15 @@ Project ID and stage name, or stage ID should be provided for all invocations.
 
 ```python
 def invoke_protect(payload: Payload,
-                   prioritized_rulesets: Optional[Sequence[Ruleset]]=None,
-                   project_id: Optional[UUID4]=None,
-                   project_name: Optional[str]=None,
-                   stage_id: Optional[UUID4]=None,
-                   stage_name: Optional[str]=None,
-                   stage_version: Optional[int]=None,
+                   prioritized_rulesets: Sequence[Ruleset] | None=None,
+                   project_id: UUID4 | None=None,
+                   project_name: str | None=None,
+                   stage_id: UUID4 | None=None,
+                   stage_name: str | None=None,
+                   stage_version: int | None=None,
                    timeout: float=TIMEOUT_SECS,
-                   metadata: Optional[dict[str, str]]=None,
-                   headers: Optional[dict[str, str]]=None) -> Optional[Union[Response, HTTPValidationError]]
+                   metadata: dict[str, str] | None=None,
+                   headers: dict[str, str] | None=None) -> Response | HTTPValidationError | None
 ```
 
 Invoke Protect with the given payload.
