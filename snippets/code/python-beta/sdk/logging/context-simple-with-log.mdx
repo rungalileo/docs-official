@@ -1,0 +1,17 @@
+```python Python (Beta)
+from galileo import log
+from galileo import LogStream
+
+@log
+def make_nested_call():
+    # Function implementation
+    return "result"
+
+# Get the log stream
+log_stream = LogStream.get(name="my-log-stream", project_name="my-project")
+
+# This will log to the specified project and Log stream
+with log_stream.context():
+    content = make_nested_call()
+    print(content)
+```
