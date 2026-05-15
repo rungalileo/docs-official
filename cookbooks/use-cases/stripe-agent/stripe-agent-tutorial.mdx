@@ -148,6 +148,11 @@ GALILEO_LOG_STREAM=production                    # Your Galileo Log stream Name
 # deployments where you may have your own custom cluster.
 # GALILEO_CONSOLE_URL=https://console.galileo.ai
 
+# OPTIONAL
+# Set the verbosity level of the Galileo SDK (from most to least verbose):
+# debug, info, warn, error, silent (default)
+# GALILEO_LOG_LEVEL=debug
+
 # Agent Configuration
 AGENT_NAME=StripePaymentAgent
 AGENT_DESCRIPTION=An AI agent that helps with Stripe payment operations
@@ -566,8 +571,9 @@ const customPrompt = ChatPromptTemplate.fromMessages([
 Additional configuration options:
 
 ```ini
-# Verbose logging
-VERBOSE=true
+# Verbose level of logging (from most to least verbose):
+# debug, info, warn, error, silent (default)
+GALILEO_LOG_LEVEL=debug
 
 # Custom Galileo console URL (for enterprise deployments)
 # GALILEO_CONSOLE_URL=https://console.galileo.ai
@@ -643,7 +649,7 @@ curl -H "Authorization: Bearer $OPENAI_API_KEY" \
 Enable verbose logging for troubleshooting:
 
 ```bash
-VERBOSE=true npm run interactive
+GALILEO_LOG_LEVEL=error npm run interactive
 ```
 
 ### Manual Trace Flushing

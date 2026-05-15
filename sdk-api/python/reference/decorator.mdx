@@ -71,10 +71,11 @@ Clear the session in the active context logger instance.
 
 ```python
 def flush(self,
-          project: Optional[str]=None,
-          log_stream: Optional[str]=None,
-          experiment_id: Optional[str]=None,
-          mode: Optional[str]=None) -> None
+          project: str | None=None,
+          log_stream: str | None=None,
+          experiment_id: str | None=None,
+          mode: str | None=None,
+          on_error: Callable[[Exception], None] | None=None) -> None
 ```
 
 Upload all captured traces under a project and log stream context to Galileo.
@@ -87,6 +88,8 @@ If no project or log stream is provided, then the currently initialized context 
 - `log_stream`: The log stream name. Defaults to None.
 - `experiment_id`: The experiment ID. Defaults to None.
 - `mode`: The logger mode. Defaults to None.
+- `on_error`: Optional callback invoked with the exception when a flush error occurs. If None,
+    a warning is logged instead. Defaults to None.
 
 ### flush_all
 
@@ -101,7 +104,7 @@ This method flushes all traces regardless of project or log stream.
 ### get_current_log_stream
 
 ```python
-def get_current_log_stream(self) -> Optional[str]
+def get_current_log_stream(self) -> str | None
 ```
 
 Retrieve the current log stream name from context.
@@ -113,7 +116,7 @@ Retrieve the current log stream name from context.
 ### get_current_mode
 
 ```python
-def get_current_mode(self) -> Optional[LoggerModeType]
+def get_current_mode(self) -> LoggerModeType | None
 ```
 
 Retrieve the current mode from context.
@@ -125,7 +128,7 @@ Retrieve the current mode from context.
 ### get_current_project
 
 ```python
-def get_current_project(self) -> Optional[str]
+def get_current_project(self) -> str | None
 ```
 
 Retrieve the current project name from context.
@@ -149,7 +152,7 @@ Retrieve the current span stack from context.
 ### get_current_trace
 
 ```python
-def get_current_trace(self) -> Optional[Trace]
+def get_current_trace(self) -> Trace | None
 ```
 
 Retrieve the current trace from context.
@@ -162,11 +165,11 @@ Retrieve the current trace from context.
 
 ```python
 def get_logger_instance(self,
-                        project: Optional[str]=None,
-                        log_stream: Optional[str]=None,
-                        experiment_id: Optional[str]=None,
-                        mode: Optional[str]=None,
-                        ingestion_hook: Optional[Callable]=None) -> GalileoLogger
+                        project: str | None=None,
+                        log_stream: str | None=None,
+                        experiment_id: str | None=None,
+                        mode: str | None=None,
+                        ingestion_hook: Callable | None=None) -> GalileoLogger
 ```
 
 Get the Galileo Logger instance for the current decorator context.
@@ -186,11 +189,11 @@ Get the Galileo Logger instance for the current decorator context.
 
 ```python
 def init(self,
-         project: Optional[str]=None,
-         log_stream: Optional[str]=None,
-         experiment_id: Optional[str]=None,
-         local_metrics: Optional[list[LocalMetricConfig]]=None,
-         mode: Optional[str]=None) -> None
+         project: str | None=None,
+         log_stream: str | None=None,
+         experiment_id: str | None=None,
+         local_metrics: list[LocalMetricConfig] | None=None,
+         mode: str | None=None) -> None
 ```
 
 Initialize the context with a project and log stream. Optionally, it can also be used
@@ -212,12 +215,12 @@ the specified project and log stream.
 
 ```python
 def log(self,
-        func: Optional[Callable[P, R]]=None,
+        func: Callable[P, R] | None=None,
         *,
-        name: Optional[str]=None,
-        span_type: Optional[SPAN_TYPE]=None,
-        params: Optional[dict[str, Union[str, Callable]]]=None,
-        dataset_record: Optional[DatasetRecord]=None) -> Callable[[Callable[P, R]], Callable[P, R]]
+        name: str | None=None,
+        span_type: SPAN_TYPE | None=None,
+        params: dict[str, str | Callable] | None=None,
+        dataset_record: DatasetRecord | None=None) -> Callable[[Callable[P, R]], Callable[P, R]]
 ```
 
 Main decorator function for logging function calls.
@@ -272,10 +275,10 @@ Set the session in the active context logger instance. This is useful when you w
 
 ```python
 def start_session(self,
-                  name: Optional[str]=None,
-                  previous_session_id: Optional[str]=None,
-                  external_id: Optional[str]=None,
-                  metadata: Optional[dict[str, str]]=None) -> str
+                  name: str | None=None,
+                  previous_session_id: str | None=None,
+                  external_id: str | None=None,
+                  metadata: dict[str, str] | None=None) -> str
 ```
 
 Start a session in the active context logger instance.
@@ -290,3 +293,46 @@ Start a session in the active context logger instance.
 **Returns**
 
 - `str`: The id of the newly created session.
+
+## galileo_dataset_context
+
+```python
+def galileo_dataset_context(*,
+                            dataset_input: str | None=None,
+                            dataset_output: str | None=None,
+                            dataset_metadata: dict[str, str] | None=None) -> Generator[None, None, None]
+```
+
+Context manager to set dataset/ground truth information for spans.
+
+Use this when working with third-party OTEL instrumentation (e.g., Microsoft Agent Framework,
+LangChain, etc.) where you don't have direct control over span creation but need to attach
+ground truth data for scorers that require reference output.
+
+**Arguments**
+
+- `dataset_input` (`str`): The expected input from your dataset (ground truth input).
+- `dataset_output` (`str`): The expected output/ground truth for scoring (e.g., for BLEU, exact match scorers).
+- `dataset_metadata` (`dict[str, str]`): Additional metadata from your dataset.
+
+**Examples**
+
+```python
+from galileo.decorator import galileo_dataset_context
+>>>
+# Set ground truth for a single agent call
+with galileo_dataset_context(
+    dataset_input="What is the capital of France?",
+    dataset_output="Paris",
+    dataset_metadata={"source": "geography_quiz"}
+):
+    response = await agent.run("What is the capital of France?")
+# Use with experiment datasets
+for row in dataset:
+    with galileo_dataset_context(
+        dataset_input=row["input"],
+        dataset_output=row["expected_output"],
+    ):
+        response = await agent.run(row["input"])
+```
+

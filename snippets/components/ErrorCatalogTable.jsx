@@ -28,8 +28,8 @@ export const ErrorCatalogTable = () => {
       "error_type": "llm_api_error",
       "error_group": "shared",
       "severity": "high",
-      "default_message": "Provider rate limit exceeded. Please retry after a short wait.",
-      "user_action": "Reduce request frequency or upgrade quota.",
+      "default_message": "The AI provider rate-limited the request.",
+      "user_action": "Retry later, or contact the AI provider to raise your rate limit.",
       "retriable": true,
       "http_status_code": 429
     },
@@ -244,6 +244,16 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 2007,
+      "error_type": "data_validation_error",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "Scorer name conflicts with a reserved Galileo metric suffix.",
+      "user_action": "Rename your scorer to avoid names ending with reserved suffixes. Reserved suffixes are used internally by Galileo to store metric metadata (e.g., _status, _error_message, _explanation, _rationale, _metric_cost). Choose a name that does not end with any of these.\n",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
       "error_code": 2008,
       "error_type": "system_error",
       "error_group": "metrics",
@@ -332,6 +342,24 @@ export const ErrorCatalogTable = () => {
       "severity": "high",
       "default_message": "File upload(s) to LLM Provider failed.",
       "user_action": "Update LLM Provider configuration.",
+      "retriable": false
+    },
+    {
+      "error_code": 2018,
+      "error_type": "not_applicable_reason",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "This metric does not support the file modalities attached to this record.",
+      "user_action": "Use metrics that provide the required multimodal capabilities for files attached to this record.",
+      "retriable": false
+    },
+    {
+      "error_code": 2019,
+      "error_type": "not_applicable_reason",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "Cost tracking is not yet accurate for multimodal LLM calls.",
+      "user_action": "Cost will be reported once accurate multimodal cost tracking is implemented.",
       "retriable": false
     },
     {
@@ -495,6 +523,66 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 3520,
+      "error_type": "not_found_error",
+      "error_group": "experiment",
+      "severity": "medium",
+      "default_message": "The specified experiment group could not be found in this project.",
+      "user_action": "Verify the experiment group ID and try again, or use an experiment group name to create one automatically.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 3521,
+      "error_type": "data_validation_error",
+      "error_group": "experiment",
+      "severity": "medium",
+      "default_message": "The target experiment group belongs to a different project.",
+      "user_action": "Choose an experiment group from the current project and try again.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 3522,
+      "error_type": "not_found_error",
+      "error_group": "experiment",
+      "severity": "medium",
+      "default_message": "The target experiment group could not be found.",
+      "user_action": "Verify the target experiment group and try again.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 3523,
+      "error_type": "data_validation_error",
+      "error_group": "experiment",
+      "severity": "medium",
+      "default_message": "System experiment groups are managed by the platform and cannot be renamed or deleted.",
+      "user_action": "Choose a different experiment group or create a new custom experiment group.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 3525,
+      "error_type": "data_validation_error",
+      "error_group": "experiment",
+      "severity": "medium",
+      "default_message": "An experiment group with this name already exists in this project.",
+      "user_action": "Choose a different experiment group name and try again.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 3527,
+      "error_type": "data_validation_error",
+      "error_group": "experiment",
+      "severity": "medium",
+      "default_message": "The experiment group move request is invalid.",
+      "user_action": "Verify the experiments and target experiment group, then try again.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
       "error_code": 4000,
       "error_type": "system_error",
       "error_group": "dataset",
@@ -645,6 +733,24 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 5000,
+      "error_type": "credentials_error",
+      "error_group": "signals",
+      "severity": "high",
+      "default_message": "Signals authentication failed. The LLM provider rejected the credentials.",
+      "user_action": "Verify your LLM provider API key and update it if expired.",
+      "retriable": false
+    },
+    {
+      "error_code": 5001,
+      "error_type": "llm_api_error",
+      "error_group": "signals",
+      "severity": "high",
+      "default_message": "The LLM provider rate limit was exceeded.",
+      "user_action": "Wait a moment and retry, or check your LLM provider quota.",
+      "retriable": true
+    },
+    {
       "error_code": 7000,
       "error_type": "credentials_error",
       "error_group": "integrations",
@@ -762,6 +868,16 @@ export const ErrorCatalogTable = () => {
       "default_message": "Failed to instantiate the CustomLLM class with the provided init_kwargs.",
       "user_action": "Check the init_kwargs match the class constructor parameters.",
       "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 7012,
+      "error_type": "not_found_error",
+      "error_group": "integrations",
+      "severity": "medium",
+      "default_message": "No integration of this type was found for your account.",
+      "user_action": "Verify you have access to an integration of this type.",
+      "http_status_code": 404,
       "retriable": false
     },
     {
@@ -1025,6 +1141,36 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 8516,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "Your email is not allowed. Please contact Galileo's support.",
+      "user_action": "Verify that you are using an authorized email address, or contact support for assistance.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 8517,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "This user account has been disabled. Please contact Galileo's support.",
+      "user_action": "Contact Galileo's support team to resolve account access.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 8518,
+      "error_type": "data_validation_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "Email addresses with '+' suffixes are not allowed.",
+      "user_action": "Use your primary email address without the '+' suffix.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
       "error_code": 9000,
       "error_type": "not_found_error",
       "error_group": "component_view",
@@ -1195,6 +1341,16 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 10503,
+      "error_type": "data_validation_error",
+      "error_group": "logstream",
+      "severity": "medium",
+      "default_message": "Unknown column requested in log stream query.",
+      "user_action": "Check the column names in your query and try again.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
       "error_code": 11000,
       "error_type": "data_validation_error",
       "error_group": "organization",
@@ -1214,6 +1370,10 @@ export const ErrorCatalogTable = () => {
   const [sortDirection, setSortDirection] = useState('asc');
   const [filterGroup, setFilterGroup] = useState('All');
   const [filterSeverity, setFilterSeverity] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [targetedErrorCode, setTargetedErrorCode] = useState(null);
+  const [copiedErrorCode, setCopiedErrorCode] = useState(null);
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
 
     // Detect dark mode via Mintlify's "dark" class on <html> or via prefers-color-scheme
     const [isDark, setIsDark] = useState(false);
@@ -1246,6 +1406,52 @@ export const ErrorCatalogTable = () => {
             mediaQuery.removeEventListener('change', checkDark);
         };
     }, []);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return undefined;
+        }
+
+        const applyHashTarget = () => {
+            const hash = window.location.hash || '';
+            const match = hash.match(/^#error-(\d+)$/);
+            if (!match) {
+                setTargetedErrorCode(null);
+                return;
+            }
+
+            const code = Number(match[1]);
+            setTargetedErrorCode(code);
+
+            window.requestAnimationFrame(() => {
+                const row = document.getElementById(`error-${code}`);
+                if (row) {
+                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        };
+
+        applyHashTarget();
+        window.addEventListener('hashchange', applyHashTarget);
+
+        return () => {
+            window.removeEventListener('hashchange', applyHashTarget);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (targetedErrorCode === null) {
+            return undefined;
+        }
+
+        const timeoutId = window.setTimeout(() => {
+            setTargetedErrorCode(null);
+        }, 2200);
+
+        return () => {
+            window.clearTimeout(timeoutId);
+        };
+    }, [targetedErrorCode]);
 
     // Theme-aware colors
     const colors = isDark
@@ -1287,29 +1493,38 @@ export const ErrorCatalogTable = () => {
         }
     };
 
+    const normalizeString = (value) => String(value || '').toLowerCase();
+
+    const matchesSearchTerm = (error) => {
+        if (!normalizedSearchTerm) {
+            return true;
+        }
+
+        return (
+            String(error.error_code).includes(normalizedSearchTerm) ||
+            normalizeString(error.error_type).includes(normalizedSearchTerm) ||
+            normalizeString(error.error_group).includes(normalizedSearchTerm) ||
+            normalizeString(error.default_message).includes(normalizedSearchTerm) ||
+            normalizeString(error.user_action).includes(normalizedSearchTerm)
+        );
+    };
+
+    const compareErrors = (a, b) => {
+        const direction = sortDirection === 'asc' ? 1 : -1;
+        if (sortColumn === 'error_code') {
+            return (a.error_code - b.error_code) * direction;
+        }
+
+        const leftValue = normalizeString(a[sortColumn]);
+        const rightValue = normalizeString(b[sortColumn]);
+        return leftValue.localeCompare(rightValue) * direction;
+    };
+
     const filteredAndSortedErrors = errors
-        .filter(e => filterGroup === 'All' || e.error_group === filterGroup)
-        .filter(e => filterSeverity === 'All' || e.severity === filterSeverity)
-        .sort((a, b) => {
-            let aVal = a[sortColumn];
-            let bVal = b[sortColumn];
-            
-            // Handle numeric sorting for error_code
-            if (sortColumn === 'error_code') {
-                if (sortDirection === 'asc') {
-                    return aVal - bVal;
-                }
-                return bVal - aVal;
-            }
-            
-            // Handle string sorting
-            aVal = String(aVal || '').toLowerCase();
-            bVal = String(bVal || '').toLowerCase();
-            if (sortDirection === 'asc') {
-                return aVal.localeCompare(bVal);
-            }
-            return bVal.localeCompare(aVal);
-        });
+        .filter((error) => filterGroup === 'All' || error.error_group === filterGroup)
+        .filter((error) => filterSeverity === 'All' || error.severity === filterSeverity)
+        .filter(matchesSearchTerm)
+        .sort(compareErrors);
 
     // Group errors by error_group for section anchors
     const groupedErrors = filteredAndSortedErrors.reduce((acc, error) => {
@@ -1335,6 +1550,84 @@ export const ErrorCatalogTable = () => {
         whiteSpace: 'nowrap',
         color: colors.text,
     };
+    const contentInset = '0';
+    const controlRowStyle = {
+        display: 'flex',
+        gap: '0.625rem',
+        marginBottom: '0.625rem',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        paddingInline: contentInset,
+    };
+    const tableScrollWrapperStyle = {
+        overflowX: 'auto',
+        maxWidth: '100%',
+        paddingInline: '0.75rem',
+        boxSizing: 'border-box',
+    };
+    const tableStyle = {
+        minWidth: '1280px',
+        width: '100%',
+        borderCollapse: 'collapse',
+        fontSize: '0.8rem',
+        tableLayout: 'auto',
+    };
+    const cellPaddingX = '0.5rem';
+    const cellPaddingY = '0.5rem';
+    const baseCellStyle = {
+        padding: `${cellPaddingY} ${cellPaddingX}`,
+        verticalAlign: 'top',
+        color: colors.text,
+    };
+    const baseHeaderCellStyle = {
+        ...headerStyle,
+        padding: `${cellPaddingY} ${cellPaddingX}`,
+    };
+    const errorCodeColumnPaddingLeft = '1.25rem';
+    const errorCodeHeaderCellStyle = {
+        ...baseHeaderCellStyle,
+        padding: `${cellPaddingY} ${cellPaddingX} ${cellPaddingY} ${errorCodeColumnPaddingLeft}`,
+    };
+    const errorCodeDataCellStyle = {
+        ...baseCellStyle,
+        padding: `${cellPaddingY} ${cellPaddingX} ${cellPaddingY} ${errorCodeColumnPaddingLeft}`,
+    };
+    const clearButtonStyle = {
+        border: `1px solid ${colors.selectBorder}`,
+        borderRadius: '0.375rem',
+        padding: '0.25rem 0.6rem',
+        fontSize: '0.8rem',
+        background: colors.selectBg,
+        color: colors.text,
+        cursor: 'pointer',
+    };
+    const errorCodeCellInnerStyle = {
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: '0.35rem',
+        minWidth: 0,
+    };
+    const errorCodeLinkStyle = {
+        color: colors.link,
+        textDecoration: 'none',
+        fontWeight: 600,
+        whiteSpace: 'nowrap',
+        flex: '0 0 auto',
+    };
+    const copyLinkButtonStyle = {
+        border: `1px solid ${colors.border}`,
+        borderRadius: '0.25rem',
+        padding: '0.2rem',
+        background: 'transparent',
+        color: colors.textMuted,
+        cursor: 'pointer',
+        flexShrink: 0,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        lineHeight: 0,
+    };
 
     const getSortIndicator = (column) => {
         if (sortColumn !== column) return ' ↕';
@@ -1355,10 +1648,51 @@ export const ErrorCatalogTable = () => {
         return group.charAt(0).toUpperCase() + group.slice(1);
     };
 
+    const getErrorAnchor = (errorCode) => `#error-${errorCode}`;
+    const getRowBackgroundColor = (errorCode, rowIndex) => {
+        if (targetedErrorCode === errorCode) {
+            return isDark ? '#2b2b38' : '#eef6ff';
+        }
+        return rowIndex % 2 === 0 ? colors.bg : colors.bgAlt;
+    };
+
+    const copyErrorLink = async (errorCode) => {
+        if (typeof window === 'undefined' || typeof navigator === 'undefined' || !navigator.clipboard) {
+            return;
+        }
+
+        const directLink = `${window.location.origin}${window.location.pathname}${getErrorAnchor(errorCode)}`;
+        try {
+            await navigator.clipboard.writeText(directLink);
+            setCopiedErrorCode(errorCode);
+            window.setTimeout(() => setCopiedErrorCode((value) => (value === errorCode ? null : value)), 1200);
+        } catch (_error) {
+            // Ignore clipboard failures in environments that block clipboard APIs.
+        }
+    };
+    const clearFilters = () => {
+        setSearchTerm('');
+        setFilterGroup('All');
+        setFilterSeverity('All');
+    };
+
     return (
-        <div style={{ marginLeft: '-1rem', paddingLeft: '1rem', overflow: 'visible', color: colors.text }}>
+        <div style={{ overflow: 'visible', color: colors.text, width: '100%', boxSizing: 'border-box' }}>
             {/* Filters */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center', paddingLeft: '0.5rem' }}>
+            <div style={controlRowStyle}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <label style={{ fontSize: '0.875rem', fontWeight: 500, color: colors.text }}>Search:</label>
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Code, type, message, action"
+                        style={{
+                            ...selectStyle,
+                            minWidth: '220px',
+                        }}
+                    />
+                </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <label style={{ fontSize: '0.875rem', fontWeight: 500, color: colors.text }}>Group:</label>
                     <select 
@@ -1381,43 +1715,50 @@ export const ErrorCatalogTable = () => {
                         {severities.map(s => <option key={s} value={s}>{formatGroupName(s)}</option>)}
                     </select>
                 </div>
+                <button
+                    type="button"
+                    onClick={clearFilters}
+                    style={clearButtonStyle}
+                >
+                    Clear
+                </button>
                 <div style={{ fontSize: '0.75rem', color: colors.textMuted }}>
                     Showing {filteredAndSortedErrors.length} of {errors.length} errors
                 </div>
             </div>
 
-            {/* Table */}
-            <div style={{ overflowX: 'auto', maxWidth: '100%', paddingLeft: '0.5rem' }}>
-                {Object.keys(groupedErrors).sort().map(group => (
-                    <div key={group} id={`group-${group}`} style={{ marginBottom: '2rem' }}>
-                        <h3 style={{ 
-                            fontSize: '1.1rem', 
-                            fontWeight: 600, 
-                            marginBottom: '0.75rem', 
-                            color: colors.text,
-                            borderBottom: `1px solid ${colors.border}`,
-                            paddingBottom: '0.5rem'
-                        }}>
-                            {formatGroupName(group)} Errors
-                        </h3>
-                        <table style={{ minWidth: '1000px', width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+            {/* Tables by group — heading outside horizontal scroll */}
+            {Object.keys(groupedErrors).sort().map(group => (
+                <div key={group} id={`group-${group}`} style={{ marginBottom: '1.25rem' }}>
+                    <h3 style={{ 
+                        fontSize: '1.1rem', 
+                        fontWeight: 600, 
+                        marginBottom: '0.5rem', 
+                        color: colors.text,
+                        borderBottom: `1px solid ${colors.border}`,
+                        paddingBottom: '0.35rem'
+                    }}>
+                        {formatGroupName(group)} Errors
+                    </h3>
+                    <div style={tableScrollWrapperStyle}>
+                        <table style={tableStyle}>
                             <thead>
                                 <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
-                                    <th style={{ ...headerStyle, textAlign: 'left', padding: '0.75rem 0.5rem 0.75rem 0.75rem', minWidth: '100px' }} onClick={() => handleSort('error_code')}>
+                                    <th style={{ ...errorCodeHeaderCellStyle, textAlign: 'left', minWidth: '10rem' }} onClick={() => handleSort('error_code')}>
                                         Error Code{getSortIndicator('error_code')}
                                     </th>
-                                    <th style={{ ...headerStyle, textAlign: 'left', padding: '0.75rem 0.5rem', minWidth: '150px' }} onClick={() => handleSort('error_type')}>
+                                    <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '14rem' }} onClick={() => handleSort('error_type')}>
                                         Type{getSortIndicator('error_type')}
                                     </th>
-                                    <th style={{ ...headerStyle, textAlign: 'left', padding: '0.75rem 0.5rem', minWidth: '100px' }} onClick={() => handleSort('error_group')}>
+                                    <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '9rem' }} onClick={() => handleSort('error_group')}>
                                         Group{getSortIndicator('error_group')}
                                     </th>
-                                    <th style={{ ...headerStyle, textAlign: 'left', padding: '0.75rem 0.5rem', minWidth: '80px' }} onClick={() => handleSort('severity')}>
+                                    <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '8rem' }} onClick={() => handleSort('severity')}>
                                         Severity{getSortIndicator('severity')}
                                     </th>
-                                    <th style={{ ...headerStyle, textAlign: 'left', padding: '0.75rem 0.5rem', minWidth: '200px' }}>Message</th>
-                                    <th style={{ ...headerStyle, textAlign: 'left', padding: '0.75rem 0.5rem', minWidth: '200px' }}>User Action</th>
-                                    <th style={{ ...headerStyle, textAlign: 'center', padding: '0.75rem 0.5rem', minWidth: '80px' }} onClick={() => handleSort('retriable')}>
+                                    <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '16rem' }}>Message</th>
+                                    <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '16rem' }}>User Action</th>
+                                    <th style={{ ...baseHeaderCellStyle, textAlign: 'center', minWidth: '7rem' }} onClick={() => handleSort('retriable')}>
                                         Retriable{getSortIndicator('retriable')}
                                     </th>
                                 </tr>
@@ -1429,19 +1770,78 @@ export const ErrorCatalogTable = () => {
                                         id={`error-${error.error_code}`}
                                         style={{ 
                                             borderBottom: `1px solid ${colors.border}`, 
-                                            background: idx % 2 === 0 ? colors.bg : colors.bgAlt 
+                                            background: getRowBackgroundColor(error.error_code, idx),
+                                            scrollMarginTop: '120px'
                                         }}
                                     >
-                                        <td style={{ padding: '0.75rem 0.5rem 0.75rem 0.75rem', fontWeight: 500, verticalAlign: 'top', minWidth: '100px' }}>
-                                            {error.error_code}
+                                        <td style={{ ...errorCodeDataCellStyle, fontWeight: 500, minWidth: '10rem' }}>
+                                            <div style={errorCodeCellInnerStyle}>
+                                                <a
+                                                    href={getErrorAnchor(error.error_code)}
+                                                    style={errorCodeLinkStyle}
+                                                    aria-label={`Link to error code ${error.error_code}`}
+                                                >
+                                                    {error.error_code}
+                                                </a>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => copyErrorLink(error.error_code)}
+                                                    title="Copy direct link"
+                                                    aria-label={`Copy direct link for error ${error.error_code}`}
+                                                    style={copyLinkButtonStyle}
+                                                >
+                                                    {copiedErrorCode === error.error_code ? (
+                                                        <svg
+                                                            width="14"
+                                                            height="14"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            aria-hidden="true"
+                                                            focusable="false"
+                                                        >
+                                                            <path
+                                                                d="M20 6L9 17l-5-5"
+                                                                stroke={colors.severityLow}
+                                                                strokeWidth="2"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                            />
+                                                        </svg>
+                                                    ) : (
+                                                        <svg
+                                                            width="14"
+                                                            height="14"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            aria-hidden="true"
+                                                            focusable="false"
+                                                        >
+                                                            <path
+                                                                d="M10 13a5 5 0 0 1 0-7l1-1a5 5 0 0 1 7 7l-1 1"
+                                                                stroke={colors.textMuted}
+                                                                strokeWidth="2"
+                                                                strokeLinecap="round"
+                                                            />
+                                                            <path
+                                                                d="M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 0 1-7-7l1-1"
+                                                                stroke={colors.textMuted}
+                                                                strokeWidth="2"
+                                                                strokeLinecap="round"
+                                                            />
+                                                        </svg>
+                                                    )}
+                                                </button>
+                                            </div>
                                         </td>
-                                        <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top', color: colors.text, fontFamily: 'monospace', fontSize: '0.75rem' }}>
+                                        <td style={{ ...baseCellStyle, fontFamily: 'monospace', fontSize: '0.75rem', minWidth: '14rem', overflowWrap: 'anywhere' }}>
                                             {error.error_type}
                                         </td>
-                                        <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top', color: colors.text }}>
+                                        <td style={{ ...baseCellStyle, minWidth: '9rem' }}>
                                             {formatGroupName(error.error_group)}
                                         </td>
-                                        <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top' }}>
+                                        <td style={{ ...baseCellStyle, minWidth: '8rem' }}>
                                             <span style={{ 
                                                 color: getSeverityColor(error.severity), 
                                                 fontWeight: 600,
@@ -1450,13 +1850,13 @@ export const ErrorCatalogTable = () => {
                                                 {error.severity}
                                             </span>
                                         </td>
-                                        <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top', color: colors.text }}>
+                                        <td style={{ ...baseCellStyle, minWidth: '16rem', wordBreak: 'break-word' }}>
                                             {error.default_message}
                                         </td>
-                                        <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top', color: colors.text }}>
+                                        <td style={{ ...baseCellStyle, minWidth: '16rem', wordBreak: 'break-word' }}>
                                             {error.user_action}
                                         </td>
-                                        <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top', textAlign: 'center', color: colors.text }}>
+                                        <td style={{ ...baseCellStyle, textAlign: 'center', minWidth: '7rem' }}>
                                             {error.retriable ? '✓' : '✗'}
                                         </td>
                                     </tr>
@@ -1464,8 +1864,8 @@ export const ErrorCatalogTable = () => {
                             </tbody>
                         </table>
                     </div>
-                ))}
-            </div>
+                </div>
+            ))}
 
             {filteredAndSortedErrors.length === 0 && (
                 <div style={{ padding: '2rem', textAlign: 'center', color: colors.textMuted }}>

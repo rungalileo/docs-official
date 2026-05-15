@@ -3,6 +3,8 @@ title: AWS Bedrock Inference Profiles
 description: Learn how to use AWS Bedrock Inference Profiles with Galileo in a custom deployment.
 ---
 
+import AliasesBedrock from "/snippets/code/multilingual/integrations/custom/aliases/aliases-bedrock.mdx";
+
 Galileo supports AWS Bedrock integration via
 [Inference Profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles.html).
 This enables the mapping of Galileo-supported model identifiers to an AWS Bedrock
@@ -34,6 +36,18 @@ When you run evaluations or prompts in Galileo, Galileo:
 - Invokes Bedrock using your Inference Profile
 - Logs results and metrics back to Galileo
 - Your models, data, and billing remain fully in your AWS account.
+
+## Prerequisites
+
+Before running the setup script, make sure you have:
+
+- A **Galileo API key**. The key is tied to a specific Galileo user, and the
+integration will be created or updated under that user.
+- An **AWS IAM role** that Galileo can assume, with:
+  - `bedrock:InvokeModel` permission on the models or inference profiles you intend to use.
+  - A trust policy that allows Galileo to call `sts:AssumeRole`.
+- One or more **Inference Profile ARNs** already
+[created in AWS Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-create.html).
 
 ## Setting up the AWS Bedrock Inference Profile integration
 
@@ -85,18 +99,72 @@ EOF
 )"
 ```
 
+## Verifying the integration was updated
+
+A successful `PUT` returns a JSON response like this:
+
+```json
+{
+  "id": "a0ce9eff-1290-41ae-b78d-a01118a1122c",
+  "permissions": [],
+  "name": "aws_bedrock",
+  "created_at": "2026-03-20T22:36:57.225940Z",
+  "updated_at": "2026-03-20T22:36:57.225946Z",
+  "created_by": "e19dd8ef-c881-4c17-bc2a-fa549f691a5c",
+  "is_selected": false
+}
+```
+
+A few fields are worth checking:
+
+- `created_by` is the Galileo user that owns this integration. If you have
+multiple users in your organization, this confirms which user's integration
+was just updated.
+- `updated_at` confirms the change was persisted just now.
+
+If the request returns a `4xx` or `5xx` error instead, the integration was
+**not** updated. Resolve the error and re-run the script before testing
+inference again.
+
+## Sharing integrations across users
+
+Each AWS Bedrock integration belongs to the Galileo user who created it.
+Multiple users in the same organization can each create their own AWS Bedrock
+integration, and each one stays associated only with the user who set it up.
+
+A user can also share their integration with other users or with user groups.
+Shared integrations appear in the recipient's Galileo UI labeled as
+**Shared**. To start using a shared integration, the recipient must
+**select** it in the UI. Once selected, they can use it for their inference
+runs.
+
 ## Supported models
 
-Galileo supports all major Amazon Bedrock foundation models, including:
+Galileo supports the following AWS Bedrock model aliases. Use any of these
+as a key in the `inference_profiles` map of the setup script.
 
-- Anthropic Claude (3, 3.5, 4, Sonnet, Haiku, Opus)
-- Meta Llama (3, 3.1, 3.2)
-- Mistral and Mixtral
-- Amazon Titan
-- Cohere Command
+<AliasesBedrock />
 
-## Requesting a demo or help with setup
+## Troubleshooting
 
-If you'd like to see a demo of the AWS Bedrock Inference Profile Integration
-or need help setting it up, please
-[Request a Demo](https://galileo.ai/contact-sales)
+If you've updated the integration but inference is still using the old
+configuration, walk through this checklist:
+
+- Confirm the `PUT` request returned a success response (see
+[Verifying the integration was updated](#verifying-the-integration-was-updated)),
+not a `4xx` or `5xx` error.
+- Check **which Galileo API key** was used in the script — it corresponds to
+a specific Galileo user.
+- Check **which AWS Role ARN** was used, and verify it has
+`bedrock:InvokeModel` and `sts:AssumeRole` permissions.
+- Check the **model aliases** in the request body. Each one must be a
+Bedrock model alias supported by Galileo (see
+[Supported models](#supported-models)).
+- Check the **inference profile ARNs** in the request body. Each ARN must
+point to an inference profile that exists in your AWS account and that the
+provided IAM role has permission to invoke (`bedrock:InvokeModel` on the
+profile, plus permission to invoke its underlying foundation model).
+- Confirm the integration belonging to the API key's user is the one
+being used for inference.
+- If the integration is shared with other users, confirm those users have
+**selected** the shared integration in the Galileo UI.
