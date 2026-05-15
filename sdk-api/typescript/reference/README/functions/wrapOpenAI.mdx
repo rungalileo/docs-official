@@ -9,10 +9,14 @@ title: wrapOpenAI
 # Function: wrapOpenAI()
 
 ```ts
-function wrapOpenAI<T>(openAIClient: T, logger?: GalileoLogger): T;
+function wrapOpenAI<T>(
+  openAIClient: T,
+  logger?: GalileoLogger,
+  ingestionHook?: (request: LogTracesIngestRequest) => void | Promise<void>,
+): T;
 ```
 
-Defined in: [src/openai.ts](https://github.com/rungalileo/galileo-js/blob/main/src/openai.ts)
+Defined in: [src/handlers/openai/index.ts](https://github.com/rungalileo/galileo-js/blob/main/src/handlers/openai/index.ts)
 
 Wraps an OpenAI instance with logging.
 
@@ -35,6 +39,12 @@ The OpenAI instance to wrap.
 [`GalileoLogger`](/sdk-api/typescript/reference/README/classes/GalileoLogger)
 
 The logger to use. Defaults to a new GalileoLogger instance.
+
+### ingestionHook?
+
+(`request`: [`LogTracesIngestRequest`](/sdk-api/typescript/reference/README/type-aliases/LogTracesIngestRequest)) => `void` \| `Promise`\<`void`\>
+
+Optional async callback invoked with the trace ingest request payload before sending to the Galileo API. Use this to inspect or modify trace data before ingestion. When provided without a logger, a new GalileoLogger is created with this hook and traces are automatically flushed to the hook after each completed call. No explicit flush() is needed.
 
 ## Returns
 

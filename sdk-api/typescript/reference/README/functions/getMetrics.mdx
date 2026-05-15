@@ -11,12 +11,20 @@ title: getMetrics
 ```ts
 function getMetrics(options: object & object): Promise<{
   aggregateMetrics: {
-    [key: Uncapitalize<string>]: number;
+    [key: Uncapitalize<string>]:
+      | number
+      | {
+          [key: string]: number;
+        };
   };
   bucketedMetrics: {
     [key: Uncapitalize<string>]: object[];
   };
+  emsCapturedError?: boolean;
   groupByColumns: string[];
+  standardErrors?: null | {
+    [key: Uncapitalize<string>]: object;
+  };
 }>;
 ```
 
@@ -36,12 +44,21 @@ The search query parameters.
 
 `Promise`\<\{
 `aggregateMetrics`: \{
-[`key`: `Uncapitalize`\<`string`\>]: `number`;
+[`key`: `Uncapitalize`\<`string`\>]:
+\| `number`
+\| \{
+[`key`: `string`]: `number`;
+\};
 \};
 `bucketedMetrics`: \{
 [`key`: `Uncapitalize`\<`string`\>]: `object`[];
 \};
+`emsCapturedError?`: `boolean`;
 `groupByColumns`: `string`[];
+`standardErrors?`: \| `null`
+\| \{
+[`key`: `Uncapitalize`\<`string`\>]: `object`;
+\};
 \}\>
 
 A promise that resolves to the search results.
