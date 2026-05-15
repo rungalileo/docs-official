@@ -19,10 +19,10 @@ using a tuple (project, log_stream) as the key.
 
 ```python
 def flush(self,
-          project: Optional[str]=None,
-          log_stream: Optional[str]=None,
-          experiment_id: Optional[str]=None,
-          mode: Optional[str]=None) -> None
+          project: str | None=None,
+          log_stream: str | None=None,
+          experiment_id: str | None=None,
+          mode: str | None=None) -> None
 ```
 
 Flush (upload and clear) a GalileoLogger instance.
@@ -51,14 +51,14 @@ Flush (upload and clear) all GalileoLogger instances.
 ```python
 def get(self,
         *,
-        project: Optional[str]=None,
-        log_stream: Optional[str]=None,
-        experiment_id: Optional[str]=None,
-        mode: Optional[str]=None,
-        local_metrics: Optional[list[LocalMetricConfig]]=None,
-        trace_id: Optional[str]=None,
-        span_id: Optional[str]=None,
-        ingestion_hook: Optional[Callable]=None) -> GalileoLogger
+        project: str | None=None,
+        log_stream: str | None=None,
+        experiment_id: str | None=None,
+        mode: str | None=None,
+        local_metrics: list[LocalMetricConfig] | None=None,
+        trace_id: str | None=None,
+        span_id: str | None=None,
+        ingestion_hook: Callable | None=None) -> GalileoLogger
 ```
 
 Retrieve an existing GalileoLogger or create a new one if it does not exist.
@@ -95,10 +95,10 @@ Retrieve a copy of the dictionary containing all active loggers.
 
 ```python
 def reset(self,
-          project: Optional[str]=None,
-          log_stream: Optional[str]=None,
-          experiment_id: Optional[str]=None,
-          mode: Optional[str]=None) -> None
+          project: str | None=None,
+          log_stream: str | None=None,
+          experiment_id: str | None=None,
+          mode: str | None=None) -> None
 ```
 
 Reset (terminate and remove) one or all GalileoLogger instances.
