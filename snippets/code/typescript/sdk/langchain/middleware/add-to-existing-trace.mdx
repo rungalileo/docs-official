@@ -1,0 +1,23 @@
+```typescript TypeScript
+import { GalileoCallback, GalileoLogger } from "galileo";
+
+// Create a logger and start a trace
+const logger = new GalileoLogger({
+  projectName: "my-project",
+  logStreamName: "my-log-stream",
+});
+await logger.startSession({ name: "My session" });
+logger.startTrace({ input: "User query", name: "My pipeline" });
+
+// Create a callback that adds to the existing trace (startNewTrace = false)
+const callback = new GalileoCallback(
+  logger,
+  false // startNewTrace — append to the active trace
+);
+
+// The agent execution will be added to the existing trace
+const result = await agent.invoke(
+  { messages: [...] },
+  { callbacks: [callback] }
+);
+```

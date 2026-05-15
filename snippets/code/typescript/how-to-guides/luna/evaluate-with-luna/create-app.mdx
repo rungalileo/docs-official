@@ -19,10 +19,13 @@ You are amazing. Tell me all about sunflowers.
 `;
 
 await openai.chat.completions.create({
-  model: "gpt-4o",
+  model: "gpt-4.1-mini",
   messages: [{ content: prompt, role: "user" }],
 });
 
 // Flush logs before exiting
-await flush();
+await flush({
+  projectName: process.env.GALILEO_PROJECT,
+  logStreamName: process.env.GALILEO_LOG_STREAM
+});
 ```

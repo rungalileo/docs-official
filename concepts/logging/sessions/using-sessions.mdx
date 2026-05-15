@@ -134,12 +134,14 @@ Our simple application will have a `main` function where everything happens. The
 
 Below, we give the session a unique `name` and `external id`. The name helps us find the session more easily in the Galileo Console. The `external id` is to link this session to external tracing: for example, linking to a conversation ID in your chatbot app by an ID created inside that app.
 
+You can also pass an optional `metadata` dictionary of string key-value pairs to attach structured information to the session, such as customer IDs, environment names, or application versions. Metadata keys appear as filterable columns in the Sessions table in the Galileo Console.
+
 <CodeGroup>
 <StartSessionSnippet />
 </CodeGroup>
 
 <Note>
-Treat `logger.start_session` like a lifecycle event, and call it before any code you want to monitor. The `name` and `external id` arguments are optional but recommended.
+Treat `logger.start_session` like a lifecycle event, and call it before any code you want to monitor. The `name`, `external id`, and `metadata` arguments are all optional; `name` and `external id` are recommended.
 </Note>
 </Step>
 
@@ -234,8 +236,11 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
     ```python Python
     from galileo import galileo_context
 
-    # Create a new session
-    galileo_context.start_session(""" ...optional args """)
+    # Create a new session (with optional metadata)
+    galileo_context.start_session(
+        name="My Session",
+        metadata={"brand_id": "acme", "environment": "production"},
+    )
 
     # Application logic follows
 
@@ -247,8 +252,11 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
     import { getLogger } from 'galileo';
     const logger = getLogger();
 
-    // Create a new session
-    logger.startSession(/* ...optional args */);
+    // Create a new session (with optional metadata)
+    logger.startSession({
+      name: "My Session",
+      metadata: { brand_id: "acme", environment: "production" },
+    });
 
     // Application logic follows
 
@@ -267,7 +275,7 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
         input=question,
         output="Plenipotentiary means 'Invested with full power'"
     )
-    logger.conclude() # end the trace
+    logger.conclude({}) # end the trace
     ```
 
     ```typescript TypeScript
@@ -277,7 +285,7 @@ Remember to always use the same `GalileoLogger` instance across your project. Th
         input: question,
         output: "Plenipotentiary means 'Invested with full power'"
     })
-    logger.conclude(); // end the trace
+    logger.conclude({}); // end the trace
     ```
 
     </CodeGroup>

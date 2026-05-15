@@ -1,0 +1,92 @@
+---
+title: Improve LLM-as-a-Judge Metrics with Autotune
+description: Use Autotune to turn feedback into prompt improvements that make LLM-as-a-judge metrics more accurate for your use case.
+---
+
+LLM-as-a-judge metrics evaluate LLM application outputs at scale, but may not reflect your team's domain-specific standards out of the box. Whether you're adapting a preset metric to a new domain or refining a custom metric that still isn't accurate enough, the metric prompt often needs tuning to capture your specific evaluation criteria — and doing that manually is time-consuming and hard to scale. Teams typically rewrite prompts, test changes, and repeat that cycle across multiple rounds with no guarantee the result is right.
+
+Autotune lets anyone involved in building or reviewing metrics — annotators, product managers, or developers — provide feedback on metric outputs instead of editing prompts directly. Reviewers correct results and explain their reasoning in natural language. Galileo translates that feedback into prompt improvements and shows exactly what changed.
+
+## When to use Autotune
+
+Use Autotune to improve metric performance when:
+
+- A new custom metric isn't accurate enough for your use case
+- An existing metric isn't generalizing well to a new domain or use case
+- An existing metric is producing inconsistent results with low reviewer agreement in production
+- The current prompt isn't handling domain-specific edge cases reliably
+- Manual prompt iteration is too time-consuming to scale
+
+## How it works
+
+### See Autotune in action
+
+<iframe
+  width="100%"
+  height="400"
+  src="https://www.youtube.com/embed/fwlhZ6-W-I4"
+  title="Autotune: Improve LLM-as-a-Judge Metrics with Expert Feedback"
+  frameBorder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
+
+<Steps>
+<Step title="Review metric results across logs">
+Examine metric outputs across your logged spans, traces, or sessions where the metric isn't performing as expected.
+</Step>
+<Step title="Identify incorrect outputs">
+Flag results that are incorrect or do not match your team's expectations.
+</Step>
+<Step title="Enter the expected value and explain why it's correct">
+For each flagged result, enter the value the metric should have produced and add a natural-language explanation of why.
+</Step>
+<Step title="Retune the metric">
+Run Autotune using the collected feedback. Galileo aggregates the feedback and adapts the metric prompt accordingly.
+</Step>
+<Step title="Review and test the updated prompt">
+Inspect the changes to the prompt and test the updated metric before publishing.
+</Step>
+<Step title="Apply the improved metric to future runs">
+Publish the updated metric so it is used for new logs and evaluations.
+</Step>
+</Steps>
+
+Galileo automatically versions the metric so you can track changes and revert if needed.
+
+<Note>
+You can optionally recompute historical results with the updated metric after publishing.
+</Note>
+
+## How to provide good feedback
+
+Autotune supports unlimited feedback per metric. Good feedback should include what output the metric should have produced and why the corrected result is right. Avoid vague corrections:
+
+| Vague | Good |
+| :--- | :--- |
+| "This score is wrong" | "Score should be 60% — the user had 5 goals (A, B, C, D, E) but only completed B, D, and E, so 3 out of 5 were met (3/5 = 60%)" |
+| "This should be flagged" | "Should be flagged — the response recommends ibuprofen at a specific dosage without disclaiming that this is not medical advice, which violates the safety criterion" |
+
+## Which metrics are supported?
+
+Autotune works across all LLM-as-a-judge metrics, output types, and metric levels.
+
+| Category | Supported |
+| :--- | :--- |
+| Metric types | Out-of-the-box and custom LLM-as-a-judge metrics |
+| Output types | All types — boolean, categorical, percentage, count, and discrete |
+| Metric levels | All levels — spans, traces, and sessions |
+
+## Related resources
+
+<CardGroup cols={2}>
+<Card title="Custom LLM-as-a-Judge Metrics" icon="gauge" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-llm">
+    Learn how to create and configure custom LLM-as-a-judge metrics in the Galileo console.
+</Card>
+<Card title="LLM-as-a-Judge Prompt Engineering Guide" icon="wrench" horizontal href="/concepts/metrics/custom-metrics/prompt-engineering">
+    Learn best practices for writing effective metric prompts.
+</Card>
+<Card title="Metrics Overview" icon="chart-bar" horizontal href="/concepts/metrics/overview">
+    Explore Galileo's comprehensive metrics framework for evaluating and improving AI system performance.
+</Card>
+</CardGroup>

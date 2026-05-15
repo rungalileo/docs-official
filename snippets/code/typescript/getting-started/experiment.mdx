@@ -8,6 +8,7 @@ import {
     runExperiment
 } from "galileo";
 import {
+    DatasetDBType,
     MessageRole,
     PromptTemplate,
     PromptTemplateVersion
@@ -43,8 +44,10 @@ ship with confidence.
     }
 
     // Create a dataset, or load it if it already exists
-    let dataset = await getDataset({ name: "My Dataset" });
-    if (!dataset) {
+    let dataset: DatasetDBType | undefined; 
+    try {
+        dataset = await getDataset({ name: "My Dataset" });
+    }catch(e){
         dataset = await createDataset(
             [
                 { "input": "What is Galileo?" },
@@ -61,7 +64,7 @@ ship with confidence.
         dataset: dataset,
         metrics: [GalileoMetrics.contextAdherence],
         projectName: process.env.GALILEO_PROJECT,
-        promptSettings: { model_alias: "GPT-4o" }
+        promptSettings: { modelAlias: "gpt-4.1-mini" }
     });
 
     const galileoConsoleUrl = (
