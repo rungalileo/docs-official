@@ -9,29 +9,12 @@ title: GalileoMetrics
 # Type Alias: GalileoMetrics
 
 ```ts
-type GalileoMetrics = ScorerNameOpenAPI;
+type GalileoMetrics = (typeof GalileoMetrics)[keyof typeof GalileoMetrics];
 ```
 
 Defined in: [src/types/metrics.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/metrics.types.ts)
 
-Type representing all valid Galileo metric names.
-This is a union of all string literal values from the OpenAPI schema.
+Type representing all valid Galileo metric labels.
+This is a union of all human-readable label string literals from the GalileoMetrics const.
 
-Use the [GalileoMetrics](/sdk-api/typescript/reference/types/variables/GalileoMetrics) const object for runtime access to metric names.
-
-## Example
-
-```typescript
-import {
-  GalileoMetrics,
-  type GalileoMetrics as GalileoMetricsType,
-} from "galileo";
-
-// Runtime usage
-const metric: string = GalileoMetrics.correctness;
-
-// Type usage
-function validateMetric(name: GalileoMetricsType): boolean {
-  return Object.values(GalileoMetrics).includes(name);
-}
-```
+Use the [GalileoMetrics](/sdk-api/typescript/reference/types/variables/GalileoMetrics) const object for runtime access to metric labels.
