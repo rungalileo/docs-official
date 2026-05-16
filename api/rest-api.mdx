@@ -1,0 +1,965 @@
+---
+title: Run experiments with the REST API
+description: Learn how to create projects, scorers, datasets, and experiments using Galileo's REST API directly
+---
+
+# Galileo API Guide
+
+This guide walks through the API calls needed to evaluate LLM outputs and monitor production traces with Galileo.
+
+## Which flow do you need?
+
+```
+Do you have an OpenTelemetry collector?
+  └─ Yes → OTEL Ingestion (configure headers, route to experiment or log stream)
+  └─ No ↓
+
+Is this production monitoring (ongoing traffic) or batch evaluation (a defined run)?
+  ├─ Production monitoring → Log Stream
+  └─ Batch evaluation ↓
+
+Do you already have LLM outputs, or does Galileo need to call the LLM?
+  ├─ I already have outputs (in a CSV) → Flow B — Dataset with Pre-generated Outputs
+  ├─ I already have outputs (from a live service, not tabular) → Flow C — Raw Trace Ingestion
+  └─ I want Galileo to call the LLM for me → Flow A — Prompt Template
+```
+
+**All flows require a project** (Step 1) and reference scorers by ID. Scorers are org-level resources — create them once, reuse across any project or flow.
+
+---
+
+## Authentication
+
+Every request requires two things:
+
+```
+Galileo-API-Key: <your API key>
+Content-Type: application/json
+```
+
+Base URL: your deployment URL, e.g. `https://api.yourcompany.galileocloud.io`
+
+> If any POST returns a 422 with "already exists", the resource was already created. Use the corresponding GET endpoint to retrieve it by name.
+
+---
+
+## How Routing Works
+
+Every trace or evaluation result lands somewhere specific in Galileo. Three pieces of information control exactly where:
+
+| What you provide | Proprietary endpoint | OTEL endpoint |
+|-----------------|---------------------|---------------|
+| **Org** | `Galileo-API-Key` header | `Galileo-API-Key` header |
+| **Project** | `project_id` in the URL path | `projectid` header or `galileo.project.id` resource attribute |
+| **Destination** | `experiment_id` or `log_stream_id` in the request body | `experimentid`/`experiment` or `logstreamid`/`logstream` header |
+
+These are not optional — if any layer is missing or wrong, traces land in the wrong place or are rejected.
+
+```
+Galileo-API-Key  →  org
+  └── project  →  project_id (URL) or projectid header
+        ├── experiment_id / experiment  →  experiment (batch evaluation)
+        └── log_stream_id / logstream   →  log stream (production monitoring)
+```
+
+---
+
+## Step 1: Create a Project
+
+Projects are the top-level container. `type: gen_ai` is required for experiments.
+
+[API reference →](/api-reference/projects/create-project)
+
+```http
+POST /v2/projects
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{
+  "name": "my-project",
+  "type": "gen_ai"
+}
+```
+
+**Response:** take the `id` — this is your `<PROJECT_ID>`, used in every subsequent call.
+
+```json
+{
+  "id": "9f2cc6b5-294c-4133-97fa-6951ee4999c9",
+  "name": "my-project",
+  "type": "gen_ai",
+  ...
+}
+```
+
+> If the project already exists: [`POST /v2/projects/paginated`](/api-reference/projects/get-projects-v2) lists all projects. Find yours by name and take the `id`.
+
+---
+
+## Custom Scorers
+
+Scorers are **org-level resources** — they exist independently of any project and can be referenced across experiments and log streams. Create them once and reuse them anywhere in your org.
+
+Scorer names are unique per scorer type within your org (you can have an LLM scorer and a code scorer with the same name, but not two LLM scorers with the same name). Both `id` and `name` uniquely identify a scorer within its type — but the experiment and log stream APIs require the UUID `id`, not the name. Use `POST /v2/scorers/list` to look up a scorer's ID by name (shown at the end of this section).
+
+Skip this section entirely if you only want to use Galileo's built-in preset scorers. Built-in scorers already have `scoreable_node_types` configured — you don't need to set anything when referencing them in experiments or log streams.
+
+> **Custom scorers require `scoreable_node_types` to be set explicitly at creation time.** If omitted, the field is null and the scorer is silently excluded when scoring raw traces (it will still work for dataset+prompt experiments). Always include it in your `POST /v2/scorers` call.
+
+Galileo has two types of custom scorers:
+
+- **LLM-based**: an LLM judge that evaluates outputs against a prompt you write
+- **Code-based**: a Python function you upload that returns a scored value
+
+### LLM-based scorer
+
+**Call 1 — Create the scorer shell:** [API reference →](/api-reference/data/create)
+
+```http
+POST /v2/scorers
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{
+  "name": "response-quality",
+  "scorer_type": "llm",
+  "description": "Rates response quality on a 0-1 scale.",
+  "scoreable_node_types": ["llm", "chat"],
+  "defaults": {
+    "model_name": "GPT-4o mini",
+    "num_judges": 1,
+    "cot_enabled": false,
+    "output_type": "percentage"
+  }
+}
+```
+
+> **`model_name`** uses the same alias format as `model_alias` in prompt templates — Galileo's display name, not the provider model ID. See `GET /llm_integrations/openai/scorer_models` for valid values (scorer-eligible models only — excludes reasoning models like o-series).
+
+The response is large — the only fields you need are `id` and `name`:
+
+```json
+{
+  "id": "b80700af-9b29-4e6f-92a1-3a0a223eeb62",
+  "name": "response-quality",
+  ...
+}
+```
+
+These are your `<LLM_SCORER_ID>` and `<LLM_SCORER_NAME>`.
+
+**Call 2 — Attach the prompt and model config:** [API reference →](/api-reference/data/create-llm-scorer-version)
+
+```http
+POST /v2/scorers/<LLM_SCORER_ID>/version/llm
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{
+  "user_prompt": "You are evaluating an AI assistant response.\n\nQuestion: {input}\nResponse: {output}\n\nRate quality from 0.0 to 1.0:\n- 1.0 = accurate, complete, clear\n- 0.5 = partially correct or incomplete\n- 0.0 = incorrect or irrelevant\n\nRespond with only a number.",
+  "model_name": "GPT-4o mini",
+  "cot_enabled": false,
+  "num_judges": 1
+}
+```
+
+The prompt receives `{input}` and `{output}` variables from each trace.
+
+> **`output_type` is set at scorer creation, not here.** The version endpoint accepts `output_type` but only uses it to backfill the scorer's default if one wasn't set during `POST /v2/scorers`. If you set it upfront (as above), it's ignored here. The version itself never stores `output_type` — the DB column is always null, and responses show `"boolean"` as a display placeholder regardless of what the scorer actually uses.
+
+### Code-based scorer
+
+Code scorers require a validation step before upload. The function signature is something like:
+
+```python
+def scorer_fn(step_object, **kwargs) -> float:
+    ...
+```
+
+A return type annotation is required — omitting it will fail validation. Accepted types are `-> float`, `-> bool`, `-> int`, or `-> str`. `**kwargs` is required to ensure forward compatibility with additional arguments the platform may pass. The `step_object` has `input`, `output`, `metadata`, and `spans` attributes.
+
+> **`output` type depends on who created the trace.** For traces with pre-generated outputs , `output` at the trace level is a plain string. When Galileo calls the LLM via a prompt template, trace-level `output` is a `Message` object — access the text via `step_object.output.content`.
+
+**Example Scorer**:
+```python
+def scorer_fn(step_object, **kwargs) -> float:
+    output = step_object.output
+    if not output:
+        return 0.0
+    # output is a plain string for raw trace ingestion (Flow C);
+    # a Message object when Galileo called the LLM via a prompt template (Flow A).
+    text = output if isinstance(output, str) else output.content
+    return min(len(text) / 200.0, 1.0)
+```
+
+
+**Call 1 — Create the scorer shell:** [API reference →](/api-reference/data/create)
+
+```http
+POST /v2/scorers
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{
+  "name": "response-length-scorer",
+  "scorer_type": "code",
+  "description": "Scores response length normalized to 0-1.",
+  "scoreable_node_types": ["trace"]
+}
+```
+
+> **`scoreable_node_types`** controls which node type the scorer runs on. Valid values: `trace`, `llm`, `retriever`, `tool`, `workflow`, `agent`, `session`. **Always set this explicitly** — if omitted, the field is null in the database and the scorer will be silently excluded from experiments that ingest raw traces (it only works for dataset+prompt flows). Use `["trace"]` for code scorers and `["llm", "chat"]` for LLM scorers to cover all experiment types.
+
+**Response:** take `id` and `name` — these are your `<CODE_SCORER_ID>` and `<CODE_SCORER_NAME>`.
+
+```json
+{
+  "id": "c7d8e9f0-3456-7890-cdef-012345678901",
+  "name": "response-length-scorer"
+}
+```
+
+**Call 2 — Validate the code (async):** [API reference →](/api-reference/data/validate-code-scorer)
+
+```http
+POST /v2/scorers/code/validate
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: multipart/form-data
+
+file: <your scorer .py file>
+scoreable_node_types: trace
+```
+
+Returns a `task_id`. Poll until `status` is `completed`: [API reference →](/api-reference/data/get-validate-code-scorer-task-result)
+
+```http
+GET /v2/scorers/code/validate/<task_id>
+Galileo-API-Key: <GALILEO_API_KEY>
+```
+
+```json
+{
+  "status": "completed",
+  "result": {
+    "result": {
+      "result_type": "valid",
+      "score_type": "float",
+      ...
+    }
+  }
+}
+```
+
+The value you pass as `validation_result` is the object under the top-level `"result"` key — i.e. `{"result": {"result_type": "valid", "score_type": "float", ...}}`. Serialize that object as a JSON string and pass it in Call 3. Not the inner `"result"` object, and not the full poll response — just that one level down.
+
+**Call 3 — Upload the code version:** [API reference →](/api-reference/data/create-code-scorer-version)
+
+```http
+POST /v2/scorers/<CODE_SCORER_ID>/version/code
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: multipart/form-data
+
+file: <your scorer .py file>
+validation_result: <the result object from the poll response, as a JSON string>
+```
+
+### Looking up scorer IDs by name
+
+The experiment and log stream APIs require scorer UUIDs, not names. If you need to retrieve a scorer's ID by name: [API reference →](/api-reference/data/list-scorers-with-filters)
+
+```http
+POST /v2/scorers/list
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{
+  "filters": [
+    { "name": "name", "operator": "one_of", "value": ["response-quality", "response-length-scorer"] }
+  ]
+}
+```
+
+Each result in the response includes both `id` and `name`. Use the `id` when referencing scorers in experiment or log stream calls.
+
+> To look up preset scorers (e.g. `context_adherence`, `correctness`), use the same endpoint with `"operator": "one_of"` and the preset scorer names.
+
+---
+
+## Datasets
+
+Datasets are **independent versioned resources** — upload once, reference by ID across any experiment. Flows A and B require a dataset. Flow C and the function-based SDK path do not — traces are posted directly at runtime.
+
+Four file formats are supported — pass `?format=<value>` in the query string (defaults to `csv` if omitted):
+
+| `format` value | Description |
+|----------------|-------------|
+| `csv` | CSV (default). Auto-detects encoding. |
+| `jsonl` | Newline-delimited JSON — one object per line. |
+| `json` | JSON array of objects. Top-level must be an array. |
+| `feather` | Apache Arrow Feather binary format. |
+
+Reserved column names:
+
+| Column | Purpose |
+|--------|---------|
+| `input` | The input passed to the prompt template (or used as trace input) |
+| `output` | Ground truth / expected answer — used by scorers that compare against a reference answer (e.g. correctness). Not the LLM-generated output. **Use `output` when uploading via API** — the alias `ground_truth` is only normalized by the Galileo UI uploader, not the API. Datasets uploaded via API with a `ground_truth` column will show an empty "Dataset Ground Truth" column in experiment results. |
+| `generated_output` | Pre-generated LLM output. When present and no prompt template is provided, Galileo scores these directly without calling an LLM (Flow B). |
+| `metadata` | Arbitrary metadata for the row |
+
+> **Note:** This endpoint uses `multipart/form-data` (file upload), not JSON.
+
+[API reference →](/api-reference/datasets/create-dataset)
+
+```bash
+curl -X POST "$GALILEO_BASE_URL/v2/datasets?format=csv" \
+  -H "Galileo-API-Key: $GALILEO_API_KEY" \
+  -F "name=my-dataset" \
+  -F "draft=false" \
+  -F "hidden=false" \
+  -F "file=@dataset.csv"
+```
+
+**Response:** take `id` — this is your `<DATASET_ID>`. The first uploaded version always has `version_index: 1`.
+
+```json
+{
+  "id": "d3f1a2b4-8c9e-4f7d-b123-456789abcdef",
+  "name": "my-dataset",
+  "version_index": 1,
+  ...
+}
+```
+
+> If the dataset already exists: [`GET /v2/datasets`](/api-reference/datasets/list-datasets) lists all datasets. Find yours by name.
+
+---
+
+## Step 3: Run an Experiment
+
+### Flow A — Prompt Template Evaluation
+
+Galileo runs your prompt template against each row in a dataset and scores the outputs.
+
+> **Prerequisite:** Flow A requires an LLM integration to be configured in Galileo (Settings → Integrations in the UI). Galileo calls the LLM on your behalf using those credentials.
+>
+> **`model_alias` is Galileo's display name for the model — it is not the provider's model ID.** `"GPT-4o mini"` and `"gpt-4o-mini"` are different strings and only one is accepted. For legacy models they differ; for newer models they often match. To see valid alias strings for your configured integrations:
+> ```
+> GET /llm_integrations/openai/models
+> ```
+> Returns a flat array of valid alias strings, e.g. `["GPT-4o", "GPT-4o mini", "gpt-4.1", "gpt-4.1-mini", ...]`. Use the exact string from this list. Replace `openai` with your provider (`anthropic`, `azure`, `mistral`, `vertex_ai`, `aws_bedrock`, etc.).
+>
+> The same alias format applies to `model_name` in LLM scorer creation — it is the same value set.
+
+#### A1. Create a prompt template
+
+If you already have a prompt template in the Galileo UI, retrieve its version ID:
+
+```bash
+GET /projects/<PROJECT_ID>/templates
+```
+
+Find your template by name, then take `selected_version_id` — this is your `<PROMPT_TEMPLATE_VERSION_ID>`.
+
+To create a new template, template and first version are created in a single call:
+
+```bash
+POST /projects/<PROJECT_ID>/templates
+
+{
+  "name": "my-prompt-template",
+  "template": "Answer the following question concisely.\n\nQuestion: {{input}}\n\nAnswer:",
+  "settings": {
+    "model_alias": "GPT-4o mini",
+    "temperature": 0.0,
+    "max_tokens": 1024
+  }
+}
+```
+
+> **`model_alias`** is Galileo's display name for the model, e.g. `GPT-4o mini` — not the provider's model ID (`gpt-4o-mini`). Use the exact string shown in Settings → Integrations for the model you have configured.
+
+> **Template variable syntax:** Prompt templates use **Mustache** (`{{variable}}`), not Python format strings. Use `{{input}}` to reference the dataset `input` column. Using `{input}` (single braces) passes the literal string through unchanged — the LLM will never see the actual question. Note: LLM scorer `user_prompt` fields use `{input}` and `{output}` (single braces) — that is a different substitution system.
+
+**Response:** take `selected_version_id` — this is your `<PROMPT_TEMPLATE_VERSION_ID>`.
+
+```json
+{
+  "id": <UUID4>,
+  "name": "my-prompt-template",
+  "selected_version_id": "v9f8e7d6-5c4b-3a2f-1e0d-9c8b7a6f5e4d"
+}
+```
+
+To add a new version to an existing template:
+
+```bash
+POST /templates/<TEMPLATE_ID>/versions
+
+{
+  "template": "Answer concisely and cite your source.\n\nQuestion: {{input}}\n\nAnswer:",
+  "settings": {
+    "model_alias": "GPT-4o mini",
+    "temperature": 0.0
+  }
+}
+```
+
+#### A3. Create and trigger the experiment
+
+This single call uploads the experiment configuration and starts execution immediately (`trigger: true`). Galileo runs the prompt against each dataset row and scores the outputs.
+
+[API reference →](/api-reference/experiment/create-experiment)
+
+```bash
+POST /v2/projects/<PROJECT_ID>/experiments
+
+{
+  "name": "my-experiment",
+  "task_type": 16,
+  "dataset": {
+    "dataset_id": "<DATASET_ID>",
+    "version_index": 1
+  },
+  "prompt_template_version_id": "<PROMPT_TEMPLATE_VERSION_ID>",
+  "prompt_settings": {
+    "model_alias": "GPT-4o mini"
+  },
+  "scorers": [
+    { "id": "<LLM_SCORER_ID>", "scorer_type": "llm", "name": "<LLM_SCORER_NAME>" },
+    { "id": "<CODE_SCORER_ID>", "scorer_type": "code", "name": "<CODE_SCORER_NAME>" }
+  ],
+  "trigger": true
+}
+```
+
+To use preset scorers instead of (or alongside) custom ones, look up their IDs first:
+
+```bash
+POST /v2/scorers/list
+
+{
+  "filters": [
+    { "name": "name", "operator": "one_of", "value": ["context_adherence", "correctness"] }
+  ]
+}
+```
+
+Pass preset scorers with `"scorer_type": "preset"` in the scorers array.
+
+**Response:** take `id` — this is your `<EXPERIMENT_ID>`.
+
+```json
+{
+  "id": "e4f5a6b7-2345-6789-bcde-f01234567890",
+  "name": "my-experiment",
+  "status": {
+    "log_generation": {
+      "progress_percent": 0.0
+    }
+  }
+}
+```
+
+> **Scoring is async.** Poll `GET /projects/<PROJECT_ID>/runs/<EXPERIMENT_ID>/jobs` until every job in the response has a terminal status. Non-terminal statuses are `unstarted` and `in_progress` — keep polling while any job has either. Terminal statuses are `completed`, `processed`, `error`, and `failed`. Do not filter by `?status=in_progress` — jobs start in `unstarted` before a worker picks them up, so that filter can return empty before any work has started. Note: `completed` status is set before metric records finish writing to the database — there is an async queue hop between job completion and metrics being queryable (up to ~5 seconds). If the metrics fetch returns empty results immediately after jobs complete, wait briefly and retry.
+>
+> **If a scorer errors, its column will not appear in the UI or aggregate metrics response.** Traces will show `status_type: "pending"` for that metric in the trace search API — the scorer job errored before writing results. Check for `error` or `failed` jobs at `GET /projects/<PROJECT_ID>/runs/<EXPERIMENT_ID>/jobs` to diagnose the root cause.
+
+---
+
+### Flow B — Dataset with Pre-generated Outputs
+
+Your application has already produced LLM outputs. You have them in a structured dataset (CSV). Upload the dataset with a `generated_output` column — Galileo scores the outputs directly without calling an LLM.
+
+This is the cleanest path when your outputs are already tabular. If your outputs aren't in a CSV — whether they're generated at runtime or already in memory — see Flow C below.
+
+#### B1. Upload your dataset
+
+Follow the [Datasets](#datasets) section above. Your CSV must include a `generated_output` column alongside `input` and `output`:
+
+```
+input,output,generated_output
+"What is the capital of France?","Paris","The capital of France is Paris."
+"What is 2 + 2?","4","2 + 2 equals 4."
+"Who wrote Hamlet?","William Shakespeare","Hamlet was written by Shakespeare."
+```
+
+Take the `<DATASET_ID>` from the upload response.
+
+#### B2. Create and trigger the experiment
+
+Same call as Flow A but without `prompt_template_version_id` or `prompt_settings`. The presence of `generated_output` in the dataset signals Galileo to score those values directly.
+
+[API reference →](/api-reference/experiment/create-experiment)
+
+```bash
+POST /v2/projects/<PROJECT_ID>/experiments
+
+{
+  "name": "my-generated-output-experiment",
+  "task_type": 16,
+  "dataset": {
+    "dataset_id": "<DATASET_ID>",
+    "version_index": 1
+  },
+  "scorers": [
+    { "id": "<LLM_SCORER_ID>", "scorer_type": "llm", "name": "<LLM_SCORER_NAME>" },
+    { "id": "<CODE_SCORER_ID>", "scorer_type": "code", "name": "<CODE_SCORER_NAME>" }
+  ],
+  "trigger": true
+}
+```
+
+**Response:** take `id` — this is your `<EXPERIMENT_ID>`.
+
+```json
+{
+  "id": "a9b0c1d2-5678-9012-ef01-234567890123",
+  "name": "my-generated-output-experiment",
+  "status": {
+    "log_generation": {
+      "progress_percent": 0.0
+    }
+  }
+}
+```
+
+> **Scoring is async.** Same as Flow A — poll `GET /projects/<PROJECT_ID>/runs/<EXPERIMENT_ID>/jobs` until all jobs have a terminal status (`completed`, `processed`, `error`, `failed`), then allow a brief delay before fetching metrics.
+
+> If both `prompt_template_version_id` and `generated_output` are present, the prompt template takes priority and Galileo calls the LLM — the `generated_output` column is ignored.
+
+---
+
+### Flow C — Raw Trace Ingestion
+
+You generate outputs at runtime (e.g. from a live service) and POST them directly as traces. No CSV dataset required.
+
+#### C1. Create an experiment
+
+[API reference →](/api-reference/experiment/create-experiment)
+
+```http
+POST /v2/projects/<PROJECT_ID>/experiments
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{
+  "name": "my-trace-experiment",
+  "task_type": 16
+}
+```
+
+Take the `id` — this is your `<EXPERIMENT_ID>`.
+
+#### C2. Register scorers
+
+Scorers are attached to the experiment via a separate call. This is what tells the platform which metrics to compute when traces arrive. [API reference →](/api-reference/experiment/update-metric-settings)
+
+> **Order matters:** Register scorers before ingesting traces. When traces arrive with `is_complete: true`, Galileo immediately enqueues scoring jobs — those jobs look up registered scorers at processing time. If scorer registration hasn't completed yet, custom scorers will be silently skipped and only built-in metrics (cost, latency) will run. If that happens, re-calling this endpoint after traces exist will trigger a recompute automatically for the newly added scorers.
+
+```http
+PATCH /projects/<PROJECT_ID>/experiments/<EXPERIMENT_ID>/metric_settings
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{
+  "scorers": [
+    { "id": "<LLM_SCORER_ID>", "scorer_type": "llm" },
+    { "id": "<CODE_SCORER_ID>", "scorer_type": "code" }
+  ]
+}
+```
+
+#### C3. Ingest traces
+
+[API reference →](/api-reference/trace/log-traces)
+
+```bash
+POST /v2/projects/<PROJECT_ID>/traces
+
+{
+  "experiment_id": "<EXPERIMENT_ID>",
+  "is_complete": true,
+  "traces": [
+    {
+      "id": <UUID4>,
+      "type": "trace",
+      "input": "What is the capital of France?",
+      "output": "The capital of France is Paris.",
+      "dataset_output": "Paris",
+      "created_at": "2026-04-15T10:00:00Z",
+      "spans": [
+        {
+          "id": <UUID4>,
+          "type": "llm",
+          "input": [{"role": "user", "content": "What is the capital of France?"}],
+          "output": {"role": "assistant", "content": "The capital of France is Paris."},
+          "model": "gpt-4o-mini",
+          "created_at": "2026-04-15T10:00:00Z"
+        }
+      ]
+    }
+  ]
+}
+```
+
+> **Trace and span `id` fields must be valid UUID v4.** The API rejects non-UUID4 strings with a 422. Generate a UUID4 per trace/span.
+
+`is_complete` controls whether scoring is triggered for the traces in that request:
+- `true` → traces stored and scoring triggered immediately for this batch
+- `false` → traces stored only, no scoring yet
+
+For large trace sets that don't fit in a single request: send intermediate batches with `is_complete: false`, then send the final batch with `is_complete: true`. Scoring fires once across all accumulated traces when the final batch lands.
+
+`dataset_output` is the ground truth — include it if you want ground-truth-based scorers to run.
+
+---
+
+### Log Streams
+
+Experiments are batch evaluation runs. For continuous production monitoring, use a **log stream** — traces stream in from live traffic and are scored as they arrive.
+
+#### LS1. Create a log stream
+
+[API reference →](/api-reference/log-stream/create-log-stream)
+
+```http
+POST /projects/<PROJECT_ID>/log_streams
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{
+  "name": "my-log-stream"
+}
+```
+
+**Response:** take `id` — this is your `<LOG_STREAM_ID>`.
+
+```json
+{
+  "id": "b1c2d3e4-6789-0123-f012-345678901234",
+  "name": "my-log-stream",
+  "project_id": "<PROJECT_ID>"
+}
+```
+
+#### LS2. Attach scorers
+
+Log streams are runs — use the same `scorer-settings` endpoint as experiments, with `LOG_STREAM_ID` as the run ID:
+
+```http
+POST /projects/<PROJECT_ID>/runs/<LOG_STREAM_ID>/scorer-settings
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{
+  "run_id": "<LOG_STREAM_ID>",
+  "scorers": [
+    { "id": "<LLM_SCORER_ID>", "scorer_type": "llm", "name": "<LLM_SCORER_NAME>" },
+    { "id": "<CODE_SCORER_ID>", "scorer_type": "code", "name": "<CODE_SCORER_NAME>" }
+  ]
+}
+```
+
+#### LS3. Ingest traces
+
+Same proprietary endpoint as Flow C but with `log_stream_id` instead of `experiment_id`: [API reference →](/api-reference/trace/log-traces)
+
+```http
+POST /v2/projects/<PROJECT_ID>/traces
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{
+  "log_stream_id": "<LOG_STREAM_ID>",
+  "is_complete": true,
+  "traces": [
+    {
+      "id": <UUID4>,
+      "type": "trace",
+      "input": "What is the capital of France?",
+      "output": "The capital of France is Paris.",
+      "created_at": "2026-04-15T10:00:00Z",
+      "spans": [
+        {
+          "id": <UUID4>,
+          "type": "llm",
+          "input": [{"role": "user", "content": "What is the capital of France?"}],
+          "output": {"role": "assistant", "content": "The capital of France is Paris."},
+          "model": "gpt-4o-mini",
+          "created_at": "2026-04-15T10:00:00Z"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### LS4. Query trace results
+
+[API reference →](/api-reference/trace/query-traces)
+
+```http
+POST /v2/projects/<PROJECT_ID>/traces/search
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{
+  "log_stream_id": "<LOG_STREAM_ID>",
+  "filters": [],
+  "sort": {"column": "created_at", "descending": true},
+  "limit": 100,
+  "starting_token": 0
+}
+```
+
+Returns paginated trace records with per-trace metric scores. Filter by metric values here to find traces below your quality threshold.
+
+---
+
+### OTEL Ingestion
+
+If you have an OpenTelemetry collector in your infrastructure, you can pipe traces directly to Galileo's OTEL endpoint instead of the proprietary `/v2/projects/{PROJECT_ID}/traces`. The transformation pipeline is the same — both converge on the same trace processing logic. The difference is just ingestion format and routing mechanism.
+
+**Endpoint:**
+```
+POST /otel/v1/traces
+```
+
+Auth is the same `Galileo-API-Key` header.
+
+#### Routing headers
+
+Where the trace lands is controlled by headers on the OTEL collector. All header names are lowercase, no dashes or underscores:
+
+| Header | Value | Effect |
+|--------|-------|--------|
+| `projectid` | UUID | Route to this project |
+| `experimentid` | UUID | Send to an existing experiment |
+| `experiment` | string | Send to experiment by name |
+| `logstreamid` | UUID | Send to an existing log stream |
+| `logstream` | string | Send to log stream by name — auto-creates if it doesn't exist |
+| `sessionid` | string | Associate traces with a session (log streams only — ignored for experiments) |
+
+Use `experimentid`/`experiment` for offline evaluation. Use `logstreamid`/`logstream` for production monitoring.
+
+#### Resource attributes (alternative to headers)
+
+Embed routing in the OTEL resource instead of collector headers:
+
+| Attribute | Effect |
+|-----------|--------|
+| `galileo.project.id` | Route to project by UUID |
+| `galileo.project.name` | Route to project by name |
+| `galileo.logstream.id` | Route to log stream by UUID |
+| `galileo.logstream.name` | Route to log stream by name |
+
+> **Note:** Resource attributes only support log stream routing. To route OTEL traces to an experiment, use the `experimentid` or `experiment` HTTP header — there is no resource attribute equivalent.
+
+#### Session auto-resolution
+
+Galileo extracts session ID automatically from span attributes — no manual `sessionid` header needed if your spans carry any of:
+
+- `session.id`
+- `gen_ai.conversation.id`
+- `galileo.session.id`
+
+> **Prerequisite:** The experiment or log stream must exist before traces arrive, unless using the `logstream` header with a name — that auto-creates the log stream.
+
+---
+
+## Step 4: Fetch Results
+
+### Aggregate metrics
+
+Returns aggregate stats per scorer across all traces in the experiment. Use this to answer "did this experiment pass my quality bar" before drilling into individual traces.
+
+[API reference →](/api-reference/experiment/get-experiment-metrics)
+
+```http
+POST /v2/projects/<PROJECT_ID>/experiments/<EXPERIMENT_ID>/metrics
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{}
+```
+
+```json
+{
+  "metrics": [
+    {
+      "name": "response-quality",
+      "data_type": "percentage",
+      "average": 0.87,
+      "buckets": { "0.25": 2, "0.50": 5, "0.75": 8, "1.00": 3, "other": 0 },
+      "roll_up_method": null,
+      ...
+    },
+    {
+      "name": "is-correct",
+      "data_type": "boolean",
+      "average": null,
+      "buckets": { "True": 14, "False": 4 },
+      "roll_up_method": "percentage_true",
+      ...
+    },
+    ...
+  ]
+}
+```
+
+Each entry in `metrics` represents one scorer. Key fields:
+
+| Field | Meaning |
+|-------|---------|
+| `name` | Scorer name |
+| `data_type` | Output type: `percentage`, `boolean`, `categorical`, etc. |
+| `average` | Mean score across all traces — populated for numeric/percentage scorers, `null` for boolean/categorical |
+| `buckets` | Distribution histogram. For numeric scorers: quartile ranges (`"0.25"`, `"0.50"`, `"0.75"`, `"1.00"`, `"other"`) with trace counts. For boolean scorers: `{"True": N, "False": N}`. For categorical: one key per category. |
+| `roll_up_method` | How to summarize the metric — e.g. `percentage_true` for boolean scorers. `null` for numeric. |
+
+> To identify your scorer entries in the response, filter for `roll_up_method != null`. LLM scorers also emit sub-entries (`<name>_input_tokens`, `_output_tokens`, `_total_tokens`, `_scorer_version_id`) — these all have `roll_up_method: null` and can be discarded.
+
+### Per-trace results
+
+Returns individual traces with per-trace metric values. Useful for finding which inputs scored below a threshold.
+
+[API reference →](/api-reference/trace/query-traces)
+
+```http
+POST /v2/projects/<PROJECT_ID>/traces/search
+Galileo-API-Key: <GALILEO_API_KEY>
+Content-Type: application/json
+
+{
+  "experiment_id": "<EXPERIMENT_ID>",
+  "filters": [],
+  "sort": { "column_id": "created_at", "descending": true },
+  "limit": 100,
+  "starting_token": 0
+}
+```
+
+**Response shape:**
+
+```json
+{
+  "starting_token": 0,
+  "next_starting_token": 100,
+  "num_records": 250,
+  "paginated": true,
+  "records": [
+    {
+      "id": "<trace-uuid>",
+      "type": "trace",
+      "input": "Answer the following question...",
+      "output": "The capital of France is Paris.",
+      "created_at": "2026-04-25T16:25:50.026022Z",
+      "dataset_input": "What is the capital of France?",
+      "dataset_output": "Paris",
+      "dataset_metadata": {},
+      "metric_info": {
+        "response-quality-scorer": {
+          "status_type": "success",
+          "value": 1.0,
+          "explanation": "The response has a 100.00% chance of fitting the metric's criteria.",
+          "rationale": "...",
+          "cost": 0.000154,
+          "model_alias": "GPT-4o mini",
+          "num_judges": 1,
+          "input_tokens": 677,
+          "output_tokens": 87,
+          "total_tokens": 764
+        },
+        "response-length-scorer": {
+          "status_type": "success",
+          "value": 0.155
+        },
+        "duration_ns": { "status_type": "success", "value": 1041921536 },
+        "cost":        { "status_type": "success", "value": 0.0000091 }
+      },
+      "has_children": true,
+      "is_complete": true,
+      "run_id": "<experiment-id>",
+      "project_id": "<project-id>"
+    }
+  ]
+}
+```
+
+Key fields:
+
+| Field | Notes |
+|-------|-------|
+| `metric_info` | Structured per-metric results — use this for parsing. Keyed by scorer name. |
+| `metric_info[name].status_type` | `"success"` or `"pending"`. `"pending"` means the scorer job errored before writing — check `GET /projects/<PROJECT_ID>/runs/<EXPERIMENT_ID>/jobs` for the error. |
+| `metric_info[name].value` | The numeric score. |
+| `metric_info[name].explanation` / `rationale` | LLM scorer reasoning (present for LLM scorers only). |
+| `dataset_input` / `dataset_output` | Ground truth from the dataset (Flow A only). Compare against `output` to compute your own pass/fail logic. |
+| `next_starting_token` | Pass as `starting_token` in the next request to paginate. |
+| `metrics` | Flat dict version of all metric values — same data as `metric_info`, less structured. Useful for quick ad-hoc access. |
+
+#### Filtering traces
+
+To filter to traces below a score threshold:
+
+```json
+"filters": [
+  {
+    "type": "number",
+    "name": "metrics/response-quality-scorer",
+    "operator": "lt",
+    "value": 0.5
+  }
+]
+```
+
+> **Scorer names are used as-is in filter names.** If your scorer is named `response-quality-scorer`, the filter name is `metrics/response-quality-scorer` — hyphens are preserved, not converted to underscores.
+
+#### Sorting by metric value
+
+To surface the worst-scoring traces first, sort by the metric ascending:
+
+```json
+"sort": { "column_id": "metrics/response-quality-scorer", "descending": false }
+```
+
+#### Filter operator reference
+
+**Number filters** (`"type": "number"`) — for `metrics/<scorer-name>`, `duration_ns`, `cost`, `num_total_tokens`:
+
+| Operator | Meaning |
+|----------|---------|
+| `eq` | Equal to |
+| `ne` | Not equal to |
+| `gt` | Greater than |
+| `gte` | Greater than or equal to |
+| `lt` | Less than |
+| `lte` | Less than or equal to |
+| `between` | Inclusive range — `"value": [low, high]` |
+
+**Text filters** (`"type": "text"`) — for `input`, `output`, `name`, `external_id`:
+
+| Operator | Meaning |
+|----------|---------|
+| `eq` | Exact match |
+| `ne` | Not equal |
+| `contains` | Substring match |
+| `one_of` | Value is in list — `"value": ["a", "b"]` |
+| `not_in` | Value is not in list |
+
+**ID filters** (`"type": "id"`) — for `id`, `session_id`:
+
+| Operator | Meaning |
+|----------|---------|
+| `eq` | Exact UUID match |
+| `one_of` | Match any UUID in list |
+
+**Date filters** (`"type": "date"`) — for `created_at`, `updated_at`:
+
+| Operator | Meaning |
+|----------|---------|
+| `gt` / `gte` | After a timestamp |
+| `lt` / `lte` | Before a timestamp |
+
+Multiple filters in the `filters` array are ANDed together.
