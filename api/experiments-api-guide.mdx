@@ -22,7 +22,7 @@ Do you already have LLM outputs, or does Galileo need to call the LLM?
   └─ No, let Galileo call the LLM → Flow A — Prompt Template
 ```
 
-**All flows require a project** (Step 1) and reference scorers by ID. Scorers are org-level resources — create them once, reuse across any project or flow.
+**All flows require a project** (Step 1) and reference metrics by scorer ID. Metrics are org-level resources — configure them once, reuse across any project or flow.
 
 ---
 
@@ -94,22 +94,22 @@ Content-Type: application/json
 
 ---
 
-## Custom Scorers
+## Step 2: Configure Metrics
 
-Scorers are **org-level resources** — they exist independently of any project and can be referenced across experiments and Log Streams. Create them once and reuse them anywhere in your org.
+Metrics are **org-level resources** — they exist independently of any project and can be referenced across experiments and Log Streams. Configure them once and reuse them anywhere in your org.
 
-Scorer names are unique per scorer type within your org (you can have an LLM scorer and a code scorer with the same name, but not two LLM scorers with the same name). Both `id` and `name` uniquely identify a scorer within its type — but the experiment and Log Stream APIs require the UUID `id`, not the name. Use `POST /v2/scorers/list` to look up a scorer's ID by name (shown at the end of this section).
+Metric names are unique per type within your org (you can have an LLM-based and a code-based metric with the same name, but not two LLM-based metrics with the same name). Both `id` and `name` uniquely identify a metric within its type — but the experiment and Log Stream APIs require the UUID `id`, not the name. Use `POST /v2/scorers/list` to look up a metric's ID by name (shown at the end of this section).
 
-Skip this section entirely if you only want to use Galileo's built-in preset scorers. Built-in scorers already have `scoreable_node_types` configured — you don't need to set anything when referencing them in experiments or Log Streams.
+Skip this section entirely if you only want to use Galileo's built-in preset metrics. Built-in metrics already have `scoreable_node_types` configured — you don't need to set anything when referencing them in experiments or Log Streams.
 
 > **Custom scorers require `scoreable_node_types` to be set explicitly at creation time.** If omitted, the field is null and the scorer is silently excluded when scoring raw traces (it will still work for dataset+prompt experiments). Always include it in your `POST /v2/scorers` call.
 
-Galileo has two types of custom scorers:
+Galileo has two types of custom metrics:
 
 - **LLM-based**: an LLM judge that evaluates outputs against a prompt you write
 - **Code-based**: a Python function you upload that returns a scored value
 
-### LLM-based scorer
+### LLM-based metric
 
 **Call 1 — Create the scorer shell:** [API reference →](/api-reference/data/create)
 
@@ -165,9 +165,9 @@ The prompt receives `{input}` and `{output}` variables from each trace.
 
 > **`output_type` is set at scorer creation, not here.** The version endpoint accepts `output_type` but only uses it to backfill the scorer's default if one wasn't set during `POST /v2/scorers`. If you set it upfront (as above), it's ignored here. The version itself never stores `output_type` — the DB column is always null, and responses show `"boolean"` as a display placeholder regardless of what the scorer actually uses.
 
-### Code-based scorer
+### Code-based metric
 
-Code scorers require a validation step before upload. The function signature is something like:
+Code-based metrics require a validation step before upload. The function signature is something like:
 
 ```python
 def scorer_fn(step_object, **kwargs) -> float:
@@ -262,9 +262,9 @@ file: <your scorer .py file>
 validation_result: <the result object from the poll response, as a JSON string>
 ```
 
-### Looking up scorer IDs by name
+### Looking up metric IDs by name
 
-The experiment and Log Stream APIs require scorer UUIDs, not names. If you need to retrieve a scorer's ID by name: [API reference →](/api-reference/data/list-scorers-with-filters)
+The experiment and Log Stream APIs require metric UUIDs, not names. If you need to retrieve a metric's ID by name: [API reference →](/api-reference/data/list-scorers-with-filters)
 
 ```text
 POST /v2/scorers/list
@@ -409,6 +409,12 @@ POST /templates/<TEMPLATE_ID>/versions
   }
 }
 ```
+
+#### A2. Upload a dataset
+
+Follow the [Datasets](#datasets) section above if you haven't already. Flow A requires a dataset with at least an `input` column — include an `output` column if you want ground-truth-based metrics (e.g. correctness) to run.
+
+Take the `<DATASET_ID>` from the upload response.
 
 #### A3. Create and trigger the experiment
 
