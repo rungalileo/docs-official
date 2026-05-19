@@ -1251,6 +1251,16 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 9008,
+      "error_type": "permission_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The current user does not have access to this view.",
+      "user_action": "Please choose a view you own or a project-visible view.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
       "error_code": 9500,
       "error_type": "system_error",
       "error_group": "authorization",
