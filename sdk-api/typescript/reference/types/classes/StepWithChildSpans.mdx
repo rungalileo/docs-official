@@ -18,6 +18,7 @@ Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/gali
 
 - [`WorkflowSpan`](/sdk-api/typescript/reference/types/classes/WorkflowSpan)
 - [`AgentSpan`](/sdk-api/typescript/reference/types/classes/AgentSpan)
+- [`ToolSpan`](/sdk-api/typescript/reference/types/classes/ToolSpan)
 - [`Trace`](/sdk-api/typescript/reference/types/classes/Trace)
 
 ## Constructors
@@ -25,7 +26,15 @@ Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/gali
 ### Constructor
 
 ```ts
-new StepWithChildSpans(type: "agent" | "llm" | "retriever" | "tool" | "workflow" | "trace" | "session", data: StepWithChildSpansOptions): StepWithChildSpans;
+new StepWithChildSpans(type:
+  | "agent"
+  | "llm"
+  | "retriever"
+  | "tool"
+  | "workflow"
+  | "control"
+  | "trace"
+  | "session", data: StepWithChildSpansOptions): StepWithChildSpans;
 ```
 
 Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts)
@@ -34,7 +43,7 @@ Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/gali
 
 ##### type
 
-`"agent"` | `"llm"` | `"retriever"` | `"tool"` | `"workflow"` | `"trace"` | `"session"`
+`"agent"` | `"llm"` | `"retriever"` | `"tool"` | `"workflow"` | `"control"` | `"trace"` | `"session"`
 
 ##### data
 
@@ -117,6 +126,20 @@ Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/gali
 #### Inherited from
 
 [`BaseSpan`](/sdk-api/typescript/reference/types/classes/BaseSpan).[`externalId`](/sdk-api/typescript/reference/types/classes/BaseSpan.mdx#externalid)
+
+---
+
+### id
+
+```ts
+id: string;
+```
+
+Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts)
+
+#### Inherited from
+
+[`BaseSpan`](/sdk-api/typescript/reference/types/classes/BaseSpan).[`id`](/sdk-api/typescript/reference/types/classes/BaseSpan.mdx#id)
 
 ---
 
@@ -259,7 +282,15 @@ Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/gali
 ### type
 
 ```ts
-type: "agent" | "llm" | "retriever" | "tool" | "workflow" | "trace" | "session";
+type:
+  | "agent"
+  | "llm"
+  | "retriever"
+  | "tool"
+  | "workflow"
+  | "control"
+  | "trace"
+  | "session";
 ```
 
 Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/step.types.ts)
@@ -307,14 +338,14 @@ Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/gali
 ### toJSON()
 
 ```ts
-toJSON(): Record<string, any>;
+toJSON(): SerializedStepWithChildSpans;
 ```
 
 Defined in: [src/types/logging/span.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/span.types.ts)
 
 #### Returns
 
-`Record`\<`string`, `any`\>
+[`SerializedStepWithChildSpans`](/sdk-api/typescript/reference/types/interfaces/SerializedStepWithChildSpans)
 
 #### Overrides
 
@@ -337,18 +368,28 @@ Defined in: [src/types/logging/step.types.ts](https://github.com/rungalileo/gali
 `T` =
 \| `string`
 \| \{
-`content`: `string`;
+`content`: \| `string`
+\| (
+\| \{
+`text`: `string`;
+`type`: `"text"`;
+\}
+\| \{
+`file_id`: `string`;
+`type`: `"file"`;
+\})[];
 `role`: \| `"function"`
 \| `"agent"`
 \| `"tool"`
-\| `"user"`
 \| `"assistant"`
 \| `"developer"`
-\| `"system"`;
+\| `"system"`
+\| `"user"`;
 `tool_call_id?`: `null` \| `string`;
 `tool_calls?`: `null` \| `object`[];
 \}
 \| `string`[]
+\| `Date`
 \| [`Document`](/sdk-api/typescript/reference/types/classes/Document)
 \| `Record`\<`string`, `string`\>
 \| [`Document`](/sdk-api/typescript/reference/types/classes/Document)[]
