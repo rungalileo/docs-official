@@ -81,7 +81,7 @@ Creates a new project.
 ### delete_project
 
 ```python
-def delete_project(self, id: Optional[str]=None, name: Optional[str]=None) -> bool
+def delete_project(self, id: str | None=None, name: str | None=None) -> bool
 ```
 
 Internal method to handle project deletion logic.
@@ -89,10 +89,7 @@ Internal method to handle project deletion logic.
 ### get
 
 ```python
-def get(self,
-        *,
-        id: Optional[str]=None,
-        name: Optional[str]=None) -> Optional[Project]
+def get(self, *, id: str | None=None, name: str | None=None) -> Project | None
 ```
 
 Retrieves a project by id or name (exactly one of `id` or `name` must be provided).
@@ -117,8 +114,8 @@ Retrieves a project by id or name (exactly one of `id` or `name` must be provide
 ```python
 def get_with_env_fallbacks(self,
                            *,
-                           id: Optional[str]=None,
-                           name: Optional[str]=None) -> Optional[Project]
+                           id: str | None=None,
+                           name: str | None=None) -> Project | None
 ```
 
 Retrieves a project by id or name.
@@ -186,7 +183,7 @@ Creates a new project.
 ## delete_project
 
 ```python
-def delete_project(*, id: Optional[str]=None, name: Optional[str]=None) -> bool
+def delete_project(*, id: str | None=None, name: str | None=None) -> bool
 ```
 
 Deletes a gen_ai project by ID or name (exactly one of `id` or `name` must be provided).
@@ -218,9 +215,7 @@ delete_project(name="my-project")
 ## get_project
 
 ```python
-def get_project(*,
-                id: Optional[str]=None,
-                name: Optional[str]=None) -> Optional[Project]
+def get_project(*, id: str | None=None, name: str | None=None) -> Project | None
 ```
 
 Retrieves a project by id or name (exactly one of `id` or `name` must be provided).
