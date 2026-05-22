@@ -9,7 +9,7 @@ A **test set** is the ground truth for a [training run](/luna-studio/runs/lifecy
 
 - **Hand-labelled.** Don't auto-generate test labels — they're the tape measure for evaluating the run.
 - **Representative.** Sample inputs from the same distribution your application sees in production. Skewed test sets lead to misleading scores.
-- **Small but not tiny.** 100–500 rows is plenty for most metrics. Beyond that you start paying inference cost without much added signal.
+- **Small but not tiny.** Use at least 300 hand-labelled rows when possible. Beyond a few hundred rows, you start paying inference cost without much added signal for most metrics.
 - **Held out.** Don't reuse test set rows in your training set. Luna Studio respects this when you generate a training set from a test set.
 
 ## Required schema
@@ -23,16 +23,14 @@ Test sets need at least two columns:
 
 Other columns (e.g. `id`, `timestamp`) are kept but ignored during evaluation.
 
-For label format by [output type](/luna-studio/core-concepts#metrics):
+For label format by currently trainable [output type](/luna-studio/core-concepts#metrics):
 
 | Output type    | Acceptable label values                                      |
 | -------------- | ------------------------------------------------------------ |
 | Boolean        | `true` / `false` (or 1 / 0).                                 |
-| Floating Point | A real number.                                               |
 | Categorical    | One of the metric's defined labels.                          |
-| Percentage     | A number between 0 and 100.                                  |
-| Multilabel     | Comma-separated list of labels (e.g. `tone,grammar,policy`). |
-| Numeric        | Any real number.                                             |
+
+Floating-point, percentage, multilabel, and numeric labels are not trainable in Luna Studio yet.
 
 ## File formats
 

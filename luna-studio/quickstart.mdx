@@ -10,11 +10,11 @@ This walkthrough takes you from a fresh sign-up to a registered custom metric. B
 You'll need:
 
 - An email address for the Luna Studio account.
-- An API key for at least one LLM provider — typically [OpenAI](https://platform.openai.com/api-keys), [Anthropic](https://console.anthropic.com/settings/keys), or Google Vertex AI.
-- A small labelled dataset (CSV or JSONL with `input` and `label` columns). 100–500 rows is plenty for a first run.
+- An API key for at least one LLM provider — typically [OpenAI](https://platform.openai.com/api-keys), [Anthropic](https://console.anthropic.com/settings/keys), or [Google AI Studio](https://aistudio.google.com/api-keys).
+- A small labelled dataset (CSV or JSONL with the columns your metric requires). Use at least 300 rows for a first run when possible.
 - _Optional but recommended:_ a [Galileo](/what-is-galileo) API key, so you can import datasets and register metrics into the Galileo platform.
 
-<Tip>Don't have a labelled dataset yet? Luna Studio can **generate a training set** from a small test set — see [Step 6](#step-6-add-a-training-set). You'll still need a test set with at least 50 rows for evaluation.</Tip>
+<Tip>Don't have a labelled training dataset yet? Luna Studio can **generate a training set** from your test set — see the [training-set step below](#step-6-add-a-training-set). The test set still needs enough labelled rows for reliable evaluation.</Tip>
 
 ## Walkthrough
 
@@ -31,7 +31,7 @@ Enter an email and a password (8+ characters), accept the terms, and click **Cre
 </Step>
 
 <Step title="Connect your first LLM provider">
-  On first launch, Luna Studio drops you into the onboarding wizard. Pick **OpenAI**, **Vertex AI**, or **Anthropic** and click **Add integration** on the card.
+  On first launch, Luna Studio drops you into the onboarding wizard. Pick a supported LLM provider, such as OpenAI or Anthropic, and click **Add integration** on the card.
 
 {" "}
 
@@ -55,7 +55,7 @@ Optionally add the **Galileo** integration in the section below — this unlocks
 <Step title="Start a new training run">On the project page, click **New run** in the top right. The run creation flow opens at **Step 1 — Metric**.</Step>
 
 <Step title="Pick a metric (Step 1)">
-  Pick a predefined metric from the dropdown, grouped by **RAG Quality**, **Safety**, and **Instruction Following**. For a first run, **Toxicity** or **Instruction adherence** are good starting points.
+  Pick a metric from the dropdown. The list includes Galileo presets, custom Galileo metrics, and saved custom prompts that are trainable in Luna Studio.
 
 {" "}
 
@@ -74,7 +74,7 @@ Click **Next step**.
 
 <Frame caption="New run, Step 2 — pick or upload a test set to evaluate against">![Test set step](/images/luna-studio/runs/new-run-test-set.png)</Frame>
 
-Test sets need an `input` column and a `label` column. Luna Studio validates the file as soon as you upload it — wait for the **Validated** status before continuing.
+Test sets need the columns required by your metric, plus a `label` column. Luna Studio validates the file as soon as you upload it — wait for the **Validated** status before continuing.
 
 Click **Next step**.
 
@@ -83,19 +83,20 @@ Click **Next step**.
 <Step title="Add a training set (Step 3)" id="step-6-add-a-training-set">
 Choose a training source:
 
-- **Generate from test set** (recommended for a first run) — Luna Studio uses 20% of your test set as seed examples and generates ~3,000 labelled training samples using your LLM-as-judge prompt from Step 1.
-- **Add training logs** — upload your own labelled production logs.
+- **Generate from test set** (recommended for a first run) — Luna Studio uses 20% of your test set as seed examples and generates 2,000 labelled training examples using your LLM-as-judge prompt from Step 1.
+- **Add training logs** — upload or import your own production logs.
+- **Use existing training set** — reuse a training dataset that already exists in your workspace.
 
-  <Frame caption="New run, Step 3 — generate a training set from your test set or upload one">![Training set step](/images/luna-studio/runs/new-run-training-set.png)</Frame>
+  <Frame caption="New run, Step 3 — generate, add, or reuse a training set">![Training set step](/images/luna-studio/runs/new-run-training-set.png)</Frame>
 
-  If you pick Generate, a drawer opens. Pick a model (gpt-5, gpt-4o, or claude-3.7-sonnet) and click **Generate sample dataset**. Review the sample rows, deselect any that look wrong, and click **Generate final dataset**.
+  If you pick Generate, a drawer opens. Pick a model from your configured providers and click **Generate sample dataset**. Review the sample rows, select any that should steer regeneration, and click **Generate final dataset**.
 
   Click **Next step**.
 
 </Step>
 
 <Step title="Confirm and launch (Step 4)">
-  Review the run summary. Pick a base model — **Luna Small (recommended)** trains fastest; **Luna Large** is for advanced metrics.
+  Review the run summary. The base model is selected from the models configured for your organization.
 
 {" "}
 
@@ -132,7 +133,7 @@ Congratulations! You've now created your first custom Luna metric.
   <Card title="Core concepts" icon="book-open" href="/luna-studio/core-concepts">
     Understand the relationships between projects, runs, metrics, and datasets.
   </Card>
-  <Card title="Luna Stduio deep dive" icon="wand-magic-sparkles" href="/luna-studio/runs/new-run/overview">
+  <Card title="Luna Studio deep dive" icon="wand-magic-sparkles" href="/luna-studio/runs/new-run/overview">
     Deep dive on every step of the new run flow.
   </Card>
   <Card title="Datasets" icon="database" href="/luna-studio/datasets/overview">

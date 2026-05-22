@@ -23,19 +23,18 @@ If your question isn't answered here, check [Troubleshooting](/luna-studio/refer
 
 <AccordionGroup>
 <Accordion title="How big should my test set be?">
-  100–500 hand-labelled rows is plenty for most metrics. Beyond that you start paying inference cost without much added signal. The **minimum** depends on the metric — Boolean metrics work with as few as 50 rows; multilabel and continuous metrics benefit from more.
+  Use at least 300 hand-labelled rows when possible. Beyond a few hundred rows, you start paying inference cost without much added signal for most metrics. Exact requirements can vary by metric and are checked during validation.
 </Accordion>
 
 <Accordion title="Do I have to upload a training set?">
-  No. The most common path is **Generate from test set** — Luna synthesizes a ~3,000-row training set from 20% of your test set. See [Step 3](/luna-studio/runs/new-run/step-3-training-set#generate-from-test-set).
+  No. The most common path is **Generate from test set** — Luna Studio synthesizes a 2,000-example training set from 20% of your test set. See [Step 3](/luna-studio/runs/new-run/step-3-training-set#generate-from-test-set).
 
 Upload your own training set when you have labelled production logs that better represent the distribution you want to evaluate.
 
 </Accordion>
 
 <Accordion title="Can my training set be unlabelled?">
-  For uploads, yes — uncheck the **Dataset is labeled** checkbox in [Step 3](/luna-studio/runs/new-run/step-3-training-set#training-set-completed) of the run creation flow. Luna will fine-tune with a different objective (distribution
-  adaptation rather than supervised classification). Generated training sets are always labelled.
+  Yes, for uploaded or imported logs. Luna Studio labels unlabelled logs with your LLM-as-judge prompt first, saves the labelled result as a training dataset, and then uses that labelled dataset for training. Generated training sets are always labelled.
 </Accordion>
 
 <Accordion title="Can I reuse a test set across multiple projects?">Yes. Datasets are **org-scoped**, not project-scoped. Once you've added a test set, every project in your org can use it.</Accordion>
@@ -53,12 +52,11 @@ Upload your own training set when you have labelled production logs that better 
 </Accordion>
 
 <Accordion title="Which output type should I pick?">
-  Pick the simplest type that captures what you need: - **Boolean** — yes/no questions. - **Categorical** — picking from a fixed list. - **Percentage** — when you want a 0–100 score with explicit bounds. - **Floating Point / Numeric** —
-  open-ended scores. - **Multilabel** — multiple labels per input.
+  Pick the simplest trainable type that captures what you need: **Boolean** for yes/no questions, or **Categorical** for picking from a fixed list. Other Galileo metric output types are not trainable in Luna Studio yet.
 </Accordion>
 
 <Accordion title="What's a 'step' on a metric?">
-  The **step** is which part of a Galileo trace the metric runs against: a single LLM call (LLM span), a retrieval step (Retriever), an agent step (Agent span), or the full trace (Trace). See [Custom
+  The **step** is which part of a Galileo trace the metric runs against: a single LLM call (LLM span), a retrieval step (Retriever), an agent step (Agent span), or a trace-level input. See [Custom
   metrics](/luna-studio/metrics/custom-metrics#steps-in-detail).
 </Accordion>
 
@@ -71,10 +69,10 @@ Upload your own training set when you have labelled production logs that better 
 
 <AccordionGroup>
 <Accordion title="Which base model should I pick?">
-  Start with **Luna Small** for narrow, well-scoped metrics where the signal is clear (e.g. detecting profanity). Use **Luna Medium** as a default. Use **Luna Large** for subjective or compositional metrics (e.g. "is this a high-quality answer?"). See [Step 4](/luna-studio/runs/new-run/step-4-config-and-launch#pick-a-base-model).
+  Use the base model configured for your organization. Luna Studio loads available base models from your deployment and shows the selected model in [Step 4](/luna-studio/runs/new-run/step-4-config-and-launch).
 </Accordion>
 
-<Accordion title="How long does training take?">Depends on the base model and training set size. **Luna Small** typically finishes in minutes. **Luna Large** can take longer, especially on training sets near the upper limit.</Accordion>
+<Accordion title="How long does training take?">Depends on the base model and training set size. Most runs take a few hours, and larger models or larger datasets can take longer.</Accordion>
 
 <Accordion title="Can I cancel a training run?">
   Not today. Once a run is **Training**, it runs to completion or failure. We're tracking this for a future release.

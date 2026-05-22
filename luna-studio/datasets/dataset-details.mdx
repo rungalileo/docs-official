@@ -25,12 +25,11 @@ flowchart TB
 ### Header strip
 
 - **Dataset name** &mdash; the `<h1>`. Click the pencil icon next to it (in the breadcrumb) to rename via the **Edit dataset name** modal.
-- **Validation status line** &mdash; one of: _Dataset validated_ / _Validating dataset…_ / _Dataset validated with warnings_ / _Validation error: {message}_.
 - **Sidebar toggle** &mdash; collapses or expands the right details panel.
 
 ### Main content — preview table
 
-The center renders a 100-row preview of the dataset:
+The center renders a paginated preview of the dataset:
 
 | Column | When it shows                                                                           |
 | ------ | --------------------------------------------------------------------------------------- |
@@ -39,7 +38,7 @@ The center renders a 100-row preview of the dataset:
 | Label  | Hidden if validation says no `label` column was found.                                  |
 | Origin | **Training sets only.** Shows where each row came from (Generated, or a test-set chip). |
 
-The table caps at 100 rows. If your dataset has more, a footer reads "Showing first 100 of N rows".
+Use the pagination controls to move through available preview pages.
 
 #### Origin column (training sets)
 
@@ -59,11 +58,11 @@ The collapsible panel shows the dataset's metadata:
 | Row             | What it shows (test sets)                                      | What it shows (training sets)                                                                                                                              |
 | --------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Rows            | Row count, formatted with thousands separators.                | Row count.                                                                                                                                                 |
-| Source          | Source cell (icon + label, e.g. "Upload" / "URL" / "Galileo"). | Interactive chip linking to the originating test set, with sub-text like "20% used in training set". (Or the Source cell for non-generated training sets.) |
+| Source          | Source cell (icon + label, e.g. "Upload" / "URL" / "Galileo"). | Source cell for the training set, such as generated, upload, URL, or Galileo.                                                                             |
 | Created at      | Creation timestamp.                                            | Creation timestamp.                                                                                                                                        |
 | Last updated at | Most recent change.                                            | Most recent change.                                                                                                                                        |
 | Used in metric  | Outline-style badges, one per metric using it.                 | Outline-style badges, one per metric using it.                                                                                                             |
-| Runs            | (Not shown for test sets in this iteration.)                   | List of interactive chips, one per run that consumed this set.                                                                                             |
+| Runs            | (Not shown for test sets in this iteration.)                   | Run references when available.                                                                                                                            |
 
 If a row's value is empty (e.g. no metric uses this dataset yet), it shows `—`.
 

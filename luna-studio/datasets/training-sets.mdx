@@ -3,28 +3,25 @@ title: "Training sets"
 description: "The dataset used to fine-tune the base model during a run."
 ---
 
-A **training set** is the dataset that fine-tunes your [base model](/luna-studio/core-concepts#base-models) during a [training run](/luna-studio/runs/lifecycle). Training sets are typically much larger than test sets — ~3,000 rows is normal — and can be either labelled or unlabelled.
+A **training set** is the dataset that fine-tunes your [base model](/luna-studio/core-concepts#base-models) during a [training run](/luna-studio/runs/lifecycle). Training sets are typically much larger than test sets; generated training sets contain 2,000 labelled examples.
 
 ## Sources
 
-There are four ways to create a training set:
+In the run creation flow, you choose one of three top-level paths:
 
-<CardGroup cols={2}>
+<CardGroup cols={3}>
   <Card title="Generate from test set" icon="wand-magic-sparkles">
-    Luna uses 20% of your test set as seeds and synthesizes ~3,000 labelled rows via an LLM-as-judge prompt.
+    Luna uses 20% of your test set as seeds and synthesizes 2,000 labelled rows via an LLM-as-judge prompt.
   </Card>
-  <Card title="Upload" icon="upload">
-    Drag-and-drop a `.csv` or `.jsonl` file from your machine.
+  <Card title="Add training logs" icon="upload">
+    Upload or import production logs. Luna Studio labels unlabelled logs before training.
   </Card>
-  <Card title="Fetch from URL" icon="link">
-    Pull a file from an `http://`, `https://`, `s3://`, or `gs://` URL.
-  </Card>
-  <Card title="Import from Galileo" icon="cloud-arrow-down">
-    Pull a labelled or unlabelled dataset from your connected Galileo workspace.
+  <Card title="Use existing training set" icon="database">
+    Reuse a generated, labelled, or uploaded training dataset from your workspace.
   </Card>
 </CardGroup>
 
-The **Generate** flow happens inside the [run creation flow](/luna-studio/runs/new-run/step-3-training-set#generate-from-test-set). The other three are available from the [Datasets page](/luna-studio/datasets/overview) **Add training set** button or from Step 3 of the flow.
+The **Add training logs** path lets you upload a `.csv` or `.jsonl` file, fetch a file from URL, or import a dataset from Galileo. Those same import methods are also available from the [Datasets page](/luna-studio/datasets/overview) **Add training set** button.
 
 ## Schema
 
@@ -33,26 +30,26 @@ Training sets need at least one column:
 | Column  | Required  | Notes                                                        |
 | ------- | --------- | ------------------------------------------------------------ |
 | `input` | Yes       | The text the metric will be trained on.                      |
-| `label` | Sometimes | Required for **labelled** training. Optional for unlabelled. |
+| `label` | Sometimes | Required for labelled training. Unlabelled logs must be labelled before training. |
 
 ### Labelled vs. unlabelled
 
 - **Labelled** &mdash; every row has a `label` column matching the metric's output type. Required if you want supervised fine-tuning.
-- **Unlabelled** &mdash; rows have an `input` only. Luna can still fine-tune, but uses a different objective. Useful for distribution adaptation when you have lots of unlabelled production logs.
+- **Unlabelled** &mdash; rows have an `input` only. Luna Studio labels the logs with your LLM-as-judge prompt first, saves a labelled training dataset, and then uses that labelled dataset for training.
 
-When you upload a training set, Luna Studio shows a **Dataset is labeled** checkbox so you can disambiguate. The checkbox surfaces:
+When you add training logs, Luna Studio validates whether the dataset already has labels:
 
 - A green check when the label column is present.
-- A red error chip ("Dataset is missing column **label**") when it isn't.
+- A label-only flow when the label column is missing.
 
 ## Generated training sets
 
 The most common path for a first run is **Generate from test set**. The flow:
 
 1. Luna uses 20% of your test set as seed examples.
-2. The LLM you pick (gpt-5, gpt-4o, or claude-3.7-sonnet) synthesizes ~3,000 labelled samples following the metric prompt.
-3. You preview ~200 rows and confirm them, optionally regenerating with feedback.
-4. Luna generates the full training set.
+2. The configured model you pick synthesizes 50 sample rows following the metric prompt.
+3. You review the sample rows and optionally regenerate with feedback.
+4. Luna generates the full 2,000-example training set.
 
 See [Step 3 — Training set](/luna-studio/runs/new-run/step-3-training-set#generate-from-test-set) for the full reference.
 
@@ -67,10 +64,10 @@ For uploads and URL fetches:
 
 ## Training set details page
 
-Click any training set row on the Datasets page to open its [Dataset details](/luna-studio/datasets/dataset-details) page. For training sets, the details panel additionally shows:
+Click any training set row on the Datasets page to open its [Dataset details](/luna-studio/datasets/dataset-details) page. For training sets, the details panel can show:
 
-- **Source** &mdash; for generated training sets, an interactive chip linking to the originating test set with a sub-label like "20% used in training set".
-- **Runs** &mdash; a list of interactive chips, each linking to a run that consumed this training set.
+- **Source** &mdash; where the training set came from, such as a generated dataset, uploaded file, URL, or Galileo import.
+- **Runs** &mdash; run references when Luna Studio has run information for the training set.
 
 The preview table includes an **Origin** column showing where each row came from:
 

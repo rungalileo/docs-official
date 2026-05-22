@@ -7,42 +7,25 @@ The first step asks: _what should this metric measure?_ You can pick from a cura
 
 <Frame caption="Step 1 — pick a built-in metric or define your own with a custom prompt">![Metric step](/images/luna-studio/runs/new-run-metric.png)</Frame>
 
-## Pick a predefined metric (Recommended)
+## Pick a metric
 
-The **Metric** select is searchable. You can find all LLM-as-judge metrics available in your Galileo console here, including any custom metrics you've created. The preset metric options are organized into three groups:
+The **Metric** select is searchable. It includes trainable Galileo LLM-as-judge metrics available to your workspace, plus custom metrics and prompts your org created.
 
-### RAG Quality
+The picker is organized into three groups:
 
-| Template          | What it measures                                                 |
-| ----------------- | ---------------------------------------------------------------- |
-| Context adherence | Whether the answer sticks to the retrieved context.              |
-| Chunk relevance   | Whether each retrieved chunk is relevant to the query.           |
-| Context relevance | Whether the retrieved context is sufficient to answer the query. |
+- **Galileo presets** &mdash; built-in Galileo scorers that Luna Studio can train.
+- **Custom Galileo metrics** &mdash; custom metrics already created in Galileo.
+- **Saved custom prompts** &mdash; prompts previously authored in Luna Studio.
 
-### Safety & security
-
-| Template         | What it measures                                                         |
-| ---------------- | ------------------------------------------------------------------------ |
-| Toxicity         | Whether the response contains toxic, harmful, or offensive content.      |
-| Sexism / bias    | Whether the response contains sexist, biased, or discriminatory content. |
-| Prompt injection | Whether the response is a prompt injection.                              |
-| Tone             | Measures the emotional tone and style of the response.                   |
-
-### Agentic
-
-| Template               | What it measures                                                     |
-| ---------------------- | -------------------------------------------------------------------- |
-| Correctness            | Whether the response is factually correct.                           |
-| Instruction adherence  | Whether the response follows the instructions in the prompt.         |
-| Tool error rate        | Whether the response contains tool errors.                           |
-| Tool selection quality | Whether the response selects the most appropriate tool for the task. |
+Metrics that exist but are not trainable yet can appear disabled with a "not trainable yet" suffix. Multimodal metrics are filtered out because Luna Studio trains text metrics today.
 
 ## Inspect a selected template
 
 Once you pick a template, the form expands to show a read-only **Metric details** panel:
 
 - **Output type** &mdash; the metric's return shape (Boolean, Categorical etc.). See [Output types](/luna-studio/core-concepts#metrics).
-- **Step** &mdash; the trace step the metric runs against (LLM span, Retriever span, Trace input / output only).
+- **Step** &mdash; the trace step the metric runs against (LLM span, Retriever, Agent span, or Trace).
+- **Input step** &mdash; the input shape Luna Studio expects for training data, such as a single message, input / output pair, full trace, or full session.
 - **Prompt** &mdash; the LLM-as-judge prompt the template uses, in a read-only textarea.
 
 ## Write a custom prompt
@@ -55,8 +38,10 @@ In custom mode, you fill in:
 
 | Field       | Notes                                                       |
 | ----------- | ----------------------------------------------------------- |
+| Name        | Optional display name for the custom metric.                |
 | Output type | Pick one of Boolean / Categorical                           |
-| Step        | Pick LLM span / Retriever span / Trace input / output only. |
+| Step        | Pick LLM span / Retriever / Agent span / Trace.             |
+| Input step  | Pick Single message / Input-output pair / Full trace / Full session. |
 | Prompt      | The LLM-as-judge prompt [required].                         |
 
 <Tip>

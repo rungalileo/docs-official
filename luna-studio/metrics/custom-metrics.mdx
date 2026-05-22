@@ -1,42 +1,35 @@
 ---
 title: "Custom metrics"
-description: "Define a metric with a custom LLM-as-judge prompt, outside of a training run."
+description: "Define a metric with a custom LLM-as-judge prompt inside the run creation flow."
 ---
 
-Most metrics in Luna Studio are created implicitly when you launch a [training run](/luna-studio/runs/new-run/overview). But sometimes you want to define a metric directly — for example, to draft a prompt before launching a run, or to publish a prompt-based metric without fine-tuning.
-
-The **Create custom metric** modal handles this case.
+Most metrics in Luna Studio come from Galileo presets or custom Galileo metrics. When you need a metric that does not fit an existing option, define a custom LLM-as-judge prompt in [Step 1 of the run creation flow](/luna-studio/runs/new-run/step-1-metric#write-a-custom-prompt).
 
 <Frame caption="Custom metric, run creation flow — Metric step with Custom prompt selected">![Custom metric in the run creation flow](/images/luna-studio/metrics/create-custom-metric.png)</Frame>
 
-## Open the modal
+## Open custom prompt mode
 
-From the [Metrics page](/luna-studio/metrics/overview), click **Create custom metric** in the top right.
-
-The modal title is **Create custom metric** with the subtitle "Define how Luna should evaluate your model. You can register the metric once it is fine-tuned on your test set."
+From Step 1 of the run creation flow, open the metric dropdown and click **Use custom prompt**.
 
 ## Fields
 
-| Field       | Required | Notes                                                                                             |
-| ----------- | -------- | ------------------------------------------------------------------------------------------------- |
-| Metric name | Yes      | A descriptive name (e.g. `toxicity-strict`).                                                      |
-| Output type | Yes      | The metric's return shape: Boolean, Floating Point, Categorical, Percentage, Multilabel, Numeric. |
-| Step        | Yes      | The trace step the metric runs against: LLM span, Retriever, Agent span, Trace.                   |
-| Modality    | —        | Read-only. Fixed to **Text** today.                                                               |
-| Prompt      | Yes      | The LLM-as-judge prompt. Required.                                                                |
+| Field       | Required | Notes                                                                           |
+| ----------- | -------- | ------------------------------------------------------------------------------- |
+| Metric name | No       | Optional display name. If blank, Luna Studio derives one from the run context.  |
+| Output type | Yes      | The trainable return shape: Boolean or Categorical.                             |
+| Step        | Yes      | The trace step the metric runs against: LLM span, Retriever, Agent span, Trace. |
+| Input step  | Yes      | Training input shape: Single message, Input / output pair, Full trace, or Full session. |
+| Modality    | —        | Read-only. Fixed to **Text** today.                                             |
+| Prompt      | Yes      | The LLM-as-judge prompt. Required.                                              |
 
 ## Output types in detail
 
-| Output type    | When to use                                                             |
-| -------------- | ----------------------------------------------------------------------- |
-| Boolean        | Yes/no questions ("Is this toxic?", "Does the answer cite a source?").  |
-| Floating Point | Confidence scores, similarity scores, anything continuous.              |
-| Categorical    | Picking one of a fixed list (e.g. `positive` / `neutral` / `negative`). |
-| Percentage     | A 0–100 score (e.g. "How complete is this answer?").                    |
-| Multilabel     | Multiple categorical labels per input (e.g. `tone,grammar,policy`).     |
-| Numeric        | Open-ended numeric answers.                                             |
+| Output type | When to use                                                             |
+| ----------- | ----------------------------------------------------------------------- |
+| Boolean     | Yes/no questions ("Is this toxic?", "Does the answer cite a source?").  |
+| Categorical | Picking one of a fixed list (e.g. `positive` / `neutral` / `negative`). |
 
-The output type also constrains what label values your test set can use during validation. See [Test sets](/luna-studio/datasets/test-sets#required-schema).
+Other Galileo output types are not trainable in Luna Studio yet. The output type also constrains what label values your test set can use during validation. See [Test sets](/luna-studio/datasets/test-sets#required-schema).
 
 ## Steps in detail
 
@@ -49,6 +42,17 @@ The output type also constrains what label values your test set can use during v
 
 The right step depends on what your metric needs to see. For "is the final answer toxic?" → LLM span or Trace. For "are retrieved chunks relevant?" → Retriever.
 
+## Input steps
+
+| Input step          | When to use                                                |
+| ------------------- | ---------------------------------------------------------- |
+| Single message      | One text input per row.                                    |
+| Input / output pair | Rows that include both the prompt/input and model output.  |
+| Full trace          | Trace-level metrics that need the full request flow.       |
+| Full session        | Session-level metrics that need multiple related traces.   |
+
+Full trace and full session inputs require user-supplied training data; synthetic generation is disabled for those shapes.
+
 ## Prompt-writing tips
 
 - **Be specific.** Define exactly what counts as a positive vs negative result.
@@ -58,11 +62,11 @@ The right step depends on what your metric needs to see. For "is the final answe
 
 ## Submit
 
-Click **Create metric**. The new metric appears in the [Metrics table](/luna-studio/metrics/overview) with status **Queued** if you also kicked off a training run, or as a draft otherwise (depending on what you do next).
+Continue through the run creation flow. Luna Studio saves the metric definition with the run and fine-tunes it once you launch.
 
-## Custom metric inside the run creation flow
+## Designing outside Luna Studio
 
-There's a parallel path inside [Step 1 of the run creation flow](/luna-studio/runs/new-run/step-1-metric#write-a-custom-prompt) that creates a custom metric scoped to the run. Use that flow if you're planning to fine-tune the prompt right away. Use the standalone **Create custom metric** flow when you want to define the metric definition without immediately fine-tuning.
+Use the standalone Galileo metrics workflow when you want to design and test a metric outside of Luna Studio before bringing it into a run.
 
 ## Where to go next
 

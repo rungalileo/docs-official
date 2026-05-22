@@ -16,9 +16,8 @@ Validation has four possible end states:
 | Validated with warnings     | Usable, but Luna noticed something worth checking (e.g. mixed casing, partial UTF-8).   |
 | Validation error: {message} | Unusable until fixed. The dataset is saved in your org but can't be selected for a run. |
 
-The state appears as a status line on:
+The state appears in the run creation flow when Luna Studio checks a selected dataset:
 
-- The [Dataset details](/luna-studio/datasets/dataset-details) page header.
 - The Selected dataset card in [Step 2](/luna-studio/runs/new-run/step-2-test-set) and [Step 3](/luna-studio/runs/new-run/step-3-training-set) of the run creation flow.
 
 ## What Luna checks
@@ -27,8 +26,8 @@ The state appears as a status line on:
 
 - The file parses as CSV or JSONL.
 - Required columns are present:
-  - **Test sets** — both `input` and `label`.
-  - **Training sets** — `input` (always); `label` if the **Dataset is labeled** checkbox is on.
+  - **Test sets** — metric-specific feature columns and `label`.
+  - **Training sets** — metric-specific feature columns and `label` when the dataset is already labelled.
 - Column types match the metric's [output type](/luna-studio/core-concepts#metrics) (e.g. labels are parseable as Boolean for a Boolean metric).
 
 ### Content checks
@@ -47,7 +46,7 @@ The state appears as a status line on:
 
 | Error message                                  | Cause                                                                 | Fix                                                                                                   |
 | ---------------------------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `Missing column "label" in uploaded CSV.`      | Test set or labelled training set without a `label` column.           | Add the column to your file and re-upload, or uncheck **Dataset is labeled** for unlabelled training. |
+| `Missing column "label" in uploaded CSV.`      | Test set or labelled training set without a `label` column.           | Add the column to your file and re-upload. For unlabelled training logs, use the label-only flow from Step 3. |
 | `Missing column "input" in uploaded CSV.`      | Required `input` column missing.                                      | Rename your input column to `input`, or include one.                                                  |
 | `Could not fetch URL.`                         | The URL was unreachable, returned a non-2xx status, or required auth. | Check the URL is correct; for cloud URLs, confirm the relevant integration has access.                |
 | `Unsupported file type.`                       | The file isn't `.csv` or `.jsonl`.                                    | Convert the file to one of the supported formats.                                                     |
@@ -62,14 +61,11 @@ The state appears as a status line on:
 | `Some rows exceed the model's max token limit.` | Long inputs that will be truncated.      | Either trim the rows or accept the truncation.                                          |
 | `Detected non-UTF-8 characters.`                | The file isn't pure UTF-8.               | Re-export the file as UTF-8.                                                            |
 
-## "Dataset is labeled" checkbox
+## Unlabelled training logs
 
-Uploaded training sets show a **Dataset is labeled** checkbox in [Step 3](/luna-studio/runs/new-run/step-3-training-set#training-set-completed). The checkbox controls whether Luna Studio expects a `label` column:
+If uploaded or imported training logs are missing labels, Luna Studio does not train on them directly. It opens the label-only generation flow, uses the selected metric prompt to create labels, and saves a labelled training dataset.
 
-- **Checked** &mdash; Luna validates that a `label` column exists, with values matching the metric's output type. Missing → validation error.
-- **Unchecked** &mdash; Luna treats the dataset as unlabelled. Only `input` is required.
-
-The checkbox is disabled when the dataset's source unambiguously determines its labelled-ness (e.g. a generated training set is always labelled).
+Generated training sets are always labelled.
 
 ## When validation fails mid-run
 
@@ -86,7 +82,7 @@ Luna validates a dataset once at add-time and once per run launch. There's no ma
     Walk through the three sources.
   </Card>
   <Card title="Dataset details" icon="circle-info" href="/luna-studio/datasets/dataset-details">
-    Where validation states show in the UI.
+    Inspect dataset metadata and previews.
   </Card>
   <Card title="Troubleshooting" icon="bug" href="/luna-studio/reference/troubleshooting">
     Run-time failures and how to recover.
