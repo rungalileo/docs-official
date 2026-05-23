@@ -12,7 +12,7 @@
 #   - 3000-3499: Playground errors
 #   - 3500-3999: Experiment errors
 #   - 4000-4499: Dataset errors
-#   - 5000-5499: Logstream Insights (LSI) errors
+#   - 5000-5499: Signals errors
 #   - 6000-6499: Protect (security/guardrails) errors
 #   - 7000-7499: Integrations errors
 #   - 8000-8499: Annotation queue errors
@@ -43,7 +43,7 @@
 #        system_error, not_found_error, configuration_error, uncataloged_error
 #
 #   3. error_group: str
-#      - Feature grouping: "shared", "metrics", "playground", "dataset", "lsi"
+#      - Feature grouping: "shared", "metrics", "playground", "dataset", "signals"
 #      - Must match the error_code range (e.g., 2000-2999 → "metrics")
 #
 #   4. severity: ErrorSeverity
@@ -82,7 +82,7 @@
 # =============================================================================
 #
 # Description: Common errors used across all features (Metrics, Playground,
-#              Experiments, Dataset, LSI). These are high-frequency errors that
+#              Experiments, Dataset, Signals). These are high-frequency errors that
 #              affect multiple features.
 #
 # When to add here:
@@ -125,8 +125,8 @@
   error_type: llm_api_error
   error_group: shared
   severity: high
-  default_message: Provider rate limit exceeded. Please retry after a short wait.
-  user_action: Reduce request frequency or upgrade quota.
+  default_message: The AI provider rate-limited the request.
+  user_action: Retry later, or contact the AI provider to raise your rate limit.
   retriable: true
   http_status_code: 429
   message_patterns:
@@ -437,7 +437,20 @@
   retriable: false
   telemetry_tags: ["metrics", "scorer_validation"]
 
-# Reserved: 2007
+# Metrics-specific: Scorer name conflicts with reserved auxiliary metric suffix
+- error_code: 2007
+  error_type: data_validation_error
+  error_group: metrics
+  severity: low
+  http_status_code: 422
+  default_message: Scorer name conflicts with a reserved Galileo metric suffix.
+  user_action: >
+    Rename your scorer to avoid names ending with reserved suffixes.
+    Reserved suffixes are used internally by Galileo to store metric metadata
+    (e.g., _status, _error_message, _explanation, _rationale, _metric_cost).
+    Choose a name that does not end with any of these.
+  retriable: false
+  telemetry_tags: ["metrics", "scorer_validation"]
 
 # Metrics-specific: Model server connection or timeout error
 - error_code: 2008
@@ -542,6 +555,25 @@
   retriable: false
   telemetry_tags: ["metrics", "file_upload"]
 
+# Metrics-specific: Record has file modalities unsupported by the metric
+- error_code: 2018
+  error_type: not_applicable_reason
+  error_group: metrics
+  severity: low
+  default_message: This metric does not support the file modalities attached to this record.
+  user_action: Use metrics that provide the required multimodal capabilities for files attached to this record.
+  retriable: false
+  telemetry_tags: ["metrics", "multimodal"]
+
+# Metrics-specific: Cost tracking unavailable for multimodal LLM calls
+- error_code: 2019
+  error_type: not_applicable_reason
+  error_group: metrics
+  severity: low
+  default_message: Cost tracking is not yet accurate for multimodal LLM calls.
+  user_action: Cost will be reported once accurate multimodal cost tracking is implemented.
+  retriable: false
+  telemetry_tags: ["metrics", "multimodal", "cost"]
 
 # =============================================================================
 # SECTION 3: PLAYGROUND & EXPERIMENTS ERRORS (3000-3999)
@@ -760,6 +792,82 @@
     - "cannot be created on experiments with traces"
   telemetry_tags: ["experiment", "playground", "validation"]
 
+# Experiment group not found in project
+- error_code: 3520
+  error_type: not_found_error
+  error_group: experiment
+  severity: medium
+  default_message: The specified experiment group could not be found in this project.
+  user_action: Verify the experiment group ID and try again, or use an experiment group name to create one automatically.
+  http_status_code: 404
+  message_patterns:
+    - "experiment group.*not found in this project"
+  telemetry_tags: ["experiment", "experiment_group"]
+
+# Target experiment group belongs to a different project
+- error_code: 3521
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: The target experiment group belongs to a different project.
+  user_action: Choose an experiment group from the current project and try again.
+  http_status_code: 400
+  message_patterns:
+    - "target experiment group belongs to a different project"
+  telemetry_tags: ["experiment", "experiment_group", "validation"]
+
+# Target experiment group not found during move
+- error_code: 3522
+  error_type: not_found_error
+  error_group: experiment
+  severity: medium
+  default_message: The target experiment group could not be found.
+  user_action: Verify the target experiment group and try again.
+  http_status_code: 404
+  message_patterns:
+    - "target experiment group.*not found"
+  telemetry_tags: ["experiment", "experiment_group"]
+
+# System experiment group cannot be renamed or deleted
+- error_code: 3523
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: System experiment groups are managed by the platform and cannot be renamed or deleted.
+  user_action: Choose a different experiment group or create a new custom experiment group.
+  http_status_code: 400
+  message_patterns:
+    - "system experiment groups are managed by the platform"
+    - "cannot be renamed"
+    - "cannot be deleted"
+  telemetry_tags: ["experiment", "experiment_group", "system"]
+
+# Experiment group name already exists
+- error_code: 3525
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: An experiment group with this name already exists in this project.
+  user_action: Choose a different experiment group name and try again.
+  http_status_code: 400
+  message_patterns:
+    - "experiment group with name.*already exists"
+  telemetry_tags: ["experiment", "experiment_group", "validation"]
+
+# Invalid experiment group move request
+- error_code: 3527
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: The experiment group move request is invalid.
+  user_action: Verify the experiments and target experiment group, then try again.
+  http_status_code: 400
+  message_patterns:
+    - "experiments not found in this project"
+    - "only experiment and playground runs can be moved between experiment groups"
+    - "either target_experiment_group_id or target_experiment_group_name must be provided"
+  telemetry_tags: ["experiment", "experiment_group", "validation"]
+
 # =============================================================================
 # SECTION 4: DATASET ERRORS (4000-4999)
 # =============================================================================
@@ -918,36 +1026,42 @@
   telemetry_tags: ["dataset"]
 
 # =============================================================================
-# SECTION 5: LOGSTREAM INSIGHTS (LSI) ERRORS (5000-5999)
+# SECTION 5: SIGNALS ERRORS (5000-5999) [previously: Logstream Insights (LSI)]
 # =============================================================================
 #
-# Description: Errors specific to Logstream Insights feature. These include
-#              LSI-specific processing errors, trace/span analysis failures,
-#              and LSI-specific validation errors.
+# Description: Errors specific to the Signals feature. These include
+#              Signals-specific processing errors, trace/span analysis failures,
+#              and Signals-specific validation errors.
 #
 # When to add here:
-#   - LSI processing failures
+#   - Signals processing failures
 #   - Trace/span analysis errors
-#   - LSI-specific validation errors
-#   - LSI job/batch processing errors
+#   - Signals-specific validation errors
+#   - Signals job/batch processing errors
 #
-# Note: Error codes in this range are reserved for future LSI-specific errors.
-#       Add new entries below as needed.
+# Note: Add new entries below as needed.
 #
 # =============================================================================
 
-# TODO: Add LSI-specific error codes here (5000-5999)
-# Example structure:
-# - error_code: 5000
-#   error_type: system_error
-#   error_group: lsi
-#   severity: high
-#   default_message: Logstream Insights processing failed.
-#   user_action: Retry the operation; if it persists, contact support.
-#   retriable: true
-#   message_patterns:
-#     - "lsi processing failed"
-#   telemetry_tags: ["lsi"]
+# Authentication failed (invalid or missing LLM provider API key)
+- error_code: 5000
+  error_type: credentials_error
+  error_group: signals
+  severity: high
+  default_message: Signals authentication failed. The LLM provider rejected the credentials.
+  user_action: Verify your LLM provider API key and update it if expired.
+  retriable: false
+  telemetry_tags: ["signals", "auth"]
+
+# LLM provider rate limit or quota exceeded
+- error_code: 5001
+  error_type: llm_api_error
+  error_group: signals
+  severity: high
+  default_message: The LLM provider rate limit was exceeded.
+  user_action: Wait a moment and retry, or check your LLM provider quota.
+  retriable: true
+  telemetry_tags: ["signals", "ratelimit"]
 
 # =============================================================================
 # SECTION 7: INTEGRATIONS ERRORS (7000-7499)
@@ -1088,6 +1202,14 @@
   http_status_code: 400
   telemetry_tags: ["integrations", "custom_llm"]
 
+- error_code: 7012
+  error_type: not_found_error
+  error_group: integrations
+  severity: medium
+  default_message: No integration of this type was found for your account.
+  user_action: Verify you have access to an integration of this type.
+  http_status_code: 404
+
 # =============================================================================
 # SECTION 8: ANNOTATION QUEUE ERRORS (8000-8499)
 # =============================================================================
@@ -1224,7 +1346,6 @@
   user_action: Retry the request; if it persists, contact support with the annotation ID and details.
   http_status_code: 500
   telemetry_tags: ["annotation_queue", "ratings"]
-
 
 # =============================================================================
 # SECTION 9: AUTHENTICATION ERRORS (8500-8999)
@@ -1398,6 +1519,36 @@
   http_status_code: 403
   telemetry_tags: ["auth", "feature_flag"]
 
+# Email domain not allowed
+- error_code: 8516
+  error_type: permission_error
+  error_group: authentication
+  severity: medium
+  default_message: Your email is not allowed. Please contact Galileo's support.
+  user_action: Verify that you are using an authorized email address, or contact support for assistance.
+  http_status_code: 403
+  telemetry_tags: ["auth", "email_domain"]
+
+# User account disabled
+- error_code: 8517
+  error_type: permission_error
+  error_group: authentication
+  severity: high
+  default_message: This user account has been disabled. Please contact Galileo's support.
+  user_action: Contact Galileo's support team to resolve account access.
+  http_status_code: 403
+  telemetry_tags: ["auth", "account_disabled"]
+
+# Email with plus (+) suffix is not allowed
+- error_code: 8518
+  error_type: data_validation_error
+  error_group: authentication
+  severity: medium
+  default_message: "Email addresses with '+' suffixes are not allowed."
+  user_action: Use your primary email address without the '+' suffix.
+  http_status_code: 422
+  telemetry_tags: ["auth", "email_validation"]
+
 # =============================================================================
 # SECTION 10: COMPONENT VIEW ERRORS (9000-9499)
 # =============================================================================
@@ -1521,6 +1672,19 @@
     - "cannot change.*visibility.*default"
     - "visibility.*default.*cannot.*change"
   telemetry_tags: ["component_view", "validation"]
+
+# Component view belongs to a different user
+- error_code: 9008
+  error_type: permission_error
+  error_group: component_view
+  severity: medium
+  default_message: The current user does not have access to this view.
+  user_action: Please choose a view you own or a project-visible view.
+  http_status_code: 404
+  message_patterns:
+    - "current user does not have access to this view"
+    - "view.*belongs to (a )?different user"
+  telemetry_tags: ["component_view", "authorization"]
 
 # =============================================================================
 # SECTION 11: AUTHORIZATION ERRORS (9500-9999)
@@ -1655,6 +1819,17 @@
   user_action: Retry the operation; if it persists, contact support.
   http_status_code: 500
   telemetry_tags: ["logstream"]
+
+# Unknown column requested in log stream query
+- error_code: 10503
+  error_type: data_validation_error
+  error_group: logstream
+  severity: medium
+  default_message: Unknown column requested in log stream query.
+  user_action: Check the column names in your query and try again.
+  http_status_code: 400
+  telemetry_tags: ["logstream"]
+
 
 # =============================================================================
 # SECTION 14: ORGANIZATION ERRORS (11000-11499)
