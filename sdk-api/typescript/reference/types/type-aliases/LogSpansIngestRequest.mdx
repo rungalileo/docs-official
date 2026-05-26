@@ -9,7 +9,137 @@ title: LogSpansIngestRequest
 # Type Alias: LogSpansIngestRequest
 
 ```ts
-type LogSpansIngestRequest = ObjectToCamel<LogSpansIngestRequestOpenAPI>;
+type LogSpansIngestRequest = object;
 ```
 
-Defined in: [src/types/logging/trace.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/logging/trace.types.ts)
+Defined in: [src/types/new-api.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/new-api.types.ts)
+
+LogSpansIngestRequest
+
+Request model for ingesting spans.
+
+## Properties
+
+### clientVersion?
+
+```ts
+optional clientVersion: string | null;
+```
+
+Defined in: [src/types/new-api.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/new-api.types.ts)
+
+Client Version
+
+---
+
+### experimentId?
+
+```ts
+optional experimentId: string | null;
+```
+
+Defined in: [src/types/new-api.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/new-api.types.ts)
+
+Experiment Id
+
+Experiment id associated with the traces.
+
+---
+
+### loggingMethod?
+
+```ts
+optional loggingMethod: LoggingMethod;
+```
+
+Defined in: [src/types/new-api.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/new-api.types.ts)
+
+---
+
+### logStreamId?
+
+```ts
+optional logStreamId: string | null;
+```
+
+Defined in: [src/types/new-api.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/new-api.types.ts)
+
+Log Stream Id
+
+Log stream id associated with the traces.
+
+---
+
+### metricsTestingId?
+
+```ts
+optional metricsTestingId: string | null;
+```
+
+Defined in: [src/types/new-api.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/new-api.types.ts)
+
+Metrics Testing Id
+
+Metrics testing id associated with the traces.
+
+---
+
+### parentId
+
+```ts
+parentId: string;
+```
+
+Defined in: [src/types/new-api.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/new-api.types.ts)
+
+Parent Id
+
+Parent trace or span id.
+
+---
+
+### reliable?
+
+```ts
+optional reliable: boolean;
+```
+
+Defined in: [src/types/new-api.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/new-api.types.ts)
+
+Reliable
+
+Whether or not to use reliable logging. If set to False, the method will respond immediately before verifying that the traces have been successfully ingested, and no error message will be returned if ingestion fails. If set to True, the method will wait for the traces to be successfully ingested or return an error message if there is an ingestion failure.
+
+---
+
+### spans
+
+```ts
+spans: (
+  | object & AgentSpan
+  | object & WorkflowSpan
+  | object & LlmSpan
+  | object & RetrieverSpan
+  | object & ToolSpan
+  | object & ControlSpan)[];
+```
+
+Defined in: [src/types/new-api.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/new-api.types.ts)
+
+Spans
+
+List of spans to log.
+
+---
+
+### traceId
+
+```ts
+traceId: string;
+```
+
+Defined in: [src/types/new-api.types.ts](https://github.com/rungalileo/galileo-js/blob/main/src/types/new-api.types.ts)
+
+Trace Id
+
+Trace id associated with the spans.

@@ -8,6 +8,64 @@ title: log
 
 # Function: log()
 
+## Call Signature
+
+```ts
+function log<T, R>(
+  options: LogOptions,
+  fn: (...args: T) => R,
+): (...args: T) => R;
+```
+
+Defined in: [src/wrappers.ts](https://github.com/rungalileo/galileo-js/blob/main/src/wrappers.ts)
+
+Wraps a function to log its execution as a span in Galileo.
+Supports synchronous functions, Promises, and sync/async Generators.
+
+### Type Parameters
+
+#### T
+
+`T` _extends_ `unknown`[]
+
+#### R
+
+`R`
+
+### Parameters
+
+#### options
+
+`LogOptions`
+
+The span options.
+
+#### fn
+
+(...`args`: `T`) => `R`
+
+The function to wrap. Can return R, Promise\<R\>, Generator\<R\>, or AsyncGenerator\<R\>.
+
+### Returns
+
+A wrapped function with the same signature and return type as fn.
+
+```ts
+(...args: T): R;
+```
+
+#### Parameters
+
+##### args
+
+...`T`
+
+#### Returns
+
+`R`
+
+## Call Signature
+
 ```ts
 function log<T, R>(
   options: LogOptions,
@@ -18,39 +76,158 @@ function log<T, R>(
 Defined in: [src/wrappers.ts](https://github.com/rungalileo/galileo-js/blob/main/src/wrappers.ts)
 
 Wraps a function to log its execution as a span in Galileo.
+Supports synchronous functions, Promises, and sync/async Generators.
 
-## Type Parameters
+### Type Parameters
 
-### T
+#### T
 
 `T` _extends_ `unknown`[]
 
-### R
+#### R
 
 `R`
 
-## Parameters
+### Parameters
 
-### options
+#### options
 
 `LogOptions`
 
-### fn
+The span options.
+
+#### fn
 
 (...`args`: `T`) => `Promise`\<`R`\>
 
-## Returns
+The function to wrap. Can return R, Promise\<R\>, Generator\<R\>, or AsyncGenerator\<R\>.
+
+### Returns
+
+A wrapped function with the same signature and return type as fn.
 
 ```ts
 (...args: T): Promise<R>;
 ```
 
-### Parameters
+#### Parameters
 
-#### args
+##### args
 
 ...`T`
 
-### Returns
+#### Returns
 
 `Promise`\<`R`\>
+
+## Call Signature
+
+```ts
+function log<T, R>(
+  options: LogOptions,
+  fn: (...args: T) => Generator<R>,
+): (...args: T) => Generator<R>;
+```
+
+Defined in: [src/wrappers.ts](https://github.com/rungalileo/galileo-js/blob/main/src/wrappers.ts)
+
+Wraps a function to log its execution as a span in Galileo.
+Supports synchronous functions, Promises, and sync/async Generators.
+
+### Type Parameters
+
+#### T
+
+`T` _extends_ `unknown`[]
+
+#### R
+
+`R`
+
+### Parameters
+
+#### options
+
+`LogOptions`
+
+The span options.
+
+#### fn
+
+(...`args`: `T`) => `Generator`\<`R`\>
+
+The function to wrap. Can return R, Promise\<R\>, Generator\<R\>, or AsyncGenerator\<R\>.
+
+### Returns
+
+A wrapped function with the same signature and return type as fn.
+
+```ts
+(...args: T): Generator<R>;
+```
+
+#### Parameters
+
+##### args
+
+...`T`
+
+#### Returns
+
+`Generator`\<`R`\>
+
+## Call Signature
+
+```ts
+function log<T, R>(
+  options: LogOptions,
+  fn: (...args: T) => AsyncGenerator<R>,
+): (...args: T) => AsyncGenerator<R>;
+```
+
+Defined in: [src/wrappers.ts](https://github.com/rungalileo/galileo-js/blob/main/src/wrappers.ts)
+
+Wraps a function to log its execution as a span in Galileo.
+Supports synchronous functions, Promises, and sync/async Generators.
+
+### Type Parameters
+
+#### T
+
+`T` _extends_ `unknown`[]
+
+#### R
+
+`R`
+
+### Parameters
+
+#### options
+
+`LogOptions`
+
+The span options.
+
+#### fn
+
+(...`args`: `T`) => `AsyncGenerator`\<`R`\>
+
+The function to wrap. Can return R, Promise\<R\>, Generator\<R\>, or AsyncGenerator\<R\>.
+
+### Returns
+
+A wrapped function with the same signature and return type as fn.
+
+```ts
+(...args: T): AsyncGenerator<R>;
+```
+
+#### Parameters
+
+##### args
+
+...`T`
+
+#### Returns
+
+`AsyncGenerator`\<`R`\>

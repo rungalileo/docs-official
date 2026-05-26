@@ -44,7 +44,7 @@ The ID of the run (can be experiment ID or log stream ID)
 \| [`Metric`](/sdk-api/typescript/reference/types/interfaces/Metric)
 \| [`LocalMetricConfig`](/sdk-api/typescript/reference/types/interfaces/LocalMetricConfig))[]
 
-List of metrics to configure. Can include: - GalileoMetrics const object values (e.g., GalileoMetrics.correctness) - Metric objects with name and optional version - LocalMetricConfig objects for client-side scoring - String names of metrics
+List of metrics to configure. Can include: - GalileoMetrics const object values (e.g., GalileoMetrics.correctness) - GalileoMetrics const object values (e.g., GalileoMetrics.correctness) - Metric objects with name and optional version - LocalMetricConfig objects for client-side scoring - String names of metrics
 
 ## Returns
 
@@ -63,6 +63,8 @@ const [scorerConfigs, localMetrics] = await createMetricConfigs(
   "project-123",
   "log-stream-456",
   [
+    GalileoMetrics.correctness,
+    GalileoMetrics.completeness,
     GalileoMetrics.correctness,
     GalileoMetrics.completeness,
     "toxicity",
