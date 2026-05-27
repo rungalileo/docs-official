@@ -27,7 +27,15 @@ prompt.create()
 experiment = Experiment(
     name="geography-experiment",
     # Name of a dataset you created
-    dataset=Dataset.get(name="countries"),
+dataset = Dataset.get(name="countries")
+if dataset is None:
+    raise ValueError("Dataset 'countries' not found")
+
+# 2. Run the experiment and get results
+experiment = Experiment(
+    name="geography-experiment",
+    # Name of a dataset you created
+    dataset=dataset,
     prompt=prompt,
     # Optional
     prompt_settings={
