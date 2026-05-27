@@ -32,7 +32,7 @@ Adds rows to the dataset.
 ```python
 def get_content(self,
                 starting_token: int=0,
-                limit: int=MAX_DATASET_ROWS) -> Union[None, DatasetContent]
+                limit: int=MAX_DATASET_ROWS) -> None | DatasetContent
 ```
 
 Gets and returns the content of the dataset.
@@ -51,7 +51,7 @@ Also refreshes the content of the local dataset instance.
 ### list_projects
 
 ```python
-def list_projects(self, limit: Union[Unset, int]=100) -> list
+def list_projects(self, limit: Unset | int=100) -> list
 ```
 
 Lists all projects that this dataset is associated with.
@@ -78,8 +78,8 @@ def create(self,
            name: str,
            content: DatasetType,
            *,
-           project_id: Optional[str]=None,
-           project_name: Optional[str]=None) -> Dataset
+           project_id: str | None=None,
+           project_name: str | None=None) -> Dataset
 ```
 
 Creates a new dataset, optionally associating it with a project.
@@ -106,10 +106,10 @@ Creates a new dataset, optionally associating it with a project.
 ```python
 def delete(self,
            *,
-           id: Optional[str]=None,
-           name: Optional[str]=None,
-           project_id: Optional[str]=None,
-           project_name: Optional[str]=None) -> None
+           id: str | None=None,
+           name: str | None=None,
+           project_id: str | None=None,
+           project_name: str | None=None) -> None
 ```
 
 Deletes a dataset by id or name.
@@ -138,11 +138,11 @@ used in the specified project.
 ```python
 def extend(self,
            *,
-           prompt_settings: Optional[dict[str, Any]]=None,
-           prompt: Optional[str]=None,
-           instructions: Optional[str]=None,
-           examples: Optional[builtins.list[str]]=None,
-           data_types: Optional[builtins.list[str]]=None,
+           prompt_settings: dict[str, Any] | None=None,
+           prompt: str | None=None,
+           instructions: str | None=None,
+           examples: builtins.list[str] | None=None,
+           data_types: builtins.list[str] | None=None,
            count: int=10) -> builtins.list[DatasetRow]
 ```
 
@@ -162,11 +162,12 @@ and then returns the content of the extended dataset.
     'General Query', 'Prompt Injection', 'Off-Topic Query',
     'Toxic Content in Query', 'Multiple Questions in Query',
     'Sexist Content in Query'.
-- `count` (`int, default 10`): The number of synthetic examples to generate.
+- `count` (`int`): The number of synthetic examples to generate.
 
 **Raises**
 
-- `DatasetAPIException`: If the request to extend the dataset fails.
+- `DatasetAPIException`: If the request to extend the dataset fails, or if the completed job reports
+an "Unexpected error" in its progress message.
 - `errors.UnexpectedStatus`: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
 - `httpx.TimeoutException`: If the request takes longer than Client.timeout.
 
@@ -179,11 +180,11 @@ and then returns the content of the extended dataset.
 ```python
 def get(self,
         *,
-        id: Optional[str]=None,
-        name: Optional[str]=None,
+        id: str | None=None,
+        name: str | None=None,
         with_content: bool=False,
-        project_id: Optional[str]=None,
-        project_name: Optional[str]=None) -> Optional[Dataset]
+        project_id: str | None=None,
+        project_name: str | None=None) -> Dataset | None
 ```
 
 Retrieves a dataset by id or name (exactly one of `id` or `name` must be provided).
@@ -214,10 +215,10 @@ used in the specified project.
 
 ```python
 def list(self,
-         limit: Union[Unset, int]=100,
+         limit: Unset | int=100,
          *,
-         project_id: Optional[str]=None,
-         project_name: Optional[str]=None) -> list[Dataset]
+         project_id: str | None=None,
+         project_name: str | None=None) -> list[Dataset]
 ```
 
 Lists all datasets, optionally filtered by project.
@@ -238,6 +239,27 @@ does not exist.
 **Returns**
 
 - `List[Dataset]`: A list of datasets.
+
+### update
+
+```python
+def update(self, id: str, *, name: str) -> 'Dataset'
+```
+
+Update a dataset's metadata.
+
+**Arguments**
+
+- `id` (`str`): The ID of the dataset to update.
+- `name` (`str`): The new name for the dataset.
+
+**Raises**
+
+- `DatasetAPIException`: If the API call fails or returns a validation error.
+
+**Returns**
+
+- `Dataset`: The updated dataset.
 
 ## convert_dataset_row_to_record
 
@@ -267,8 +289,8 @@ Supports both 'output' and 'ground_truth' field names for backward compatibility
 def create_dataset(name: str,
                    content: DatasetType,
                    *,
-                   project_id: Optional[str]=None,
-                   project_name: Optional[str]=None) -> Dataset
+                   project_id: str | None=None,
+                   project_name: str | None=None) -> Dataset
 ```
 
 Creates a new dataset, optionally associating it with a project.
@@ -294,10 +316,10 @@ Creates a new dataset, optionally associating it with a project.
 
 ```python
 def delete_dataset(*,
-                   id: Optional[str]=None,
-                   name: Optional[str]=None,
-                   project_id: Optional[str]=None,
-                   project_name: Optional[str]=None) -> None
+                   id: str | None=None,
+                   name: str | None=None,
+                   project_id: str | None=None,
+                   project_name: str | None=None) -> None
 ```
 
 Deletes a dataset by id or name (exactly one of `id` or `name` must be provided).
@@ -325,11 +347,11 @@ used in the specified project.
 
 ```python
 def extend_dataset(*,
-                   prompt_settings: Optional[dict[str, Any]]=None,
-                   prompt: Optional[str]=None,
-                   instructions: Optional[str]=None,
-                   examples: Optional[list[str]]=None,
-                   data_types: Optional[list[str]]=None,
+                   prompt_settings: dict[str, Any] | None=None,
+                   prompt: str | None=None,
+                   instructions: str | None=None,
+                   examples: list[str] | None=None,
+                   data_types: list[str] | None=None,
                    count: int=10) -> list[DatasetRow]
 ```
 
@@ -349,7 +371,7 @@ and then returns the content of the extended dataset.
     'General Query', 'Prompt Injection', 'Off-Topic Query',
     'Toxic Content in Query', 'Multiple Questions in Query',
     'Sexist Content in Query'.
-- `count` (`int, default 10`): The number of synthetic examples to generate.
+- `count` (`int`): The number of synthetic examples to generate.
 
 **Raises**
 
@@ -365,10 +387,10 @@ and then returns the content of the extended dataset.
 
 ```python
 def get_dataset(*,
-                id: Optional[str]=None,
-                name: Optional[str]=None,
-                project_id: Optional[str]=None,
-                project_name: Optional[str]=None) -> Optional[Dataset]
+                id: str | None=None,
+                name: str | None=None,
+                project_id: str | None=None,
+                project_name: str | None=None) -> Dataset | None
 ```
 
 Retrieves a dataset by id or name (exactly one of `id` or `name` must be provided).
@@ -399,8 +421,8 @@ used in the specified project.
 ```python
 def get_dataset_version(*,
                         version_index: int,
-                        dataset_name: Optional[str]=None,
-                        dataset_id: Optional[str]=None) -> Optional[DatasetContent]
+                        dataset_name: str | None=None,
+                        dataset_id: str | None=None) -> DatasetContent | None
 ```
 
 Retrieves a dataset version by dataset name or dataset id.
@@ -419,8 +441,8 @@ Retrieves a dataset version by dataset name or dataset id.
 
 ```python
 def get_dataset_version_history(*,
-                                dataset_name: Optional[str]=None,
-                                dataset_id: Optional[str]=None) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]
+                                dataset_name: str | None=None,
+                                dataset_id: str | None=None) -> HTTPValidationError | ListDatasetVersionResponse | None
 ```
 
 Retrieves a dataset version history by dataset name or dataset id.
@@ -442,9 +464,9 @@ Retrieves a dataset version history by dataset name or dataset id.
 
 ```python
 def list_dataset_projects(*,
-                          dataset_id: Optional[str]=None,
-                          dataset_name: Optional[str]=None,
-                          limit: Union[Unset, int]=100) -> list
+                          dataset_id: str | None=None,
+                          dataset_name: str | None=None,
+                          limit: Unset | int=100) -> list
 ```
 
 Lists all projects that a dataset is associated with.
@@ -468,10 +490,10 @@ Lists all projects that a dataset is associated with.
 ## list_datasets
 
 ```python
-def list_datasets(limit: Union[Unset, int]=100,
+def list_datasets(limit: Unset | int=100,
                   *,
-                  project_id: Optional[str]=None,
-                  project_name: Optional[str]=None) -> list[Dataset]
+                  project_id: str | None=None,
+                  project_name: str | None=None) -> list[Dataset]
 ```
 
 Lists all datasets, optionally filtered by project.
