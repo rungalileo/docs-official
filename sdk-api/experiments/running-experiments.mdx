@@ -48,9 +48,39 @@ To configure an LLM, visit the relevant API platform to obtain an API key, then 
 
 If you are using a [custom code-based metric](/concepts/metrics/custom-metrics/custom-metrics-ui-code) then you don't need an LLM integration.
 
+## Group related experiment runs
+
+You can organize runs into **experiment groups** from the [Galileo Console](https://app.galileo.ai) and from the SDK. In code, pass a **group name** with **`experiment_group`** on [`run_experiment`](/sdk-api/python/reference/experiments#run-experiment), [`create_experiment`](/sdk-api/python/reference/experiments#create-experiment), or filter with [`get_experiments`](/sdk-api/python/reference/experiments#get-experiments). See [Experiment groups](/sdk-api/experiments/experiment-groups) for console steps and naming tips.
+
+**Assign a run to a named group**
+
+```python
+from galileo import GalileoMetrics
+from galileo.experiments import run_experiment
+
+run_experiment(
+    experiment_name="benchmark-run",
+    dataset=my_dataset,
+    function=my_app,
+    metrics=[GalileoMetrics.correctness],
+    experiment_group="Weekly regression",
+)
+```
+
+**List experiments in a group**
+
+```python
+from galileo.experiments import get_experiments
+
+runs = get_experiments(
+    project_name="my-project",
+    experiment_group="Weekly regression",
+)
+```
+
 ## Experiment flow
 
-The entry point for running experiments is a call to the run experiments function (see the [`run_experiment` Python SDK docs](/sdk-api/python/reference/experiments#run-experiment), or the [`runExperiment` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/runExperiment) for more details).
+The entry point for running experiments is a call to the run experiments function (see [`run_experiment`](/sdk-api/python/reference/experiments#run-experiment) or [`runExperiment`](/sdk-api/typescript/reference/README/functions/runExperiment) for more details).
 
 Experiments take a dataset, and can either pass it to a prompt template, or to a custom function. This custom function can go from a simple call to an LLM right up to a full agentic workflow. Experiments also take a list of one or more metrics to use to evaluate the traces. This can be one of the [out-of-the-box metrics](/sdk-api/metrics/metrics) using the constants provided by the Galileo SDK, or the name of a custom metric.
 
