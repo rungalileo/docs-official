@@ -1,0 +1,59 @@
+---
+title: "Register a metric"
+description: "Publish a fine-tuned metric to the Galileo metrics store."
+---
+
+Once a run reaches **Fine-tuned**, you can register the resulting metric. Registration publishes the metric to the [Galileo metrics store](/concepts/metrics/overview), where it becomes available across the Galileo platform — for evaluation in experiments, Log streams, and runtime guardrails using Protect / Agent Control.
+
+<Frame caption="Register metric modal opened from the run details page">![Register metric modal](/images/luna-studio/metrics/register-metric.png)</Frame>
+
+## Prerequisites
+
+- The run must be in the **Fine-tuned** status. See [Run lifecycle](/luna-studio/runs/lifecycle).
+- Your org must have an active [Galileo integration](/luna-studio/integrations/galileo).
+
+## Where you can register from
+
+The **Register metric** action appears in three places:
+
+- **Run details page** &mdash; primary footer button on Fine-tuned runs.
+- **Training runs table** &mdash; an action link on each Fine-tuned row. See [Training runs home](/luna-studio/projects/training-runs-home#runs-table).
+- **Metrics page** &mdash; an action link on each Fine-tuned metric. See [Metrics overview](/luna-studio/metrics/overview).
+
+All three open the same **Register metric** flow.
+
+## Steps
+
+<Steps>
+  <Step title="Click Register metric">
+    From the run details footer, the runs table row, or the metrics page row.
+  </Step>
+
+<Step title="Enter a metric name">Use a name that's clear in the Galileo metrics store, where it'll sit alongside built-in metrics. Examples: `support-tone-strict`, `pii-detector-en`.</Step>
+
+  <Step title="Click Register">
+    The modal closes. The run's status flips to **Registered** and the **Register metric** affordance disappears for that run.
+  </Step>
+</Steps>
+
+## Naming guidance
+
+- Use lowercase with hyphens: `customer-tone-classifier`, not `Customer Tone Classifier`.
+- Include the language or domain if relevant: `pii-detector-en`, `legal-toxicity`.
+- Add version suffixes (`-v1`, `-v2`) if you are registering multiple variants.
+
+<Warning>Metric names should be unique within your Galileo workspace. If a metric with the same name already exists, registration fails with a duplicate-name error. Pick a different name and try again.</Warning>
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Runtime Protection" icon="shield" href="/concepts/protect/overview">
+    Use registered metrics in runtime protection workflows.
+  </Card>
+  <Card title="Invoke runtime protection" icon="code" href="/sdk-api/protect/invoke-protect">
+    Learn how to call Protect from code with the Galileo SDK.
+  </Card>
+  <Card title="Luna-2" icon="moon" href="/concepts/luna/luna">
+    Understand how Luna-based metrics power evaluation and protection.
+  </Card>
+</CardGroup>

@@ -1,0 +1,132 @@
+---
+title: "Troubleshooting"
+description: "Common errors and how to recover."
+---
+
+This page covers the most common errors users hit and what to do about them. If you're stuck on something not listed here, reach out via the [Galileo support channels](/references/faqs/faqs).
+
+## Account
+
+### Can't sign in
+
+You see **Invalid email or password** on the sign-in page.
+
+| Likely cause          | What to try                                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------------------ |
+| Wrong password        | Click **Forgot your password?** on the sign-in page to reset it.                                       |
+| Account doesn't exist | Click **Create account** to create an account.                                                         |
+| Typo in the email     | Re-check the email — case matters in some setups.                                                      |
+
+If you reset your password but still can't sign in, the reset email may not have arrived. Check spam, and confirm the email matches your Luna Studio account.
+
+## Integrations
+
+### Save changes button is disabled
+
+The modal won't let you submit.
+
+| Likely cause                              | Fix                                                                            |
+| ----------------------------------------- | ------------------------------------------------------------------------------ |
+| A required field is empty                 | Fill in every field marked required.                                           |
+| JSON in a code-editor field doesn't parse | The editor highlights the offending line. Common: trailing comma, smart quote. |
+| Disclaimer switch isn't toggled on        | Some providers gate save behind the "I acknowledge..." switch.                 |
+
+### Provider returns 401 / unauthorized
+
+Validation passes when adding the integration but runs fail with provider auth errors.
+
+| Likely cause               | Fix                                                                                                            |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Stale API key              | [Update](/luna-studio/integrations/overview#update-or-remove-an-integration) the integration with a fresh key. |
+| Wrong region (Azure / AWS) | Confirm the resource is in the region you specified.                                                           |
+| Insufficient quota         | Check your provider's quota dashboard. Some providers return 429 instead of 401.                               |
+
+### Vertex AI: GCS uploads fail
+
+You enabled **Support file uploads** but uploads to your bucket fail.
+
+| Likely cause                      | Fix                                                                          |
+| --------------------------------- | ---------------------------------------------------------------------------- |
+| Service account lacks permissions | Grant `Storage Object Creator` (or higher) on the bucket.                    |
+| Wrong object path prefix          | Defaults to `galileo-uploads`. Make sure the prefix matches your IAM policy. |
+| Bucket name typo                  | Bucket names are case-sensitive in some setups. Double-check.                |
+
+### AWS: Assumed role fails
+
+You picked **Assumed Roles** but Luna Studio can't assume the role.
+
+| Likely cause         | Fix                                                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Trust policy missing | Add Galileo's account principal to the role's trust relationship. (See AWS docs from the integration modal footer.) |
+| External ID mismatch | If you set an external ID, confirm it matches what Luna Studio sends.                                               |
+| Wrong region         | The role must exist in the region you specified.                                                                    |
+
+## Datasets
+
+### Validation error: "Missing column"
+
+You see `Missing column "label"` (or `"input"`) after adding a dataset.
+
+| Likely cause                      | Fix                                                                                                               |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Column not in CSV/JSONL           | Add the column to the file and re-add the dataset.                                                                |
+| Column named differently          | Rename to the literal `input` and `label` keys — Luna doesn't auto-detect.                                        |
+| Training logs are unlabelled      | Use **Add training logs** in Step 3. Luna Studio will label the logs before training.                             |
+
+### Validation error: "Could not fetch URL"
+
+Luna couldn't pull the file from the URL you gave it.
+
+| Likely cause             | Fix                                                                              |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| URL requires auth        | For `s3://` use AWS integration; for `gs://` use Vertex AI with file uploads on. |
+| URL returns 404          | Open the URL in a browser to confirm it serves a file.                           |
+| Content type unsupported | Re-host as `.csv` or `.jsonl` and use a direct link.                             |
+
+### Generated dataset doesn't look right
+
+You ran **Generate from test set** and the samples are repetitive, off-topic, or mislabelled.
+
+| Likely cause                         | Fix                                                                              |
+| ------------------------------------ | -------------------------------------------------------------------------------- |
+| Test set seeds aren't representative | Add more diverse rows to the test set, then regenerate.                          |
+| Generation model too small           | Switch to a larger available model from one of your configured providers.         |
+| Metric prompt is ambiguous           | Clarify the prompt; click **Regenerate** with the "Provide own feedback" reason. |
+
+## Runs
+
+### Run failed
+
+| Failure reason                     | What to do                                                                         |
+| ---------------------------------- | ---------------------------------------------------------------------------------- |
+| Out-of-memory on base model        | Switch to **Luna Small**, or shrink the training set (regenerate with fewer rows). |
+| Training failed after N epochs     | Often a transient compute issue. Re-launch with the same config.                   |
+| Provider error (during generation) | Re-check the integration that backs the generation model. Re-launch.               |
+| Validation error on linked dataset | The dataset changed since launch (Galileo source updated). Re-add and re-launch.   |
+
+### Register metric fails with duplicate name
+
+The Galileo metrics store already has a metric with that name.
+
+- Pick a different name in the [Register metric modal](/luna-studio/runs/register-metric).
+- Or, delete the existing metric in the [Galileo metrics store](/concepts/metrics/overview) first, then register again.
+
+### Stuck in **Queued**
+
+If a run sits in **Queued** for more than a few minutes, the most likely causes are:
+
+- **Heavy load.** Luna provisions training capacity per region. Wait a few more minutes.
+- **Integration removed.** If the integration backing the metric template was removed after launch, the run can't allocate. Re-add the integration and launch a new run.
+
+If neither applies, contact Galileo support.
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="FAQ" icon="circle-question" href="/luna-studio/reference/faq">
+    Common questions about how Luna Studio works.
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/luna-studio/quickstart">
+    End-to-end walkthrough.
+  </Card>
+</CardGroup>
