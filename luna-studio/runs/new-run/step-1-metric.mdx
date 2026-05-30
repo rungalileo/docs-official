@@ -1,0 +1,61 @@
+---
+title: "Step 1 — Metric"
+description: "Pick a predefined metric template or write a custom LLM-as-judge prompt."
+---
+
+The first step asks: _what should this metric measure?_ You can pick from a curated list of templates, or click **Use custom prompt** to write your own.
+
+<Frame caption="Step 1 — pick a built-in metric or define your own with a custom prompt">![Metric step](/images/luna-studio/runs/new-run-metric.png)</Frame>
+
+## Pick a metric
+
+The **Metric** select is searchable. It includes trainable Galileo LLM-as-judge metrics available to your workspace, plus custom metrics and prompts your org created.
+
+The picker is organized into three groups:
+
+- **Galileo presets** &mdash; built-in Galileo scorers that Luna Studio can train.
+- **Custom Galileo metrics** &mdash; custom metrics already created in Galileo.
+- **Saved custom prompts** &mdash; prompts previously authored in Luna Studio.
+
+Metrics that exist but are not trainable yet can appear disabled with a "not trainable yet" suffix. Multimodal metrics are filtered out because Luna Studio trains text metrics today.
+
+## Inspect a selected template
+
+Once you pick a template, the form expands to show a read-only **Metric details** panel:
+
+- **Output type** &mdash; the metric's return shape (Boolean, Categorical etc.). See [Output types](/luna-studio/core-concepts#metrics).
+- **Step** &mdash; the trace step the metric runs against (LLM span, Retriever, Agent span, or Trace).
+- **Input step** &mdash; the input shape Luna Studio expects for training data, such as a single message, input / output pair, full trace, or full session.
+- **Prompt** &mdash; the LLM-as-judge prompt the template uses, in a read-only textarea.
+
+## Write a custom prompt
+
+For metrics that don't fit a template, click the dropdown's **Use custom prompt** option (with a `+` icon). The form switches into editable mode.
+
+<Frame caption="Step 1 with Custom prompt expanded — write your own LLM-as-judge prompt for the metric">![Custom metric prompt](/images/luna-studio/runs/new-run-metric-custom.png)</Frame>
+
+In custom mode, you fill in:
+
+| Field       | Notes                                                       |
+| ----------- | ----------------------------------------------------------- |
+| Name        | Optional display name for the custom metric.                |
+| Output type | Pick one of Boolean / Categorical                           |
+| Step        | Pick LLM span / Retriever / Agent span / Trace.             |
+| Input step  | Pick Single message / Input-output pair / Full trace / Full session. |
+| Prompt      | The LLM-as-judge prompt [required].                         |
+
+<Tip>
+  **Pro tip:** For best results, we recommend first creating your metric in the Galileo console and using the **Autotune** feature to test and refine it on a labelled test dataset. This helps you optimize the metric’s performance before
+  launching a full training run in Luna Studio.
+</Tip>
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Step 2 — Test set" icon="database" href="/luna-studio/runs/new-run/step-2-test-set">
+    Pick the labelled dataset Luna evaluates against.
+  </Card>
+  <Card title="Custom metrics" icon="code" href="/luna-studio/metrics/custom-metrics">
+    Reference for output types, steps, and prompt-writing tips.
+  </Card>
+</CardGroup>

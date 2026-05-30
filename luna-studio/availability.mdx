@@ -1,0 +1,57 @@
+---
+title: "Availability and deployment"
+description: "Luna Studio is part of the enterprise tier of Galileo and is deployed by Galileo into your own cluster or cloud."
+---
+
+<Note>
+  Luna Studio is only available in the **Enterprise tier of Galileo** and is
+  deployed by Galileo into your own cluster or cloud. [Contact us](https://galileo.ai/contact-sales)
+  to learn more and get started.
+</Note>
+
+Luna Studio is the self-service fine-tuning web app for [Luna-2](/concepts/luna/luna) custom evaluation metrics. Because Luna-2 itself is an enterprise-tier capability, Luna Studio inherits the same availability model — it ships as part of an enterprise Galileo deployment, not as a shared SaaS product.
+
+## Who can use Luna Studio
+
+Luna Studio is available to **enterprise customers of Galileo**.
+
+- There is no public sign-up at a shared `app.luna-studio.ai`-style URL.
+- Each customer org reaches their Luna Studio at the URL Galileo provisions for them (typically alongside their Galileo console).
+- Once provisioned, anyone in the customer's org can sign in, create projects, and launch training runs &mdash; see the [Quickstart](/luna-studio/quickstart).
+
+If your team is on the standard tier of Galileo today and you want access to Luna Studio, [contact us](https://galileo.ai/contact-sales).
+
+## How Luna Studio is deployed
+
+Galileo provisions Luna Studio into the customer's own infrastructure. The training jobs that fine-tune Luna base models run on a training platform chosen at deployment time:
+
+- `Kubernetes`
+- `Vertex AI Pipelines`
+- `AzureML Pipelines`
+- `SageMaker Pipelines`
+
+This means the heavyweight compute &mdash; both the inference for synthetic data generation and the GPU fine-tuning jobs &mdash; runs inside your environment, against the GPUs and quotas your team already manages.
+
+## What's fixed at deployment vs. configurable in-app
+
+Luna Studio splits its integrations into two layers. Understanding which layer a setting lives on tells you whether you change it in the UI or talk to your Galileo contact.
+
+| Layer                     | Examples                                                                                                          | Who configures it                                  |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| **Deployment-level**      | Training platform (Kubernetes, Vertex AI Pipelines, AzureML Pipelines, SageMaker Pipelines), Luna base model catalog | Galileo, at deployment time                        |
+| **Runtime (in-app)**      | LLM provider integrations (OpenAI, Anthropic, Azure, Vertex AI, AWS, custom), Galileo integration, projects, runs   | Your org's users, from the [Integrations page](/luna-studio/integrations/overview) |
+
+The deployment-level layer is what these docs mean when they reference "your Luna Studio deployment" &mdash; for example, the [base model](/luna-studio/core-concepts#base-models) list shown in Step 4 of the new run flow is sourced from your deployment. The runtime layer is everything users configure inside the app and is the focus of the rest of these docs.
+
+For more on the runtime layer, see [Integrations overview](/luna-studio/integrations/overview). For more on the training platform list, see [Training platforms](/luna-studio/integrations/overview#training-platforms).
+
+## How to get Luna Studio
+
+<CardGroup cols={2}>
+  <Card title="Contact sales" icon="comment" href="https://galileo.ai/contact-sales">
+    Talk to Galileo about enabling Luna Studio for your org.
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/luna-studio/quickstart">
+    Already provisioned? Walk through your first end-to-end training run.
+  </Card>
+</CardGroup>
