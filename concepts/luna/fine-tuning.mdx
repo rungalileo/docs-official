@@ -8,17 +8,16 @@ One big advantage of the Luna-2 model is the ability for Galileo to fine-tune th
 These models are fine-tuned for specific customer use cases by the team at Galileo.
 
 <CardGroup cols={1}>
-<Card title="Contact us" icon="comment" horizontal href="https://galileo.ai/contact-sales">
+  <Card title="Contact us" icon="comment" horizontal href="https://galileo.ai/contact-sales">
     Contact us to learn more about fine-tuning Luna-2 for your use case.
-</Card>
+  </Card>
 </CardGroup>
 
-<Note>
-Due to the complex nature of fine-tuning, the process is performed by the team at Galileo. This is not a self-service capability.
-</Note>
+<Note>Due to the complex nature of fine-tuning, the process is performed by the team at Galileo. This is not a self-service capability.</Note>
 
 <Tip>
-For **self-service fine-tuning of custom evaluation metrics** — bring your own labelled test set, run a fine-tune in a wizard, and register the result — use [Luna Studio](/luna-studio/index). Luna Studio handles the entire workflow without involving the Galileo team.
+  For **self-service fine-tuning of custom evaluation metrics** — bring your own labelled test set, run a fine-tune in a wizard, and register the result — use [Luna Studio](/luna-studio). Luna Studio handles the entire workflow without
+  involving the Galileo team.
 </Tip>
 
 ## Requirements for fine-tuning process
@@ -27,35 +26,35 @@ These are the requirements for the fine-tuning process:
 
 1. **Define the metric objective and use case**
 
-    Clearly define the desired outcome from your perspective. This objective will guide the selection of the most appropriate flow and approach.
+   Clearly define the desired outcome from your perspective. This objective will guide the selection of the most appropriate flow and approach.
 
 1. **Create a test dataset**
 
-    The test dataset is the most crucial piece for any fine-tuning work. 300-500 samples is a decent number for a test set with a diverse set of samples, with at least 100 samples of each class. If 300 samples is hard to get to, 150 is a bare minimum.
+   The test dataset is the most crucial piece for any fine-tuning work. 300-500 samples is a decent number for a test set with a diverse set of samples, with at least 100 samples of each class. If 300 samples is hard to get to, 150 is a bare minimum.
 
-    The test set **must be manually labelled** to ensure high quality. The format can be a spreadsheet/csv with input, output, label and explanations on the label if possible. If you are already using a Galileo metric on the data, these numbers will also help.
+   The test set **must be manually labelled** to ensure high quality. The format can be a spreadsheet/csv with input, output, label and explanations on the label if possible. If you are already using a Galileo metric on the data, these numbers will also help.
 
 1. **Latency and Load Requirements**
 
-    Specify the maximum acceptable latency for the given metric and its use case (online observability, run time protection etc.). The latency requirements should include QPS and expected input token size. Both these numbers should be provided for average and peak loads.
+   Specify the maximum acceptable latency for the given metric and its use case (online observability, run time protection etc.). The latency requirements should include QPS and expected input token size. Both these numbers should be provided for average and peak loads.
 
-    This requirement will influence the choice of flow and may necessitate trade-offs with other factors.
+   This requirement will influence the choice of flow and may necessitate trade-offs with other factors.
 
 1. **Constraints**
 
-    Identify any limitations or restrictions that may impact the design or implementation of the flow. These constraints could include technical, resource, or regulatory limitations.
+   Identify any limitations or restrictions that may impact the design or implementation of the flow. These constraints could include technical, resource, or regulatory limitations.
 
 ## Approaches
 
 There are 3 different approaches that Galileo takes with fine-tuning, depending on the metric you are interested in, and your dataset.
 
-| Approach                           | When to use |
-| :--------------------------------- | :---------- |
-| Use a preset SLM metric            | The required metric aligns in definition with a metric offered by Galileo. Accuracy on your dataset is good enough. |
+| Approach                           | When to use                                                                                                                                                                                |
+| :--------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Use a preset SLM metric            | The required metric aligns in definition with a metric offered by Galileo. Accuracy on your dataset is good enough.                                                                        |
 | Fine-tune preset SLM metric        | The required metric aligns in definition with a metric offered by Galileo. LLM-as-a-judge variant of the metric works well (with or without CLHF). Preset SLM variant performance is poor. |
-| Create a new customized SLM metric | The required metric is not offered by Galileo out-of-the-box. |
+| Create a new customized SLM metric | The required metric is not offered by Galileo out-of-the-box.                                                                                                                              |
 
-{/*<!-- markdownlint-disable MD013 -->*/}
+{/* <!-- markdownlint-disable MD013 --> */}
 
 ```mermaid
 flowchart TD
@@ -65,7 +64,7 @@ flowchart TD
     B -->|No| E[Use approach 2 - fine-tune Preset SLM]
 ```
 
-{/*<!-- markdownlint-enable MD013 -->*/}
+{/* <!-- markdownlint-enable MD013 --> */}
 
 ## Fine-tuning requirements
 
@@ -94,9 +93,7 @@ The estimated timings are:
 
 - **New metric:** **4-5 days**
 
-<Note>
-These times can vary based on the data/latency/metric requirements, so would ideally need at least a week (5 days) for any metric fine-tuning after all the prerequisites are fulfilled.
-</Note>
+<Note>These times can vary based on the data/latency/metric requirements, so would ideally need at least a week (5 days) for any metric fine-tuning after all the prerequisites are fulfilled.</Note>
 
 ### Model deployment
 
@@ -115,10 +112,10 @@ The estimated timings are:
 If your metric is a custom evaluator that doesn't need the Galileo team's involvement, Luna Studio gives you the same fine-tuning workflow as a self-service web app — pick a base model, supply a labelled test set, generate or upload a training set, and register the resulting metric to the Galileo metrics store.
 
 <CardGroup cols={2}>
-<Card title="Try Luna Studio" icon="wand-magic-sparkles" horizontal href="/luna-studio/quickstart">
+  <Card title="Try Luna Studio" icon="wand-magic-sparkles" horizontal href="/luna-studio/ui/quickstart">
     End-to-end walkthrough — sign up, configure an integration, and register your first custom metric in about 15 minutes.
-</Card>
-<Card title="Luna Studio core concepts" icon="book-open" horizontal href="/luna-studio/core-concepts">
+  </Card>
+  <Card title="Luna Studio core concepts" icon="book-open" horizontal href="/luna-studio/ui/core-concepts">
     Projects, runs, datasets, and base models — how the pieces fit together.
-</Card>
+  </Card>
 </CardGroup>

@@ -1,0 +1,43 @@
+---
+title: Post Training artifacts
+description: "What training produces and which artifacts are saved."
+---
+
+Training produces an output artifact bundle containing the trained model, evaluation metrics, and result plots.
+
+These artifacts are written to the local output directory for the run. If object-store / huggingface upload is enabled, the same directory is packaged and uploaded as a zip artifact.
+
+Training also runs two evaluations:
+
+- **Pre-training baseline**: evaluates the base model before fine-tuning
+- **Post-training**: evaluates the fine-tuned model
+
+## Artifacts on disk
+
+Artifacts are written under:
+
+`{training.output.local_path}/{training.output.model_name}/`
+
+This output directory contains the trained model artifacts, evaluation results, and supporting files needed to inspect or reuse the run. If object-store upload is enabled, this directory is packaged and uploaded as a zip artifact.
+
+## Detailed artifact list
+
+### Model artifacts
+
+- model weights / adapter files
+- tokenizer files
+- model card or metadata files when generated
+
+### Prompt and metrics
+
+- `prompt_template.txt`: Contains the prompt template to be used for registration / deployment
+- `training_metrics.json`: Contains the summarized metrics report (F1 scores, confusion matrices etc)
+
+### Evaluation plots
+
+- stored under `plots/` sub-directory
+- ROC curves
+- PR curves
+- confusion matrix and related multiclass plots when applicable
+
+To run evaluation again later using a different dataset, see [Evaluate](/luna-studio/sdk/how-to-train-your-luna-metric/training/evaluate).

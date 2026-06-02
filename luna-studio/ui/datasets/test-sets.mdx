@@ -1,0 +1,80 @@
+---
+title: "Test sets"
+description: "Hand-labelled datasets used to evaluate fine-tuned metrics."
+---
+
+A **test set** is the ground truth for a [training run](/luna-studio/ui/runs/lifecycle). After fine-tuning, Luna Studio scores the resulting metric against the test set and reports F1, AUC-ROC, and other diagnostics.
+
+## What makes a good test set
+
+- **Hand-labelled.** Don't auto-generate test labels — they're the tape measure for evaluating the run.
+- **Representative.** Sample inputs from the same distribution your application sees in production. Skewed test sets lead to misleading scores.
+- **Small but not tiny.** Use at least 300 hand-labelled rows when possible. Beyond a few hundred rows, you start paying inference cost without much added signal for most metrics.
+- **Held out.** Don't reuse test set rows in your training set. Luna Studio respects this when you generate a training set from a test set.
+
+## Required schema
+
+Test sets need at least two columns:
+
+| Column  | Required | Notes                                                             |
+| ------- | -------- | ----------------------------------------------------------------- |
+| `input` | Yes      | The text the metric scores.                                       |
+| `label` | Yes      | The ground-truth value. Type depends on the metric's output type. |
+
+Other columns (e.g. `id`, `timestamp`) are kept but ignored during evaluation.
+
+For label format by currently trainable [output type](/luna-studio/ui/core-concepts#metrics):
+
+| Output type | Acceptable label values             |
+| ----------- | ----------------------------------- |
+| Boolean     | `true` / `false` (or 1 / 0).        |
+| Categorical | One of the metric's defined labels. |
+
+Floating-point, percentage, multilabel, and numeric labels are not trainable in Luna Studio yet.
+
+## File formats
+
+- **CSV** &mdash; standard comma-separated. Headers required.
+- **JSONL** &mdash; one JSON object per line, with `input` and `label` keys.
+
+Both formats accept up to a few hundred MB. Larger uploads work but take longer to validate.
+
+## Add a test set
+
+You can add a test set in three places:
+
+- The [Datasets page](/luna-studio/ui/datasets/overview) → **Add test set** primary button.
+- The [Step 2 of the run creation flow](/luna-studio/ui/runs/new-run/step-2-test-set) → dropdown's **Add new test set** action.
+- (Indirectly) by importing from Galileo — see [Galileo integration](/luna-studio/ui/integrations/galileo).
+
+All three paths open the same **Add test set** modal — see [Add a dataset](/luna-studio/ui/datasets/add-a-dataset) for the modal reference.
+
+## Test/eval split
+
+When a test set is selected for a training run, Luna Studio reserves 80% for evaluation and uses 20% as seed examples if you choose [Generate from test set](/luna-studio/ui/runs/new-run/step-3-training-set#generate-from-test-set) for the training source.
+
+The **Selected dataset card** in [Step 2](/luna-studio/ui/runs/new-run/step-2-test-set#what-happens-after-you-select-a-test-set) shows the split, e.g.:
+
+> 320 rows · 3 columns · Uploaded · 80% → ~256 for eval
+
+## Used in metric
+
+The **Used in metric** column on the Datasets table shows every metric whose runs reference this test set. If the column shows `—`, the test set is unused — safe to delete.
+
+## Renaming a test set
+
+Open the test set's details page and click the pencil icon next to its name in the breadcrumb. The **Edit dataset name** modal opens with the current name pre-filled.
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Add a dataset" icon="upload" href="/luna-studio/ui/datasets/add-a-dataset">
+    Walk through the Upload / URL / Galileo flows.
+  </Card>
+  <Card title="Validation" icon="circle-check" href="/luna-studio/ui/datasets/validation">
+    What Luna checks and what to do when validation fails.
+  </Card>
+  <Card title="Training sets" icon="dumbbell" href="/luna-studio/ui/datasets/training-sets">
+    The other dataset type — used to fine-tune the base model.
+  </Card>
+</CardGroup>

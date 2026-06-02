@@ -1,0 +1,46 @@
+---
+title: Installation
+description: "Install the Luna Studio SDK and optional extras."
+---
+
+## Prerequisites
+
+- Python **3.12**
+
+If you plan to fine-tune on GPU, you’ll also need a compatible CUDA environment (for example, 1x H100-class GPU).
+
+## Install from PyPI (recommended)
+
+Install the SDK with the extras you need:
+
+```bash
+pip install "galileo-luna-ft[data-generation,training]"
+```
+
+### LLM provider extras (optional)
+
+Pick the provider(s) you use for generation/labeling:
+
+```bash
+# Example: Azure OpenAI
+pip install "galileo-luna-ft[data-generation,training,llm-azure-openai]"
+```
+
+Available LLM providers include `llm-openai`, `llm-azure-openai`, `llm-gemini`, `llm-groq`.
+
+### Deployment extras (optional)
+
+Pick the deployment extra for the cloud environment you use:
+
+```bash
+# Example: Azure ML
+pip install "galileo-luna-ft[data-generation,training,llm-azure-openai,deploy-azureml]"
+```
+
+Available deployment extras include `deploy-kubernetes`, `deploy-vertex-ai`, `deploy-azureml`, `deploy-sagemaker`.
+
+## Verify install
+
+```bash
+python -c "import galileo_luna_ft; print(galileo_luna_ft.__version__)"
+```

@@ -1,0 +1,54 @@
+---
+title: Using a preset metric
+description: Use a packaged preset metric for a single-field trace-style input.
+---
+
+Use this tutorial when a packaged preset already matches your use case. This is the simplest path because the preset metric already defines the metric behavior, labeling prompt, and training prompt template.
+
+For the purpose of this tutorial, we will use the "trace input / output only" preset metric, but the same principles apply to all preset metrics.
+
+## When to choose a preset metric
+
+Choose a preset metric when:
+
+- you want to use a preset metric that already matches your use case closely, but the current preset metric performance is not satisfactory
+- you want to start from the packaged Luna Studio defaults
+
+## Minimal end-to-end config
+
+```yaml
+run_steps:
+  - data_generation
+  - training
+
+pipeline_provider: "local"
+metric_name: "toxicity"
+
+data_generation:
+  source_data:
+    dataset:
+      source_type: "huggingface"
+      huggingface:
+        name: "toxicity_dataset"
+  output:
+    dataset:
+      repo_name: "toxicity-training-dataset"
+
+training:
+  dataset:
+    name: "toxicity-training-dataset"
+  output:
+    model_name: "toxicity-model"
+```
+
+## Why this is simpler than `custom`
+
+With a preset metric like `toxicity`, you usually do not need to define:
+
+- `data_generation.metric.name`
+- `data_generation.metric.type`
+- `data_generation.metric.input_format`
+- `data_generation.metric.class_labels`
+- `training.prompt_template`
+
+Those defaults are already provided by the packaged metric config.

@@ -1,0 +1,74 @@
+---
+title: Metric Output Types
+description: Understanding the different output types of metrics supported by Luna Studio
+---
+
+## Boolean
+
+Use **Boolean** when your metric is a binary decision, such as `toxicity` or `context adherence`.
+
+Set `metric.type: "binary"`
+
+For binary metrics:
+
+We recommend you add `llmaj_source_prompt` so we can auto extract the below fields, but if you wish to have granular control then:
+
+- you must define exactly 2 class labels
+- labels are typically `0` and `1`
+- each class label should include a name and rubric
+
+Example:
+
+```yaml
+metric:
+  type: "binary"
+  class_labels:
+    - name: "positive"
+      label: 1
+      rubric: "..."
+    - name: "negative"
+      label: 0
+      rubric: "..."
+```
+
+## Categorical (Multiclass)
+
+Use **Categorical (Multiclass)** when exactly one class should be assigned to each example. For example `tone`
+
+Set:
+
+- `metric.type: "multi-class"`
+
+For multiclass metrics:
+
+We recommend you add `llmaj_source_prompt` so we can auto extract the below fields, but if you wish to have granular control then:
+
+- define one class label entry per class
+- label values should be unique
+- in practice, sequential integer labels are the most common pattern
+
+Example:
+
+```yaml
+metric:
+  type: "multi-class"
+  class_labels:
+    - name: "neutral"
+      label: 0
+      rubric: "..."
+    - name: "positive"
+      label: 1
+      rubric: "..."
+    - name: "negative"
+      label: 2
+      rubric: "..."
+```
+
+## Not Supported
+
+These output types are not currently supported by Luna Studio -
+
+- Count
+- Discrete
+- Percentage
+- Multilabel

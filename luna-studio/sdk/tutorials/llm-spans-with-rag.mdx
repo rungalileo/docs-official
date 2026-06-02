@@ -1,0 +1,72 @@
+---
+title: LLM spans with RAG
+description: Train a document-grounded Luna metric using retrieved context.
+---
+
+{/* <!-- markdownlint-disable MD013 --> */}
+
+Use this tutorial when your metric depends on retrieved documents as context. This is the standard RAG pattern for Luna metrics such as context adherence.
+
+## Dataset schema
+
+Minimum columns:
+
+- `documents`: the retrieved context
+- at least one of:
+  - `input`: the user question
+  - `output`: the model answer
+- `label`: the ground-truth class for the metric
+
+## Config shape
+
+Set:
+
+- `data_generation.metric.input_format: "rag"`
+- `data_generation.source_data.dataset.columns.features` to a subset of `["documents", "input", "output"]`
+- `generation.context_examples: 1`
+
+## Minimal end-to-end config
+
+```yaml
+run_steps:
+  - data_generation
+  - training
+
+pipeline_provider: "local"
+metric_name: "custom"
+
+data_generation:
+  metric:
+    name: "Context Adherence"
+    type: "binary"
+    input_format: "rag"
+    llmaj_source_prompt: "Determine whether the answer is consistent with the retrieved documents."
+  source_data:
+    dataset:
+      source_type: "huggingface"
+      huggingface:
+        name: "context_adherence_dataset"
+  generation:
+    context_examples: 1
+  output:
+    dataset:
+      repo_name: "context-adherence-training"
+
+training:
+  dataset:
+    name: "context-adherence-training"
+  prompt_template: |
+    Determine whether the answer is consistent with the retrieved documents.
+    Question:
+    {input}
+
+    Documents:
+    {documents}
+
+    Answer:
+    {output}
+
+    Respond with "true" or "false".
+  output:
+    model_name: "context-adherence-model"
+```

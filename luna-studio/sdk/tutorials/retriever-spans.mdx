@@ -1,0 +1,67 @@
+---
+title: Retriever spans
+description: Train a Luna metric that evaluates retrieval quality or document sufficiency.
+---
+
+{/* <!-- markdownlint-disable MD013 --> */}
+
+Use this tutorial when the metric is about the retrieved material itself, rather than about a final model answer. Context relevance is the main example of this pattern.
+
+## Dataset schema
+
+Typical columns:
+
+- `documents`: the retrieved documents
+- `input`: the user question or retrieval query
+- `label`: the ground-truth class for the metric
+
+## Config shape
+
+Retriever span tutorials normally use:
+
+- `data_generation.metric.input_format: "rag"`
+- `data_generation.source_data.dataset.columns.features: ["documents", "input"]`
+- `training.metric.type: "boolean"`
+
+## Minimal end-to-end config
+
+```yaml
+run_steps:
+  - data_generation
+  - training
+
+pipeline_provider: "local"
+metric_name: "custom"
+
+data_generation:
+  metric:
+    name: "Context Relevance"
+    type: "binary"
+    input_format: "rag"
+    llmaj_source_prompt: "Determine whether the retrieved documents are sufficient to answer the question."
+  source_data:
+    dataset:
+      source_type: "huggingface"
+      huggingface:
+        name: "context_relevance_dataset"
+  generation:
+    context_examples: 1
+  output:
+    dataset:
+      repo_name: "context-relevance-training-dataset"
+
+training:
+  dataset:
+    name: "context-relevance-training-dataset"
+  prompt_template: |
+    Determine whether the retrieved documents are sufficient to answer the question.
+    Question:
+    {input}
+
+    Documents:
+    {documents}
+
+    Respond with "true" or "false".
+  output:
+    model_name: "context-relevance-model"
+```

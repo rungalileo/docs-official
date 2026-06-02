@@ -1,0 +1,66 @@
+---
+title: List of Trace inputs / outputs only
+description: Model session-like metrics from repeated input/output pairs.
+---
+
+{/* <!-- markdownlint-disable MD013 --> */}
+
+Use this tutorial when your metric depends on a sequence of structured input/output pairs rather than a single span or a fully serialized trace.
+
+## Current support
+
+This is an advanced pattern in the current SDK. It is best treated as a custom workflow where you prepare the dataset into a stable multi-field representation before training.
+
+## Dataset schema
+
+Typical columns:
+
+- `input`: one structured view of the conversation or trace history
+- `output`: the corresponding assistant response or action summary
+- `label`: the ground-truth class for the metric
+
+## Config shape
+
+- `data_generation.metric.input_format: "tuple"`
+- `data_generation.source_data.dataset.columns.features: ["input", "output"]`
+
+## Minimal config
+
+```yaml
+run_steps:
+  - data_generation
+  - training
+
+pipeline_provider: "local"
+metric_name: "custom"
+
+data_generation:
+  metric:
+    name: "Conversation Quality"
+    type: "binary"
+    input_format: "tuple"
+    llmaj_source_prompt: "Check if the latest response is consistent with the conversation requirements."
+  source_data:
+    dataset:
+      source_type: "huggingface"
+      huggingface:
+        name: "conversation-quality-dataset"
+  output:
+    dataset:
+      repo_name: "conversation-quality-training-dataset"
+
+training:
+  dataset:
+    name: "conversation-quality-training-dataset"
+  prompt_template: |
+    Check if the latest response is consistent with the conversation requirements.
+    Input:
+    {input}
+
+    Output:
+    {output}
+
+    Respond with "true" or "false".
+  output:
+    model_name: "conversation-quality-model"
+```

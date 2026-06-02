@@ -1,0 +1,59 @@
+---
+title: Trace input / output only
+description: Train a trace-style Luna metric from a single serialized field.
+---
+
+Use this tutorial when the trace-level signal can be represented as one serialized field, typically stored in a single text column. Many safety and security style metrics fit this simplified trace pattern.
+
+## Dataset schema
+
+Typical columns:
+
+- `input`: the serialized trace or message text
+- `label`: the ground-truth class for the metric
+
+## Config shape
+
+Set:
+
+- `data_generation.metric.input_format: "single"`
+- `data_generation.source_data.dataset.columns.features: ["input"]`
+- `training.metric.type: "boolean"`
+
+## Minimal end-to-end config
+
+```yaml
+run_steps:
+  - data_generation
+  - training
+
+pipeline_provider: "local"
+metric_name: "custom"
+
+data_generation:
+  metric:
+    name: "Toxicity Detection"
+    type: "binary"
+    input_format: "single"
+    llmaj_source_prompt: "Determine whether the text is toxic or not."
+  source_data:
+    dataset:
+      source_type: "huggingface"
+      huggingface:
+        name: "toxicity_dataset"
+  output:
+    dataset:
+      repo_name: "toxicity-training-dataset"
+
+training:
+  dataset:
+    name: "toxicity-training-dataset"
+  prompt_template: |
+    Determine whether the text is toxic or not.
+    Text:
+    {input}
+
+    Respond with "true" or "false".
+  output:
+    model_name: "toxicity-model"
+```

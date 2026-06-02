@@ -1,0 +1,140 @@
+---
+title: Config file
+description: "Complete reference for the training section."
+---
+
+This page explains every field in the `training` section of the YAML config.
+
+> The SDK reads a single YAML file that contains both `data_generation` and `training`.
+> `run_training(config_path=...)` reads the `training` section from that file.
+
+## File format
+
+Your YAML file is a **run config** that includes top-level keys and a nested `training` section:
+
+```yaml
+run_steps: ["data_generation", "training"]
+pipeline_provider: "local"
+metric_name: "custom"
+
+training:
+  metric: {}
+  dataset: {}
+  prompt_template: ""
+  training: {}
+  output: {}
+  model: {}
+```
+
+## Configuration structure
+
+The `training` section has these parts:
+
+- `metric`: output type and class list (if multiclass)
+- `dataset`: where to load the dataset created by data generation
+- `prompt_template`: the exact format the model is trained to follow
+- `training`: hyperparameters and performance options
+- `output`: where to write artifacts + optional pushes (Hub/Luna Studio/object store)
+- `model`: base model + LoRA settings + model download options
+
+---
+
+## `metric`
+
+| Field            | Type                   | Required      | Default (base config) | Notes                                                                         |
+| ---------------- | ---------------------- | ------------- | --------------------- | ----------------------------------------------------------------------------- |
+| `metric.type`    | `string`               | Yes           | `""`                  | One of `boolean`, `multi_class`.                                              |
+| `metric.classes` | `list[string] \| null` | Conditionally | `[]`                  | Required when `type` is `multi_class`. Order defines the class index mapping. |
+
+---
+
+## `dataset`
+
+| Field                            | Type             | Required        | Default (base config)                    | Notes                                                                                 |
+| -------------------------------- | ---------------- | --------------- | ---------------------------------------- | ------------------------------------------------------------------------------------- |
+| `dataset.name`                   | `string`         | Yes             | `""`                                     | For Hub datasets: `org/repo`. For local: typically the generated dataset folder name. |
+| `dataset.split`                  | `string`         | Yes             | `"train"`                                | Training split.                                                                       |
+| `dataset.test_split_name`        | `string`         | Yes             | `"test"`                                 | Holdout split.                                                                        |
+| `dataset.train_label_column`     | `string`         | Yes             | `"label"`                                | Label column for training.                                                            |
+| `dataset.test_label_column`      | `string`         | Yes             | `"label"`                                | Label column for evaluation.                                                          |
+| `dataset.local`                  | `bool`           | Yes             | `false`                                  | When true, load from disk using `dataset.name` as a path-like identifier.             |
+| `dataset.local_path`             | `string`         | Yes             | `""`                                     | Base path where local datasets exist/extract to.                                      |
+| `dataset.pull_from_object_store` | `bool`           | No              | `false`                                  | Download dataset from object store before training.                                   |
+| `dataset.object_store_bucket`    | `string \| null` | If object store | `"${LUNA_OBJECT_STORE_BUCKET:-luna-ft}"` | Required when `pull_from_object_store` is true.                                       |
+| `dataset.object_store_blob`      | `string \| null` | If object store | `"generated_data"`                       | Required when `pull_from_object_store` is true.                                       |
+
+### Point training at the generated dataset
+
+`run_data_generation(...)` returns a dataset path/name. After generation completes, set:
+
+- `training.dataset.name` to that value, then run training.
+
+---
+
+## `prompt_template`
+
+`prompt_template` is required.
+
+- It must reference your dataset columns using `{variable}` placeholders.
+- For boolean metrics, the model should respond with `"true"` or `"false"`.
+- For multiclass metrics, the model should respond with a **single class-key token** (`"0"`, `"1"`, ...).
+
+Tip: your template variables are validated against dataset columns during preflight.
+
+---
+
+## `training` (hyperparameters)
+
+| Field                         | Type     | Required | Default (base config) |
+| ----------------------------- | -------- | -------- | --------------------- |
+| `num_train_epochs`            | `int`    | Yes      | `5`                   |
+| `per_device_train_batch_size` | `int`    | Yes      | `1`                   |
+| `gradient_accumulation_steps` | `int`    | Yes      | `8`                   |
+| `learning_rate_multiplier`    | `float`  | Yes      | `1.0`                 |
+| `max_seq_length`              | `int`    | Yes      | `4096`                |
+| `warmup_steps`                | `int`    | Yes      | `30`                  |
+| `weight_decay`                | `float`  | Yes      | `0.01`                |
+| `max_grad_norm`               | `float`  | Yes      | `1.0`                 |
+| `logging_steps`               | `int`    | Yes      | `40`                  |
+| `torch_compile`               | `bool`   | Yes      | `false`               |
+| `fp16`                        | `bool`   | Yes      | `false`               |
+| `bf16`                        | `bool`   | Yes      | `true`                |
+| `optim`                       | `string` | Yes      | `"adamw_8bit"`        |
+| `lr_scheduler_type`           | `string` | Yes      | `"linear"`            |
+| `seed`                        | `int`    | Yes      | `3407`                |
+| `use_wandb`                   | `bool`   | Yes      | `true`                |
+
+---
+
+## `output`
+
+| Field                         | Type             | Required        | Default (base config)                    | Notes                                                                              |
+| ----------------------------- | ---------------- | --------------- | ---------------------------------------- | ---------------------------------------------------------------------------------- |
+| `output.model_name`           | `string`         | Yes             | `""`                                     | Artifact folder name and (optionally) Hub model name.                              |
+| `output.local_path`           | `string`         | Yes             | `"data/"`                                | Root directory for artifacts.                                                      |
+| `output.push_to_hub`          | `bool`           | Yes             | `true`                                   | If true, pushes model artifacts to Hugging Face. Requires `HF_TOKEN` when enabled. |
+| `output.push_to_object_store` | `bool`           | No              | `false`                                  | Upload artifacts tarball to the configured object store.                           |
+| `output.object_store_bucket`  | `string \| null` | If object store | `"${LUNA_OBJECT_STORE_BUCKET:-luna-ft}"` | Required when `push_to_object_store` is true.                                      |
+| `output.object_store_blob`    | `string \| null` | If object store | `"finetuned_models"`                     | Required when `push_to_object_store` is true.                                      |
+
+### Environment variables for pushes
+
+- Hugging Face: `HF_TOKEN` (required when `push_to_hub: true`)
+- W&B: `WANDB_API_KEY` (optional; warning if missing when `use_wandb: true`)
+
+---
+
+## `model`
+
+| Field                                    | Type                 | Required        | Default (base config)                    | Notes                                                       |
+| ---------------------------------------- | -------------------- | --------------- | ---------------------------------------- | ----------------------------------------------------------- |
+| `model.name`                             | `string`             | Yes             | `"meta-llama/Llama-3.2-3B-Instruct"`     | Base model repo id.                                         |
+| `model.peft_model_map`                   | `map[string,string]` | No              | `{}`                                     | Map base-model → LoRA weights repo id.                      |
+| `model.use_unsloth_tokenizer`            | `bool`               | Yes             | `true`                                   | Use Unsloth tokenizer when available.                       |
+| `model.lora_r`                           | `int`                | Yes             | `16`                                     | LoRA rank.                                                  |
+| `model.lora_alpha`                       | `int`                | Yes             | `16`                                     | LoRA alpha.                                                 |
+| `model.pull_model_from_object_store`     | `bool`               | No              | `false`                                  | Download base model + adapters from object store.           |
+| `model.model_object_store_bucket`        | `string \| null`     | If object store | `"${LUNA_OBJECT_STORE_BUCKET:-luna-ft}"` | Required when `pull_model_from_object_store` is true.       |
+| `model.model_object_store_blob_base`     | `string \| null`     | If object store | `"base_models"`                          | Base model location.                                        |
+| `model.model_object_store_blob_adapters` | `string \| null`     | If object store | `"adapters"`                             | Adapters location.                                          |
+| `model.model_local_path`                 | `string \| null`     | No              | `""`                                     | Local directory for models (also used for local-only runs). |

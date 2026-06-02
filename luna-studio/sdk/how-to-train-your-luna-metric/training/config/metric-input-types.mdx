@@ -1,0 +1,237 @@
+---
+title: Metric Input Types
+description: Understanding the different input types of metrics supported by Luna Studio
+---
+
+{/* <!-- markdownlint-disable MD024 --> */}
+
+Luna metric inputs are grouped into three high-level categories: **Spans**, **Traces**, and **Sessions**.
+
+In the SDK, you set these using `metric.input_format`, your dataset columns, and the matching prompt template variables.
+
+## Spans
+
+### LLM spans without RAG
+
+Use `input_format: tuple` when your metric is built for a span-level task without retrieved document context. This is the common pattern when your prompt depends on multiple text fields such as `input` and `output`.
+
+#### Required dataset columns
+
+- Your training dataset must contain **2+** feature columns, for example `input` and `output`
+- The label column should contain the ground-truth class for the metric
+
+#### Required prompt template variables
+
+- Include one placeholder for each feature column used in training
+- Common examples: `{input}` and `{output}`
+
+Example:
+
+```yaml
+metric:
+  input_format: "tuple"
+
+training:
+  prompt_template: |
+    User input:
+    {input}
+
+    Model output:
+    {output}
+```
+
+Detailed Tutorial: [LLM spans without RAG](/luna-studio/sdk/tutorials/llm-spans-without-rag)
+
+### LLM spans with RAG
+
+Use `input_format: rag` when your metric depends on retrieved **documents** and optionally the user **input** and/or model **output**.
+
+#### Required dataset columns
+
+- Your dataset must include `documents`
+- It must also include at least one of `input` or `output`
+- The label column should contain the ground-truth class for the metric
+
+#### Required prompt template variables
+
+- Include placeholders matching the selected feature columns
+- Common examples: `{documents}`, `{input}`, `{output}`
+
+Example:
+
+```yaml
+metric:
+  input_format: "rag"
+
+training:
+  prompt_template: |
+    Question:
+    {input}
+
+    Retrieved documents:
+    {documents}
+
+    Answer:
+    {output}
+```
+
+#### RAG-specific constraints
+
+- `documents` should be included as context and not treated like a generated target field
+- Your prompt template should preserve the distinction between retrieved context and answer/input fields
+
+Detailed Tutorial: [LLM spans with RAG](/luna-studio/sdk/tutorials/llm-spans-with-rag)
+
+### LLM spans with tools (Agentic)
+
+Use `input_format: span_with_tools` when the metric depends on available tools, the user input, and the model output.
+
+#### Required dataset columns
+
+- Your dataset must contain exactly these feature columns: `tools`, `input`, `output`
+- The label column should contain the ground-truth class for the metric
+
+#### Required prompt template variables
+
+- Your prompt template must include `{tools}`, `{input}`, and `{output}`
+
+Example:
+
+```yaml
+metric:
+  input_format: "span_with_tools"
+
+training:
+  prompt_template: |
+    Available tools:
+    {tools}
+
+    Chat history:
+    {input}
+
+    Bot action:
+    {output}
+```
+
+Detailed Tutorial: [LLM spans with tools (Agentic)](/luna-studio/sdk/tutorials/llm-spans-with-tools-agentic)
+
+### Retriever spans
+
+#### Required dataset columns
+
+Use `input_format: rag` for retriever spans. For example: `context_relevance`
+
+- `features` must contain: `documents` column and either one of `input` / `output`
+- The label column should contain the ground-truth class for the metric
+
+#### Required prompt template variables
+
+- Use placeholders that match the selected feature columns
+- Typical retriever examples include `{documents}` with `{input}` and/or `{output}`
+
+Detailed Tutorial: [Retriever spans](/luna-studio/sdk/tutorials/retriever-spans)
+
+## Traces
+
+Trace-based metrics are grouped into two conceptual categories in Luna Studio.
+
+### Trace input / output only
+
+Use `input_format: single` when the trace-level metric is represented by a single serialized field for training. Most of the security metrics fall under this category. For example: `toxicity`, `sexism`, `prompt_injection`
+
+#### Required dataset columns
+
+- Your dataset must contain exactly one feature column, commonly something like `input`
+- The label column should contain the ground-truth class for the metric
+
+#### Required prompt template variables
+
+- Include the placeholder for that single feature column
+- Common example: `{input}`
+
+Detailed Tutorials: [Using a preset metric](/luna-studio/sdk/tutorials/preset-metric) and [Custom example](/luna-studio/sdk/tutorials/trace-input-output-only)
+
+### Full traces
+
+Full trace inputs are supported in the SDK as `metric.input_format: trace`. For Example: `action_advancement`
+
+#### Required dataset columns
+
+- The exact training representation depends on how the trace is serialized into your dataset, but a common one can be `chat_history` and `response`
+- Your dataset must still provide the feature column(s) referenced by the prompt template plus the ground-truth label column
+
+#### Required prompt template variables
+
+- Include placeholders for whichever serialized trace fields are present in your dataset
+
+Example:
+
+```yaml
+metric:
+  input_format: "trace"
+
+training:
+  prompt_template: |
+    Available tools:
+    {tools}
+
+    Chat history:
+    {chat_history}
+
+    Bot action:
+    {response}
+```
+
+Detailed Tutorial: [Full traces](/luna-studio/sdk/tutorials/full-traces)
+
+## Sessions
+
+Session-based metrics follow the same high-level split as traces.
+
+### List of Trace inputs / outputs only
+
+Use `input_format: tuple` when the session-level metric is represented as multiple structured fields for training. For example: `conversation_quality`
+
+#### Required dataset columns
+
+- Your dataset must contain **2+** feature columns
+- The label column should contain the ground-truth class for the metric
+
+#### Required prompt template variables
+
+- Include one placeholder per feature column
+- Common examples: `{input}` and `{output}`
+
+Detailed Tutorial: [List of Trace inputs / outputs only](/luna-studio/sdk/tutorials/list-of-trace-inputs-outputs-only)
+
+### Full Sessions
+
+Full session-based metrics are supported in the SDK as `metric.input_format: session`.
+
+#### Required dataset columns
+
+- The exact training representation depends on how the full session is serialized into your dataset
+
+#### Required prompt template variables
+
+- Include placeholders for whichever serialized session fields are present in your dataset
+
+Example:
+
+```yaml
+metric:
+  input_format: "session"
+
+training:
+  prompt_template: |
+    Available tools:
+    {tools}
+
+    Chat history:
+    {chat_history}
+
+    Bot action:
+    {response}
+```
+
+Detailed Tutorial: [Full Sessions](/luna-studio/sdk/tutorials/full-sessions)
