@@ -30,7 +30,7 @@ training:
 
 The `training` section has these parts:
 
-- `metric`: output type and class list (if multiclass)
+- `metric`: output type and class list (if multi-class)
 - `dataset`: where to load the dataset created by data generation
 - `prompt_template`: the exact format the model is trained to follow
 - `training`: hyperparameters and performance options
@@ -77,7 +77,7 @@ The `training` section has these parts:
 
 - It must reference your dataset columns using `{variable}` placeholders.
 - For boolean metrics, the model should respond with `"true"` or `"false"`.
-- For multiclass metrics, the model should respond with a **single class-key token** (`"0"`, `"1"`, ...).
+- For multi-class metrics, the model should respond with a **single class-key token** (`"0"`, `"1"`, ...).
 
 Tip: your template variables are validated against dataset columns during preflight.
 
@@ -130,7 +130,7 @@ Tip: your template variables are validated against dataset columns during prefli
 | ---------------------------------------- | -------------------- | --------------- | ---------------------------------------- | ----------------------------------------------------------- |
 | `model.name`                             | `string`             | Yes             | `"meta-llama/Llama-3.2-3B-Instruct"`     | Base model repo id.                                         |
 | `model.peft_model_map`                   | `map[string,string]` | No              | `{}`                                     | Map base-model → LoRA weights repo id.                      |
-| `model.use_unsloth_tokenizer`            | `bool`               | Yes             | `true`                                   | Use Unsloth tokenizer when available.                       |
+| `model.use_unsloth_tokenizer`            | `bool`               | Yes             | `true`                                   | Use Unsloth Tokenizer when available.                       |
 | `model.lora_r`                           | `int`                | Yes             | `16`                                     | LoRA rank.                                                  |
 | `model.lora_alpha`                       | `int`                | Yes             | `16`                                     | LoRA alpha.                                                 |
 | `model.pull_model_from_object_store`     | `bool`               | No              | `false`                                  | Download base model + adapters from object store.           |
