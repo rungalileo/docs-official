@@ -1,0 +1,50 @@
+---
+title: Run Labelling only
+description: Label an existing training dataset using your metric definition.
+---
+
+## When to use this flow
+
+Use labelling-only mode when you already have training examples, but they are not labelled for the metric you want to train.
+
+This flow uses your LLM-as-a-Judge prompt to label the dataset you already have. It does not generate new synthetic examples.
+
+## What changes in the config
+
+To enable this flow, set:
+
+- `labelling.label_only_mode: true`
+- `metric.llmaj_source_prompt` to the prompt used for judging / labeling
+
+If you are using Huggingface input, your dataset should contain a `train` split
+
+If you are using CSV input, you must also set:
+
+- `source_data.dataset.csv.train_file_path`
+
+## Minimal example
+
+```yaml
+data_generation:
+  metric:
+    llmaj_source_prompt: |
+      ...
+  source_data:
+    dataset:
+      source_type: "csv"
+      csv:
+        file_path: "./test.csv"
+        train_file_path: "./train.csv"
+      columns:
+        features: ["input"]
+        label: "label"
+  labelling:
+    enabled: false
+    label_only_mode: true
+```
+
+## What happens next
+
+After labeling completes, continue to the training step using the labeled dataset.
+
+Next: [Training overview](/luna-studio/sdk/how-to-train-your-luna-metric/training/overview)

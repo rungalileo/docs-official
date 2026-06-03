@@ -1,0 +1,64 @@
+---
+title: Metric Output Types
+description: Understanding the different output types of metrics supported by Luna Studio
+---
+
+## Boolean
+
+Use **Boolean** when your metric output is a binary decision (e.g., “toxic or not”, “adherent or not”).
+
+Set:
+
+- `training.metric.type: "boolean"`
+
+- Your dataset label column should be a binary value.
+- The training/evaluation pipeline converts labels to the correct target token.
+
+Example:
+
+```yaml
+training:
+  metric:
+    type: "boolean"
+  prompt_template: |
+    Message:
+    {input}
+
+    Respond with "true" or "false".
+```
+
+## Categorical (multi-class)
+
+Use **multi-class** when exactly one class should be selected for each example.
+
+Set:
+
+- `training.metric.type: "multi_class"`
+- `training.metric.classes`: ordered list of class names
+
+The model is trained to output a **single class key token** (string index): `"0"`, `"1"`, … corresponding to your `classes` ordering.
+
+Example:
+
+```yaml
+training:
+  metric:
+    type: "multi_class"
+    classes: ["neutral", "positive", "negative"]
+  prompt_template: |
+    {input}
+
+    Respond with the class key like "0", "1", or "2".
+```
+
+- Your dataset labels should be one of the class names (e.g. `"joy"`)
+- The pipeline maps those to integer indices using `training.metric.classes`
+
+## Not Supported
+
+These output types are not currently supported by the Luna Studio -
+
+- Count
+- Discrete
+- Percentage
+- Multilabel
