@@ -1,0 +1,94 @@
+---
+title: "Luna Studio SDK"
+description: "Use the Luna Studio SDK to generate data, fine-tune custom Luna metrics, and deploy them to Galileo."
+---
+
+The Luna Studio SDK gives you a code-first workflow for building custom Luna metrics. You can generate or label training data, fine-tune a Luna metric, evaluate the results, and register the trained metric in Galileo.
+
+## What you can do
+
+<CardGroup cols={2}>
+  <Card title="Install the SDK" icon="download" href="/luna-studio/sdk/installation">
+    Set up the Python package and optional extras for your LLM provider and deployment environment.
+  </Card>
+  <Card title="Train a Luna metric" icon="sparkles" href="/luna-studio/sdk/how-to-train-your-luna-metric/overview">
+    Follow the end-to-end workflow for preparing data, configuring the pipeline, and fine-tuning your metric.
+  </Card>
+  <Card title="Deploy to Galileo" icon="rocket" href="/luna-studio/sdk/deployment/overview">
+    Register a trained Luna metric so it can be used across the Galileo platform.
+  </Card>
+  <Card title="Browse tutorials" icon="book-open" href="/luna-studio/sdk/tutorials/overview">
+    Pick a hands-on guide for your metric input shape, including spans, traces, and sessions.
+  </Card>
+</CardGroup>
+
+## Minimal example
+
+Copy this sample config to a YAML file called `config.yaml`:
+
+```yaml
+run_steps:
+  - data_generation
+  - training
+
+pipeline_provider: "local"
+metric_name: "custom"
+
+pipeline:
+  pipeline_name: "galileo-luna-ft-sample-run"
+
+data_generation:
+  metric:
+    name: off_topic_detection
+    description:
+    type: binary
+    input_format: single
+    llmaj_source_prompt: "Detect if the user query is off-topic."
+  source_data:
+    dataset:
+      source_type: "huggingface"
+      huggingface:
+        name: "rungalileo/off-topic-sample"
+  generation:
+    total_examples: 50
+  output:
+    push_to_hub: false
+    local_path: "./data/generated_data"
+    dataset:
+      repo_name: off-topic-sample-training
+  data_quality_metrics:
+    enabled: false
+
+training:
+  metric:
+    type: boolean
+  dataset:
+    name: off-topic-sample-training
+    local: true
+    local_path: "./data/generated_data"
+  prompt_template:
+  output:
+    model_name: "off-topic-detection-galileo-luna-ft"
+    push_to_hub: false
+    local_path: finetuned_models
+  training:
+    num_train_epochs: 1
+    use_wandb: false
+```
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/luna-studio/sdk/installation">
+    Install the package and choose the right optional extras.
+  </Card>
+  <Card title="How to train your Luna metric" icon="gear" href="/luna-studio/sdk/how-to-train-your-luna-metric/overview">
+    Understand the full workflow for data generation and training.
+  </Card>
+  <Card title="Deployment" icon="upload" href="/luna-studio/sdk/deployment/overview">
+    Learn how to register the trained model in Galileo.
+  </Card>
+  <Card title="Tutorials" icon="list" href="/luna-studio/sdk/tutorials/overview">
+    Jump straight to an example that matches your input shape.
+  </Card>
+</CardGroup>

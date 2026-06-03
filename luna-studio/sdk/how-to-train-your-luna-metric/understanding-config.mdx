@@ -1,0 +1,110 @@
+---
+title: Understanding Config
+description: Understand the high-level structure of the run config file.
+---
+
+This page explains the high-level structure of the YAML run config used by Luna Studio.
+
+> The SDK reads a single YAML file that contains both `data_generation` and `training` settings.
+> You typically run one or both of these steps from the same config:
+>
+> - `run_data_generation(config_path=...)`
+> - `run_training(config_path=...)`
+
+## Run config structure
+
+Your YAML file controls the overall workflow and includes top-level keys plus nested `data_generation` and `training` sections:
+
+```yaml
+run_steps: ["data_generation", "training"]
+pipeline_provider: "local"
+metric_name: "custom"
+
+data_generation: ...
+
+training: ...
+```
+
+## Top-level fields
+
+### `run_steps`
+
+`run_steps` controls which parts of the workflow run.
+
+Valid values are:
+
+- `data_generation`
+- `training`
+
+Common patterns:
+
+- `["data_generation", "training"]`: run the full end-to-end workflow
+- `["data_generation"]`: generate or label data only
+- `["training"]`: skip data generation and train from an existing labelled dataset
+
+### `pipeline_provider`
+
+`pipeline_provider` controls where the workflow runs.
+
+This selects the execution backend for your run. Since you are using the SDK, you can fix this to "local".
+
+### `metric_name`
+
+`metric_name` selects the packaged metric config to use for the run.
+
+Supported values include:
+
+- `action_advancement`
+- `action_completion`
+- `context_adherence`
+- `context_relevance`
+- `prompt_injection`
+- `sexism`
+- `tone`
+- `tool_error_rate`
+- `tool_selection_quality`
+- `toxicity`
+- `custom`
+
+Preset metrics provide a starting configuration for common Luna metrics. Use `custom` when your metric does not match one of the packaged presets.
+
+Preset metric example: [Using a preset metric](/luna-studio/sdk/tutorials/preset-metric)
+
+#### Using `custom`
+
+Set `metric_name: "custom"` when you want to define your own metric behavior.
+
+With `custom`, you are expected to define the metric explicitly in your config, including:
+
+- `data_generation.metric.name`
+- `data_generation.metric.description`
+- `data_generation.metric.type`
+- `data_generation.metric.input_format`
+- `data_generation.metric.class_labels` or `data_generation.metric.llmaj_source_prompt`
+- `data_generation.source_data.dataset.columns.features`
+- `training.prompt_template`
+
+The packaged `custom` template starts as a binary setup, uses `boolean` training output. You should update those values to match your use case.
+
+Custom metric example: [Trace input / output only](/luna-studio/sdk/tutorials/trace-input-output-only)
+
+---
+
+## Nested config sections
+
+### `data_generation`
+
+The `data_generation` section controls how source data is loaded, how synthetic or labelled examples are produced, and where the resulting dataset is written.
+
+### `training`
+
+The `training` section controls how the model is fine-tuned, evaluated, and where training artifacts are saved.
+
+---
+
+## Next steps
+
+For full field-by-field reference, continue to:
+
+- [Data generation config](/luna-studio/sdk/how-to-train-your-luna-metric/data-generation/config/config)
+- [Training config](/luna-studio/sdk/how-to-train-your-luna-metric/training/config/config)

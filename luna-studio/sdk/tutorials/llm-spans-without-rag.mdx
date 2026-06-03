@@ -1,0 +1,61 @@
+---
+title: LLM spans without RAG
+description: Build a span-level Luna metric from multi-field examples without retrieved documents.
+---
+
+Use this tutorial when your metric depends on multiple text fields, but not on retrieved document context. A common example is instruction-following style evaluation where the model sees both an `input` and an `output`.
+
+## Dataset schema
+
+Typical columns:
+
+- `input`: the source prompt, instruction, or user message
+- `output`: the model response or candidate answer
+- `label`: the ground-truth class for the metric
+
+## Config shape
+
+Use a span-style config with:
+
+- `data_generation.metric.input_format: "tuple"`
+- `data_generation.source_data.dataset.columns.features: ["input", "output"]`
+- `training.metric.type: "boolean"` for binary metrics
+
+## Minimal end-to-end config
+
+```yaml
+run_steps:
+  - data_generation
+  - training
+
+pipeline_provider: "local"
+metric_name: "custom"
+
+data_generation:
+  metric:
+    name: "Instruction Adherence"
+    type: "binary"
+    input_format: "tuple"
+    llmaj_source_prompt: "Check if the response is consistent with the instructions."
+  source_data:
+    dataset:
+      source_type: "huggingface"
+      huggingface:
+        name: "instruction_adherence_dataset"
+  output:
+    dataset:
+      repo_name: "instruction-adherence-training"
+
+training:
+  dataset:
+    name: "instruction-adherence-training"
+  prompt_template: |
+    Check if the response is consistent with the instructions.
+
+    Input: {input}
+    Response: {output}
+
+    Respond with "true" or "false".
+  output:
+    model_name: "instruction-adherence-model"
+```

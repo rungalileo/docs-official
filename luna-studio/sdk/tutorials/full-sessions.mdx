@@ -1,0 +1,53 @@
+---
+title: Full Sessions
+description: Work with full session-level Luna metrics across multi-turn conversations.
+---
+
+Use this tutorial when the metric depends on the full multi-turn session, not just one span or a simplified trace view.
+
+## Current support
+
+In the current SDK, full sessions are advanced workflows:
+
+- use `metric.input_format: "session"`
+- typically run with `label_only_mode`
+- are not part of the normal synthetic data generation path
+
+## Minimal config
+
+```yaml
+run_steps:
+  - data_generation
+  - training
+
+pipeline_provider: "local"
+metric_name: "custom"
+
+data_generation:
+  metric:
+    name: "Action Completion"
+    type: "binary"
+    input_format: "session"
+    llmaj_source_prompt: "Determine whether the action is advancement or not."
+  source_data:
+    dataset:
+      source_type: "huggingface"
+      huggingface:
+        name: "action-completion-dataset"
+  labelling:
+    label_only_mode: true
+  output:
+    dataset:
+      repo_name: "action-completion-labelled"
+  training:
+    dataset:
+      name: "action-completion-labelled"
+    prompt_template: |
+      Determine whether the action is advancement or not.
+      Session:
+      {input}
+
+      Respond with "true" or "false".
+    output:
+      model_name: "action-completion-model"
+```

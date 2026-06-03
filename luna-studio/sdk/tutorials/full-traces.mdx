@@ -1,0 +1,53 @@
+---
+title: Full traces
+description: Work with full trace-level Luna metrics in advanced or label-only workflows.
+---
+
+Use this tutorial when the full trace is the metric input, not just a simplified input/output view. These metrics usually evaluate the complete workflow or full reasoning/action trace.
+
+## Current support
+
+In the current SDK, full traces are advanced workflows:
+
+- use `metric.input_format: "trace"`
+- run in `label_only_mode`
+- are not part of the standard synthetic data generation path
+
+## Minimal config
+
+```yaml
+run_steps:
+  - data_generation
+  - training
+
+pipeline_provider: "local"
+metric_name: "custom"
+
+data_generation:
+  metric:
+    name: "Action Advancement"
+    type: "binary"
+    input_format: "trace"
+    llmaj_source_prompt: "Determine whether the action is advancement or not."
+  source_data:
+    dataset:
+      source_type: "huggingface"
+      huggingface:
+        name: "action_advancement_dataset"
+  labelling:
+    label_only_mode: true
+  output:
+    dataset:
+      repo_name: "action-advancement-labelled"
+  training:
+    dataset:
+      name: "action-advancement-labelled"
+    prompt_template: |
+      Determine whether the action is advancement or not.
+      Trace:
+      {input}
+
+      Respond with "true" or "false".
+    output:
+      model_name: "action-advancement-model"
+```

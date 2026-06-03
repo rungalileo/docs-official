@@ -1,0 +1,177 @@
+---
+title: Config file
+description: "Complete reference for the data generation section of the config."
+---
+
+This page explains every field in the `data_generation` section of the YAML config.
+
+> The SDK reads a single YAML file that contains both `data_generation` and `training`.
+> You typically run:
+>
+> - `run_data_generation(config_path=...)`
+> - `run_training(config_path=...)`
+
+## File format
+
+Your YAML file is a **run config** that includes top-level keys and a nested `data_generation` section:
+
+```yaml
+run_steps: ["data_generation", "training"]
+pipeline_provider: "local"
+metric_name: "custom"
+
+data_generation:
+  # described below
+  metric: {}
+  source_data: {}
+  llm: {}
+  generation: {}
+  output: {}
+  labelling: {}
+  data_quality_metrics: {}
+```
+
+## Configuration structure
+
+The `data_generation` section has six parts:
+
+- `metric`: what you’re generating data for (classes, rubrics, input format)
+- `source_data`: the seed dataset (CSV or Hugging Face) + sampling
+- `llm`: the primary LLM used for generation
+- `generation`: how many examples to generate, distribution, concurrency
+- `output`: where the generated dataset is written/published
+- `labelling` + `data_quality_metrics`: optional steps
+
+---
+
+## `metric`
+
+Defines the classification metric you are generating data for.
+
+| Field                        | Type                        | Required      | Default | Notes                                                                                           |
+| ---------------------------- | --------------------------- | ------------- | ------- | ----------------------------------------------------------------------------------------------- |
+| `metric.name`                | `string`                    | Yes           | —       | Metric name used in prompts and artifacts.                                                      |
+| `metric.description`         | `string \| null`            | Conditionally | `null`  | Required when `llmaj_source_prompt` is empty.                                                   |
+| `metric.type`                | `string`                    | Yes           | —       | One of `binary`, `multi-class`.                                                                 |
+| `metric.input_format`        | `string`                    | Yes           | —       | One of `single`, `tuple`, `rag`.                                                                |
+| `metric.class_labels`        | `list[class_label] \| null` | Conditionally | `null`  | Required when `llmaj_source_prompt` is empty.                                                   |
+| `metric.llmaj_source_prompt` | `string \| null`            | No            | `null`  | If set, description + class labels may be extracted automatically. We recommend you to set this |
+
+### `metric.class_label`
+
+| Field    | Type                    | Required      | Notes                                                 |
+| -------- | ----------------------- | ------------- | ----------------------------------------------------- |
+| `name`   | `string`                | Yes           | Human-readable label name (e.g. `positive`).          |
+| `label`  | `int \| string \| bool` | Yes           | The label value used in your dataset. Must be unique. |
+| `rubric` | `string`                | Conditionally | Required when `llmaj_source_prompt` is empty.         |
+
+---
+
+## `source_data`
+
+Defines where seed examples come from and how they’re sampled.
+
+### `source_data.dataset`
+
+| Field                  | Type           | Required | Default                 | Notes                                                        |
+| ---------------------- | -------------- | -------- | ----------------------- | ------------------------------------------------------------ |
+| `source_type`          | `string`       | Yes      | —                       | `huggingface` or `csv`.                                      |
+| `columns.features`     | `list[string]` | Yes      | —                       | Feature column names. Rules depend on `metric.input_format`. |
+| `columns.label`        | `string`       | Yes\*    | `"label"` (base config) | Required unless `labelling.label_only_mode` is true.         |
+| `huggingface.name`     | `string`       | If HF    | —                       | Dataset name like `org/repo`.                                |
+| `huggingface.split`    | `string`       | If HF    | —                       | Split name (e.g. `train`, `test`).                           |
+| `huggingface.revision` | `string`       | No       | `""`                    | Optional Git revision/branch.                                |
+| `csv.file_path`        | `string`       | If CSV   | —                       | Path to a CSV file on disk.                                  |
+| `csv.train_file_path`  | `string`       | No       | `""`                    | Used for label-only workflows.                               |
+
+### `source_data.sampling`
+
+| Field                               | Type        | Required | Default (base config) | Notes                                                         |
+| ----------------------------------- | ----------- | -------- | --------------------- | ------------------------------------------------------------- |
+| `enhancement_fraction`              | `float`     | Yes      | `0.2`                 | Must be between 0 and 1 (exclusive).                          |
+| `max_enhancement_samples_per_class` | `int`       | Yes      | `50000`               | Upper bound for seed examples per class.                      |
+| `include_enhancement_in_train`      | `bool`      | Yes      | `true`                | If true, seed examples are included in the final train split. |
+| `seed`                              | `int`       | Yes      | `42`                  | Controls sampling reproducibility.                            |
+| `pinned_enhancement_row_ids`        | `list[int]` | No       | `[]`                  | Force-include specific rows in the seed set.                  |
+
+---
+
+## `llm`
+
+Primary LLM used for generation.
+
+| Field             | Type     | Required | Default (base config)      | Notes                                        |
+| ----------------- | -------- | -------- | -------------------------- | -------------------------------------------- |
+| `provider`        | `string` | Yes      | `"openai"`                 | One of `openai`, `azure`, `vegas`, `gemini`. |
+| `model`           | `string` | Yes      | `"gpt-4.1"`                | Provider model identifier.                   |
+| `embedding_model` | `string` | Yes      | `"text-embedding-3-small"` | Used for optional quality metrics.           |
+
+---
+
+## `generation`
+
+Controls how many examples you generate and how fast.
+
+| Field                                  | Type                | Required | Default (base config) | Notes                                                                                  |
+| -------------------------------------- | ------------------- | -------- | --------------------- | -------------------------------------------------------------------------------------- |
+| `context_examples`                     | `int`               | Yes      | `5`                   | Number of seed examples placed in the prompt per call. For `rag`, must be `1`.         |
+| `examples_per_call`                    | `int`               | Yes      | `10`                  | Examples requested per LLM call.                                                       |
+| `total_examples`                       | `int`               | Yes      | `2000`                | Total synthetic examples across all classes.                                           |
+| `label_distribution`                   | `map[string,float]` | Yes      | `{}`                  | Empty means auto-infer from the holdout/test split; otherwise keys should sum to ~1.0. |
+| `async_config.max_concurrent_requests` | `int`               | Yes      | `5`                   | Concurrency.                                                                           |
+| `debug_save_prompts`                   | `bool`              | No       | `false`               | Save prompts/responses for debugging.                                                  |
+| `special_instructions`                 | `string \| null`    | No       | `null`                | Extra guidance appended to prompts.                                                    |
+| `llm_provider`                         | `string \| null`    | No       | `null`                | Optional override; must be set together with `llm_model`.                              |
+| `llm_model`                            | `string \| null`    | No       | `null`                | Optional override; must be set together with `llm_provider`.                           |
+
+---
+
+## `output`
+
+Controls where the generated dataset goes.
+
+| Field                  | Type             | Required        | Default (base config)                    | Notes                                                                |
+| ---------------------- | ---------------- | --------------- | ---------------------------------------- | -------------------------------------------------------------------- |
+| `push_to_hub`          | `bool`           | Yes             | `true`                                   | Push to Hugging Face Hub.                                            |
+| `push_to_object_store` | `bool`           | No              | `false`                                  | Upload a compressed dataset artifact to the configured object store. |
+| `local_path`           | `string`         | Yes             | `"./data/generated_data"`                | Local artifact directory.                                            |
+| `object_store_bucket`  | `string \| null` | If object store | `"${LUNA_OBJECT_STORE_BUCKET:-luna-ft}"` | Required when `push_to_object_store` is true.                        |
+| `object_store_blob`    | `string \| null` | If object store | `"generated_data"`                       | Required when `push_to_object_store` is true.                        |
+| `dataset.repo_name`    | `string`         | Yes             | —                                        | Local folder name and/or hub repo name.                              |
+| `dataset.private`      | `bool`           | Yes             | `true`                                   | Hub visibility.                                                      |
+| `dataset.splits.train` | `string`         | Yes             | `"train"`                                | Output split name for training data.                                 |
+| `dataset.splits.test`  | `string`         | Yes             | `"test"`                                 | Output split name for holdout/test data.                             |
+| `hub.organization`     | `string`         | Yes             | `"rungalileo"`                           | Required if `push_to_hub` is true.                                   |
+
+---
+
+## `labelling`
+
+Optional: run LLM-as-a-judge labeling workflows. If enabled, `metric.llmaj_source_prompt` is required.
+
+| Field             | Type   | Required | Default | Notes                                                         |
+| ----------------- | ------ | -------- | ------- | ------------------------------------------------------------- |
+| `enabled`         | `bool` | No       | `false` | Enables labeling.                                             |
+| `label_only_mode` | `bool` | No       | `false` | Label an existing train file without generating new examples. |
+
+---
+
+## `data_quality_metrics`
+
+Optional: compute UMAP and drift-based diagnostics.
+
+| Field                      | Type     | Required | Default (base config)    | Notes                             |
+| -------------------------- | -------- | -------- | ------------------------ | --------------------------------- |
+| `enabled`                  | `bool`   | No       | `true`                   | Master switch.                    |
+| `random_seed`              | `int`    | No       | `42`                     | Reproducibility.                  |
+| `artifact_subdir`          | `string` | No       | `"artifacts"`            | Folder under `output.local_path`. |
+| `umap.enabled`             | `bool`   | No       | `false`                  | Enable UMAP projections.          |
+| `umap.mode`                | `string` | No       | `"holdout_anchor"`       | `joint` or `holdout_anchor`.      |
+| `umap.umap_neighbors`      | `int`    | No       | `15`                     | Neighbor count for UMAP.          |
+| `umap.umap_min_dist`       | `float`  | No       | `0.1`                    | Minimum distance for UMAP.        |
+| `drift.enabled`            | `bool`   | No       | `true`                   | Enable drift scoring.             |
+| `drift.k_neighbors`        | `int`    | No       | `30`                     | k-NN size.                        |
+| `drift.drift_threshold`    | `float`  | No       | `0.95`                   | Percentile threshold in [0,1].    |
+| `drift.index_dir`          | `string` | No       | `"/tmp/faiss"`           | Directory for the FAISS index.    |
+| `drift.output_filename`    | `string` | No       | `"drift_scores.parquet"` | Output file for drift scores.     |
+| `drift.sort_by_score_desc` | `bool`   | No       | `true`                   | Sort drift results descending.    |

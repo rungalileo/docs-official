@@ -1,0 +1,186 @@
+---
+title: Metric Input Types
+description: Understanding the different input types of metrics supported by Luna Studio
+---
+
+Luna metric inputs are grouped into three high-level categories: **Spans**, **Traces**, and **Sessions**.
+
+In the SDK, you set these using `metric.input_format` and the matching dataset columns.
+
+## Spans
+
+### LLM spans without RAG
+
+Use `input_format: tuple` when your metric is built for a span level, without retrieved document context. For example: `instruction_adherence`
+
+Required dataset columns:
+
+- `source_data.dataset.columns.features`: a list with **2+** column names (for example `["input", "output"]`)
+- `source_data.dataset.columns.label`: your label column name (for example `"label"`)
+
+Example:
+
+```yaml
+metric:
+  input_format: "tuple"
+
+source_data:
+  dataset:
+    columns:
+      features: ["input", "output"]
+      label: "label"
+```
+
+Generated examples format:
+
+Generated data items are objects (`dicts`) with exactly the requested fields, for example:
+
+```json
+{ "input": "...", "output": "..." }
+```
+
+Detailed Tutorial: [LLM spans without RAG](/luna-studio/sdk/tutorials/llm-spans-without-rag)
+
+### LLM spans with RAG
+
+Use `input_format: rag` when your metric depends on retrieved **documents** and optionally the user **input** and/or model **output**. For example: `context_adherence`
+
+Required dataset columns:
+
+- `source_data.dataset.columns.features` must be a list that:
+  - includes `documents`
+  - includes at least one of `input` or `output`
+- `source_data.dataset.columns.label`: your label column name (for example `"label"`)
+
+Example:
+
+```yaml
+metric:
+  input_format: "rag"
+
+source_data:
+  dataset:
+    columns:
+      features: ["documents", "input", "output"]
+      label: "label"
+```
+
+RAG-specific constraints:
+
+- `generation.context_examples` must be **exactly 1**
+- `features` can only contain: `documents`, `input`, `output`
+
+Generated examples format:
+
+Generated items include only the generation targets (a subset of `input`, `output`). `documents` is reused from the context example and is not regenerated.
+
+Detailed Tutorial: [LLM spans with RAG](/luna-studio/sdk/tutorials/llm-spans-with-rag)
+
+### LLM spans with tools (Agentic)
+
+Use `input_format: span_with_tools` when the metric depends on tool context in addition to the user input and model output. For example: `tool_selection_quality`
+
+Required dataset columns:
+
+- `source_data.dataset.columns.features` must be exactly `["tools", "input", "output"]`
+- `source_data.dataset.columns.label`: your label column name (for example `"label"`)
+
+Additional constraint:
+
+- `generation.context_examples` must be **exactly 1**
+
+Detailed Tutorial: [LLM spans with tools (Agentic)](/luna-studio/sdk/tutorials/llm-spans-with-tools-agentic)
+
+### Retriever spans
+
+Use `input_format: rag` for retriever spans. For example: `context_relevance`
+
+- `features` must contain: `documents` column and optionally `input` / `output`
+
+Detailed Tutorial: [Retriever spans](/luna-studio/sdk/tutorials/retriever-spans)
+
+## Traces
+
+Trace based metrics are split into 2 categories:
+
+### Trace input / output only
+
+Use `input_format: single` for this type of input. Most of the security metrics fall under this category. For example: `toxicity`, `sexism`, `prompt_injection`
+
+Required dataset columns:
+
+- `source_data.dataset.columns.features`: a list with **1+** column names (for example `["input"]`)
+- `source_data.dataset.columns.label`: your label column name (for example `"label"`)
+
+Example:
+
+```yaml
+metric:
+  input_format: "single"
+
+source_data:
+  dataset:
+    columns:
+      features: ["input"]
+      label: "label"
+```
+
+Generated examples format:
+
+Generated data items are objects (`dicts`) with exactly the requested fields, for example:
+
+```json
+{ "input": "..." }
+```
+
+Detailed Tutorials: [Using a preset metric](/luna-studio/sdk/tutorials/preset-metric) and [Custom example](/luna-studio/sdk/tutorials/trace-input-output-only)
+
+### Full traces
+
+Today, full trace inputs are intended for `label_only_mode` workflows or for cases where you skip synthetic data generation and proceed directly to training. They are not supported for normal synthetic data generation.
+You can use `input_format: trace` for this type of input.
+
+Detailed Tutorial: [Full traces](/luna-studio/sdk/tutorials/full-traces)
+
+## Sessions
+
+Like Trace based metrics, Session level metrics are also split into 2 categories:
+
+### List of Trace inputs / outputs only
+
+Use `input_format: tuple` for this type of input. For example: `conversation_quality`
+
+Required dataset columns:
+
+- `source_data.dataset.columns.features`: a list with **2+** column names (for example `["input", "output"]`)
+- `source_data.dataset.columns.label`: your label column name (for example `"label"`)
+
+Example:
+
+```yaml
+metric:
+  input_format: "tuple"
+
+source_data:
+  dataset:
+    columns:
+      features: ["input", "output"]
+      label: "label"
+```
+
+Generated examples format:
+
+Generated data items are objects (`dicts`) with exactly the requested fields, for example:
+
+```json
+{ "input": "...", "output": "..." }
+```
+
+Detailed Tutorial: [List of Trace inputs / outputs only](/luna-studio/sdk/tutorials/list-of-trace-inputs-outputs-only)
+
+### Full Sessions
+
+Full Session-based metrics are supported in the SDK as `metric.input_format: session`.
+Like trace inputs, session inputs are currently intended for `label_only_mode` workflows or for cases where you skip synthetic data generation and proceed directly to training. They are not supported for normal synthetic data generation.
+
+Detailed Tutorial: [Full Sessions](/luna-studio/sdk/tutorials/full-sessions)

@@ -1,0 +1,59 @@
+---
+title: Overview
+description: "Fine-tune a Luna metric from a labelled dataset."
+---
+
+Training is the final step before your Luna metric is ready.
+
+You run it using:
+
+```python
+from galileo_luna_ft.training import run_training
+
+training_stats = run_training(config_path="./config.yaml")
+```
+
+## Inputs Required
+
+1. Config
+2. Labelled dataset
+3. GPU / training environment
+
+## What it does
+
+1. Reads your `training` config section
+2. Loads the labelled dataset
+3. Fine-tunes a LoRA adapter for your Luna metric
+4. Evaluates baseline vs fine-tuned performance
+5. Writes model artifacts locally and/or to configured destinations
+
+## Key concepts
+
+- **Metric type**: `boolean` or `multi_class` ([Read More](/luna-studio/sdk/how-to-train-your-luna-metric/training/config/metric-output-types))
+- **Prompt template**: defines the target response format for the model
+- **Model configuration**: base model plus LoRA settings
+
+## Output artifacts
+
+Artifacts are written under:
+
+`{training.output.local_path}/{training.output.model_name}/`
+
+Common outputs include:
+
+- model + Tokenizer files
+- `prompt_template.txt`
+- `training_metrics.json`
+- `plots/`
+
+See [Output artifacts](/luna-studio/sdk/how-to-train-your-luna-metric/training/output-artifacts) for more detail.
+
+## Evaluate a trained Luna Metric
+
+After training, you can run evaluation again on a different test set.
+
+See [Evaluate](/luna-studio/sdk/how-to-train-your-luna-metric/training/evaluate).
+
+## Next: configure training
+
+See the detailed [Training config reference](/luna-studio/sdk/how-to-train-your-luna-metric/training/config/config).

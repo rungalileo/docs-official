@@ -1,0 +1,59 @@
+---
+title: LLM spans with tools (Agentic)
+description: Train a Luna metric that evaluates tool-aware assistant behavior.
+---
+
+{/* <!-- markdownlint-disable MD013 MD037--> */}
+
+Use this tutorial when your metric depends on the available tools, the chat history, and the assistant action or response. This is the standard pattern for agentic tool-use metrics.
+
+## Dataset schema
+
+Required columns:
+
+- `tools`: the available tool definitions or tool context
+- `input`: the chat history or user context
+- `output`: the assistant action or response
+- `label`: the ground-truth class for the metric
+
+## Config shape
+
+Set:
+
+- `data_generation.metric.input_format: "span_with_tools"`
+- `data_generation.source_data.dataset.columns.features: ["tools", "input", "output"]`
+- `generation.context_examples: 1`
+
+## Minimal end-to-end config
+
+```yaml
+run_steps:
+  - data_generation
+  - training
+
+pipeline_provider: "local"
+metric_name: "custom"
+
+data_generation:
+  metric:
+    name: "Tool Selection Quality"
+    type: "binary"
+    input_format: "span_with_tools"
+    llmaj_source_prompt: "Determine whether the bot's tool selection decision follows proper guidelines given the chat history and available tools."
+  source_data:
+    dataset:
+      source_type: "huggingface"
+      huggingface:
+        name: "tool-selection-quality-dataset"
+  generation:
+    context_examples: 1
+  output:
+    dataset:
+      repo_name: "tool-selection-quality-training-dataset"
+
+training:
+  dataset:
+    name: "tool-selection-quality-training-dataset"
+  output:
+    model_name: "tool-selection-quality-model"
+```

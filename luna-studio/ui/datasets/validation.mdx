@@ -1,0 +1,87 @@
+---
+title: "Dataset validation"
+description: "Schema and content checks Luna Studio runs on every dataset, and how to fix common errors."
+---
+
+Every dataset added to Luna Studio — uploaded, fetched, generated, or imported — goes through validation. Validation determines whether the dataset can be used in a run.
+
+## States
+
+Validation has four possible end states:
+
+| State                         | Meaning                                                                                 |
+| ----------------------------- | --------------------------------------------------------------------------------------- |
+| Validating…                   | In progress. Usually completes within a few seconds.                                    |
+| Validated                     | Ready to use.                                                                           |
+| Validated with warnings       | Usable, but Luna noticed something worth checking (e.g. mixed casing, partial UTF-8).   |
+| Validation error: `{message}` | Unusable until fixed. The dataset is saved in your org but can't be selected for a run. |
+
+The state appears in the run creation flow when Luna Studio checks a selected dataset:
+
+- The Selected dataset card in [Step 2](/luna-studio/ui/runs/new-run/step-2-test-set) and [Step 3](/luna-studio/ui/runs/new-run/step-3-training-set) of the run creation flow.
+
+## What Luna checks
+
+### Schema checks
+
+- The file parses as CSV or JSONL.
+- Required columns are present:
+  - **Test sets** — metric-specific feature columns and `label`.
+  - **Training sets** — metric-specific feature columns and `label` when the dataset is already labelled.
+- Column types match the metric's [output type](/luna-studio/ui/core-concepts#metrics) (e.g. labels are parseable as Boolean for a Boolean metric).
+
+### Content checks
+
+- File encoding (UTF-8 expected).
+- Row count > 0.
+- Empty rows are flagged as warnings.
+- Inputs that exceed the model's max token limit are flagged.
+
+### File checks (uploads and URLs)
+
+- File size within the upload limit.
+- For URLs: the URL is reachable; the response content type is appropriate.
+
+## Common errors
+
+| Error message                                  | Cause                                                                 | Fix                                                                                                           |
+| ---------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `Missing column "label" in uploaded CSV.`      | Test set or labelled training set without a `label` column.           | Add the column to your file and re-upload. For unlabelled training logs, use the label-only flow from Step 3. |
+| `Missing column "input" in uploaded CSV.`      | Required `input` column missing.                                      | Rename your input column to `input`, or include one.                                                          |
+| `Could not fetch URL.`                         | The URL was unreachable, returned a non-2xx status, or required auth. | Check the URL is correct; for cloud URLs, confirm the relevant integration has access.                        |
+| `Unsupported file type.`                       | The file isn't `.csv` or `.jsonl`.                                    | Convert the file to one of the supported formats.                                                             |
+| `Empty dataset.`                               | The file parsed but had zero data rows.                               | Confirm the file isn't header-only.                                                                           |
+| `Label values don't match metric output type.` | Labels can't be parsed as the metric's expected type.                 | Re-check labels (e.g. for Boolean: only `true`/`false` or `1`/`0`).                                           |
+
+## Common warnings
+
+| Warning                                         | Cause                                    | Action                                                                                  |
+| ----------------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------- |
+| `Mixed casing in labels.`                       | Labels like `True` and `true` are mixed. | Normalize case in your file. Luna will still validate but may produce a noisier metric. |
+| `Some rows exceed the model's max token limit.` | Long inputs that will be truncated.      | Either trim the rows or accept the truncation.                                          |
+| `Detected non-UTF-8 characters.`                | The file isn't pure UTF-8.               | Re-export the file as UTF-8.                                                            |
+
+## Unlabelled training logs
+
+If uploaded or imported training logs are missing labels, Luna Studio does not train on them directly. It opens the label-only generation flow, uses the selected metric prompt to create labels, and saves a labelled training dataset.
+
+Generated training sets are always labelled.
+
+## When validation fails mid-run
+
+If a dataset that was previously **Validated** later fails (e.g. the originating Galileo dataset changed), the run that consumed it can fail with a validation error. See [Run failed](/luna-studio/ui/reference/troubleshooting#run-failed).
+
+## Re-validating
+
+Luna validates a dataset once at add-time and once per run launch. There's no manual "re-validate" button — to re-check a dataset, re-add it (or fetch the URL again).
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Add a dataset" icon="upload" href="/luna-studio/ui/datasets/add-a-dataset">
+    Walk through the three sources.
+  </Card>
+  <Card title="Troubleshooting" icon="bug" href="/luna-studio/ui/reference/troubleshooting">
+    Run-time failures and how to recover.
+  </Card>
+</CardGroup>

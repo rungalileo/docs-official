@@ -1,0 +1,60 @@
+---
+title: "Overview"
+description: "End-to-end guide for generating data and training your Luna metric with the Luna Studio SDK."
+---
+
+This section walks through the full Luna Studio SDK workflow for creating and training a custom Luna metric.
+
+## Start with prerequisites
+
+Before running the pipeline, make sure you have:
+
+- A high-quality human-labelled test set
+- A reliable LLM-as-a-judge prompt for your metric
+- The environment and extras required for your chosen providers
+
+Start here: [Prerequisites](/luna-studio/sdk/how-to-train-your-luna-metric/prerequisites)
+
+## The end-to-end workflow
+
+Creating a Luna metric with the SDK happens in two stages:
+
+1. **Data generation** creates or labels the training dataset for your metric.
+2. **Training** fine-tunes a LoRA adapter on the prepared dataset.
+
+Both stages are configured in the same YAML file under the `data_generation` and `training` sections.
+
+## Choose your starting point
+
+<CardGroup cols={3}>
+  <Card title="Start from a test set" icon="flask" href="/luna-studio/sdk/how-to-train-your-luna-metric/data-generation/overview">
+    Generate synthetic labelled training data when you only have a high-quality labelled test set.
+  </Card>
+  <Card title="Label existing training data" icon="tags" href="/luna-studio/sdk/how-to-train-your-luna-metric/data-generation/run-labelling-only">
+    Use label-only mode when you already have raw training data but still need labels.
+  </Card>
+  <Card title="Train from a labelled dataset" icon="cpu" href="/luna-studio/sdk/how-to-train-your-luna-metric/training/overview">
+    Skip data generation and go straight to fine-tuning when your labelled dataset is already ready.
+  </Card>
+</CardGroup>
+
+## Hardware requirements
+
+### Data generation
+
+Data generation is CPU-friendly. The main requirement is access to the LLM provider you want to use for synthetic example generation and labeling.
+
+### Training
+
+Training requires a GPU. We recommend an H100 for production runs. For larger jobs, use a managed training environment when needed.
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Data generation" icon="database" href="/luna-studio/sdk/how-to-train-your-luna-metric/data-generation/overview">
+    Create or label the dataset you need before training.
+  </Card>
+  <Card title="Training" icon="sparkles" href="/luna-studio/sdk/how-to-train-your-luna-metric/training/overview">
+    Fine-tune the metric and inspect the resulting artifacts.
+  </Card>
+</CardGroup>

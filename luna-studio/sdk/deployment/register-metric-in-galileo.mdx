@@ -1,0 +1,89 @@
+---
+title: Register metric in Galileo
+description: Register your trained metric in the Galileo platform.
+---
+
+This workflow requires network access to Galileo APIs. If you get an access denied error or cannot reach the Galileo endpoints, talk to your DevOps or Galileo administrator before proceeding.
+
+## Prerequisites
+
+Set these environment variables:
+
+- `GALILEO_API_URL`
+- `GALILEO_API_KEY`
+
+## Steps to register a metric in Galileo
+
+There are two steps to register a metric in Galileo:
+
+### 1. Upload LoRA weights
+
+Use the SDK helper to upload your fine-tuned LoRA artifacts to Galileo via the Galileo API:
+
+```python
+from galileo_luna_ft.common import upload_finetuned_model_weights
+
+upload_response = upload_finetuned_model_weights(
+    lora_files_path="/path/to/lora/artifacts",
+)
+
+weights_path = upload_response["lora_weights_path"]
+lora_task_id = upload_response["lora_task_id"]
+```
+
+`upload_finetuned_model_weights(...)` reads `GALILEO_API_URL` and `GALILEO_API_KEY` from the environment, requests upload URLs from Galileo, uploads the required LoRA files from `lora_files_path`, and returns both the resolved `lora_task_id` and the Galileo-side `lora_weights_path`.
+
+If you do not provide `lora_task_id`, the SDK automatically picks the first free task id at or above `lora_task_id_min`.
+
+The directory passed in `lora_files_path` should contain:
+
+- `model.lora_weights.npy`
+- `model.lora_config.npy`
+- `adapter_config.json`
+- `adapter_model.safetensors`
+
+### 2. Register the metric in Galileo
+
+Once your weights are uploaded and you have the returned `weights_path`, register (or reuse) a scorer and
+create a new Luna scorer version using the SDK:
+
+```python
+from galileo_luna_ft.common.schemas import LunaInputTypeEnum, LunaOutputTypeEnum
+from galileo_luna_ft.common import (
+    register_metric_to_galileo,
+    upload_finetuned_model_weights,
+)
+
+upload_response = upload_finetuned_model_weights(
+    lora_files_path="/path/to/lora/artifacts",
+)
+
+register_metric_to_galileo(
+    metric_name="my_metric_name",
+    prompt_template="Your prompt template using {input}/{output} placeholders",
+    luna_input_type=LunaInputTypeEnum.SPAN,
+    luna_output_type=LunaOutputTypeEnum.FLOAT,
+    lora_task_id=upload_response["lora_task_id"],
+    weights_path=upload_response["lora_weights_path"],
+)
+```
+
+### How to set the upload arguments
+
+- `lora_task_id` [optional]: provide this only if you want to force a specific LoRA task id. If omitted, the SDK auto-selects one for you.
+- `lora_task_id_min` [optional]: minimum LoRA task id to consider when auto-picking. In most cases, leave the default.
+- `lora_files_path`: the local directory that contains the LoRA artifact files produced by training.
+- `timeout_seconds` [optional]: request timeout used for the prepare-upload call and the file uploads. In most cases, the default is fine.
+
+### How to set the registration arguments
+
+- `metric_name`: the name of the scorer in Galileo. Use a stable, human-readable metric name.
+- `prompt_template`: the prompt template used for the metric. Make sure to use the same template shape you trained with. It is also available in the output artifact of the training run.
+- `luna_input_type`: the Galileo Luna input type enum that matches the metric input shape. Available options are: `span`, `trace_object`, `trace_input_output_only`.
+- `luna_output_type`: the Galileo Luna output type enum that matches the metric output shape. Available options are: `float` (for boolean metrics), `string` (for categorical metrics).
+- `lora_task_id`: the LoRA task id associated with the uploaded fine-tuned weights. Pass the `lora_task_id` returned by `upload_finetuned_model_weights(...)`.
+- `weights_path`: the Galileo-side storage path returned by `upload_finetuned_model_weights(...)`. Pass the `lora_weights_path` value from the upload response.
+
+## Use the registered metric
+
+After registration, the metric becomes available inside Galileo (UI / API) as a Luna scorer.

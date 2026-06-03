@@ -1,0 +1,44 @@
+---
+title: Overview
+description: "Generate a labeled training dataset for your metric."
+---
+
+Data generation produces / labels the training dataset for your Luna metric.
+
+You run it using:
+
+```python
+from galileo_luna_ft.data_generation import run_data_generation
+
+training_dataset_path = run_data_generation(config_path="./config.yaml")
+```
+
+## Inputs Required
+
+1. Config
+2. Dataset
+3. LLM provider integration
+
+## What it does
+
+1. Reads your `data_generation` config section
+2. Loads the source dataset (CSV or Hugging Face)
+3. Consumes a small portion of your test set to create synthetic training data (defaults to 20%, can be configured with `source_data.sampling.enhancement_fraction`)
+4. Generates synthetic examples using your configured LLM
+5. Writes a dataset artifact locally and/or pushes to Hugging Face (depending on `output.push_to_hub`)
+
+## Key concepts
+
+- **Metric type**: `binary` or `multi-class` ([Read More](/luna-studio/sdk/how-to-train-your-luna-metric/data-generation/config/metric-output-types))
+- **Input format**: `single`, `tuple`, or `rag` ([Read More](/luna-studio/sdk/how-to-train-your-luna-metric/data-generation/config/metric-input-types))
+
+## Output Dataset
+
+The output dataset here has 2 splits -
+
+- Train: The training data for the Luna metric
+- Test: Your original test set minus the consumed portion (defaults to 80% of your original test set)
+
+The output dataset is saved as a Huggingface formatted dataset.
+
+Next: see the detailed [Config file](/luna-studio/sdk/how-to-train-your-luna-metric/data-generation/config/config).
