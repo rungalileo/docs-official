@@ -1,0 +1,96 @@
+---
+title: Monitor a control
+description:  Learn how to use the **Controls View** to monitor controls and the **Traces** tab to investigate how a control executed in a trace.
+
+---
+
+## Overview
+
+This tutorial will guide you through how to monitor and investigate [controls](https://docs.agentcontrol.dev/concepts/controls) in Galileo. By the end of this guide, you'll know how to monitor the real-time control activity of all log streams or drill down to understand how a control executed in a specific trace in a log stream.
+
+## Prerequisites
+
+This tutorial assumes that you have completed the following procedures:
+
+1. [Install the dependencies for Agent Control](/concepts/agent-control/overview)
+2. [Create a control](/how-to-guides/agent-control/create-a-control)
+3. [Initialize and configure Agent Control](/how-to-guides/agent-control/initialize-and-configure-agent-control)
+
+## Monitor controls using charts in the Controls View
+
+<steps>
+<step title="Open the log stream in the Galileo console">
+    Navigate to your console and select your log stream from the main menu. 
+</step>
+
+<step title="Navigate to the Controls View">
+    Select the **Trends** tab. Select **Default View**, then select **Controls View** from the drop-down menu.
+</step>
+
+<step title="Use the Controls charts to monitor real-time control activity across all agents">
+    ![Agent Control charts](/images/agent-control/agent-control-charts.png)
+
+    You can use the following charts to verify controls are working, spot patterns that need tuning, and audit which controls triggered on which agent. Use the settings above the charts to update or filter the charts based on time range, groups of controls, or specific controls.
+
+    * **Activity trend**: The number of controls that executed in the selected time range, including deleted controls.
+    * **Actions distribution**: The distribution of actions that resulted when a control executed over the selected time range. When the evaluator detects that a query matches your control criteria, it directs your agent to perform one of the following actions: 
+        * `deny`: The agent blocks the request.
+        * `steer`: The agent modifies or redirects its behavior based on the instructions defined in the steering context of your control configuration. This action can include exception handling.
+        * `observe`: The agent executes the request. Depending on your control criteria, the agent may also log the request or raise a warning. This umbrella action includes the `allow`, `log`, and `warn` actions.
+    * **Match rate**: The number of controls that matched or did not match a query over the selected time range. A match occurs when the evaluator's confidence score meets or exceeds the threshold set in your control configuration.
+    * **Check stages**: The number of controls that executed in the `pre` or `post` mode. See [Scope](https://docs.agentcontrol.dev/concepts/controls#1-scope-when-to-check) for more information on these modes.
+    * **Applies to**: The number of executed controls that were configured for LLMs or tools.
+    
+</step>
+</steps>
+
+## Investigate how a control executed in a trace from the Traces tab
+
+<steps>
+<step title="Open the log stream in the Galileo console">
+    Navigate to your console and select your log stream from the main menu. The **Traces** tab displays by default. 
+</step>
+
+<step title="Navigate to the Messages view and drill down into a span">
+    Select a trace from the table to navigate to the **Messages** view. Select a control span, identified by the shield icon before the name of the span, to drill down for more information.
+</step>
+
+<step title="Use the Controls tab to investigate how the control executed">
+    ![Controls tab in the span detail view](/images/agent-control/agent-control-span-controls-tab.png)
+
+    The **Controls** tab displays more information about the control that was triggered for the span. You can use this tab to view the evaluator name, whether the request matched the control criteria, and the confidence level of the match.
+    
+    Select **View control** to navigate to the configuration page for the control clone attached to the log stream.
+
+</step>
+</steps>
+
+## Investigate how a control executed in a trace from the Spans tab
+
+<steps>
+<step title="Open the log stream in the Galileo console">
+    Navigate to your console and select your log stream from the main menu. The **Traces** tab displays by default. 
+</step>
+
+<step title="Navigate to the Spans tab">
+    Select the **Spans** tab.
+</step>
+
+<step title="Navigate to the Messages view">
+    Select a span from the table.
+</step>
+
+<step title="Navigate to the Spans tab">
+    Select the **Spans** tab.
+</step>
+
+<step title="Use the Controls tab to investigate how the control executed">
+    ![Controls tab for a span](/images/agent-control/agent-control-span-controls-tab.png)
+
+    The **Controls** tab displays more information about the control that was triggered for the span. You can use this tab to view the evaluator name, whether the request matched the control criteria, and the confidence level of the match.
+    
+    Select **View control** to navigate to the configuration page for the control clone attached to the log stream.
+
+</step>
+
+</steps>
