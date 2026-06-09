@@ -1,0 +1,139 @@
+---
+title: Initialize and configure Agent Control
+description: Learn how to set up Agent Control.
+
+---
+
+{/* <!-- markdownlint-disable MD037 MD013 --> */}
+
+## Overview
+
+This tutorial will guide you through initializing the Galileo Logger and Agent Control SDK, running your agent with the Galileo Logger, and decorating your LLM and tool calls. By the end of this guide, you'll be ready to start monitoring your controls.
+
+## Before you begin
+
+This tutorial assumes you have completed the following procedures:
+
+1. [Install the dependencies for Agent Control](/concepts/agent-control/overview)
+2. [Create a control](/how-to-guides/agent-control/create-a-control)
+
+## Steps
+
+<Steps>
+
+<Step title="Set the required environment variables">
+
+```bash
+export GALILEO_API_KEY="<your-galileo-api-key>"
+
+export GALILEO_CONSOLE_URL="https://console.<env>.galileo.ai"
+export GALILEO_API_URL="https://api.<env>.galileo.ai"
+
+export GALILEO_PROJECT="<project-name>"
+export GALILEO_LOG_STREAM="<logstream-name>"
+
+export AGENT_CONTROL_URL="https://agent-control.<env>.galileo.ai"
+export AGENT_CONTROL_TARGET_TYPE="log_stream"
+export AGENT_CONTROL_AGENT_NAME="default"
+export AGENT_CONTROL_API_KEY_HEADER="Galileo-API-Key"
+```
+
+</Step>
+
+<Step title="Initialize the Galileo Logger and the Agent Control SDK">
+
+Use the [Galileo Logger](https://docs.galileo.ai/sdk-api/logging/galileo-logger) around the agent run to write traces, spans, and control spans to the configured project and Log stream. The exact logger API may differ depending on your SDK version. You must initialize Galileo with the same project and Log stream that you plan to create controls for.
+
+The following example shows how to initialize the Galileo Logger.
+
+Note that:
+
+- The value for `target_id` should be `logger.log_stream_id`, not the Log stream name. The logger resolves the human-readable project and Log stream names to IDs, and Agent Control uses that resolved `log_stream_id` to fetch the controls bound in the console.
+- You must use the same API key unless your deployment has a separate Agent Control key. The key must be valid for your targeted Galileo environment.
+
+```python
+import os
+from uuid import uuid4
+
+import agent_control
+from galileo.logger.logger import GalileoLogger
+
+
+def init_galileo_and_agent_control() -> GalileoLogger:
+    # These names must match the project/Log stream where controls are bound.
+    project_name = os.environ["GALILEO_PROJECT"]
+    log_stream_name = os.environ["GALILEO_LOG_STREAM"]
+
+    logger = GalileoLogger(
+        project=project_name,
+        log_stream=log_stream_name,
+        mode=os.environ.get("GALILEO_LOGGER_MODE", "batch"),
+    )
+
+    logger.start_session(
+        name=os.environ.get("GALILEO_SESSION_NAME", "agent-control-demo"),
+        external_id=f"agent-control-demo-{uuid4()}",
+        metadata={"source": "agent-control-demo"},
+    )
+
+    if logger.project_id is None or logger.log_stream_id is None:
+        raise RuntimeError("Galileo logger did not resolve project/Log stream IDs.")
+
+    # Useful for downstream SDK integrations/debugging.
+    os.environ["GALILEO_PROJECT_ID"] = logger.project_id
+    os.environ["GALILEO_LOG_STREAM_ID"] = logger.log_stream_id
+
+    agent_control.init(
+        agent_name=os.environ.get("AGENT_CONTROL_AGENT_NAME", "my-agent"),
+        agent_description="Agent Control app with Galileo logging",
+        server_url=os.environ["AGENT_CONTROL_URL"],
+        api_key=os.environ["GALILEO_API_KEY"],
+        api_key_header=os.environ.get("AGENT_CONTROL_API_KEY_HEADER", "Galileo-API-Key"),
+        observability_enabled=True,
+        observability_sink_name="registered",
+
+        # Controls are usually bound to the Galileo Log stream.
+        target_type=os.environ.get("AGENT_CONTROL_TARGET_TYPE", "log_stream"),
+        target_id=logger.log_stream_id,
+    )
+
+    return logger
+```
+
+</Step>
+
+<Step title="Run your agent with the Galileo Logger">
+
+```python
+logger = init_galileo_and_agent_control()
+
+trace = logger.start_trace(
+    name="my-agent-run",
+    input={"user_request": "Wire $15,000 to Horizon Robotics."},
+)
+
+try:
+    # Run your decorated agent Steps here.
+    result = run_agent()
+finally:
+    logger.conclude(output={"result": result})
+    logger.flush()
+```
+
+</Step>
+
+<Step title="Decorate your LLM and tool calls">
+
+Wrap LLM and tool Steps with the SDK decorator so controls can evaluate the right Steps.
+
+```python
+@control
+```
+
+</Step>
+
+</Steps>
+
+## Next steps
+
+Learn how to monitor controls using the **Controls View** and investigate how a control executed using the **Traces** tab. See [Monitor a control](/how-to-guides/agent-control/monitor-a-control).
