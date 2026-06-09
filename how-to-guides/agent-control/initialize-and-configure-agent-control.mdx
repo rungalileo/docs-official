@@ -19,9 +19,9 @@ This tutorial assumes you have completed the following procedures:
 
 ## Steps
 
-<steps>
+<Steps>
 
-<step title="Set the required environment variables">
+<Step title="Set the required environment variables">
 
 ```bash
 export GALILEO_API_KEY="<your-galileo-api-key>"
@@ -38,9 +38,9 @@ export AGENT_CONTROL_AGENT_NAME="default"
 export AGENT_CONTROL_API_KEY_HEADER="Galileo-API-Key"
 ```
 
-</step>
+</Step>
 
-<step title="Initialize the Galileo Logger and the Agent Control SDK">
+<Step title="Initialize the Galileo Logger and the Agent Control SDK">
 
 Use the [Galileo Logger](https://docs.galileo.ai/sdk-api/logging/galileo-logger) around the agent run to write traces, spans, and control spans to the configured project and Log stream. The exact logger API may differ depending on your SDK version. You must initialize Galileo with the same project and Log stream that you plan to create controls for.
 
@@ -100,9 +100,9 @@ def init_galileo_and_agent_control() -> GalileoLogger:
     return logger
 ```
 
-</step>
+</Step>
 
-<step title="Run your agent with the Galileo Logger">
+<Step title="Run your agent with the Galileo Logger">
 
 ```python
 logger = init_galileo_and_agent_control()
@@ -113,27 +113,27 @@ trace = logger.start_trace(
 )
 
 try:
-    # Run your decorated agent steps here.
+    # Run your decorated agent Steps here.
     result = run_agent()
 finally:
     logger.conclude(output={"result": result})
     logger.flush()
 ```
 
-</step>
+</Step>
 
-<step title="Decorate your LLM and tool calls">
+<Step title="Decorate your LLM and tool calls">
 
-Wrap LLM and tool steps with the SDK decorator so controls can evaluate the right steps.
+Wrap LLM and tool Steps with the SDK decorator so controls can evaluate the right Steps.
 
 ```python
 @control
 ```
 
-</step>
+</Step>
 
-</steps>
+</Steps>
 
-## Next steps
+## Next Steps
 
 Learn how to monitor controls using the **Controls View** and investigate how a control executed using the **Traces** tab. See [Monitor a control](/how-to-guides/agent-control/monitor-a-control).
