@@ -124,11 +124,22 @@ finally:
 
 <Step title="Decorate your LLM and tool calls">
 
-Wrap LLM and tool Steps with the SDK decorator so controls can evaluate the right Steps.
+Wrap LLM and tool Steps with the SDK decorator so controls can evaluate the right Steps. Use `@control()` on the function that performs the LLM call.
 
 ```python
-@control
+from agent_control import control
+
+
+@control()
+async def call_llm(message: str) -> str:
+    response = client.chat.completions.create(
+        model="gpt-4.1",
+        messages=[{"role": "user", "content": message}],
+    )
+    return response.choices[0].message.content
 ```
+
+For tool call examples and more details about decorating Steps, see [Decorate LLM and tool calls](https://docs.agentcontrol.dev/how-to/decorate-llm-tool-calls).
 
 </Step>
 
