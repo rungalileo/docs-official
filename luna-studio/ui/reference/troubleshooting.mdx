@@ -41,37 +41,16 @@ Validation passes when adding the integration but runs fail with provider auth e
 | Wrong region (Azure / AWS) | Confirm the resource is in the region you specified.                                                              |
 | Insufficient quota         | Check your provider's quota dashboard. Some providers return 429 instead of 401.                                  |
 
-### Vertex AI: GCS uploads fail
-
-You enabled **Support file uploads** but uploads to your bucket fail.
-
-| Likely cause                      | Fix                                                                          |
-| --------------------------------- | ---------------------------------------------------------------------------- |
-| Service account lacks permissions | Grant `Storage Object Creator` (or higher) on the bucket.                    |
-| Wrong object path prefix          | Defaults to `galileo-uploads`. Make sure the prefix matches your IAM policy. |
-| Bucket name typo                  | Bucket names are case-sensitive in some setups. Double-check.                |
-
-### AWS: Assumed role fails
-
-You picked **Assumed Roles** but Luna Studio can't assume the role.
-
-| Likely cause         | Fix                                                                                                                 |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Trust policy missing | Add Galileo's account principal to the role's trust relationship. (See AWS docs from the integration modal footer.) |
-| External ID mismatch | If you set an external ID, confirm it matches what Luna Studio sends.                                               |
-| Wrong region         | The role must exist in the region you specified.                                                                    |
-
 ## Datasets
 
 ### Validation error: "Missing column"
 
 You see `Missing column "label"` (or `"input"`) after adding a dataset.
 
-| Likely cause                 | Fix                                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------------------- |
-| Column not in CSV/JSONL      | Add the column to the file and re-add the dataset.                                    |
-| Column named differently     | Rename to the literal `input` and `label` keys — Luna doesn't auto-detect.            |
-| Training logs are unlabelled | Use **Add training logs** in Step 3. Luna Studio will label the logs before training. |
+| Likely cause             | Fix                                                                        |
+| ------------------------ | -------------------------------------------------------------------------- |
+| Column not in CSV/JSONL  | Add the column to the file and re-add the dataset.                         |
+| Column named differently | Rename to the literal `input` and `label` keys — Luna doesn't auto-detect. |
 
 ### Validation error: "Could not fetch URL"
 
@@ -92,17 +71,6 @@ You ran **Generate from test set** and the samples are repetitive, off-topic, or
 | Test set seeds aren't representative | Add more diverse rows to the test set, then regenerate.                          |
 | Generation model too small           | Switch to a larger available model from one of your configured providers.        |
 | Metric prompt is ambiguous           | Clarify the prompt; click **Regenerate** with the "Provide own feedback" reason. |
-
-## Runs
-
-### Run failed
-
-| Failure reason                     | What to do                                                                         |
-| ---------------------------------- | ---------------------------------------------------------------------------------- |
-| Out-of-memory on base model        | Switch to **Luna Small**, or shrink the training set (regenerate with fewer rows). |
-| Training failed after N epochs     | Often a transient compute issue. Re-launch with the same config.                   |
-| Provider error (during generation) | Re-check the integration that backs the generation model. Re-launch.               |
-| Validation error on linked dataset | The dataset changed since launch (Galileo source updated). Re-add and re-launch.   |
 
 ### Register metric fails with duplicate name
 

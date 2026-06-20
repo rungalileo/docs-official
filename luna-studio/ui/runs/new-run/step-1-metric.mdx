@@ -36,13 +36,52 @@ For metrics that don't fit a template, click the dropdown's **Use custom prompt*
 
 In custom mode, you fill in:
 
-| Field       | Notes                                                                |
-| ----------- | -------------------------------------------------------------------- |
-| Name        | Optional display name for the custom metric.                         |
-| Output type | Pick one of Boolean / Categorical                                    |
-| Step        | Pick LLM span / Retriever / Agent span / Trace.                      |
-| Input step  | Pick Single message / Input-output pair / Full trace / Full session. |
-| Prompt      | The LLM-as-judge prompt [required].                                  |
+| Field       | Required | Notes                                                                                   |
+| ----------- | -------- | --------------------------------------------------------------------------------------- |
+| Metric name | No       | Optional display name. If blank, Luna Studio derives one from the run context.          |
+| Output type | Yes      | The trainable return shape: Boolean or Categorical.                                     |
+| Step        | Yes      | The trace step the metric runs against: LLM span, Retriever, Agent span, Trace.         |
+| Input step  | Yes      | Training input shape: Single message, Input / output pair, Full trace, or Full session. |
+| Modality    | No       | Read-only. Fixed to **Text** today.                                                     |
+| Prompt      | Yes      | The LLM-as-judge prompt. Required.                                                      |
+
+## Output types in detail
+
+| Output type | When to use                                                             |
+| ----------- | ----------------------------------------------------------------------- |
+| Boolean     | Yes/no questions ("Is this toxic?", "Does the answer cite a source?").  |
+| Categorical | Picking one of a fixed list (e.g. `positive` / `neutral` / `negative`). |
+
+Other Galileo output types are not trainable in Luna Studio yet. The output type also constrains what label values your test set can use during validation. See [Test sets](/luna-studio/ui/datasets/test-sets#required-schema).
+
+## Steps in detail
+
+| Step       | Where it fires                                                 |
+| ---------- | -------------------------------------------------------------- |
+| LLM span   | A single LLM call inside a trace. The default and most common. |
+| Retriever  | A retrieval step (e.g. evaluating chunk relevance).            |
+| Agent span | A single agent step inside a trace.                            |
+| Trace      | The full trace — input, intermediate steps, and final output.  |
+
+The right step depends on what your metric needs to see. For "is the final answer toxic?" use LLM span or Trace. For "are retrieved chunks relevant?" use Retriever.
+
+## Input steps
+
+| Input step          | When to use                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------- |
+| Single message      | One text input per row. Used for trace input / output metrics like the safety metrics |
+| Input / output pair | Rows that include both the prompt/input and model output.                             |
+| Full trace          | Trace-level metrics that need the full request flow.                                  |
+| Full session        | Session-level metrics that need multiple related traces.                              |
+
+<Note>Note: Full trace and full session inputs require user-supplied training data; synthetic generation is disabled for those shapes.</Note>
+
+## Prompt-writing tips
+
+- **Be specific.** Define exactly what counts as a positive vs negative result.
+- **Give examples.** One or two short examples per outcome class is plenty.
+- **Constrain the output.** End the prompt with something like "Respond with only `true` or `false`." for Boolean metrics.
+- **Avoid open scales.** "Score 1–10" is harder for an LLM judge to keep consistent than a binary or 3-class categorical.
 
 <Tip>
   **Pro tip:** For best results, we recommend first creating your metric in the Galileo console and using the **Autotune** feature to test and refine it on a labelled test dataset. This helps you optimize the metric’s performance before
@@ -55,7 +94,7 @@ In custom mode, you fill in:
   <Card title="Step 2 — Test set" icon="database" href="/luna-studio/ui/runs/new-run/step-2-test-set">
     Pick the labelled dataset Luna evaluates against.
   </Card>
-  <Card title="Custom metrics" icon="code" href="/luna-studio/ui/metrics/custom-metrics">
-    Reference for output types, steps, and prompt-writing tips.
+  <Card title="Test sets" icon="database" href="/luna-studio/ui/datasets/test-sets">
+    Schema rules and best practices for evaluation data.
   </Card>
 </CardGroup>
