@@ -1,9 +1,9 @@
 ---
 title: "Training sets"
-description: "The dataset used to fine-tune the base model during a run."
+description: "The dataset used to fine-tune the Luna base model during a run."
 ---
 
-A **training set** is the dataset that fine-tunes your [base model](/luna-studio/ui/core-concepts#base-models) during a [training run](/luna-studio/ui/runs/lifecycle). Training sets are typically much larger than test sets; generated training sets contain 2,000 labelled examples.
+A **training set** is the dataset that fine-tunes your [Luna base model](/luna-studio/ui/core-concepts#base-models) during a [training run](/luna-studio/ui/runs/lifecycle). Training sets are typically much larger than test sets.
 
 ## Sources
 
@@ -11,9 +11,9 @@ In the run creation flow, you choose one of three top-level paths:
 
 <CardGroup cols={3}>
   <Card title="Generate from test set" icon="wand-magic-sparkles">
-    Luna uses 20% of your test set as seeds and synthesizes 2,000 labelled rows via an LLM-as-judge prompt.
+    Luna Studio uses 20% of your test set as seeds and synthetically generates training data.
   </Card>
-  <Card title="Add training logs" icon="upload">
+  <Card title="Add unlabelled training logs" icon="upload">
     Upload or import production logs. Luna Studio labels unlabelled logs before training.
   </Card>
   <Card title="Use existing training set" icon="database">
@@ -23,37 +23,28 @@ In the run creation flow, you choose one of three top-level paths:
 
 The **Add training logs** path lets you upload a `.csv` or `.jsonl` file, fetch a file from URL, or import a dataset from Galileo. Those same import methods are also available from the [Datasets page](/luna-studio/ui/datasets/overview) **Add training set** button.
 
-## Schema
+## Required schema
 
-Training sets need at least one column:
-
-| Column  | Required  | Notes                                                                             |
-| ------- | --------- | --------------------------------------------------------------------------------- |
-| `input` | Yes       | The text the metric will be trained on.                                           |
-| `label` | Sometimes | Required for labelled training. Unlabelled logs must be labelled before training. |
+Check the [pre-requisites](/luna-studio/ui/prerequisites#required-dataset-format) section for details
 
 ### Labelled vs. unlabelled
 
-- **Labelled** &mdash; every row has a `label` column matching the metric's output type. Required if you want supervised fine-tuning.
-- **Unlabelled** &mdash; rows have an `input` only. Luna Studio labels the logs with your LLM-as-judge prompt first, saves a labelled training dataset, and then uses that labelled dataset for training.
-
 When you add training logs, Luna Studio validates whether the dataset already has labels:
 
-- A green check when the label column is present.
-- A label-only flow when the label column is missing.
+If labels are missing, Luna Studio will automatically label the data using your LLM-as-judge prompt before training the model.
 
 ## Generated training sets
 
 The most common path for a first run is **Generate from test set**. The flow:
 
-1. Luna uses 20% of your test set as seed examples.
-2. The configured model you pick synthesizes 50 sample rows following the metric prompt.
+1. Luna Studio uses 20% of your test set as seed examples.
+2. We first synthetically generate a sample training set for review.
 3. You review the sample rows and optionally regenerate with feedback.
-4. Luna generates the full 2,000-example training set.
+4. Luna Studio generates the full training set.
 
 See [Step 3 — Training set](/luna-studio/ui/runs/new-run/step-3-training-set#generate-from-test-set) for the full reference.
 
-The resulting dataset shows up on the [Datasets page](/luna-studio/ui/datasets/overview) with source **Generated** and a subtitle like "Generated from rag-eval-v2". Each row carries an **Origin** marker so you can trace it back: rows synthesized by the generator render as "Generated", while rows seeded from a test set render as a chip with that test set's name.
+The resulting dataset shows up on the [Datasets page](/luna-studio/ui/datasets/overview) with source **Generated** and a subtitle like "Generated from rag-eval-v2".
 
 ## File formats
 
@@ -61,10 +52,6 @@ For uploads and URL fetches:
 
 - **CSV** &mdash; standard comma-separated. Headers required.
 - **JSONL** &mdash; one JSON object per line, with `input` and (optionally) `label` keys.
-
-## Used in metric
-
-The **Used in metric** column shows every metric whose runs reference this training set. If empty, the training set isn't being used — safe to delete.
 
 ## Where to go next
 

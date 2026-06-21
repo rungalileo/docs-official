@@ -20,27 +20,6 @@ Luna Studio splits datasets into two flavors, accessible via tabs on the page:
   </Card>
 </CardGroup>
 
-The active tab determines what shows in the table and which **Add** button is shown.
-
-## Datasets table
-
-Both tabs use the same column layout:
-
-| Column          | What it shows                                                                         |
-| --------------- | ------------------------------------------------------------------------------------- |
-| Dataset name    | The dataset's name.                                                                   |
-| Rows            | Row count, with thousands separators.                                                 |
-| Source          | One of **Galileo** (Galileo glyph), **Upload** (upload icon), or **URL** (link icon). |
-| Used in metric  | Outline-style badges for each metric that uses this dataset. Empty if unused.         |
-| Created at      | When the dataset was added.                                                           |
-| Last updated at | When the dataset was most recently changed.                                           |
-
-Click any row to view the dataset.
-
-## Top-bar actions
-
-- **Search** &mdash; filter by dataset name.
-- **Add test set / Add training set** &mdash; primary button. The label tracks the active tab. Opens the **Add dataset** modal — see [Add a dataset](/luna-studio/ui/datasets/add-a-dataset).
 
 ## How datasets relate to runs
 
@@ -48,10 +27,10 @@ Each [training run](/luna-studio/ui/runs/lifecycle) consumes exactly one test se
 
 ```mermaid
 flowchart LR
-  TestSet1["Test set: rag-eval-v2"] --> Run1["Run 1: generated training set"]
-  TestSet1 --> Run2["Run 2: uploaded training logs"]
-  TrainSet1["Training set: generated from rag-eval-v2"] --> Run1
-  TrainSet2["Training set: imported production logs"] --> Run2
+  TestSet1["Test set: context-adherence-test"] --> Run1["Run 1: context-adherence-run-1"]
+  TrainSet1["Training set: context-adherence-train-v1"] --> Run1
+  TestSet1 --> Run2["Run 2: context-adherence-run-2"]
+  TrainSet2["Training set: context-adherence-train-v2"] --> Run2
 ```
 
 The **Used in metric** column on the datasets table shows you which metrics' fine-tuning depends on a dataset — useful before deleting one.
@@ -61,8 +40,8 @@ The **Used in metric** column on the datasets table shows you which metrics' fin
 | Source  | What it means                                                               |
 | ------- | --------------------------------------------------------------------------- |
 | Upload  | You uploaded a `.csv` or `.jsonl` file from your machine.                   |
-| URL     | Luna fetched the dataset from an http/https/s3/gs URL.                      |
-| Galileo | Luna pulled the dataset from a project in your connected Galileo workspace. |
+| URL     | Luna Studio fetched the dataset from an http/https/s3/gs URL.                      |
+| Galileo | Luna Studio pulled the dataset from a project in your connected Galileo workspace. |
 
 For training sets specifically, an additional source applies:
 
