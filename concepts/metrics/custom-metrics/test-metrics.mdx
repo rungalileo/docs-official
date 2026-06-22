@@ -1,0 +1,106 @@
+---
+title: "Test Your Metrics"
+description: "Test a custom metric with manual input, against your live logs, or against a labeled dataset to measure accuracy with F1, precision, and recall"
+---
+
+Before you rely on a custom metric, test it to confirm it scores the way you intend. Galileo gives you three ways to test, from a quick sanity check to a quantitative accuracy measurement against ground truth.
+
+## Choose how to test
+
+| Method | Best for |
+| :----- | :------- |
+| **Manual input** | A quick check of a single input/output pair as you draft the prompt. |
+| **Current Logs** | Seeing how the metric behaves on your most recent real sessions, traces, or spans. |
+| **Labeled dataset** | Measuring how *accurate* the metric is against known-correct answers, with an F1 score. |
+
+You'll find all three on the **Test Metric** tab when creating or editing a metric.
+
+## Test with manual input
+
+Provide an input and output and select **Test**. You'll see the metric result, plus an explanation if step-by-step reasoning is turned on.
+
+Because of the nested structure of sessions and traces, manual input is only supported for metrics that apply to **spans**. To test session- or trace-level metrics, use Current Logs or a labeled dataset.
+
+## Test against current logs
+
+Select the project, choose the source type, then pick a Log Stream. Select **Test Metric** to run the metric against your last 5 logged sessions, traces, or spans. Select any row to see the explanation.
+
+This is the fastest way to see how a metric behaves on real, representative data.
+
+## Test against a labeled dataset
+
+Manual and log-based tests confirm a metric *runs* correctly. To know how much you can *trust* it, test it against a labeled dataset: define the correct result for each row, run the metric across the dataset, and Galileo reports an **F1 score** (with precision and recall) showing how closely the metric's scoring matches your ground truth.
+
+Use this to validate a new metric before deploying it, to confirm an [Autotune](/concepts/metrics/autotune-llm-as-a-judge-metrics) run improved alignment rather than overfitting, and to catch drift after a model upgrade.
+
+<Steps>
+  <Step title="Add a dataset">
+    On the **Test Metric** tab, select **Datasets**, then choose an existing dataset or upload one with your inputs and outputs.
+  </Step>
+
+  <Step title="Add Metric Ground Truth">
+    For each row, provide the expected result in the **Metric Ground Truth** column—the value the metric should return when it scores correctly. A single dataset can hold ground truth for several metrics at once, stored separately and keyed by metric name, so you can reuse one dataset across your metric library. You don't need to label every row; Galileo skips unlabeled rows when scoring.
+  </Step>
+
+  <Step title="Run the test">
+    Run the metric across the dataset. Galileo scores every row, compares the output against your Metric Ground Truth, and reports how closely they align.
+  </Step>
+</Steps>
+
+## How scores are calculated
+
+Galileo compares the metric's output against the Metric Ground Truth for every labeled row, then reports the scores that fit the metric's output type. Galileo skips any row that has no ground truth or a value it can't parse, and reports how many it skipped.
+
+### Boolean metrics
+
+Galileo scores a boolean metric (pass/fail) as a binary classification. Each row falls into one of four buckets, comparing the metric's output to the ground truth:
+
+| | Ground truth = true | Ground truth = false |
+| :-- | :-- | :-- |
+| **Metric = true** | True positive (TP) | False positive (FP) |
+| **Metric = false** | False negative (FN) | True negative (TN) |
+
+From those counts:
+
+- **Precision** = TP / (TP + FP) — of the rows the metric flagged, how many were correct.
+- **Recall** = TP / (TP + FN) — of the rows that should have been flagged, how many the metric caught.
+- **F1** = 2 × (Precision × Recall) / (Precision + Recall) — the harmonic mean of precision and recall, balancing both into a single number.
+
+F1 ranges from 0 to 1, where 1 means the metric perfectly matches your ground truth. The higher the F1, the more you can trust the metric—iterate on the prompt, threshold, or model and re-test until it's high enough for your use case.
+
+### Categorical metrics
+
+Galileo scores each category one-vs-rest (treating that category as "true" and all others as "false") to produce a per-class F1, then reports a **macro-averaged F1**—the unweighted mean across classes—so every category counts equally, regardless of how often it appears.
+
+### Numeric metrics
+
+For numeric output types (Count, Discrete, and Percentage), Galileo scores by error rather than classification:
+
+- **MSE** (mean squared error) — the average of the squared differences between the metric's value and the ground truth.
+- **RMSE** (root mean squared error) — the square root of MSE, expressed in the same units as the metric.
+
+For both, **lower is better**: 0 means the metric's values exactly match your ground truth.
+
+<Info>
+  Pair testing with [Autotune](/concepts/metrics/autotune-llm-as-a-judge-metrics): test to get a baseline F1, run Autotune to improve the prompt from your feedback, then re-test against the same dataset to confirm the score went up.
+</Info>
+
+## Related resources
+
+<CardGroup cols={2}>
+  <Card title="Improve metrics with Autotune" icon="wrench" horizontal href="/concepts/metrics/autotune-llm-as-a-judge-metrics">
+    Turn feedback into prompt improvements, then re-test to confirm the gain.
+  </Card>
+
+  <Card title="Custom LLM-as-a-Judge Metrics" icon="gavel" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-llm">
+    Create the metrics you'll test and validate.
+  </Card>
+
+  <Card title="Custom Code-Based Metrics" icon="code" horizontal href="/concepts/metrics/custom-metrics/custom-metrics-ui-code">
+    Create and test code-based metrics the same way.
+  </Card>
+
+  <Card title="Ground Truth Adherence" icon="bullseye" horizontal href="/concepts/metrics/response-quality/ground-truth-adherence">
+    The output-level analog of the Metric Ground Truth column.
+  </Card>
+</CardGroup>
