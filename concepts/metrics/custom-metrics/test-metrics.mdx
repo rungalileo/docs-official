@@ -1,17 +1,17 @@
 ---
-title: Test Your Metrics
-description: Test a custom metric with manual input, against your current logs, or against a labeled dataset to measure accuracy with F1, precision, and recall
+title: "Test Custom Metrics"
+description: "Test a custom metric with manual input, against your current logs, or against a labeled dataset to measure how closely it matches your ground truth with a macro F1 score or RMSE"
 ---
 
-Before you rely on a custom metric, test it to confirm it scores the way you intend. Galileo gives you three ways to test, from a quick sanity check to a quantitative accuracy measurement against ground truth.
+Before you rely on a custom metric to measure your agentic system's performance, test it to confirm it scores the way you intend. Galileo gives you three ways to test, from a quick sanity check to a quantitative measure of how closely the metric matches your ground truth.
 
 ## Choose how to test
 
-| Method | Best for |
-| :----- | :------- |
-| **Manual input** | A quick check of a single input/output pair as you draft the prompt. |
-| **Current Logs** | Seeing how the metric behaves on your most recent real sessions, traces, or spans. |
-| **Labeled dataset** | Measuring how *accurate* the metric is against known-correct answers, with an F1 score. |
+| Method           | Best for                                                                              |
+| :--------------- | :------------------------------------------------------------------------------------ |
+| **Manual input** | A quick check of a single input/output pair as you draft the prompt.                  |
+| **Current Logs** | Seeing how the metric behaves on your most recent real sessions, traces, or spans.    |
+| **Datasets**     | Measuring how closely the metric matches known-correct answers, with a macro F1 score or RMSE. |
 
 You'll find all three on the **Test Metric** tab when creating or editing a metric.
 
@@ -21,11 +21,11 @@ Provide an input and output and select **Test**. You'll see the metric result, p
 
 ![A manual metric test showing a fail score and an explanation](/concepts/metrics/custom-metrics/test-metric-manual.webp)
 
-Because of the nested structure of sessions and traces, manual input is only supported for metrics that apply to **spans**. To test session- or trace-level metrics, use Current Logs or a labeled dataset.
+Due to the complex structure of sessions and traces, manual input is only supported for metrics that apply to **spans**.
 
 ## Test against current logs
 
-Select the project, choose the source type, then pick a Log Stream. Select **Test Metric** to run the metric against your last 5 logged sessions, traces, or spans. Select any row to see the explanation.
+Select the project, choose the source type, then pick a Log Stream or Experiment. Select **Test Metric** to run the metric against your last 5 logged sessions, traces, or spans. Select any row to see the explanation.
 
 ![A test run against 5 Log Stream rows showing they all pass with 100%](/concepts/metrics/custom-metrics/test-metric-logs.webp)
 
@@ -33,9 +33,33 @@ This is the fastest way to see how a metric behaves on real, representative data
 
 ## Test against a labeled dataset
 
-Manual and log-based tests confirm a metric *runs* correctly. To know how much you can *trust* it, test it against a labeled dataset: define the correct result for each row, run the metric across the dataset, and Galileo reports an **F1 score** (with precision and recall) showing how closely the metric's scoring matches your ground truth.
+Manual and log-based tests confirm a metric *runs* correctly. To know how much you can *trust* it, test it against a labeled dataset—one with a **Metric Ground Truth** column holding the correct result for each row. Galileo runs the metric across the dataset and reports a single score for how well the metric's output matches your Metric Ground Truth: a **macro F1 score** for label-based metrics, or **RMSE** for number-based metrics.
 
-Use this to confirm your metric prompt is scoring the way you intend before deploying it, to establish a baseline you can compare against over time, and to detect drift in metric behavior after changes such as a model upgrade or prompt edit.
+<Note>
+  Dataset testing is available for metrics that apply to a **trace or LLM span**, where you can provide Metric Ground Truth per row. Session-level metrics aren't supported.
+</Note>
+
+## Why test against a dataset
+
+Testing against a labeled dataset does more than confirm a metric runs—it gives you a quantitative signal you can act on and return to. The workflows below use the macro F1 score for label-based metrics; for number-based metrics, the same applies using RMSE.
+
+### Validate your metric prompt
+
+Before you deploy a metric to a Log Stream, dataset testing tells you whether the prompt is actually scoring the way you intended. A high macro F1 score against a *representative* set of labeled examples is a meaningful signal that the metric will score consistently on similar data in production.
+
+### Establish a baseline
+
+Run a dataset test when you first create a metric and record its macro F1 score. That becomes your baseline. Re-run the **same dataset test** after any future change—a prompt edit, a different model, a new number of judges—to tell whether it helped or hurt, since the comparison is only meaningful against the same labeled set.
+
+### Validate improvements quantitatively
+
+When you iterate on a metric prompt, re-running the same dataset test shows whether the change actually improved how the metric scores, rather than just shifting its behavior on a handful of examples. This is especially useful with [Autotune](/concepts/metrics/autotune-llm-as-a-judge-metrics): test before and after an Autotune run on a set of held-out labeled examples—ones you didn't give Autotune as feedback—so a higher macro F1 score reflects a real improvement and not overfitting to the feedback.
+
+### Detect evaluation drift
+
+Metric behavior can drift when underlying models change. Re-running the same dataset test after a model upgrade or API change gives you a concrete comparison: if the macro F1 score drops, you know the metric needs attention before it affects your evaluations.
+
+## Run a dataset test
 
 <Steps>
   <Step title="Add a dataset">
@@ -47,63 +71,37 @@ Use this to confirm your metric prompt is scoring the way you intend before depl
   </Step>
 
   <Step title="Run the test">
-    Run the metric across the dataset. Galileo scores every row, compares the output against your Metric Ground Truth, and reports how closely they align.
+    Run the metric across the dataset. Galileo scores every row, compares the output against your Metric Ground Truth, and reports how closely they match.
   </Step>
 </Steps>
 
-## Why test against a dataset
-
-Testing against a labeled dataset does more than confirm a metric runs — it gives you a quantitative signal you can act on and return to.
-
-### Validate your metric prompt
-
-Before you deploy a metric to a Log Stream or experiment, dataset testing tells you whether the prompt is actually scoring the way you intended. A high F1 against a representative set of labeled examples is a meaningful signal that the metric will behave reliably in production.
-
-### Establish a baseline
-
-Run a dataset test when you first create a metric and record the F1 score. That score becomes your baseline. Any future change to the metric — a prompt edit, a different model, a new number of judges — can be measured against it so you know whether the change made things better or worse.
-
-### Validate metric improvements quantitatively
-
-When you iterate on a metric prompt to improve how it scores, re-running the same dataset test confirms the improvement is real and not just a change in behavior on a few edge cases. This is especially useful when using [Autotune](/concepts/metrics/autotune-llm-as-a-judge-metrics) — test before and after an Autotune run to confirm the F1 went up without overfitting to the feedback you provided.
-
-### Detect evaluation drift
-
-Metric behavior can drift when underlying models change. Re-running the same dataset test after a model upgrade or API change gives you a concrete comparison: if the F1 drops, you know the metric needs attention before it affects your evaluations.
-
 ## How scores are calculated
 
-Galileo compares the metric's output against the Metric Ground Truth for every labeled row, then reports the scores that fit the metric's output type.
+Galileo compares the metric's output against the Metric Ground Truth for every labeled row, then reports a single score that fits the metric's output type.
 
-### Boolean metrics
+### Label-based metrics: macro F1
 
-Galileo scores a boolean metric (pass/fail) as a binary classification. Each row falls into one of four buckets, comparing the metric's output to the ground truth:
+For metrics that return a label—boolean (true/false) or categorical (named classes)—Galileo reports a **macro F1 score**: a single number from 0 to 1 for how well the metric's labels match your Metric Ground Truth.
 
-| | Ground truth = true | Ground truth = false |
-| :-- | :-- | :-- |
-| **Metric = true** | True positive (TP) | False positive (FP) |
-| **Metric = false** | False negative (FN) | True negative (TN) |
+F1 combines two things:
 
-From those counts:
+- **Precision** — of the rows the metric flagged, how many were correct. False positives (flagging something it shouldn't) lower precision.
+- **Recall** — of the rows that should have been flagged, how many the metric caught. False negatives (missing something it should have) lower recall.
 
-- **Precision** = TP / (TP + FP) — of the rows the metric flagged, how many were correct.
-- **Recall** = TP / (TP + FN) — of the rows that should have been flagged, how many the metric caught.
-- **F1** = 2 × (Precision × Recall) / (Precision + Recall) — the harmonic mean of precision and recall, balancing both into a single number.
+F1 is the balance of the two, so a metric only scores well when it keeps both false positives and false negatives low. The **macro** F1 averages this across every label, so each label counts equally and a metric can't score well just by getting the most common case right.
 
-F1 ranges from 0 to 1, where 1 means the metric perfectly matches your ground truth. The higher the F1, the more you can trust the metric—iterate on the prompt, model, or number of judges and re-test until it's high enough for your use case.
+The goal is a **high** macro F1 score, not a perfect one—perfect alignment is rarely achievable with subjective judgments. Iterate on the prompt, model, or number of judges and re-test until it's high enough for your use case.
 
-### Categorical metrics
+### Number-based metrics: RMSE
 
-Galileo scores each category one-vs-rest (treating that category as "true" and all others as "false") to produce a per-class F1, then reports a **macro-averaged F1**—the unweighted mean across classes—so every category counts equally, regardless of how often it appears.
+For metrics that return a number—count, discrete, or percentage—a macro F1 score doesn't apply. Galileo reports **RMSE (root mean squared error)**: how far the metric's values are from your Metric Ground Truth on average. Lower is better, and 0 means an exact match.
 
-### Numeric metrics
+### Score by output type
 
-For numeric output types (Count, Discrete, and Percentage), Galileo scores by error rather than classification:
-
-- **MSE** (mean squared error) — the average of the squared differences between the metric's value and the ground truth.
-- **RMSE** (root mean squared error) — the square root of MSE, expressed in the same units as the metric.
-
-For both, **lower is better**: 0 means the metric's values exactly match your ground truth.
+| Output type                 | Score    | Reading it                        |
+| :-------------------------- | :------- | :-------------------------------- |
+| Boolean, Categorical        | Macro F1 | 0–1, higher is better             |
+| Count, Discrete, Percentage | RMSE     | Lower is better (0 = exact match) |
 
 ## Related resources
 
