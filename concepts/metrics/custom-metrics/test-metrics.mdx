@@ -21,7 +21,7 @@ Provide an input and output and select **Test**. You'll see the metric result, p
 
 ![A manual metric test showing a fail score and an explanation](/concepts/metrics/custom-metrics/test-metric-manual.webp)
 
-Due to the complex structure of sessions and traces, manual input is only supported for metrics that apply to **spans**.
+Due to the complex structure of sessions and traces, Galileo supports manual input only for metrics that apply to **spans**.
 
 ## Test against current logs
 
@@ -41,7 +41,7 @@ Manual and log-based tests confirm a metric *runs* correctly. To know how much y
 
 ## Why test against a dataset
 
-Testing against a labeled dataset does more than confirm a metric runs—it gives you a quantitative signal you can act on and return to. The workflows below use the macro F1 score for label-based metrics; for number-based metrics, the same applies using RMSE.
+Testing against a labeled dataset does more than confirm a metric runs—it gives you a quantitative signal you can act on and return to. The workflows below use the macro F1 score for label-based metrics; for number-based metrics, the same applies with RMSE in place of macro F1.
 
 <CardGroup cols={2}>
   <Card title="Confirm scoring intent" icon="circle-check">
@@ -91,16 +91,16 @@ For metrics that return a label—boolean (true/false), categorical (named class
 
 F1 combines two things:
 
-- **Precision** — of the rows the metric flagged, how many were correct. False positives (flagging something it shouldn't) lower precision.
+- **Precision** — of the rows the metric flagged, how many were correct. False positives (flagging something it should not) lower precision.
 - **Recall** — of the rows that should have been flagged, how many the metric caught. False negatives (missing something it should have) lower recall.
 
-F1 is the balance of the two, so a metric only scores well when it keeps both false positives and false negatives low. The **macro** F1 averages this across every label, so each label counts equally and a metric does not score well just by getting the most common case right.
+F1 is the harmonic mean of the two, so a metric only scores well when it keeps both false positives and false negatives low. The **macro** F1 averages this across every label, so each label counts equally and a metric does not score well just by getting the most common case right.
 
 Iterate on the prompt, model, or number of judges and re-test until the macro F1 is high enough for your use case.
 
 ### Number-based metrics: RMSE
 
-For metrics that return a number—count, discrete, or percentage—a macro F1 score doesn't apply. Galileo reports **RMSE (root mean squared error)**: how far the metric's values are from your Metric Ground Truth on average. Lower is better, and 0 means an exact match.
+For metrics that return a number—count, discrete, or percentage—a macro F1 score does not apply. Galileo reports **RMSE (root mean squared error)**: how far the metric's values are from your Metric Ground Truth on average. Lower is better, and 0 means an exact match.
 
 ### Score by output type
 
