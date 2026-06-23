@@ -45,19 +45,19 @@ Testing against a labeled dataset does more than confirm a metric runs—it give
 
 <CardGroup cols={2}>
   <Card title="Confirm scoring intent" icon="circle-check">
-    Before you deploy a metric to a Log Stream, dataset testing tells you whether the prompt is actually scoring the way you intended. A high macro F1 score against a *representative* set of labeled examples is a meaningful signal that the metric will score consistently on similar data in production.
+    Test before you deploy. A high macro F1 score against a representative set of labeled examples tells you the metric will score consistently on similar data in production.
   </Card>
 
   <Card title="Set a baseline" icon="gauge">
-    Run a dataset test when you first create a metric and record its macro F1 score. That becomes your baseline. Re-run the **same dataset test** after any future change—a prompt edit, a different model, a new number of judges—to tell whether it helped or hurt, since the comparison is only meaningful against the same labeled set.
+    Record the macro F1 score when you first create a metric. Re-run the **same dataset test** after any change—prompt, model, or number of judges—to see whether it helped or hurt.
   </Card>
 
   <Card title="Measure real improvements" icon="arrow-trend-up">
-    When you iterate on a metric prompt, re-running the same dataset test shows whether the change actually improved how the metric scores, rather than just shifting its behavior on a handful of examples. This is especially useful with [Autotune](/concepts/metrics/autotune-llm-as-a-judge-metrics): test before and after an Autotune run on a set of held-out labeled examples—ones you didn't give Autotune as feedback—so a higher macro F1 score reflects a real improvement and not overfitting to the feedback.
+    Re-running the same dataset test after iterating on a prompt confirms the improvement is real, not just a shift on a handful of examples. With [Autotune](/concepts/metrics/autotune-llm-as-a-judge-metrics), test on held-out examples to confirm the F1 went up without overfitting.
   </Card>
 
   <Card title="Catch drift early" icon="triangle-exclamation">
-    Metric behavior can drift when underlying models change. Re-running the same dataset test after a model upgrade or API change gives you a concrete comparison: if the macro F1 score drops, you know the metric needs attention before it affects your evaluations.
+    Re-run after a model upgrade or API change. If the macro F1 score drops, you know the metric needs attention before it affects your evaluations.
   </Card>
 </CardGroup>
 
