@@ -35,7 +35,7 @@ This is the fastest way to see how a metric behaves on real, representative data
 
 Manual and log-based tests confirm a metric *runs* correctly. To know how much you can *trust* it, test it against a labeled dataset: define the correct result for each row, run the metric across the dataset, and Galileo reports an **F1 score** (with precision and recall) showing how closely the metric's scoring matches your ground truth.
 
-Use this to validate a new metric before deploying it, to confirm an [Autotune](/concepts/metrics/autotune-llm-as-a-judge-metrics) run improved alignment rather than overfitting, and to catch drift after a model upgrade.
+Use this to confirm your metric prompt is scoring the way you intend before deploying it, to establish a baseline you can compare against over time, and to detect drift in metric behavior after changes such as a model upgrade or prompt edit.
 
 <Steps>
   <Step title="Add a dataset">
@@ -85,9 +85,25 @@ For numeric output types (Count, Discrete, and Percentage), Galileo scores by er
 
 For both, **lower is better**: 0 means the metric's values exactly match your ground truth.
 
-<Info>
-  Pair testing with [Autotune](/concepts/metrics/autotune-llm-as-a-judge-metrics): test to get a baseline F1, run Autotune to improve the prompt from your feedback, then re-test against the same dataset to confirm the score went up.
-</Info>
+## Why test against a dataset
+
+Testing against a labeled dataset does more than confirm a metric runs — it gives you a quantitative signal you can act on and return to.
+
+**Validate your metric prompt**
+
+Before you deploy a metric to a Log Stream or experiment, dataset testing tells you whether the prompt is actually scoring the way you intended. A high F1 against a representative set of labeled examples is a meaningful signal that the metric will behave reliably in production.
+
+**Establish a baseline**
+
+Run a dataset test when you first create a metric and record the F1 score. That score becomes your baseline. Any future change to the metric — a prompt edit, a different model, a new number of judges — can be measured against it so you know whether the change made things better or worse.
+
+**Validate metric improvements quantitatively**
+
+When you iterate on a metric prompt to improve how it scores, re-running the same dataset test confirms the improvement is real and not just a change in behavior on a few edge cases. This is especially useful when using [Autotune](/concepts/metrics/autotune-llm-as-a-judge-metrics) — test before and after an Autotune run to confirm the F1 went up without overfitting to the feedback you provided.
+
+**Detect evaluation drift**
+
+Metric behavior can drift when underlying models change. Re-running the same dataset test after a model upgrade or API change gives you a concrete comparison: if the F1 drops, you know the metric needs attention before it affects your evaluations.
 
 ## Related resources
 
