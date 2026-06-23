@@ -1,6 +1,6 @@
 ---
-title: "Test Your Metrics"
-description: "Test a custom metric with manual input, against your live logs, or against a labeled dataset to measure accuracy with F1, precision, and recall"
+title: Test Your Metrics
+description: Test a custom metric with manual input, against your current logs, or against a labeled dataset to measure accuracy with F1, precision, and recall
 ---
 
 Before you rely on a custom metric, test it to confirm it scores the way you intend. Galileo gives you three ways to test, from a quick sanity check to a quantitative accuracy measurement against ground truth.
@@ -51,40 +51,6 @@ Use this to confirm your metric prompt is scoring the way you intend before depl
   </Step>
 </Steps>
 
-## How scores are calculated
-
-Galileo compares the metric's output against the Metric Ground Truth for every labeled row, then reports the scores that fit the metric's output type.
-
-### Boolean metrics
-
-Galileo scores a boolean metric (pass/fail) as a binary classification. Each row falls into one of four buckets, comparing the metric's output to the ground truth:
-
-| | Ground truth = true | Ground truth = false |
-| :-- | :-- | :-- |
-| **Metric = true** | True positive (TP) | False positive (FP) |
-| **Metric = false** | False negative (FN) | True negative (TN) |
-
-From those counts:
-
-- **Precision** = TP / (TP + FP) — of the rows the metric flagged, how many were correct.
-- **Recall** = TP / (TP + FN) — of the rows that should have been flagged, how many the metric caught.
-- **F1** = 2 × (Precision × Recall) / (Precision + Recall) — the harmonic mean of precision and recall, balancing both into a single number.
-
-F1 ranges from 0 to 1, where 1 means the metric perfectly matches your ground truth. The higher the F1, the more you can trust the metric—iterate on the prompt, threshold, or model and re-test until it's high enough for your use case.
-
-### Categorical metrics
-
-Galileo scores each category one-vs-rest (treating that category as "true" and all others as "false") to produce a per-class F1, then reports a **macro-averaged F1**—the unweighted mean across classes—so every category counts equally, regardless of how often it appears.
-
-### Numeric metrics
-
-For numeric output types (Count, Discrete, and Percentage), Galileo scores by error rather than classification:
-
-- **MSE** (mean squared error) — the average of the squared differences between the metric's value and the ground truth.
-- **RMSE** (root mean squared error) — the square root of MSE, expressed in the same units as the metric.
-
-For both, **lower is better**: 0 means the metric's values exactly match your ground truth.
-
 ## Why test against a dataset
 
 Testing against a labeled dataset does more than confirm a metric runs — it gives you a quantitative signal you can act on and return to.
@@ -104,6 +70,40 @@ When you iterate on a metric prompt to improve how it scores, re-running the sam
 **Detect evaluation drift**
 
 Metric behavior can drift when underlying models change. Re-running the same dataset test after a model upgrade or API change gives you a concrete comparison: if the F1 drops, you know the metric needs attention before it affects your evaluations.
+
+## How scores are calculated
+
+Galileo compares the metric's output against the Metric Ground Truth for every labeled row, then reports the scores that fit the metric's output type.
+
+### Boolean metrics
+
+Galileo scores a boolean metric (pass/fail) as a binary classification. Each row falls into one of four buckets, comparing the metric's output to the ground truth:
+
+| | Ground truth = true | Ground truth = false |
+| :-- | :-- | :-- |
+| **Metric = true** | True positive (TP) | False positive (FP) |
+| **Metric = false** | False negative (FN) | True negative (TN) |
+
+From those counts:
+
+- **Precision** = TP / (TP + FP) — of the rows the metric flagged, how many were correct.
+- **Recall** = TP / (TP + FN) — of the rows that should have been flagged, how many the metric caught.
+- **F1** = 2 × (Precision × Recall) / (Precision + Recall) — the harmonic mean of precision and recall, balancing both into a single number.
+
+F1 ranges from 0 to 1, where 1 means the metric perfectly matches your ground truth. The higher the F1, the more you can trust the metric—iterate on the prompt, model, or number of judges and re-test until it's high enough for your use case.
+
+### Categorical metrics
+
+Galileo scores each category one-vs-rest (treating that category as "true" and all others as "false") to produce a per-class F1, then reports a **macro-averaged F1**—the unweighted mean across classes—so every category counts equally, regardless of how often it appears.
+
+### Numeric metrics
+
+For numeric output types (Count, Discrete, and Percentage), Galileo scores by error rather than classification:
+
+- **MSE** (mean squared error) — the average of the squared differences between the metric's value and the ground truth.
+- **RMSE** (root mean squared error) — the square root of MSE, expressed in the same units as the metric.
+
+For both, **lower is better**: 0 means the metric's values exactly match your ground truth.
 
 ## Related resources
 
