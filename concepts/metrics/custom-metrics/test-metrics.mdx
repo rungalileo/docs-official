@@ -1,5 +1,5 @@
 ---
-title: "Test Custom Metrics"
+title: Test Custom Metrics
 description: "Test a custom metric with manual input, against your current logs, or against a labeled dataset to measure how closely it matches your ground truth with a macro F1 score or RMSE"
 ---
 
@@ -33,10 +33,10 @@ This is the fastest way to see how a metric behaves on real, representative data
 
 ## Test against a labeled dataset
 
-Manual and log-based tests confirm a metric *runs* correctly. To know how much you can *trust* it, test it against a labeled dataset—one with a **Metric Ground Truth** column holding the correct result for each row. Galileo runs the metric across the dataset and reports a single score for how well the metric's output matches your Metric Ground Truth: a **macro F1 score** for label-based metrics, or **RMSE** for number-based metrics.
+Manual and log-based tests confirm a metric *runs* correctly. To know how much you can *trust* it, test it against a labeled dataset—one with a **Metric Ground Truth** column holding the correct result for each row. Galileo runs the metric across the dataset and reports a single score for how well the metric's output matches your Metric Ground Truth: a **macro F1 score** for label-based metrics, or **RMSE (root mean squared error)** for number-based metrics.
 
 <Note>
-  Dataset testing is available for metrics that apply to a **trace or LLM span**, where you can provide Metric Ground Truth per row. Session-level metrics aren't supported.
+  Dataset testing is available for metrics that apply to a **trace or LLM span**, where you can provide Metric Ground Truth per row. Galileo does not support dataset testing for session-level metrics.
 </Note>
 
 ## Why test against a dataset
@@ -94,9 +94,9 @@ F1 combines two things:
 - **Precision** — of the rows the metric flagged, how many were correct. False positives (flagging something it shouldn't) lower precision.
 - **Recall** — of the rows that should have been flagged, how many the metric caught. False negatives (missing something it should have) lower recall.
 
-F1 is the balance of the two, so a metric only scores well when it keeps both false positives and false negatives low. The **macro** F1 averages this across every label, so each label counts equally and a metric can't score well just by getting the most common case right.
+F1 is the balance of the two, so a metric only scores well when it keeps both false positives and false negatives low. The **macro** F1 averages this across every label, so each label counts equally and a metric does not score well just by getting the most common case right.
 
-The goal is a **high** macro F1 score, not a perfect one—perfect alignment is rarely achievable with subjective judgments. Iterate on the prompt, model, or number of judges and re-test until it's high enough for your use case.
+Iterate on the prompt, model, or number of judges and re-test until the macro F1 is high enough for your use case.
 
 ### Number-based metrics: RMSE
 
