@@ -58,28 +58,35 @@ Open the Assistant from a Log stream or experiment to ask aggregate questions ac
 
 When you open a fresh conversation, the Assistant suggests a few starting questions based on what you are viewing.
 
+### How the Assistant gets context
+
+You don't paste data into the Assistant — it reads where you are. The page you have open *is* the context, so you can ask a question without re-explaining your situation each time. You control the scope by choosing where you open it:
+
+- **Cell level** — open it on a single result to investigate one bad trace or response.
+- **Page level** — open it on a Log stream or experiment to find patterns across everything in view.
+
+Anchoring to the right level is the single biggest lever on answer quality: a question scoped to "these 12 sessions" will always beat the same question asked with no scope.
+
 ## Conversations
 
 Every conversation is saved so you can return to an investigation later.
 
 - **History** — browse, search, rename, and delete past conversations.
-- **Citations** — answers include inline links to the traces, sessions, and docs the Assistant used, so you can verify the reasoning.
+- **Citations** — answers include inline links to the traces, sessions, and docs the Assistant used. Follow them to verify the reasoning *and* to learn how to run the same investigation yourself next time — the Assistant shows its work, it doesn't replace your understanding of the platform.
 - **Context indicator** — a meter shows how much of the conversation's context window is in use, with a warning at 90% so you know when to start a fresh thread.
 
-## Scope and limitations
+## Where it works today
 
-The Assistant is in Beta. Today it can:
+The Assistant is in Beta, and its footprint is expanding. Here is what it covers right now:
 
-- Answer questions grounded in **Log streams (Logs) and Experiments**.
-- Explain metrics, root-cause failures, and recommend fixes.
-- Surface relevant Signals inside the chat panel.
-- Link you to a pre-filled creation page when it recommends a new metric.
+| Today it can | It does not yet |
+|--------------|-----------------|
+| Answer questions grounded in **Log streams (Logs)** and **Experiments** | Answer questions about datasets, playgrounds, or standalone metric views |
+| Explain metrics, root-cause failures, and recommend fixes | Take actions on your behalf — see the roadmap below |
+| Surface relevant **Signals** inside the chat panel | Replace your own judgment — responses are AI-generated |
+| Link you to a **pre-filled creation page** when it recommends a new metric | |
 
-It does **not** yet:
-
-- Answer questions about datasets, playgrounds, or standalone metric views.
-- Take actions on your behalf — creating evals or controls directly from chat is on the roadmap.
-- Replace your own judgment. Responses are AI-generated; confirm anything before you ship a change based on it.
+**On the roadmap:** acting directly from chat — for example, creating evals or controls from a recommendation instead of being handed a pre-filled page. Today the Assistant takes you to the last click; the direction is to close that gap. Until then, confirm anything before you ship a change based on it.
 
 <Note>
   The Assistant uses your configured [LLM integration](/getting-started/evaluate-and-improve/evaluate-and-improve#configure-an-llm-integration) to generate answers. Make sure an integration is set up for your project.
