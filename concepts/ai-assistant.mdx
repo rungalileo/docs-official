@@ -44,7 +44,6 @@ The Assistant is most useful when your question is grounded in data Galileo alre
 | **Reconcile disagreeing metrics** | "Why is *Correctness* true but *Completeness* false on this response?" |
 | **Get a fix** | "What should I change to improve this metric?" · "How do I stop this hallucination?" |
 | **Validate agent behavior** | "Which tools should this metric evaluate based on these traces?" |
-| **Create an eval** | "Recommend a metric for this failure" — then follow the link to a pre-filled metric creation page. |
 
 <Tip>
   Anchor your question to a specific Log stream, experiment, metric, or session. The more context the Assistant has about *where* you are, the sharper the answer.
@@ -60,20 +59,17 @@ When you open a fresh conversation, the Assistant suggests a few starting questi
 
 ### How the Assistant gets context
 
-You don't paste data into the Assistant — it reads where you are. The page you have open *is* the context, so you can ask a question without re-explaining your situation each time. You control the scope by choosing where you open it:
+You don't paste data into the Assistant — it reads where you are. The page you have open is the context, so you can ask a question without re-explaining your situation each time.
 
-- **Cell level** — open it on a single result to investigate one bad trace or response.
-- **Page level** — open it on a Log stream or experiment to find patterns across everything in view.
-
-Anchoring to the right level is the single biggest lever on answer quality: a question scoped to "these 12 sessions" will always beat the same question asked with no scope.
+You control the scope by choosing where you open it. Open it on a single result to investigate one bad trace or response. Open it on a Log stream or experiment to find patterns across everything in view. A question scoped to "these 12 sessions" will always get a sharper answer than the same question asked with no context at all.
 
 ## Conversations
 
-Every conversation is saved so you can return to an investigation later.
+Every conversation is saved so you can return to an investigation later. You can browse, search, rename, and delete past conversations from the history panel.
 
-- **History** — browse, search, rename, and delete past conversations.
-- **Citations** — answers include inline links to the traces, sessions, and docs the Assistant used. Follow them to verify the reasoning *and* to learn how to run the same investigation yourself next time — the Assistant shows its work, it doesn't replace your understanding of the platform.
-- **Context indicator** — a meter shows how much of the conversation's context window is in use, with a warning at 90% so you know when to start a fresh thread.
+Answers include inline citations linking back to the traces, sessions, and docs the Assistant used. Follow them to verify the reasoning and to learn how to run the same investigation yourself — the Assistant shows its work, it doesn't replace your understanding of the platform.
+
+A context meter shows how much of the conversation window is in use, with a warning at 90% so you know when to start a fresh thread.
 
 ## Where it works today
 
@@ -82,11 +78,9 @@ The Assistant is in Beta, and its footprint is expanding. Here is what it covers
 | Today it can | It does not yet |
 |--------------|-----------------|
 | Answer questions grounded in **Log streams (Logs)** and **Experiments** | Answer questions about datasets, playgrounds, or standalone metric views |
-| Explain metrics, root-cause failures, and recommend fixes | Take actions on your behalf — see the roadmap below |
+| Explain metrics, root-cause failures, and recommend fixes | Take actions on your behalf |
 | Surface relevant **Signals** inside the chat panel | Replace your own judgment — responses are AI-generated |
 | Link you to a **pre-filled creation page** when it recommends a new metric | |
-
-**On the roadmap:** acting directly from chat — for example, creating evals or controls from a recommendation instead of being handed a pre-filled page. Today the Assistant takes you to the last click; the direction is to close that gap. Until then, confirm anything before you ship a change based on it.
 
 <Note>
   The Assistant uses your configured [LLM integration](/getting-started/evaluate-and-improve/evaluate-and-improve#configure-an-llm-integration) to generate answers. Make sure an integration is set up for your project.
