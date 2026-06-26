@@ -1,31 +1,29 @@
 ---
-title: Galileo AI Assistant
-description: Ask questions about your logs and experiments in plain language, and get answers, root-cause explanations, and fixes — without digging through traces yourself
+title: AI Assistant (Beta)
+description: When your agent misbehaves, the cause is buried across spans, traces, sessions, and the rationale from your LLM judge. Ask in plain language and the assistant finds the root cause and what to fix in seconds.
 ---
 
 <Note>
-  The AI Assistant is in **Beta**. Responses are AI-generated and can be incomplete or incorrect — verify anything you act on. The feature set is evolving, and behavior may change.
+  The AI Assistant is in Beta. Responses are AI-generated and can be incomplete or incorrect, so verify anything you act on. The feature set is still evolving, and behavior may change.
 </Note>
 
-The AI Assistant is a context-aware chat companion built into the Galileo console. It knows which Log stream, experiment, metric, or session you are looking at, pulls the relevant data for you, and answers questions like *"Why is this metric failing?"* and *"What should I change to fix it?"* — with citations and links back to the exact traces it used.
+Ask a question and start an investigation. Why did the agent take this action? What's driving this metric? What is this judge rationale really telling me? The assistant reads across your sessions, traces, and spans and answers with links straight to the evidence.
 
-It is the **pull-based** half of Galileo's investigation experience. Signals proactively pushes the unknown unknowns to you; the Assistant lets you ask follow-up questions and investigate on demand. The two work together: a Signal can surface a problem, and you can open the Assistant to dig into the *why* and the *how to fix*.
+It lives in a chat panel inside the Galileo console, on the pull side of your investigation experience: Signals pushes the issues you didn't know to look for, and the assistant lets you pull on any thread on demand. When a Signal surfaces something, ask follow-up questions to dig in. Open it from a Logstream or an Experiment to get started.
 
 ## Why use it
 
-Traces tell you *what* happened. The Assistant helps you understand *why* it happened and *what to do next* — in seconds, in plain language.
-
 <CardGroup cols={2}>
   <Card title="Skip the manual trace dig" icon="magnifying-glass">
-    Get a direct answer to "why did my agent fail here?" instead of reading through spans one by one.
+    Get a direct answer instead of reading through spans one by one.
   </Card>
 
-  <Card title="Root-cause across many sessions" icon="diagram-project">
-    Aggregate failure reasons across an entire Log stream, not just a single trace.
+  <Card title="See patterns across many sessions" icon="diagram-project">
+    Aggregate failure reasons across a whole Logstream, not just a single trace.
   </Card>
 
-  <Card title="Move from diagnosis to fix" icon="wrench">
-    Turn an explanation into a concrete recommendation — a prompt change, a new metric, or a control.
+  <Card title="Go from diagnosis to a fix" icon="wrench">
+    Turn an explanation into a concrete recommendation, like a prompt change or a new metric to track.
   </Card>
 
   <Card title="Open it up to your whole team" icon="users">
@@ -33,71 +31,61 @@ Traces tell you *what* happened. The Assistant helps you understand *why* it hap
   </Card>
 </CardGroup>
 
+## How it works
+
+<Steps>
+  <Step title="Open it from a Logstream or an Experiment">
+    Open it from a **Logstream** to investigate production traffic. The assistant can reach the traces, spans, and sessions inside the stream, so you can look at one bad result or patterns across the whole stream. Open it from an **Experiment** to dig into a specific run or compare runs.
+  </Step>
+  <Step title="Ask your question">
+    Ask in plain language. The assistant queries the relevant data and answers in the chat panel.
+  </Step>
+  <Step title="Verify and keep digging">
+    Every answer cites the traces, sessions, and docs it used, so you can click through to confirm. Ask a follow-up to keep the same investigation going in one thread.
+  </Step>
+</Steps>
+
 ## What you can ask
 
-The Assistant is most useful when your question is grounded in data Galileo already has. Group your questions by what you are trying to do:
+The assistant is most useful when your question is grounded in data Galileo already has. Here are the kinds of questions it handles today, grouped by what you're trying to do.
 
-| Goal | Example questions |
-|------|-------------------|
-| **Root cause a failure** | "Why is *Action Completion* false across these sessions?" · "Why did this agent fail to finish the task?" |
-| **Understand a metric** | "What does *Context Adherence* measure?" · "Why is this trace scoring low on *Tool Selection Quality*?" |
-| **Reconcile disagreeing metrics** | "Why is *Correctness* true but *Completeness* false on this response?" |
-| **Get a fix** | "What should I change to improve this metric?" · "How do I stop this hallucination?" |
-| **Validate agent behavior** | "Which tools should this metric evaluate based on these traces?" |
-
-<Tip>
-  Anchor your question to a specific Log stream, experiment, metric, or session. The more context the Assistant has about *where* you are, the sharper the answer.
-</Tip>
-
-## Where to find it
-
-The Assistant opens as a side panel in the console. It pushes the page content aside rather than covering it, so you can keep your traces and the conversation on screen at once. The panel stays open as you navigate between pages.
-
-Open the Assistant from a Log stream or experiment to ask aggregate questions across everything in view — for example, the top reasons a metric is failing.
-
-When you open a fresh conversation, the Assistant suggests a few starting questions based on what you are viewing.
-
-### How the Assistant gets context
-
-You don't paste data into the Assistant — it reads where you are. The page you have open is the context, so you can ask a question without re-explaining your situation each time.
-
-You control the scope by choosing where you open it. Open it on a single result to investigate one bad trace or response. Open it on a Log stream or experiment to find patterns across everything in view. A question scoped to "these 12 sessions" will always get a sharper answer than the same question asked with no context at all.
+| What you want to do | Example questions |
+|---|---|
+| **Root cause a single failure** | "Why did the model hallucinate in this response?" · "Is this failure due to the model, the prompt, or the data?" · "Which span derailed the action completion?" · "Where did the conversation go off track?" |
+| **Find and filter traces and sessions** | "Give me all traces where the search tool was called with these parameters." · "Show me sessions where the user asked the same question twice or escalated." |
+| **Spot patterns across a Logstream** | "What are the top failure patterns this week?" · "Did anything regress after my last deploy?" · "Which types of queries are failing the most right now?" |
+| **Understand a metric** | "What does Context Adherence measure?" · "Instruction Adherence looks low. Which instructions failed?" · "What metric should I use to catch this kind of issue?" |
+| **Compare experiments** | "Did my new prompt actually improve quality?" · "What got better and what got worse after my change?" |
+| **Investigate a Signal** | "Explain this Signal and show me the traces behind it." · "Which Signal should I look at first?" |
+| **Learn Galileo as you go** | "How do I create a custom metric for hallucination?" · "I just connected a Logstream. What should I do next?" |
 
 ## Conversations
 
-Every conversation is saved so you can return to an investigation later. You can browse, search, rename, and delete past conversations from the history panel.
+Your conversations are saved, so you can pick an investigation back up later. Each one starts fresh, with no memory carried between conversations, so keep the context you need inside the thread you're working in.
 
-Answers include inline citations linking back to the traces, sessions, and docs the Assistant used. Follow them to verify the reasoning and to learn how to run the same investigation yourself — the Assistant shows its work, it doesn't replace your understanding of the platform.
+## Limitations
 
-A context meter shows how much of the conversation window is in use, with a warning at 90% so you know when to start a fresh thread.
+The assistant is in Beta and read-only today. A few things to keep in mind:
 
-## Where it works today
-
-The Assistant is in Beta, and its footprint is expanding. Here is what it covers right now:
-
-| Today it can | It does not yet |
-|--------------|-----------------|
-| Answer questions grounded in **Log streams (Logs)** and **Experiments** | Answer questions about datasets, playgrounds, or standalone metric views |
-| Explain metrics, root-cause failures, and recommend fixes | Take actions on your behalf |
-| Surface relevant **Signals** inside the chat panel | Replace your own judgment — responses are AI-generated |
-| Link you to a **pre-filled creation page** when it recommends a new metric | |
+* **It answers and recommends, it doesn't act yet.** It can recommend a fix and point you to where to make it, but creating metrics, controls, or datasets and running experiments from chat is on the roadmap. Make those changes yourself for now.
+* **No memory across conversations.** Each conversation is independent.
+* **It's not a replacement for your judgment.** Responses are AI-generated. Confirm anything before you ship a change based on it.
 
 <Note>
-  The Assistant uses your configured [LLM integration](/getting-started/evaluate-and-improve/evaluate-and-improve#configure-an-llm-integration) to generate answers. Make sure an integration is set up for your project.
+  The assistant uses your configured [LLM integration](/getting-started/evaluate-and-improve/evaluate-and-improve#configure-an-llm-integration) to generate answers. Make sure an integration is set up for your project.
 </Note>
 
 ## Tips for better answers
 
-- **Be specific about the symptom.** "Why is *Action Completion* false on these 12 sessions?" beats "what's wrong with my agent?"
-- **Start from the right level.** Use cell level for a single bad result, page level for patterns across a stream.
-- **Follow the citations.** When an answer matters, click through to the source traces to confirm it.
-- **Iterate in one thread.** Ask a follow-up rather than restarting — the Assistant keeps the context of your investigation.
+* **Be specific about the symptom.** "Why is Action Completion false on these 12 sessions?" beats "what's wrong with my agent?"
+* **Follow the citations.** When an answer matters, click through to the source traces to confirm it.
+* **Start a new thread for a new problem.** Keep one investigation per conversation so the context stays focused.
 
 ## Next steps
 
 <CardGroup cols={2}>
   <Card title="Evaluate your traces" icon="circle-check" horizontal href="/getting-started/evaluate-and-improve/evaluate-and-improve">
-    Set up metrics so the Assistant has scores to explain.
+    Set up metrics so the assistant has scores to explain.
   </Card>
 
   <Card title="Signals" icon="bell" horizontal href="https://galileo.ai/signals">
@@ -105,7 +93,7 @@ The Assistant is in Beta, and its footprint is expanding. Here is what it covers
   </Card>
 
   <Card title="Metrics overview" icon="ruler" horizontal href="/concepts/metrics/overview">
-    Understand the metrics the Assistant explains and recommends.
+    Understand the metrics the assistant explains and recommends.
   </Card>
 
   <Card title="Agent Control" icon="shield" horizontal href="/concepts/agent-control/overview">
