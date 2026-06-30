@@ -37,15 +37,6 @@ export const MetricsTable = () => {
       example: "A research assistant that should gather information, analyze it, then synthesize findings in a logical order.",
     },
     {
-      name: "BLEU & ROUGE",
-      link: "/concepts/metrics/expression-and-readability/bleu-and-rouge",
-      category: "Expression and Readability",
-      node: "LLM Span",
-      description: "Measures text similarity using n-gram overlap between generated and reference text.",
-      whenToUse: "When comparing generated text against reference translations or summaries.",
-      example: "A translation system that needs to measure output quality against professional human translations.",
-    },
-    {
       name: "Chunk Attribution Utilization",
       link: "/concepts/metrics/rag/generation-quality/chunk-attribution",
       category: "RAG - Generation Quality",
@@ -163,15 +154,6 @@ export const MetricsTable = () => {
       example: "A public-facing AI assistant that needs protection from users trying to bypass content filters or extract sensitive information.",
     },
     {
-      name: "Prompt Perplexity",
-      link: "/concepts/metrics/model-confidence/prompt-perplexity",
-      category: "Model Confidence",
-      node: "LLM Span",
-      description: "Measures how surprising or unexpected the prompt is to the model.",
-      whenToUse: "When analyzing prompt quality or detecting unusual inputs.",
-      example: "A content moderation system that flags unusually structured prompts for manual review.",
-    },
-    {
       name: "Reasoning Coherence",
       link: "/concepts/metrics/agentic/reasoning-coherence",
       category: "Agentic",
@@ -224,15 +206,6 @@ export const MetricsTable = () => {
       description: "Identifies harmful, offensive, or inappropriate content.",
       whenToUse: "When monitoring AI outputs for harmful content or implementing content filtering.",
       example: "A social media content moderation system that must detect and flag potentially harmful user-generated content.",
-    },
-    {
-      name: "Uncertainty",
-      link: "/concepts/metrics/model-confidence/uncertainty",
-      category: "Model Confidence",
-      node: "LLM Span",
-      description: "Measures how uncertain the model is about its response.",
-      whenToUse: "When flagging low-confidence responses for human review.",
-      example: "A customer support system that escalates uncertain responses to human agents.",
     },
     {
       name: "Visual Fidelity",
