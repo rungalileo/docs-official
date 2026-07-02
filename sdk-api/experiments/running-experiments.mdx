@@ -34,36 +34,21 @@ import SnippetExperimentsGeneratedOutputInlinePython from "/snippets/code/python
 
 {/* <!-- markdownlint-enable MD044 --> */}
 
-As you progress from initial testing to systematic evaluation, you'll want to run experiments to validate your application's performance and behavior. Here are several ways to structure your experiments, starting from the simplest approaches and moving to more sophisticated implementations.
+You can run experiments to validate your application's performance and behavior. Experiments help with prompt engineering and model selection, and can fit into an evaluation-driven development process or a CI/CD pipeline.
 
-Experiments fit both into the initial prompt engineering and model selection phases of your app, as well as during application development time, such as during testing or in a CI/CD pipeline. This allows you to fit experiments into your SDLC for evaluation-driven development.
+Data scientists and engineers can use experiments in notebooks or simple applications. Engineers can also add experiments into production apps -- allowing experiments to be run against complex scenarios (including RAG and agentic flows).
 
-AI Engineers and data scientists can use experiments in notebooks or in simple applications to test out prompts or different models. AI Engineers can then add experiments into their production apps allowing these experiments to be run against complex applications or scenarios, including RAG and agentic flows.
+## LLM integration prerequisite
 
-## Configure an LLM integration
+To run an experiment using a [prompt](/sdk-api/experiments/prompts) and a [dataset](/sdk-api/experiments/datasets), you need to set up an LLM integration. An integration is also required for experiments using [out-of-the-box metrics](/concepts/metrics/metric-comparison) and [custom LLM metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm).
 
-To calculate metrics using an out-of-the-box metric, or a [custom LLM-as-a-judge metric](/concepts/metrics/custom-metrics/custom-metrics-ui-llm), you will either need to configure an integration with an LLM, or set up the [Luna-2 SLM](/concepts/luna/luna).
-
-To configure an LLM, visit the relevant API platform to obtain an API key, then add it using the [integrations page](https://app.galileo.ai/settings/integrations) in the Galileo Console.
-
-If you are using a [custom code-based metric](/concepts/metrics/custom-metrics/custom-metrics-ui-code) then you don't need an LLM integration.
+More information on configuring an LLM integration is available in [this getting started guide](/getting-started/experiments/#prerequisite-configure-an-llm-integration). Enterprise customers also have the option of setting up [Luna](/concepts/luna/luna) small language models (SLMs) for experiments.
 
 ## Experiment flow
 
-The entry point for running experiments is a call to the run experiments function (see the [`run_experiment` Python SDK docs](/sdk-api/python/reference/experiments#run-experiment), or the [`runExperiment` TypeScript SDK docs](/sdk-api/typescript/reference/README/functions/runExperiment) for more details).
+A primary entry point for running experiments is the function [`run_experiment` in the Python SDK](/sdk-api/python/reference/experiments#run-experiment) or [`runExperiment` in the TypeScript SDK](/sdk-api/typescript/reference/README/functions/runExperiment).
 
-Experiments take a dataset, and can either pass it to a prompt template, or to a custom function. This custom function can go from a simple call to an LLM right up to a full agentic workflow. Experiments also take a list of one or more metrics to use to evaluate the traces. This can be one of the [out-of-the-box metrics](/sdk-api/metrics/metrics) using the constants provided by the Galileo SDK, or the name of a custom metric.
-
-For each row in a dataset, a new trace is created, and either the prompt template is logged as an LLM span, or every span created in the custom function is logged to that trace.
-
-<Note>
-When you call your application code from an experiment, the experiment runner will start a new session and trace for every row in your dataset. You will need to ensure your application code doesn't start a new session or trace manually, or conclude or flush the trace.
-
-If you are using the `log` wrapper or a third-party integration, this is handled for you. If you are logging manually you will need to check to see if an experiment is in progress.
-
-See the [Experiment SDK docs](/sdk-api/experiments/running-experiments#get-an-existing-logger-and-check-for-an-existing-trace) for details on how to do this.
-
-</Note>
+The flow diagram below illustrates what happens after calling this function.
 
 ```mermaid
 flowchart TD
@@ -77,20 +62,26 @@ flowchart TD
     F --> G[Results in Galileo Console]
 ```
 
-All the traces logged to Galileo can then be evaluated using the [metrics of your choice](/sdk-api/metrics/metrics).
-
-If you are building experiments into your production application, you will need to enable a way to call the experiment runner. For example, you can do this inside a unit test.
+The table below describes the different approaches (e.g. function parameters) that can be involved in setting up an experiment.
 
 <Tip>
 **Which approach should I use?**
 
 | Approach | When to use | Output generation |
 |---|---|---|
-| [**Generated output**](#run-experiments-with-generated-output) | You already have output from your AI system to evaluate | No LLM generation needed — output already exists in your dataset |
 | [**Prompt template**](#run-experiments-with-prompt-template) | You want Galileo to generate output using a prompt and an LLM | LLM generates output |
+| [**Generated output**](#run-experiments-with-generated-output) | You already have output from your AI system to evaluate | No LLM generation needed — output already exists in your dataset |
 | [**Custom function**](#run-experiments-with-custom-function) | You need to run complex application logic (RAG, agents, multi-step) | Your application generates output |
 
 </Tip>
+
+You can choose evaluation metrics for your experiments. Metrics can be [out-of-the-box metrics](/sdk-api/metrics/metrics) (specified as constants in the Galileo SDK), or the names of custom metrics.
+
+<Note>
+**For advanced users** -- If you're calling your application code from an experiment, the experiment runner will start a new session and trace for every row in your dataset. To avoid conflicts, you will need to ensure your application code doesn't start a new session or trace manually, or conclude or flush the trace.
+
+Visit the examples in [this section](/sdk-api/experiments/running-experiments#get-an-existing-logger-and-check-for-an-existing-trace) to check whether an experiment is in progress. This special handling is required for application code that uses manual logging (e.g. [`GalileoLogger`](/sdk-api/logging/galileo-logger)), it is not necessary for application code using the [`log`](/sdk-api/logging/log-decorator/log-decorator) wrapper.
+</Note>
 
 ## Run experiments with prompt template
 
@@ -149,7 +140,7 @@ Your dataset needs at minimum an `input` column and a `generated_output` column.
 | `metadata` | No | Additional context for filtering or grouping |
 
 <Note>
-**Column naming:** The SDK accepts both `ground_truth` and `output` for the reference/expected answer column. Internally they map to the same field. In the Galileo Console and CSV exports, this column is displayed as "Ground Truth". We recommend using `ground_truth` in new datasets for clarity.
+**Column naming** -- The SDK accepts both `ground_truth` and `output` for the reference/expected answer column. Internally they map to the same field. In the Galileo Console and CSV exports, this column is displayed as "Ground Truth". We recommend using `ground_truth` in new datasets for clarity.
 </Note>
 
 #### Flow determination
@@ -294,13 +285,41 @@ For the most sophisticated level of testing, you might need to track specific as
 
 Each of these experimentation approaches fits into different stages of your development and testing workflow. As you progress from simple prompt testing to sophisticated custom metrics, Galileo's experimentation framework provides the tools you need to gather insights and improve your application's performance at every level of complexity.
 
-## Experimenting with agentic and RAG applications
+## Experiments with agentic and RAG applications
 
 The experimentation framework extends naturally to more complex applications like agentic AI systems and RAG (Retrieval-Augmented Generation) applications. When working with agents, you can evaluate various aspects of their behavior, from decision-making capabilities to tool usage patterns. This is particularly valuable when testing how agents handle complex workflows, multi-step reasoning, or tool selection.
 
 For RAG applications, experimentation helps validate both the retrieval and generation components of your system. You can assess the quality of retrieved context, measure response relevance, and ensure that your RAG pipeline maintains high accuracy across different types of queries. This is especially important when fine-tuning retrieval parameters or testing different reranking strategies.
 
 The same experimentation patterns shown above apply to these more complex systems. You can use predefined datasets to benchmark performance, create custom datasets for specific edge cases, and define specialized metrics that capture the unique aspects of agent behavior or RAG performance. This systematic approach to testing helps ensure that your advanced AI applications maintain high quality and reliability in production environments.
+
+## Multi-turn conversations in experiments
+
+The [Python SDK](/sdk-api/python/sdk-reference) supports evaluating multi-turn conversations in experiments. With this feature, you can use session metrics to test how multi-turn datasets perform on your agents before deploying changes to production.
+
+![Multi-turn conversations in experiments screenshot](/images/console-ui/multi-turn-conversations-experiments.png)
+
+Out-of-the-box session metrics include [Action Completion](/concepts/metrics/agentic/action-completion), [Agent Efficiency](/concepts/metrics/agentic/agent-efficiency), [Agent Flow](/concepts/metrics/agentic/agent-flow), [Conversation Quality](/concepts/metrics/agentic/conversation-quality), [Interruption Detection](/concepts/metrics/multimodal-quality/interruption-detection), and [User Intent Change](/concepts/metrics/agentic/intent-change). You can also [create your own custom metric](/concepts/metrics/custom-metrics/custom-metrics-ui-llm) to evaluate sessions.
+
+Usage steps:
+
+1. Define multi-turn datasets and experiments using the Python SDK.
+2. Configure out-of-the-box or custom session metrics on these experiments.
+3. View the sessions and metrics in the Experiments UI in a new "Sessions" tab -- or get the computed metric values through the SDK.
+
+[View full multi-turn experiment example](https://github.com/rungalileo/sdk-examples/tree/main/python/experiments/multi-turn)
+
+<Note>
+Instead of [`run_experiment`](/sdk-api/python/reference/experiments#run_experiment), set up multi-turn experiments with  [`create_experiment`](/sdk-api/python/reference/experiments#create_experiment). This function creates an experiment object in which to provide your own sessions and traces using the Galileo context and logger.
+
+See [this code example](https://github.com/rungalileo/sdk-examples/blob/main/python/experiments/multi-turn/basic-example.py) for more information.
+</Note>
+
+## Experiment groups
+
+You can organize related experiments into experiment groups. In the Python SDK, provide an optional **`experiment_group`** parameter on [`run_experiment`](/sdk-api/python/reference/experiments#run_experiment), [`create_experiment`](/sdk-api/python/reference/experiments#create_experiment), or [`get_experiments`](/sdk-api/python/reference/experiments#get_experiments). Use [`list_experiment_groups`](/sdk-api/python/reference/experiments#list_experiment_groups) to show available experiment groups.
+
+Learn more about grouping experiments in the Galileo console and SDK on [this page](/sdk-api/experiments/experiment-groups).
 
 ## Best practices
 
