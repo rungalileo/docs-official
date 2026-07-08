@@ -54,6 +54,64 @@ You can now select this metric when running evaluations.
 </Step>
 </Steps>
 
+### AI-assisted code generation
+
+Writing a scorer from scratch can be tricky, especially when you're just getting started or when you're migrating from another evaluation framework. Galileo's **Help me write** feature generates a working scorer function from a plain-English description — so you can go from idea to runnable metric in seconds.
+
+#### How to use it
+
+<Steps>
+<Step title="Enable Help me write">
+In the code editor, toggle on **Help me write** above the editor panel.
+</Step>
+<Step title="Describe your metric">
+In the prompt field, describe what you want the metric to do in natural language. Be as specific as you like — the more detail you provide, the better the generated code will match your intent. Optionally include examples of expected inputs and outputs for edge-case guidance.
+
+You can also paste in code from another evaluation framework (LangSmith, RAGAS, etc.) and the generator will convert it to a Galileo scorer automatically.
+</Step>
+<Step title="Choose a model">
+Select the model you want to use for code generation from the dropdown. Models recommended for code generation are highlighted.
+</Step>
+<Step title="Click Generate">
+Click **Generate**. The scorer function is written directly into the editor. Review it, adjust if needed, and proceed to test and save as normal.
+</Step>
+</Steps>
+
+<Note>
+AI-assisted generation is a one-shot tool — it creates a starting point rather than engaging in an iterative conversation. After generating, you can edit the code freely in the editor before saving.
+</Note>
+
+#### Example prompts
+
+**Simple boolean check on an LLM span:**
+
+```
+Evaluate if the LLM's output contains any email addresses.
+```
+
+**Integer count on sessions:**
+
+```
+Count the number of LLM calls made in a session.
+```
+
+**Migrating from another framework:**
+
+```
+The metric should calculate the edit distance between the ground truth and the generated output.
+
+Use this LangSmith code as a reference:
+
+from langsmith.evaluation import evaluate
+import rapidfuzz
+
+def custom_edit_distance(run, example):
+    prediction = run.outputs.get("output", "")
+    reference = example.outputs.get("reference_output", "")
+    distance = rapidfuzz.distance.DamerauLevenshtein.distance(prediction, reference)
+    return {"key": "custom_damerau_levenshtein", "score": distance}
+```
+
 #### The scorer function
 
 This function evaluates individual responses and returns a score:
