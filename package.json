@@ -6,9 +6,10 @@
   "scripts": {
     "gen:errors": "node scripts/generate-errors-data.mjs",
     "generate:errors": "node scripts/generate-errors-json.mjs",
-    "predev": "npm run gen:errors",
+    "gen:openapi": "node scripts/patch-openapi.mjs",
+    "predev": "npm run gen:errors && npm run gen:openapi",
     "dev": "mint dev",
-    "prebuild": "npm run gen:errors",
+    "prebuild": "npm run gen:errors && npm run gen:openapi",
     "lint:markdown": "markdownlint-cli2 \"**/*.{md,mdx}\" --config .markdownlint.jsonc",
     "lint:markdown:fix": "markdownlint-cli2 \"**/*.{md,mdx}\" --config .markdownlint.jsonc --fix"
   },
