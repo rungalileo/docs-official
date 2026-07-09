@@ -32,11 +32,15 @@ From the dialog that appears, choose the **Code-powered metric** type. This opti
 <Step title="Write your custom metric">
 Select the step level you'd like to apply this metric to (ie: Sessions, Traces, LlmSpan, etc...). Then, use the code editor to write your custom metric. The editor provides a template with the required functions and helpful comments to guide you.
 
-![Code editor](/images/g2/custom-metrics-code-editor.png)
+![Code editor](/images/g2/custom-metrics-code-editor-ai-assisted.png)
 
 The code editor allows you to write and test your metric directly in the browser. You'll need to define the `scorer_fn` function as described below.
+
+You can optionally enable the **Help me write** toggle to use AI-assisted code generation. See [AI-assisted code generation](#ai-assisted-code-generation) for a full walkthrough of this feature.
+
 </Step>
 <Step title="Test your metric">
+    <span id="test-your-metric"></span>
   Before saving, test the metric against real inputs and iterate on the code.
   From the **Test Metric** tab you can test three ways: with **manual input**,
   against your **current logs**, or against a **labeled dataset**
@@ -53,6 +57,72 @@ After writing your custom metric code, select the **Save** button in the bottom 
 You can now select this metric when running evaluations.
 </Step>
 </Steps>
+
+### AI-assisted code generation
+
+Writing a scorer from scratch can be tricky, especially when you're just getting started or when you're migrating from another evaluation framework. The **Help me write** feature generates a working scorer function from a plain-English description — so you can go from idea to runnable metric in seconds.
+
+#### How to use it
+
+<Steps>
+<Step title="Create a custom code-based metric">
+Follow steps 1-3 of [Create a registered custom metric](#create-a-registered-custom-metric) to start creating a custom code-based metric.
+</Step>
+<Step title="Enable Help me write">
+In the code editor, toggle on **Help me write** above the editor panel.
+</Step>
+<Step title="Describe your metric">
+In the prompt field, describe what you want the metric to do in natural language. Be as specific as you like — the more detail you provide, the better the generated code will match your intent. Optionally include examples of expected inputs and outputs for edge-case guidance.
+
+You can also paste in code from another evaluation framework (LangSmith, RAGAS, etc.) and the generator will convert it to a Galileo scorer automatically.
+
+![AI-assisted code generation](/images/g2/custom-metrics-ai-assisted-code.png)
+</Step>
+<Step title="Choose a model">
+Select the model you want to use for code generation from the dropdown menu. Models recommended for code generation are highlighted.
+</Step>
+<Step title="Click Generate Code">
+Click **Generate Code**. The scorer function is written directly into the editor. Review it, adjust if needed, and proceed to test and save as normal.
+</Step>
+</Steps>
+
+Next, you can [test and save your code-based metric](#test-your-metric).
+
+<Note>
+AI-assisted generation is a one-shot tool — it creates a starting point rather than engaging in an iterative conversation. After generating, you can edit the code freely in the editor before saving.
+</Note>
+
+#### Example prompts
+
+**Simple boolean check on an LLM span:**
+
+```text
+Evaluate if the LLM's output contains any email addresses.
+```
+
+**Integer count on sessions:**
+
+```text
+Count the number of LLM calls made in a session.
+```
+
+**Migrating from another framework:**
+
+```text
+The metric should calculate the edit distance between
+the ground truth and the generated output.
+
+Use this LangSmith code as a reference:
+
+from langsmith.evaluation import evaluate
+import rapidfuzz
+
+def custom_edit_distance(run, example):
+    prediction = run.outputs.get("output", "")
+    reference = example.outputs.get("reference_output", "")
+    distance = rapidfuzz.distance.DamerauLevenshtein.distance(prediction, reference)
+    return {"key": "custom_damerau_levenshtein", "score": distance}
+```
 
 #### The scorer function
 
