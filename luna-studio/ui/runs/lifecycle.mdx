@@ -1,20 +1,30 @@
 ---
 title: "Run lifecycle"
-description: "The five statuses every training run flows through, and what each one means."
+description: "The statuses a Luna Studio run can enter, and what each one means."
 ---
 
-Every training run in Luna Studio progresses through a small state machine. The same statuses are reused on the [Metrics](/luna-studio/ui/metrics/overview) page, since each run produces exactly one metric.
+Every training run in Luna Studio progresses through a small state machine. The exact path depends on whether you generate a training set or select an existing one.
 
 ## The state machine
 
 ```mermaid
 flowchart LR
-  Start((New run)) --> Queued
-  Queued --> Training
+  Start((New run)) --> GenerateChoice{Generate training data?}
+  GenerateChoice -->|Yes| DataQueued["Queued (data generation)"]
+  DataQueued --> Generating[Generating data]
+  Generating --> DataReady[Data ready]
+  DataReady --> TrainingQueued["Queued (training)"]
+  GenerateChoice -->|No| TrainingQueued
+  TrainingQueued --> Training
   Training --> FineTuned[Fine-tuned]
   Training --> Failed
-  FineTuned --> Registered
-  FineTuned --> Failed
+  FineTuned -->|Registration succeeds| Registered
+  Generating --> Failed
+  Generating --> Cancelled
+  DataReady --> Cancelled
+  DataQueued --> Cancelled
+  TrainingQueued -->|API or platform| Cancelled
+  Training -->|API or platform| Cancelled
   Registered --> Done(((Live in Galileo)))
 ```
 
@@ -22,8 +32,17 @@ flowchart LR
 
 ### Queued
 
-The run was accepted but training hasn't started yet. The time a run spends in Queued state depends on the max number of GPUs allocated to Luna Studio by your organization and current number of trainings running.
-For example if max GPUs is 2, and 2 trainings are running already, your run will remain in queued till 1 existing run finishes training.
+The run is waiting for its next server-side stage. Luna Studio uses the same Queued label while a data-generation task is waiting to start and while fine-tuning is waiting for training capacity.
+
+Training queue time depends on the GPU capacity and concurrency configured for your deployment. For example, if two GPUs are allocated and both are busy, another run remains Queued until capacity is available.
+
+### Generating data
+
+Luna Studio is generating a sample or final training dataset, or labelling uploaded training logs. You can leave the page while the server-side task continues.
+
+### Data ready
+
+The generated training dataset is ready. Review the result and continue through the run wizard to launch fine-tuning.
 
 ### Training
 
@@ -35,7 +54,7 @@ The base model is fine-tuning on your training set. Typical training times vary 
 
 Training succeeded. Luna Studio has evaluated the resulting metric against the test set and shows you the scores.
 
-**What you see in the UI:** the run details main area shows a metrics grid (F1, AUC-ROC, etc.) versus a baseline. A **Register metric** button appears in the page footer.
+**What you see in the UI:** the run details main area shows a metrics grid (F1, AUC-ROC, etc.) versus a baseline. A **Register metric** button appears in the page footer; registration preflight can disable it and show a blocker.
 
 ### Registered
 
@@ -43,7 +62,7 @@ You've published the metric to the Galileo metrics store. It's now usable across
 
 ### Failed
 
-Something went wrong during training or validation.
+Something went wrong during data generation, training, or evaluation. A registration error leaves the run Fine-tuned; correct a reversible issue and try again, or keep the artifact in Luna Studio when its metric contract is not registrable.
 
 **What you see in the UI:** the run details page shows a destructive alert titled "Run failed" with the failure reason. Common reasons:
 
@@ -52,3 +71,11 @@ Something went wrong during training or validation.
 - **Provider error** &mdash; an external LLM API returned an error during generation.
 
 If the failure is transient, you can launch a new run with the same configuration. The existing run stays in **Failed** for audit.
+
+### Cancelled
+
+A cancellation was recorded before the run completed. Luna Studio stops owned background tasks and makes a best-effort attempt to stop in-flight platform compute. Artifacts already produced are retained.
+
+In the current UI, you can cancel a draft while working in the run wizard, including while training data is queued or being generated. The run details header and Training runs table do not currently provide a cancellation action once fine-tuning has been launched, even though an API or platform cancellation can still cause a queued or training run to appear as Cancelled.
+
+Cancellation is terminal; launch a new run if you want to try the configuration again.

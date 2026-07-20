@@ -26,18 +26,21 @@ Galileo provisions Luna Studio into the customer's own infrastructure. The train
 - `AzureML Pipelines`
 - `SageMaker Pipelines`
 
-This means the heavyweight compute &mdash; both the inference for synthetic data generation and the GPU fine-tuning jobs &mdash; runs inside your environment, against the GPUs and quotas your team already manages.
+The GPU fine-tuning jobs run inside your environment against the capacity and quotas your team manages. Synthetic data generation is orchestrated by Luna Studio but calls the supported runtime LLM provider and model you select.
 
 ## What's fixed at deployment vs. configurable in-app
 
 Luna Studio splits its integrations into two layers. Understanding which layer a setting lives on tells you whether you change it in the UI or talk to your Galileo contact.
 
-| Layer                | Examples                                                                                                             | Who configures it                                                                     |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| **Deployment-level** | Training platform (Kubernetes, Vertex AI Pipelines, AzureML Pipelines, SageMaker Pipelines), Luna base model catalog | Galileo, at deployment time                                                           |
-| **Runtime (in-app)** | LLM provider integrations (OpenAI, Anthropic, Azure, Vertex AI, AWS, custom), Galileo integration, projects, runs    | Your org's users, from the [Integrations page](/luna-studio/ui/integrations/overview) |
+| Layer                                  | Examples                                                                                                             | Who configures it                                                                                                     |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Deployment-level**                   | Training platform (Kubernetes, Vertex AI Pipelines, AzureML Pipelines, SageMaker Pipelines), object storage, Postgres, Luna base model catalog | Galileo or your deployment operator, at deployment time                                                              |
+| **Runtime (in-app)**                   | OpenAI, Anthropic, Google Gemini, and Groq credentials; Galileo integration records; projects and runs               | Individual users through personal overrides, or administrators through workspace defaults on the [Integrations page](/luna-studio/ui/integrations/overview) |
+| **Current-release Galileo exception**  | Effective Galileo API URL and key for dataset import and metric registration                                         | Your deployment operator until the current backend limitation is addressed                                            |
 
-The deployment-level layer is what these docs mean when they reference "your Luna Studio deployment" &mdash; for example, the [base model](/luna-studio/ui/core-concepts#base-models) list shown in Step 4 of the new run flow is sourced from your deployment. The runtime layer is everything users configure inside the app and is the focus of the rest of these docs.
+The deployment-level layer is what these docs mean when they reference "your Luna Studio deployment" &mdash; for example, the [base model](/luna-studio/ui/core-concepts#base-models) list shown in Step 4 of the new run flow is sourced from your deployment. The runtime layer includes the supported LLM keys and Galileo records users configure in the app, plus projects and runs.
+
+The Galileo exception is current implementation behavior, not a permanent architectural classification: although personal and workspace-scoped `galileo_api` records can be saved in the UI, dataset import and metric registration currently ignore both and read deployment settings instead. See [Galileo integration](/luna-studio/ui/integrations/galileo) for the operational setup and verification path.
 
 For more on the runtime layer, see [Integrations overview](/luna-studio/ui/integrations/overview). For more on the training platform list, see [Training platforms](/luna-studio/ui/integrations/overview#training-platforms).
 

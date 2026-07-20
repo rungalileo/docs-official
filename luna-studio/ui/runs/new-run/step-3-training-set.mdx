@@ -3,9 +3,7 @@ title: "Step 3 — Training set"
 description: "Generate a training set from your test set or add your own training logs."
 ---
 
-The training set is the dataset that fine-tunes your base model. Generated training sets contain 2,000 labelled examples, and you can also add or reuse your own training data.
-
-<Frame caption="Step 3 — pick a training data source: generate, add logs, or use an existing training set">![Training set step](/images/luna-studio/runs/new-run-training-set.png)</Frame>
+The training set is the dataset that fine-tunes your base model. Full generation targets 2,000 synthetic labelled examples, and enhancement examples can be appended to the final training split. You can also add or reuse your own training data.
 
 ## The three training dataset sources
 
@@ -13,10 +11,10 @@ The step opens with a section heading **Training data source** and three selecta
 
 <CardGroup cols={3}>
   <Card title="Generate from test set" icon="wand-magic-sparkles">
-    Uses 20% of your test set as seed examples to generate 2,000 labelled training examples. **Recommended for first runs.**
+    Uses 20% of your test set as seed examples and targets 2,000 synthetic labelled examples. **Recommended for first runs.**
   </Card>
   <Card title="Add training logs" icon="upload">
-    Upload or import your own raw production logs. If they are unlabelled, Luna Studio labels them before training.
+    Upload or import production logs. If labels are missing, you can explicitly start a metric-prompt labelling pass.
   </Card>
   <Card title="Use existing training set" icon="database">
     Reuse a previously generated, labelled, or uploaded training dataset from your workspace.
@@ -31,7 +29,7 @@ This option creates a training set from your test set in three steps:
 
 1. Configure generation and generate a sample dataset
 2. Review 50 sample rows and provide feedback to the generator
-3. Generate the final 2,000-example dataset once you are happy with the samples
+3. Request the full generation, targeting 2,000 synthetic examples, once you are happy with the samples
 
 ### Configure the generator
 
@@ -70,11 +68,11 @@ Click **Regenerate** to kick off another sample generation.
 
 The **Regenerate** button in the modal stays disabled until either a reason is picked or, for "Provide own feedback", the text is non-empty.
 
-Note: you can provide feedback up to three times. You can also track the cycles in the UI.
+You can repeat the feedback and regeneration cycle as needed. Luna Studio tracks the cycles in the UI.
 
 #### Generate the final dataset
 
-Once you're happy with the samples, the footer button changes to **Generate final dataset**. Clicking it creates the full 2,000-example training set. When it completes, the drawer closes and Step 3 shows the **Training set completed** view (see below).
+Once you're happy with the samples, the footer button changes to **Generate final dataset**. Clicking it requests 2,000 synthetic examples. Enhancement examples derived from the seed data can then be appended, so the final training split can contain more than 2,000 rows. When generation completes, the drawer closes and Step 3 shows the **Training set completed** view (see below).
 
 ## Add training logs
 
@@ -84,17 +82,21 @@ Clicking the card opens the **Add training set** modal — the same generic data
 
 <CardGroup cols={3}>
   <Card title="Upload from local" icon="upload">
-    Drag-and-drop a `.csv` or `.jsonl` file.
+    Drag-and-drop a `.csv` or `.jsonl` file. Use CSV for end-to-end run processing.
   </Card>
   <Card title="Fetch from URL" icon="link">
-    Paste an `http://`, `https://`, `s3://`, or `gs://` URL.
+    Paste a publicly reachable or presigned `http://` or `https://` URL.
   </Card>
   <Card title="Import from Galileo" icon="cloud-arrow-down">
     Browse datasets in your connected Galileo workspace.
   </Card>
 </CardGroup>
 
-If the logs are missing labels, Luna Studio opens the label-only generation flow. It uses your metric prompt to label the logs, saves a labelled training dataset, and then uses that dataset for training.
+The upload is initially treated as pre-labelled. If validation finds that `label` is the only missing required column, choose **Label with metric prompt instead**. Luna Studio then opens the label-only generation drawer, where you configure a provider and model and explicitly start labelling. The resulting labelled dataset—not the raw upload—is used for training.
+
+<Warning>The source picker accepts JSONL during ingestion, but current validation and data-generation paths read CSV. Convert JSONL to CSV before using it as training data.</Warning>
+
+The labelled training set must contain at least 2,000 rows total and at least 100 examples per class. If you fetch from private object storage, use a presigned HTTPS URL; raw `s3://` and `gs://` URIs are not supported.
 
 ## Use existing training set
 
@@ -102,8 +104,7 @@ The **Use existing training set** path lets you pick a previously generated, lab
 
 ### Validation
 
-Luna Studio runs validation on the training set to ensure it meets the required schema / format / content rules.
-If there are any validation errors, they will be highlighted (See example below).
+Luna Studio validates a selected training set against the metric-specific schema, label type, and row thresholds before attaching it to the run. If there are validation errors, they are highlighted. A dataset can remain available on the global Datasets page even when it is rejected for this run.
 
 For more details, see [Validation](/luna-studio/ui/datasets/validation).
 

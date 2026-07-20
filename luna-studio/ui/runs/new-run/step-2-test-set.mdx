@@ -9,7 +9,7 @@ The test set is the **ground truth** for the run. After training, Luna Studio sc
 
 ## Pick an existing test set
 
-The **Test set** select shows test sets you've already added to this org. Each option includes a row count and source label, e.g. `rag-eval-dataset-v2 — 320 rows · Uploaded`.
+The **Test set** select shows test sets already added to this workspace. Each option includes a row count and source label, e.g. `rag-eval-dataset-v2 — 320 rows · Uploaded`.
 
 Type into the select to filter by name.
 
@@ -17,30 +17,31 @@ Type into the select to filter by name.
 
 If you don't have one yet, click the dropdown's **Add new test set** action. The **Add test set** modal opens.
 
-<Frame caption="Add test set modal opened from Step 2 — same flow as the Datasets page">![Add test set modal](/images/luna-studio/runs/new-run-add-test-set.png)</Frame>
-
 The modal title is **Add test set** with the subtitle "Test sets are curated labelled examples used to evaluate your metric." Three sources are available — see [Add a dataset](/luna-studio/ui/datasets/add-a-dataset) for a complete reference.
 
 <CardGroup cols={3}>
   <Card title="Upload from local" icon="upload">
-    Drag-and-drop a `.csv` or `.jsonl` file.
+    Drag-and-drop a `.csv` or `.jsonl` file. Use CSV for end-to-end run processing.
   </Card>
   <Card title="Fetch from URL" icon="link">
-    Paste an `http://`, `https://`, `s3://`, or `gs://` URL.
+    Paste a publicly reachable or presigned `http://` or `https://` URL.
   </Card>
   <Card title="Import from Galileo" icon="cloud-arrow-down">
     Browse datasets in your connected Galileo workspace.
   </Card>
 </CardGroup>
 
-Required columns: depends on the metric's input type, for more details see [Prerequisites](/luna-studio/ui/prerequisites).
+Required columns depend on the metric shape. For details, see [Prerequisites](/luna-studio/ui/prerequisites).
 
-<Note>Importing from Galileo requires an active [Galileo integration](/luna-studio/ui/integrations/galileo). If one isn't configured, Luna Studio prompts you to add it inline before the import panel appears.</Note>
+Test sets must contain at least 300 rows total and at least 100 examples per class.
+
+<Warning>The source picker accepts JSONL during ingestion, but current metric-aware validation reads the stored file as CSV. Convert JSONL to CSV before using it as the run's test set.</Warning>
+
+<Note>Importing from Galileo requires a deployment-configured [Galileo API connection](/luna-studio/ui/integrations/galileo). If an inline prompt does not clear the backend error, ask your deployment operator to configure the URL and key.</Note>
 
 ## Validation
 
-Luna Studio runs validation on the test set to ensure it meets the required schema / format / content rules.
-If there are any validation errors, they will be highlighted (See example below).
+Because this flow has the selected metric as context, Luna Studio validates the test set's shape-specific columns, label type, and row thresholds before attaching it to the run. If there are validation errors, they are highlighted. The uploaded dataset can remain available on the global Datasets page even when it is rejected for this run.
 
 <Frame caption="Step 2 with a validation error — the flow blocks Next until the schema is valid">![Test set validation error](/images/luna-studio/runs/new-run-test-set-error.png)</Frame>
 

@@ -1,41 +1,40 @@
 ---
 title: "Galileo integration"
-description: "The single API key that unlocks Galileo platform features in Luna Studio."
+description: "Understand how the current release supplies Galileo credentials for dataset import and metric registration."
 ---
 
-The Galileo integration connects Luna Studio to the rest of the Galileo platform with a single API key.
+The Galileo integration connects Luna Studio to the rest of the Galileo platform. The **Integrations** page lets a user save a personal `galileo_api` record and an administrator save a workspace-scoped record. In the current release, however, dataset import and metric registration do not read either in-app record. Those operations instead read the Galileo API URL and key from the Luna Studio backend's deployment settings.
 
-<Frame caption="Connect Luna Studio to Galileo platform features">![Galileo integration on the Integrations page](/images/luna-studio/integrations/integrations-page.png)</Frame>
+<Warning>This is a current-release runtime limitation, not a permanent deployment-only architecture. Saving or successfully testing either a personal or workspace Galileo card does not make those credentials available to dataset import or metric registration.</Warning>
 
 ## When you need it
 
 The Galileo integration unlocks two platform features:
 
 - **Import from Galileo** &mdash; pull datasets from your Galileo workspace into Luna Studio. Available when [adding a dataset](/luna-studio/ui/datasets/add-a-dataset) and in [Step 2](/luna-studio/ui/runs/new-run/step-2-test-set) and [Step 3](/luna-studio/ui/runs/new-run/step-3-training-set) of the run creation flow.
-- **Register metric** &mdash; publish a fine-tuned metric from Luna Studio into the Galileo metrics store, where it becomes available across evaluation, observability, and guardrails. See [Register a metric](/luna-studio/ui/runs/register-metric).
+- **Register metric** &mdash; publish an eligible fine-tuned metric from Luna Studio into the Galileo metrics store, where it becomes available across evaluation, observability, and guardrails. See [Register a metric](/luna-studio/ui/runs/register-metric).
 
 You can use Luna Studio without the Galileo integration — uploads, URL fetches, and local-only flows work fine — but registration and Galileo-sourced data require it.
 
-## Add the integration
+## Configure the effective connection in the current release
 
 <Steps>
-  <Step title="Open the Integrations page">
-    From the sidebar footer, click **Integrations**.
+  <Step title="Ask your deployment operator">
+    The operator must configure both the Galileo API URL and API key for the Luna Studio backend. The backend-native environment names are `LUNA_GALILEO_API_URL` and `LUNA_GALILEO_API_KEY`. The SDK-compatible names `GALILEO_API_URL` and `GALILEO_API_KEY` are also accepted, allowing the backend and SDK to use the same deployment values.
   </Step>
 
-<Step title="Paste your Galileo API key">Get your key from the Galileo console.</Step>
-
-  <Step title="Save the integration">
-    After saving, Galileo-backed features are available to your org.
+  <Step title="Verify the consuming flows">
+    To verify dataset access, select **Import from Galileo** while adding a dataset. To verify registration, open an eligible run with the **Fine-tuned** status and inspect its **Register metric** action; the run-details preflight reports missing Galileo settings and other registration blockers. Do not rely on the Galileo card's saved or tested state to verify these flows in the current release.
   </Step>
 </Steps>
 
-## Update or remove
+## Update, rotate, or remove credentials
 
-- **Update** &mdash; replace the API key if it changes.
-- **Remove** &mdash; disables Import from Galileo and Register metric for future use across the org.
+- **Update or remove an in-app record** &mdash; changes the personal or workspace record represented by the Galileo card. Under the current limitation, this does not change the credentials used by dataset import or registration.
+- **Rotate the effective key** &mdash; have the deployment operator replace the configured API key and restart or roll out the affected backend workload as required by your deployment.
+- **Disable the effective connection** &mdash; clearing the deployment settings disables future Galileo imports and registrations.
 
-<Warning>Removing the Galileo integration **does not unregister** any metrics already published to the Galileo metrics store. Those metrics remain live until you remove them from the Galileo platform itself.</Warning>
+<Warning>Removing the Galileo connection **does not unregister** any metrics already published to the Galileo metrics store. Those metrics remain live until you remove them from the Galileo platform itself.</Warning>
 
 ## Where to go next
 
