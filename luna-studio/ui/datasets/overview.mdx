@@ -3,7 +3,7 @@ title: "Datasets overview"
 description: "Manage test sets and training sets across all your projects."
 ---
 
-The **Datasets** page (sidebar → **Datasets**) is where you manage every dataset in your org. Datasets are **org-scoped** — once added, they're available across every project for any training run.
+The **Datasets** page (sidebar → **Datasets**) is where you manage every dataset in your organization. Datasets are organization-wide — once added, they are available across every project for any training run.
 
 <Frame caption="Datasets page with the Test sets and Training sets tabs">![Datasets page](/images/luna-studio/datasets/datasets-home.png)</Frame>
 
@@ -37,11 +37,13 @@ The **Used in metric** column on the datasets table shows you which metrics' fin
 
 ## Source types
 
-| Source  | What it means                                                               |
-| ------- | --------------------------------------------------------------------------- |
-| Upload  | You uploaded a `.csv` or `.jsonl` file from your machine.                   |
-| URL     | Luna Studio fetched the dataset from an http/https/s3/gs URL.                      |
+| Source  | What it means                                                                       |
+| ------- | ----------------------------------------------------------------------------------- |
+| Upload  | You uploaded a `.csv` or `.jsonl` file from your machine.                           |
+| URL     | Luna Studio fetched the dataset from a public or pre-signed HTTP(S) URL.              |
 | Galileo | Luna Studio pulled the dataset from a project in your connected Galileo workspace. |
+
+<Note>The source picker accepts JSONL during ingestion, but the current run-validation and data-generation paths read CSV. Convert JSONL to CSV before using the dataset in a run.</Note>
 
 For training sets specifically, an additional source applies:
 
@@ -60,6 +62,6 @@ For training sets specifically, an additional source applies:
     Reference for the three dataset sources (Upload, URL, Galileo).
   </Card>
   <Card title="Dataset validation" icon="circle-check" href="/luna-studio/ui/datasets/validation">
-    What Luna Studio checks when you add a dataset.
+    What Luna Studio checks when a dataset is used in a run.
   </Card>
 </CardGroup>

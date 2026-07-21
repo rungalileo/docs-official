@@ -11,15 +11,17 @@ To get here, click any project on the [Projects](/luna-studio/ui/projects/overvi
 
 ## Status summary stat cards
 
-Below the page header is a row of stat cards — one per [run lifecycle status](/luna-studio/ui/runs/lifecycle):
+Below the page header is a row of summary cards:
 
-| Stat       | What it counts                                          |
-| ---------- | ------------------------------------------------------- |
-| Queued     | Runs accepted but not yet started.                      |
-| Training   | Runs currently fine-tuning.                             |
-| Fine-tuned | Runs that completed training and are ready to register. |
-| Registered | Runs whose metric has been published to Galileo.        |
-| Failed     | Runs whose training or registration failed.             |
+| Stat            | What it counts or shows                                         |
+| --------------- | ---------------------------------------------------------------- |
+| Queued          | Runs waiting for data generation or training to start.           |
+| Generating data | Runs currently creating or labelling training data.              |
+| Data ready      | Runs whose generated data is ready for the next wizard step.      |
+| Training        | Runs currently fine-tuning.                                      |
+| Fine-tuned      | Runs that completed training; registration still depends on eligibility.           |
+| Registered      | Runs whose metric has been published to Galileo.                 |
+| Avg score       | Average available headline score across completed runs.          |
 
 The numbers update live as runs change status.
 
@@ -32,7 +34,7 @@ Below the stat cards, the filter toolbar lets you narrow the runs table:
 | Search        | Filter by run name or by metric name.                                                           |
 | Starred       | Toggle to show only starred runs. The icon turns amber when active.                             |
 | Metric        | Multi-select dropdown. Options are the unique metrics in this project's runs.                   |
-| Status        | Multi-select dropdown of the five lifecycle statuses.                                           |
+| Status        | Multi-select dropdown of all eight lifecycle statuses.                                          |
 | Clear filters | Appears once any filter is active. Resets all filters to the default.                           |
 | **New run**   | Primary button on the right. Opens [Creating a new run](/luna-studio/ui/runs/new-run/overview). |
 
@@ -40,19 +42,18 @@ Below the stat cards, the filter toolbar lets you narrow the runs table:
 
 ## Runs table
 
-The runs table has these columns:
+Runs are grouped by metric. Each group's table has these columns:
 
 | Column       | What it shows                                                                                                                                   |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Star         | Click to star the run. Pinned to the left of the table.                                                                                         |
 | Run name     | The name you gave the run (or the auto-generated `New Run N`).                                                                                  |
-| Metric       | Outline-style badge with the metric name.                                                                                                       |
 | Training set | Interactive chip showing the training set used for the run.                                                                                     |
 | Test set     | Interactive chip showing the test set used for the run.                                                                                         |
 | Status       | Status pill. See [Run lifecycle](/luna-studio/ui/runs/lifecycle).                                                                               |
-| F1 score     | Coloured pill showing F1 score relative to thresholds. Up arrow ≥ 0.80, down arrow < 0.30, neutral otherwise. Only shown for runs with a score. |
+| AUROC        | Coloured pill showing AUROC as a percentage. Up arrow ≥ 80%, down arrow < 30%, neutral otherwise. Only shown for runs with a score.           |
 | Created at   | When the run was launched.                                                                                                                      |
-| Actions      | For **Fine-tuned** runs only: a **Register metric** link. Pinned to the right.                                                                  |
+| Actions      | For **Fine-tuned** runs only: a **Register metric** link. Backend registration checks can still reject the submission. Pinned to the right.   |
 
 ## Star a run
 
@@ -74,9 +75,9 @@ The page shows different copy depending on the filter context:
     Walk through the four-step run creation flow.
   </Card>
   <Card title="Run lifecycle" icon="arrows-rotate" href="/luna-studio/ui/runs/lifecycle">
-    The five statuses runs flow through.
+    Understand data generation, training, registration, failure, and cancellation states.
   </Card>
   <Card title="Register a metric" icon="circle-check" href="/luna-studio/ui/runs/register-metric">
-    Publish a fine-tuned metric to the Galileo metrics store.
+    Publish an eligible fine-tuned metric to the Galileo metrics store.
   </Card>
 </CardGroup>

@@ -9,7 +9,7 @@ If your question isn't answered here, check [Troubleshooting](/luna-studio/ui/re
 
 <AccordionGroup>
 <Accordion title="What is Luna Studio?">
-  Luna Studio is Galileo's web app for **fine-tuning custom evaluation metrics** for LLM applications. You bring a small labelled test set, optionally generate a training set, fine-tune a Luna base model, and register the resulting metric back into the [Galileo metrics store](/concepts/metrics/overview). See [Welcome](/luna-studio/ui/index) for the longer pitch.
+  Luna Studio is Galileo's web app for **fine-tuning custom evaluation metrics** for LLM applications. You bring a human-labelled test set, optionally generate a training set, fine-tune a Luna base model, and register eligible metrics in the [Galileo metrics store](/concepts/metrics/overview). See [Welcome](/luna-studio/ui/index) for the longer pitch.
 </Accordion>
 
 <Accordion title="Who is it for?">
@@ -30,7 +30,7 @@ If your question isn't answered here, check [Troubleshooting](/luna-studio/ui/re
 
 <AccordionGroup>
 <Accordion title="How big should my test set be?">
-  Ideally a test should consist of 1000-3000 samples with a good distribution across the classes. We enforce a minimum of 300 human-labelled rows with at least 100 samples per class, since quality is more important than quantity, and human labelling isn't cheap.
+  Aim for 1,000-3,000 representative samples with a good class distribution when possible. Luna Studio enforces a minimum of 300 human-labelled rows total and at least 100 samples per class.
 </Accordion>
 
 <Accordion title="Do I have to upload a training set?">
@@ -41,14 +41,13 @@ Upload your own training set when you have labelled production logs that better 
 </Accordion>
 
 <Accordion title="Can my training set be unlabelled?">
-  Yes, for uploaded or imported logs. Luna Studio labels unlabelled logs with your LLM-as-judge prompt first, saves the labelled result as a training dataset, and then uses that labelled dataset for training. Generated training sets are
-  always labelled.
+  Yes, for uploaded or imported logs. If validation finds that the label column is missing, choose **Label with metric prompt instead**, configure the provider and model, and start the labelling pass. Luna Studio saves the labelled result as a training dataset and uses that result for training. Generated training sets are always labelled.
 </Accordion>
 
-<Accordion title="Can I reuse a test set across multiple projects?">Yes. Datasets are **org-scoped**, not project-scoped. Once you've added a test set, every project in your org can use it.</Accordion>
+<Accordion title="Can I reuse a test set across multiple projects?">Yes. Datasets are organization-wide, not project-scoped. Once you've added a test set, every project in your organization can use it.</Accordion>
 
 <Accordion title="What file formats are supported?">
-  Currently we support `.csv` and `.jsonl` formats. See [Add a dataset](/luna-studio/ui/datasets/add-a-dataset#format-reference).
+  CSV is the current end-to-end format for run validation and processing. The source picker accepts `.jsonl` during ingestion, but downstream run processing reads CSV, so convert JSONL to CSV before using it in a run. See [Add a dataset](/luna-studio/ui/datasets/add-a-dataset#format-reference).
 </Accordion>
 </AccordionGroup>
 
@@ -60,8 +59,8 @@ Upload your own training set when you have labelled production logs that better 
 </Accordion>
 
 <Accordion title="What's a 'step' on a metric?">
-  The **step** is which part of a Galileo trace the metric runs against: a single LLM call (LLM span), a retrieval step (Retriever), an agent step (Agent span), or a trace-level input. See [Custom prompts in Step
-  1](/luna-studio/ui/runs/new-run/step-1-metric#steps-in-detail).
+  Luna Studio now describes this contract with **Input level** and **Metric shape**. The input level identifies where the metric evaluates data, while the metric shape identifies the required dataset columns. See [Custom prompts in Step
+  1](/luna-studio/ui/runs/new-run/step-1-metric#input-levels-in-detail).
 </Accordion>
 
 <Accordion title="Can I edit a registered metric?">
@@ -75,7 +74,7 @@ Upload your own training set when you have labelled production logs that better 
 <Accordion title="How long does training take?">Depends on the base model, training set size and GPU availability. Most runs take a few hours, and larger models or larger datasets can take longer.</Accordion>
 
 <Accordion title="Can I cancel a training run?">
-  Not today. Once a run is **Training**, it runs to completion or failure. We're tracking this for a future release.
+  Not from the current UI after fine-tuning has been launched. You can cancel a draft from the run wizard, including while training data is queued or being generated. The run details header and Training runs table do not currently expose cancellation for **Queued** or **Training** runs. A run can still appear as **Cancelled** when an API or the underlying platform records a cancellation. See [Run lifecycle](/luna-studio/ui/runs/lifecycle#cancelled).
 </Accordion>
 </AccordionGroup>
 
@@ -83,13 +82,11 @@ Upload your own training set when you have labelled production logs that better 
 
 <AccordionGroup>
 <Accordion title="Which LLM providers does Luna Studio support?">
-  Luna Studio supports named hosted providers, Azure, Vertex AI, AWS-hosted models, custom model
-  setups, and Galileo. See [Integrations overview](/luna-studio/ui/integrations/overview).
+  The current UI can configure OpenAI, Anthropic, Google Gemini, and Groq. Galileo is a separate deployment connection for dataset import and metric registration. Other provider cards are marked **Coming soon**. See [Integrations overview](/luna-studio/ui/integrations/overview).
 </Accordion>
 
-<Accordion title="What's the Custom integration for?">
-  For in-house models, OpenAI-compatible proxies, or providers that aren't covered by the named
-  integrations. See [Custom models and proxies](/luna-studio/ui/integrations/llm-providers#custom-models-and-proxies).
+<Accordion title="Can I configure a custom model integration?">
+  Not through the current Luna Studio UI. The Custom card is marked **Coming soon** and does not accept credentials yet. Contact your deployment administrator or Galileo representative about deployment-specific model access.
 </Accordion>
 </AccordionGroup>
 

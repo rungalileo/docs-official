@@ -96,3 +96,101 @@ A few pointers:
 
 When a Slack notification have been added, the top right corner of the section will show "Active".
 
+## Generic webhook notifications
+
+Generic webhooks let you send Galileo alert events to any HTTP endpoint — for example, a custom alerting system, an incident management platform like PagerDuty or IBM Tivoli Netcool/OMNIbus, or an internal automation pipeline.
+
+Unlike Slack notifications (which are formatted for human reading), generic webhooks deliver a structured JSON payload designed for machine consumption. Every delivery includes the exact metric value that triggered the alert, a unique `dedup_key` for correlating trigger and clear events, and a `metadata` field you control. You can use the `metadata` field to route events to the right team or tag payloads with environment context.
+
+### Configure the webhook
+
+1. In the **Webhook (Generic)** section, enter the destination URL of your endpoint.
+
+1. Optionally, add a **Name** to identify this webhook (for example, `PagerDuty - Platform Team`).
+
+1. Select an **Auth type**:
+
+   - **None** — no authentication headers are added.
+   - **Header token** — adds an `Authorization: Bearer <token>` header. Enter your token in the **Token** field.
+   - **HTTP Basic** — adds a `Basic` auth header. Enter your **Username** and **Password**.
+
+   <Note>The token or password is write-only. Galileo never returns it after saving. If you edit the webhook later, you will need to re-enter the credential to save changes.</Note>
+
+1. Optionally, add **Metadata** key-value pairs. These are forwarded unchanged in the `metadata` field of every payload Galileo sends to this endpoint. Use this to attach routing or context information your downstream system needs — for example:
+
+   | Key | Value |
+   |-----|-------|
+   | `team` | `platform` |
+   | `env` | `production` |
+   | `service` | `my-llm-app` |
+
+   Your system receives these fields as-is inside the payload, so you can use them to route alerts, filter noise, or set incident priority without having to parse the alert content.
+
+1. Click **Add** to save the webhook.
+
+![Generic webhook notification — inactive state](/images/console-ui/alerts-generic-webhook-inactive.png)
+
+### Test the connection
+
+After saving, the webhook shows as **Configured**. Click **Send test event** to send a synthetic alert payload to your endpoint.
+
+![Generic webhook notification — configured state](/images/console-ui/alerts-generic-webhook-configured.png)
+
+If your endpoint responds successfully, the badge updates to **Active**.
+
+![Generic webhook notification — active state](/images/console-ui/alerts-generic-webhook-active.png)
+
+If your endpoint does not respond successfully, the badge updates to **Failed**. Check the URL and auth settings, then click **Send test event** again to retry.
+
+![Generic webhook notification — failed state](/images/console-ui/alerts-generic-webhook-failed.png)
+
+### Webhook payload
+
+When an alert triggers, Galileo sends a `POST` request to your endpoint with a JSON body in the following format:
+
+```json
+{
+  "version": "1.0",
+  "event": "alert.triggered",
+  "event_id": "a1b2c3d4-...",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "alert": {
+    "id": "alert-id",
+    "name": "High hallucination rate",
+    "status": "triggered",
+    "previous_status": "healthy"
+  },
+  "scope": {
+    "org_id": "your-org-id",
+    "project_id": "your-project-id",
+    "project_name": "My Project",
+    "log_stream_id": "your-log-stream-id",
+    "log_stream_name": "production"
+  },
+  "conditions": [
+    {
+      "metric": "metrics/context_adherence",
+      "aggregation": "Average",
+      "operator": "less than",
+      "threshold": 0.5,
+      "observed_value": 0.34
+    }
+  ],
+  "dedup_key": "alert-id:project-id:log-stream-id",
+  "deep_link": "https://console.galileo.ai/project/.../log-streams/...",
+  "metadata": {
+    "team": "platform",
+    "env": "production",
+    "service": "my-llm-app"
+  }
+}
+```
+
+Key fields to note:
+
+- **`conditions[].observed_value`** — the actual metric value at the time of the alert, not just the threshold. Use this to set incident severity or include it in notification copy.
+- **`dedup_key`** — stable identifier for this alert instance. Use it to correlate a trigger event with its corresponding clear event, or to avoid duplicate re-deliveries.
+- **`deep_link`** — a direct link into the Galileo console scoped to the time window and filters active when the alert fired.
+- **`metadata`** — the key-value pairs you configured on the webhook. Forwarded unchanged so your system can route or annotate without parsing alert content.
+- **`version`** — always `"1.0"`. Will be incremented if the payload structure changes in a breaking way.
+

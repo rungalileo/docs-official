@@ -1,41 +1,45 @@
 ---
 title: "Dataset validation"
-description: "Schema and content checks Luna Studio runs on every dataset, and how to fix common errors."
+description: "Metric-aware schema and content checks Luna Studio runs before using a dataset in a run."
 ---
 
-Every dataset added to Luna Studio — uploaded, fetched, generated, or imported — goes through validation. Validation determines whether the dataset can be used in a run.
+Adding a dataset from the global Datasets page ingests and stores it, but that flow has no selected metric and does not run the complete metric-aware contract. Luna Studio applies the checks below when you add or select a dataset in the run wizard, where it knows the metric and whether the data is a test set, labelled training set, or unlabelled source for labelling.
+
+An upload can therefore succeed on the Datasets page and later fail validation when you use it in a run.
 
 ## What Luna Studio checks
 
 ### Schema checks
 
-- The file parses as CSV or JSONL.
+- The stored file parses as CSV. The source picker accepts JSONL during ingestion, but current run validation reads it as CSV, so JSONL is not supported end to end.
 - Required columns are present:
   - **Test sets** — metric-specific feature columns and `label`.
   - **Training sets** — metric-specific feature columns and optionally `label` when applicable.
-- Column types match the metric's [output type](/luna-studio/ui/core-concepts#metrics) (e.g. labels are parseable as Boolean for a Boolean metric).
+- Column types match the metric's [output type](/luna-studio/ui/core-concepts#metrics). Boolean labels must be integers: `0` or `1`.
 
 ### Content checks
 
 - File encoding (UTF-8 expected).
-- Row count > 0.
-- Empty rows or empty cells
+- Test sets have at least 300 rows total and at least 100 examples per class.
+- Labelled training sets have at least 2,000 rows total and at least 100 examples per class.
+- Empty rows or empty cells.
 
 ### File checks (uploads and URLs)
 
-- File size within the upload limit.
-- For URLs: the URL is reachable; the response content type is appropriate.
+- Browser upload size is no more than 20 MiB.
+- For URLs: the scheme is HTTP(S), every host and redirect is publicly reachable, and the response returns successfully.
 
 ## Common errors
 
 | Error message                                  | Cause                                                                 | Fix                                                                                                           |
 | ---------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `Missing column "label" in uploaded CSV.`      | Test set or labelled training set without a `label` column.           | Add the column to your file and re-upload. For unlabelled training logs, use the label-only flow from Step 3. |
-| `Missing column "input" in uploaded CSV.`      | Required `input` column missing.                                      | Rename your input column to `input`, or include one.                                                          |
-| `Could not fetch URL.`                         | The URL was unreachable, returned a non-2xx status, or required auth. | Check the URL is correct; for cloud URLs, confirm the relevant integration has access.                        |
-| `Unsupported file type.`                       | The file isn't `.csv` or `.jsonl`.                                    | Convert the file to one of the supported formats.                                                             |
+| `Missing column "input" in uploaded CSV.`      | The selected metric shape requires `input`, but the column is missing. | Add the exact feature columns required by the metric shape; not every shape uses `input`.                     |
+| `Could not fetch URL.`                         | The URL was unreachable, expired, or returned a non-200 status.       | Check the URL or create a new pre-signed HTTPS URL. Raw `s3://` and `gs://` URIs are not supported.           |
+| `Unsupported file type.`                       | The source picker cannot ingest the file extension.                    | Convert the file to CSV. Although JSONL can be ingested, it is not currently supported through run processing. |
 | `Empty dataset.`                               | The file parsed but had zero data rows.                               | Confirm the file isn't header-only.                                                                           |
-| `Label values don't match metric output type.` | Labels can't be parsed as the metric's expected type.                 | Re-check labels (e.g. for Boolean: only `true`/`false` or `1`/`0`).                                           |
+| Minimum row or per-class requirement           | The dataset is smaller than the required threshold.                   | Use at least 300 rows for a test set or 2,000 for a labelled training set, with at least 100 per class.       |
+| `Label values don't match metric output type.` | Labels can't be parsed as the metric's expected type.                 | Re-check labels. For Boolean metrics, use integer `0` and `1`; Boolean `true` and `false` are rejected.        |
 
 ## Where to go next
 

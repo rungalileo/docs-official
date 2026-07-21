@@ -7,25 +7,23 @@ import IntegrationRequired from "/snippets/content/luna-studio/luna-studio-integ
 
 The **Add dataset** modal is reused everywhere you can pick a dataset source — the Datasets page, [Step 2 of the run creation flow](/luna-studio/ui/runs/new-run/step-2-test-set), and [Step 3](/luna-studio/ui/runs/new-run/step-3-training-set). The title and copy adapt to whether you're adding a test set or a training set, but the three sources are the same.
 
-<Frame caption="Add new dataset modal — pick a source: local upload, URL, or Galileo import">![Add dataset modal](/images/luna-studio/datasets/add-dataset-modal.png)</Frame>
-
 ## The three sources
 
 Pick one card. Only one source can be active at a time.
 
 <CardGroup cols={3}>
   <Card title="Upload from local" icon="upload">
-    Drag-and-drop a `.csv` or `.jsonl` file from your machine.
+    Drag-and-drop a `.csv` or `.jsonl` file from your machine. Use CSV for datasets you plan to use in a run.
   </Card>
   <Card title="Fetch from URL" icon="link">
-    Paste an `http://`, `https://`, `s3://`, or `gs://` URL.
+    Paste a publicly reachable or pre-signed `http://` or `https://` URL.
   </Card>
   <Card title="Import from Galileo" icon="cloud-arrow-down">
     Browse datasets in your connected Galileo workspace.
   </Card>
 </CardGroup>
 
-A hint at the bottom of the modal lists the expected columns: **input** and **label**.
+A hint at the bottom of the modal may list expected columns. The authoritative column contract comes from the metric used when Luna Studio validates the dataset for a run.
 
 ## Upload from local
 
@@ -39,51 +37,44 @@ A hint at the bottom of the modal lists the expected columns: **input** and **la
 <Step title="Drag the file in or click the drop zone">Accepted file types: `.csv` and `.jsonl`. Other types are rejected.</Step>
 
 <Step title="Click Add">
-  Luna uploads the file and starts validation. The modal closes; the dataset appears with a status line of **Validating…**, then **Validated** (or **Validated with warnings** / **Validation error**).
+  Luna uploads the file and creates the dataset. From the global Datasets page, the modal then closes. In the run wizard, Luna also validates the dataset against the selected metric before attaching it to the run.
 </Step>
 </Steps>
 
 ### Format reference
 
-For CSV, the first row is treated as headers. For JSONL, each line is a JSON object with at least `input` and (for labelled data) `label`.
+Use CSV for a dataset that will be selected for a run. Although the source picker accepts `.jsonl` during ingestion, the current run-validation and data-generation paths read the stored file as CSV. JSONL is therefore not supported end to end yet.
 
-Examples:
+For CSV, the first row is treated as headers. The required feature columns depend on the metric shape; labelled datasets also need a `label` column. See [Prerequisites](/luna-studio/ui/prerequisites#required-dataset-format) for the shape-specific contracts.
+
+For example, a Boolean, single-input dataset uses integer `0` and `1` labels:
 
 ```csv
 input,label
-"What's the warranty on this?",false
-"You're an idiot.",true
-"How do I reset my password?",false
-```
-
-```jsonl
-{"input": "What's the warranty on this?", "label": false}
-{"input": "You're an idiot.", "label": true}
-{"input": "How do I reset my password?", "label": false}
+"What's the warranty on this?",0
+"You're an idiot.",1
+"How do I reset my password?",0
 ```
 
 ## Fetch from URL
-
-<Frame caption="Fetch from URL — paste an https://, s3://, or gs:// link">![Add dataset, URL](/images/luna-studio/datasets/add-dataset-url.png)</Frame>
 
 <Steps>
 <Step title="Pick the Fetch from URL card">
   A URL input replaces the source picker.
 </Step>
 
-<Step title="Paste a URL">Acceptable schemes: `http://`, `https://`, `s3://`, `gs://`. The input validates the format inline.</Step>
+<Step title="Paste a URL">Only `http://` and `https://` URLs are accepted. The URL must resolve to a public host and return the dataset file directly. Use a CSV source for datasets intended for a run.</Step>
 
 <Step title="Click Add">
-  Luna fetches the file and starts validation. Cloud URLs (`s3://`, `gs://`) require the relevant integration to be configured if the bucket isn't public.
+  Luna fetches the file and creates the dataset. Redirects are checked before Luna follows them, and private or internal network targets are blocked. From the global Datasets page, the modal then closes. In the run wizard, Luna also validates the fetched dataset against the selected metric before attaching it to the run.
 </Step>
 </Steps>
 
 ### Authentication for cloud URLs
 
-- **`s3://`** &mdash; uses the credentials in your [AWS-hosted models integration](/luna-studio/ui/integrations/llm-providers#aws-hosted-models), if any. For public buckets, no auth is needed.
-- **`gs://`** &mdash; uses the GCS credentials in your [Vertex AI integration](/luna-studio/ui/integrations/llm-providers#vertex-ai) (when **Support file uploads** is on).
+Raw object-store URIs such as `s3://` and `gs://` are not supported by URL import. For a private S3 or GCS object, create a time-limited pre-signed HTTPS URL and paste that URL instead. Luna Studio does not attach provider credentials or custom request headers to a URL fetch.
 
-If Luna can't fetch the URL, the dataset shows up with status **Validation error: Could not fetch URL**.
+If Luna cannot fetch or safely resolve the URL, the import returns an error. Check that the link is still valid, returns HTTP 200, and is reachable from the Luna Studio service.
 
 ## Import from Galileo
 
@@ -95,7 +86,7 @@ If Luna can't fetch the URL, the dataset shows up with status **Validation error
 <Step title="Pick the Import from Galileo card">
   The Galileo import panel replaces the source picker.
 
-If a Galileo integration isn't configured, Luna Studio first opens the [Galileo integration modal](/luna-studio/ui/integrations/galileo). After saving, the import panel appears.
+If Luna Studio opens an integration prompt but the import still reports that Galileo is not configured, ask your deployment operator to configure the backend Galileo API URL and key. See [Galileo integration](/luna-studio/ui/integrations/galileo).
 
 </Step>
 
@@ -112,12 +103,9 @@ If you cancel the integration modal that pops up before the import panel, the so
 
 ## Validation
 
-After **Add**, every dataset goes through schema and content validation. The result is shown as a status line:
+Adding a dataset from the global Datasets page ingests and stores it without a selected metric. That flow cannot apply the metric-specific column, label-type, and row-threshold contract.
 
-- **Validating…** &mdash; Luna is checking the file.
-- **Validated** &mdash; ready to use.
-- **Validated with warnings** &mdash; usable, but check the warnings (e.g. partial UTF-8 issues, mixed casing).
-- **Validation error: `{message}`** &mdash; the dataset can't be used until you fix the underlying file.
+When you add or choose a dataset in Step 2 or Step 3 of the run wizard, Luna Studio has the metric context and runs the applicable test-set, training-set, or label-only checks. A dataset that uploads successfully can still fail this run-specific validation. If that happens, the dataset remains available on the Datasets page, but Luna Studio does not attach it to the current run.
 
 For the full validation rules, see [Validation](/luna-studio/ui/datasets/validation).
 
@@ -134,6 +122,6 @@ For the full validation rules, see [Validation](/luna-studio/ui/datasets/validat
     What Luna checks and what to do when validation fails.
   </Card>
   <Card title="Galileo integration" icon="link" href="/luna-studio/ui/integrations/galileo">
-    Required for Import from Galileo.
+    Deployment connection required for Import from Galileo.
   </Card>
 </CardGroup>
