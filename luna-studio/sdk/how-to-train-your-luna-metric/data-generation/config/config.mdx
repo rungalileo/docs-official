@@ -53,7 +53,7 @@ Defines the classification metric you are generating data for.
 | `metric.name`                | `string`                    | Yes           | —       | Metric name used in prompts and artifacts.                                                      |
 | `metric.description`         | `string \| null`            | Conditionally | `null`  | Required when `llmaj_source_prompt` is empty.                                                   |
 | `metric.type`                | `string`                    | Yes           | —       | One of `binary`, `multi-class`.                                                                 |
-| `metric.input_format`        | `string`                    | Yes           | —       | One of `single`, `tuple`, `rag`.                                                                |
+| `metric.input_format`        | `string`                    | Yes           | —       | One of `single`, `tuple`, `rag`, `span_with_tools`, `trace`, or `session`. `trace` and `session` require label-only mode or skipping data generation. |
 | `metric.class_labels`        | `list[class_label] \| null` | Conditionally | `null`  | Required when `llmaj_source_prompt` is empty.                                                   |
 | `metric.llmaj_source_prompt` | `string \| null`            | No            | `null`  | If set, description + class labels may be extracted automatically. We recommend you to set this |
 
@@ -100,11 +100,11 @@ Defines where seed examples come from and how they’re sampled.
 
 Primary LLM used for generation.
 
-| Field             | Type     | Required | Default (base config)      | Notes                                        |
-| ----------------- | -------- | -------- | -------------------------- | -------------------------------------------- |
-| `provider`        | `string` | Yes      | `"openai"`                 | One of `openai`, `azure`, `vegas`, `gemini`. |
-| `model`           | `string` | Yes      | `"gpt-4.1"`                | Provider model identifier.                   |
-| `embedding_model` | `string` | Yes      | `"text-embedding-3-small"` | Used for optional quality metrics.           |
+| Field             | Type     | Required | Default (base config)      | Notes                                                               |
+| ----------------- | -------- | -------- | -------------------------- | ------------------------------------------------------------------- |
+| `provider`        | `string` | Yes      | `"openai"`                 | One of `anthropic`, `azure`, `gemini`, `groq`, `openai`, or `vegas`. |
+| `model`           | `string` | Yes      | `"gpt-4.1"`                | Provider model identifier.                                          |
+| `embedding_model` | `string` | Yes      | `"text-embedding-3-small"` | Used for optional quality metrics.                                  |
 
 ---
 
@@ -114,7 +114,7 @@ Controls how many examples you generate and how fast.
 
 | Field                                  | Type                | Required | Default (base config) | Notes                                                                                  |
 | -------------------------------------- | ------------------- | -------- | --------------------- | -------------------------------------------------------------------------------------- |
-| `context_examples`                     | `int`               | Yes      | `5`                   | Number of seed examples placed in the prompt per call. For `rag`, must be `1`.         |
+| `context_examples`                     | `int`               | Yes      | `5`                   | Number of seed examples placed in the prompt per call. For `rag` and `span_with_tools`, must be `1`. |
 | `examples_per_call`                    | `int`               | Yes      | `10`                  | Examples requested per LLM call.                                                       |
 | `total_examples`                       | `int`               | Yes      | `2000`                | Total synthetic examples across all classes.                                           |
 | `label_distribution`                   | `map[string,float]` | Yes      | `{}`                  | Empty means auto-infer from the holdout/test split; otherwise keys should sum to ~1.0. |
@@ -123,6 +123,16 @@ Controls how many examples you generate and how fast.
 | `special_instructions`                 | `string \| null`    | No       | `null`                | Extra guidance appended to prompts.                                                    |
 | `llm_provider`                         | `string \| null`    | No       | `null`                | Optional override; must be set together with `llm_model`.                              |
 | `llm_model`                            | `string \| null`    | No       | `null`                | Optional override; must be set together with `llm_provider`.                           |
+
+Because the default is `5`, a `span_with_tools` generation config must override it explicitly:
+
+```yaml
+data_generation:
+  metric:
+    input_format: "span_with_tools"
+  generation:
+    context_examples: 1
+```
 
 ---
 

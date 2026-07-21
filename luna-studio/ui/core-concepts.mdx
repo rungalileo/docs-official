@@ -7,7 +7,7 @@ This page is the conceptual backbone of Luna Studio. If you're new to the produc
 
 ## The mental model
 
-A **project** holds a series of **training runs** that explore variations of a preset or custom **metric**. Each run combines a **test set**, a **training set**, and a **base model** to produce a fine-tuned metric. Once a run is **Fine-tuned**, you can **register** the metric back into the Galileo metrics store.
+A **project** holds a series of **training runs** that explore variations of a preset or custom **metric**. Each run combines a **test set**, a **training set**, and a **base model** to produce a fine-tuned metric. When a run is **Fine-tuned** and the metric is eligible for registration, you can **register** it in the Galileo metrics store.
 
 ```mermaid
 flowchart LR
@@ -47,7 +47,7 @@ A **training run** is a single attempt at fine-tuning a metric. Each run capture
 | Training set | A larger labelled dataset used to fine-tune the base model. Often generated from the test set.          |
 | Base model   | The Luna model configured for your organization, shown in the run summary before launch.                |
 
-Runs have a **lifecycle status**: Queued → Training → Fine-tuned → Registered. A run can also fail (status: Failed). See [Run lifecycle](/luna-studio/ui/runs/lifecycle) for the full state machine.
+Runs expose the following lifecycle statuses: **Queued**, **Generating data**, **Data ready**, **Training**, **Fine-tuned**, **Registered**, **Failed**, and **Cancelled**. The data-generation statuses apply when Luna Studio generates synthetic training data or labels uploaded training logs. See [Run lifecycle](/luna-studio/ui/runs/lifecycle) for the full state machine.
 
 ## Metrics
 
@@ -57,23 +57,30 @@ A **metric** is a function that takes some part of an LLM trace and returns a sc
 
 Luna Studio currently supports two **output types**:
 
-- **Boolean** — true/false (e.g. "is this toxic?").
+- **Boolean** — a binary outcome (e.g. "is this toxic?"). Encode Boolean dataset labels as integer `0` and `1`.
 - **Categorical** — one of a fixed set of labels.
 
 Other output types, such as floating-point, percentage, multilabel, and numeric metrics, can appear in Galileo but are not trainable in Luna Studio yet.
 
-### Metric steps and input shape
+### Input levels and metric shapes
 
 Each metric has two related settings:
 
-- **Step** &mdash; where the metric runs in a Galileo trace: LLM span, Retriever, Agent span, or Trace.
-- **Input step** &mdash; what each training row contains: a single message, an input / output pair, a full trace, or a full session.
+- **Input level** &mdash; where the metric evaluates data, such as an LLM span or a trace.
+- **Metric shape** &mdash; the columns each training row contains, such as input only, output only, an input/output pair, RAG context, or tool data.
 
-Full trace and full session inputs need user-supplied training data; Luna Studio does not generate synthetic training data for those shapes.
+For custom metrics, Luna Studio currently supports these combinations:
+
+| Input level | Trainable metric shapes                                                |
+| ----------- | ---------------------------------------------------------------------- |
+| LLM span    | Input only, Output only, Input/output pair, RAG, With tools            |
+| Trace       | Input only, Output only, Input/output pair                              |
+
+Full-trace and full-session fine-tuning are not available in the Luna Studio UI. The standalone SDK has advanced label-only workflows for these formats; see [Full traces](/luna-studio/sdk/tutorials/full-traces) and [Full sessions](/luna-studio/sdk/tutorials/full-sessions).
 
 **Multimodal support** - Today, Luna Studio metrics operate over the **Text** modality only.
 
-A metric flows through the same lifecycle as the run that produced it: Queued, Training, Fine-tuned, Registered, Failed.
+A metric reflects the lifecycle of the run that produced it. Fine-tuned metrics that are eligible for registration can move to Registered.
 
 See [Metrics overview](/luna-studio/ui/metrics/overview).
 
@@ -83,7 +90,7 @@ Luna Studio splits datasets into two flavors:
 
 ### Test sets
 
-A **test set** is a small, hand-labelled dataset used to evaluate a fine-tuned metric. Test sets are the "ground truth" for the run — they should be labelled carefully and should not be seen during training.
+A **test set** is a small, hand-labelled dataset used to evaluate a fine-tuned metric. Test sets are the "ground truth" for the run and should be labelled carefully. Luna Studio keeps the 80% evaluation portion out of training; the remaining 20% can supply enhancement examples for generated training data.
 
 Required columns depend on the metric's input type. See [Prerequisites](/luna-studio/ui/prerequisites) for the full list.
 
@@ -91,8 +98,8 @@ Required columns depend on the metric's input type. See [Prerequisites](/luna-st
 
 A **training set** is the dataset used to fine-tune the Luna metric. Training sets can be:
 
-- **Generated from a test set** — Luna Studio uses ~20% of the test set as seed examples, samples 50 rows for review, and generates 2,000 labelled examples with the LLM-as-judge prompt and synthetic data generation pipeline.
-- **Uploaded** — your own labelled production logs (CSV or JSONL). If logs are unlabelled, Luna Studio labels them first before using them for training.
+- **Generated from a test set** — Luna Studio uses part of the test set as enhancement data, samples 50 rows for review, and targets 2,000 synthetic labelled examples with the LLM-as-judge prompt and data-generation pipeline. Enhancement rows can also be included in the final training split, so 2,000 is not an exact final row count.
+- **Uploaded** — your own labelled production logs as CSV. If logs are unlabelled, choose **Label with metric prompt** to run the labelling flow before training.
 - **Imported from Galileo** — pulled from a project in your connected Galileo workspace.
 
 See [Datasets overview](/luna-studio/ui/datasets/overview).
@@ -107,24 +114,27 @@ For accuracy benchmarks, GPU latency tables, and the underlying SLM architecture
 
 ## Integrations
 
-To run anything, Luna Studio needs provider credentials for the services it talks to:
+Some Luna Studio workflows need provider credentials for the external services they call:
 
 - **For metric generation** (Step 3 — Training set): the credentials for whichever configured provider and model you select in the Generate drawer.
-- **For Galileo features** (Import from Galileo, Register metric): a Galileo API key.
+- **For Galileo features** (Import from Galileo, Register metric): a Galileo API URL and key available to the Luna Studio runtime.
 
-Integrations are **org-scoped** — once added, every member of your org and every project can use them. See [Integrations overview](/luna-studio/ui/integrations/overview).
+LLM provider integrations can be a personal override or a workspace default. At runtime, Luna Studio uses your personal credential for a provider when present and otherwise falls back to that provider's workspace credential. In the current release, Galileo import and registration read deployment settings rather than the personal or workspace Galileo integration saved in the app. See [Integrations overview](/luna-studio/ui/integrations/overview).
 
 Luna Studio can also be deployed against different training platforms, including Vertex AI Pipelines, AzureML Pipelines, SageMaker Pipelines, and Kubernetes. Those deployment-level integrations are fixed when the application is deployed, rather than configured by end users at runtime. For the full picture, see [Availability and deployment](/luna-studio/ui/availability).
 
 ## Lifecycle statuses
 
-The same five statuses appear on runs and metrics throughout the app:
+Run-related screens use the following status vocabulary:
 
-- **Queued** — accepted but not yet started.
+- **Queued** — waiting for data generation or training to start.
+- **Generating data** — Luna Studio is creating or labelling a training dataset.
+- **Data ready** — generated data is ready and the run is waiting to be launched for training.
 - **Training** — fine-tuning is in progress.
 - **Fine-tuned** — training succeeded; not yet registered.
 - **Registered** — the metric is live in the Galileo metrics store.
-- **Failed** — training or registration failed; see the run details for the reason.
+- **Failed** — data generation, training, or evaluation failed; see the run details for the reason.
+- **Cancelled** — a user stopped the run before it reached a terminal success state.
 
 See [Run lifecycle](/luna-studio/ui/runs/lifecycle) for the full state machine and what each status means.
 

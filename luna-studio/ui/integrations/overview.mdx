@@ -1,40 +1,47 @@
 ---
 title: "Integrations overview"
-description: "Connect model providers and Galileo so your whole org can use them in Luna Studio."
+description: "Configure supported model providers, understand credential scopes, and identify deployment-managed infrastructure."
 ---
 
-The **Integrations** page is where you connect the external services Luna Studio needs. Integrations are **org-scoped** - once added, every project in your org can use them.
-
-<Frame caption="Use the Integrations page to connect LLM providers and Galileo">![Integrations page](/images/luna-studio/integrations/integrations-page.png)</Frame>
+The **Integrations** page shows the external services available to Luna Studio. Some cards accept runtime credentials in the app, some are marked **Coming soon**, and infrastructure cards are read-only because they are managed as part of your deployment.
 
 ## What integrations are for
 
 Luna Studio works with two kinds of integrations:
 
-- **Runtime integrations** - connect the services Luna Studio uses while the app is running, such as LLM providers and Galileo.
-- **Deployment integrations** - connect the training platform Luna Studio uses behind the scenes for fine-tuning jobs.
+- **Runtime integrations** - accept personal or workspace-scoped records for LLM providers and Galileo.
+- **Deployment integrations** - connect shared infrastructure and services, including the training platform, object storage, and PostgreSQL.
 
-You don't need every provider — most users start with one (OpenAI or Anthropic) and add more later.
+You need at least one supported LLM provider for synthetic generation and LLM-based labelling.
+
+## LLM personal overrides and workspace defaults
+
+LLM provider credentials are not always shared with the entire organization:
+
+- A **personal override** is used only for your account.
+- A **workspace default** is used when you do not have a personal override.
+- Only workspace administrators can create, update, or remove workspace defaults. A non-admin can add and manage a personal override.
+
+At runtime, Luna Studio resolves each LLM provider independently: your personal credential for that provider takes precedence, followed by its workspace default. The source badge on an LLM card describes the shared `llm_provider` record returned to the UI, not the source of every provider key inside it. In a mixed-scope setup, do not use that single badge to infer the effective source for each provider.
 
 ## Runtime integration types
 
 ### LLM providers
 
-Use an LLM integration when you want Luna Studio to work with a hosted provider, a cloud-managed deployment, or your own internal model endpoint.
+The current UI can configure four LLM providers:
 
-Supported setups include:
+- [OpenAI](/luna-studio/ui/integrations/llm-providers#openai)
+- [Anthropic](/luna-studio/ui/integrations/llm-providers#anthropic)
+- [Google Gemini](/luna-studio/ui/integrations/llm-providers#google-gemini)
+- [Groq](/luna-studio/ui/integrations/llm-providers#groq)
 
-- named providers such as [OpenAI](/luna-studio/ui/integrations/llm-providers#openai), [Anthropic](/luna-studio/ui/integrations/llm-providers#anthropic), [Mistral](/luna-studio/ui/integrations/llm-providers#mistral), and others
-- [Azure](/luna-studio/ui/integrations/llm-providers#azure)
-- [Vertex AI](/luna-studio/ui/integrations/llm-providers#vertex-ai)
-- [AWS-hosted models](/luna-studio/ui/integrations/llm-providers#aws-hosted-models)
-- [Custom models and proxies](/luna-studio/ui/integrations/llm-providers#custom-models-and-proxies)
+Other provider cards in the catalog are marked **Coming soon** and cannot accept credentials yet. See [LLM providers](/luna-studio/ui/integrations/llm-providers#coming-soon-providers) for the current list.
 
 For setup guidance, see [LLM providers](/luna-studio/ui/integrations/llm-providers).
 
 ### Galileo
 
-The [Galileo integration](/luna-studio/ui/integrations/galileo) is a single API key that unlocks platform-level features such as importing datasets from Galileo and registering metrics back to Galileo.
+The [Galileo connection](/luna-studio/ui/integrations/galileo) unlocks platform-level features such as importing datasets from Galileo and registering eligible metrics back to Galileo. Although the UI accepts personal and workspace-scoped `galileo_api` records, the current dataset-import and registration consumers ignore both scopes and use the deployment-configured Galileo API URL and key from the backend. This is a current-release runtime limitation rather than an intended permanent integration boundary.
 
 ## Training platforms
 
@@ -45,7 +52,7 @@ Luna Studio also supports training platform integrations for the infrastructure 
 - `SageMaker Pipelines`
 - `Kubernetes`
 
-These are **deployment-level integrations**, not settings users configure in the Luna Studio UI. The training platform is chosen when Luna Studio is deployed and is fixed for that deployment. See [Availability and deployment](/luna-studio/ui/availability) for how Galileo provisions Luna Studio into your cluster.
+These are **deployment-level integrations**, not settings users configure in the Luna Studio UI. The training platform is chosen when Luna Studio is deployed and is fixed for that deployment. The **Training platform**, **Object storage**, and `Postgres` cards therefore appear as managed, read-only integrations. See [Availability and deployment](/luna-studio/ui/availability) for how Galileo provisions Luna Studio into your cluster.
 
 ## Where to go next
 
@@ -54,6 +61,6 @@ These are **deployment-level integrations**, not settings users configure in the
     Choose the right provider setup for your team and see what credentials you'll need.
   </Card>
   <Card title="Galileo integration" icon="link" href="/luna-studio/ui/integrations/galileo">
-    The single API key that unlocks platform features.
+    Understand the current credential path for Galileo-backed features.
   </Card>
 </CardGroup>

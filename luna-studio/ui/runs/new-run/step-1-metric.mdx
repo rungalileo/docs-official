@@ -5,45 +5,43 @@ description: "Pick a predefined metric template or write a custom LLM-as-judge p
 
 The first step asks: _what should this metric measure?_ You can pick from a curated list of templates, or click **Use custom prompt** to write your own.
 
-<Frame caption="Step 1 — pick a built-in metric or define your own with a custom prompt">![Metric step](/images/luna-studio/runs/new-run-metric.png)</Frame>
-
 ## Pick a metric
 
-The **Metric** select is searchable. It includes trainable Galileo LLM-as-judge metrics available to your workspace, plus custom metrics and prompts your org created.
+The **Metric** select is searchable. It lists preset and custom Galileo LLM-as-judge metrics available to your organization, plus saved custom prompts from the current Luna Studio project.
 
 The picker is organized into three groups:
 
-- **Galileo presets** &mdash; built-in Galileo scorers that Luna Studio can train.
+- **Galileo presets** &mdash; built-in scorers from the Galileo catalog.
 - **Custom Galileo metrics** &mdash; custom metrics already created in Galileo.
 - **Saved custom prompts** &mdash; prompts previously authored in Luna Studio.
 
-Metrics that exist but are not trainable yet can appear disabled with a "not trainable yet" suffix. Multimodal metrics are filtered out because Luna Studio trains text metrics today.
+Only text metrics with a supported fine-tuning contract can be selected. Other catalog entries remain visible but disabled, with the reason appended to their name. This includes metrics with unsupported output types or input formats and multimodal metrics.
+
+Selection eligibility does not guarantee registration eligibility. For example, Context relevance can be selected, fine-tuned, and evaluated, but its resulting metric cannot currently be registered. See [Register a metric](/luna-studio/ui/runs/register-metric#registration-eligibility).
 
 ## Inspect a selected template
 
 Once you pick a template, the form expands to show a read-only **Metric details** panel:
 
 - **Output type** &mdash; the metric's return shape (Boolean, Categorical etc.). See [Output types](/luna-studio/ui/core-concepts#metrics).
-- **Step** &mdash; the trace step the metric runs against (LLM span, Retriever, Agent span, or Trace).
-- **Input step** &mdash; the input shape Luna Studio expects for training data, such as a single message, input / output pair, full trace, or full session.
+- **Input level** &mdash; where the metric evaluates data, such as an LLM span or trace.
+- **Metric shape** &mdash; the dataset contract persisted with the metric, such as Input only, Output only, Input/output pair, RAG, or With tools.
 - **Prompt** &mdash; the LLM-as-judge prompt the template uses, in a read-only textarea.
 
 ## Write a custom prompt
 
 For metrics that don't fit a template, click the dropdown's **Use custom prompt** option (with a `+` icon). The form switches into editable mode.
 
-<Frame caption="Step 1 with Custom prompt expanded — write your own LLM-as-judge prompt for the metric">![Custom metric prompt](/images/luna-studio/runs/new-run-metric-custom.png)</Frame>
-
 In custom mode, you fill in:
 
-| Field       | Required | Notes                                                                                   |
-| ----------- | -------- | --------------------------------------------------------------------------------------- |
-| Metric name | No       | Optional display name. If blank, Luna Studio derives one from the run context.          |
-| Output type | Yes      | The trainable return shape: Boolean or Categorical.                                     |
-| Step        | Yes      | The trace step the metric runs against: LLM span, Retriever, Agent span, Trace.         |
-| Input step  | Yes      | Training input shape: Single message, Input / output pair, Full trace, or Full session. |
-| Modality    | No       | Read-only. Fixed to **Text** today.                                                     |
-| Prompt      | Yes      | The LLM-as-judge prompt. Required.                                                      |
+| Field        | Required | Notes                                                                          |
+| ------------ | -------- | ------------------------------------------------------------------------------ |
+| Metric name  | No       | Optional display name. If blank, Luna Studio derives one from the run context. |
+| Output type  | Yes      | The trainable return shape: Boolean or Categorical.                            |
+| Input level  | Yes      | The evaluation level: LLM span or Trace.                                      |
+| Metric shape | Yes      | The dataset contract. Available options depend on the selected input level.    |
+| Modality     | No       | Read-only. Fixed to **Text** today.                                            |
+| Prompt       | Yes      | The LLM-as-judge prompt. Required.                                             |
 
 ## Output types in detail
 
@@ -54,27 +52,28 @@ In custom mode, you fill in:
 
 Other Galileo output types are not trainable in Luna Studio yet. The output type also constrains what label values your test set can use during validation. See [Test sets](/luna-studio/ui/datasets/test-sets#required-schema).
 
-## Steps in detail
+## Input levels in detail
 
-| Step       | Where it fires                                                 |
-| ---------- | -------------------------------------------------------------- |
-| LLM span   | A single LLM call inside a trace. The default and most common. |
-| Retriever  | A retrieval step (e.g. evaluating chunk relevance).            |
-| Agent span | A single agent step inside a trace.                            |
-| Trace      | The full trace — input, intermediate steps, and final output.  |
+| Input level | Where it evaluates                                                                                      |
+| ----------- | ------------------------------------------------------------------------------------------------------- |
+| LLM span    | A single LLM call. Use this for most response, RAG, and tool-use metrics.                              |
+| Trace       | The root trace input, output, or input/output pair. This does not include the full intermediate trajectory. |
 
-The right step depends on what your metric needs to see. For "is the final answer toxic?" use LLM span or Trace. For "are retrieved chunks relevant?" use Retriever.
+Session does not appear as a selectable input level for custom metrics because generic full-session fine-tuning and registration are not supported in Luna Studio yet.
 
-## Input steps
+## Metric shapes
 
-| Input step          | When to use                                                                           |
-| ------------------- | ------------------------------------------------------------------------------------- |
-| Single message      | One text input per row. Used for trace input / output metrics like the safety metrics |
-| Input / output pair | Rows that include both the prompt/input and model output.                             |
-| Full trace          | Trace-level metrics that need the full request flow.                                  |
-| Full session        | Session-level metrics that need multiple related traces.                              |
+| Metric shape      | Input levels     | Required dataset columns        |
+| ----------------- | ---------------- | ------------------------------- |
+| Input only        | LLM span, Trace  | `input`                         |
+| Output only       | LLM span, Trace  | `output`                        |
+| Input/output pair | LLM span, Trace  | `input`, `output`               |
+| RAG               | LLM span         | `documents`, `input`            |
+| With tools        | LLM span         | `tools`, `input`, `output`      |
 
-<Note>Note: Full trace and full session inputs require user-supplied training data; synthetic generation is disabled for those shapes.</Note>
+For RAG, `output` can also be present when the metric prompt needs it. Luna Studio displays Full trace as unavailable under the Trace input level and omits Session because those contracts cannot currently complete the UI fine-tune-and-register workflow.
+
+<Note>The standalone Luna SDK supports advanced full-trace and full-session label-only workflows. Those SDK workflows do not make the same shapes trainable or registerable in the Luna Studio UI.</Note>
 
 ## Prompt-writing tips
 

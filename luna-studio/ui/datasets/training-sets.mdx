@@ -14,44 +14,48 @@ In the run creation flow, you choose one of three top-level paths:
     Luna Studio uses 20% of your test set as seeds and synthetically generates training data.
   </Card>
   <Card title="Add unlabelled training logs" icon="upload">
-    Upload or import production logs. Luna Studio labels unlabelled logs before training.
+    Upload or import production logs. If they lack labels, you can explicitly start a metric-prompt labelling pass before training.
   </Card>
   <Card title="Use existing training set" icon="database">
     Reuse a generated, labelled, or uploaded training dataset from your workspace.
   </Card>
 </CardGroup>
 
-The **Add training logs** path lets you upload a `.csv` or `.jsonl` file, fetch a file from URL, or import a dataset from Galileo. Those same import methods are also available from the [Datasets page](/luna-studio/ui/datasets/overview) **Add training set** button.
+The **Add training logs** path lets you upload a `.csv` or `.jsonl` file, fetch a file from URL, or import a dataset from Galileo. Those same ingestion methods are also available from the [Datasets page](/luna-studio/ui/datasets/overview) **Add training set** button. Use CSV for datasets that will proceed through run validation and training.
 
 ## Required schema
 
-Check the [pre-requisites](/luna-studio/ui/prerequisites#required-dataset-format) section for details
+Check the [prerequisites](/luna-studio/ui/prerequisites#required-dataset-format) section for the columns required by each metric shape.
+
+Labelled training sets must contain at least 2,000 rows total and at least 100 examples per class. These are validation requirements, not just sizing recommendations.
 
 ### Labelled vs. unlabelled
 
-When you add training logs, Luna Studio validates whether the dataset already has labels:
+The training-log flow initially treats an upload as pre-labelled. If metric-aware validation finds that `label` is the only missing required column, choose **Label with metric prompt instead**. Then configure the provider and model and start the labelling pass. Luna Studio does not begin labelling automatically when it detects a missing label.
 
-If labels are missing, Luna Studio will automatically label the data using your LLM-as-judge prompt before training the model.
+The resulting labelled dataset must pass the same 2,000-row and per-class validation checks before training can begin.
 
 ## Generated training sets
 
 The most common path for a first run is **Generate from test set**. The flow:
 
 1. Luna Studio uses 20% of your test set as seed examples.
-2. We first synthetically generate a sample training set for review.
+2. Luna Studio first generates 50 sample rows for review.
 3. You review the sample rows and optionally regenerate with feedback.
-4. Luna Studio generates the full training set.
+4. Luna Studio requests 2,000 synthetic examples for the full generation.
 
 See [Step 3 — Training set](/luna-studio/ui/runs/new-run/step-3-training-set#generate-from-test-set) for the full reference.
 
-The resulting dataset shows up on the [Datasets page](/luna-studio/ui/datasets/overview) with source **Generated** and a subtitle like "Generated from rag-eval-v2".
+Enhancement examples derived from the seed data can be appended to those 2,000 synthetic examples, so 2,000 is the generation target rather than a guaranteed final row count. The resulting dataset shows up on the [Datasets page](/luna-studio/ui/datasets/overview) with source **Generated** and a subtitle like "Generated from rag-eval-v2".
 
 ## File formats
 
 For uploads and URL fetches:
 
-- **CSV** &mdash; standard comma-separated. Headers required.
-- **JSONL** &mdash; one JSON object per line, with `input` and (optionally) `label` keys.
+- **CSV** &mdash; the end-to-end format for run validation and training. Headers are required.
+- **JSONL** &mdash; accepted by the source picker during ingestion, but current downstream processing reads CSV. Convert it to CSV before using it in a run.
+
+URL fetches accept only HTTP(S). Use a pre-signed HTTPS link for private object storage; raw `s3://` and `gs://` URIs are not supported.
 
 ## Where to go next
 
