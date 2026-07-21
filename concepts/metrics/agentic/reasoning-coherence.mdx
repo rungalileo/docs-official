@@ -6,14 +6,17 @@ description: Evaluate whether an agent’s reasoning steps are logically consist
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
+import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
 
 <DefinitionCard>
   <strong>Reasoning Coherence</strong> assesses whether an agent’s reasoning steps are logically consistent, non-contradictory, and aligned with the intended plan.
 </DefinitionCard>
 
+<SupportedModalities modalities={["Text", "Image/PDF", "Audio"]} />
+
 ## Metric definition
 
-Reasoning Coherence — A binary metric that evaluates internal logical consistency within a single LLM call, with respect to the latest user input.
+Reasoning Coherence — A binary metric that evaluates internal logical consistency within a single LLM call, with respect to the latest user input and any attached content.
 
 - Type: Binary
   - 1 (Coherent): Intermediate reasoning events/summaries are mutually consistent and causally support the LLM input.
@@ -60,7 +63,7 @@ Reasoning Coherence is computed through a multi-step process:
 
 Inputs considered (when available):
 
-- Latest user input and current system prompt
+- Latest user input, current system prompt, and attached content when present
 - Intermediate reasoning events and summaries (including plan/steps)
 - Tool-selection thoughts and invoked tool calls (including arguments)
 - Final in-span conclusion/output

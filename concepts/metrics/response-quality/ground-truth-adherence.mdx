@@ -1,15 +1,18 @@
 ---
 title: Ground Truth Adherence
-description: Measure semantic equivalence between model outputs and reference answers using Galileo's Guardrail Metrics to ensure alignment with expected responses
+description: Measure equivalence between model outputs and reference content
 ---
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
+import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
 
 <DefinitionCard>
-  <strong>Ground Truth Adherence</strong> measures whether a model's response is semantically equivalent to your reference answer (Ground Truth).
+  <strong>Ground Truth Adherence</strong> measures whether a model's response is equivalent to your reference content (Ground Truth), based on meaning and other relevant attributes.
 </DefinitionCard>
+
+<SupportedModalities modalities={["Text", "Image/PDF", "Audio"]} />
 
 Ground Truth Adherence is a continuous metric ranging from 0 to 1:
 
@@ -18,11 +21,11 @@ Ground Truth Adherence is a continuous metric ranging from 0 to 1:
   lowLabel="Low Adherence"
   high="1"
   highLabel="High Adherence"
-  lowDescription="The model's response is semantically different from the Ground Truth"
-  highDescription="The model's response is semantically equivalent to the Ground Truth"
+  lowDescription="The model's response differs from the Ground Truth in meaning or relevant attributes"
+  highDescription="The model's response is equivalent to the Ground Truth in meaning and relevant attributes"
 />
 
-This metric helps evaluate how closely your model's outputs match expected or ideal responses, which is particularly valuable for:
+This metric helps evaluate how closely your model's outputs match expected or ideal reference content, which is particularly valuable for:
 
 - Evaluating model performance against a benchmark dataset
 - Ensuring consistency in critical applications
@@ -42,7 +45,7 @@ Ground Truth Adherence is computed through a multi-step process:
 
 </Step>
   <Step title="Prompt Engineering">
-    A carefully engineered chain-of-thought prompt asks the model to evaluate whether the response and Ground Truth convey the same meaning.
+    A carefully engineered chain-of-thought prompt asks the model to evaluate whether the response and Ground Truth convey the same meaning and preserve relevant attributes.
 
 </Step>
   <Step title="Multiple Evaluations">
@@ -82,15 +85,15 @@ This metric is computed by prompting an LLM multiple times, and thus requires ad
 It's important to understand how Ground Truth Adherence differs from related metrics:
 
 <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Ground Truth Adherence:</strong> Measures semantic equivalence to a reference answer.
+  <strong>Ground Truth Adherence:</strong> Measures equivalence to reference content, including relevant attributes.
 </div>
 
 <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Correctness:</strong> Measures factual accuracy regardless of any reference answer.
+  <strong>Correctness:</strong> Measures factual accuracy regardless of any reference content.
 </div>
 
 <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Context Adherence:</strong> Measures alignment with provided context, not a reference answer.
+  <strong>Context Adherence:</strong> Measures alignment with provided context, not reference content.
 </div>
 
 </Card>
@@ -107,7 +110,7 @@ It's important to understand how Ground Truth Adherence differs from related met
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing Low Ground Truth Adherence</h3>
   </div>
 
-When responses have low Ground Truth Adherence scores, your model is generating outputs that differ semantically from your reference answers. To improve your system:
+When responses have low Ground Truth Adherence scores, your model is generating outputs that differ from your reference content in meaning or relevant attributes. To improve your system:
 
 <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
   <strong>Analyze divergence patterns:</strong> Identify common ways in which responses differ from ground truth.
@@ -122,7 +125,7 @@ When responses have low Ground Truth Adherence scores, your model is generating 
 </div>
 
 <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Evaluate ground truth quality:</strong> Ensure your reference answers are clear, consistent, and representative of ideal responses.
+  <strong>Evaluate ground truth quality:</strong> Ensure your reference content is clear, consistent, and representative of ideal responses.
 </div>
 
 </Card>
@@ -131,7 +134,7 @@ When responses have low Ground Truth Adherence scores, your model is generating 
 
 <CardGroup cols={2}>
   <Card title="Maintain Diverse Ground Truths" icon="layer-group">
-    Create a varied set of reference answers that cover different response styles and edge cases.
+    Create a varied set of reference content that covers different response styles and edge cases.
 
 </Card>
   <Card title="Set Clear Evaluation Criteria" icon="list-check">
@@ -149,7 +152,7 @@ When responses have low Ground Truth Adherence scores, your model is generating 
 </CardGroup>
 
 <Note>
-When optimizing for Ground Truth Adherence, remember that there may be multiple valid ways to express the same information. Consider whether strict adherence to specific wording is necessary, or if semantic equivalence is sufficient for your use case.
+When optimizing for Ground Truth Adherence, remember that there may be multiple valid ways to represent the same content. Consider whether strict adherence to specific wording or attributes is necessary for your use case.
 
 </Note>
 

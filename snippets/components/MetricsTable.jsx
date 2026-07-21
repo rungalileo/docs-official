@@ -1,4 +1,6 @@
 export const MetricsTable = () => {
+  const defaultModalities = ["Text"];
+
   const metrics = [
     {
       name: "Action Advancement",
@@ -14,6 +16,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/agentic/action-completion",
       category: "Agentic",
       node: "Session",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Measures whether the agent completed the intended action.",
       whenToUse: "When evaluating agent task completion rates and success.",
       example: "An e-commerce assistant that needs to successfully add items to cart, apply discounts, and complete checkout.",
@@ -68,6 +71,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/rag/generation-quality/context-adherence",
       category: "RAG - Generation Quality",
       node: "LLM Span",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Measures how well the response aligns with the provided context.",
       whenToUse: "When you want to ensure the model is grounding its responses in the provided context.",
       example: "A financial advisor bot that must base investment recommendations on the client's specific financial situation.",
@@ -95,6 +99,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/response-quality/correctness",
       category: "Response Quality",
       node: "LLM Span",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Evaluates the factual accuracy of information provided in the response.",
       whenToUse: "When accuracy of information is critical to your application.",
       example: "A medical information system providing drug interaction details to healthcare professionals.",
@@ -104,6 +109,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/response-quality/ground-truth-adherence",
       category: "Response Quality",
       node: "Trace",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Measures how well the response aligns with established ground truth.",
       whenToUse: "When evaluating model responses against known correct answers.",
       example: "A customer service AI that must provide accurate product specifications from an official catalog.",
@@ -158,6 +164,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/agentic/reasoning-coherence",
       category: "Agentic",
       node: "LLM Span",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Evaluates whether an agent's reasoning steps are logically consistent and aligned with its plan.",
       whenToUse: "When validating multi-step planning and intermediate reasoning quality.",
       example: "A financial planning agent that must develop a step-by-step investment plan for a user, ensuring each recommendation logically follows from prior steps and aligns with the user's goals.",
@@ -203,6 +210,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/safety-and-compliance/toxicity",
       category: "Safety and Compliance",
       node: "Trace (root input/output only)",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Identifies harmful, offensive, or inappropriate content.",
       whenToUse: "When monitoring AI outputs for harmful content or implementing content filtering.",
       example: "A social media content moderation system that must detect and flag potentially harmful user-generated content.",
@@ -212,6 +220,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/multimodal-quality/visual-fidelity",
       category: "Multimodal Quality",
       node: "LLM Span",
+      modalities: ["Image/PDF"],
       description: "Checks whether a generated image complies with all applicable provided brand rules based on visible evidence.",
       whenToUse: "When generated images must conform to explicit brand, layout, or content rules.",
       example: "A marketing image generator that must always place a logo in the top-left and avoid prohibited colors or content.",
@@ -221,6 +230,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/multimodal-quality/visual-quality",
       category: "Multimodal Quality",
       node: "LLM Span",
+      modalities: ["Image/PDF"],
       description: "Judges whether the quality of an input image is sufficient to reliably complete the task in the adjoining prompt.",
       whenToUse: "When user-supplied images can be blurry, occluded, or poorly lit and might make the task infeasible.",
       example: "A document capture workflow that needs to detect when a photo is too blurry to read a serial number or form field.",
@@ -230,6 +240,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/agentic/intent-change",
       category: "Agentic",
       node: "Session (trace inputs/outputs only)",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Detects when user intent shifts during a conversation.",
       whenToUse: "When tracking conversation dynamics and adapting agent behavior.",
       example: "A sales assistant that needs to recognize when a customer shifts from browsing to purchasing intent.",
@@ -274,11 +285,13 @@ export const MetricsTable = () => {
 
   const categories = [...new Set(metrics.map((m) => m.category))].sort();
   const nodes = [...new Set(metrics.map((m) => m.node))].sort();
+  const modalities = [...new Set(metrics.flatMap((m) => m.modalities ?? defaultModalities))].sort();
 
   const [sortColumn, setSortColumn] = useState("name");
   const [sortDirection, setSortDirection] = useState("asc");
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterNode, setFilterNode] = useState("All");
+  const [filterModality, setFilterModality] = useState("All");
 
   // Detect dark mode via Mintlify's "dark" class on <html> or via prefers-color-scheme
   const [isDark, setIsDark] = useState(false);
@@ -347,9 +360,10 @@ export const MetricsTable = () => {
   const filteredAndSortedMetrics = metrics
     .filter((m) => filterCategory === "All" || m.category === filterCategory)
     .filter((m) => filterNode === "All" || m.node === filterNode)
+    .filter((m) => filterModality === "All" || (m.modalities ?? defaultModalities).includes(filterModality))
     .sort((a, b) => {
-      const aVal = a[sortColumn]?.toLowerCase() || "";
-      const bVal = b[sortColumn]?.toLowerCase() || "";
+      const aVal = sortColumn === "modalities" ? (a.modalities ?? defaultModalities).join(" ") : a[sortColumn] || "";
+      const bVal = sortColumn === "modalities" ? (b.modalities ?? defaultModalities).join(" ") : b[sortColumn] || "";
       if (sortDirection === "asc") {
         return aVal.localeCompare(bVal);
       }
@@ -370,6 +384,18 @@ export const MetricsTable = () => {
     userSelect: "none",
     whiteSpace: "nowrap",
     color: colors.text,
+  };
+
+  const modalityBadgeStyle = {
+    display: "inline-block",
+    margin: "0 0.25rem 0.25rem 0",
+    padding: "0.125rem 0.375rem",
+    border: `1px solid ${colors.border}`,
+    borderRadius: "9999px",
+    color: colors.text,
+    fontSize: "0.75rem",
+    lineHeight: 1.3,
+    whiteSpace: "nowrap",
   };
 
   const getSortIndicator = (column) => {
@@ -403,6 +429,17 @@ export const MetricsTable = () => {
             ))}
           </select>
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <label style={{ fontSize: "0.875rem", fontWeight: 500, color: colors.text }}>Modality:</label>
+          <select value={filterModality} onChange={(e) => setFilterModality(e.target.value)} style={selectStyle}>
+            <option value="All">All Modalities</option>
+            {modalities.map((modality) => (
+              <option key={modality} value={modality}>
+                {modality}
+              </option>
+            ))}
+          </select>
+        </div>
         <div style={{ fontSize: "0.75rem", color: colors.textMuted }}>
           Showing {filteredAndSortedMetrics.length} of {metrics.length} metrics
         </div>
@@ -410,7 +447,7 @@ export const MetricsTable = () => {
 
       {/* Table */}
       <div style={{ overflowX: "auto", maxWidth: "100%", paddingLeft: "0.5rem" }}>
-        <table style={{ minWidth: "1200px", width: "100%", borderCollapse: "collapse", fontSize: "0.8rem" }}>
+        <table style={{ minWidth: "1320px", width: "100%", borderCollapse: "collapse", fontSize: "0.8rem" }}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
               <th style={{ ...headerStyle, textAlign: "left", padding: "0.75rem 0.5rem 0.75rem 0.75rem", minWidth: "180px" }} onClick={() => handleSort("name")}>
@@ -421,6 +458,9 @@ export const MetricsTable = () => {
               </th>
               <th style={{ ...headerStyle, textAlign: "left", padding: "0.75rem 0.5rem", minWidth: "100px" }} onClick={() => handleSort("node")}>
                 Node{getSortIndicator("node")}
+              </th>
+              <th style={{ ...headerStyle, textAlign: "left", padding: "0.75rem 0.5rem", minWidth: "150px" }} onClick={() => handleSort("modalities")}>
+                Modalities{getSortIndicator("modalities")}
               </th>
               <th style={{ ...headerStyle, textAlign: "left", padding: "0.75rem 0.5rem", minWidth: "200px" }}>Description</th>
               <th style={{ ...headerStyle, textAlign: "left", padding: "0.75rem 0.5rem", minWidth: "200px" }}>When to Use</th>
@@ -437,6 +477,11 @@ export const MetricsTable = () => {
                 </td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.category}</td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.node}</td>
+                <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>
+                  {(metric.modalities ?? defaultModalities).map((modality) => (
+                    <span key={modality} style={modalityBadgeStyle}>{modality}</span>
+                  ))}
+                </td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.description}</td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.whenToUse}</td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.example}</td>

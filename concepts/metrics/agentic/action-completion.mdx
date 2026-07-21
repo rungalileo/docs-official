@@ -1,24 +1,27 @@
 ---
 title: Action Completion
-description: Understand how to measure whether your agent actually accomplished a user's goals
+description: Understand how to measure whether your agent accomplished a user's goals across a session
 ---
 
 import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
+import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
 
 ## Overview
 
 <DefinitionCard>
-  <strong>Action Completion</strong> determines whether the agent successfully accomplished all of the user’s goals.
+  <strong>Action Completion</strong> determines whether the agent successfully accomplished all of the user’s goals in a session.
 </DefinitionCard>
+
+<SupportedModalities modalities={["Text", "Image/PDF", "Audio"]} />
 
 Action Completion addresses the common pain points of agent performance by measuring whether AI agents are actually helping users achieve their end goal rather than just providing responses.
 
 Action Completion is successful when all of the below are true: :
 
-- The agent provides a complete answer in the case of a question
+- The agent provides a complete response that addresses a question
 - The agent provides a confirmation of successful action in the case of a request
 - The response is coherent and factually accurate
 - The response comprehensively addresses every aspect of the user's request
@@ -38,7 +41,7 @@ Action Completion is successful when all of the below are true: :
 | **Constants** | None - Uses dynamic evaluation  |
 | **Usage Context** | Agentic workflows, multi-step tasks, tool-using assistants |
 | **Value Type** | Confidence score denoted as a percentage. |
-| **Input/Output Requirements** | Requires agent responses and user goals for evaluation |
+| **Input/Output Requirements** | Requires agent responses, user goals, and relevant session content for evaluation |
 
 <MetricWhenToUse
   description="Action Completion is the single best measure of whether an agent is truly useful, particularly valuable for agentic workflows and multi-step tasks."
@@ -106,9 +109,9 @@ Galileo displays a generated explanation alongside the score, choosing the one t
 
 ### What different scores mean
 
-- **0.0 - 0.3 (Poor):** Agent completely failed to accomplish user goals, provided incomplete answers, or contradicted tool outputs. Common causes include insufficient tool usage, incomplete responses, or factual inaccuracies.
+- **0.0 - 0.3 (Poor):** Agent completely failed to accomplish user goals, provided incomplete responses, or contradicted tool outputs. Common causes include insufficient tool usage, incomplete responses, or factual inaccuracies.
 - **0.4 - 0.7 (Fair):** Agent made progress toward user goals but didn't fully address all aspects of the request. Areas for improvement include ensuring comprehensive coverage of all user requirements and better tool utilization.
-- **0.8 - 1.0 (Excellent):** Agent successfully accomplished all user goals with complete, accurate, and comprehensive responses. Best practices include thorough tool usage, complete answer provision, and proper confirmation of successful actions.
+- **0.8 - 1.0 (Excellent):** Agent successfully accomplished all user goals with complete, accurate, and comprehensive responses. Best practices include thorough tool usage, complete response provision, and proper confirmation of successful actions.
 
 ## How to improve Action Completion scores
 
