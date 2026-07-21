@@ -16,9 +16,7 @@ Most teams should start with [Luna Studio](/luna-studio), which provides a self-
   </Card>
 </CardGroup>
 
-<Tip>
-  Use **Luna Studio** for self-service fine-tuning of out-of-the-box and custom evaluation metrics. Bring your own labelled test set, run a fine-tune in a wizard, and register the result without involving the Galileo team.
-</Tip>
+<Tip>Use **Luna Studio** for self-service fine-tuning of out-of-the-box and custom evaluation metrics. Bring your own labelled test set, run a fine-tune in a wizard, and register the result without involving the Galileo team.</Tip>
 
 ## Recommended adoption process
 
@@ -60,9 +58,7 @@ Fine-tuning works best after you have validated that the metric objective, datas
 
    Fine-tune the validated prompt with Luna Studio, or work with Galileo if you need a managed fine-tuning process.
 
-<Note>
-  This is a time-consuming, iterative process. Invest heavily in objective definition, dataset quality, prompt iteration, and real-log validation before fine-tuning; these steps determine the quality of the resulting Luna metric.
-</Note>
+<Note>This is a time-consuming, iterative process. Invest heavily in objective definition, dataset quality, prompt iteration, and real-log validation before fine-tuning; these steps determine the quality of the resulting Luna metric.</Note>
 
 ## Requirements for fine-tuning process
 
@@ -113,6 +109,11 @@ After working through the above approaches, if fine-tuning is the best approach,
 - For managed fine-tuning, plan for around 4,000 total labeled samples, with a 50/50 split amongst the classes (e.g. 2,000 context adherent samples, 2,000 non-context adherent samples).
 - If you are unable to procure this many labeled samples, Galileo can synthetically extrapolate from the limited test set you share using LLMs approved by you. More source data is better: a larger, more diverse test set gives the synthetic generation process stronger examples to learn from. Description of model(s) used for synthetic data generation would then be explained in a generalized model card.
 
+<Note>
+  These targets apply to Galileo-managed fine-tuning. In Luna Studio's self-service flow, **Generate from test set** produces roughly 2,000 labelled training examples by default (upsampled from about 20% of your test set); you can supply
+  more by uploading your own logs or reusing an existing training set.
+</Note>
+
 ## Turnaround time
 
 Turnaround time depends on whether you use Luna Studio yourself or ask Galileo to manage the fine-tuning process.
@@ -120,6 +121,16 @@ Turnaround time depends on whether you use Luna Studio yourself or ask Galileo t
 ### Luna Studio
 
 With Luna Studio, the pace is controlled by your team. You can iterate as quickly as you can prepare data, evaluate the LLM-as-a-judge prompt, run fine-tuning, and validate the resulting Luna metric.
+
+The fine-tuning and registration steps themselves are fast (minutes to a few hours). The long pole is almost always **curating a high-quality, human-labelled test set**, which depends on your labelling capacity and subject-matter-expert availability rather than on Galileo. Plan backward from your target go-live date:
+
+- **Build the labelled test set** — start this earliest; it can take days to several weeks.
+- **Build and validate the LLM-as-a-judge prompt** — hours to about a week, depending on how many prompt or Autotune iterations you need.
+- **Check any existing Luna metric** against the test set — minutes to hours.
+- **Fine-tune in Luna Studio** — hours to a couple of days, depending on how many runs you need to pass your quality bar.
+- **Register, test, and roll out** — hours to days of validation before production.
+
+If you do not yet have a labelled golden set, assume the end-to-end effort is measured in weeks and is dominated by test-set curation. If a representative labelled test set already exists, it can compress to days.
 
 ### Galileo-managed fine-tuning
 
@@ -176,6 +187,8 @@ Yes, the test dataset used for final evaluation should be human labelled. Luna i
 <Accordion title="Will Luna be better than LLM-as-a-judge?">
 
 No. Luna will be almost as good as the LLM-as-a-judge metric it is trained from, while running at lower latency and lower cost. Validate the LLM-as-a-judge metric first, then compare Luna against your human-labelled test dataset and real logs before replacing the original judge.
+
+As a practical benchmark, aim for the fine-tuned Luna metric's F1 score to land within about 5 points of your validated LLM-as-a-judge's F1 score on the same test set. A larger gap usually points to a test set, judge prompt, or training set that needs more work before the metric is production-ready.
 
 </Accordion>
 </AccordionGroup>

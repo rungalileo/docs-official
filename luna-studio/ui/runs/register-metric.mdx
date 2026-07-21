@@ -3,14 +3,23 @@ title: "Register a metric"
 description: "Publish a fine-tuned metric to the Galileo metrics store."
 ---
 
-Once a run reaches **Fine-tuned**, you can register the resulting metric. Registration publishes the metric to the [Galileo metrics store](/concepts/metrics/overview), where it becomes available across the Galileo platform — for evaluation in experiments, Log streams, and runtime guardrails using Protect / Agent Control.
+Once an eligible run reaches **Fine-tuned**, you can register the resulting metric. Registration publishes the metric to the [Galileo metrics store](/concepts/metrics/overview), where it becomes available across the Galileo platform — for evaluation in experiments, Log streams, and runtime guardrails using Protect / Agent Control.
+
+A run can finish fine-tuning successfully and still be ineligible to register. How Luna Studio surfaces that eligibility depends on where you start registration: the run details page checks before enabling its footer action, while the Training runs table and Metrics page validate when you submit the modal.
 
 <Frame caption="Register metric modal opened from the run details page">![Register metric modal](/images/luna-studio/metrics/register-metric.png)</Frame>
 
 ## Prerequisites
 
 - The run must be in the **Fine-tuned** status. See [Run lifecycle](/luna-studio/ui/runs/lifecycle).
-- Your org must have an active [Galileo integration](/luna-studio/ui/integrations/galileo).
+- The Luna Studio deployment must have an active [Galileo API connection](/luna-studio/ui/integrations/galileo).
+- The metric must have a supported registration runtime contract.
+
+## Registration eligibility
+
+Full-trace, full-session, and other metric contracts without a supported Galileo runtime are blocked from registration.
+
+Context relevance is a separate, registration-only exception keyed to the built-in scorer's identity. Its prompt depends on retrieved documents, but generic fine-tuned scorer registration would remove that dependency and change what the metric evaluates. Context relevance can therefore be trained and evaluated in Luna Studio, but not registered today. This restriction does not make the RAG metric shape generally ineligible for registration.
 
 ## Where you can register from
 
@@ -20,7 +29,7 @@ The **Register metric** action appears in three places:
 - **Training runs table** &mdash; an action link on each Fine-tuned row. See [Training runs home](/luna-studio/ui/projects/training-runs-home#runs-table).
 - **Metrics page** &mdash; an action link on each Fine-tuned metric. See [Metrics overview](/luna-studio/ui/metrics/overview).
 
-All three open the same **Register metric** flow.
+All three open the same **Register metric** flow. On the run details page, Luna Studio runs a preflight first and disables the footer button with a blocker tooltip when registration is unavailable. The Training runs table and Metrics page do not run that preflight before opening the modal; the backend checks eligibility when you submit and the modal shows any resulting error.
 
 ## Steps
 
@@ -32,9 +41,16 @@ All three open the same **Register metric** flow.
 <Step title="Enter a metric name">Use a name that's clear in the Galileo metrics store, where it'll sit alongside built-in metrics. Examples: `support-tone-strict`, `pii-detector-en`.</Step>
 
   <Step title="Click Register">
-    The modal closes. The run's status flips to **Registered** and the **Register metric** affordance disappears for that run.
+    The modal closes. After registration succeeds, the run's status flips to **Registered** and the **Register metric** affordance disappears for that run.
   </Step>
 </Steps>
+
+## If registration is blocked
+
+On the run details page, read the blocker shown with the disabled footer action. From the Training runs table or Metrics page, read the error that remains in the modal after an unsuccessful submission. Common cases are:
+
+- **No Galileo connection** — ask your deployment operator to configure the Galileo API URL and key.
+- **Unsupported metric contract** — the fine-tuned artifact remains available in Luna Studio, but that metric cannot be published to the Galileo metrics store.
 
 ## Naming guidance
 

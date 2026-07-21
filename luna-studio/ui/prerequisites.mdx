@@ -10,57 +10,44 @@ A golden test set is crucial for robust model development and evaluation. It ser
 
 ### Required dataset format
 
-Source data can come from a CSV file or a Hugging Face dataset.
+In the Luna Studio UI, source data can come from a local CSV file, a CSV file at an HTTP(S) URL, or a connected Galileo workspace. Although the source picker accepts `.jsonl` uploads and URLs during ingestion, the current validation and training pipeline expects CSV data; convert JSONL to CSV before using it in a run. Hugging Face sources are available in the standalone SDK, not as an in-app dataset source.
 
-Each row should represent one example. The required columns depend on `metric.input_format`. Note that all datasets must have a `label` column for the ground-truth label
+Each row should represent one example. The required feature columns depend on the metric shape. Test sets and labelled training sets must also have a `label` column for the ground-truth label; raw unlabelled training logs omit it until you start **Label with metric prompt** in the run wizard.
 
 Read more in [Core concepts](/luna-studio/ui/core-concepts#metrics), [Test sets](/luna-studio/ui/datasets/test-sets), and [Dataset validation](/luna-studio/ui/datasets/validation).
 
-#### Metrics with 1 input
-
-- Example: `toxicity`, `sexism`, `prompt_injection`
-- Dataset must contain exactly one feature column, for example `["input"]`
-
-#### Metrics with 2 or more inputs
-
-- Example: `instruction_adherence`
-- Dataset must contain exactly two or more feature columns, for example `["input", "output"]`
-
-#### RAG based metrics
-
-- Example: `context_adherence`, `context_relevance`, `chunk_relevance`
-- Dataset must include a `documents` column
-- Dataset must also include an `input` column; some metrics, such as context adherence, also require `output`
-
-#### Agentic metrics
-
-- Example: `tool_selection_quality`
-- Dataset columns must be exactly `["tools", "input", "output"]`
+| Metric shape      | Required feature columns                     | Example use case                         |
+| ----------------- | -------------------------------------------- | ---------------------------------------- |
+| Input only        | `input`                                      | Prompt injection or input toxicity       |
+| Output only       | `output`                                     | Response style or output toxicity        |
+| Input/output pair | `input`, `output`                            | Instruction adherence                    |
+| RAG               | `documents`, `input`; `output` when prompted | Context relevance or context adherence   |
+| With tools        | `tools`, `input`, `output`                   | Tool selection and other agentic metrics |
 
 #### Advanced formats
 
-`trace` and `session` formats are only supported in `label_only_mode` or when you skip data generation and proceed directly to training.
+Full-trace and full-session fine-tuning are not available in the Luna Studio UI. The standalone SDK supports advanced label-only or direct-training workflows for these formats; see [Full traces](/luna-studio/sdk/tutorials/full-traces) and [Full sessions](/luna-studio/sdk/tutorials/full-sessions).
 
 Labels should be manually assigned and should match the exact metric definition you want to train or evaluate.
 
 ### Required dataset size
 
-As a rule of thumb:
+Metric-aware validation in the run wizard enforces these minimums:
 
-- `300-500` samples is a good minimal size for the test set
-- aim for at least `100` examples per class where possible
+- **Test set:** at least `300` rows total and `100` examples per class.
+- **Labelled training set:** at least `2,000` rows total and `100` examples per class.
 
-Try to keep the class distribution reasonably balanced so evaluation results are meaningful across classes.
+For test sets, `1,000-3,000` representative human-labelled rows is a strong target. Keep class distributions reasonably balanced so evaluation results are meaningful across classes.
 
 ### Training dataset guidance
 
-If you already have a labelled or unlabelled training dataset, a strong target for fine-tuning is around `2,000` labelled samples. The class distribution should be similar to your test set class distribution, but make sure it is not extremely skewed, for example `99/1`.
+If you add unlabelled training logs, choose **Label with metric prompt**, configure the labelling job, and start it. Luna Studio then validates the resulting labelled training set before fine-tuning. The class distribution should be similar to your test set distribution and should not be extremely skewed, for example `99/1`.
 
 If you do not have enough training data, synthetic generation can help create training examples before fine-tuning.
 
 ## LLM-as-a-Judge Prompt
 
-This can either be a preset metric or a custom metric which you can create using Galileo. More can be found here: [Custom LLM-as-a-Judge Metrics - Galileo](https://docs.galileo.ai/concepts/metrics/custom-metrics/custom-metrics-ui-llm#custom-llm-as-a-judge-metrics)
+You can select a preset metric, select a custom metric created in Galileo, or write a custom prompt directly in Step 1 of the Luna Studio run wizard. For Galileo-side authoring, see [Custom LLM-as-a-Judge metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm#custom-llm-as-a-judge-metrics).
 
-It is important to ensure that the LLMAJ has a high accuracy on your golden dataset. If it doesn’t, you should tune the prompt (either manually or using Autotune in Galileo), to get to a high accuracy before creating a Luna metric.
+It is important to ensure that the LLM-as-a-judge prompt has high accuracy on your golden dataset. If it does not, tune the prompt manually or use Autotune in Galileo before creating a Luna metric.
 This ensures that Luna fine-tuning starts with a good understanding of the metric and avoids garbage in, garbage out.
