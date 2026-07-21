@@ -37,30 +37,36 @@ Validation passes when adding the integration but runs fail with provider auth e
 
 | Likely cause               | Fix                                                                                                               |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Stale API key              | [Update](/luna-studio/ui/integrations/overview#update-or-remove-an-integration) the integration with a fresh key. |
-| Wrong region (Azure / AWS) | Confirm the resource is in the region you specified.                                                              |
-| Insufficient quota         | Check your provider's quota dashboard. Some providers return 429 instead of 401.                                  |
+| Stale or invalid API key   | [Update](/luna-studio/ui/integrations/llm-providers#update-or-remove-an-integration) the integration with a fresh key. |
+| Key lacks provider access  | Confirm the provider account can use the selected model.                                                          |
+| Insufficient quota         | Check your provider's quota dashboard. Quota failures commonly return 429 rather than 401.                       |
 
 ## Datasets
 
 ### Validation error: "Missing column"
 
-You see `Missing column "label"` (or `"input"`) after adding a dataset.
+You see a missing-column error after selecting a dataset for a run.
 
-| Likely cause             | Fix                                                                        |
-| ------------------------ | -------------------------------------------------------------------------- |
-| Column not in CSV/JSONL  | Add the column to the file and re-add the dataset.                         |
-| Column named differently | Rename to the literal `input` and `label` keys — Luna doesn't auto-detect. |
+| Likely cause                          | Fix                                                                                                                                         |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| A required feature column is absent   | Check the [shape-specific schema](/luna-studio/ui/prerequisites#required-dataset-format), add the exact required columns, and re-upload.     |
+| `label` is absent from a test set     | Add an integer label column and re-upload. Boolean metrics require `0` and `1`, not `true` and `false`.                                     |
+| `label` is absent from training logs  | In Step 3, choose **Label with metric prompt instead**, configure the labelling model, and explicitly start the labelling pass.             |
+
+### JSONL imports but fails when used in a run
+
+The source picker accepts `.jsonl` during ingestion, but current run validation and data generation read the stored file as CSV. Convert the JSONL records to a CSV with the columns required by the selected metric shape, then upload the CSV as a new dataset.
 
 ### Validation error: "Could not fetch URL"
 
 Luna couldn't pull the file from the URL you gave it.
 
-| Likely cause             | Fix                                                                              |
-| ------------------------ | -------------------------------------------------------------------------------- |
-| URL requires auth        | For `s3://` use AWS integration; for `gs://` use Vertex AI with file uploads on. |
-| URL returns 404          | Open the URL in a browser to confirm it serves a file.                           |
-| Content type unsupported | Re-host as `.csv` or `.jsonl` and use a direct link.                             |
+| Likely cause                  | Fix                                                                                                       |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| URL requires authentication   | Create a pre-signed HTTPS URL. Luna Studio does not send custom request headers or cloud credentials.     |
+| Raw `s3://` or `gs://` URI    | Replace it with a publicly reachable or pre-signed HTTPS URL.                                             |
+| Private or internal host      | Host the file at a public HTTP(S) endpoint; Luna Studio blocks private-network targets.                  |
+| URL returns a non-200 status  | Open the URL to confirm it still serves the file; regenerate it if a signed link expired.                |
 
 ### Generated dataset doesn't look right
 
