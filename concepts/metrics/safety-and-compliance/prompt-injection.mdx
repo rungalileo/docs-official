@@ -5,6 +5,9 @@ description: Detect and prevent security vulnerabilities in AI systems using Gal
 
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
+import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
+
+<SupportedModalities modalities={["Text"]} />
 
 <DefinitionCard>
   <strong>Prompt Injection</strong> is a security vulnerability in systems that rely on large language models (LLMs) where malicious inputs manipulate the model to perform unintended actions or provide harmful outputs.
@@ -38,7 +41,7 @@ The results for prompt injection metrics depend on if you are using an LLM as a 
 
 ### LLM as a judge
 
-When using an LLM as a judge, the results for prompt injection metrics are on a scale of 0% - 100%, with 0% meaning there is a 0% chance of a prompt injection in the input, and 100% meaning there is a 100% chance of a prompt injection.
+When using an LLM as a judge, the metric returns `true` when it detects a prompt injection attempt and `false` otherwise.
 
 Along with these results will be generated reasoning describing why the score was given.
 
@@ -51,15 +54,6 @@ For example, if you are using models running on Azure AI Foundry, you will need 
 
 </Note>
 
-### Luna-2
-
-When using Luna-2, the prompt injection metric returns a score on a scale of 0% - 100%, with higher values indicating a higher probability that the input contains a prompt injection attempt.
-
-<Warning>
-  Prompt Injection now returns a float score shown as a percentage, rather than categorical labels for attack types. If you previously relied on label-based outputs or Protect rules, update those integrations to use numeric thresholds
-  instead.
-</Warning>
-
 ## Optimizing your AI system
 
 ### Implementing effective safeguards
@@ -67,7 +61,7 @@ When using Luna-2, the prompt injection metric returns a score on a scale of 0% 
 When the Prompt Injection metric identifies potential attacks, you can take several actions to protect your system:
 
 1. **Deploy real-time detection**: Implement the metric as part of your input validation pipeline
-2. **Create response strategies**: Develop appropriate responses for elevated prompt injection risk scores
+2. **Create response strategies**: Develop appropriate responses when prompt injection is detected
 3. **Implement tiered access**: Limit certain capabilities based on user authentication and trust levels
 4. **Monitor attack patterns**: Track injection attempts to identify evolving attack strategies
 
@@ -75,8 +69,8 @@ When the Prompt Injection metric identifies potential attacks, you can take seve
 
 The Prompt Injection metric enables you to:
 
-- Automatically score user queries for the probability of containing prompt injection attacks
-- Implement appropriate guardrails or preventative measures based on configurable score thresholds
+- Automatically identify user queries that contain prompt injection attacks
+- Implement appropriate guardrails or preventative measures when an attack is detected
 - Monitor and analyze attack patterns to improve system security over time
 - Create audit trails of security incidents for compliance and security reviews
 
