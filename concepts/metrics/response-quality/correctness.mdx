@@ -3,7 +3,6 @@ title: Correctness
 description: Evaluate factual accuracy in AI outputs using Galileo Guardrail Metrics
 ---
 
-import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
@@ -14,9 +13,7 @@ import { SupportedModalities } from "/snippets/components/supported-modalities.m
 
 <SupportedModalities modalities={["Text", "Image/PDF", "Audio"]} />
 
-Correctness is a continuous metric ranging from 0 to 1:
-
-<Scale low="0" lowLabel="Low Correctness" high="1" highLabel="High Correctness" lowDescription="The response contains factual errors" highDescription="The response is factually accurate" />
+Correctness is a boolean metric that indicates whether the response is factually accurate.
 
 This metric is particularly valuable for uncovering open-domain hallucinations and other factual inaccuracies that don't relate to any specific documents or context provided to the model.
 
@@ -41,16 +38,16 @@ Correctness is computed through a multi-step process:
     Each evaluation generates both an explanation of the reasoning and a binary judgment (yes/no) on factual accuracy.
 
 </Step>
-  <Step title="Score Calculation">
-    The final Correctness score is computed as the ratio of 'yes' responses to the total number of evaluation responses.
+  <Step title="Result">
+    The evaluator returns `true` when the response is factually accurate and `false` otherwise.
 
 </Step>
 </Steps>
 
 We also surface one of the generated explanations, always choosing one that aligns with the majority judgment among the responses:
 
-- If the score is greater than 0.5, the explanation will provide an argument that the response is factual
-- If the score is less than 0.5, the explanation will provide an argument that it is not factual
+- If the result is `true`, the explanation provides an argument that the response is factual.
+- If the result is `false`, the explanation provides an argument that it is not factual.
 
 <Note>
 This metric is computed by prompting an LLM multiple times, and thus requires additional LLM calls to compute, which may impact usage and billing.

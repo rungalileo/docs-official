@@ -3,7 +3,6 @@ title: Action Completion
 description: Understand how to measure whether your agent accomplished a user's goals across a session
 ---
 
-import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
@@ -40,7 +39,7 @@ Action Completion is successful when all of the below are true: :
 | **Protect Runtime Protection** | No |
 | **Constants** | None - Uses dynamic evaluation  |
 | **Usage Context** | Agentic workflows, multi-step tasks, tool-using assistants |
-| **Value Type** | Confidence score denoted as a percentage. |
+| **Value Type** | Boolean |
 | **Input/Output Requirements** | Requires agent responses, user goals, and relevant session content for evaluation |
 
 <MetricWhenToUse
@@ -63,7 +62,7 @@ Action Completion is successful when all of the below are true: :
 
 ## Calculation method
 
-If the response does not achieve an Action Completion score of 100%, it indicates that at least one judge considered the model to have failed in accomplishing every user goal.
+If Action Completion returns `false`, the agent did not accomplish every user goal.
 
 <Steps>
   <Step title="Additional Requests">
@@ -76,8 +75,8 @@ If the response does not achieve an Action Completion score of 100%, it indicate
     - A final judgment: "Yes" (goal accomplished) or "No" (goal not accomplished)
   </Step>
 
-  <Step title="Score Computation">
-    Action Completion Score = (Number of "Yes" Responses) / (Total Number of Responses)
+  <Step title="Result">
+    The evaluator returns `true` when the agent accomplishes every user goal and `false` otherwise.
   </Step>
 
   <Step title="Explanation Surfacing">
@@ -85,33 +84,11 @@ If the response does not achieve an Action Completion score of 100%, it indicate
   </Step>
 </Steps>
 
-Galileo displays a generated explanation alongside the score, choosing the one that aligns with the majority judgement for troubleshooting.
+Galileo displays a generated explanation alongside the result, choosing the one that aligns with the majority judgement for troubleshooting.
 
 <Note>
   This metric requires multiple LLM calls to compute, which may impact usage and billing.
 </Note>
-
-## Score interpretation
-
-**Expected Score:** 100% - A perfect score indicates the agent successfully accomplished all user goals with complete, accurate, and comprehensive responses.
-
-<Scale
-  low="0%"
-  mid="50%"
-  high="100%"
-  lowLabel="Poor"
-  midLabel="Fair"
-  highLabel="Excellent"
-  lowDescription="Agent failed to accomplish any user goals"
-  midDescription="Agent made some progress but didn't fully address user needs"
-  highDescription="Agent successfully accomplished all user goals completely"
-/>
-
-### What different scores mean
-
-- **0.0 - 0.3 (Poor):** Agent completely failed to accomplish user goals, provided incomplete responses, or contradicted tool outputs. Common causes include insufficient tool usage, incomplete responses, or factual inaccuracies.
-- **0.4 - 0.7 (Fair):** Agent made progress toward user goals but didn't fully address all aspects of the request. Areas for improvement include ensuring comprehensive coverage of all user requirements and better tool utilization.
-- **0.8 - 1.0 (Excellent):** Agent successfully accomplished all user goals with complete, accurate, and comprehensive responses. Best practices include thorough tool usage, complete response provision, and proper confirmation of successful actions.
 
 ## How to improve Action Completion scores
 
@@ -146,7 +123,7 @@ To optimize your agent's performance and ensure high Action Completion scores, f
 | **Best for** | Final outcome evaluation | Progress tracking | Tool usage optimization |
 | **LLM/Luna Support** | Yes | Yes | Yes |
 | **Protect Runtime Protection** | No | No | No |
-| **Value Type** | Percentage (0%-100%) | Percentage (0%-100%) | Percentage (0%-100%) |
+| **Value Type** | Boolean | Boolean | Boolean |
 | **Limitations** | Requires multiple LLM calls | May not capture final success | Doesn't measure execution quality |
 
 ## Performance Benchmarks

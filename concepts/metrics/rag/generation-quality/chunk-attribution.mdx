@@ -5,7 +5,6 @@ description: Understand how to measure and optimize the impact of retrieved chun
 
 import { Pill } from "/snippets/components/pill.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
-import { Scale } from "/snippets/components/scale.mdx";
 
 Chunk Attribution Utilization is a dual metric that calculates two values - [chunk attribution](#chunk-attribution) and [chunk utilization](#chunk-utilization).
 
@@ -99,21 +98,7 @@ When analyzing Chunk Attribution in your RAG system, consider these key optimiza
   <strong>Chunk Utilization</strong> measures the fraction of text in each retrieved chunk that had an impact on the model's response in a RAG pipeline.
 </DefinitionCard>
 
-Chunk Utilization is a continuous metric ranging from 0 to 1:
-
-<Scale
-  low="0"
-  lowLabel="Low Utilization"
-  mid="0.5"
-  midLabel="Mid Utilization"
-  high="1"
-  highLabel="High Utilization"
-  lowDescription="None of the chunk's content was utilized"
-  midDescription="Only half of the chunk's content influenced the response"
-  highDescription="The entire chunk's content influenced the response"
-/>
-
-A chunk with low utilization contains "extraneous" text that did not affect the final response, indicating potential inefficiencies in your chunking strategy.
+Chunk Utilization is calculated from the portions of each retrieved chunk that influence the model's response. A chunk with low utilization contains "extraneous" text that did not affect the final response, indicating potential inefficiencies in your chunking strategy.
 
 <Note type="info">
   Chunk Utilization is closely related to [Chunk Attribution](/concepts/metrics/rag/generation-quality/chunk-attribution): Attribution measures whether or not a chunk affected the response, while Utilization measures how much of the chunk text

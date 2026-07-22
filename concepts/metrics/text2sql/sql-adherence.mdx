@@ -3,7 +3,6 @@ title: SQL Adherence
 description: Evaluate whether generated SQL queries semantically align with the user's natural language intent
 ---
 
-import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { BooleanClassificationReport, BooleanConfusionMatrix } from "/snippets/components/confusion-matrix.jsx";
 
@@ -22,20 +21,6 @@ SQL Adherence — A binary metric that evaluates whether the generated SQL query
 This metric focuses purely on the "meaning" and "intent" of the SQL query, independent of syntactic correctness or schema validity. It validates that the operations performed (filtering, sorting, aggregating) match what the user requested.
 
 <Note>This metric requires the original natural language query to be provided. Without the NL query, semantic alignment cannot be evaluated and the metric will not produce meaningful results.</Note>
-
-Here's a scale that shows the relationship between SQL Adherence and potential impact on your AI system:
-
-<Scale
-  low="0"
-  lowLabel="Non-Adherent"
-  high="100"
-  highLabel="Fully Adherent"
-  lowDescription="SQL query doesn't accurately answer the natural language request."
-  midDescription="Query partially matches intent but may have logical issues."
-  highDescription="SQL query semantically matches user intent and answers accurately."
-/>
-
-<Note>Scale is 0-100 and is derived from binary judgments converted into a confidence score.</Note>
 
 ## Calculation method
 

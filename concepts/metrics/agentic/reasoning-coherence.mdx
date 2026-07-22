@@ -3,7 +3,6 @@ title: Reasoning Coherence
 description: Evaluate whether an agent’s reasoning steps are logically consistent and aligned with its plan
 ---
 
-import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
@@ -23,20 +22,6 @@ Reasoning Coherence — A binary metric that evaluates internal logical consiste
   - 0 (Incoherent): Contradictions, conflicting premises, circular logic, or unjustified reversals/jumps exist among the reasoning events.
 
 This metric is primarily used for agentic workflows that involve multi-step planning, tool usage, and intermediate reasoning traces. It helps validate that the steps an agent takes (or proposes) form a coherent path from problem to solution.
-
-Here's a scale that shows the relationship between Reasoning Coherence and potential impact on your AI system:
-
-<Scale
-  low="0"
-  lowLabel="Low Coherence"
-  high="100"
-  highLabel="High Coherence"
-  lowDescription="Reasoning steps are inconsistent, contradictory, or diverge from the stated plan."
-  midDescription="Reasoning is partially coherent; some steps align, but gaps or contradictions exist."
-  highDescription="Reasoning is logically consistent and well-aligned to the stated plan and goal."
-/>
-
-<Note>Scale is 0-100 and is derived from binary judgments converted into a confidence score.</Note>
 
 ## Calculation method
 
@@ -85,14 +70,6 @@ Empty or missing reasoning summaries should not be penalized; assess coherence o
 - Tool-selection reasoning conflicts with the recorded input or earlier reasoning steps.
 - The reasoning process deviates from the latest user or system instructions.
 - Web search is unjustified for common-knowledge queries (if unsure, treat as justified), or web search is used when an available specialized tool (e.g., get_weather) is clearly more appropriate for the user’s query.
-
-## Interpreting the score
-
-- 0-30: Low coherence — reasoning likely contains contradictions or misaligned steps.
-- 31-69: Mixed coherence — review critical steps and provide additional guidance.
-- 70-100: Strong coherence — reasoning appears consistent and aligned.
-
-> Consider setting thresholds for alerting or human review based on your domain’s risk tolerance (e.g., flag < 50 for review).
 
 ## Example use cases
 
