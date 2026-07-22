@@ -1,5 +1,61 @@
 export const MetricsTable = () => {
   const defaultModalities = ["Text"];
+  const iconProps = {
+    fill: "none",
+    height: 20,
+    width: 20,
+    stroke: "currentColor",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: 2,
+    viewBox: "0 0 24 24",
+    xmlns: "http://www.w3.org/2000/svg",
+  };
+
+  const IconText = () => (
+    <svg {...iconProps} aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8 8h8M12 8v8" />
+    </svg>
+  );
+
+  const IconImage = () => (
+    <svg {...iconProps} aria-hidden="true">
+      <rect height="18" rx="2" width="18" x="3" y="3" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <path d="m21 15-5-5L5 21" />
+    </svg>
+  );
+
+  const IconMusic = () => (
+    <svg {...iconProps} aria-hidden="true">
+      <path d="M9 18V5l10-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="16" cy="16" r="3" />
+    </svg>
+  );
+
+  const modalityIcons = {
+    Text: IconText,
+    "Image/PDF": IconImage,
+    Audio: IconMusic,
+  };
+
+  const ModalityIcons = ({ modalities }) => (
+    <span aria-label={`Supported modalities: ${modalities.join(", ")}`} role="group" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+      {modalities.map((modality) => {
+        const Icon = modalityIcons[modality];
+
+        if (!Icon) return null;
+
+        return (
+          <span aria-label={modality} key={modality} role="img" style={{ display: "inline-flex", flexShrink: 0 }} title={modality}>
+            <Icon />
+          </span>
+        );
+      })}
+    </span>
+  );
 
   const metrics = [
     {
@@ -128,6 +184,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/multimodal-quality/interruption-detection",
       category: "Multimodal Quality",
       node: "Session (trace inputs/outputs only)",
+      modalities: ["Audio"],
       description: "Detects turn-taking violations in audio-based conversations, including overlap and barge-in events.",
       whenToUse: "When evaluating voice agents where smooth turn-taking and endpoint are critical.",
       example: "A voice assistant where the agent must not speak over the user, and must avoid cutting users off mid-utterance.",
@@ -386,18 +443,6 @@ export const MetricsTable = () => {
     color: colors.text,
   };
 
-  const modalityBadgeStyle = {
-    display: "inline-block",
-    margin: "0 0.25rem 0.25rem 0",
-    padding: "0.125rem 0.375rem",
-    border: `1px solid ${colors.border}`,
-    borderRadius: "9999px",
-    color: colors.text,
-    fontSize: "0.75rem",
-    lineHeight: 1.3,
-    whiteSpace: "nowrap",
-  };
-
   const getSortIndicator = (column) => {
     if (sortColumn !== column) return " ↕";
     return sortDirection === "asc" ? " ↑" : " ↓";
@@ -478,9 +523,7 @@ export const MetricsTable = () => {
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.category}</td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.node}</td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>
-                  {(metric.modalities ?? defaultModalities).map((modality) => (
-                    <span key={modality} style={modalityBadgeStyle}>{modality}</span>
-                  ))}
+                  <ModalityIcons modalities={metric.modalities ?? defaultModalities} />
                 </td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.description}</td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.whenToUse}</td>
