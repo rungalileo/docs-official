@@ -1,4 +1,62 @@
 export const MetricsTable = () => {
+  const defaultModalities = ["Text"];
+  const iconProps = {
+    fill: "none",
+    height: 20,
+    width: 20,
+    stroke: "currentColor",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: 2,
+    viewBox: "0 0 24 24",
+    xmlns: "http://www.w3.org/2000/svg",
+  };
+
+  const IconText = () => (
+    <svg {...iconProps} aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8 8h8M12 8v8" />
+    </svg>
+  );
+
+  const IconImage = () => (
+    <svg {...iconProps} aria-hidden="true">
+      <rect height="18" rx="2" width="18" x="3" y="3" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <path d="m21 15-5-5L5 21" />
+    </svg>
+  );
+
+  const IconMusic = () => (
+    <svg {...iconProps} aria-hidden="true">
+      <path d="M9 18V5l10-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="16" cy="16" r="3" />
+    </svg>
+  );
+
+  const modalityIcons = {
+    Text: IconText,
+    "Image/PDF": IconImage,
+    Audio: IconMusic,
+  };
+
+  const ModalityIcons = ({ modalities }) => (
+    <span aria-label={`Supported modalities: ${modalities.join(", ")}`} role="group" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+      {modalities.map((modality) => {
+        const Icon = modalityIcons[modality];
+
+        if (!Icon) return null;
+
+        return (
+          <span aria-label={modality} key={modality} role="img" style={{ display: "inline-flex", flexShrink: 0 }} title={modality}>
+            <Icon />
+          </span>
+        );
+      })}
+    </span>
+  );
+
   const metrics = [
     {
       name: "Action Advancement",
@@ -14,6 +72,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/agentic/action-completion",
       category: "Agentic",
       node: "Session",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Measures whether the agent completed the intended action.",
       whenToUse: "When evaluating agent task completion rates and success.",
       example: "An e-commerce assistant that needs to successfully add items to cart, apply discounts, and complete checkout.",
@@ -68,6 +127,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/rag/generation-quality/context-adherence",
       category: "RAG - Generation Quality",
       node: "LLM Span",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Measures how well the response aligns with the provided context.",
       whenToUse: "When you want to ensure the model is grounding its responses in the provided context.",
       example: "A financial advisor bot that must base investment recommendations on the client's specific financial situation.",
@@ -95,6 +155,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/response-quality/correctness",
       category: "Response Quality",
       node: "LLM Span",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Evaluates the factual accuracy of information provided in the response.",
       whenToUse: "When accuracy of information is critical to your application.",
       example: "A medical information system providing drug interaction details to healthcare professionals.",
@@ -104,6 +165,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/response-quality/ground-truth-adherence",
       category: "Response Quality",
       node: "Trace",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Measures how well the response aligns with established ground truth.",
       whenToUse: "When evaluating model responses against known correct answers.",
       example: "A customer service AI that must provide accurate product specifications from an official catalog.",
@@ -122,6 +184,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/multimodal-quality/interruption-detection",
       category: "Multimodal Quality",
       node: "Session (trace inputs/outputs only)",
+      modalities: ["Audio"],
       description: "Detects turn-taking violations in audio-based conversations, including overlap and barge-in events.",
       whenToUse: "When evaluating voice agents where smooth turn-taking and endpoint are critical.",
       example: "A voice assistant where the agent must not speak over the user, and must avoid cutting users off mid-utterance.",
@@ -158,6 +221,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/agentic/reasoning-coherence",
       category: "Agentic",
       node: "LLM Span",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Evaluates whether an agent's reasoning steps are logically consistent and aligned with its plan.",
       whenToUse: "When validating multi-step planning and intermediate reasoning quality.",
       example: "A financial planning agent that must develop a step-by-step investment plan for a user, ensuring each recommendation logically follows from prior steps and aligns with the user's goals.",
@@ -203,6 +267,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/safety-and-compliance/toxicity",
       category: "Safety and Compliance",
       node: "Trace (root input/output only)",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Identifies harmful, offensive, or inappropriate content.",
       whenToUse: "When monitoring AI outputs for harmful content or implementing content filtering.",
       example: "A social media content moderation system that must detect and flag potentially harmful user-generated content.",
@@ -212,6 +277,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/multimodal-quality/visual-fidelity",
       category: "Multimodal Quality",
       node: "LLM Span",
+      modalities: ["Image/PDF"],
       description: "Checks whether a generated image complies with all applicable provided brand rules based on visible evidence.",
       whenToUse: "When generated images must conform to explicit brand, layout, or content rules.",
       example: "A marketing image generator that must always place a logo in the top-left and avoid prohibited colors or content.",
@@ -221,6 +287,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/multimodal-quality/visual-quality",
       category: "Multimodal Quality",
       node: "LLM Span",
+      modalities: ["Image/PDF"],
       description: "Judges whether the quality of an input image is sufficient to reliably complete the task in the adjoining prompt.",
       whenToUse: "When user-supplied images can be blurry, occluded, or poorly lit and might make the task infeasible.",
       example: "A document capture workflow that needs to detect when a photo is too blurry to read a serial number or form field.",
@@ -230,6 +297,7 @@ export const MetricsTable = () => {
       link: "/concepts/metrics/agentic/intent-change",
       category: "Agentic",
       node: "Session (trace inputs/outputs only)",
+      modalities: ["Text", "Image/PDF", "Audio"],
       description: "Detects when user intent shifts during a conversation.",
       whenToUse: "When tracking conversation dynamics and adapting agent behavior.",
       example: "A sales assistant that needs to recognize when a customer shifts from browsing to purchasing intent.",
@@ -274,11 +342,13 @@ export const MetricsTable = () => {
 
   const categories = [...new Set(metrics.map((m) => m.category))].sort();
   const nodes = [...new Set(metrics.map((m) => m.node))].sort();
+  const modalities = [...new Set(metrics.flatMap((m) => m.modalities ?? defaultModalities))].sort();
 
   const [sortColumn, setSortColumn] = useState("name");
   const [sortDirection, setSortDirection] = useState("asc");
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterNode, setFilterNode] = useState("All");
+  const [filterModality, setFilterModality] = useState("All");
 
   // Detect dark mode via Mintlify's "dark" class on <html> or via prefers-color-scheme
   const [isDark, setIsDark] = useState(false);
@@ -347,9 +417,10 @@ export const MetricsTable = () => {
   const filteredAndSortedMetrics = metrics
     .filter((m) => filterCategory === "All" || m.category === filterCategory)
     .filter((m) => filterNode === "All" || m.node === filterNode)
+    .filter((m) => filterModality === "All" || (m.modalities ?? defaultModalities).includes(filterModality))
     .sort((a, b) => {
-      const aVal = a[sortColumn]?.toLowerCase() || "";
-      const bVal = b[sortColumn]?.toLowerCase() || "";
+      const aVal = sortColumn === "modalities" ? (a.modalities ?? defaultModalities).join(" ") : a[sortColumn] || "";
+      const bVal = sortColumn === "modalities" ? (b.modalities ?? defaultModalities).join(" ") : b[sortColumn] || "";
       if (sortDirection === "asc") {
         return aVal.localeCompare(bVal);
       }
@@ -403,6 +474,17 @@ export const MetricsTable = () => {
             ))}
           </select>
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <label style={{ fontSize: "0.875rem", fontWeight: 500, color: colors.text }}>Modality:</label>
+          <select value={filterModality} onChange={(e) => setFilterModality(e.target.value)} style={selectStyle}>
+            <option value="All">All Modalities</option>
+            {modalities.map((modality) => (
+              <option key={modality} value={modality}>
+                {modality}
+              </option>
+            ))}
+          </select>
+        </div>
         <div style={{ fontSize: "0.75rem", color: colors.textMuted }}>
           Showing {filteredAndSortedMetrics.length} of {metrics.length} metrics
         </div>
@@ -410,7 +492,7 @@ export const MetricsTable = () => {
 
       {/* Table */}
       <div style={{ overflowX: "auto", maxWidth: "100%", paddingLeft: "0.5rem" }}>
-        <table style={{ minWidth: "1200px", width: "100%", borderCollapse: "collapse", fontSize: "0.8rem" }}>
+        <table style={{ minWidth: "1320px", width: "100%", borderCollapse: "collapse", fontSize: "0.8rem" }}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
               <th style={{ ...headerStyle, textAlign: "left", padding: "0.75rem 0.5rem 0.75rem 0.75rem", minWidth: "180px" }} onClick={() => handleSort("name")}>
@@ -421,6 +503,9 @@ export const MetricsTable = () => {
               </th>
               <th style={{ ...headerStyle, textAlign: "left", padding: "0.75rem 0.5rem", minWidth: "100px" }} onClick={() => handleSort("node")}>
                 Node{getSortIndicator("node")}
+              </th>
+              <th style={{ ...headerStyle, textAlign: "left", padding: "0.75rem 0.5rem", minWidth: "150px" }} onClick={() => handleSort("modalities")}>
+                Modalities{getSortIndicator("modalities")}
               </th>
               <th style={{ ...headerStyle, textAlign: "left", padding: "0.75rem 0.5rem", minWidth: "200px" }}>Description</th>
               <th style={{ ...headerStyle, textAlign: "left", padding: "0.75rem 0.5rem", minWidth: "200px" }}>When to Use</th>
@@ -437,6 +522,9 @@ export const MetricsTable = () => {
                 </td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.category}</td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.node}</td>
+                <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>
+                  <ModalityIcons modalities={metric.modalities ?? defaultModalities} />
+                </td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.description}</td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.whenToUse}</td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.example}</td>
