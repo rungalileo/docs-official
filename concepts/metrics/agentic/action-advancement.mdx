@@ -3,9 +3,11 @@ title: Action Advancement
 description: Understand how to measure and optimize the effectiveness of your AI agent's actions
 ---
 
-import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
+import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
+
+<SupportedModalities modalities={["Text"]} />
 
 ## Overview
 
@@ -39,7 +41,7 @@ For an interaction to count as advancing the user's goal, the assistant's respon
 | **Protect Runtime Protection** | No - Not applicable for this metric |
 | **Constants** | None - Uses dynamic evaluation |
 | **Usage Context** | Agentic workflows, multi-step tasks, tool-using assistants |
-| **Value Type** | Confidence score (0.0 to 1.0) - Confidence that any one action has advanced |
+| **Value Type** | Boolean |
 | **Input/Output Requirements** | Requires conversation context, user goals, and assistant responses |
 
 ## When to Use This Metric
@@ -88,7 +90,7 @@ For an interaction to count as advancing the user's goal, the assistant's respon
 
 ### Calculation method
 
-If the Action Advancement score is less than 100%, it means at least one evaluator determined the assistant failed to make progress on any user goal.
+If Action Advancement returns `false`, the assistant did not make progress on any user goal.
 
 Action Advancement is calculated by:
 
@@ -105,40 +107,16 @@ Action Advancement is calculated by:
     Each evaluation analyzes the interaction and produces both a detailed explanation and a binary judgment (yes/no) on goal advancement.
   </Step>
 
-  <Step title="Score Calculation">
-    The final Action Advancement score is computed as the confidence score or probability that any one user ask is advanced.
+  <Step title="Result">
+    The evaluator returns `true` when the assistant advances at least one user goal and `false` otherwise.
   </Step>
 </Steps>
 
-We display one of the generated explanations alongside the score, choosing one that aligns with the majority judgment.
+We display one of the generated explanations alongside the result, choosing one that aligns with the majority judgment.
 
 <Note>
   This metric requires multiple LLM calls to compute, which may impact usage and billing.
 </Note>
-
-### Score Interpretation
-
-**Expected Score:** 1.0 (Excellent) - The assistant made clear progress toward the booking goal by gathering necessary information and providing options.
-
-<Scale
-  low="0.0"
-  mid="0.5"
-  high="1.0"
-  lowLabel="Poor"
-  midLabel="Fair"
-  highLabel="Excellent"
-  lowDescription="Assistant failed to make any progress toward user goals"
-  midDescription="Assistant made some progress but didn't fully address the user's needs"
-  highDescription="Assistant successfully advanced user goals with clear progress"
-/>
-
-### What different scores mean
-
-- **0.0 - 0.3 (Poor):** The assistant completely failed to address the user's request or made no meaningful progress. Common causes include ignoring the user's question, providing irrelevant information, or failing to use available tools when needed.
-
-- **0.4 - 0.7 (Fair):** The assistant made some progress but didn't fully accomplish the user's goal. This might include partial answers, requesting clarification when not needed, or missing key aspects of the request.
-
-- **0.8 - 1.0 (Excellent):** The assistant successfully advanced the user's goal by providing complete answers, making appropriate requests for clarification, or confirming successful task completion.
 
 ## How to improve Action Advancement scores
 

@@ -3,9 +3,11 @@ title: Tool Error
 description: Detect and analyze tool execution errors in AI agents using Galileo Guardrail Metrics to ensure reliable tool usage in agentic workflows
 ---
 
-import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
+import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
+
+<SupportedModalities modalities={["Text"]} />
 
 <DefinitionCard>
   <strong>Tool Error</strong> detects errors or failures during the execution of Tools.
@@ -13,17 +15,7 @@ import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/c
 
 This metric is particularly valuable for monitoring agentic AI systems where the model uses various tools to complete tasks. Tool execution failures can lead to incomplete or incorrect responses, affecting the overall user experience.
 
-Here's a scale that shows the relationship between Tool Error detection and the potential impact on your AI system:
-
-<Scale
-  low="0"
-  lowLabel="High Error Rate"
-  high="1"
-  highLabel="Low Error Rate"
-  lowDescription="Many tools failed during execution, causing incomplete or incorrect responses."
-  midDescription="Some tools executed correctly while others encountered errors."
-  highDescription="All tools executed correctly without errors."
-/>
+Tool Error returns `true` when it detects an execution error and `false` otherwise.
 
 ## Calculation method
 

@@ -3,26 +3,16 @@ title: Tool Selection Quality
 description: Evaluate tool selection quality in AI agents using Galileo Guardrail Metrics to ensure agents choose appropriate tools with correct parameters
 ---
 
-import { Scale } from "/snippets/components/scale.mdx";
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
+
+<SupportedModalities modalities={["Text"]} />
 
 <DefinitionCard>
   <strong>Tool Selection Quality</strong> determines whether the agent selected the correct tool and for each tool the correct arguments.
 </DefinitionCard>
 
 This metric is particularly valuable for evaluating agentic AI systems where the model must decide which tools to use and how to use them correctly. Poor tool selection can lead to ineffective or incorrect responses.
-
-Here's a scale that shows the relationship between Tool Selection Quality and the potential impact on your AI system:
-
-<Scale
-  low="0"
-  lowLabel="Low Quality"
-  high="1"
-  highLabel="High Quality"
-  lowDescription="The agent selected incorrect tools or used correct tools with incorrect parameters."
-  midDescription="The agent selected partially correct tools or used some correct parameters."
-  highDescription="The agent selected the correct tools with the correct parameters."
-/>
 
 ## Calculation method
 
@@ -45,8 +35,8 @@ Tool Selection Quality is computed through a multi-step process:
     Each evaluation generates both an explanation of the reasoning and a binary judgment (yes/no) on tool selection appropriateness.
 
 </Step>
-  <Step title="Score Calculation">
-    The final Tool Selection Quality score is computed as the ratio of positive ('yes') responses to the total number of evaluation responses.
+  <Step title="Result">
+    The evaluator returns `true` when the agent selects the correct tools and arguments and `false` otherwise.
 
 </Step>
 </Steps>
@@ -99,7 +89,7 @@ Tool Selection Quality evaluates different scenarios:
     <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '600'}}>Addressing Low Tool Selection Quality</h3>
   </div>
 
-When a response has a low Tool Selection Quality score, consider these improvements:
+When Tool Selection Quality returns `false`, consider these improvements:
 
 <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
   <strong>Analyze error patterns:</strong> Identify common mistakes in tool selection or parameter usage.
