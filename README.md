@@ -59,3 +59,5 @@ vale . --glob='!{sdk-api/**/reference/**/*.*}'
 ```
 
 This command ignores the generated SDK code.
+
+test
