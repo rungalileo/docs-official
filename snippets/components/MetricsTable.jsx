@@ -97,15 +97,6 @@ export const MetricsTable = () => {
       example: "A research assistant that should gather information, analyze it, then synthesize findings in a logical order.",
     },
     {
-      name: "Chunk Attribution Utilization",
-      link: "/concepts/metrics/rag/generation-quality/chunk-attribution",
-      category: "RAG - Generation Quality",
-      node: "Retriever Span",
-      description: "Assesses whether the response uses the retrieved chunks and properly attributes information to source documents.",
-      whenToUse: "When implementing RAG systems and want to ensure proper attribution.",
-      example: "A legal research assistant that must cite specific cases and statutes when providing legal information.",
-    },
-    {
       name: "Chunk Relevance",
       link: "/concepts/metrics/rag/retrieval-quality/chunk-relevance",
       category: "RAG - Retrieval Quality",
