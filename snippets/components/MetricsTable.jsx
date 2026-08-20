@@ -154,6 +154,15 @@ export const MetricsTable = () => {
       example: "A medical information system providing drug interaction details to healthcare professionals.",
     },
     {
+      name: "Dangerous Output",
+      link: "/concepts/metrics/safety-and-compliance/dangerous-output",
+      category: "Safety and Compliance",
+      node: "LLM Span",
+      description: "Detects whether model output violates user-defined output-policy rules.",
+      whenToUse: "When model output must follow application-specific safety, format, or compliance requirements.",
+      example: "A coding assistant whose generated JSON, SQL, or shell output must follow explicit rules before downstream use.",
+    },
+    {
       name: "Ground Truth Adherence",
       link: "/concepts/metrics/response-quality/ground-truth-adherence",
       category: "Response Quality",

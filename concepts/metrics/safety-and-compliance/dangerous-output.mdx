@@ -1,0 +1,207 @@
+---
+title: Dangerous Output
+description: Detect whether model output violates your application-specific output-policy rules
+---
+
+import { DefinitionCard } from "/snippets/components/definition-card.mdx";
+import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
+import { BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
+import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
+
+<SupportedModalities modalities={["Text"]} />
+
+<DefinitionCard>
+  <strong>Dangerous Output</strong> is a binary metric that detects whether the
+  latest model output violates one or more applicable output-policy rules that
+  you define.
+</DefinitionCard>
+
+Dangerous Output is an LLM-as-a-judge metric for application-specific output
+controls. It evaluates the latest model output using the complete LLM span
+context, including the system instructions, conversation, tool definitions and
+results, and model output.
+
+The metric applies only the rules that you add. It does not inject a fixed
+baseline policy or treat general best practices as requirements.
+
+<Warning>
+  You must duplicate this preset and add your rules before using it. The
+  original preset is read-only and does not include built-in output-policy
+  rules.
+</Warning>
+
+## Dangerous Output at a glance
+
+| Property                       | Description |
+| :----------------------------- | :---------- |
+| **Name**                       | Dangerous Output |
+| **Category**                   | Safety and Compliance |
+| **Can be applied to**          | LLM span |
+| **LLM-as-a-judge Support**     | ✅ |
+| **Luna Support**               | ❌ |
+| **Protect Runtime Protection** | ❌ |
+| **Value Type**                 | Boolean |
+| **Score Direction**            | Lower is better; `true` means dangerous |
+
+## When to use this metric
+
+<MetricWhenToUse
+  description="Use Dangerous Output when model responses must follow explicit, application-specific output rules"
+  useCases={[
+    {
+      title: "Structured or interpreted output",
+      description: "Check rules for output that a downstream system interprets, such as JSON, SQL, shell commands, HTML, or Markdown."
+    },
+    {
+      title: "Sensitive or regulated responses",
+      description: "Detect output that violates your policies for secrets, confidential data, consequential claims, or regulated communications."
+    },
+    {
+      title: "Application-specific constraints",
+      description: "Evaluate requirements that depend on your application, such as approved libraries, allowed operations, or required error handling."
+    }
+  ]}
+/>
+
+## Configure Dangerous Output
+
+Dangerous Output requires your own output-policy rules.
+
+<Steps>
+  <Step title="Create a copy of the Dangerous Output metric">
+    From the **Metrics Hub**, select **Dangerous Output**, then select
+    **Duplicate metric**. The copy is an editable custom LLM-as-a-judge metric.
+  </Step>
+
+  <Step title="Locate the user-defined rules section">
+    Find this section in the prompt:
+
+    ```xml
+    <user-defined-rules>
+    {{ Add your rules here }}
+    </user-defined-rules>
+    ```
+  </Step>
+
+  <Step title="Add your output-policy rules">
+    Replace `{{ Add your rules here }}` with a numbered list of rules. Include
+    only requirements that apply to your application, and make each rule
+    specific enough to verify from the available context.
+
+    For example:
+
+    ```text wrap
+    1. When the response is JSON, it must be valid JSON, and string values
+       must be escaped exactly once.
+    2. Never place a user-supplied value directly in SQL. Use a parameter
+       placeholder and provide the value separately.
+    3. Do not reveal passwords, access tokens, API keys, or other secrets
+       from the supplied context.
+    4. Do not claim that an external action succeeded unless a tool result
+       confirms it.
+    ```
+
+    These are examples, not built-in rules. Add only the rules that represent
+    the output contract for your application.
+  </Step>
+
+  <Step title="Save and test the metric">
+    Save the duplicate, then test it on representative safe and violating
+    examples before enabling it for a Log Stream or experiment.
+  </Step>
+</Steps>
+
+## How it works
+
+Dangerous Output evaluates rules in three stages:
+
+<Steps>
+  <Step title="Determine applicability">
+    The judge first determines whether each configured rule applies to the task
+    and output. An inapplicable rule passes by default.
+  </Step>
+
+  <Step title="Check concrete evidence">
+    For each applicable rule, the judge looks for a visible or materially
+    implied violation in the output. It uses the complete LLM span context to
+    distinguish supplied facts from fabricated claims and to understand the
+    output format and downstream destination.
+  </Step>
+
+  <Step title="Return the classification">
+    The result is `true` when at least one applicable rule fails. The result is
+    `false` when every applicable rule passes. The generated explanation cites
+    the evidence used for the decision.
+  </Step>
+</Steps>
+
+## Interpret the score
+
+- **`false` / No:** The judge found no concrete violation of the configured
+  rules.
+- **`true` / Yes:** The judge found a concrete violation of at least one
+  applicable configured rule.
+
+When you configure multiple judges, Galileo averages their Boolean results. A
+higher score means that more judges classified the output as dangerous.
+
+<Note>
+  A `false` result does not certify that an output is safe in every respect. It
+  means only that no violation was found for the rules and context supplied to
+  this metric.
+</Note>
+
+## Best practices
+
+- Write one verifiable requirement per numbered rule.
+- State when a conditional rule applies. For example, start a JSON-specific
+  rule with “When the response is JSON.”
+- Name the downstream destination when representation matters. Escaping for a
+  JSON value differs from escaping for HTML, Markdown, SQL, or a shell.
+- Express requirements, not optional hardening or stylistic preferences.
+- Include both passing and violating edge cases when you
+  [test the metric](/concepts/metrics/custom-metrics/test-metrics).
+- Combine this metric with deterministic parsing or validation when exact
+  syntax is security-critical.
+
+Dangerous Output is an evaluation metric, not a runtime guardrail. It does not
+sanitize, block, or rewrite model output.
+
+## Performance benchmarks
+
+We evaluated the canonical Dangerous Output prompt against trusted labels on an
+internal dataset of 877 output-policy examples. Unresolved annotation cases
+were excluded from the evaluation. The positive class is `true` (dangerous).
+
+| Model | Precision (True) | Recall (True) | F1 (True) | Accuracy |
+| :---- | :--------------: | :-----------: | :-------: | :------: |
+| Gemini 3.5 Flash | 0.96 | 0.80 | 0.87 | 0.93 |
+
+### Gemini 3.5 Flash classification report
+
+<BooleanClassificationReport
+  report={`              precision    recall  f1-score   support
+
+False            0.9253    0.9872    0.9552       627
+True             0.9615    0.8000    0.8734       250
+
+accuracy                             0.9339       877
+macro avg        0.9434    0.8936    0.9143       877
+weighted avg     0.9356    0.9339    0.9319       877`}
+  negativeLabel="False"
+  positiveLabel="True"
+  negativeClass="False"
+  positiveClass="True"
+/>
+
+<Note>
+  Benchmarks are based on an internal evaluation dataset. Performance varies
+  with the model, rules, application context, and number of judges.
+</Note>
+
+## Related resources
+
+- [Safety and Compliance Metrics](/concepts/metrics/safety-and-compliance/safety-and-compliance-overview)
+- [Custom LLM-as-a-Judge Metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm)
+- [Test Your Metrics](/concepts/metrics/custom-metrics/test-metrics)
+- [How LLM-as-a-Judge Metrics Are Calculated](/concepts/metrics/how-llm-as-judge-metrics-are-calculated)
