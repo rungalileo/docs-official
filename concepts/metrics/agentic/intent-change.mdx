@@ -1,19 +1,21 @@
 ---
 title: User Intent Change
-description: Learn how to measure if users are using your agent system for different intents across multi-turn conversation
+description: Learn how to measure if users use your agent system for different intents across multi-turn interactions
 ---
 
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
-import { Scale } from "/snippets/components/scale.mdx"
+import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
+
+<SupportedModalities modalities={["Text", "Image/PDF", "Audio"]} />
 
 <DefinitionCard>
-<strong>User Intent Change</strong> checks if users are using your agent system for different intents across multi-turn conversations.
+<strong>User Intent Change</strong> checks if users are using your agent system for different intents across multi-turn interactions.
 </DefinitionCard>
 
 User Intent Change is a binary evaluation metric, and is defined as a significant shift in the user's primary conversational goal or workflow during a session, relative to their initial stated intent.
 
-This is a **boolean** metric, returning a confidence score that the user intent has changed significantly. The score ranges from 0% (no confidence the user intent has changed) to 100% (complete confidence that the user intent has changed).
+This is a **boolean** metric that indicates whether the user's intent changed significantly.
 
 ## User Intent Change at a glance
 
@@ -25,28 +27,15 @@ This is a **boolean** metric, returning a confidence score that the user intent 
 | **LLM-as-a-judge Support**     | ✅ |
 | **Luna Support**               | ❌ |
 | **Protect Runtime Protection** | ❌ |
-| **Value Type**                 | Boolean shown as a percentage confidence score |
+| **Value Type**                 | Boolean |
 
 ## When to use this metric
 
 <MetricWhenToUse
-  description="User Intent Change is useful when working with multi-step chat bots or other AI systems with multiple user interactions"
+  description="User Intent Change is useful when working with multi-step agents or other AI systems with multiple user interactions"
   useCases={[
     {
       title: "Check if user is using your agent across different topics in one conversation",
     }
   ]}
-/>
-
-## Score interpretation
-
-**Expected Score:** 80%-100%.
-
-<Scale
-  low="0"
-  mid="60%"
-  high="100%"
-  lowLabel="Poor"
-  midLabel="Fair"
-  highLabel="Excellent"
 />

@@ -9,18 +9,18 @@ A **test set** is the ground truth for a [training run](/luna-studio/ui/runs/lif
 
 - **Human-labelled.** Don't auto-generate test labels — they're the tape measure for evaluating the run.
 - **Representative of production data.** Sample inputs from the same distribution your application sees in production.
-- **Size.** Use at least 300 rows with min of 100 rows per label. Ideally, a good test set should be 1000-3000 rows.
+- **Size.** Luna Studio enforces at least 300 rows total and 100 rows per label. Aim for 1,000-3,000 representative rows when possible.
 
 ## Required schema
 
-Check the [pre-requisites](/luna-studio/ui/prerequisites#required-dataset-format) section for details
+Check [Prerequisites](/luna-studio/ui/prerequisites#required-dataset-format) for the columns required by each metric shape.
 
 ## File formats
 
-- **CSV** &mdash; standard comma-separated. Headers required.
-- **JSONL** &mdash; one JSON object per line, with `input` and `label` keys.
+- **CSV** &mdash; the end-to-end format for run validation and evaluation. Headers are required.
+- **JSONL** &mdash; accepted by the source picker during ingestion, but current downstream processing reads CSV. Convert it to CSV before selecting it for a run.
 
-Both formats accept up to a few hundred MB. Larger uploads work but take longer to validate.
+Browser uploads are limited to 20 MiB.
 
 ## Add a test set
 

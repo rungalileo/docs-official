@@ -5,21 +5,23 @@ description: Learn how to measure the correctness and coherence of an agentic tr
 
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
-import { Scale } from "/snippets/components/scale.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
+import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
+
+<SupportedModalities modalities={["Text", "Image/PDF", "Audio"]} />
 
 <DefinitionCard>
-<strong>Agent Flow</strong> is a binary metric that checks if an agent's behavior satisfies all user-defined natural language conditions.
+<strong>Agent Flow</strong> is a binary metric that checks if an agent's behavior satisfies all user-defined conditions.
 </DefinitionCard>
 
-Agent Flow is a binary evaluation metric that measures the correctness and coherence of an agentic trajectory by validating it against user-specified natural language tests.
-A trajectory is said to pass the Agent Flow metric if and only if all the user-defined natural language conditions are successfully satisfied by the agent's realized behavior or output.
+Agent Flow is a binary evaluation metric that measures the correctness and coherence of an agentic trajectory by validating it against user-specified tests.
+A trajectory passes the Agent Flow metric if and only if all the user-defined conditions are successfully satisfied by the agent's realized behavior or output.
 
 <Note>
 To use this metric, you will need to create a copy and edit the prompt to provide your natural language tests.
 </Note>
 
-This is a **boolean** metric, returning a confidence score that the agent flow satisfies all conditions. The score ranges from 0% (no confidence the agent flow satisfies all conditions) to 100% (complete confidence that the agent flow satisfies all conditions).
+This is a **boolean** metric that indicates whether the agent flow satisfies all conditions.
 
 ## Agent Flow at a glance
 
@@ -31,7 +33,7 @@ This is a **boolean** metric, returning a confidence score that the agent flow s
 | **LLM-as-a-judge Support**     | ✅ |
 | **Luna Support**               | ❌ |
 | **Protect Runtime Protection** | ❌ |
-| **Value Type**                 | Boolean shown as a percentage confidence score |
+| **Value Type**                 | Boolean |
 
 ## When to use this metric
 
@@ -51,19 +53,6 @@ This is a **boolean** metric, returning a confidence score that the agent flow s
       description: "Agent flow can check for unconditional behaviors, such as verifying that the agent always calls the authentication tool during a conversation."
     }
   ]}
-/>
-
-## Score interpretation
-
-**Expected Score:** 80%-100%.
-
-<Scale
-  low="0"
-  mid="60%"
-  high="100%"
-  lowLabel="Poor"
-  midLabel="Fair"
-  highLabel="Excellent"
 />
 
 ## Configure Agent Flow

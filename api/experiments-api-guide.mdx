@@ -584,7 +584,7 @@ Take the `id` — this is your `<EXPERIMENT_ID>`.
 
 #### C2. Register scorers
 
-Scorers are attached to the experiment via a separate call. This is what tells the platform which metrics to compute when traces arrive. [API reference →](/api-reference/experiment/update-metric-settings)
+Scorers are attached to the experiment via a separate call. This is what tells the platform which metrics to compute when traces arrive. [API reference →](/api-reference/log_stream/update-metric-settings)
 
 > **Order matters:** Register scorers before ingesting traces. When traces arrive with `is_complete: true`, Galileo immediately enqueues scoring jobs — those jobs look up registered scorers at processing time. If scorer registration hasn't completed yet, custom scorers will be silently skipped and only built-in metrics (cost, latency) will run. If that happens, re-calling this endpoint after traces exist will trigger a recompute automatically for the newly added scorers.
 

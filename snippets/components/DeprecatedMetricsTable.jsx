@@ -9,6 +9,14 @@ export const DeprecatedMetricsTable = () => {
       example: "A translation system that needs to measure output quality against professional human translations.",
     },
     {
+      name: "Chunk Attribution Utilization",
+      category: "RAG - Generation Quality",
+      node: "Retriever Span",
+      description: "Assesses whether the response uses the retrieved chunks and properly attributes information to source documents.",
+      whenToUse: "When implementing RAG systems and want to ensure proper attribution.",
+      example: "A legal research assistant that must cite specific cases and statutes when providing legal information.",
+    },
+    {
       name: "Prompt Perplexity",
       category: "Model Confidence",
       node: "LLM Span",
@@ -185,9 +193,7 @@ export const DeprecatedMetricsTable = () => {
             {filteredAndSortedMetrics.map((metric, idx) => (
               <tr key={metric.name} style={{ borderBottom: `1px solid ${colors.border}`, background: idx % 2 === 0 ? colors.bg : colors.bgAlt }}>
                 <td style={{ padding: "0.75rem 0.5rem 0.75rem 0.75rem", fontWeight: 500, verticalAlign: "top", minWidth: "180px" }}>
-                  <a href={metric.link} style={{ color: colors.text, textDecoration: "none" }}>
-                    {metric.name}
-                  </a>
+                  {metric.name}
                 </td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.category}</td>
                 <td style={{ padding: "0.75rem 0.5rem", verticalAlign: "top", color: colors.text }}>{metric.node}</td>

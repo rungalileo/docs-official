@@ -1,22 +1,24 @@
 ---
 title: Conversation Quality
-description: Learn how to measure the quality of a conversation that a user has with a chatbot
+description: Learn how to measure the quality of a conversation between a user and an assistant
 ---
 
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
-import { Scale } from "/snippets/components/scale.mdx";
 import { BooleanConfusionMatrix, BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
+import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
+
+<SupportedModalities modalities={["Text", "Image/PDF", "Audio"]} />
 
 <DefinitionCard>
-<strong>Conversation Quality</strong> is a binary metric that assesses whether a chatbot interaction left the user feeling satisfied and positive or frustrated and dissatisfied, based on tone, engagement, and overall experience.
+<strong>Conversation Quality</strong> is a binary metric that assesses whether an assistant interaction left the user feeling satisfied and positive or frustrated and dissatisfied, based on tone, engagement, and overall experience.
 </DefinitionCard>
 
-The Conversation Quality metric evaluates user satisfaction across an entire chatbot session by analyzing tone, engagement, and sentiment. It classifies each conversation as GOOD or BAD depending on whether the user’s overall experience reflects positive engagement or frustration directed at the bot.
+The Conversation Quality metric evaluates user satisfaction across an entire assistant session by analyzing tone, engagement, and sentiment. It classifies each conversation as GOOD or BAD depending on whether the user’s overall experience reflects positive engagement or frustration directed at the assistant.
 
-The metric focuses on conversational flow rather than task success, emphasizing how naturally and politely the user and bot interact. It excludes non-textual or purely action-based agent outputs (e.g., button clicks).
+The metric focuses on conversational flow rather than task success, emphasizing how naturally and politely the user and assistant interact. It excludes purely action-based agent outputs (e.g., button clicks).
 
-This is a **boolean** metric, returning a confidence score that the conversation quality is good. The score ranges from 0% (no confidence the conversation quality is good) to 100% (complete confidence that the conversation quality is good).
+This is a **boolean** metric that indicates whether the conversation quality is good.
 
 ## Conversation Quality at a glance
 
@@ -28,16 +30,16 @@ This is a **boolean** metric, returning a confidence score that the conversation
 | **LLM-as-a-judge Support**     | ✅ |
 | **Luna Support**               | ❌ |
 | **Protect Runtime Protection** | ❌ |
-| **Value Type**                 | Boolean shown as a percentage confidence score |
+| **Value Type**                 | Boolean |
 
 ## When to use this metric
 
 <MetricWhenToUse
-  description="Conversation Quality is a useful metric when working with chat bots or other tools with lots of user interaction"
+  description="Conversation Quality is useful for assistants or other tools with lots of user interaction"
   useCases={[
     {
       title: "Chat tools where sentiment is critical",
-      description: "Evaluating chatbot performance where capturing user sentiment is critical, such as customer support or counseling applications."
+      description: "Evaluating assistant performance where capturing user sentiment is critical, such as customer support or counseling applications."
     },
     {
       title: "Customer satisfaction",
@@ -48,21 +50,6 @@ This is a **boolean** metric, returning a confidence score that the conversation
       description: "Comparing different models or system versions based on experience quality rather than task completion."
     }
   ]}
-/>
-
-## Score interpretation
-
-**Expected Score:** 80%-100%.
-
-<Scale
-  low="0"
-  mid="60%"
-  high="100%"
-  lowLabel="Poor"
-  midLabel="Fair"
-  highLabel="Excellent"
-  lowDescription="Many conversations indicate frustration, impatience, or dissatisfaction directed at the bot"
-  highDescription="Most conversations reflect positive user sentiment, polite engagement, and satisfaction"
 />
 
 ## How to improve Conversation Quality scores
