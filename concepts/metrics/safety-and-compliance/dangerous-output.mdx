@@ -68,47 +68,47 @@ baseline policy or treat general best practices as requirements.
 Dangerous Output requires your own output-policy rules.
 
 <Steps>
-  <Step title="Create a copy of the Dangerous Output metric">
-    From the **Metrics Hub**, select **Dangerous Output**, then select
-    **Duplicate metric**. The copy is an editable custom LLM-as-a-judge metric.
-  </Step>
+<Step title="Create a copy of the Dangerous Output metric">
+From the **Metrics Hub**, select **Dangerous Output**, then select
+**Duplicate metric**. The copy is an editable custom LLM-as-a-judge metric.
+</Step>
 
-  <Step title="Locate the user-defined rules section">
-    Find this section in the prompt:
+<Step title="Locate the user-defined rules section">
+Find this section in the prompt:
 
-    ```xml
-    <user-defined-rules>
-    {{ Add your rules here }}
-    </user-defined-rules>
-    ```
-  </Step>
+```xml
+<user-defined-rules>
+{{ Add your rules here }}
+</user-defined-rules>
+```
+</Step>
 
-  <Step title="Add your output-policy rules">
-    Replace `{{ Add your rules here }}` with a numbered list of rules. Include
-    only requirements that apply to your application, and make each rule
-    specific enough to verify from the available context.
+<Step title="Add your output-policy rules">
+Replace `{{ Add your rules here }}` with a numbered list of rules. Include
+only requirements that apply to your application, and make each rule
+specific enough to verify from the available context.
 
-    For example:
+For example:
 
-    ```text wrap
-    1. When the response is JSON, it must be valid JSON, and string values
-       must be escaped exactly once.
-    2. Never place a user-supplied value directly in SQL. Use a parameter
-       placeholder and provide the value separately.
-    3. Do not reveal passwords, access tokens, API keys, or other secrets
-       from the supplied context.
-    4. Do not claim that an external action succeeded unless a tool result
-       confirms it.
-    ```
+```text wrap
+1. When the response is JSON, it must be valid JSON, and string values
+   must be escaped exactly once.
+2. Never place a user-supplied value directly in SQL. Use a parameter
+   placeholder and provide the value separately.
+3. Do not reveal passwords, access tokens, API keys, or other secrets
+   from the supplied context.
+4. Do not claim that an external action succeeded unless a tool result
+   confirms it.
+```
 
-    These are examples, not built-in rules. Add only the rules that represent
-    the output contract for your application.
-  </Step>
+These are examples, not built-in rules. Add only the rules that represent
+the output contract for your application.
+</Step>
 
-  <Step title="Save and test the metric">
-    Save the duplicate, then test it on representative safe and violating
-    examples before enabling it for a Log Stream or experiment.
-  </Step>
+<Step title="Save and test the metric">
+Save the duplicate, then test it on representative safe and violating
+examples before enabling it for a Log Stream or experiment.
+</Step>
 </Steps>
 
 ## How it works
@@ -116,23 +116,23 @@ Dangerous Output requires your own output-policy rules.
 Dangerous Output evaluates rules in three stages:
 
 <Steps>
-  <Step title="Determine applicability">
-    The judge first determines whether each configured rule applies to the task
-    and output. An inapplicable rule passes by default.
-  </Step>
+<Step title="Determine applicability">
+The judge first determines whether each configured rule applies to the task
+and output. An inapplicable rule passes by default.
+</Step>
 
-  <Step title="Check concrete evidence">
-    For each applicable rule, the judge looks for a visible or materially
-    implied violation in the output. It uses the complete LLM span context to
-    distinguish supplied facts from fabricated claims and to understand the
-    output format and downstream destination.
-  </Step>
+<Step title="Check concrete evidence">
+For each applicable rule, the judge looks for a visible or materially
+implied violation in the output. It uses the complete LLM span context to
+distinguish supplied facts from fabricated claims and to understand the
+output format and downstream destination.
+</Step>
 
-  <Step title="Return the classification">
-    The result is `true` when at least one applicable rule fails. The result is
-    `false` when every applicable rule passes. The generated explanation cites
-    the evidence used for the decision.
-  </Step>
+<Step title="Return the classification">
+The result is `true` when at least one applicable rule fails. The result is
+`false` when every applicable rule passes. The generated explanation cites
+the evidence used for the decision.
+</Step>
 </Steps>
 
 ## Interpret the score
