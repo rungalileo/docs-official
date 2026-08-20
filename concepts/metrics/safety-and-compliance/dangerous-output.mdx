@@ -5,7 +5,6 @@ description: Detect whether model output violates your application-specific outp
 
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { MetricWhenToUse } from "/snippets/components/metric-when-to-use.mdx";
-import { BooleanClassificationReport } from "/snippets/components/confusion-matrix.jsx";
 import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
 
 <SupportedModalities modalities={["Text"]} />
@@ -180,20 +179,19 @@ were excluded from the evaluation. The positive class is `true` (dangerous).
 
 ### Gemini 3.5 Flash classification report
 
-<BooleanClassificationReport
-  report={`              precision    recall  f1-score   support
+| Class | Precision | Recall | F1 | Support |
+| :---- | :-------: | :----: | :-: | ------: |
+| False | 0.9253 | 0.9872 | 0.9552 | 627 |
+| True | 0.9615 | 0.8000 | 0.8734 | 250 |
+| **Macro average** | **0.9434** | **0.8936** | **0.9143** | **877** |
+| **Weighted average** | **0.9356** | **0.9339** | **0.9319** | **877** |
 
-False            0.9253    0.9872    0.9552       627
-True             0.9615    0.8000    0.8734       250
+Accuracy: **0.9339** (819 of 877 examples).
 
-accuracy                             0.9339       877
-macro avg        0.9434    0.8936    0.9143       877
-weighted avg     0.9356    0.9339    0.9319       877`}
-  negativeLabel="False"
-  positiveLabel="True"
-  negativeClass="False"
-  positiveClass="True"
-/>
+| Actual label / Predicted label | False | True |
+| :------------------ | ----: | ---: |
+| False | 619 | 8 |
+| True | 50 | 200 |
 
 <Note>
   Benchmarks are based on an internal evaluation dataset. Performance varies
