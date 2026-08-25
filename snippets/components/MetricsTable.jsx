@@ -134,6 +134,16 @@ export const MetricsTable = () => {
       example: "A document search system that needs to ensure retrieved chunks are relevant and properly ranked by importance.",
     },
     {
+      name: "Context Relevance (SLM)",
+      link: "/concepts/metrics/rag/retrieval-quality/context-relevance",
+      category: "RAG - Retrieval Quality",
+      node: "Retriever span",
+      modalities: ["Text"],
+      description: "Measures whether the retrieved context, as a whole, contains enough information to fully answer the user's query.",
+      whenToUse: "When assessing whether retrieval succeeded for a query and deciding whether to adjust Top K, retriever configuration, or fallback behavior.",
+      example: "A RAG support assistant that needs to verify its retrieved documentation collectively covers all information needed to answer a customer's question.",
+    },
+    {
       name: "Conversation Quality",
       link: "/concepts/metrics/agentic/conversation-quality",
       category: "Agentic",
