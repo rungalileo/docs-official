@@ -1,0 +1,67 @@
+```python Python (Beta)
+import os
+from galileo import Trace, Span
+from galileo.experiments import run_experiment
+from galileo.openai import openai
+from galileo.schema.metrics import LocalMetricConfig
+
+# 1. Scorer Function
+def brevity_rank(step: Span | Trace) -> str:
+    """Rank response brevity based on word count."""
+    word_count = len(step.output.content.split(" "))
+    if word_count <= 3:
+        return "Terse"
+    if word_count <= 5:
+        return "Temperate"
+    return "Talkative"
+
+# 2. Configure the Local Metric
+terseness = LocalMetricConfig[str](
+    name="Terseness",
+    scorer_fn=brevity_rank
+)
+
+# 3. Dataset
+countries_dataset = [
+    {"input": "Indonesia"},
+    {"input": "New Zealand"},
+    {"input": "Greenland"},
+    {"input": "China"},
+]
+
+# 4. LLM-Call Function
+def llm_call(input):
+    client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    return (
+        client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": """
+                    You are a geography expert. Always answer as succinctly as possible.
+                    """
+                },
+                {
+                    "role": "user",
+                    "content": f"""
+                    Which continent does the following country belong to: {input}
+                    """
+                },
+            ],
+        )
+        .choices[0]
+        .message.content
+    )
+
+# 5. Run the Experiment!
+# Function-based experiments still go through run_experiment;
+# the Experiment class doesn't support function= yet.
+results = run_experiment(
+    "terseness-custom-metric",
+    dataset=countries_dataset,
+    function=llm_call,
+    metrics=[terseness],  # You can add multiple custom metrics here
+    project="My first project",
+)
+```

@@ -1,0 +1,39 @@
+```python Python (Beta) main.py
+import os
+
+from dotenv import load_dotenv
+from galileo import Metric
+from galileo.experiments import run_experiment
+
+load_dotenv()
+
+# Disable the native Galileo logger — OTel handles tracing
+os.environ["GALILEO_LOGGING_DISABLED"] = "true"
+
+from agent import run_agent
+
+DATASET = [
+    {
+        "input": "Can you look up the account details for ACCT-1001?",
+        "ground_truth": "lookup_account(account_id='ACCT-1001')",
+    },
+    {
+        "input": "What is the current balance for ACCT-1002?",
+        "ground_truth": "lookup_account(account_id='ACCT-1002')",
+    },
+]
+
+# Function-based experiments still go through run_experiment;
+# the Experiment class doesn't support function= yet.
+results = run_experiment(
+    "my-otel-experiment",
+    dataset=DATASET,
+    function=run_agent,
+    metrics=[
+        Metric.metrics.tool_error_rate,
+        Metric.metrics.instruction_adherence,
+        Metric.metrics.tool_selection_quality,
+    ],
+    project=os.environ["GALILEO_PROJECT"],
+)
+```

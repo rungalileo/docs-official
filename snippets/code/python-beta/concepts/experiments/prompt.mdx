@@ -1,0 +1,53 @@
+```python Python (Beta)
+from galileo import Dataset, Experiment, Metric, Message, MessageRole, Prompt
+
+from dotenv import load_dotenv
+load_dotenv()
+
+project = "my-project"
+
+# 1a. If the prompt does not exist, create it:
+prompt = Prompt(
+    name="geography-prompt",
+    messages=[
+        Message(role=MessageRole.system,
+                content="""
+                You are a geography expert.
+                Respond with only the continent name.
+                """),
+        Message(role=MessageRole.user, content="{{input}}")
+    ],
+)
+prompt.create()
+
+# 1b. (OPTIONAL) If the prompt already exists, fetch it:
+# prompt = Prompt.get(name="geography-prompt")
+
+# 2. Run the experiment and get results
+experiment = Experiment(
+    name="geography-experiment",
+    # Name of a dataset you created
+dataset = Dataset.get(name="countries")
+if dataset is None:
+    raise ValueError("Dataset 'countries' not found")
+
+# 2. Run the experiment and get results
+experiment = Experiment(
+    name="geography-experiment",
+    # Name of a dataset you created
+    dataset=dataset,
+    prompt=prompt,
+    # Optional
+    prompt_settings={
+        "max_tokens": 256,
+        # Make sure you have an integration set up
+        # for the model alias you're using
+        "model_alias": "GPT-4o",
+        "temperature": 0.8,
+    },
+    metrics=[Metric.metrics.correctness],
+    project_name=project,
+)
+experiment.create()
+results = experiment.run()
+```

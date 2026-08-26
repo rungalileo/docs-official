@@ -1,0 +1,40 @@
+```python Python (Beta)
+import os
+from galileo import Metric
+from galileo.experiments import run_experiment
+from galileo.openai import openai
+
+dataset = [
+  {
+    "input": "Spain"
+  }
+]
+
+def llm_call(input):
+  client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+  return client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+          {
+            "role": "system",
+            "content": "You are a geography expert"
+          },
+          {
+            "role": "user",
+            "content": f"""
+            Which continent does the following country belong to: {input}
+            """
+          }
+        ],
+    ).choices[0].message.content
+
+# Function-based experiments still go through run_experiment;
+# the Experiment class doesn't support function= yet.
+results = run_experiment(
+    "geography-experiment",
+    dataset=dataset,
+    function=llm_call,
+    metrics=[Metric.metrics.correctness],
+    project="my-project"
+)
+```
