@@ -40,7 +40,6 @@ Important Notes
 
 **Examples**
 
-```python
 # Prompt-based experiment
 experiment = Experiment(
     name="ml-expert-evaluation",
@@ -73,7 +72,6 @@ experiment2 = Experiment(
     metrics=experiment.metrics,
     project_name=experiment.project_name,
 ).create()
-```
 
 ### add_tag
 
@@ -107,7 +105,6 @@ Note: Call refresh() first to get the latest metric values after experiment comp
 
 **Examples**
 
-```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My Project")
 experiment.refresh()
 
@@ -120,7 +117,6 @@ if metrics:
     # Quality metrics (if configured)
     if 'average_correctness' in metrics:
         print(f"Average correctness: {metrics['average_correctness']:.2%}")
-```
 
 ### create
 
@@ -132,14 +128,12 @@ Persist this experiment to the API.
 
 **Examples**
 
-```python
 experiment = Experiment(
     name="ml-evaluation",
     dataset_name="ml-dataset",
     project_name="My AI Project"
 ).create()
 assert experiment.is_synced()
-```
 
 ### dataset
 
@@ -167,7 +161,6 @@ object still exists in memory but no longer represents a remote resource.
 
 **Examples**
 
-```python
 # Delete an experiment
 experiment = Experiment.get(
     name="old-experiment",
@@ -179,7 +172,6 @@ assert experiment.is_deleted()
 # After deletion, the experiment no longer exists remotely
 # The local object is marked as DELETED
 print(experiment.sync_state)  # SyncState.DELETED
-```
 
 ### experiment_columns
 
@@ -273,7 +265,6 @@ fields; or ``None`` if not available.
 
 **Examples**
 
-```python
 Poll until a specific metric is computed, then assert::
 
     from galileo.schema.metrics import GalileoMetrics
@@ -284,7 +275,6 @@ Poll until a specific metric is computed, then assert::
 
     agg = experiment.get_metric_aggregate(GalileoMetrics.correctness)
     assert agg.avg >= 0.95
-```
 
 ### get_prompt_template_settings
 
@@ -301,7 +291,6 @@ you want to apply them to the job.
 
 **Examples**
 
-```python
 experiment = Experiment(
     name="ml-evaluation",
     prompt_name="ml-prompt",
@@ -314,7 +303,6 @@ template_settings = experiment.get_prompt_template_settings()
 
 # Note: Current run() doesn't accept prompt_settings parameter
 # This would require updating the run() signature
-```
 
 ### get_sessions
 
@@ -368,7 +356,6 @@ Get the current status of this experiment in human-readable format.
 
 **Examples**
 
-```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My AI Project")
 status = experiment.get_status()
 
@@ -379,7 +366,6 @@ if status.is_complete:
     print("Experiment completed!")
 elif status.is_in_progress:
     print(f"Running: {status.log_generation}")
-```
 
 ### get_traces
 
@@ -415,7 +401,6 @@ To re-run an experiment, create a new experiment with a different name.
 
 **Examples**
 
-```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My Project")
 if experiment.has_traces():
     print("This experiment has already been run")
@@ -426,7 +411,6 @@ if experiment.has_traces():
         prompt_name=experiment.prompt_name,
         project_name=experiment.project_name
     ).create()
-```
 
 ### is_winner
 
@@ -441,14 +425,12 @@ typically the one with rank=1 and the highest ranking score.
 
 **Examples**
 
-```python
 experiments = Experiment.list(project_name="My Project")
 winner = next((exp for exp in experiments if exp.is_winner), None)
 
 if winner:
     print(f"Best experiment: {winner.name}")
     print(f"Score: {winner.ranking_score}")
-```
 
 ### list
 
@@ -489,15 +471,13 @@ Key types
 
 Resolving UUIDs to human labels
 --------------------------------
-Use :attr:`experiment_columns` to look up the display label and legacy metric name for each UUID:
+Use :attr:`experiment_columns` to look up the display label and legacy metric name for each UUID::
 
-```python
-cols = experiment.experiment_columns
-for metric_id, agg in (experiment.metric_aggregates or {}).items():
-    col = cols.get(f"metrics/{metric_id}")   # None for system metrics
-    label = col.label if col else metric_id  # fall back to raw key
-    print(f"{label}: avg={agg.avg:.3f}")
-```
+    cols = experiment.experiment_columns
+    for metric_id, agg in (experiment.metric_aggregates or {}).items():
+        col = cols.get(f"metrics/{metric_id}")   # None for system metrics
+        label = col.label if col else metric_id  # fall back to raw key
+        print(f"{label}: avg={agg.avg:.3f}")
 
 The ``MetricAggregates`` object exposes: ``avg``, ``min_``, ``max_``, ``sum_``, ``count``,
 ``pct``, ``p50``, ``p90``, ``p95``, ``p99``, ``value_distribution``.
@@ -507,13 +487,11 @@ Note: Call :meth:`refresh` first to get the latest values after experiment compl
 
 **Examples**
 
-```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My Project")
 experiment.refresh()
 
 for metric_id, agg in (experiment.metric_aggregates or {}).items():
     print(f"{metric_id}: avg={agg.avg}")
-```
 
 ### model
 
@@ -528,7 +506,6 @@ to create a basic Model representation from the model_alias.
 
 **Examples**
 
-```python
 experiment = Experiment(
     name="ml-evaluation",
     dataset_name="ml-dataset",
@@ -537,20 +514,44 @@ experiment = Experiment(
     project_name="My Project"
 )
 print(f"Model: {experiment.model.alias}")
-```
 
 ### monitor_progress
 
 ```python
-def monitor_progress(self, job_id: str | None=None) -> str
+def monitor_progress(self,
+                     poll_interval_seconds: float=2.0,
+                     *,
+                     job_id: str | None=None) -> None
 ```
 
-Monitor the progress of the experiment job with a progress bar.
+Monitor the progress of the experiment with a progress bar.
+
+Polls the experiment status via the API until the experiment completes,
+displaying a tqdm progress bar reflecting `log_generation` progress.
 
 **Arguments**
 
-- `job_id`: Optional job ID to monitor. If not provided, will attempt to find
-    the primary job for this experiment.
+- `poll_interval_seconds` (`float`): Seconds to wait between status polls. Defaults to 2.0.
+- `job_id` (`str or None`): Deprecated. This parameter is ignored; it existed in a prior version
+    that polled the jobs table, which has been retired.
+
+**Raises**
+
+- `ValueError`: If the experiment lacks required id or project_id attributes.
+
+**Returns**
+
+- `None`: 
+
+**Examples**
+
+experiment = Experiment(
+    name="ml-evaluation",
+    dataset_name="ml-dataset",
+    project_name="My AI Project"
+).create()
+
+experiment.monitor_progress()
 
 ### playground_name
 
@@ -597,10 +598,8 @@ when the experiment was run (e.g., "Claude 3.5 Haiku", "GPT-4o").
 
 **Examples**
 
-```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My Project")
 print(f"Model used: {experiment.prompt_model}")
-```
 
 ### query
 
@@ -639,11 +638,9 @@ Ranking is calculated based on aggregate metrics and quality scores.
 
 **Examples**
 
-```python
 experiments = Experiment.list(project_name="My Project")
 for exp in sorted(experiments, key=lambda x: x.rank or float('inf')):
     print(f"#{exp.rank}: {exp.name}")
-```
 
 ### ranking_score
 
@@ -658,13 +655,11 @@ The score is calculated based on a combination of quality metrics and efficiency
 
 **Examples**
 
-```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My Project")
 experiment.refresh()
 
 if experiment.ranking_score:
     print(f"Ranking score: {experiment.ranking_score:.3f}")
-```
 
 ### refresh
 
@@ -679,10 +674,8 @@ and sets the state to SYNCED.
 
 **Examples**
 
-```python
 experiment.refresh()
 assert experiment.is_synced()
-```
 
 ### run
 
@@ -713,11 +706,9 @@ Get available columns for sessions in this experiment.
 
 **Examples**
 
-```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My AI Project")
 columns = experiment.session_columns
 model_column = columns["model"]
-```
 
 ### set_prompt
 
@@ -750,11 +741,9 @@ Get available columns for spans in this experiment.
 
 **Examples**
 
-```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My AI Project")
 columns = experiment.span_columns
 input_column = columns["input"]
-```
 
 ### tags
 
@@ -769,14 +758,12 @@ contains a list of tag objects with key, value, and metadata.
 
 **Examples**
 
-```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My Project")
 tags = experiment.tags
 
 if tags and 'generic' in tags:
     for tag in tags['generic']:
         print(f"{tag['key']}={tag['value']}")
-```
 
 ### trace_columns
 
@@ -788,8 +775,6 @@ Get available columns for traces in this experiment.
 
 **Examples**
 
-```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My AI Project")
 columns = experiment.trace_columns
 input_column = columns["input"]
-```
