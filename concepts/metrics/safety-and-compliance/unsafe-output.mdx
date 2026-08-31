@@ -1,5 +1,5 @@
 ---
-title: Dangerous Output
+title: Unsafe Output
 description: Detect whether model output violates your application-specific output-policy rules
 ---
 
@@ -10,12 +10,12 @@ import { SupportedModalities } from "/snippets/components/supported-modalities.m
 <SupportedModalities modalities={["Text"]} />
 
 <DefinitionCard>
-  <strong>Dangerous Output</strong> is a binary metric that detects whether the
+  <strong>Unsafe Output</strong> is a binary metric that detects whether the
   latest model output violates one or more applicable output-policy rules that
   you define.
 </DefinitionCard>
 
-Dangerous Output is an LLM-as-a-judge metric for application-specific output
+Unsafe Output is an LLM-as-a-judge metric for application-specific output
 controls. It evaluates the latest model output using the complete LLM span
 context, including the system instructions, conversation, tool definitions and
 results, and model output.
@@ -29,23 +29,23 @@ baseline policy or treat general best practices as requirements.
   rules.
 </Warning>
 
-## Dangerous Output at a glance
+## Unsafe Output at a glance
 
 | Property                       | Description |
 | :----------------------------- | :---------- |
-| **Name**                       | Dangerous Output |
+| **Name**                       | Unsafe Output |
 | **Category**                   | Safety and Compliance |
 | **Can be applied to**          | LLM span |
 | **LLM-as-a-judge Support**     | ✅ |
 | **Luna Support**               | ❌ |
 | **Protect Runtime Protection** | ❌ |
 | **Value Type**                 | Boolean |
-| **Score Direction**            | Lower is better; `true` means dangerous |
+| **Score Direction**            | Lower is better; `true` means unsafe |
 
 ## When to use this metric
 
 <MetricWhenToUse
-  description="Use Dangerous Output when model responses must follow explicit, application-specific output rules"
+  description="Use Unsafe Output when model responses must follow explicit, application-specific output rules"
   useCases={[
     {
       title: "Structured or interpreted output",
@@ -62,13 +62,13 @@ baseline policy or treat general best practices as requirements.
   ]}
 />
 
-## Configure Dangerous Output
+## Configure Unsafe Output
 
-Dangerous Output requires your own output-policy rules.
+Unsafe Output requires your own output-policy rules.
 
 <Steps>
-<Step title="Create a copy of the Dangerous Output metric">
-From the **Metrics Hub**, select **Dangerous Output**, then select
+<Step title="Create a copy of the Unsafe Output metric">
+From the **Metrics Hub**, select **Unsafe Output**, then select
 **Duplicate metric**. The copy is an editable custom LLM-as-a-judge metric.
 </Step>
 
@@ -113,7 +113,7 @@ examples before enabling it for a Log Stream or experiment.
 
 ## How it works
 
-Dangerous Output evaluates rules in three stages:
+Unsafe Output evaluates rules in three stages:
 
 <Steps>
 <Step title="Determine applicability">
@@ -143,7 +143,7 @@ the evidence used for the decision.
   applicable configured rule.
 
 When you configure multiple judges, Galileo averages their Boolean results. A
-higher score means that more judges classified the output as dangerous.
+higher score means that more judges classified the output as unsafe.
 
 <Note>
   A `false` result does not certify that an output is safe in every respect. It
@@ -164,14 +164,14 @@ higher score means that more judges classified the output as dangerous.
 - Combine this metric with deterministic parsing or validation when exact
   syntax is security-critical.
 
-Dangerous Output is an evaluation metric, not a runtime guardrail. It does not
+Unsafe Output is an evaluation metric, not a runtime guardrail. It does not
 sanitize, block, or rewrite model output.
 
 ## Performance benchmarks
 
-We evaluated the canonical Dangerous Output prompt against trusted labels on an
+We evaluated the canonical Unsafe Output prompt against trusted labels on an
 internal dataset of 877 output-policy examples. Unresolved annotation cases
-were excluded from the evaluation. The positive class is `true` (dangerous).
+were excluded from the evaluation. The positive class is `true` (unsafe).
 
 | Model | Precision (True) | Recall (True) | F1 (True) | Accuracy |
 | :---- | :--------------: | :-----------: | :-------: | :------: |
