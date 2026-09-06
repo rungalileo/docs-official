@@ -8,13 +8,15 @@
 #
 # Error Code Ranges (see ERROR_CODE_RANGES.md for details):
 #   - 1000-1999: Shared & customer-facing errors (used across all features)
-#   - 2000-2999: Metrics-specific errors
+#   - 2000-2499: Metrics-specific errors
+#   - 2500-2999: Tokenomics errors
 #   - 3000-3499: Playground errors
 #   - 3500-3999: Experiment errors
 #   - 4000-4499: Dataset errors
 #   - 5000-5499: Signals errors
 #   - 6000-6499: Protect (security/guardrails) errors
 #   - 7000-7499: Integrations errors
+#   - 7500-7999: Provider management API integration errors
 #   - 8000-8499: Annotation queue errors
 #   - 8500-8999: Authentication errors (SSO, SAML, etc.)
 #   - 9000-9499: Component view errors
@@ -22,6 +24,7 @@
 #   - 10000-10499: User preferences errors
 #   - 10500-10999: Logstream errors
 #   - 11000-11499: Organization errors
+#   - 12000-12499: AI Assistant errors
 #
 # Schema: See ErrorCatalogEntry model in orbit/libs/python/error_management/models/
 #
@@ -44,7 +47,7 @@
 #
 #   3. error_group: str
 #      - Feature grouping: "shared", "metrics", "playground", "dataset", "signals"
-#      - Must match the error_code range (e.g., 2000-2999 → "metrics")
+#      - Must match the error_code range (e.g., 2000-2499 → "metrics")
 #
 #   4. severity: ErrorSeverity
 #      - Enum value: "low", "medium", "high", "critical"
@@ -326,8 +329,105 @@
     - "invalid role"
   telemetry_tags: ["collaboration", "validation"]
 
+# SSRF: URL host resolves to a disallowed internal address
+- error_code: 1018
+  error_type: data_validation_error
+  error_group: shared
+  severity: high
+  default_message: The URL resolves to a disallowed internal address.
+  user_action: Use a publicly routable URL or update the GALILEO_SSRF_BLOCKED_IP_RANGES setting.
+  http_status_code: 422
+  retriable: false
+  telemetry_tags: ["ssrf", "url_validation"]
+
+# SSRF: URL host could not be resolved
+- error_code: 1019
+  error_type: data_validation_error
+  error_group: shared
+  severity: medium
+  default_message: The URL's host could not be resolved.
+  user_action: Check the URL is correct and its domain is publicly resolvable.
+  http_status_code: 422
+  retriable: false
+  telemetry_tags: ["ssrf", "url_validation"]
+
+# SMTP: Authentication failed with configured mail credentials
+- error_code: 1020
+  error_type: configuration_error
+  error_group: shared
+  severity: high
+  default_message: SMTP authentication failed; the configured mail credentials were rejected.
+  user_action: Verify GALILEO_EXT_SMTP_USERNAME / PASSWORD and the service account's relay permissions.
+  http_status_code: 422
+  telemetry_tags: ["smtp", "email", "configuration"]
+
+# Could not publish a task to the broker (RabbitMQ) because it is unreachable or
+# applying flow control, so the bounded publish timed out. Used by any service
+# that enqueues background work.
+- error_code: 1021
+  error_type: system_error
+  error_group: shared
+  severity: high
+  default_message: Could not queue background work because the messaging service is temporarily unavailable.
+  user_action: Please retry in a few moments; if it persists, contact support.
+  retriable: true
+  http_status_code: 503
+  telemetry_tags: ["queue", "publish"]
+
+# Provider model is invalid, unavailable, or retired for this integration/region.
+# Distinct from 1005 (transient transport): this is a configuration/model-availability problem
+# and retrying will not help until the model selection or integration is corrected.
+- error_code: 1022
+  error_type: configuration_error
+  error_group: shared
+  severity: high
+  default_message: The selected provider model is invalid or unavailable for this integration.
+  user_action: Choose a different model, or ensure the model (and any required inference profile) is enabled for your integration and region.
+  retriable: false
+  blocking: true
+  message_patterns:
+    - "provided model identifier is invalid"
+    - "model version has reached the end of its life"
+    - "invalid model identifier"
+  telemetry_tags: ["provider", "model"]
+
+# Endpoint unsupported when O11y Cloud integration is enabled
+- error_code: 1023
+  error_type: configuration_error
+  error_group: shared
+  severity: medium
+  default_message: This endpoint is not available on O11y Cloud. Use the GDI ingestion endpoint.
+  user_action: Send telemetry through the O11y Cloud GDI ingestion endpoint.
+  http_status_code: 404
+  telemetry_tags: ["o11y_cloud", "unsupported_endpoint"]
+
+# ClickHouse query-governance pool saturated: a governed flow waited out its
+# acquire window (or was shed at admission) with the concurrency budget full.
+# Retriable backpressure. Ops action: scale/tune the flow's N budget.
+- error_code: 1024
+  error_type: system_error
+  error_group: shared
+  severity: medium
+  default_message: The analytics query service is at capacity; please retry shortly.
+  user_action: Please retry in a few moments.
+  retriable: true
+  http_status_code: 429
+  telemetry_tags: ["clickhouse", "concurrency_control", "saturated"]
+
+# ClickHouse query-governance coordinator (Redis) unavailable while a governed
+# flow ran fail-closed. Retriable. Ops action: fix Redis (distinct from 1024).
+- error_code: 1025
+  error_type: system_error
+  error_group: shared
+  severity: high
+  default_message: The analytics query service is temporarily unavailable; please retry shortly.
+  user_action: Please retry in a few moments.
+  retriable: true
+  http_status_code: 503
+  telemetry_tags: ["clickhouse", "concurrency_control", "coordinator_unavailable"]
+
 # =============================================================================
-# SECTION 2: METRICS ERRORS (2000-2999)
+# SECTION 2: METRICS ERRORS (2000-2499)
 # =============================================================================
 #
 # Description: Errors specific to the Metrics feature. These include scorer
@@ -565,15 +665,384 @@
   retriable: false
   telemetry_tags: ["metrics", "multimodal"]
 
-# Metrics-specific: Cost tracking unavailable for multimodal LLM calls
+# Metrics-specific: Trace is structurally incomplete (a span references a parent that has not
+# been ingested), so its metrics cannot be computed until the trace is whole. Retrying/recomputing
+# is a no-op while incomplete — only the missing span arriving resolves it.
 - error_code: 2019
-  error_type: not_applicable_reason
+  error_type: data_validation_error
   error_group: metrics
   severity: low
-  default_message: Cost tracking is not yet accurate for multimodal LLM calls.
-  user_action: Cost will be reported once accurate multimodal cost tracking is implemented.
+  default_message: Metrics were not computed because the trace is structurally incomplete — one or more spans reference a parent that has not been ingested.
+  user_action: No action needed. Metrics will be computed automatically once the missing span(s) arrive and the trace is complete.
   retriable: false
-  telemetry_tags: ["metrics", "multimodal", "cost"]
+  telemetry_tags: ["metrics", "structural"]
+
+
+# Metrics-specific: Metric computation timed out (e.g. Celery soft/hard time limit hit
+# while a slow or unavailable scoring model was being retried)
+- error_code: 2020
+  error_type: system_error
+  error_group: metrics
+  severity: high
+  default_message: Metric computation timed out before it could finish.
+  user_action: This usually means the scoring model was slow or temporarily unavailable. Please retry; if it persists, contact support.
+  retriable: true
+  telemetry_tags: ["metrics", "timeout"]
+
+# Metrics-specific: generic fallback for internal metric failures that the EMS classifier doesn't
+# otherwise catalog. Covers both the metrics controller / scorer job creation (e.g. object-store
+# upload denied, run-info fetch failed) and scorer execution / row-level failures raised by a raw
+# or third-party exception. The concrete root-cause message is still surfaced alongside this code.
+- error_code: 2021
+  error_type: system_error
+  error_group: metrics
+  severity: high
+  default_message: Metric computation failed due to an internal error.
+  user_action: Please retry; if it persists, check the error details and contact support.
+  retriable: true
+  telemetry_tags: ["metrics", "controller"]
+
+# Metrics-specific: provider rejected execution because the saved model is retired,
+# missing, or no longer available.
+- error_code: 2022
+  error_type: llm_api_error
+  error_group: metrics
+  severity: high
+  default_message: The selected model is no longer available from the provider.
+  user_action: Update the saved metric or prompt to use an available model, then rerun.
+  retriable: false
+  blocking: true
+  message_patterns:
+    - "model.*not found"
+    - "model.*not available"
+    - "model.*retired"
+    - "model.*deprecated"
+    - "no longer available"
+  telemetry_tags: ["metrics", "model_lifecycle"]
+
+# Metrics-specific: the metric was never scored in time. The hourly self-heal sweep re-enqueues
+# a record whose metric sits non-terminal (pending/computing), but after a bounded number of
+# attempts it gives up and stamps this terminal state so the metric stops spinning and the
+# customer can retry. Distinct from 2020 (the scorer *ran* and hit its time limit) — here the
+# computation never completed at all (job-creation backlog / stuck non-terminal until give-up).
+- error_code: 2023
+  error_type: system_error
+  error_group: metrics
+  severity: high
+  default_message: This metric was not scored in time and was stopped.
+  user_action: Please retry; if it persists, contact support.
+  retriable: true
+  telemetry_tags: ["metrics", "not_scored_in_time"]
+
+# Metrics-specific: the session roll-up aggregate query timed out while aggregating a session's
+# child scores into session-level scores. The roll-up is not retried (the same O(run-size) scan
+# would just time out again and storm), so the affected rolled-up metrics are marked failed with
+# this code instead of being left pending and silently vanishing. Marked retriable because it is
+# not permanent — a later child-metric write, or the hourly self-heal sweep re-driving the
+# children, supersedes this failed row via ReplacingMergeTree — but note the roll-up is NOT
+# retried automatically on this path, so user_action must not promise automatic retry.
+#
+# INTERIM CODE (SAO-16181 / RFC 1.7): introduced ahead of SAO-16180 / RFC 1.5, which splits
+# pipeline timeouts into per-cause codes. RFC 1.5 owns reconciling this entry — folding the
+# roll-up / DB-query-timeout cause into its scheme. Do not treat 2024 as permanent.
+- error_code: 2024
+  error_type: system_error
+  error_group: metrics
+  severity: high
+  default_message: Session-level scores could not be computed because roll-up timed out while aggregating this session's child scores.
+  user_action: This roll-up was not retried automatically. It may recover when the session's child scores are next re-driven (the hourly self-heal sweep) or a later child write supersedes it; if it persists, rerun the affected run or contact support.
+  retriable: true
+  telemetry_tags: ["metrics", "timeout", "session_rollup"]
+
+# =============================================================================
+# SECTION 2.5: TOKENOMICS ERRORS (2500-2999)
+# =============================================================================
+#
+# Description: Errors specific to Tokenomics reads and directory validation.
+#
+# =============================================================================
+
+# Tokenomics pagination cursor is malformed or outside the supported range
+- error_code: 2500
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: medium
+  default_message: Invalid pagination cursor.
+  user_action: Refresh the page and retry with the cursor returned by the previous response.
+  http_status_code: 422
+  telemetry_tags: ["tokenomics", "pagination", "cursor"]
+
+# Another API-owned directory import is queued or projecting for the organization
+- error_code: 2501
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: medium
+  default_message: A directory import is already in progress.
+  user_action: Wait for the current directory import to finish and retry.
+  http_status_code: 409
+  retriable: true
+  telemetry_tags: ["tokenomics", "directory", "import", "conflict"]
+
+# Tokenomics directory upload has a missing or unsupported filename
+- error_code: 2502
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: medium
+  default_message: Invalid directory file name.
+  user_action: Upload a file with a .csv extension and a supported filename length.
+  http_status_code: 422
+  telemetry_tags: ["tokenomics", "directory", "file", "filename"]
+
+# Tokenomics directory upload uses an unsupported media type
+- error_code: 2503
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: medium
+  default_message: Unsupported directory file content type.
+  user_action: Upload the directory as a CSV file using a supported CSV content type.
+  http_status_code: 415
+  telemetry_tags: ["tokenomics", "directory", "file", "content_type"]
+
+# Tokenomics directory upload exceeds the configured size limit
+- error_code: 2504
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: medium
+  default_message: Directory file exceeds the maximum allowed size.
+  user_action: Reduce the CSV file size and upload it again.
+  http_status_code: 413
+  telemetry_tags: ["tokenomics", "directory", "file", "size_limit"]
+
+# Tokenomics ClickHouse generation row count or cleanup verification fails
+- error_code: 2505
+  error_type: system_error
+  error_group: tokenomics
+  severity: high
+  default_message: Directory generation verification failed.
+  user_action: Retry the directory operation. If the issue persists, contact support.
+  http_status_code: 500
+  retriable: true
+  telemetry_tags: ["tokenomics", "directory", "generation", "verification"]
+
+# Tokenomics ClickHouse generation contains a row outside the identity contract
+- error_code: 2506
+  error_type: system_error
+  error_group: tokenomics
+  severity: high
+  default_message: Directory generation contains invalid identity data.
+  user_action: Contact support to repair or replace the directory generation.
+  http_status_code: 500
+  retriable: false
+  telemetry_tags: ["tokenomics", "directory", "generation", "data_integrity"]
+
+# Tokenomics canonical-user page selection and hydration observed different data snapshots
+- error_code: 2507
+  error_type: system_error
+  error_group: tokenomics
+  severity: medium
+  default_message: Tokenomics data changed while the requested user page was being read.
+  user_action: Retry the request.
+  http_status_code: 500
+  retriable: true
+  telemetry_tags: ["tokenomics", "canonical_users", "hydration", "consistency"]
+
+# No active complete tokenomics directory generation is available for the organization
+- error_code: 2510
+  error_type: not_found_error
+  error_group: tokenomics
+  severity: medium
+  default_message: No active complete tokenomics directory generation is available.
+  user_action: Import and publish a tokenomics directory before requesting this data.
+  http_status_code: 404
+  retriable: false
+  telemetry_tags: ["tokenomics", "directory", "generation", "not_found"]
+
+# Tokenomics directory import exists but is not yet ready for publication
+- error_code: 2511
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: medium
+  default_message: Tokenomics directory import is not ready for publication.
+  user_action: Wait for the directory import to finish projecting and retry.
+  http_status_code: 409
+  retriable: true
+  telemetry_tags: ["tokenomics", "directory", "import", "not_ready"]
+
+# Requested pinned tokenomics directory generation is not available (unknown, or superseded past its purge grace period)
+- error_code: 2512
+  error_type: not_found_error
+  error_group: tokenomics
+  severity: medium
+  default_message: Requested complete tokenomics directory generation is not available.
+  user_action: Check the generation ID, or request the current active generation instead.
+  http_status_code: 404
+  retriable: false
+  telemetry_tags: ["tokenomics", "directory", "generation", "not_found"]
+
+# Tokenomics directory import could not be found by import ID for the organization
+- error_code: 2513
+  error_type: not_found_error
+  error_group: tokenomics
+  severity: medium
+  default_message: Tokenomics directory import not found.
+  user_action: Check the import ID, or start a new directory import.
+  http_status_code: 404
+  retriable: false
+  telemetry_tags: ["tokenomics", "directory", "import", "not_found"]
+
+# A leadership filter target is not authorized for the caller's resolved Tokenomics view
+- error_code: 2519
+  error_type: permission_error
+  error_group: tokenomics
+  severity: medium
+  default_message: Leadership filtering is not available.
+  user_action: Clear the selected leader and choose a manager available in the current view.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["tokenomics", "authorization", "leadership_filter"]
+
+# A requested fiscal calendar version does not exist for the organization
+- error_code: 2520
+  error_type: not_found_error
+  error_group: tokenomics
+  severity: medium
+  default_message: The requested fiscal calendar version was not found.
+  user_action: Check the version ID or list the organization's fiscal calendar history and retry.
+  http_status_code: 404
+  retriable: false
+  telemetry_tags: ["tokenomics", "fiscal_calendar", "not_found"]
+
+# The organization disappeared while a fiscal calendar was being initialized or replaced
+- error_code: 2521
+  error_type: not_found_error
+  error_group: tokenomics
+  severity: medium
+  default_message: The organization for the fiscal calendar was not found.
+  user_action: Reload the organization and try again if it still exists.
+  http_status_code: 404
+  retriable: false
+  telemetry_tags: ["tokenomics", "fiscal_calendar", "organization", "not_found"]
+
+# A fiscal calendar write is based on a stale active version
+- error_code: 2522
+  error_type: configuration_error
+  error_group: tokenomics
+  severity: medium
+  default_message: The fiscal calendar changed after these settings were loaded.
+  user_action: Reload the active fiscal calendar, reapply the change, and retry.
+  http_status_code: 409
+  retriable: false
+  telemetry_tags: ["tokenomics", "fiscal_calendar", "version_conflict"]
+
+# A selected fiscal calendar version does not cover the complete requested trend range
+- error_code: 2523
+  error_type: configuration_error
+  error_group: tokenomics
+  severity: medium
+  default_message: The selected fiscal calendar version does not cover the requested date range.
+  user_action: Select a covered date range or use a fiscal calendar version that defines the requested dates.
+  http_status_code: 422
+  retriable: false
+  telemetry_tags: ["tokenomics", "fiscal_calendar", "range", "not_covered"]
+
+# Data-service returned a usage trend bucket index outside the caller's fiscal or custom bucket list
+- error_code: 2524
+  error_type: system_error
+  error_group: tokenomics
+  severity: high
+  default_message: Data service returned an invalid usage trend bucket.
+  user_action: Contact support.
+  http_status_code: 502
+  retriable: false
+  telemetry_tags: ["tokenomics", "usage_trends", "fiscal_calendar", "custom_interval", "invalid_bucket"]
+
+# Tokenomics finance ClickHouse generation row count or cleanup verification fails
+- error_code: 2525
+  error_type: system_error
+  error_group: tokenomics
+  severity: high
+  default_message: Finance hierarchy generation verification failed.
+  user_action: Retry the finance hierarchy operation. If the issue persists, contact support.
+  http_status_code: 500
+  retriable: true
+  telemetry_tags: ["tokenomics", "finance", "generation", "verification"]
+
+# A replacement finance hierarchy is already queued or projecting
+- error_code: 2526
+  error_type: workflow_error
+  error_group: tokenomics
+  severity: low
+  default_message: A finance hierarchy generation is already being prepared.
+  user_action: Wait for the current finance hierarchy import to finish, then retry.
+  http_status_code: 409
+  retriable: true
+  telemetry_tags: ["tokenomics", "finance", "import", "conflict"]
+
+# No active finance hierarchy exists for the organization
+- error_code: 2527
+  error_type: not_found_error
+  error_group: tokenomics
+  severity: medium
+  default_message: No active finance hierarchy is available.
+  user_action: Import a finance hierarchy and wait for it to become active.
+  http_status_code: 404
+  retriable: false
+  telemetry_tags: ["tokenomics", "finance", "generation", "not_found"]
+
+# Requested finance hierarchy generation does not exist for the organization
+- error_code: 2528
+  error_type: not_found_error
+  error_group: tokenomics
+  severity: low
+  default_message: Finance hierarchy generation not found.
+  user_action: Check the generation ID, or request the current active finance hierarchy.
+  http_status_code: 404
+  retriable: false
+  telemetry_tags: ["tokenomics", "finance", "generation", "not_found"]
+
+# Finance hierarchy upload does not have a valid CSV filename
+- error_code: 2529
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: low
+  default_message: Finance hierarchy input must use a CSV filename.
+  user_action: Rename the finance hierarchy file with a .csv extension and upload it again.
+  http_status_code: 422
+  retriable: false
+  telemetry_tags: ["tokenomics", "finance", "import", "filename"]
+
+# Finance hierarchy upload uses an unsupported content type
+- error_code: 2530
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: low
+  default_message: Unsupported finance hierarchy file content type.
+  user_action: Upload the finance hierarchy file using a supported CSV content type.
+  http_status_code: 415
+  retriable: false
+  telemetry_tags: ["tokenomics", "finance", "import", "content_type"]
+
+# Finance hierarchy upload exceeds the accepted file size
+- error_code: 2531
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: low
+  default_message: Finance hierarchy file exceeds the maximum allowed size.
+  user_action: Reduce the CSV file size and upload it again.
+  http_status_code: 413
+  retriable: false
+  telemetry_tags: ["tokenomics", "finance", "import", "file_size"]
+
+# Data-service returned an adoption trend bucket index outside the caller's fiscal or custom bucket list
+- error_code: 2532
+  error_type: system_error
+  error_group: tokenomics
+  severity: high
+  default_message: Data service returned an invalid adoption trend bucket.
+  user_action: Contact support.
+  http_status_code: 502
+  retriable: false
+  telemetry_tags: ["tokenomics", "adoption_trends", "fiscal_calendar", "custom_interval", "invalid_bucket"]
 
 # =============================================================================
 # SECTION 3: PLAYGROUND & EXPERIMENTS ERRORS (3000-3999)
@@ -667,6 +1136,66 @@
     - "task type.*cannot be created"
     - "task type.*does not match"
   telemetry_tags: ["experiment"]
+
+# Metric not available in this project (scope violation)
+- error_code: 3506
+  error_type: not_found_error
+  error_group: experiment
+  severity: medium
+  default_message: One or more metrics are not found or not available in this project.
+  user_action: Choose a metric that is global or shared with this project, or ask an admin to share it.
+  http_status_code: 404
+  message_patterns:
+    - "not found or not available in this project"
+  telemetry_tags: ["experiment", "metrics"]
+
+# Roll-up method set on a scorer without a roll-up configuration
+- error_code: 3507
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: A roll-up method was set for a metric that has no roll-up configuration.
+  user_action: Remove the roll-up method for this metric, or configure a roll-up on the metric first.
+  http_status_code: 422
+  message_patterns:
+    - "no roll up configuration exists"
+  telemetry_tags: ["experiment", "metrics"]
+
+# Roll-up method not allowed for this scorer
+- error_code: 3508
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: The selected roll-up method is not allowed for this metric.
+  user_action: Choose one of the roll-up methods allowed for this metric.
+  http_status_code: 422
+  message_patterns:
+    - "roll up method.*is not allowed"
+  telemetry_tags: ["experiment", "metrics"]
+
+# Composite metric enabled without its required metrics
+- error_code: 3509
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: A composite metric cannot be enabled because its required metrics are not enabled.
+  user_action: Enable the required metrics for the composite metric first.
+  http_status_code: 400
+  message_patterns:
+    - "required.*metrics are not enabled"
+  telemetry_tags: ["experiment", "metrics"]
+
+# Batched playground experiment on an empty dataset
+- error_code: 3510
+  error_type: data_validation_error
+  error_group: experiment
+  severity: medium
+  default_message: A batched playground experiment cannot be run on an empty dataset.
+  user_action: Add rows to the dataset, or select a dataset that contains data.
+  http_status_code: 400
+  message_patterns:
+    - "batched playground.*empty dataset"
+  telemetry_tags: ["experiment", "playground"]
 
 # Playground name already exists
 - error_code: 3006
@@ -1063,6 +1592,16 @@
   retriable: true
   telemetry_tags: ["signals", "ratelimit"]
 
+# LLM provider model or inference type is not authorized
+- error_code: 5002
+  error_type: configuration_error
+  error_group: signals
+  severity: high
+  default_message: Signals model access failed. The configured LLM provider does not allow the selected model or inference type.
+  user_action: Enable the recommended Signals model for this provider or configure an allowed model.
+  retriable: false
+  telemetry_tags: ["signals", "model_access"]
+
 # =============================================================================
 # SECTION 7: INTEGRATIONS ERRORS (7000-7499)
 # =============================================================================
@@ -1209,6 +1748,82 @@
   default_message: No integration of this type was found for your account.
   user_action: Verify you have access to an integration of this type.
   http_status_code: 404
+
+- error_code: 7013
+  error_type: not_found_error
+  error_group: integrations
+  severity: high
+  default_message: The selected model is not available in this integration or deployment.
+  user_action: Verify that the model is deployed and available in the integration configuration.
+  http_status_code: 404
+  retriable: false
+  blocking: true
+  message_patterns:
+    - "deploymentnotfound"
+    - "deployment.*not found"
+    - "model.*not.*integration"
+    - "model.*not.*deployment"
+  telemetry_tags: ["integrations", "model_lifecycle"]
+
+# =============================================================================
+# SECTION 7.5: PROVIDER MANAGEMENT API INTEGRATION ERRORS (7500-7999)
+# =============================================================================
+#
+# Description: Errors specific to provider management API integrations
+#              (Cursor, Claude Code, Codex, GitHub Copilot, Windsurf usage
+#              credentials). Kept separate from the generic integrations range.
+#
+
+# Provider management API integration missing required provider identifiers
+- error_code: 7500
+  error_type: configuration_error
+  error_group: provider_management_api
+  severity: medium
+  default_message: The provider management API integration is missing a required provider identifier.
+  user_action: Provide the identifier required by this provider (e.g. workspace id for Codex, organization or enterprise slug for GitHub Copilot).
+  http_status_code: 422
+  telemetry_tags: ["provider_management_api", "validation"]
+
+# Provider management API integration not found
+- error_code: 7501
+  error_type: not_found_error
+  error_group: provider_management_api
+  severity: medium
+  default_message: No provider management API integration was found for this provider.
+  user_action: Create an integration for this provider before reading or deleting it.
+  http_status_code: 404
+  telemetry_tags: ["provider_management_api", "not_found"]
+
+# Provider management API integration already exists for this provider scope
+- error_code: 7502
+  error_type: data_validation_error
+  error_group: provider_management_api
+  severity: medium
+  default_message: A provider management API integration already exists for this provider scope.
+  user_action: Rotate the existing integration credential, or choose a different provider scope.
+  http_status_code: 409
+  telemetry_tags: ["provider_management_api", "conflict"]
+
+# Provider management API credential is invalid for the requested scope
+- error_code: 7503
+  error_type: credentials_error
+  error_group: provider_management_api
+  severity: medium
+  default_message: Invalid provider workspace or api key.
+  user_action: Verify the provider workspace or organization identifier and provide a valid provider API key.
+  http_status_code: 422
+  telemetry_tags: ["provider_management_api", "credentials"]
+
+# Provider management API credential validation unavailable
+- error_code: 7504
+  error_type: system_error
+  error_group: provider_management_api
+  severity: medium
+  default_message: Provider credential validation could not be completed.
+  user_action: Retry after the provider API is available.
+  http_status_code: 503
+  retriable: true
+  telemetry_tags: ["provider_management_api", "provider_api"]
 
 # =============================================================================
 # SECTION 8: ANNOTATION QUEUE ERRORS (8000-8499)
@@ -1549,6 +2164,39 @@
   http_status_code: 422
   telemetry_tags: ["auth", "email_validation"]
 
+# Invite users rate limit exceeded
+- error_code: 8519
+  error_type: rate_limit_error
+  error_group: authentication
+  severity: medium
+  default_message: Too many invite requests. Please try again later.
+  user_action: Wait a bit before sending more invitations.
+  retriable: true
+  http_status_code: 429
+  telemetry_tags: ["auth", "ratelimit", "invite"]
+
+# Password reset email rate limit exceeded
+- error_code: 8520
+  error_type: rate_limit_error
+  error_group: authentication
+  severity: medium
+  default_message: Too many password reset requests. Please try again later.
+  user_action: Wait a bit before requesting another password reset.
+  retriable: true
+  http_status_code: 429
+  telemetry_tags: ["auth", "ratelimit", "password_reset"]
+
+# Capability-based role is immutable once the user exists
+- error_code: 8524
+  error_type: permission_error
+  error_group: authentication
+  severity: medium
+  default_message: The capability-based role cannot be granted to, or removed from, an existing user.
+  user_action: Provision a new user with the intended role; this role is fixed when the user is created.
+  retriable: false
+  http_status_code: 403
+  telemetry_tags: ["auth", "immutable_role", "capability_based"]
+
 # =============================================================================
 # SECTION 10: COMPONENT VIEW ERRORS (9000-9499)
 # =============================================================================
@@ -1857,3 +2505,196 @@
     - "slug.*too long"
     - "organization name.*too long"
   telemetry_tags: ["organization", "validation"]
+
+# Organization external ID already belongs to another organization
+- error_code: 11001
+  error_type: data_validation_error
+  error_group: organization
+  severity: medium
+  default_message: Organization already exists.
+  user_action: Use a different organization external ID or update the existing organization.
+  http_status_code: 409
+  message_patterns:
+    - "organization.*already exists"
+  telemetry_tags: ["organization", "provisioning", "conflict"]
+
+# System user external ID already belongs to another system user
+- error_code: 11002
+  error_type: data_validation_error
+  error_group: organization
+  severity: medium
+  default_message: System user already exists.
+  user_action: Use a different system user external ID or update the existing system user.
+  http_status_code: 409
+  message_patterns:
+    - "system user.*already exists"
+  telemetry_tags: ["organization", "provisioning", "conflict"]
+
+# Organization membership already exists
+- error_code: 11003
+  error_type: data_validation_error
+  error_group: organization
+  severity: medium
+  default_message: Organization membership already exists.
+  user_action: Update the existing organization membership instead of creating a new one.
+  http_status_code: 409
+  message_patterns:
+    - "organization membership.*already exists"
+  telemetry_tags: ["organization", "membership", "provisioning", "conflict"]
+
+# Concurrent creation race left a project transiently unresolvable
+- error_code: 11004
+  error_type: system_error
+  error_group: organization
+  severity: low
+  default_message: The project is being created concurrently. Please retry.
+  user_action: Retry the request; the concurrent creation should resolve on the next attempt.
+  retriable: true
+  http_status_code: 500
+  telemetry_tags: ["organization", "provisioning", "concurrency", "retriable"]
+
+
+# =============================================================================
+# SECTION 15: AI ASSISTANT ERRORS (12000-12499)
+# =============================================================================
+#
+# Description: Errors raised by the AI assistant feature.
+#
+# When to add here:
+#   - Errors surfaced during AI assistant operations
+#
+# =============================================================================
+
+# No LLM integration configured for the model the assistant is trying to use
+- error_code: 12000
+  error_type: configuration_error
+  error_group: assistant
+  severity: high
+  default_message: No LLM integration is configured for the assistant.
+  user_action: Configure an LLM integration in your organization settings.
+  exception_class: setgalileo.exceptions.credentials.CredentialsError
+  telemetry_tags: ["assistant", "configuration"]
+
+# Conversation history exceeds the model's context limit
+- error_code: 12002
+  error_type: data_validation_error
+  error_group: assistant
+  severity: medium
+  default_message: The conversation history exceeds the model's context limit.
+  user_action: Start a new conversation to continue.
+  telemetry_tags: ["assistant", "context"]
+
+# Conversation not found or not owned by the requesting user
+- error_code: 12003
+  error_type: not_found_error
+  error_group: assistant
+  severity: low
+  default_message: Conversation not found.
+  user_action: Refresh the page and try again. If the issue persists, contact support.
+  http_status_code: 404
+  telemetry_tags: ["assistant"]
+
+# Invalid or expired pagination cursor for conversation messages
+- error_code: 12004
+  error_type: data_validation_error
+  error_group: assistant
+  severity: low
+  default_message: Invalid pagination cursor.
+  user_action: Reload the conversation and try again.
+  http_status_code: 400
+  telemetry_tags: ["assistant"]
+
+# Assistant message isn't found or not accessible by the requesting user
+- error_code: 12005
+  error_type: not_found_error
+  error_group: assistant
+  severity: low
+  default_message: Message not found.
+  user_action: Refresh the page and try again.
+  http_status_code: 404
+  telemetry_tags: ["assistant"]
+
+# Assistant turn timed out waiting for the runner to start
+- error_code: 12006
+  error_type: system_error
+  error_group: assistant
+  severity: high
+  default_message: The assistant did not respond in time.
+  user_action: Retry your message.
+  retriable: true
+  telemetry_tags: ["assistant", "timeout"]
+
+# Assistant turn timed out mid-stream (runner went idle or hard cap exceeded)
+- error_code: 12007
+  error_type: system_error
+  error_group: assistant
+  severity: high
+  default_message: The assistant turn timed out.
+  user_action: Retry your message.
+  retriable: true
+  telemetry_tags: ["assistant", "timeout"]
+
+# Selected model does not support the assistant (no function calling or incompatible provider)
+- error_code: 12008
+  error_type: configuration_error
+  error_group: assistant
+  severity: high
+  default_message: The selected model does not support the AI assistant.
+  user_action: Select a different model to use with the AI assistant.
+  exception_class: setgalileo.exceptions.configuration.ConfigurationError
+  message_patterns:
+    - "does not support agentic"
+    - "not support.*streaming"
+    - "not found.*endpoint"
+    - "model or endpoint not found"
+  telemetry_tags: ["assistant", "configuration"]
+
+# Message already submitted or a turn is already in progress for this conversation
+- error_code: 12009
+  error_type: data_validation_error
+  error_group: assistant
+  severity: low
+  default_message: This request conflicts with an existing message or active turn.
+  user_action: Refresh the page and try again.
+  http_status_code: 409
+  telemetry_tags: ["assistant"]
+
+# LLM request timed out before the provider opened the stream or stopped mid-stream
+- error_code: 12010
+  error_type: system_error
+  error_group: assistant
+  severity: medium
+  default_message: The model did not respond in time.
+  user_action: Retry your message. If this keeps happening, try a different model.
+  retriable: true
+  telemetry_tags: ["assistant", "llm", "timeout"]
+
+# Unexpected error from the LLM provider during streaming
+- error_code: 12011
+  error_type: system_error
+  error_group: assistant
+  severity: high
+  default_message: An unexpected error occurred while communicating with the model.
+  user_action: Retry your message. If this persists, contact support.
+  retriable: true
+  telemetry_tags: ["assistant", "llm"]
+
+# Signals are not available for the requested assistant command target
+- error_code: 12012
+  error_type: not_found_error
+  error_group: assistant
+  severity: low
+  default_message: Signals are not available for this target.
+  user_action: Generate signals and try again.
+  http_status_code: 404
+  telemetry_tags: ["assistant", "signals"]
+
+# Delegated turn identifiers do not match the hidden conversation identity
+- error_code: 12013
+  error_type: data_validation_error
+  error_group: assistant
+  severity: low
+  default_message: The delegated turn identifiers do not match the conversation.
+  user_action: Retry the request from the originating O11y Assistant turn.
+  http_status_code: 400
+  telemetry_tags: ["assistant", "validation"]

@@ -175,6 +175,85 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 1018,
+      "error_type": "data_validation_error",
+      "error_group": "shared",
+      "severity": "high",
+      "default_message": "The URL resolves to a disallowed internal address.",
+      "user_action": "Use a publicly routable URL or update the GALILEO_SSRF_BLOCKED_IP_RANGES setting.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 1019,
+      "error_type": "data_validation_error",
+      "error_group": "shared",
+      "severity": "medium",
+      "default_message": "The URL's host could not be resolved.",
+      "user_action": "Check the URL is correct and its domain is publicly resolvable.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 1020,
+      "error_type": "configuration_error",
+      "error_group": "shared",
+      "severity": "high",
+      "default_message": "SMTP authentication failed; the configured mail credentials were rejected.",
+      "user_action": "Verify GALILEO_EXT_SMTP_USERNAME / PASSWORD and the service account's relay permissions.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 1021,
+      "error_type": "system_error",
+      "error_group": "shared",
+      "severity": "high",
+      "default_message": "Could not queue background work because the messaging service is temporarily unavailable.",
+      "user_action": "Please retry in a few moments; if it persists, contact support.",
+      "retriable": true,
+      "http_status_code": 503
+    },
+    {
+      "error_code": 1022,
+      "error_type": "configuration_error",
+      "error_group": "shared",
+      "severity": "high",
+      "default_message": "The selected provider model is invalid or unavailable for this integration.",
+      "user_action": "Choose a different model, or ensure the model (and any required inference profile) is enabled for your integration and region.",
+      "retriable": false
+    },
+    {
+      "error_code": 1023,
+      "error_type": "configuration_error",
+      "error_group": "shared",
+      "severity": "medium",
+      "default_message": "This endpoint is not available on O11y Cloud. Use the GDI ingestion endpoint.",
+      "user_action": "Send telemetry through the O11y Cloud GDI ingestion endpoint.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 1024,
+      "error_type": "system_error",
+      "error_group": "shared",
+      "severity": "medium",
+      "default_message": "The analytics query service is at capacity; please retry shortly.",
+      "user_action": "Please retry in a few moments.",
+      "retriable": true,
+      "http_status_code": 429
+    },
+    {
+      "error_code": 1025,
+      "error_type": "system_error",
+      "error_group": "shared",
+      "severity": "high",
+      "default_message": "The analytics query service is temporarily unavailable; please retry shortly.",
+      "user_action": "Please retry in a few moments.",
+      "retriable": true,
+      "http_status_code": 503
+    },
+    {
       "error_code": 2000,
       "error_type": "data_validation_error",
       "error_group": "metrics",
@@ -355,12 +434,317 @@ export const ErrorCatalogTable = () => {
     },
     {
       "error_code": 2019,
-      "error_type": "not_applicable_reason",
+      "error_type": "data_validation_error",
       "error_group": "metrics",
       "severity": "low",
-      "default_message": "Cost tracking is not yet accurate for multimodal LLM calls.",
-      "user_action": "Cost will be reported once accurate multimodal cost tracking is implemented.",
+      "default_message": "Metrics were not computed because the trace is structurally incomplete — one or more spans reference a parent that has not been ingested.",
+      "user_action": "No action needed. Metrics will be computed automatically once the missing span(s) arrive and the trace is complete.",
       "retriable": false
+    },
+    {
+      "error_code": 2020,
+      "error_type": "system_error",
+      "error_group": "metrics",
+      "severity": "high",
+      "default_message": "Metric computation timed out before it could finish.",
+      "user_action": "This usually means the scoring model was slow or temporarily unavailable. Please retry; if it persists, contact support.",
+      "retriable": true
+    },
+    {
+      "error_code": 2021,
+      "error_type": "system_error",
+      "error_group": "metrics",
+      "severity": "high",
+      "default_message": "Metric computation failed due to an internal error.",
+      "user_action": "Please retry; if it persists, check the error details and contact support.",
+      "retriable": true
+    },
+    {
+      "error_code": 2022,
+      "error_type": "llm_api_error",
+      "error_group": "metrics",
+      "severity": "high",
+      "default_message": "The selected model is no longer available from the provider.",
+      "user_action": "Update the saved metric or prompt to use an available model, then rerun.",
+      "retriable": false
+    },
+    {
+      "error_code": 2023,
+      "error_type": "system_error",
+      "error_group": "metrics",
+      "severity": "high",
+      "default_message": "This metric was not scored in time and was stopped.",
+      "user_action": "Please retry; if it persists, contact support.",
+      "retriable": true
+    },
+    {
+      "error_code": 2024,
+      "error_type": "system_error",
+      "error_group": "metrics",
+      "severity": "high",
+      "default_message": "Session-level scores could not be computed because roll-up timed out while aggregating this session's child scores.",
+      "user_action": "This roll-up was not retried automatically. It may recover when the session's child scores are next re-driven (the hourly self-heal sweep) or a later child write supersedes it; if it persists, rerun the affected run or contact support.",
+      "retriable": true
+    },
+    {
+      "error_code": 2500,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Invalid pagination cursor.",
+      "user_action": "Refresh the page and retry with the cursor returned by the previous response.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 2501,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "A directory import is already in progress.",
+      "user_action": "Wait for the current directory import to finish and retry.",
+      "retriable": true,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 2502,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Invalid directory file name.",
+      "user_action": "Upload a file with a .csv extension and a supported filename length.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 2503,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Unsupported directory file content type.",
+      "user_action": "Upload the directory as a CSV file using a supported CSV content type.",
+      "http_status_code": 415,
+      "retriable": false
+    },
+    {
+      "error_code": 2504,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Directory file exceeds the maximum allowed size.",
+      "user_action": "Reduce the CSV file size and upload it again.",
+      "http_status_code": 413,
+      "retriable": false
+    },
+    {
+      "error_code": 2505,
+      "error_type": "system_error",
+      "error_group": "tokenomics",
+      "severity": "high",
+      "default_message": "Directory generation verification failed.",
+      "user_action": "Retry the directory operation. If the issue persists, contact support.",
+      "retriable": true,
+      "http_status_code": 500
+    },
+    {
+      "error_code": 2506,
+      "error_type": "system_error",
+      "error_group": "tokenomics",
+      "severity": "high",
+      "default_message": "Directory generation contains invalid identity data.",
+      "user_action": "Contact support to repair or replace the directory generation.",
+      "retriable": false,
+      "http_status_code": 500
+    },
+    {
+      "error_code": 2507,
+      "error_type": "system_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Tokenomics data changed while the requested user page was being read.",
+      "user_action": "Retry the request.",
+      "retriable": true,
+      "http_status_code": 500
+    },
+    {
+      "error_code": 2510,
+      "error_type": "not_found_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "No active complete tokenomics directory generation is available.",
+      "user_action": "Import and publish a tokenomics directory before requesting this data.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 2511,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Tokenomics directory import is not ready for publication.",
+      "user_action": "Wait for the directory import to finish projecting and retry.",
+      "retriable": true,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 2512,
+      "error_type": "not_found_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Requested complete tokenomics directory generation is not available.",
+      "user_action": "Check the generation ID, or request the current active generation instead.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 2513,
+      "error_type": "not_found_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Tokenomics directory import not found.",
+      "user_action": "Check the import ID, or start a new directory import.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 2519,
+      "error_type": "permission_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Leadership filtering is not available.",
+      "user_action": "Clear the selected leader and choose a manager available in the current view.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
+      "error_code": 2520,
+      "error_type": "not_found_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "The requested fiscal calendar version was not found.",
+      "user_action": "Check the version ID or list the organization's fiscal calendar history and retry.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 2521,
+      "error_type": "not_found_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "The organization for the fiscal calendar was not found.",
+      "user_action": "Reload the organization and try again if it still exists.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 2522,
+      "error_type": "configuration_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "The fiscal calendar changed after these settings were loaded.",
+      "user_action": "Reload the active fiscal calendar, reapply the change, and retry.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 2523,
+      "error_type": "configuration_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "The selected fiscal calendar version does not cover the requested date range.",
+      "user_action": "Select a covered date range or use a fiscal calendar version that defines the requested dates.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 2524,
+      "error_type": "system_error",
+      "error_group": "tokenomics",
+      "severity": "high",
+      "default_message": "Data service returned an invalid usage trend bucket.",
+      "user_action": "Contact support.",
+      "retriable": false,
+      "http_status_code": 502
+    },
+    {
+      "error_code": 2525,
+      "error_type": "system_error",
+      "error_group": "tokenomics",
+      "severity": "high",
+      "default_message": "Finance hierarchy generation verification failed.",
+      "user_action": "Retry the finance hierarchy operation. If the issue persists, contact support.",
+      "retriable": true,
+      "http_status_code": 500
+    },
+    {
+      "error_code": 2526,
+      "error_type": "workflow_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "A finance hierarchy generation is already being prepared.",
+      "user_action": "Wait for the current finance hierarchy import to finish, then retry.",
+      "retriable": true,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 2527,
+      "error_type": "not_found_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "No active finance hierarchy is available.",
+      "user_action": "Import a finance hierarchy and wait for it to become active.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 2528,
+      "error_type": "not_found_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Finance hierarchy generation not found.",
+      "user_action": "Check the generation ID, or request the current active finance hierarchy.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 2529,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Finance hierarchy input must use a CSV filename.",
+      "user_action": "Rename the finance hierarchy file with a .csv extension and upload it again.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 2530,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Unsupported finance hierarchy file content type.",
+      "user_action": "Upload the finance hierarchy file using a supported CSV content type.",
+      "retriable": false,
+      "http_status_code": 415
+    },
+    {
+      "error_code": 2531,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Finance hierarchy file exceeds the maximum allowed size.",
+      "user_action": "Reduce the CSV file size and upload it again.",
+      "retriable": false,
+      "http_status_code": 413
+    },
+    {
+      "error_code": 2532,
+      "error_type": "system_error",
+      "error_group": "tokenomics",
+      "severity": "high",
+      "default_message": "Data service returned an invalid adoption trend bucket.",
+      "user_action": "Contact support.",
+      "retriable": false,
+      "http_status_code": 502
     },
     {
       "error_code": 3000,
@@ -469,6 +853,56 @@ export const ErrorCatalogTable = () => {
       "severity": "medium",
       "default_message": "The experiment task type does not match the project type.",
       "user_action": "Create this experiment in a compatible project, or change the experiment type to match this project.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 3506,
+      "error_type": "not_found_error",
+      "error_group": "experiment",
+      "severity": "medium",
+      "default_message": "One or more metrics are not found or not available in this project.",
+      "user_action": "Choose a metric that is global or shared with this project, or ask an admin to share it.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 3507,
+      "error_type": "data_validation_error",
+      "error_group": "experiment",
+      "severity": "medium",
+      "default_message": "A roll-up method was set for a metric that has no roll-up configuration.",
+      "user_action": "Remove the roll-up method for this metric, or configure a roll-up on the metric first.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 3508,
+      "error_type": "data_validation_error",
+      "error_group": "experiment",
+      "severity": "medium",
+      "default_message": "The selected roll-up method is not allowed for this metric.",
+      "user_action": "Choose one of the roll-up methods allowed for this metric.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 3509,
+      "error_type": "data_validation_error",
+      "error_group": "experiment",
+      "severity": "medium",
+      "default_message": "A composite metric cannot be enabled because its required metrics are not enabled.",
+      "user_action": "Enable the required metrics for the composite metric first.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 3510,
+      "error_type": "data_validation_error",
+      "error_group": "experiment",
+      "severity": "medium",
+      "default_message": "A batched playground experiment cannot be run on an empty dataset.",
+      "user_action": "Add rows to the dataset, or select a dataset that contains data.",
       "http_status_code": 400,
       "retriable": false
     },
@@ -751,6 +1185,15 @@ export const ErrorCatalogTable = () => {
       "retriable": true
     },
     {
+      "error_code": 5002,
+      "error_type": "configuration_error",
+      "error_group": "signals",
+      "severity": "high",
+      "default_message": "Signals model access failed. The configured LLM provider does not allow the selected model or inference type.",
+      "user_action": "Enable the recommended Signals model for this provider or configure an allowed model.",
+      "retriable": false
+    },
+    {
       "error_code": 7000,
       "error_type": "credentials_error",
       "error_group": "integrations",
@@ -879,6 +1322,66 @@ export const ErrorCatalogTable = () => {
       "user_action": "Verify you have access to an integration of this type.",
       "http_status_code": 404,
       "retriable": false
+    },
+    {
+      "error_code": 7013,
+      "error_type": "not_found_error",
+      "error_group": "integrations",
+      "severity": "high",
+      "default_message": "The selected model is not available in this integration or deployment.",
+      "user_action": "Verify that the model is deployed and available in the integration configuration.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 7500,
+      "error_type": "configuration_error",
+      "error_group": "provider_management_api",
+      "severity": "medium",
+      "default_message": "The provider management API integration is missing a required provider identifier.",
+      "user_action": "Provide the identifier required by this provider (e.g. workspace id for Codex, organization or enterprise slug for GitHub Copilot).",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 7501,
+      "error_type": "not_found_error",
+      "error_group": "provider_management_api",
+      "severity": "medium",
+      "default_message": "No provider management API integration was found for this provider.",
+      "user_action": "Create an integration for this provider before reading or deleting it.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 7502,
+      "error_type": "data_validation_error",
+      "error_group": "provider_management_api",
+      "severity": "medium",
+      "default_message": "A provider management API integration already exists for this provider scope.",
+      "user_action": "Rotate the existing integration credential, or choose a different provider scope.",
+      "http_status_code": 409,
+      "retriable": false
+    },
+    {
+      "error_code": 7503,
+      "error_type": "credentials_error",
+      "error_group": "provider_management_api",
+      "severity": "medium",
+      "default_message": "Invalid provider workspace or api key.",
+      "user_action": "Verify the provider workspace or organization identifier and provide a valid provider API key.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 7504,
+      "error_type": "system_error",
+      "error_group": "provider_management_api",
+      "severity": "medium",
+      "default_message": "Provider credential validation could not be completed.",
+      "user_action": "Retry after the provider API is available.",
+      "retriable": true,
+      "http_status_code": 503
     },
     {
       "error_code": 8000,
@@ -1171,6 +1674,36 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 8519,
+      "error_type": "rate_limit_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "Too many invite requests. Please try again later.",
+      "user_action": "Wait a bit before sending more invitations.",
+      "retriable": true,
+      "http_status_code": 429
+    },
+    {
+      "error_code": 8520,
+      "error_type": "rate_limit_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "Too many password reset requests. Please try again later.",
+      "user_action": "Wait a bit before requesting another password reset.",
+      "retriable": true,
+      "http_status_code": 429
+    },
+    {
+      "error_code": 8524,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "The capability-based role cannot be granted to, or removed from, an existing user.",
+      "user_action": "Provision a new user with the intended role; this role is fixed when the user is created.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
       "error_code": 9000,
       "error_type": "not_found_error",
       "error_group": "component_view",
@@ -1368,6 +1901,169 @@ export const ErrorCatalogTable = () => {
       "default_message": "Organization name results in a slug that is too long.",
       "user_action": "Use a shorter organization name and try again.",
       "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 11001,
+      "error_type": "data_validation_error",
+      "error_group": "organization",
+      "severity": "medium",
+      "default_message": "Organization already exists.",
+      "user_action": "Use a different organization external ID or update the existing organization.",
+      "http_status_code": 409,
+      "retriable": false
+    },
+    {
+      "error_code": 11002,
+      "error_type": "data_validation_error",
+      "error_group": "organization",
+      "severity": "medium",
+      "default_message": "System user already exists.",
+      "user_action": "Use a different system user external ID or update the existing system user.",
+      "http_status_code": 409,
+      "retriable": false
+    },
+    {
+      "error_code": 11003,
+      "error_type": "data_validation_error",
+      "error_group": "organization",
+      "severity": "medium",
+      "default_message": "Organization membership already exists.",
+      "user_action": "Update the existing organization membership instead of creating a new one.",
+      "http_status_code": 409,
+      "retriable": false
+    },
+    {
+      "error_code": 11004,
+      "error_type": "system_error",
+      "error_group": "organization",
+      "severity": "low",
+      "default_message": "The project is being created concurrently. Please retry.",
+      "user_action": "Retry the request; the concurrent creation should resolve on the next attempt.",
+      "retriable": true,
+      "http_status_code": 500
+    },
+    {
+      "error_code": 12000,
+      "error_type": "configuration_error",
+      "error_group": "assistant",
+      "severity": "high",
+      "default_message": "No LLM integration is configured for the assistant.",
+      "user_action": "Configure an LLM integration in your organization settings.",
+      "retriable": false
+    },
+    {
+      "error_code": 12002,
+      "error_type": "data_validation_error",
+      "error_group": "assistant",
+      "severity": "medium",
+      "default_message": "The conversation history exceeds the model's context limit.",
+      "user_action": "Start a new conversation to continue.",
+      "retriable": false
+    },
+    {
+      "error_code": 12003,
+      "error_type": "not_found_error",
+      "error_group": "assistant",
+      "severity": "low",
+      "default_message": "Conversation not found.",
+      "user_action": "Refresh the page and try again. If the issue persists, contact support.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 12004,
+      "error_type": "data_validation_error",
+      "error_group": "assistant",
+      "severity": "low",
+      "default_message": "Invalid pagination cursor.",
+      "user_action": "Reload the conversation and try again.",
+      "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 12005,
+      "error_type": "not_found_error",
+      "error_group": "assistant",
+      "severity": "low",
+      "default_message": "Message not found.",
+      "user_action": "Refresh the page and try again.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 12006,
+      "error_type": "system_error",
+      "error_group": "assistant",
+      "severity": "high",
+      "default_message": "The assistant did not respond in time.",
+      "user_action": "Retry your message.",
+      "retriable": true
+    },
+    {
+      "error_code": 12007,
+      "error_type": "system_error",
+      "error_group": "assistant",
+      "severity": "high",
+      "default_message": "The assistant turn timed out.",
+      "user_action": "Retry your message.",
+      "retriable": true
+    },
+    {
+      "error_code": 12008,
+      "error_type": "configuration_error",
+      "error_group": "assistant",
+      "severity": "high",
+      "default_message": "The selected model does not support the AI assistant.",
+      "user_action": "Select a different model to use with the AI assistant.",
+      "retriable": false
+    },
+    {
+      "error_code": 12009,
+      "error_type": "data_validation_error",
+      "error_group": "assistant",
+      "severity": "low",
+      "default_message": "This request conflicts with an existing message or active turn.",
+      "user_action": "Refresh the page and try again.",
+      "http_status_code": 409,
+      "retriable": false
+    },
+    {
+      "error_code": 12010,
+      "error_type": "system_error",
+      "error_group": "assistant",
+      "severity": "medium",
+      "default_message": "The model did not respond in time.",
+      "user_action": "Retry your message. If this keeps happening, try a different model.",
+      "retriable": true
+    },
+    {
+      "error_code": 12011,
+      "error_type": "system_error",
+      "error_group": "assistant",
+      "severity": "high",
+      "default_message": "An unexpected error occurred while communicating with the model.",
+      "user_action": "Retry your message. If this persists, contact support.",
+      "retriable": true
+    },
+    {
+      "error_code": 12012,
+      "error_type": "not_found_error",
+      "error_group": "assistant",
+      "severity": "low",
+      "default_message": "Signals are not available for this target.",
+      "user_action": "Generate signals and try again.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 12013,
+      "error_type": "data_validation_error",
+      "error_group": "assistant",
+      "severity": "low",
+      "default_message": "The delegated turn identifiers do not match the conversation.",
+      "user_action": "Retry the request from the originating O11y Assistant turn.",
+      "http_status_code": 400,
       "retriable": false
     }
   ];
