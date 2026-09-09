@@ -1576,7 +1576,7 @@ export const ErrorCatalogTable = () => {
         boxSizing: 'border-box',
     };
     const tableStyle = {
-        minWidth: '1168px',
+        minWidth: '1088px',
         width: '100%',
         borderCollapse: 'collapse',
         fontSize: '0.8rem',
@@ -1754,7 +1754,7 @@ export const ErrorCatalogTable = () => {
                         <table style={tableStyle}>
                             <thead>
                                 <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
-                                    <th style={{ ...errorCodeHeaderCellStyle, textAlign: 'left', minWidth: '8rem' }} onClick={() => handleSort('error_code')}>
+                                    <th style={{ ...errorCodeHeaderCellStyle, textAlign: 'left', minWidth: '7rem' }} onClick={() => handleSort('error_code')}>
                                         Error Code{getSortIndicator('error_code')}
                                     </th>
                                     <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '12rem' }} onClick={() => handleSort('error_type')}>
@@ -1763,12 +1763,12 @@ export const ErrorCatalogTable = () => {
                                     <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '8rem' }} onClick={() => handleSort('error_group')}>
                                         Group{getSortIndicator('error_group')}
                                     </th>
-                                    <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '7rem' }} onClick={() => handleSort('severity')}>
+                                    <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '6rem' }} onClick={() => handleSort('severity')}>
                                         Severity{getSortIndicator('severity')}
                                     </th>
                                     <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '16rem' }}>Message</th>
                                     <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '16rem' }}>User Action</th>
-                                    <th style={{ ...baseHeaderCellStyle, textAlign: 'center', minWidth: '6rem' }} onClick={() => handleSort('retriable')}>
+                                    <th style={{ ...baseHeaderCellStyle, textAlign: 'center', minWidth: '3rem' }} onClick={() => handleSort('retriable')}>
                                         Retriable{getSortIndicator('retriable')}
                                     </th>
                                 </tr>
@@ -1784,7 +1784,7 @@ export const ErrorCatalogTable = () => {
                                             scrollMarginTop: '120px'
                                         }}
                                     >
-                                        <td style={{ ...errorCodeDataCellStyle, fontWeight: 500, minWidth: '8rem' }}>
+                                        <td style={{ ...errorCodeDataCellStyle, fontWeight: 500, minWidth: '7rem' }}>
                                             <div style={errorCodeCellInnerStyle}>
                                                 <a
                                                     href={getErrorAnchor(error.error_code)}
@@ -1851,7 +1851,7 @@ export const ErrorCatalogTable = () => {
                                         <td style={{ ...baseCellStyle, minWidth: '8rem' }}>
                                             {formatGroupName(error.error_group)}
                                         </td>
-                                        <td style={{ ...baseCellStyle, minWidth: '7rem' }}>
+                                        <td style={{ ...baseCellStyle, minWidth: '6rem' }}>
                                             <span style={{ 
                                                 color: getSeverityColor(error.severity), 
                                                 fontWeight: 600,
@@ -1866,7 +1866,7 @@ export const ErrorCatalogTable = () => {
                                         <td style={{ ...baseCellStyle, minWidth: '16rem', wordBreak: 'break-word' }}>
                                             {error.user_action}
                                         </td>
-                                        <td style={{ ...baseCellStyle, textAlign: 'center', minWidth: '6rem' }}>
+                                        <td style={{ ...baseCellStyle, textAlign: 'center', minWidth: '3rem' }}>
                                             {error.retriable ? '✓' : '✗'}
                                         </td>
                                     </tr>
