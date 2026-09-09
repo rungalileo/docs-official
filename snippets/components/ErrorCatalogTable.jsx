@@ -1576,7 +1576,7 @@ export const ErrorCatalogTable = () => {
         boxSizing: 'border-box',
     };
     const tableStyle = {
-        minWidth: '1088px',
+        minWidth: '1136px',
         width: '100%',
         borderCollapse: 'collapse',
         fontSize: '0.8rem',
@@ -1768,7 +1768,7 @@ export const ErrorCatalogTable = () => {
                                     </th>
                                     <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '16rem' }}>Message</th>
                                     <th style={{ ...baseHeaderCellStyle, textAlign: 'left', minWidth: '16rem' }}>User Action</th>
-                                    <th style={{ ...baseHeaderCellStyle, textAlign: 'center', minWidth: '3rem' }} onClick={() => handleSort('retriable')}>
+                                    <th style={{ ...baseHeaderCellStyle, textAlign: 'center', minWidth: '5rem' }} onClick={() => handleSort('retriable')}>
                                         Retriable{getSortIndicator('retriable')}
                                     </th>
                                 </tr>
@@ -1866,7 +1866,7 @@ export const ErrorCatalogTable = () => {
                                         <td style={{ ...baseCellStyle, minWidth: '16rem', wordBreak: 'break-word' }}>
                                             {error.user_action}
                                         </td>
-                                        <td style={{ ...baseCellStyle, textAlign: 'center', minWidth: '3rem' }}>
+                                        <td style={{ ...baseCellStyle, textAlign: 'center', minWidth: '5rem' }}>
                                             {error.retriable ? '✓' : '✗'}
                                         </td>
                                     </tr>
