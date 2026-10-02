@@ -624,23 +624,73 @@ export const ErrorCatalogTable = () => {
     },
     {
       "error_code": 2512,
-      "error_type": "not_found_error",
+      "error_type": "permission_error",
       "error_group": "tokenomics",
-      "severity": "medium",
-      "default_message": "Requested complete tokenomics directory generation is not available.",
-      "user_action": "Check the generation ID, or request the current active generation instead.",
+      "severity": "low",
+      "default_message": "Tokenomics access is not available.",
+      "user_action": "Ask an organization administrator for access to AI usage data.",
       "retriable": false,
-      "http_status_code": 404
+      "http_status_code": 403
     },
     {
       "error_code": 2513,
+      "error_type": "permission_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Organization-wide tokenomics access is not available.",
+      "user_action": "Use the team or individual view, or ask an administrator for organization-wide access.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
+      "error_code": 2514,
       "error_type": "not_found_error",
       "error_group": "tokenomics",
       "severity": "medium",
-      "default_message": "Tokenomics directory import not found.",
-      "user_action": "Check the import ID, or start a new directory import.",
+      "default_message": "Tokenomics directory data is not available for this organization.",
+      "user_action": "Import and publish a tokenomics directory, then retry.",
       "retriable": false,
-      "http_status_code": 404
+      "http_status_code": 403
+    },
+    {
+      "error_code": 2515,
+      "error_type": "permission_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Tokenomics access is not available for this user.",
+      "user_action": "Ask an administrator to confirm your email is in the imported tokenomics directory.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
+      "error_code": 2516,
+      "error_type": "permission_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Team tokenomics access is not available.",
+      "user_action": "Team view is available to people with reports; use the individual view instead.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
+      "error_code": 2517,
+      "error_type": "system_error",
+      "error_group": "tokenomics",
+      "severity": "high",
+      "default_message": "Tokenomics authorization could not be resolved.",
+      "user_action": "Retry the request; contact support if it persists.",
+      "retriable": true,
+      "http_status_code": 500
+    },
+    {
+      "error_code": 2518,
+      "error_type": "permission_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Team navigation is not available.",
+      "user_action": "You can only view people within your own reporting line.",
+      "retriable": false,
+      "http_status_code": 403
     },
     {
       "error_code": 2519,
@@ -781,6 +831,26 @@ export const ErrorCatalogTable = () => {
       "user_action": "Contact support.",
       "retriable": false,
       "http_status_code": 502
+    },
+    {
+      "error_code": 2533,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Invalid directory effective date.",
+      "user_action": "Use an effective date between 1970-01-02 and 2149-06-06.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 2534,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Forced tree rebuild sent without resolved tree-table write flags.",
+      "user_action": "No action needed; the rebuild is retried from a worker that resolves the write flags.",
+      "retriable": true,
+      "http_status_code": 409
     },
     {
       "error_code": 3000,
@@ -2151,6 +2221,36 @@ export const ErrorCatalogTable = () => {
       "user_action": "Please try again or narrow the time range.",
       "http_status_code": 504,
       "retriable": false
+    },
+    {
+      "error_code": 12504,
+      "error_type": "system_error",
+      "error_group": "clickhouse",
+      "severity": "high",
+      "default_message": "Timed out writing to ClickHouse.",
+      "user_action": "The write may or may not have completed; check before retrying, or contact support if it persists.",
+      "retriable": false,
+      "http_status_code": 504
+    },
+    {
+      "error_code": 12505,
+      "error_type": "system_error",
+      "error_group": "clickhouse",
+      "severity": "medium",
+      "default_message": "ClickHouse rejected the query because its workload queue is full.",
+      "user_action": "Retry after a short delay or contact support if it persists.",
+      "retriable": true,
+      "http_status_code": 503
+    },
+    {
+      "error_code": 12506,
+      "error_type": "configuration_error",
+      "error_group": "clickhouse",
+      "severity": "medium",
+      "default_message": "ClickHouse workload scheduler configuration is invalid.",
+      "user_action": "Contact support. This is a server configuration issue, not something a retry will fix.",
+      "retriable": false,
+      "http_status_code": 500
     },
     {
       "error_code": 13000,
