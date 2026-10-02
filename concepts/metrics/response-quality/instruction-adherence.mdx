@@ -6,15 +6,15 @@ description: Assess instruction adherence in AI outputs using Galileo Guardrail 
 import { DefinitionCard } from "/snippets/components/definition-card.mdx";
 import { SupportedModalities } from "/snippets/components/supported-modalities.mdx";
 
-<SupportedModalities modalities={["Text"]} />
+<SupportedModalities modalities={["Text", "Image/PDF", "Audio"]} />
 
 <DefinitionCard>
-  <strong>Instruction Adherence</strong> measures whether a model followed or adhered to the system or prompt instructions when generating a response.
+  <strong>Instruction Adherence</strong> measures whether a model followed or adhered to the system or prompt instructions when generating an output.
 </DefinitionCard>
 
 ## How it works
 
-This metric is particularly valuable for uncovering hallucinations where the model is ignoring instructions, which can lead to responses that don't meet user requirements or business rules.
+This metric is particularly valuable for uncovering hallucinations where the model is ignoring instructions, which can lead to outputs that don't meet user requirements or business rules.
 
 ## Calculation method
 
@@ -22,15 +22,15 @@ Instruction Adherence is computed through a multi-step process:
 
 <Steps>
   <Step title="Model Evaluation">
-    The system sends multiple evaluation requests to OpenAI's GPT4o model to analyze whether the response follows the provided instructions.
+    The system sends multiple evaluation requests to OpenAI's GPT4o model to analyze whether the output follows the provided instructions.
 
 </Step>
   <Step title="Analysis Process">
-    A specialized chain-of-thought prompt guides the model through a detailed evaluation of how well the response adheres to the specific instructions given.
+    A specialized chain-of-thought prompt guides the model through a detailed evaluation of how well the output adheres to the specific instructions given.
 
 </Step>
   <Step title="Multiple Assessments">
-    The system requests and collects multiple distinct responses to ensure a robust evaluation through consensus.
+    The system requests and collects multiple distinct assessments to ensure a robust evaluation through consensus.
 
 </Step>
   <Step title="Result Generation">
@@ -38,12 +38,12 @@ Instruction Adherence is computed through a multi-step process:
 
 </Step>
   <Step title="Result">
-    The evaluator returns `true` when the response follows the provided instructions and `false` otherwise.
+    The evaluator returns `true` when the output follows the provided instructions and `false` otherwise.
 
 </Step>
 </Steps>
 
-We also surface one of the generated explanations, always choosing one that aligns with the majority judgment among the responses.
+We also surface one of the generated explanations, always choosing one that aligns with the majority judgment among the assessments.
 
 <Note>
 This metric is computed by prompting an LLM multiple times, and thus requires additional LLM calls to compute, which may impact usage and billing.
@@ -66,11 +66,11 @@ This metric is computed by prompting an LLM multiple times, and thus requires ad
 It's important to understand the distinction between related metrics:
 
 <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Instruction Adherence:</strong> Measures whether the response follows the instructions in your prompt template.
+  <strong>Instruction Adherence:</strong> Measures whether the output follows the instructions in your prompt template.
 </div>
 
 <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Context Adherence:</strong> Measures whether the response adheres to the context provided (e.g., your retrieved documents).
+  <strong>Context Adherence:</strong> Measures whether the output adheres to the context provided (e.g., your retrieved documents).
 </div>
 
 </Card>
@@ -90,7 +90,7 @@ It's important to understand the distinction between related metrics:
 When Instruction Adherence returns `false`, the model likely ignored its instructions. To improve your system:
 
 <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Flag and examine non-compliant responses:</strong> Identify patterns in responses that don't follow instructions.
+  <strong>Flag and examine non-compliant outputs:</strong> Identify patterns in outputs that don't follow instructions.
 </div>
 
 <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
@@ -98,7 +98,7 @@ When Instruction Adherence returns `false`, the model likely ignored its instruc
 </div>
 
 <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>
-  <strong>Implement guardrails:</strong> Take precautionary measures to prevent non-compliant responses from reaching end users.
+  <strong>Implement guardrails:</strong> Take precautionary measures to prevent non-compliant outputs from reaching end users.
 </div>
 
 <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(209, 213, 219, 0.33)" }}>

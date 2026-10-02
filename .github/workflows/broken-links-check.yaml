@@ -10,14 +10,21 @@ jobs:
   broken-link-check:
     name: Check for broken links
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 23
-      # Install Mintlify CLI
-      - run: npm install -g mint
+      # Install the versions recorded in package-lock.json. The scraper's OpenAPI
+      # command does not use Puppeteer, so avoid downloading its browser binaries.
+      - name: Install locked dependencies
+        run: npm ci --include=dev
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: "true"
       # Generate API docs
-      - run: npx --yes @mintlify/scraping@latest openapi-file https://api.galileo.ai/public/v2/openapi.json -o api-reference
+      - name: Generate API docs
+        run: ./node_modules/.bin/mintlify-scrape openapi-file https://api.galileo.ai/public/v2/openapi.json -o api-reference
+        timeout-minutes: 10
       # Check for broken links
-      - run: mint broken-links
+      - run: ./node_modules/.bin/mint broken-links

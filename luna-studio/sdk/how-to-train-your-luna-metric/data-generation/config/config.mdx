@@ -106,6 +106,43 @@ Primary LLM used for generation.
 | `model`           | `string` | Yes      | `"gpt-4.1"`                | Provider model identifier.                                          |
 | `embedding_model` | `string` | Yes      | `"text-embedding-3-small"` | Used for optional quality metrics.                                  |
 
+### Custom provider
+
+For an unsupported SDK provider, implement `BaseLLMClient` and register it before calling `run_data_generation`:
+
+```python
+import os
+
+from my_provider_sdk import AsyncClient
+from galileo_luna_ft.common.interfaces.llm_client import register_client
+from galileo_luna_ft.common.interfaces.llm_client.clients.base import BaseLLMClient
+
+class MyProviderClient(BaseLLMClient):
+    def _initialize_client(self):
+        self.client = AsyncClient(api_key=self._api_key or os.environ["MY_PROVIDER_API_KEY"])
+
+    async def generate(self, messages, temperature=0.7):
+        response = await self.client.generate(
+            model=self.model, messages=messages, temperature=temperature
+        )
+        return response.text
+
+    def embed(self, texts, normalize=False):
+        pass
+
+register_client("my_provider", MyProviderClient)
+```
+
+Then set `data_generation.llm.provider` to the registered name:
+
+```yaml
+data_generation:
+  llm:
+    provider: "my_provider"
+    model: "my-generation-model"
+    embedding_model: "unused"
+```
+
 ---
 
 ## `generation`

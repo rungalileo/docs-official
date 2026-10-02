@@ -8,14 +8,13 @@ import RAGMetrics from "/snippets/components/RAG-Metrics.mdx";
 RAG metrics help you measure how well your retrieval-augmented generation system finds relevant context and produces accurate, complete, and well-grounded responses. These metrics are organized into two categories:
 
 - **Retrieval Quality** – Evaluate whether the right chunks are retrieved and how well they are ranked (chunk relevance, context relevance, context precision, Precision @ K).
-- **Generation Quality** – Evaluate whether the model uses the context effectively and grounds responses in retrieved context (chunk attribution utilization, context adherence, completeness). For ground truth adherence, correctness, and instruction adherence — which apply to both RAG and non-RAG use cases — see [Response Quality metrics](/concepts/metrics/response-quality/response-quality-overview).
+- **Generation Quality** – Evaluate whether the model uses the context effectively and grounds responses in retrieved context (context adherence, completeness). For ground truth adherence, correctness, and instruction adherence — which apply to both RAG and non-RAG use cases — see [Response Quality metrics](/concepts/metrics/response-quality/response-quality-overview).
 
 ## Problems RAG metrics help you solve
 
 - **Answers hallucinate or contradict your source documents.** Use [Context Adherence](/concepts/metrics/rag/generation-quality/context-adherence) to see whether the model's claims stay grounded in the retrieved context.
 - **Retrieved documents look unrelated to the question.** Use [Chunk Relevance](/concepts/metrics/rag/retrieval-quality/chunk-relevance) and [Context Relevance](/concepts/metrics/rag/retrieval-quality/context-relevance) to understand whether individual chunks — and the overall context — actually help answer the query.
 - **Retrieval returns lots of noise in the top K results.** Use [Context Precision](/concepts/metrics/rag/retrieval-quality/context-precision) and [Precision @ K](/concepts/metrics/rag/retrieval-quality/precision-at-k) to quantify how many of the highest-ranked chunks are truly relevant and how that changes as you adjust K.
-- **The model ignores some of the retrieved information.** Use [Chunk Attribution Utilization](/concepts/metrics/rag/generation-quality/chunk-attribution) to see which chunks influenced the answer and where useful context was left on the table.
 - **Answers are grounded but still feel incomplete.** Use [Completeness](/concepts/metrics/rag/generation-quality/completeness) to detect when important details from the retrieved context never make it into the final response.
 
 ## Diagnose your RAG problem
@@ -44,18 +43,9 @@ Not sure which metric to start with? Walk through these symptoms to find the rig
 <Accordion title="The answer is correct but feels thin" icon="feather">
 **Diagnosis:** The model is being too conservative — it's grounded but not using all available information.
 
-**Start with:** [Completeness](/concepts/metrics/rag/generation-quality/completeness) to detect when relevant details from the context are left out of the response.
-
-**Also check:** [Chunk Attribution Utilization](/concepts/metrics/rag/generation-quality/chunk-attribution) to see which chunks actually influenced the answer and which were ignored.
+**Use:** [Completeness](/concepts/metrics/rag/generation-quality/completeness) to detect when relevant details from the context are left out of the response.
 </Accordion>
 
-<Accordion title="Some retrieved chunks never get used" icon="box-archive">
-**Diagnosis:** You're retrieving context that the model ignores — either the chunks are marginally relevant or your prompt isn't encouraging full utilization.
-
-**Start with:** [Chunk Attribution Utilization](/concepts/metrics/rag/generation-quality/chunk-attribution) to see exactly which chunks contributed to the response.
-
-**If attribution is low but chunks are relevant:** Consider adjusting your prompt to encourage the model to incorporate more context.
-</Accordion>
 </AccordionGroup>
 
 ## How RAG metrics connect
@@ -73,7 +63,6 @@ flowchart LR
 
     subgraph Generation["Generation Quality"]
         CA[Context Adherence]
-        CAU[Chunk Attribution]
         COMP[Completeness]
     end
 
@@ -82,7 +71,6 @@ flowchart LR
     CR --> CTR
     CTR --> CA
     CA --> COMP
-    CTR --> CAU
 
     style Retrieval fill:#e8f4f8,stroke:#0ea5e9
     style Generation fill:#f0fdf4,stroke:#22c55e
@@ -93,7 +81,6 @@ flowchart LR
 - **Chunk Relevance** is the foundation — it determines whether individual chunks help answer the query and feeds into precision metrics.
 - **Context Relevance** asks whether the overall context is sufficient, bridging retrieval and generation.
 - **Context Adherence** checks if the model stays grounded, while **Completeness** checks if it uses everything relevant.
-- **Chunk Attribution** reveals which specific chunks actually influenced the response.
 
 <Warning title="Common pitfall">
 **High Context Adherence + Low Completeness?** Your model is being too conservative. It's staying grounded but only using a fraction of the available context. Adjust your prompt to encourage more comprehensive answers.
