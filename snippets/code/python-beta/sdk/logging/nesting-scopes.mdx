@@ -1,0 +1,17 @@
+```python Python (Beta)
+from galileo import LogStream
+
+main_stream = LogStream.get(name="my-log-stream", project_name="my-project")
+sub_stream = LogStream.get(name="sub-stream", project_name="my-project")
+
+with main_stream.context():
+    # This will log to my-project/my-log-stream
+    operation_1()
+
+    with sub_stream.context():
+        # This will log to my-project/sub-stream
+        operation_2()
+
+    # Back to logging to my-project/my-log-stream
+    operation_3()
+```
