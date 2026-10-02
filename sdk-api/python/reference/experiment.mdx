@@ -105,6 +105,7 @@ Note: Call refresh() first to get the latest metric values after experiment comp
 
 **Examples**
 
+```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My Project")
 experiment.refresh()
 
@@ -117,6 +118,7 @@ if metrics:
     # Quality metrics (if configured)
     if 'average_correctness' in metrics:
         print(f"Average correctness: {metrics['average_correctness']:.2%}")
+```
 
 ### create
 
@@ -471,27 +473,31 @@ Key types
 
 Resolving UUIDs to human labels
 --------------------------------
-Use :attr:`experiment_columns` to look up the display label and legacy metric name for each UUID::
+Use `experiment_columns` to look up the display label and legacy metric name for each UUID:
 
-    cols = experiment.experiment_columns
-    for metric_id, agg in (experiment.metric_aggregates or {}).items():
-        col = cols.get(f"metrics/{metric_id}")   # None for system metrics
-        label = col.label if col else metric_id  # fall back to raw key
-        print(f"{label}: avg={agg.avg:.3f}")
+```python
+cols = experiment.experiment_columns
+for metric_id, agg in (experiment.metric_aggregates or {}).items():
+    col = cols.get(f"metrics/{metric_id}")   # None for system metrics
+    label = col.label if col else metric_id  # fall back to raw key
+    print(f"{label}: avg={agg.avg:.3f}")
+```
 
-The ``MetricAggregates`` object exposes: ``avg``, ``min_``, ``max_``, ``sum_``, ``count``,
-``pct``, ``p50``, ``p90``, ``p95``, ``p99``, ``value_distribution``.
-For boolean metrics, ``value_distribution`` holds ``{"0": count_false, "1": count_true}``.
+The `MetricAggregates` object exposes: `avg`, `min_`, `max_`, `sum_`, `count`,
+`pct`, `p50`, `p90`, `p95`, `p99`, `value_distribution`.
+For boolean metrics, `value_distribution` holds `{"0": count_false, "1": count_true}`.
 
 Note: Call :meth:`refresh` first to get the latest values after experiment completion.
 
 **Examples**
 
+```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My Project")
 experiment.refresh()
 
 for metric_id, agg in (experiment.metric_aggregates or {}).items():
     print(f"{metric_id}: avg={agg.avg}")
+```
 
 ### model
 
@@ -655,11 +661,13 @@ The score is calculated based on a combination of quality metrics and efficiency
 
 **Examples**
 
+```python
 experiment = Experiment.get(name="ml-evaluation", project_name="My Project")
 experiment.refresh()
 
 if experiment.ranking_score:
     print(f"Ranking score: {experiment.ranking_score:.3f}")
+```
 
 ### refresh
 
