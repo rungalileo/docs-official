@@ -839,6 +839,16 @@
   http_status_code: 422
   telemetry_tags: ["tokenomics", "directory", "file", "filename"]
 
+# Tokenomics directory import effective date is outside the storable range
+- error_code: 2533
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: medium
+  default_message: Invalid directory effective date.
+  user_action: Use an effective date between 1970-01-02 and 2149-06-06.
+  http_status_code: 422
+  telemetry_tags: ["tokenomics", "directory", "effective_from"]
+
 # Tokenomics directory upload uses an unsupported media type
 - error_code: 2503
   error_type: data_validation_error
@@ -914,27 +924,82 @@
   retriable: true
   telemetry_tags: ["tokenomics", "directory", "import", "not_ready"]
 
-# Requested pinned tokenomics directory generation is not available (unknown, or superseded past its purge grace period)
+# Caller lacks the read_ai_usage capability for tokenomics
 - error_code: 2512
-  error_type: not_found_error
+  error_type: permission_error
   error_group: tokenomics
-  severity: medium
-  default_message: Requested complete tokenomics directory generation is not available.
-  user_action: Check the generation ID, or request the current active generation instead.
-  http_status_code: 404
+  severity: low
+  default_message: Tokenomics access is not available.
+  user_action: Ask an organization administrator for access to AI usage data.
+  http_status_code: 403
   retriable: false
-  telemetry_tags: ["tokenomics", "directory", "generation", "not_found"]
+  telemetry_tags: ["tokenomics", "access", "read"]
 
-# Tokenomics directory import could not be found by import ID for the organization
+# Caller requested the organization view without the organization-wide capability
 - error_code: 2513
+  error_type: permission_error
+  error_group: tokenomics
+  severity: low
+  default_message: Organization-wide tokenomics access is not available.
+  user_action: Use the team or individual view, or ask an administrator for organization-wide access.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["tokenomics", "access", "organization_view"]
+
+# No active tokenomics directory for an org-scope read that needs one (e.g. usage grouped by user)
+- error_code: 2514
   error_type: not_found_error
   error_group: tokenomics
   severity: medium
-  default_message: Tokenomics directory import not found.
-  user_action: Check the import ID, or start a new directory import.
-  http_status_code: 404
+  default_message: Tokenomics directory data is not available for this organization.
+  user_action: Import and publish a tokenomics directory, then retry.
+  http_status_code: 403
   retriable: false
-  telemetry_tags: ["tokenomics", "directory", "import", "not_found"]
+  telemetry_tags: ["tokenomics", "directory", "not_ready", "access"]
+
+# Caller's email maps to no single person in the active tokenomics directory
+- error_code: 2515
+  error_type: permission_error
+  error_group: tokenomics
+  severity: medium
+  default_message: Tokenomics access is not available for this user.
+  user_action: Ask an administrator to confirm your email is in the imported tokenomics directory.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["tokenomics", "access", "identity"]
+
+# Team view requested by a caller with no reports in the directory
+- error_code: 2516
+  error_type: permission_error
+  error_group: tokenomics
+  severity: low
+  default_message: Team tokenomics access is not available.
+  user_action: Team view is available to people with reports; use the individual view instead.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["tokenomics", "access", "team_view"]
+
+# Authorization service returned tokenomics capabilities that could not be resolved
+- error_code: 2517
+  error_type: system_error
+  error_group: tokenomics
+  severity: high
+  default_message: Tokenomics authorization could not be resolved.
+  user_action: Retry the request; contact support if it persists.
+  http_status_code: 500
+  retriable: true
+  telemetry_tags: ["tokenomics", "access", "authorization"]
+
+# Team navigation to a person outside the caller's reporting line
+- error_code: 2518
+  error_type: permission_error
+  error_group: tokenomics
+  severity: low
+  default_message: Team navigation is not available.
+  user_action: You can only view people within your own reporting line.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["tokenomics", "access", "team_navigation"]
 
 # A leadership filter target is not authorized for the caller's resolved Tokenomics view
 - error_code: 2519
@@ -1089,6 +1154,17 @@
   http_status_code: 502
   retriable: false
   telemetry_tags: ["tokenomics", "adoption_trends", "fiscal_calendar", "custom_interval", "invalid_bucket"]
+
+# A forced (chart-driven) tree rebuild arrived without tree_writes, which only a pre-#2509 runners worker sends
+- error_code: 2534
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: low
+  default_message: Forced tree rebuild sent without resolved tree-table write flags.
+  user_action: No action needed; the rebuild is retried from a worker that resolves the write flags.
+  http_status_code: 409
+  retriable: true
+  telemetry_tags: ["tokenomics", "tree_tables", "rebuild", "rollout"]
 
 # =============================================================================
 # SECTION 3: PLAYGROUND & EXPERIMENTS ERRORS (3000-3999)
@@ -2808,6 +2884,50 @@
   user_action: Please try again or narrow the time range.
   http_status_code: 504
   telemetry_tags: ["clickhouse", "available_columns", "transport_timeout"]
+
+# A ClickHouse write (command/insert) that ran but didn't finish in time. Distinct from 12501:
+# a timed-out write may not have committed, so a caller CAN choose to retry a mutation it knows
+# is safe to re-run (e.g. against a ReplacingMergeTree). But the catalog can't tell which write
+# produced this code, and some (e.g. audit_logs, which omits `id` and lets ClickHouse assign a
+# fresh Snowflake ID per insert) have no dedup key, so a blind retry there duplicates the row.
+# Deliberately non-retriable at the catalog level; a caller with its own idempotency guarantee
+# may still retry.
+- error_code: 12504
+  error_type: system_error
+  error_group: clickhouse
+  severity: high
+  default_message: Timed out writing to ClickHouse.
+  user_action: The write may or may not have completed; check before retrying, or contact support if it persists.
+  retriable: false
+  http_status_code: 504
+  telemetry_tags: ["infra", "clickhouse", "timeout", "write"]
+
+# ClickHouse code 745 SERVER_OVERLOADED: the workload scheduler's FIFO admission queue rejected
+# the query before it ran. It never spent its execution budget, so it is retriable, unlike a
+# query timeout, which will fail again.
+- error_code: 12505
+  error_type: system_error
+  error_group: clickhouse
+  severity: medium
+  default_message: ClickHouse rejected the query because its workload queue is full.
+  user_action: Retry after a short delay or contact support if it persists.
+  retriable: true
+  http_status_code: 503
+  telemetry_tags: ["infra", "clickhouse", "workload", "overloaded"]
+
+# ClickHouse code 672 INVALID_SCHEDULER_NODE: the query's `workload` setting names a non-leaf
+# node (e.g. `workload='all'`). A caller/config bug, not infra -- the same query fails again
+# until it's fixed, so non-retriable. An unrecognized name is not this: it runs unscheduled
+# instead of erroring (throw_on_unknown_workload=0).
+- error_code: 12506
+  error_type: configuration_error
+  error_group: clickhouse
+  severity: medium
+  default_message: ClickHouse workload scheduler configuration is invalid.
+  user_action: Contact support. This is a server configuration issue, not something a retry will fix.
+  retriable: false
+  http_status_code: 500
+  telemetry_tags: ["infra", "clickhouse", "workload", "config"]
 
 # =============================================================================
 # SECTION: AGENT OBSERVABILITY ERRORS (13000-13499)
