@@ -14,7 +14,6 @@ integration with log stream management.
 
 **Examples**
 
-```python
 # Create a new project locally, then persist
 project = Project(name="My AI Project").create()
 
@@ -63,7 +62,6 @@ project.remove_collaborator(user_id="user-123")
 # Delete a project (WARNING: cannot be undone!)
 old_project = Project.get(name="Old Project")
 old_project.delete()
-```
 
 ### add_collaborator
 
@@ -100,7 +98,6 @@ use add_collaborator() on the project to add new collaborators.
 
 **Examples**
 
-```python
 project = Project.get(name="My AI Project")
 for collab in project.collaborators:
     print(f"{collab.email}: {collab.role}")
@@ -111,7 +108,6 @@ editors = [c for c in project.collaborators if c.role == CollaboratorRole.EDITOR
 # Update or remove directly on the collaborator object
 collab.update(role=CollaboratorRole.EDITOR)
 collab.remove()
-```
 
 ### create
 
@@ -123,10 +119,8 @@ Persist this project to the API.
 
 **Examples**
 
-```python
 project = Project(name="My AI Project").create()
 assert project.is_synced()
-```
 
 ### create_log_stream
 
@@ -152,11 +146,9 @@ This is a read-only property that returns the datasets associated with this proj
 
 **Examples**
 
-```python
 project = Project.get(name="My AI Project")
 for dataset in project.datasets:
     print(dataset.name)
-```
 
 ### delete
 
@@ -177,7 +169,6 @@ object still exists in memory but no longer represents a remote resource.
 
 **Examples**
 
-```python
 # Delete a project
 project = Project.get(name="Old Project")
 project.delete()
@@ -186,7 +177,6 @@ assert project.is_deleted()
 # After deletion, the project no longer exists remotely
 # The local object is marked as DELETED
 print(project.sync_state)  # SyncState.DELETED
-```
 
 ### experiments
 
@@ -200,11 +190,9 @@ This is a read-only property that returns the current list of experiments.
 
 **Examples**
 
-```python
 project = Project.get(name="My AI Project")
 for exp in project.experiments:
     print(exp.name)
-```
 
 ### get
 
@@ -229,12 +217,10 @@ List all available projects.
 
 **Examples**
 
-```python
 projects = Project.list()
 for project in projects:
     # Process each project
     pass
-```
 
 ### list_collaborators
 
@@ -249,12 +235,10 @@ access to this project, along with their roles and permissions.
 
 **Examples**
 
-```python
 project = Project.get(name="My AI Project")
 collaborators = project.list_collaborators()
 for collab in collaborators:
     print(f"{collab.email}: {collab.role}")
-```
 
 ### list_datasets
 
@@ -266,13 +250,11 @@ List all datasets used in this project.
 
 **Examples**
 
-```python
 project = Project.get(name="My AI Project")
 datasets = project.list_datasets()
 for dataset in datasets:
     # Process each dataset
     pass
-```
 
 ### list_experiments
 
@@ -284,13 +266,11 @@ List all experiments for this project.
 
 **Examples**
 
-```python
 project = Project.get(name="My AI Project")
 experiments = project.list_experiments()
 for exp in experiments:
     # Process each experiment
     pass
-```
 
 ### list_log_streams
 
@@ -321,13 +301,11 @@ List all prompts used in this project.
 
 **Examples**
 
-```python
 project = Project.get(name="My AI Project")
 prompts = project.list_prompts()
 for prompt in prompts:
     # Process each prompt
     pass
-```
 
 ### logstreams
 
@@ -342,11 +320,9 @@ To create new log streams, use create_log_stream().
 
 **Examples**
 
-```python
 project = Project.get(name="My AI Project")
 for stream in project.logstreams:
     print(stream.name)
-```
 
 ### prompts
 
@@ -360,11 +336,9 @@ This is a read-only property that returns the prompts associated with this proje
 
 **Examples**
 
-```python
 project = Project.get(name="My AI Project")
 for prompt in project.prompts:
     print(prompt.name)
-```
 
 ### refresh
 
@@ -379,10 +353,8 @@ and sets the state to SYNCED.
 
 **Examples**
 
-```python
 project.refresh()
 assert project.is_synced()
-```
 
 ### remove_collaborator
 
@@ -422,7 +394,6 @@ no-op. Raises ValueError for DELETED or FAILED_SYNC states.
 
 **Examples**
 
-```python
 # Create a new project
 project = Project(name="My Project")
 project.save()
@@ -431,7 +402,6 @@ project.save()
 project = Project.get(name="My Project")
 project.name = "Renamed Project"  # automatically marks DIRTY
 project.save()
-```
 
 ### update_collaborator
 
