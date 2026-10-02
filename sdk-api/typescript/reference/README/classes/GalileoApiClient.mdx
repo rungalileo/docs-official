@@ -520,9 +520,17 @@ A promise that resolves to the created dataset.
 ### createExperiment()
 
 ```ts
-createExperiment(name: string, dataset?:
+createExperiment(
+   name: string,
+   dataset?:
   | null
-| ExperimentDatasetRequest): Promise<ExperimentResponseType>;
+  | ExperimentDatasetRequest,
+   trigger?: boolean,
+   scorers?: ScorerConfig[],
+   promptTemplateVersionId?: null | string,
+   promptSettings?:
+  | null
+| PromptRunSettings): Promise<ExperimentResponseType>;
 ```
 
 Defined in: [src/api-client/galileo-client.ts](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts)
@@ -536,6 +544,22 @@ Defined in: [src/api-client/galileo-client.ts](https://github.com/rungalileo/gal
 ##### dataset?
 
 `null` | [`ExperimentDatasetRequest`](/sdk-api/typescript/reference/types/type-aliases/ExperimentDatasetRequest)
+
+##### trigger?
+
+`boolean`
+
+##### scorers?
+
+[`ScorerConfig`](/sdk-api/typescript/reference/types/type-aliases/ScorerConfig)[]
+
+##### promptTemplateVersionId?
+
+`null` | `string`
+
+##### promptSettings?
+
+`null` | [`PromptRunSettings`](/sdk-api/typescript/reference/types/interfaces/PromptRunSettings)
 
 #### Returns
 
@@ -594,56 +618,6 @@ Name assigned to the template.
 `Promise`\<[`PromptTemplate`](/sdk-api/typescript/reference/types/type-aliases/PromptTemplate)\>
 
 A promise that resolves to the created template payload.
-
----
-
-### createJob()
-
-```ts
-createJob(options: object): Promise<CreateJobResponse>;
-```
-
-Defined in: [src/api-client/galileo-client.ts](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts)
-
-#### Parameters
-
-##### options
-
-###### datasetId
-
-`string`
-
-###### name
-
-`string`
-
-###### projectId
-
-`string`
-
-###### promptSettings
-
-[`PromptRunSettings`](/sdk-api/typescript/reference/types/interfaces/PromptRunSettings)
-
-###### promptTemplateId
-
-`string`
-
-###### runId
-
-`string`
-
-###### scorers?
-
-[`ScorerConfig`](/sdk-api/typescript/reference/types/type-aliases/ScorerConfig)[]
-
-###### taskType
-
-[`TaskType`](/sdk-api/typescript/reference/types/enumerations/TaskType)
-
-#### Returns
-
-`Promise`\<[`CreateJobResponse`](/sdk-api/typescript/reference/types/type-aliases/CreateJobResponse)\>
 
 ---
 
@@ -2413,50 +2387,6 @@ A promise that resolves to the template version payload.
 
 ---
 
-### getJob()
-
-```ts
-getJob(jobId: string): Promise<JobDbType>;
-```
-
-Defined in: [src/api-client/galileo-client.ts](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts)
-
-#### Parameters
-
-##### jobId
-
-`string`
-
-#### Returns
-
-`Promise`\<[`JobDbType`](/sdk-api/typescript/reference/types/type-aliases/JobDbType)\>
-
----
-
-### getJobsForProjectRun()
-
-```ts
-getJobsForProjectRun(projectId: string, runId: string): Promise<JobDbType[]>;
-```
-
-Defined in: [src/api-client/galileo-client.ts](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts)
-
-#### Parameters
-
-##### projectId
-
-`string`
-
-##### runId
-
-`string`
-
-#### Returns
-
-`Promise`\<[`JobDbType`](/sdk-api/typescript/reference/types/type-aliases/JobDbType)[]\>
-
----
-
 ### getLogStream()
 
 ```ts
@@ -2878,30 +2808,6 @@ A promise that resolves to the prompt template version payload.
 Error if no template with the given name is found in the project,
 if the specified version doesn't exist, if the client is not initialized
 with a project, or if the service is unavailable.
-
----
-
-### getRunScorerJobs()
-
-```ts
-getRunScorerJobs(projectId: string, runId: string): Promise<JobDbType[]>;
-```
-
-Defined in: [src/api-client/galileo-client.ts](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts)
-
-#### Parameters
-
-##### projectId
-
-`string`
-
-##### runId
-
-`string`
-
-#### Returns
-
-`Promise`\<[`JobDbType`](/sdk-api/typescript/reference/types/type-aliases/JobDbType)[]\>
 
 ---
 
