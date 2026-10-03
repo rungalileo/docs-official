@@ -2902,33 +2902,6 @@
   http_status_code: 504
   telemetry_tags: ["infra", "clickhouse", "timeout", "write"]
 
-# ClickHouse code 745 SERVER_OVERLOADED: the workload scheduler's FIFO admission queue rejected
-# the query before it ran. It never spent its execution budget, so it is retriable, unlike a
-# query timeout, which will fail again.
-- error_code: 12505
-  error_type: system_error
-  error_group: clickhouse
-  severity: medium
-  default_message: ClickHouse rejected the query because its workload queue is full.
-  user_action: Retry after a short delay or contact support if it persists.
-  retriable: true
-  http_status_code: 503
-  telemetry_tags: ["infra", "clickhouse", "workload", "overloaded"]
-
-# ClickHouse code 672 INVALID_SCHEDULER_NODE: the query's `workload` setting names a non-leaf
-# node (e.g. `workload='all'`). A caller/config bug, not infra -- the same query fails again
-# until it's fixed, so non-retriable. An unrecognized name is not this: it runs unscheduled
-# instead of erroring (throw_on_unknown_workload=0).
-- error_code: 12506
-  error_type: configuration_error
-  error_group: clickhouse
-  severity: medium
-  default_message: ClickHouse workload scheduler configuration is invalid.
-  user_action: Contact support. This is a server configuration issue, not something a retry will fix.
-  retriable: false
-  http_status_code: 500
-  telemetry_tags: ["infra", "clickhouse", "workload", "config"]
-
 # =============================================================================
 # SECTION: AGENT OBSERVABILITY ERRORS (13000-13499)
 # =============================================================================

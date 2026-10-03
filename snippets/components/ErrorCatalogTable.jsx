@@ -2233,26 +2233,6 @@ export const ErrorCatalogTable = () => {
       "http_status_code": 504
     },
     {
-      "error_code": 12505,
-      "error_type": "system_error",
-      "error_group": "clickhouse",
-      "severity": "medium",
-      "default_message": "ClickHouse rejected the query because its workload queue is full.",
-      "user_action": "Retry after a short delay or contact support if it persists.",
-      "retriable": true,
-      "http_status_code": 503
-    },
-    {
-      "error_code": 12506,
-      "error_type": "configuration_error",
-      "error_group": "clickhouse",
-      "severity": "medium",
-      "default_message": "ClickHouse workload scheduler configuration is invalid.",
-      "user_action": "Contact support. This is a server configuration issue, not something a retry will fix.",
-      "retriable": false,
-      "http_status_code": 500
-    },
-    {
       "error_code": 13000,
       "error_type": "system_error",
       "error_group": "agent_observability",
