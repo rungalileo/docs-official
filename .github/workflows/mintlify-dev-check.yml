@@ -40,17 +40,19 @@ jobs:
           EXIT_CODE=$?
           set -e
 
-          if [ "$EXIT_CODE" -ne 0 ] && [ "$EXIT_CODE" -ne 124 ]; then
+          if grep -Eqi "Invalid hook call|Cannot read properties of null|(^|[[:space:]])ERROR([[:space:]]|:)" dev.log; then
             echo "status=failed" >> $GITHUB_OUTPUT
             cat dev.log
-          elif grep -Eqi "Invalid hook call|Cannot read properties of null|(^|[[:space:]])ERROR([[:space:]]|:)" dev.log; then
-            echo "status=failed" >> $GITHUB_OUTPUT
-            cat dev.log
-          elif ! grep -Fq "preview ready" dev.log; then
+          elif grep -Fq "preview ready" dev.log && { [ "$EXIT_CODE" -eq 0 ] || [ "$EXIT_CODE" -eq 124 ] || [ "$EXIT_CODE" -eq 143 ]; }; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          elif grep -Fq "preview ready" dev.log; then
+            echo "Mintlify became ready but exited unexpectedly (exit code: $EXIT_CODE)."
             echo "status=failed" >> $GITHUB_OUTPUT
             cat dev.log
           else
-            echo "status=success" >> $GITHUB_OUTPUT
+            echo "Mintlify did not become ready (exit code: $EXIT_CODE)."
+            echo "status=failed" >> $GITHUB_OUTPUT
+            cat dev.log
           fi
 
       - name: Upload Dev Log (for debug)
