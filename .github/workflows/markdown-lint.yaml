@@ -77,6 +77,7 @@ jobs:
           fi
       - name: Comment success on PR (no files to lint)
         if: github.event_name == 'pull_request' && env.no_files_to_lint == 'true'
+        continue-on-error: true
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: markdown-lint
@@ -103,6 +104,7 @@ jobs:
 
       - name: Comment on PR with markdown issues
         if: failure() && github.event_name == 'pull_request'
+        continue-on-error: true
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: markdown-lint
@@ -135,6 +137,7 @@ jobs:
 
       - name: Comment success on PR
         if: success() && github.event_name == 'pull_request'
+        continue-on-error: true
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: markdown-lint
