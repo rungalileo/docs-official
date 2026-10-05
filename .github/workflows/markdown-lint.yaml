@@ -14,6 +14,9 @@ jobs:
   markdown-lint:
     name: Markdown Lint Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     
     steps:
       - name: Checkout repository
@@ -76,8 +79,7 @@ jobs:
             exit 0
           fi
       - name: Comment success on PR (no files to lint)
-        if: github.event_name == 'pull_request' && env.no_files_to_lint == 'true'
-        continue-on-error: true
+        if: github.event_name == 'pull_request' && env.no_files_to_lint == 'true' && github.actor != 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: markdown-lint
@@ -103,8 +105,7 @@ jobs:
           retention-days: 5
 
       - name: Comment on PR with markdown issues
-        if: failure() && github.event_name == 'pull_request'
-        continue-on-error: true
+        if: failure() && github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: markdown-lint
@@ -136,8 +137,7 @@ jobs:
             See the [markdownlint rules documentation](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md) for details on each rule.
 
       - name: Comment success on PR
-        if: success() && github.event_name == 'pull_request'
-        continue-on-error: true
+        if: success() && github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: markdown-lint

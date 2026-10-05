@@ -27,4 +27,17 @@ jobs:
         run: ./node_modules/.bin/mintlify-scrape openapi-file https://api.galileo.ai/public/v2/openapi.json -o api-reference
         timeout-minutes: 10
       # Check for broken links
-      - run: ./node_modules/.bin/mint broken-links
+      - name: Run broken-link check
+        run: |
+          set -o pipefail
+          ./node_modules/.bin/mint broken-links 2>&1 | tee broken-links.log
+
+          if grep -Eqi "Invalid hook call|Cannot read properties of null|(^|[[:space:]])ERROR([[:space:]]|:)" broken-links.log; then
+            echo "Mint reported a runtime error while checking links."
+            exit 1
+          fi
+
+          if ! grep -Fq "success no broken links found" broken-links.log; then
+            echo "Mint did not report a successful broken-link check."
+            exit 1
+          fi

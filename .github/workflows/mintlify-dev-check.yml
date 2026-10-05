@@ -25,47 +25,44 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
+          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install -g mint
+      - name: Install locked dependencies
+        run: npm ci --include=dev
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: "true"
 
       - name: Run Mintlify Dev (Short Test)
         id: dev_test
-        continue-on-error: true
         run: |
-          # Run with direct path to avoid relying on npm scripts
-          timeout 60s mint dev > dev.log 2>&1 || true
+          set +e
+          timeout 120s npm run dev > dev.log 2>&1
           EXIT_CODE=$?
-          if [ $EXIT_CODE -ne 0 ] && [ $EXIT_CODE -ne 124 ]; then
-            # 124 is the timeout exit code, which is expected
+          set -e
+
+          if [ "$EXIT_CODE" -ne 0 ] && [ "$EXIT_CODE" -ne 124 ]; then
+            echo "status=failed" >> $GITHUB_OUTPUT
+            cat dev.log
+          elif grep -Eqi "Invalid hook call|Cannot read properties of null|(^|[[:space:]])ERROR([[:space:]]|:)" dev.log; then
+            echo "status=failed" >> $GITHUB_OUTPUT
+            cat dev.log
+          elif ! grep -Fq "preview ready" dev.log; then
             echo "status=failed" >> $GITHUB_OUTPUT
             cat dev.log
           else
             echo "status=success" >> $GITHUB_OUTPUT
           fi
 
-      - name: Check for errors in logs
-        id: log_check
-        run: |
-          # Look for serious errors but ignore expected warnings
-          if grep -i -e "error" -e "warning" dev.log | grep -v "EADDRINUSE" | grep -v "timeout"; then
-            echo "Found errors in dev log"
-            echo "status=failed" >> $GITHUB_OUTPUT
-          else
-            echo "No critical errors found in dev log"
-            echo "status=success" >> $GITHUB_OUTPUT
-          fi
-
       - name: Upload Dev Log (for debug)
         id: upload_log
-        if: steps.dev_test.outputs.status == 'failed' || steps.log_check.outputs.status == 'failed'
+        if: steps.dev_test.outputs.status == 'failed'
         uses: actions/upload-artifact@v4
         with:
           name: mintlify-dev-log
           path: dev.log
 
       - name: Comment Dev Failure on PR
-        if: steps.dev_test.outputs.status == 'failed' || steps.log_check.outputs.status == 'failed'
+        if: steps.dev_test.outputs.status == 'failed' && github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: mintlify-dev
@@ -75,13 +72,13 @@ jobs:
             Download the [dev log here](${{ steps.upload_log.outputs.artifact-url }}) for more details.
 
       - name: Set Job Status to Failure
-        if: steps.dev_test.outputs.status == 'failed' || steps.log_check.outputs.status == 'failed'
+        if: steps.dev_test.outputs.status == 'failed'
         run: |
           echo "Job failed due to previous errors."
           exit 1
 
       - name: Comment Success on PR
-        if: steps.dev_test.outputs.status == 'success' && steps.log_check.outputs.status == 'success'
+        if: steps.dev_test.outputs.status == 'success' && github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: mintlify-dev
