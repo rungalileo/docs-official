@@ -102,11 +102,12 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 
 ### Problem: JSON parsing errors
 
-LLM-as-a-judge metrics ask the judge model for a JSON response that holds the score. This error (code 1004) means the response wasn't valid JSON, so Galileo couldn't read a score from it. The metric shows an error for that row.
+LLM-as-a-judge metrics ask the judge model for a JSON response that holds the score. This error (code 1004) means the response wasn't valid JSON or didn't include a usable score. The metric shows an error for that metric value.
 
 **Causes:**
 
 - The judge model's integration doesn't enforce structured output. The model can then return malformed JSON, or add text around the JSON.
+- The model returned JSON, but not in the shape the metric expects.
 - Custom integrations don't enforce structured output unless you turn on JSON schema support for the model.
 
 Integrations that enforce structured output rarely hit this error. Galileo turns on structured output for these integrations with no setup on your side:
