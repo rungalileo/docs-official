@@ -102,14 +102,34 @@ Welcome to the Galileo troubleshooting guide. This guide addresses common issues
 
 ### Problem: JSON parsing errors
 
+LLM-as-a-judge metrics ask the judge model for a JSON response that holds the score. This error (code 1004) means the response wasn't valid JSON, so Galileo couldn't read a score from it. The metric shows an error for that row.
+
 **Causes:**
 
-- Some metrics rely on OpenAI or other API responses being valid JSON
+- The judge model's integration doesn't enforce structured output. The model can then return malformed JSON, or add text around the JSON.
+- Integrations that enforce structured output rarely hit this error. Galileo turns on structured output for these integrations with no setup on your side:
+  - OpenAI
+  - Azure OpenAI
+  - Gemini Enterprise (formerly Vertex AI)
+  - Anthropic, for recent Claude models
+  - AWS Bedrock, for recent Claude models
+- Custom integrations don't enforce structured output unless you turn on JSON schema support for the model.
 
 **Solutions:**
 
-- Retry the metric computation as transient errors may cause invalid JSON.
-- Check the output format of the model you're using in its provider's documentation, such as [OpenAI's](https://platform.openai.com/docs/).
+1. Recompute the metric. Select the row in the Console and recompute the metric. A response that was malformed once often succeeds on a second try.
+1. If it keeps failing and you use a custom integration, turn on [JSON schema support](/sdk-api/third-party-integrations/model-integrations/custom-model-integrations/custom-model-integrations#json-schema-support) for this model in the integration settings.
+1. Otherwise, use a judge model whose integration enforces structured output, such as one from the list above.
+
+#### Judge responses cut off before they finish
+
+Error code 1028 means the judge model reached its output limit before it finished the response, so the metric couldn't be scored. Long step-by-step reasoning is the usual cause.
+
+**Solutions:**
+
+- Switch to a less verbose judge model.
+- Turn off [step-by-step reasoning](/concepts/metrics/custom-metrics/custom-metrics-ui-llm) in the metric's settings, or ask for a concise rationale in the metric's prompt.
+- You can't change these settings on a preset metric. Duplicate the preset metric first, then change the copy.
 
 ---
 
