@@ -213,8 +213,7 @@ If you turn it on and the endpoint rejects the `json_schema` `response_format`, 
 
 Keep the other properties of your integration as they are, and add `supports_json_schema` to each model that you want to opt in.
 
-Galileo also uses opted-in models to generate conversation titles.
-For a title, Galileo sends its own JSON schema, in strict mode.
+If an opted-in model also generates conversation titles, Galileo sends a separate JSON schema for each title, in strict mode.
 If the endpoint rejects it, Galileo falls back to a simpler, word-based title.
 
 If your integration uses a [custom LLM handler](#advanced-usage-custom-llm-handlers), the handler receives the schema in `optional_params["response_format"]`.
