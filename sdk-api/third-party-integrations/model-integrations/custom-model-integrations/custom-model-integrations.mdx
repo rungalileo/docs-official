@@ -19,6 +19,7 @@ import SnippetOAuth2TokenFormat from "/snippets/code/multilingual/integrations/c
 import SnippetPayloadApiKey from "/snippets/code/multilingual/integrations/custom/payload-api-key.mdx";
 import SnippetPayloadBearer from "/snippets/code/multilingual/integrations/custom/payload-bearer.mdx";
 import SnippetPayloadCustomLlm from "/snippets/code/multilingual/integrations/custom/payload-custom-llm.mdx";
+import SnippetPayloadJsonSchema from "/snippets/code/multilingual/integrations/custom/payload-json-schema.mdx";
 import SnippetPayloadNoAuth from "/snippets/code/multilingual/integrations/custom/payload-no-auth.mdx";
 import SnippetPayloadOAuth2CustomLlm from "/snippets/code/multilingual/integrations/custom/payload-oauth2-custom-llm.mdx";
 import SnippetPayloadOAuth2 from "/snippets/code/multilingual/integrations/custom/payload-oauth2.mdx";
@@ -150,6 +151,9 @@ For each model, the following properties are available:
   If provided, the `supported_parameters` of the built-in model will be used for this custom integration model.
 - `"supported_parameters"`: A list of parameters that the custom model supports. Alternative to `based_on`,
   with the difference that instead of copying the parameter names from a built-in model, it directly provides the list.
+- `"supports_json_schema"`: An optional boolean. Defaults to `false`.
+  Set it to `true` if the endpoint accepts an OpenAI-style JSON schema `response_format` for this model.
+  See [JSON schema support](#json-schema-support).
 
 If neither `based_on` or `supported_parameters` are provided, this parameter list will be used by default:
 `["frequency_penalty", "max_tokens", "presence_penalty", "stop", "temperature", "top_p"]`.
@@ -188,6 +192,41 @@ List of built-in model aliases that can be used with `based_on`. For Gemini Ente
     </Accordion>
   </AccordionGroup>
 </Accordion>
+
+#### JSON schema support
+
+<Note>JSON schema support requires `api` `v1.1186.0`+ and `runners` `v2.420.0`+.</Note>
+
+LLM-as-a-judge metrics expect the judge model to reply with JSON that matches a response schema.
+By default, Galileo doesn't send this schema to custom integration models, because not every endpoint accepts it.
+Without the schema, a model can return malformed JSON, and the metric fails with a [JSON parsing error](/references/faqs/troubleshooting#problem-json-parsing-errors).
+
+When you set `"supports_json_schema": true` on a model, Galileo sends the judge's response schema to that model.
+It uses an OpenAI-style `response_format` with `"type": "json_schema"`, and the schema isn't strict.
+You can combine `supports_json_schema` with `based_on` or `supported_parameters`.
+
+Turn it on when a custom integration model often fails metrics with JSON parsing errors, and your endpoint accepts a `json_schema` `response_format`.
+Check your provider's or gateway's documentation first.
+If you turn it on and the endpoint rejects the `json_schema` `response_format`, metric calls to that model fail.
+
+<CodeGroup>
+  <SnippetPayloadJsonSchema />
+</CodeGroup>
+
+Keep the other properties of your integration as they are, and add `supports_json_schema` to each model that you want to opt in.
+
+If an opted-in model also generates conversation titles, Galileo sends a separate JSON schema for each title, in strict mode.
+If the endpoint rejects it, Galileo falls back to a simpler, word-based title.
+
+If your integration uses a [custom LLM handler](#advanced-usage-custom-llm-handlers), the handler receives the schema in `optional_params["response_format"]`.
+Your handler must forward this value to your model, or `supports_json_schema` has no effect.
+
+<Warning>
+Older custom integrations can list their models in a plain `models` list, for example `"models": ["model-a"]`.
+The integration editor loads these models in the `model_properties` format.
+When you save the integration, for example to turn on `supports_json_schema`, the alias of each model changes from `model-a` to `model-a (custom)`.
+Metrics that use the old model name may then need to be updated to use the new alias.
+</Warning>
 
 ### General properties
 
