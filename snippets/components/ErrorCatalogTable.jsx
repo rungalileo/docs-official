@@ -47,8 +47,8 @@ export const ErrorCatalogTable = () => {
       "error_type": "data_validation_error",
       "error_group": "shared",
       "severity": "medium",
-      "default_message": "LLM Provider response could not be parsed.",
-      "user_action": "Retry the job; if this recurs, contact support with the run ID.",
+      "default_message": "The model's response wasn't valid JSON or didn't have the expected structure.",
+      "user_action": "Recompute the metric. If it keeps failing and you use a custom integration, turn on JSON schema support for this model in the integration settings. Otherwise, use a judge model whose integration enforces structured output.",
       "retriable": true
     },
     {
@@ -269,6 +269,15 @@ export const ErrorCatalogTable = () => {
       "severity": "medium",
       "default_message": "The AI provider call timed out.",
       "user_action": "The provider was slow to respond. Please retry; if it persists, check the provider's status page.",
+      "retriable": true
+    },
+    {
+      "error_code": 1028,
+      "error_type": "data_validation_error",
+      "error_group": "shared",
+      "severity": "medium",
+      "default_message": "The judge model's response was cut off before it finished, so this metric couldn't be scored.",
+      "user_action": "Switch to a less verbose judge model, or turn off step-by-step reasoning or ask for a concise rationale in the metric's prompt. To change these settings on a preset metric, duplicate it first.",
       "retriable": true
     },
     {
@@ -514,6 +523,15 @@ export const ErrorCatalogTable = () => {
       "retriable": true
     },
     {
+      "error_code": 2026,
+      "error_type": "configuration_error",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "This scorer cannot be run through direct evaluator execution.",
+      "user_action": "Composite, multimodal, and system-metric scorers, and scorers hidden on this cluster, are not supported here. Choose a different scorer, or run it through the standard scoring pipeline.",
+      "retriable": false
+    },
+    {
       "error_code": 2027,
       "error_type": "timeout_error",
       "error_group": "metrics",
@@ -521,6 +539,25 @@ export const ErrorCatalogTable = () => {
       "default_message": "Galileo's model server timed out while computing this metric.",
       "user_action": "The model server was slow to respond, possibly due to a large input. Please retry; if it persists, contact support.",
       "retriable": true
+    },
+    {
+      "error_code": 2028,
+      "error_type": "configuration_error",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "This scorer needs an authenticated user to look up LLM credentials.",
+      "user_action": "Call this scorer with a user in the execution context.",
+      "retriable": false
+    },
+    {
+      "error_code": 2029,
+      "error_type": "permission_error",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "Decision evaluators are not enabled on this cluster.",
+      "user_action": "Ask your Galileo administrator to enable decision evaluators.",
+      "retriable": false,
+      "http_status_code": 403
     },
     {
       "error_code": 2500,
@@ -853,6 +890,16 @@ export const ErrorCatalogTable = () => {
       "http_status_code": 409
     },
     {
+      "error_code": 2535,
+      "error_type": "permission_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Finance hierarchy access is not available for this user.",
+      "user_action": "Ask a finance administrator to assign you to a department or hierarchy node.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
       "error_code": 3000,
       "error_type": "configuration_error",
       "error_group": "playground",
@@ -910,6 +957,16 @@ export const ErrorCatalogTable = () => {
       "default_message": "This snapshot doesn't exist or was deleted.",
       "user_action": "Check your run history for available snapshots to restore.",
       "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 3011,
+      "error_type": "data_validation_error",
+      "error_group": "playground",
+      "severity": "medium",
+      "default_message": "Luna multimodal metrics require logged records and cannot run in experiments or Playground.",
+      "user_action": "Remove Luna multimodal metrics from experiment or Playground settings.",
+      "http_status_code": 400,
       "retriable": false
     },
     {
@@ -2231,26 +2288,6 @@ export const ErrorCatalogTable = () => {
       "user_action": "The write may or may not have completed; check before retrying, or contact support if it persists.",
       "retriable": false,
       "http_status_code": 504
-    },
-    {
-      "error_code": 12505,
-      "error_type": "system_error",
-      "error_group": "clickhouse",
-      "severity": "medium",
-      "default_message": "ClickHouse rejected the query because its workload queue is full.",
-      "user_action": "Retry after a short delay or contact support if it persists.",
-      "retriable": true,
-      "http_status_code": 503
-    },
-    {
-      "error_code": 12506,
-      "error_type": "configuration_error",
-      "error_group": "clickhouse",
-      "severity": "medium",
-      "default_message": "ClickHouse workload scheduler configuration is invalid.",
-      "user_action": "Contact support. This is a server configuration issue, not something a retry will fix.",
-      "retriable": false,
-      "http_status_code": 500
     },
     {
       "error_code": 13000,

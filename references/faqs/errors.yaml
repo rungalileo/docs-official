@@ -160,8 +160,9 @@
   error_type: data_validation_error
   error_group: shared
   severity: medium
-  default_message: LLM Provider response could not be parsed.
-  user_action: Retry the job; if this recurs, contact support with the run ID.
+  default_message: The model's response wasn't valid JSON or didn't have the expected structure.
+  user_action: Recompute the metric. If it keeps failing and you use a custom integration, turn on JSON schema support for this model in the integration settings. Otherwise, use a judge model whose integration enforces structured output.
+  documentation_link: https://docs.galileo.ai/references/faqs/troubleshooting#problem-json-parsing-errors
   retriable: true
   blocking: false
   exception_class: json.decoder.JSONDecodeError
@@ -451,6 +452,21 @@
   user_action: The provider was slow to respond. Please retry; if it persists, check the provider's status page.
   retriable: true
   telemetry_tags: ["shared", "llm", "timeout"]
+
+# LLM-as-judge response cut off at the output token limit before any judge returned a usable rating.
+# Set explicitly by the runners output parser. Its pattern matches only the runtime message.
+# It must not overlap 1003 (context window), whose patterns include token-limit wording.
+- error_code: 1028
+  error_type: data_validation_error
+  error_group: shared
+  severity: medium
+  default_message: The judge model's response was cut off before it finished, so this metric couldn't be scored.
+  user_action: Switch to a less verbose judge model, or turn off step-by-step reasoning or ask for a concise rationale in the metric's prompt. To change these settings on a preset metric, duplicate it first.
+  retriable: true
+  blocking: false
+  message_patterns:
+    - "judge model's response was cut off"
+  telemetry_tags: ["parsing", "truncation"]
 
 # =============================================================================
 # SECTION 2: METRICS ERRORS (2000-2499)
@@ -799,6 +815,43 @@
   user_action: The model server was slow to respond, possibly due to a large input. Please retry; if it persists, contact support.
   retriable: true
   telemetry_tags: ["metrics", "timeout", "model_server"]
+
+# Metrics-specific: execute_evaluator refused the scorer before scoring anything, because it is a
+# composite, multimodal, or built-in system-metric scorer, or because it is hidden on this cluster.
+# None of these run through direct evaluator execution.
+- error_code: 2026
+  error_type: configuration_error
+  error_group: metrics
+  severity: low
+  default_message: This scorer cannot be run through direct evaluator execution.
+  user_action: Composite, multimodal, and system-metric scorers, and scorers hidden on this cluster, are not supported here. Choose a different scorer, or run it through the standard scoring pipeline.
+  retriable: false
+  telemetry_tags: ["metrics", "execute_evaluator", "unsupported_scorer"]
+
+# Metrics-specific: an LLM judge, or a code scorer that uses LLM credentials, needs an
+# authenticated user to look up those credentials, and the caller supplied none.
+- error_code: 2028
+  error_type: configuration_error
+  error_group: metrics
+  severity: low
+  default_message: This scorer needs an authenticated user to look up LLM credentials.
+  user_action: Call this scorer with a user in the execution context.
+  retriable: false
+  telemetry_tags: ["metrics", "execute_evaluator", "missing_user"]
+
+# Metrics-specific: a request to change or test a decision evaluator reached a cluster where the
+# decision_model_metrics flag, or its boolean_probability_metrics prerequisite, is off.
+# The gated requests are: create, edit, new versions, restore, scope changes, roll-up config
+# saves, and the Test endpoint. Deleting an evaluator or its roll-up config is not gated.
+- error_code: 2029
+  error_type: permission_error
+  error_group: metrics
+  severity: low
+  default_message: Decision evaluators are not enabled on this cluster.
+  user_action: Ask your Galileo administrator to enable decision evaluators.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["metrics", "feature_flag", "decision_evaluators"]
 
 # =============================================================================
 # SECTION 2.5: TOKENOMICS ERRORS (2500-2999)
@@ -1166,6 +1219,17 @@
   retriable: true
   telemetry_tags: ["tokenomics", "tree_tables", "rebuild", "rollout"]
 
+# The caller has no assignment in the active finance hierarchy generation
+- error_code: 2535
+  error_type: permission_error
+  error_group: tokenomics
+  severity: low
+  default_message: Finance hierarchy access is not available for this user.
+  user_action: Ask a finance administrator to assign you to a department or hierarchy node.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["tokenomics", "finance", "authorization", "assignment"]
+
 # =============================================================================
 # SECTION 3: PLAYGROUND & EXPERIMENTS ERRORS (3000-3999)
 # =============================================================================
@@ -1380,6 +1444,18 @@
   message_patterns:
     - "snapshot.*not found"
   telemetry_tags: ["playground"]
+
+# Luna multimodal metrics require logged records
+- error_code: 3011
+  error_type: data_validation_error
+  error_group: playground
+  severity: medium
+  default_message: Luna multimodal metrics require logged records and cannot run in experiments or Playground.
+  user_action: Remove Luna multimodal metrics from experiment or Playground settings.
+  http_status_code: 400
+  message_patterns:
+    - "Luna multimodal metrics.*cannot run in experiments or Playground"
+  telemetry_tags: ["experiment", "playground", "metrics"]
 
 # Invalid dataset version
 - error_code: 3511
@@ -2901,33 +2977,6 @@
   retriable: false
   http_status_code: 504
   telemetry_tags: ["infra", "clickhouse", "timeout", "write"]
-
-# ClickHouse code 745 SERVER_OVERLOADED: the workload scheduler's FIFO admission queue rejected
-# the query before it ran. It never spent its execution budget, so it is retriable, unlike a
-# query timeout, which will fail again.
-- error_code: 12505
-  error_type: system_error
-  error_group: clickhouse
-  severity: medium
-  default_message: ClickHouse rejected the query because its workload queue is full.
-  user_action: Retry after a short delay or contact support if it persists.
-  retriable: true
-  http_status_code: 503
-  telemetry_tags: ["infra", "clickhouse", "workload", "overloaded"]
-
-# ClickHouse code 672 INVALID_SCHEDULER_NODE: the query's `workload` setting names a non-leaf
-# node (e.g. `workload='all'`). A caller/config bug, not infra -- the same query fails again
-# until it's fixed, so non-retriable. An unrecognized name is not this: it runs unscheduled
-# instead of erroring (throw_on_unknown_workload=0).
-- error_code: 12506
-  error_type: configuration_error
-  error_group: clickhouse
-  severity: medium
-  default_message: ClickHouse workload scheduler configuration is invalid.
-  user_action: Contact support. This is a server configuration issue, not something a retry will fix.
-  retriable: false
-  http_status_code: 500
-  telemetry_tags: ["infra", "clickhouse", "workload", "config"]
 
 # =============================================================================
 # SECTION: AGENT OBSERVABILITY ERRORS (13000-13499)
