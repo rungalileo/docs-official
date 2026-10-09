@@ -11,7 +11,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import yaml from 'js-yaml';
+import { load } from 'js-yaml';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -160,7 +160,7 @@ function main() {
     // Parse YAML
     let entries;
     try {
-        entries = yaml.load(yamlContent);
+        entries = load(yamlContent);
         // console.log(`✓ Parsed ${entries.length} error entries`);
     } catch (err) {
         console.error('❌ Failed to parse YAML:', err.message);
