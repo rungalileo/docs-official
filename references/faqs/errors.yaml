@@ -824,7 +824,7 @@
   error_group: metrics
   severity: low
   default_message: This scorer cannot be run through direct evaluator execution.
-  user_action: Composite, multimodal, and system-metric scorers, and scorers hidden on this cluster, are not supported here. Choose a different scorer, or run it through the standard scoring pipeline.
+  user_action: Composite, multimodal, system-metric and decision scorers, and scorers hidden on this cluster, are not supported here. Choose a different scorer, or run it through the standard scoring pipeline.
   retriable: false
   telemetry_tags: ["metrics", "execute_evaluator", "unsupported_scorer"]
 
@@ -2544,6 +2544,17 @@
     - "current user does not have access to this view"
     - "view.*belongs to (a )?different user"
   telemetry_tags: ["component_view", "authorization"]
+
+# Removing a view or run would leave a restricted access level with no views
+- error_code: 9009
+  error_type: data_validation_error
+  error_group: component_view
+  severity: medium
+  default_message: A restricted access level must have at least one view.
+  user_action: Add a replacement view or change the access level before deleting this view or run.
+  http_status_code: 409
+  retriable: false
+  telemetry_tags: ["component_view", "access_level", "conflict"]
 
 # =============================================================================
 # SECTION 11: AUTHORIZATION ERRORS (9500-9999)

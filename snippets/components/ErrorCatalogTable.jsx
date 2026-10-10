@@ -528,7 +528,7 @@ export const ErrorCatalogTable = () => {
       "error_group": "metrics",
       "severity": "low",
       "default_message": "This scorer cannot be run through direct evaluator execution.",
-      "user_action": "Composite, multimodal, and system-metric scorers, and scorers hidden on this cluster, are not supported here. Choose a different scorer, or run it through the standard scoring pipeline.",
+      "user_action": "Composite, multimodal, system-metric and decision scorers, and scorers hidden on this cluster, are not supported here. Choose a different scorer, or run it through the standard scoring pipeline.",
       "retriable": false
     },
     {
@@ -1965,6 +1965,16 @@ export const ErrorCatalogTable = () => {
       "user_action": "Please choose a view you own or a project-visible view.",
       "http_status_code": 404,
       "retriable": false
+    },
+    {
+      "error_code": 9009,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "A restricted access level must have at least one view.",
+      "user_action": "Add a replacement view or change the access level before deleting this view or run.",
+      "retriable": false,
+      "http_status_code": 409
     },
     {
       "error_code": 9500,
