@@ -20,7 +20,6 @@ This class makes it simple to work with query results by:
 
 **Examples**
 
-```python
 # Basic iteration
 log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
 result = log_stream.get_spans(limit=10)
@@ -47,7 +46,6 @@ if result.has_next_page:
 # Check pagination status
 print(f"Total records in this page: {len(result)}")
 print(f"Has next page: {result.has_next_page}")
-```
 
 ### has_next_page
 
@@ -83,7 +81,6 @@ Fetch the next page and extend current results.
 
 **Examples**
 
-```python
 # In-place usage (mutates the result)
 result = log_stream.get_spans(limit=10)
 if result.has_next_page:
@@ -96,7 +93,6 @@ if result.has_next_page:
     result = result.next_page()
     for record in result:
         print(record["id"])
-```
 
 ### next_starting_token
 
@@ -132,7 +128,5 @@ Convert the result to a plain list of dictionaries.
 
 **Examples**
 
-```python
 result = log_stream.get_spans()
 records_list = result.to_list()
-```
