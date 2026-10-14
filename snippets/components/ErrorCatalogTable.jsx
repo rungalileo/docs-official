@@ -1971,10 +1971,80 @@ export const ErrorCatalogTable = () => {
       "error_type": "data_validation_error",
       "error_group": "component_view",
       "severity": "medium",
-      "default_message": "A restricted access level must have at least one view.",
-      "user_action": "Add a replacement view or change the access level before deleting this view or run.",
+      "default_message": "A restricted access view cannot be removed or have its filters changed.",
+      "user_action": "Remove the view from restricted access levels before changing its filters, or add a replacement before deleting it.",
       "retriable": false,
       "http_status_code": 409
+    },
+    {
+      "error_code": 9020,
+      "error_type": "not_found_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The custom access level was not found in this project.",
+      "user_action": "Select an access level from this project.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 9021,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "low",
+      "default_message": "This custom access level name is unavailable.",
+      "user_action": "Enter a distinct name that is not a standard role name.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 9022,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "This custom access level still has members.",
+      "user_action": "Reassign its users and groups before deleting it.",
+      "http_status_code": 409,
+      "retriable": false
+    },
+    {
+      "error_code": 9023,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The selected view cannot grant access to this run.",
+      "user_action": "Select a same-project logstream view without annotation-queue filters.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 9024,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The selected view has unsupported legacy filters.",
+      "user_action": "Save a supported access filter on the view and retry.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 9026,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The custom access level changed before the assignment was saved.",
+      "user_action": "Retry the assignment using a current access level.",
+      "http_status_code": 409,
+      "retriable": false
+    },
+    {
+      "error_code": 9027,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "low",
+      "default_message": "This custom access level name is already in use.",
+      "user_action": "Enter a distinct name for this project.",
+      "http_status_code": 409,
+      "retriable": false
     },
     {
       "error_code": 9500,
