@@ -517,6 +517,38 @@ A promise that resolves to the created dataset.
 
 ---
 
+### createDecisionScorerVersion()
+
+```ts
+createDecisionScorerVersion(scorerId: string, options: CreateDecisionScorerVersionBody): Promise<BaseScorerVersionResponse>;
+```
+
+Defined in: [src/api-client/galileo-client.ts](https://github.com/rungalileo/galileo-js/blob/main/src/api-client/galileo-client.ts)
+
+Creates a new decision scorer version.
+
+#### Parameters
+
+##### scorerId
+
+`string`
+
+The unique identifier of the scorer.
+
+##### options
+
+[`CreateDecisionScorerVersionBody`](/sdk-api/typescript/reference/types/type-aliases/CreateDecisionScorerVersionBody)
+
+The model, question and answer options for the version.
+
+#### Returns
+
+`Promise`\<[`BaseScorerVersionResponse`](/sdk-api/typescript/reference/types/type-aliases/BaseScorerVersionResponse)\>
+
+A promise that resolves to the created scorer version.
+
+---
+
 ### createExperiment()
 
 ```ts
@@ -1214,7 +1246,7 @@ createScorer(
    description?: string,
    tags?: string[],
    defaults?: object,
-   modelType?: "llm" | "code" | "slm",
+   modelType?: "llm" | "code" | "decision" | "slm",
    defaultVersionId?: string,
    scoreableNodeTypes?: (
   | "agent"
@@ -1345,6 +1377,7 @@ Num Judges
 \| `"multilabel"`
 \| `"retrieved_chunk_list_boolean"`
 \| `"boolean_multilabel"`
+\| `"boolean_probability"`
 
 **Description**
 
@@ -1364,7 +1397,7 @@ List of node types that can be scored by this scorer. Defaults to llm/chat.
 
 (Optional) The model type for the scorer.
 
-`"llm"` | `"code"` | `"slm"`
+`"llm"` | `"code"` | `"decision"` | `"slm"`
 
 ###### defaultVersionId?
 
