@@ -16,7 +16,6 @@ Provides easy access to phase-level progress and status information for an exper
 
 **Examples**
 
-```python
 # Access phase information from experiment status
 experiment = Experiment.get(name="ml-eval", project_name="My Project")
 status = experiment.get_status()
@@ -29,7 +28,6 @@ elif log_gen.is_in_progress:
 
 # Check phase status
 print(f"Phase status: {log_gen}")  # Human-readable string
-```
 
 ### is_complete
 
@@ -73,11 +71,9 @@ Convert the phase info to a dictionary.
 
 **Examples**
 
-```python
 phase_dict = status.log_generation.to_dict()
 print(phase_dict["progress_percent"])
 print(phase_dict["is_complete"])
-```
 
 ## ExperimentStatusInfo
 
@@ -88,7 +84,6 @@ tracking and phase-level information.
 
 **Examples**
 
-```python
 # Get status information
 experiment = Experiment.get(name="ml-eval", project_name="My Project")
 status = experiment.get_status()
@@ -108,7 +103,6 @@ elif status.is_pending:
 # Convert to dictionary
 status_dict = status.to_dict()
 print(status_dict["overall_progress"])
-```
 
 ### from_result
 
@@ -179,12 +173,10 @@ Convert the status info to a dictionary.
 
 **Examples**
 
-```python
 status = experiment.get_status()
 status_dict = status.to_dict()
 print(status_dict["overall_progress"])
 print(status_dict["log_generation"]["is_complete"])
-```
 
 ## ExperimentRunResult
 
@@ -197,7 +189,6 @@ through intuitive properties and methods.
 
 **Examples**
 
-```python
 # Run an experiment and access the result
 experiment = Experiment(
     name="ml-evaluation",
@@ -228,7 +219,6 @@ if result.prompt_info:
 # Convert to dictionary
 result_dict = result.to_dict()
 print(result_dict["link"])
-```
 
 ### dataset_info
 
@@ -240,12 +230,10 @@ Get dataset information if available.
 
 **Examples**
 
-```python
 result = experiment.run()
 if result.dataset_info:
     print(f"Dataset: {result.dataset_info['name']}")
     print(f"Version: {result.dataset_info['version']}")
-```
 
 ### experiment
 
@@ -269,12 +257,10 @@ Get prompt information if available.
 
 **Examples**
 
-```python
 result = experiment.run()
 if result.prompt_info:
     print(f"Prompt: {result.prompt_info['name']}")
     print(f"ID: {result.prompt_info['id']}")
-```
 
 ### to_dict
 
@@ -286,9 +272,7 @@ Convert the result to a dictionary.
 
 **Examples**
 
-```python
 result = experiment.run()
 result_dict = result.to_dict()
 print(result_dict["link"])
 print(result_dict["status"]["overall_progress"])
-```
