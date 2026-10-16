@@ -21,7 +21,7 @@ LLM-as-a-judge metrics leverage the capabilities of large language models to eva
 
 LLM-as-a-judge metrics are natural language prompts that are run against an LLM, using the input and output from a span, trace, or session. When the span, trace, or session is logged, all the details including inputs and outputs are sent to the LLM along with a prompt, and the response from the prompt is used to score the metric.
 
-The response needs to be a fixed type for the metric to be evaluated correctly. Currently the following output types are supported:
+The response needs to match the output type selected for the metric. Currently the following output types are supported:
 
 | Output type | Allowed return values                              | Description |
 | :---------- | :------------------------------------------------- | :---------- |
@@ -30,6 +30,11 @@ The response needs to be a fixed type for the metric to be evaluated correctly. 
 | Count.      | A positive integer                                 | A positive integer, from 0 upwards that represents the count of something |
 | Discrete.   | An integer in a defined range                      | A prompt that returns a integer in a defined range, that can be defined in the prompt. For example, a score from 0-5. |
 | Percentage  | `0.0` - `1.0`                                      | A prompt that returns a percentage value, scored from 0.0 to 1.0, with 0.0 being 0%, and 1.0 being 100% |
+| Freeform    | Any text                                            | A prompt that returns detailed analysis or commentary instead of a value that Galileo aggregates. |
+
+<Note>
+For advanced use cases, Freeform can also return **custom structured text**. How reliably it follows the requested structure depends on the capabilities of the LLM selected for the metric.
+</Note>
 
 You can create and manage LLM-as-a-judge metrics from the [Galileo console](#create-a-new-llm-as-a-judge-metric-in-the-galileo-console), or in [code](#create-a-new-llm-as-a-judge-metric-in-code).
 
