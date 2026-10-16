@@ -528,7 +528,7 @@ export const ErrorCatalogTable = () => {
       "error_group": "metrics",
       "severity": "low",
       "default_message": "This scorer cannot be run through direct evaluator execution.",
-      "user_action": "Composite, multimodal, system-metric and decision scorers, and scorers hidden on this cluster, are not supported here. Choose a different scorer, or run it through the standard scoring pipeline.",
+      "user_action": "Composite, multimodal and system-metric scorers, and scorers hidden on this cluster, are not supported here. Choose a different scorer, or run it through the standard scoring pipeline.",
       "retriable": false
     },
     {
@@ -545,7 +545,7 @@ export const ErrorCatalogTable = () => {
       "error_type": "configuration_error",
       "error_group": "metrics",
       "severity": "low",
-      "default_message": "This scorer needs an authenticated user to look up LLM credentials.",
+      "default_message": "This scorer needs an authenticated user to look up its provider credentials.",
       "user_action": "Call this scorer with a user in the execution context.",
       "retriable": false
     },
@@ -1971,10 +1971,40 @@ export const ErrorCatalogTable = () => {
       "error_type": "data_validation_error",
       "error_group": "component_view",
       "severity": "medium",
-      "default_message": "A restricted access view cannot be removed or have its filters changed.",
-      "user_action": "Remove the view from restricted access levels before changing its filters, or add a replacement before deleting it.",
+      "default_message": "A view or run required by a restricted access level cannot be deleted.",
+      "user_action": "Add a replacement view or change the level's access before deleting the last assigned view or its run.",
       "retriable": false,
       "http_status_code": 409
+    },
+    {
+      "error_code": 9010,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "Access filters are only supported for logstream views.",
+      "user_action": "Remove the filter or select a logstream view.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 9011,
+      "error_type": "permission_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "Sharing permission is required to change an access view filter.",
+      "user_action": "Ask a project owner to change this filter.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 9012,
+      "error_type": "permission_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "Sharing permission is required to delete an access view.",
+      "user_action": "Ask a project owner to delete this view or change the access level.",
+      "http_status_code": 403,
+      "retriable": false
     },
     {
       "error_code": 9020,
@@ -2012,7 +2042,7 @@ export const ErrorCatalogTable = () => {
       "error_group": "component_view",
       "severity": "medium",
       "default_message": "The selected view cannot grant access to this run.",
-      "user_action": "Select a same-project logstream view without annotation-queue filters.",
+      "user_action": "Select a same-project logstream view without empty filter groups or annotation-queue filters.",
       "http_status_code": 422,
       "retriable": false
     },
@@ -2021,8 +2051,8 @@ export const ErrorCatalogTable = () => {
       "error_type": "data_validation_error",
       "error_group": "component_view",
       "severity": "medium",
-      "default_message": "The selected view has unsupported legacy filters.",
-      "user_action": "Save a supported access filter on the view and retry.",
+      "default_message": "The selected view has filters the access level or current view editor cannot represent.",
+      "user_action": "Save a supported access filter on the view before assigning it, or update the filter_tree directly.",
       "http_status_code": 422,
       "retriable": false
     },
