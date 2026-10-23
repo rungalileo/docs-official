@@ -103,6 +103,75 @@ This code will trigger the rule, returning a random choice from the override act
 This is toxic.
 ```
 
+## Log runtime protection results
+
+Invoking runtime protection does not add anything to your traces. To see a runtime protection result in a trace, your application logs it as a span, in the same trace as the rest of the request.
+
+Galileo shows a span as a runtime protection span only when both of these are true:
+
+- The span is a **tool** span.
+- The span name is exactly **`GalileoProtect`**.
+
+The span input is the `Payload` you sent, and the span output is the `Response` you received, both as JSON. If the span has any other name, Galileo shows it as a generic tool span.
+
+### Log with the SDK
+
+The SDK sets the span type and name for you. Pass the payload and the response to `add_protect_span` in Python, or to `addProtectSpan` in TypeScript.
+
+```python Python
+from galileo import GalileoLogger
+from galileo.protect import invoke_protect
+from galileo_core.schemas.protect.payload import Payload
+
+logger = GalileoLogger(project="my-project", log_stream="my-log-stream")
+
+payload = Payload(input="Shut up, you worthless pile of garbage bot.")
+response = invoke_protect(payload=payload, stage_id="<central stage id>")
+
+logger.start_trace(input=payload.input)
+logger.add_protect_span(payload=payload, response=response)
+logger.conclude(output=response.text)
+logger.flush()
+```
+
+### Log with the REST API
+
+Send a trace that contains a tool span named `GalileoProtect` to `POST /v2/projects/{project_id}/traces`. Set the span `input` to the payload JSON, and the span `output` to the response JSON, both as strings.
+
+```json
+{
+  "log_stream_id": "<log stream id>",
+  "traces": [
+    {
+      "type": "trace",
+      "input": "Shut up, you worthless pile of garbage bot.",
+      "output": "Content blocked by policy",
+      "spans": [
+        {
+          "type": "tool",
+          "name": "GalileoProtect",
+          "input": "{\"input\": \"Shut up, you worthless pile of garbage bot.\"}",
+          "output": "{\"status\": \"TRIGGERED\", \"text\": \"...\"}",
+          "status_code": 200
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Log with OpenTelemetry
+
+Galileo reads the [OpenInference](https://github.com/Arize-ai/openinference) span attributes. Name the span `GalileoProtect`, and set these attributes:
+
+| Attribute | Value |
+| :-------- | :---- |
+| `openinference.span.kind` | `TOOL` |
+| `input.value` | The payload, as JSON |
+| `output.value` | The response, as JSON |
+
+For the exporter setup, see [OpenTelemetry](/how-to-guides/third-party-integrations/otel).
+
 ## Related resources
 
 <CardGroup cols={2}>
