@@ -1557,6 +1557,36 @@ export const ErrorCatalogTable = () => {
       "http_status_code": 503
     },
     {
+      "error_code": 7650,
+      "error_type": "credentials_error",
+      "error_group": "tokenomics_directory",
+      "severity": "medium",
+      "default_message": "Workday credentials or worker access are invalid.",
+      "user_action": "Verify the client ID and secret, and confirm the credentials can read workers from the configured endpoint.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 7651,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics_directory",
+      "severity": "medium",
+      "default_message": "The Workday workers endpoint returned an unexpected response.",
+      "user_action": "Verify the workers URL and that it points to the expected worker-list endpoint.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 7652,
+      "error_type": "system_error",
+      "error_group": "tokenomics_directory",
+      "severity": "medium",
+      "default_message": "Workday connection validation could not be completed.",
+      "user_action": "Retry after confirming the Workday service and API outbound connection are available.",
+      "retriable": true,
+      "http_status_code": 503
+    },
+    {
       "error_code": 8000,
       "error_type": "data_validation_error",
       "error_group": "annotations",
