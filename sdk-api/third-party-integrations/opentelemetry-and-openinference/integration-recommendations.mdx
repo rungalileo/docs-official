@@ -24,7 +24,9 @@ When using automatic instrumentation libraries (like Traceloop/OpenLLMetry), the
 
 ## Minimum Requirements for Valid Spans
 
-For a span to be considered valid, it must include certain **required** attributes depending on the span type.
+The tables below list the attributes Galileo needs to recognize a span as an agent, LLM, tool, retriever, or workflow span, and to show its inputs, outputs, and metrics. Add these attributes to every span that represents model, agent, tool, or retrieval work.
+
+Spans without GenAI attributes, such as HTTP or framework spans, are still accepted. HTTP spans appear with their method, URL, and status code, and other spans appear as generic spans. These spans do not get the inputs, outputs, token usage, or metrics of a GenAI span type. See [How Galileo Assembles Traces](#how-galileo-assembles-traces).
 
 ### Agent Spans
 
@@ -90,7 +92,7 @@ Galileo builds each trace from its **root span**: the span with no `parent_span_
 
 - **Send the root span.** A trace appears in the console only after Galileo receives its root span. If the root span is never sent, the child spans are stored but no trace is created, so the trace does not appear in the Traces view.
 - **Order does not matter.** Child spans can arrive before or after the root span, in the same export or in separate exports.
-- **The root span does not need GenAI attributes.** Galileo accepts spans without GenAI attributes (for example, an HTTP or authentication span as the root) and stores them as generic spans.
+- **The root span does not need GenAI attributes.** In many applications the root span comes from the web framework or middleware, such as an HTTP server span or an authentication span, and the GenAI spans run inside it. Galileo accepts such a root, and the trace appears with the GenAI spans under it.
 - **Do not set a parent that you never export.** If your service continues a trace from an upstream caller (for example, through a `traceparent` header), the upstream span becomes the parent. If that span is not exported to Galileo, the trace has no root. Start a new root span for the Galileo exporter, or export the upstream span as well.
 
 <Note>
