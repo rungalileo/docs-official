@@ -281,6 +281,16 @@ export const ErrorCatalogTable = () => {
       "retriable": true
     },
     {
+      "error_code": 1403,
+      "error_type": "permission_error",
+      "error_group": "shared",
+      "severity": "low",
+      "default_message": "You don't have access to this operation.",
+      "user_action": "Check that the feature is enabled for your organization and that your credentials can perform this operation.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
       "error_code": 2000,
       "error_type": "data_validation_error",
       "error_group": "metrics",
@@ -640,6 +650,26 @@ export const ErrorCatalogTable = () => {
       "http_status_code": 500
     },
     {
+      "error_code": 2508,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Tokenomics data was republished for this time window since the request was prepared.",
+      "user_action": "Reload the page to fetch the latest published data.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 2509,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Cannot delete a directory generation referenced by historical hierarchy rows.",
+      "user_action": "Keep this directory generation; it is still used by historical hierarchy data.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
       "error_code": 2510,
       "error_type": "not_found_error",
       "error_group": "tokenomics",
@@ -896,6 +926,16 @@ export const ErrorCatalogTable = () => {
       "severity": "low",
       "default_message": "Finance hierarchy access is not available for this user.",
       "user_action": "Ask a finance administrator to assign you to a department or hierarchy node.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
+      "error_code": 2536,
+      "error_type": "permission_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Individual WC usage and hidden WC hierarchy nodes are not available.",
+      "user_action": "Request usage for a visible hierarchy node instead.",
       "retriable": false,
       "http_status_code": 403
     },
@@ -1687,6 +1727,26 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 8010,
+      "error_type": "data_validation_error",
+      "error_group": "annotations",
+      "severity": "medium",
+      "default_message": "The annotation rating is not valid for this annotation template.",
+      "user_action": "Check the rating value against the template's allowed values and try again.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 8011,
+      "error_type": "system_error",
+      "error_group": "annotations",
+      "severity": "high",
+      "default_message": "Failed to save the rating change.",
+      "user_action": "Retry the request; if it persists, contact support with the project ID and details.",
+      "retriable": true,
+      "http_status_code": 500
+    },
+    {
       "error_code": 8500,
       "error_type": "credentials_error",
       "error_group": "authentication",
@@ -1895,6 +1955,36 @@ export const ErrorCatalogTable = () => {
       "user_action": "Wait a bit before requesting another password reset.",
       "retriable": true,
       "http_status_code": 429
+    },
+    {
+      "error_code": 8521,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "No valid organization-role assignments found for this user.",
+      "user_action": "Try signing in again. If it keeps failing, ask your administrator to check your Galileo access.",
+      "retriable": false,
+      "http_status_code": 401
+    },
+    {
+      "error_code": 8522,
+      "error_type": "configuration_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "SSO login is not available due to a server configuration error.",
+      "user_action": "Contact your Galileo administrator; SSO role provisioning is misconfigured.",
+      "retriable": false,
+      "http_status_code": 500
+    },
+    {
+      "error_code": 8523,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "low",
+      "default_message": "Self-service signup is disabled for SSO. Please sign in through your identity provider.",
+      "user_action": "Sign in through your identity provider instead of signing up.",
+      "retriable": false,
+      "http_status_code": 403
     },
     {
       "error_code": 8524,
@@ -2205,6 +2295,16 @@ export const ErrorCatalogTable = () => {
       "user_action": "Check the column names in your query and try again.",
       "http_status_code": 400,
       "retriable": false
+    },
+    {
+      "error_code": 10504,
+      "error_type": "not_found_error",
+      "error_group": "logstream",
+      "severity": "low",
+      "default_message": "Log stream not found.",
+      "user_action": "Check the log stream ID or name and the project it belongs to, then try again.",
+      "retriable": false,
+      "http_status_code": 404
     },
     {
       "error_code": 11000,
