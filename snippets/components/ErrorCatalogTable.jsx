@@ -570,6 +570,15 @@ export const ErrorCatalogTable = () => {
       "http_status_code": 403
     },
     {
+      "error_code": 2030,
+      "error_type": "workflow_error",
+      "error_group": "metrics",
+      "severity": "high",
+      "default_message": "This metric version's stored code does not match the code that was uploaded for it, so it was not run.",
+      "user_action": "Save the metric's code again to create a new version. If the metric is synced from another cluster, or this persists, contact support.",
+      "retriable": false
+    },
+    {
       "error_code": 2500,
       "error_type": "data_validation_error",
       "error_group": "tokenomics",
@@ -1624,6 +1633,16 @@ export const ErrorCatalogTable = () => {
       "default_message": "Workday connection validation could not be completed.",
       "user_action": "Retry after confirming the Workday service and API outbound connection are available.",
       "retriable": true,
+      "http_status_code": 503
+    },
+    {
+      "error_code": 7653,
+      "error_type": "configuration_error",
+      "error_group": "tokenomics_directory",
+      "severity": "medium",
+      "default_message": "Directory OAuth endpoint is not configured for this organization.",
+      "user_action": "Contact your deployment administrator to configure the directory OAuth endpoint for this organization.",
+      "retriable": false,
       "http_status_code": 503
     },
     {

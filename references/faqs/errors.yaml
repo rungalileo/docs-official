@@ -865,6 +865,18 @@
   retriable: false
   telemetry_tags: ["metrics", "feature_flag", "decision_evaluators"]
 
+# Metrics-specific: the code a runner downloaded for a code scorer version does not have the
+# SHA-256 the API recorded for that version's upload (scorer_versions.code_sha256), so the runner
+# refused to run it. A restore of such a version is refused for the same reason.
+- error_code: 2030
+  error_type: workflow_error
+  error_group: metrics
+  severity: high
+  default_message: This metric version's stored code does not match the code that was uploaded for it, so it was not run.
+  user_action: Save the metric's code again to create a new version. If the metric is synced from another cluster, or this persists, contact support.
+  retriable: false
+  telemetry_tags: ["metrics", "code_scorer", "code_digest"]
+
 # =============================================================================
 # SECTION 2.5: TOKENOMICS ERRORS (2500-2999)
 # =============================================================================
@@ -2112,6 +2124,16 @@
   http_status_code: 503
   retriable: true
   telemetry_tags: ["tokenomics_directory", "validation"]
+
+- error_code: 7653
+  error_type: configuration_error
+  error_group: tokenomics_directory
+  severity: medium
+  default_message: Directory OAuth endpoint is not configured for this organization.
+  user_action: Contact your deployment administrator to configure the directory OAuth endpoint for this organization.
+  http_status_code: 503
+  retriable: false
+  telemetry_tags: ["tokenomics_directory", "configuration"]
 
 # =============================================================================
 # SECTION 8: ANNOTATION QUEUE ERRORS (8000-8499)
