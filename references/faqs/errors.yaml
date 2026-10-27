@@ -468,6 +468,18 @@
     - "judge model's response was cut off"
   telemetry_tags: ["parsing", "truncation"]
 
+# Generic forbidden: a feature gate (metrics RBAC off, audit log reads disabled) or a credential
+# that cannot authorize the operation (project-scoped API key on an org-scoped internal authz check)
+- error_code: 1403
+  error_type: permission_error
+  error_group: shared
+  severity: low
+  default_message: You don't have access to this operation.
+  user_action: Check that the feature is enabled for your organization and that your credentials can perform this operation.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["forbidden"]
+
 # =============================================================================
 # SECTION 2: METRICS ERRORS (2000-2499)
 # =============================================================================
@@ -955,6 +967,28 @@
   retriable: true
   telemetry_tags: ["tokenomics", "canonical_users", "hydration", "consistency"]
 
+# The request's winner_manifest_hash no longer matches the published manifest for its window
+- error_code: 2508
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: low
+  default_message: Tokenomics data was republished for this time window since the request was prepared.
+  user_action: Reload the page to fetch the latest published data.
+  http_status_code: 422
+  retriable: false
+  telemetry_tags: ["tokenomics", "manifest", "stale"]
+
+# Directory generation cannot be deleted while historical hierarchy rows reference it
+- error_code: 2509
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: medium
+  default_message: Cannot delete a directory generation referenced by historical hierarchy rows.
+  user_action: Keep this directory generation; it is still used by historical hierarchy data.
+  http_status_code: 409
+  retriable: false
+  telemetry_tags: ["tokenomics", "directory", "generation", "conflict"]
+
 # No active complete tokenomics directory generation is available for the organization
 - error_code: 2510
   error_type: not_found_error
@@ -1229,6 +1263,17 @@
   http_status_code: 403
   retriable: false
   telemetry_tags: ["tokenomics", "finance", "authorization", "assignment"]
+
+# Individual WC usage, or a hidden WC hierarchy node, was requested (see tokenomics_wc_visibility.py)
+- error_code: 2536
+  error_type: permission_error
+  error_group: tokenomics
+  severity: low
+  default_message: Individual WC usage and hidden WC hierarchy nodes are not available.
+  user_action: Request usage for a visible hierarchy node instead.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["tokenomics", "wc", "visibility"]
 
 # =============================================================================
 # SECTION 3: PLAYGROUND & EXPERIMENTS ERRORS (3000-3999)
@@ -2205,6 +2250,28 @@
   http_status_code: 500
   telemetry_tags: ["annotation_queue", "ratings"]
 
+# Annotation rating failed validation against its template
+- error_code: 8010
+  error_type: data_validation_error
+  error_group: annotations
+  severity: medium
+  default_message: The annotation rating is not valid for this annotation template.
+  user_action: Check the rating value against the template's allowed values and try again.
+  http_status_code: 422
+  telemetry_tags: ["annotation_queue", "ratings", "validation"]
+
+# The rating write returned no record (annotation insert, bulk feedback apply, or the
+# is_deleted insert that deletes a feedback rating)
+- error_code: 8011
+  error_type: system_error
+  error_group: annotations
+  severity: high
+  default_message: Failed to save the rating change.
+  user_action: Retry the request; if it persists, contact support with the project ID and details.
+  http_status_code: 500
+  retriable: true
+  telemetry_tags: ["annotation_queue", "ratings", "write"]
+
 # =============================================================================
 # SECTION 9: AUTHENTICATION ERRORS (8500-8999)
 # =============================================================================
@@ -2428,6 +2495,41 @@
   retriable: true
   http_status_code: 429
   telemetry_tags: ["auth", "ratelimit", "password_reset"]
+
+# SSO role source denied the login. No access, an outage and a misconfiguration are deliberately
+# indistinguishable (see SsoLoginService._role_source_denied), so the guidance must fit all three.
+# Not retriable: most causes are permanent, and an automatic retry of a 401 can loop re-auth.
+- error_code: 8521
+  error_type: permission_error
+  error_group: authentication
+  severity: medium
+  default_message: No valid organization-role assignments found for this user.
+  user_action: Try signing in again. If it keeps failing, ask your administrator to check your Galileo access.
+  retriable: false
+  http_status_code: 401
+  telemetry_tags: ["auth", "sso", "role_source"]
+
+# SSO role source is configured without the provisioning flag (server-side misconfiguration)
+- error_code: 8522
+  error_type: configuration_error
+  error_group: authentication
+  severity: high
+  default_message: SSO login is not available due to a server configuration error.
+  user_action: Contact your Galileo administrator; SSO role provisioning is misconfigured.
+  retriable: false
+  http_status_code: 500
+  telemetry_tags: ["auth", "sso", "configuration"]
+
+# Self-service signup is refused while SSO org/role provisioning is enabled
+- error_code: 8523
+  error_type: permission_error
+  error_group: authentication
+  severity: low
+  default_message: Self-service signup is disabled for SSO. Please sign in through your identity provider.
+  user_action: Sign in through your identity provider instead of signing up.
+  retriable: false
+  http_status_code: 403
+  telemetry_tags: ["auth", "sso", "signup"]
 
 # Capability-based role is immutable once the user exists
 - error_code: 8524
@@ -2814,6 +2916,17 @@
   user_action: Check the column names in your query and try again.
   http_status_code: 400
   telemetry_tags: ["logstream"]
+
+# Log stream does not exist (or is not in the requested project)
+- error_code: 10504
+  error_type: not_found_error
+  error_group: logstream
+  severity: low
+  default_message: Log stream not found.
+  user_action: Check the log stream ID or name and the project it belongs to, then try again.
+  http_status_code: 404
+  retriable: false
+  telemetry_tags: ["logstream", "notfound"]
 
 
 # =============================================================================
