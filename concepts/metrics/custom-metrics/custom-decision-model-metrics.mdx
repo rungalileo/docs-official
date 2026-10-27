@@ -1,0 +1,131 @@
+---
+title: Custom Decision Model Metrics
+description: Learn when and how to use decision model metrics
+---
+
+Custom decision model metrics classify and score text records. Each metric asks one question and returns a typed answer with probabilities, without a written explanation.
+
+This guide describes when and how to use decision model metrics.
+
+## Supported decision models
+
+Galileo supports the following decision model:
+
+| Decision model | Provider | Setup |
+| --- | --- | --- |
+| Jev | TypeSafe | Set up a [decision model integration](/sdk-api/third-party-integrations/decision-models/decision-models).|
+
+## How decision model metrics work
+
+A decision model is not an LLM. You provide a record, a plain-language question, and the allowed answers. The model returns an answer with probabilities and does not provide a written explanation.
+
+The following table describes the supported question types and results:
+
+| Question type | Metric output type | Result |
+| --- | --- | --- |
+| True/False | Boolean | Returns `true` when the probability is at least 0.5; otherwise returns `false`. |
+| Choice | Categorical | Selects one of the categories you define. |
+| Score | Discrete | Selects the most likely level from your rubric. |
+
+## When to use a decision model metric
+
+Decision model metrics classify and score large volumes of text faster and at a much lower cost than LLM-as-a-judge metrics.
+
+For example, you can use decision model metrics to monitor high-volume Log streams at full coverage and perform classification-style checks for frustration, task completion, tone, and policy adherence.
+
+Use an [LLM-as-a-judge metric](/concepts/metrics/custom-metrics/custom-metrics-ui-llm) when you need explanations, counts or percentages, images, audio or files, or very long inputs.
+
+For more information on metric differences, see [Which metric should I use?](/concepts/metrics/overview#which-metric-should-i-use)
+
+## Create and use decision model metrics
+
+### Create a decision model metric
+
+Before you begin, [set up a decision model integration](/sdk-api/third-party-integrations/decision-models/decision-models).
+
+<Steps>
+
+<Step title="Navigate to the Metrics page">
+
+From the Galileo main menu, select **Metrics**.
+
+</Step>
+
+<Step title="Configure the metric">
+
+Select **Create metric**. Follow the on-screen instructions to configure the metric.
+
+If your experiment needs an expected answer, turn on **Use ground truth**. For guidance on writing questions, see [How to write effective questions](#how-to-write-effective-questions).
+
+</Step>
+
+<Step title="Test the metric">
+
+Select **Test metric** to test the metric.
+
+You can test with manual input, current logs, or a dataset. Dataset testing scores **Macro F1** for boolean and categorical, and **RMSE** for discrete. See [Test Metrics](/concepts/metrics/custom-metrics/test-metrics) for more information.
+
+Update the metric as needed, then select **Create Metric**.
+
+</Step>
+
+</Steps>
+
+After you create a metric, editing and saving it again creates a new metric version. You can't change **Apply to** or **Output type** after creation. To change either setting, duplicate the metric and configure the copy.
+
+### Decision model metric batching
+
+When decision model metrics use the same model and inputs, Galileo batches up to 10 metrics in a single call to reduce cost. Each metric still receives its own answer. If one metric in the batch fails, all metrics in the batch fail and show a clear error.
+
+Hover over a metric value to see how many metrics were included in the batch. The cost shown for each metric is an estimate calculated as a fraction of the total batch cost based on the batch size.
+
+### How to write effective questions
+
+Ask one question per metric. If a rubric checks several qualities, split it into separate metrics.
+
+Follow these guidelines based on your question type:
+
+- For a question with multiple applicable labels, create one boolean metric per label.
+- For a categorical question, consider creating an **Unclear** category. The model always selects an answer, even when the record doesn't clearly fit the other categories.
+- For a discrete question, describe each level in concrete terms so adjacent levels are distinguishable.
+
+Example questions include:
+
+- “Was the user frustrated?”
+- “Did the agent complete the task?”
+- “Did the response follow the stated policy?”
+
+Test questions against examples you have labeled yourself before relying on their results.
+
+### Use decision model metrics
+
+Decision model metrics work in [Log streams](/concepts/logging/configure-metrics/configure-metrics), [experiments](/sdk-api/experiments/experiments), and playgrounds, at every step level. To enable one, select **Configure Metrics** within one of those pages and turn on a metric marked with the **Decision** type.
+
+[Composite metrics](/concepts/metrics/custom-metrics/composite-metrics) can use decision model results. For a boolean decision model metric, the composite receives its probability. Charts, filters, alerts, and roll-ups work as they do for other metrics with the same output type.
+
+### Read decision model metric results
+
+A decision model result appears like any other metric result with the same output type. Hover over a result to see its confidence, answer probabilities, model version, token usage, and estimated cost.
+
+Each result has one of four states: **Success**, **N/A**, **Error**, or **Pending**.
+
+## Limits and troubleshooting
+
+Decision models accept text only. A record containing images, audio, or documents shows **N/A**.
+
+The record and question must fit within a 32k-token context window. Galileo does not trim oversized input. If a shared call fails, every metric in that call shows the error.
+
+The following table describes common errors and how to troubleshoot them:
+
+| **What you see** | **What to do** |
+| --- | --- |
+| Authentication error | As the run creator, add or replace your decision model API key. |
+| Rate-limit error | Raise your decision model quota or use sampling. |
+| Input exceeds the provider's context window | Change **Input style** to **I/O only**. |
+| **N/A: Unsupported file types** | Use an [LLM-as-a-judge metric](/concepts/metrics/custom-metrics/custom-metrics-ui-llm) for multimodal records. |
+| **N/A: Ground truth required** | Add the expected output to the dataset. |
+| **N/A: Sampled out** or **Filtered out** | No action is needed. |
+| Model is no longer available | Move the metric to a replacement model version. |
+| Toggle disabled in **Configure Metrics** | Add a [decision model integration](/sdk-api/third-party-integrations/decision-models/decision-models) for the run creator. |
+
+See [Decision Models](/sdk-api/third-party-integrations/decision-models/decision-models) for more information on the decision model integration, including billing and rate limits.
