@@ -2326,6 +2326,16 @@ export const ErrorCatalogTable = () => {
       "http_status_code": 404
     },
     {
+      "error_code": 10505,
+      "error_type": "data_validation_error",
+      "error_group": "logstream",
+      "severity": "medium",
+      "default_message": "Log query is outside the authorized scope.",
+      "user_action": "Choose a permitted log view, record type, and time range.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
       "error_code": 11000,
       "error_type": "data_validation_error",
       "error_group": "organization",
