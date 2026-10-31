@@ -281,6 +281,16 @@ export const ErrorCatalogTable = () => {
       "retriable": true
     },
     {
+      "error_code": 1029,
+      "error_type": "data_validation_error",
+      "error_group": "shared",
+      "severity": "low",
+      "default_message": "A filter or sort in this request is not valid.",
+      "user_action": "Check the filter and sort names, operators and values in the request, then try again.",
+      "retriable": false,
+      "http_status_code": 400
+    },
+    {
       "error_code": 1403,
       "error_type": "permission_error",
       "error_group": "shared",
@@ -577,6 +587,15 @@ export const ErrorCatalogTable = () => {
       "default_message": "This metric version's stored code does not match the code that was uploaded for it, so it was not run.",
       "user_action": "Save the metric's code again to create a new version. If the metric is synced from another cluster, or this persists, contact support.",
       "retriable": false
+    },
+    {
+      "error_code": 2031,
+      "error_type": "data_validation_error",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "Session-level metrics were not computed because this session's traces could not be read when it was scored.",
+      "user_action": "Recompute this session's metrics. If this persists, contact support.",
+      "retriable": true
     },
     {
       "error_code": 2500,
@@ -945,6 +964,36 @@ export const ErrorCatalogTable = () => {
       "severity": "low",
       "default_message": "Individual WC usage and hidden WC hierarchy nodes are not available.",
       "user_action": "Request usage for a visible hierarchy node instead.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
+      "error_code": 2537,
+      "error_type": "permission_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "The Efficiency section is not available in the individual view.",
+      "user_action": "The Efficiency section is available to people with reports and to organization viewers.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
+      "error_code": 2538,
+      "error_type": "not_found_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Tokenomics design enhancements are not enabled.",
+      "user_action": "No action needed.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 2539,
+      "error_type": "permission_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Insights are not available in the individual view.",
+      "user_action": "Insights are available to people with reports and to organization viewers.",
       "retriable": false,
       "http_status_code": 403
     },
@@ -1556,6 +1605,26 @@ export const ErrorCatalogTable = () => {
       "http_status_code": 422
     },
     {
+      "error_code": 7015,
+      "error_type": "not_found_error",
+      "error_group": "integrations",
+      "severity": "medium",
+      "default_message": "The selected model integration is unavailable to the actor request.",
+      "user_action": "Select an integration and model available to the scenario owner.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 7016,
+      "error_type": "llm_api_error",
+      "error_group": "integrations",
+      "severity": "high",
+      "default_message": "The model returned an invalid actor reply.",
+      "user_action": "Retry the request. Contact support if the model continues to return invalid replies.",
+      "retriable": true,
+      "http_status_code": 502
+    },
+    {
       "error_code": 7500,
       "error_type": "configuration_error",
       "error_group": "provider_management_api",
@@ -1764,6 +1833,16 @@ export const ErrorCatalogTable = () => {
       "user_action": "Retry the request; if it persists, contact support with the project ID and details.",
       "retriable": true,
       "http_status_code": 500
+    },
+    {
+      "error_code": 8012,
+      "error_type": "timeout_error",
+      "error_group": "annotations",
+      "severity": "medium",
+      "default_message": "Some of the selected records are not yet available for annotation queue changes.",
+      "user_action": "Retry in a few moments; if it persists, open a support case with the queue ID and the time window.",
+      "retriable": true,
+      "http_status_code": 503
     },
     {
       "error_code": 8500,
@@ -2334,6 +2413,16 @@ export const ErrorCatalogTable = () => {
       "user_action": "Choose a permitted log view, record type, and time range.",
       "http_status_code": 422,
       "retriable": false
+    },
+    {
+      "error_code": 10506,
+      "error_type": "data_validation_error",
+      "error_group": "logstream",
+      "severity": "medium",
+      "default_message": "The alert condition uses a field that is not a supported root column.",
+      "user_action": "Use status_code for a root column condition, or use metric/numeric/v2 for a metric such as duration_ns.",
+      "retriable": false,
+      "http_status_code": 400
     },
     {
       "error_code": 11000,
