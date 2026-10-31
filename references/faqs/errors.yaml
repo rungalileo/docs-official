@@ -468,6 +468,19 @@
     - "judge model's response was cut off"
   telemetry_tags: ["parsing", "truncation"]
 
+# A filter or sort in a list, search or count request that the query builder cannot apply: an unknown
+# column, a value of the wrong type for its operator, or a filter type that does not match the column.
+# Raised explicitly by libs/python/utils/log_records, so data-service callers get a 4xx with the reason.
+- error_code: 1029
+  error_type: data_validation_error
+  error_group: shared
+  severity: low
+  default_message: A filter or sort in this request is not valid.
+  user_action: Check the filter and sort names, operators and values in the request, then try again.
+  http_status_code: 400
+  retriable: false
+  telemetry_tags: ["shared", "validation", "filter"]
+
 # Generic forbidden: a feature gate (metrics RBAC off, audit log reads disabled) or a credential
 # that cannot authorize the operation (project-scoped API key on an org-scoped internal authz check)
 - error_code: 1403
@@ -876,6 +889,18 @@
   user_action: Save the metric's code again to create a new version. If the metric is synced from another cluster, or this persists, contact support.
   retriable: false
   telemetry_tags: ["metrics", "code_scorer", "code_digest"]
+
+# Metrics-specific: on its last attempt, the session trigger read the session's own row but none
+# of its traces. Scoring it would hand the session judge an empty session, so its session-native
+# metrics are marked not_computed with this code instead of staying pending.
+- error_code: 2031
+  error_type: data_validation_error
+  error_group: metrics
+  severity: low
+  default_message: Session-level metrics were not computed because this session's traces could not be read when it was scored.
+  user_action: Recompute this session's metrics. If this persists, contact support.
+  retriable: true
+  telemetry_tags: ["metrics", "session", "no_traces"]
 
 # =============================================================================
 # SECTION 2.5: TOKENOMICS ERRORS (2500-2999)
@@ -1286,6 +1311,39 @@
   http_status_code: 403
   retriable: false
   telemetry_tags: ["tokenomics", "wc", "visibility"]
+
+# The Efficiency section was requested in the individual view (see TokenomicsService.get_v1_efficiency)
+- error_code: 2537
+  error_type: permission_error
+  error_group: tokenomics
+  severity: low
+  default_message: The Efficiency section is not available in the individual view.
+  user_action: The Efficiency section is available to people with reports and to organization viewers.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["tokenomics", "access", "efficiency"]
+
+# The Insights section was requested in the individual view (see TokenomicsAccessService.raise_if_insights_view_refused)
+- error_code: 2539
+  error_type: permission_error
+  error_group: tokenomics
+  severity: low
+  default_message: Insights are not available in the individual view.
+  user_action: Insights are available to people with reports and to organization viewers.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["tokenomics", "access", "insights"]
+
+# The Insights endpoint is protected by the Tokenomics design enhancements flag.
+- error_code: 2538
+  error_type: not_found_error
+  error_group: tokenomics
+  severity: low
+  default_message: Tokenomics design enhancements are not enabled.
+  user_action: No action needed.
+  http_status_code: 404
+  retriable: false
+  telemetry_tags: ["tokenomics", "design_enhancements", "feature_flag"]
 
 # =============================================================================
 # SECTION 3: PLAYGROUND & EXPERIMENTS ERRORS (3000-3999)
@@ -2033,6 +2091,28 @@
   retriable: false
   telemetry_tags: ["ssrf", "alert_settings", "generic_webhook"]
 
+# Simulation actor requests can name only an integration available to their owner.
+- error_code: 7015
+  error_type: not_found_error
+  error_group: integrations
+  severity: medium
+  default_message: The selected model integration is unavailable to the actor request.
+  user_action: Select an integration and model available to the scenario owner.
+  http_status_code: 422
+  retriable: false
+  telemetry_tags: ["integrations", "simulation"]
+
+# The actor endpoint validates provider tool arguments before returning them to its caller.
+- error_code: 7016
+  error_type: llm_api_error
+  error_group: integrations
+  severity: high
+  default_message: The model returned an invalid actor reply.
+  user_action: Retry the request. Contact support if the model continues to return invalid replies.
+  http_status_code: 502
+  retriable: true
+  telemetry_tags: ["integrations", "simulation", "invalid_reply"]
+
 # =============================================================================
 # SECTION 7.5: PROVIDER MANAGEMENT API INTEGRATION ERRORS (7500-7999)
 # =============================================================================
@@ -2293,6 +2373,19 @@
   http_status_code: 500
   retriable: true
   telemetry_tags: ["annotation_queue", "ratings", "write"]
+
+# A queue add or remove could not read every selected record within the streaming
+# visibility budget: the records were still being landed, or were deleted. Nothing was
+# published for the request, so repeating it applies the change to every record.
+- error_code: 8012
+  error_type: timeout_error
+  error_group: annotations
+  severity: medium
+  default_message: Some of the selected records are not yet available for annotation queue changes.
+  user_action: Retry in a few moments; if it persists, open a support case with the queue ID and the time window.
+  http_status_code: 503
+  retriable: true
+  telemetry_tags: ["annotation_queue", "membership", "visibility"]
 
 # =============================================================================
 # SECTION 9: AUTHENTICATION ERRORS (8500-8999)
@@ -2959,6 +3052,17 @@
   user_action: Choose a permitted log view, record type, and time range.
   http_status_code: 422
   telemetry_tags: ["logstream", "authorization"]
+
+# Log stream alert condition aggregates a root column that alerts do not support
+- error_code: 10506
+  error_type: data_validation_error
+  error_group: logstream
+  severity: medium
+  default_message: The alert condition uses a field that is not a supported root column.
+  user_action: Use status_code for a root column condition, or use metric/numeric/v2 for a metric such as duration_ns.
+  http_status_code: 400
+  retriable: false
+  telemetry_tags: ["logstream", "alerts"]
 
 
 # =============================================================================
