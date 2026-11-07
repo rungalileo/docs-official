@@ -281,6 +281,26 @@ export const ErrorCatalogTable = () => {
       "retriable": true
     },
     {
+      "error_code": 1029,
+      "error_type": "data_validation_error",
+      "error_group": "shared",
+      "severity": "low",
+      "default_message": "A filter or sort in this request is not valid.",
+      "user_action": "Check the filter and sort names, operators and values in the request, then try again.",
+      "retriable": false,
+      "http_status_code": 400
+    },
+    {
+      "error_code": 1030,
+      "error_type": "data_validation_error",
+      "error_group": "shared",
+      "severity": "medium",
+      "default_message": "A run with this name and task type already exists in this project.",
+      "user_action": "Please use another run name.",
+      "retriable": false,
+      "http_status_code": 400
+    },
+    {
       "error_code": 1403,
       "error_type": "permission_error",
       "error_group": "shared",
@@ -576,6 +596,43 @@ export const ErrorCatalogTable = () => {
       "severity": "high",
       "default_message": "This metric version's stored code does not match the code that was uploaded for it, so it was not run.",
       "user_action": "Save the metric's code again to create a new version. If the metric is synced from another cluster, or this persists, contact support.",
+      "retriable": false
+    },
+    {
+      "error_code": 2031,
+      "error_type": "data_validation_error",
+      "error_group": "metrics",
+      "severity": "low",
+      "default_message": "Session-level metrics were not computed because this session's traces could not be read when it was scored.",
+      "user_action": "Recompute this session's metrics. If this persists, contact support.",
+      "retriable": true
+    },
+    {
+      "error_code": 2032,
+      "error_type": "workflow_error",
+      "error_group": "metrics",
+      "severity": "high",
+      "default_message": "This metric version has no record of the code uploaded for it, so it was not run.",
+      "user_action": "Save the metric's code again to create a new version, and select it in any run whose metric settings pin the old version. If the metric is synced from another cluster, or this persists, contact support.",
+      "retriable": false
+    },
+    {
+      "error_code": 2034,
+      "error_type": "workflow_error",
+      "error_group": "metrics",
+      "severity": "medium",
+      "default_message": "This code metric cannot be turned on because of the package policy.",
+      "user_action": "Save the metric again so that its packages are checked. If the message names a blocked package version, declare an allowed version, or wait until the policy allows one. If the message says a package is not on the allowed package list, remove that dependency, or ask your administrator to allow the package.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 2035,
+      "error_type": "workflow_error",
+      "error_group": "metrics",
+      "severity": "medium",
+      "default_message": "This code metric cannot run because of the package policy.",
+      "user_action": "When the message says to save the metric, saving creates a new version, so select it in any run whose metric settings pin the old version, and make it the default if the metric has an explicit default version. If the metric is synced from another cluster, or this persists, contact support.",
       "retriable": false
     },
     {
@@ -947,6 +1004,146 @@ export const ErrorCatalogTable = () => {
       "user_action": "Request usage for a visible hierarchy node instead.",
       "retriable": false,
       "http_status_code": 403
+    },
+    {
+      "error_code": 2537,
+      "error_type": "permission_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "The Efficiency section is not available in the individual view.",
+      "user_action": "The Efficiency section is available to people with reports and to organization viewers.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
+      "error_code": 2538,
+      "error_type": "not_found_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Tokenomics design enhancements are not enabled.",
+      "user_action": "No action needed.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 2539,
+      "error_type": "permission_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Insights are not available in the individual view.",
+      "user_action": "Insights are available to people with reports and to organization viewers.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
+      "error_code": 2540,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "A lens with this name already exists.",
+      "user_action": "Choose a different lens name.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 2543,
+      "error_type": "not_found_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "The lens does not exist.",
+      "user_action": "Reload the lens list and select a lens again.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 2545,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "The organization has the maximum number of lenses.",
+      "user_action": "Delete a lens that you no longer need, then try again.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 2546,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "The lens has reached its edit limit.",
+      "user_action": "Create a new lens with the current definition.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 2547,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "An active directory hierarchy is required before importing generic accounts.",
+      "user_action": "Upload and activate a directory hierarchy, then retry the generic-account import.",
+      "retriable": true,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 2548,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "A generic-account snapshot is already active or being imported.",
+      "user_action": "Wait for the current import to finish, then retry with the updated snapshot.",
+      "retriable": true,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 2549,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "The generic-account CSV failed validation.",
+      "user_action": "Correct the listed CSV errors and upload the file again.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 2550,
+      "error_type": "system_error",
+      "error_group": "tokenomics",
+      "severity": "high",
+      "default_message": "Generic-account import could not be projected and verified.",
+      "user_action": "Retry the import. The previously active snapshot remains in use.",
+      "retriable": true,
+      "http_status_code": 502
+    },
+    {
+      "error_code": 2551,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "The generic-account upload must be a supported CSV file.",
+      "user_action": "Upload a .csv file with a filename no longer than 255 characters.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 2552,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "The generic-account CSV content type is not supported.",
+      "user_action": "Upload the CSV using a supported CSV content type.",
+      "retriable": false,
+      "http_status_code": 415
+    },
+    {
+      "error_code": 2553,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "The generic-account file exceeds the maximum allowed size.",
+      "user_action": "Reduce the file size to 25 MiB or less and upload it again.",
+      "retriable": false,
+      "http_status_code": 413
     },
     {
       "error_code": 3000,
@@ -1379,6 +1576,166 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 4015,
+      "error_type": "data_validation_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "If-Match is required for draft preview.",
+      "user_action": "Send the selected draft_revision in the If-Match header and retry the preview.",
+      "http_status_code": 428,
+      "retriable": false
+    },
+    {
+      "error_code": 4016,
+      "error_type": "data_validation_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "Draft content is missing, unreadable, or has no usable revision.",
+      "user_action": "Check the selected draft content. Restore missing or unreadable content only if intended, or select another dataset. Use its usable revision in If-Match.",
+      "http_status_code": 412,
+      "retriable": false
+    },
+    {
+      "error_code": 4017,
+      "error_type": "data_validation_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "The selected draft revision has changed.",
+      "user_action": "Read current_revision from the conflict detail or the dataset content endpoint, review the current content, and retry explicitly.",
+      "http_status_code": 412,
+      "retriable": false
+    },
+    {
+      "error_code": 4018,
+      "error_type": "data_validation_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "The revision precondition must identify one exact snapshot.",
+      "user_action": "Send one bare revision or strong quoted revision in If-Match. Weak tags, wildcards, and multiple tags cannot select an exact snapshot.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 4019,
+      "error_type": "data_validation_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "Dataset mappings name missing or reserved source columns.",
+      "user_action": "Correct the mappings listed in field_errors using available source columns.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 4020,
+      "error_type": "data_validation_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "The dataset preview cursor is invalid for this snapshot.",
+      "user_action": "Restart preview pagination for the same exact dataset reference and mappings, using only server-issued next_cursor values.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 4022,
+      "error_type": "data_validation_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "Dataset preview exceeds the response size limit.",
+      "user_action": "Reduce the selected mappings or source-column names and request a new preview.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 4023,
+      "error_type": "not_found_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "The selected immutable version or its content is unavailable or unreadable.",
+      "user_action": "Select an available exact dataset version with readable content before requesting a preview. Contact support if the expected version is missing or unreadable.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 4024,
+      "error_type": "data_validation_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "Dataset preview pagination is invalid.",
+      "user_action": "Use a limit between 1 and 100, server-issued cursors for semantic preview, and non-negative offsets for legacy preview.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 4025,
+      "error_type": "not_found_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "Dataset is unavailable in this organization.",
+      "user_action": "Select an available dataset in the current organization and retry the upload.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 4026,
+      "error_type": "data_validation_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "Dataset is published and no longer accepts a draft preview precondition.",
+      "user_action": "Reload dataset details. If it is published, preview without If-Match or choose an exact dataset version.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 4027,
+      "error_type": "data_validation_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "Generated content request exceeds the encoded request limit.",
+      "user_action": "Send fewer generated rows or smaller values, then retry with a request within the encoded limit.",
+      "http_status_code": 413,
+      "retriable": false
+    },
+    {
+      "error_code": 4028,
+      "error_type": "data_validation_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "Dataset role columns require explicit column mapping before publication.",
+      "user_action": "Apply complete column_mapping with PATCH /datasets/{dataset_id}. Include source columns for input, output, generated_output, or metadata alongside the named role columns, then publish.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 4029,
+      "error_type": "system_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "Dataset revision storage is temporarily unavailable.",
+      "user_action": "Wait for storage to recover, then retry revision discovery without changing draft content.",
+      "retriable": true,
+      "http_status_code": 503
+    },
+    {
+      "error_code": 4030,
+      "error_type": "data_validation_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "Dataset metadata exceeds the revision inspection limit.",
+      "user_action": "Select a dataset with smaller schema metadata, or contact support about the inspection limit. Keep the existing content.",
+      "http_status_code": 413,
+      "retriable": false
+    },
+    {
+      "error_code": 4031,
+      "error_type": "system_error",
+      "error_group": "dataset",
+      "severity": "medium",
+      "default_message": "Dataset version allocation is unavailable.",
+      "user_action": "Preserve the dataset and original request. Contact support with the dataset ID and error code before retrying publication, content edits, or copy. Do not delete reservations or overwrite content to clear this error.",
+      "retriable": false,
+      "http_status_code": 503
+    },
+    {
       "error_code": 5000,
       "error_type": "credentials_error",
       "error_group": "signals",
@@ -1554,6 +1911,26 @@ export const ErrorCatalogTable = () => {
       "user_action": "Add a generic webhook destination before running a test, or retest a destination that is in untested state.",
       "retriable": false,
       "http_status_code": 422
+    },
+    {
+      "error_code": 7015,
+      "error_type": "not_found_error",
+      "error_group": "integrations",
+      "severity": "medium",
+      "default_message": "The selected model integration is unavailable to the simulation request.",
+      "user_action": "Select an integration and model available to the requested owner.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 7016,
+      "error_type": "llm_api_error",
+      "error_group": "integrations",
+      "severity": "high",
+      "default_message": "The model returned an invalid simulation reply.",
+      "user_action": "Retry the request. Contact support if the model continues to return invalid replies.",
+      "retriable": true,
+      "http_status_code": 502
     },
     {
       "error_code": 7500,
@@ -1764,6 +2141,16 @@ export const ErrorCatalogTable = () => {
       "user_action": "Retry the request; if it persists, contact support with the project ID and details.",
       "retriable": true,
       "http_status_code": 500
+    },
+    {
+      "error_code": 8012,
+      "error_type": "timeout_error",
+      "error_group": "annotations",
+      "severity": "medium",
+      "default_message": "Some selected records or annotation queue changes are not yet visible.",
+      "user_action": "Retry in a few moments; if it persists, open a support case with the queue ID and the time window.",
+      "retriable": true,
+      "http_status_code": 503
     },
     {
       "error_code": 8500,
@@ -2014,6 +2401,16 @@ export const ErrorCatalogTable = () => {
       "user_action": "Provision a new user with the intended role; this role is fixed when the user is created.",
       "retriable": false,
       "http_status_code": 403
+    },
+    {
+      "error_code": 8525,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "At least one local admin must remain in the organization.",
+      "user_action": "Assign another local admin in the same organization before removing or demoting this admin.",
+      "retriable": false,
+      "http_status_code": 422
     },
     {
       "error_code": 9000,
@@ -2336,6 +2733,16 @@ export const ErrorCatalogTable = () => {
       "retriable": false
     },
     {
+      "error_code": 10506,
+      "error_type": "data_validation_error",
+      "error_group": "logstream",
+      "severity": "medium",
+      "default_message": "The alert condition uses a field that is not a supported root column.",
+      "user_action": "Use status_code for a root column condition, or use metric/numeric/v2 for a metric such as duration_ns.",
+      "retriable": false,
+      "http_status_code": 400
+    },
+    {
       "error_code": 11000,
       "error_type": "data_validation_error",
       "error_group": "organization",
@@ -2384,6 +2791,56 @@ export const ErrorCatalogTable = () => {
       "user_action": "Retry the request; the concurrent creation should resolve on the next attempt.",
       "retriable": true,
       "http_status_code": 500
+    },
+    {
+      "error_code": 11005,
+      "error_type": "configuration_error",
+      "error_group": "organization",
+      "severity": "high",
+      "default_message": "Luna tenant lifecycle integration is not configured correctly.",
+      "user_action": "Ask an administrator to enable and configure the dedicated Luna provisioner credentials, database role, and connection.",
+      "retriable": false,
+      "http_status_code": 503
+    },
+    {
+      "error_code": 11006,
+      "error_type": "system_error",
+      "error_group": "organization",
+      "severity": "high",
+      "default_message": "Luna tenant lifecycle integration is unavailable.",
+      "user_action": "Retry after checking Luna availability. For an action, reuse the same operation ID and unchanged request. If this persists, ask an administrator to verify the database connection and lifecycle contract.",
+      "retriable": true,
+      "http_status_code": 503
+    },
+    {
+      "error_code": 11007,
+      "error_type": "workflow_error",
+      "error_group": "organization",
+      "severity": "medium",
+      "default_message": "Luna tenant lifecycle state conflicts with this request.",
+      "user_action": "Read or reconcile the tenant status first. For a stale lifecycle generation, read the current lifecycle_generation of each organization in the request, then submit the action again with those values and a new operation ID. A reassignment needs both expected_source_generation and expected_target_generation. For a state or drain conflict, resolve the conflict before submitting a compatible action.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 11008,
+      "error_type": "data_validation_error",
+      "error_group": "organization",
+      "severity": "medium",
+      "default_message": "Luna rejected the tenant lifecycle request.",
+      "user_action": "Correct the tenant lifecycle action parameters and submit the request again.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 11009,
+      "error_type": "permission_error",
+      "error_group": "organization",
+      "severity": "high",
+      "default_message": "Luna tenant lifecycle request was not authorized.",
+      "user_action": "Ask an administrator to verify the dedicated provisioner database role and its grants on the tenant lifecycle functions.",
+      "retriable": false,
+      "http_status_code": 403
     },
     {
       "error_code": 12000,
@@ -2607,6 +3064,277 @@ export const ErrorCatalogTable = () => {
       "user_action": "Check the selected projects or log streams and try again.",
       "retriable": false,
       "http_status_code": 404
+    },
+    {
+      "error_code": 13500,
+      "error_type": "data_validation_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The brief generation request is invalid.",
+      "user_action": "Fix the fields that the message names, then start the run again.",
+      "retriable": false
+    },
+    {
+      "error_code": 13501,
+      "error_type": "data_validation_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The scenario is invalid.",
+      "user_action": "Fix the scenario fields that the message names, then start the run again.",
+      "retriable": false
+    },
+    {
+      "error_code": 13502,
+      "error_type": "data_validation_error",
+      "error_group": "simulations",
+      "severity": "low",
+      "default_message": "The number of briefs must be from 1 to 1000.",
+      "user_action": "Request between 1 and 1000 briefs.",
+      "retriable": false
+    },
+    {
+      "error_code": 13503,
+      "error_type": "configuration_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The chosen model integration is not available to the user who started the run.",
+      "user_action": "Choose an integration that this user can read, or share the integration with them.",
+      "retriable": false
+    },
+    {
+      "error_code": 13504,
+      "error_type": "not_found_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The dataset for the briefs is not in the project, or the user who started the run cannot change it.",
+      "user_action": "Create the dataset in the project, or let the user edit it, then start the run again.",
+      "retriable": false
+    },
+    {
+      "error_code": 13505,
+      "error_type": "llm_api_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "No brief was written, because the model's drafts were rejected for every candidate.",
+      "user_action": "Read the run's warnings for the rejection reasons, adjust the scenario or the model, then start the run again.",
+      "retriable": true
+    },
+    {
+      "error_code": 13506,
+      "error_type": "system_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The run did not finish within its deadline.",
+      "user_action": "Request fewer briefs, or choose a faster model, then start the run again.",
+      "retriable": true
+    },
+    {
+      "error_code": 13507,
+      "error_type": "system_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The briefs could not be saved to the dataset.",
+      "user_action": "Make sure nothing else writes to the dataset during the run, then start the run again. A new run appends after the briefs that this run saved.",
+      "retriable": true
+    },
+    {
+      "error_code": 13508,
+      "error_type": "system_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The dataset could not be taken out of draft.",
+      "user_action": "The briefs are saved. Take the dataset out of draft within 24 hours, or the draft cleanup deletes it.",
+      "retriable": true
+    },
+    {
+      "error_code": 13510,
+      "error_type": "not_found_error",
+      "error_group": "simulations",
+      "severity": "low",
+      "default_message": "Simulations are not enabled.",
+      "user_action": "Ask your Galileo administrator to enable simulations.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 13550,
+      "error_type": "not_found_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The actor template was not found in this project.",
+      "user_action": "Check the actor template ID. A custom template is available only in the project that owns it.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 13551,
+      "error_type": "permission_error",
+      "error_group": "simulations",
+      "severity": "low",
+      "default_message": "Built-in actor templates are read-only.",
+      "user_action": "Duplicate the built-in template, then change the copy.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
+      "error_code": 13552,
+      "error_type": "data_validation_error",
+      "error_group": "simulations",
+      "severity": "low",
+      "default_message": "An actor template with this name already exists in this project.",
+      "user_action": "Choose a different name. The comparison ignores letter case and leading or trailing spaces, and it treats each space as an underscore.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 13553,
+      "error_type": "data_validation_error",
+      "error_group": "simulations",
+      "severity": "low",
+      "default_message": "The actor template is in use by scenarios in this project.",
+      "user_action": "Remove the template from each scenario's actor mix, and regenerate or delete the briefs that follow it. Then delete the template again.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 13600,
+      "error_type": "not_found_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The scenario was not found in this project.",
+      "user_action": "Check the scenario ID. A scenario is available only in the project that owns it.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 13601,
+      "error_type": "data_validation_error",
+      "error_group": "simulations",
+      "severity": "low",
+      "default_message": "A scenario with this name already exists in this project.",
+      "user_action": "Choose a different name. The comparison ignores letter case and leading or trailing spaces, and it treats each space as an underscore.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 13602,
+      "error_type": "data_validation_error",
+      "error_group": "simulations",
+      "severity": "low",
+      "default_message": "The scenario is in use by simulation runs.",
+      "user_action": "Keep the scenario. A scenario that simulation runs refer to cannot be deleted, because each run links to it.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 13650,
+      "error_type": "not_found_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The goal was not found in this scenario.",
+      "user_action": "Check the scenario ID and the goal ID. Each goal is available only in the scenario that owns it.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 13651,
+      "error_type": "not_found_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The actor mix entry was not found in this scenario.",
+      "user_action": "Check the scenario ID and the actor mix entry ID. Each actor mix entry is available only in the scenario that owns it.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 13652,
+      "error_type": "not_found_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The fact was not found in this scenario.",
+      "user_action": "Check the scenario ID and the fact ID. Each fact is available only in the scenario that owns it.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 13653,
+      "error_type": "not_found_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The simulated tool was not found in this scenario.",
+      "user_action": "Check the scenario ID and the simulated tool ID. Each simulated tool is available only in the scenario that owns it.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 13654,
+      "error_type": "not_found_error",
+      "error_group": "simulations",
+      "severity": "medium",
+      "default_message": "The evaluation item was not found in this scenario.",
+      "user_action": "Check the scenario ID and the evaluation item ID. Each evaluation item is available only in the scenario that owns it.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 13655,
+      "error_type": "data_validation_error",
+      "error_group": "simulations",
+      "severity": "low",
+      "default_message": "The scenario already has the maximum number of parts of this kind.",
+      "user_action": "Delete a part of this kind from the scenario, then add the new one.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 13656,
+      "error_type": "data_validation_error",
+      "error_group": "simulations",
+      "severity": "low",
+      "default_message": "The actor template is already in the scenario's actor mix.",
+      "user_action": "Change the weight of the existing entry instead of adding the template again.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 13657,
+      "error_type": "data_validation_error",
+      "error_group": "simulations",
+      "severity": "low",
+      "default_message": "A fact with this key already exists in this scenario.",
+      "user_action": "Choose a different key, or change the existing fact. The comparison is case-sensitive.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 13658,
+      "error_type": "data_validation_error",
+      "error_group": "simulations",
+      "severity": "low",
+      "default_message": "A simulated tool with this name already exists in this scenario.",
+      "user_action": "Choose a different name, or change the existing tool. The comparison is case-sensitive.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 13659,
+      "error_type": "data_validation_error",
+      "error_group": "simulations",
+      "severity": "low",
+      "default_message": "The evaluator is already in the scenario's evaluation items.",
+      "user_action": "Change the existing evaluation item instead of adding the evaluator again.",
+      "retriable": false,
+      "http_status_code": 409
+    },
+    {
+      "error_code": 14000,
+      "error_type": "data_validation_error",
+      "error_group": "wizard",
+      "severity": "medium",
+      "default_message": "The input is too long to calculate this metric. Shorten the input and try again.",
+      "user_action": "Shorten the conversation, tool definitions, or response used by the metric, then recompute it.",
+      "retriable": false,
+      "http_status_code": 400
     }
   ];
   // END GENERATED ERRORS
