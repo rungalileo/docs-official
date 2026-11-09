@@ -6,7 +6,7 @@
 # Each error entry includes error codes, messages, user actions, and metadata
 # used for classification, documentation, and customer-facing error display.
 #
-# Error Code Ranges (see ERROR_CODE_RANGES.md for details):
+# Error Code Ranges (ERROR_CODE_RANGES in models/constants.py holds the source of truth):
 #   - 1000-1999: Shared & customer-facing errors (used across all features)
 #   - 2000-2499: Metrics-specific errors
 #   - 2500-2999: Tokenomics errors
@@ -27,6 +27,8 @@
 #   - 12000-12499: AI Assistant errors
 #   - 12500-12999: ClickHouse errors (data-service's analytical store)
 #   - 13000-13499: Agent Observability errors
+#   - 13500-13999: Simulation errors
+#   - 14000-14499: Wizard errors
 #
 # Schema: See ErrorCatalogEntry model in orbit/libs/python/error_management/models/
 #
@@ -468,6 +470,30 @@
     - "judge model's response was cut off"
   telemetry_tags: ["parsing", "truncation"]
 
+# A filter or sort in a list, search or count request that the query builder cannot apply: an unknown
+# column, a value of the wrong type for its operator, or a filter type that does not match the column.
+# Raised explicitly by libs/python/utils/log_records, so data-service callers get a 4xx with the reason.
+- error_code: 1029
+  error_type: data_validation_error
+  error_group: shared
+  severity: low
+  default_message: A filter or sort in this request is not valid.
+  user_action: Check the filter and sort names, operators and values in the request, then try again.
+  http_status_code: 400
+  retriable: false
+  telemetry_tags: ["shared", "validation", "filter"]
+
+# Run name already exists within its project and task type
+- error_code: 1030
+  error_type: data_validation_error
+  error_group: shared
+  severity: medium
+  default_message: A run with this name and task type already exists in this project.
+  user_action: Please use another run name.
+  http_status_code: 400
+  retriable: false
+  telemetry_tags: ["run", "conflict"]
+
 # Generic forbidden: a feature gate (metrics RBAC off, audit log reads disabled) or a credential
 # that cannot authorize the operation (project-scoped API key on an org-scoped internal authz check)
 - error_code: 1403
@@ -876,6 +902,64 @@
   user_action: Save the metric's code again to create a new version. If the metric is synced from another cluster, or this persists, contact support.
   retriable: false
   telemetry_tags: ["metrics", "code_scorer", "code_digest"]
+
+# Metrics-specific: on its last attempt, the session trigger read the session's own row but none
+# of its traces. Scoring it would hand the session judge an empty session, so its session-native
+# metrics are marked not_computed with this code instead of staying pending.
+- error_code: 2031
+  error_type: data_validation_error
+  error_group: metrics
+  severity: low
+  default_message: Session-level metrics were not computed because this session's traces could not be read when it was scored.
+  user_action: Recompute this session's metrics. If this persists, contact support.
+  retriable: true
+  telemetry_tags: ["metrics", "session", "no_traces"]
+
+# Metrics-specific: a code metric version has no stored SHA-256 of its uploaded code
+# (scorer_versions.code_sha256 is NULL), or a run names a saved version without carrying its row.
+# A version has no digest when it was saved before digests were recorded. A synced version with
+# no digest keeps none while code_metric_package_policy is off. The remote executor runs code
+# only against that upload-time hash, so the runner refuses the version before any of its code is
+# sent. A local run of the version is not refused.
+- error_code: 2032
+  error_type: workflow_error
+  error_group: metrics
+  severity: high
+  default_message: This metric version has no record of the code uploaded for it, so it was not run.
+  user_action: Save the metric's code again to create a new version, and select it in any run whose metric settings pin the old version. If the metric is synced from another cluster, or this persists, contact support.
+  retriable: false
+  telemetry_tags: ["metrics", "code_scorer", "code_digest"]
+
+# Metrics-specific: with the code_metric_package_policy flag on, api refused to turn on a code
+# metric. The version that would run was saved before package checks, has no stored hashed
+# lockfile, or pins a package version that the current package policy blocks. The detail holds one
+# line per refused metric, joined with "\n". A block line names the first blocked package version
+# and its reason. A client that shows each metric's error (SAO-19725) splits the detail on "\n".
+- error_code: 2034
+  error_type: workflow_error
+  error_group: metrics
+  severity: medium
+  default_message: This code metric cannot be turned on because of the package policy.
+  user_action: Save the metric again so that its packages are checked. If the message names a blocked package version, declare an allowed version, or wait until the policy allows one. If the message says a package is not on the allowed package list, remove that dependency, or ask your administrator to allow the package.
+  http_status_code: 422
+  retriable: false
+  telemetry_tags: ["metrics", "code_scorer", "package_policy"]
+
+# Metrics-specific: with the code_metric_package_policy flag on, runners refused to run a saved code
+# metric version before any of its code was sent. The version has no stored code digest, was saved
+# before package checks, has no stored hashed lockfile, or pins a package version that the current
+# package policy blocks. A block message names the first blocked package version and its reason.
+# Each message already says what to do, and display appends user_action, so user_action adds only
+# the pinned-version step and the escalation. A block of a standard-environment pin shows a platform
+# text that does not say to save, so the pinned-version step is conditional.
+- error_code: 2035
+  error_type: workflow_error
+  error_group: metrics
+  severity: medium
+  default_message: This code metric cannot run because of the package policy.
+  user_action: When the message says to save the metric, saving creates a new version, so select it in any run whose metric settings pin the old version, and make it the default if the metric has an explicit default version. If the metric is synced from another cluster, or this persists, contact support.
+  retriable: false
+  telemetry_tags: ["metrics", "code_scorer", "package_policy"]
 
 # =============================================================================
 # SECTION 2.5: TOKENOMICS ERRORS (2500-2999)
@@ -1286,6 +1370,161 @@
   http_status_code: 403
   retriable: false
   telemetry_tags: ["tokenomics", "wc", "visibility"]
+
+# The Efficiency section was requested in the individual view (see TokenomicsService.get_v1_efficiency)
+- error_code: 2537
+  error_type: permission_error
+  error_group: tokenomics
+  severity: low
+  default_message: The Efficiency section is not available in the individual view.
+  user_action: The Efficiency section is available to people with reports and to organization viewers.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["tokenomics", "access", "efficiency"]
+
+# The Insights section was requested in the individual view (see TokenomicsAccessService.raise_if_insights_view_refused)
+- error_code: 2539
+  error_type: permission_error
+  error_group: tokenomics
+  severity: low
+  default_message: Insights are not available in the individual view.
+  user_action: Insights are available to people with reports and to organization viewers.
+  http_status_code: 403
+  retriable: false
+  telemetry_tags: ["tokenomics", "access", "insights"]
+
+# The Insights endpoint is protected by the Tokenomics design enhancements flag.
+- error_code: 2538
+  error_type: not_found_error
+  error_group: tokenomics
+  severity: low
+  default_message: Tokenomics design enhancements are not enabled.
+  user_action: No action needed.
+  http_status_code: 404
+  retriable: false
+  telemetry_tags: ["tokenomics", "design_enhancements", "feature_flag"]
+
+# GenAI Lens: a live lens name is unique within an organization, ignoring case.
+- error_code: 2540
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: low
+  default_message: A lens with this name already exists.
+  user_action: Choose a different lens name.
+  http_status_code: 409
+  retriable: false
+  telemetry_tags: ["tokenomics", "genai_lens"]
+
+# GenAI Lens: the lens is missing, soft-deleted or in another organization.
+- error_code: 2543
+  error_type: not_found_error
+  error_group: tokenomics
+  severity: low
+  default_message: The lens does not exist.
+  user_action: Reload the lens list and select a lens again.
+  http_status_code: 404
+  retriable: false
+  telemetry_tags: ["tokenomics", "genai_lens"]
+
+# GenAI Lens: the organization already has the maximum number of live lenses.
+- error_code: 2545
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: low
+  default_message: The organization has the maximum number of lenses.
+  user_action: Delete a lens that you no longer need, then try again.
+  http_status_code: 409
+  retriable: false
+  telemetry_tags: ["tokenomics", "genai_lens"]
+
+# GenAI Lens: the lens has been saved the maximum number of times.
+- error_code: 2546
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: low
+  default_message: The lens has reached its edit limit.
+  user_action: Create a new lens with the current definition.
+  http_status_code: 409
+  retriable: false
+  telemetry_tags: ["tokenomics", "genai_lens"]
+
+# Generic-account import requires an active directory generation for owner resolution
+- error_code: 2547
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: medium
+  default_message: An active directory hierarchy is required before importing generic accounts.
+  user_action: Upload and activate a directory hierarchy, then retry the generic-account import.
+  http_status_code: 409
+  retriable: true
+  telemetry_tags: ["tokenomics", "generic_accounts", "directory_generation"]
+
+# Another generic-account snapshot is active or currently being imported
+- error_code: 2548
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: medium
+  default_message: A generic-account snapshot is already active or being imported.
+  user_action: Wait for the current import to finish, then retry with the updated snapshot.
+  http_status_code: 409
+  retriable: true
+  telemetry_tags: ["tokenomics", "generic_accounts", "import", "conflict"]
+
+# Generic-account CSV validation failed; structured row and column errors are returned in detail
+- error_code: 2549
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: low
+  default_message: The generic-account CSV failed validation.
+  user_action: Correct the listed CSV errors and upload the file again.
+  http_status_code: 422
+  retriable: false
+  telemetry_tags: ["tokenomics", "generic_accounts", "import", "validation"]
+
+# The snapshot could not be completely projected and verified in ClickHouse
+- error_code: 2550
+  error_type: system_error
+  error_group: tokenomics
+  severity: high
+  default_message: Generic-account import could not be projected and verified.
+  user_action: Retry the import. The previously active snapshot remains in use.
+  http_status_code: 502
+  retriable: true
+  blocking: true
+  telemetry_tags: ["tokenomics", "generic_accounts", "projection"]
+
+# Generic-account upload filename is missing, too long, or not a CSV filename
+- error_code: 2551
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: low
+  default_message: The generic-account upload must be a supported CSV file.
+  user_action: Upload a .csv file with a filename no longer than 255 characters.
+  http_status_code: 422
+  retriable: false
+  telemetry_tags: ["tokenomics", "generic_accounts", "import", "filename"]
+
+# Generic-account upload content type is unsupported
+- error_code: 2552
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: low
+  default_message: The generic-account CSV content type is not supported.
+  user_action: Upload the CSV using a supported CSV content type.
+  http_status_code: 415
+  retriable: false
+  telemetry_tags: ["tokenomics", "generic_accounts", "import", "content_type"]
+
+# Generic-account upload exceeds the configured file size limit
+- error_code: 2553
+  error_type: data_validation_error
+  error_group: tokenomics
+  severity: low
+  default_message: The generic-account file exceeds the maximum allowed size.
+  user_action: Reduce the file size to 25 MiB or less and upload it again.
+  http_status_code: 413
+  retriable: false
+  telemetry_tags: ["tokenomics", "generic_accounts", "import", "file_size"]
 
 # =============================================================================
 # SECTION 3: PLAYGROUND & EXPERIMENTS ERRORS (3000-3999)
@@ -1809,6 +2048,154 @@
   http_status_code: 500
   telemetry_tags: ["dataset"]
 
+# Exact dataset preview and revision-write failures
+- error_code: 4015
+  error_type: data_validation_error
+  error_group: dataset
+  severity: medium
+  default_message: If-Match is required for draft preview.
+  user_action: Send the selected draft_revision in the If-Match header and retry the preview.
+  http_status_code: 428
+  telemetry_tags: ["dataset", "preview"]
+
+- error_code: 4016
+  error_type: data_validation_error
+  error_group: dataset
+  severity: medium
+  default_message: Draft content is missing, unreadable, or has no usable revision.
+  user_action: Check the selected draft content. Restore missing or unreadable content only if intended, or select another dataset. Use its usable revision in If-Match.
+  http_status_code: 412
+  telemetry_tags: ["dataset", "preview"]
+
+- error_code: 4017
+  error_type: data_validation_error
+  error_group: dataset
+  severity: medium
+  default_message: The selected draft revision has changed.
+  user_action: Read current_revision from the conflict detail or the dataset content endpoint, review the current content, and retry explicitly.
+  http_status_code: 412
+  telemetry_tags: ["dataset", "preview"]
+
+- error_code: 4018
+  error_type: data_validation_error
+  error_group: dataset
+  severity: medium
+  default_message: The revision precondition must identify one exact snapshot.
+  user_action: Send one bare revision or strong quoted revision in If-Match. Weak tags, wildcards, and multiple tags cannot select an exact snapshot.
+  http_status_code: 422
+  telemetry_tags: ["dataset", "preview"]
+
+- error_code: 4019
+  error_type: data_validation_error
+  error_group: dataset
+  severity: medium
+  default_message: Dataset mappings name missing or reserved source columns.
+  user_action: Correct the mappings listed in field_errors using available source columns.
+  http_status_code: 422
+  telemetry_tags: ["dataset", "preview"]
+
+- error_code: 4020
+  error_type: data_validation_error
+  error_group: dataset
+  severity: medium
+  default_message: The dataset preview cursor is invalid for this snapshot.
+  user_action: Restart preview pagination for the same exact dataset reference and mappings, using only server-issued next_cursor values.
+  http_status_code: 422
+  telemetry_tags: ["dataset", "preview"]
+
+# 4021 is reserved. Do not reuse it for an unrelated error.
+- error_code: 4022
+  error_type: data_validation_error
+  error_group: dataset
+  severity: medium
+  default_message: Dataset preview exceeds the response size limit.
+  user_action: Reduce the selected mappings or source-column names and request a new preview.
+  http_status_code: 422
+  telemetry_tags: ["dataset", "preview"]
+
+- error_code: 4023
+  error_type: not_found_error
+  error_group: dataset
+  severity: medium
+  default_message: The selected immutable version or its content is unavailable or unreadable.
+  user_action: Select an available exact dataset version with readable content before requesting a preview. Contact support if the expected version is missing or unreadable.
+  http_status_code: 404
+  telemetry_tags: ["dataset", "preview"]
+
+- error_code: 4024
+  error_type: data_validation_error
+  error_group: dataset
+  severity: medium
+  default_message: Dataset preview pagination is invalid.
+  user_action: Use a limit between 1 and 100, server-issued cursors for semantic preview, and non-negative offsets for legacy preview.
+  http_status_code: 422
+  telemetry_tags: ["dataset", "preview"]
+
+- error_code: 4025
+  error_type: not_found_error
+  error_group: dataset
+  severity: medium
+  default_message: Dataset is unavailable in this organization.
+  user_action: Select an available dataset in the current organization and retry the upload.
+  http_status_code: 404
+  telemetry_tags: ["dataset", "preview"]
+
+- error_code: 4026
+  error_type: data_validation_error
+  error_group: dataset
+  severity: medium
+  default_message: Dataset is published and no longer accepts a draft preview precondition.
+  user_action: Reload dataset details. If it is published, preview without If-Match or choose an exact dataset version.
+  http_status_code: 422
+  telemetry_tags: ["dataset", "preview"]
+
+- error_code: 4027
+  error_type: data_validation_error
+  error_group: dataset
+  severity: medium
+  default_message: Generated content request exceeds the encoded request limit.
+  user_action: Send fewer generated rows or smaller values, then retry with a request within the encoded limit.
+  http_status_code: 413
+  telemetry_tags: ["dataset", "generated_content", "request_size"]
+
+- error_code: 4028
+  error_type: data_validation_error
+  error_group: dataset
+  severity: medium
+  default_message: Dataset role columns require explicit column mapping before publication.
+  user_action: Apply complete column_mapping with PATCH /datasets/{dataset_id}. Include source columns for input, output, generated_output, or metadata alongside the named role columns, then publish.
+  http_status_code: 422
+  telemetry_tags: ["dataset", "publication"]
+
+- error_code: 4029
+  error_type: system_error
+  error_group: dataset
+  severity: medium
+  default_message: Dataset revision storage is temporarily unavailable.
+  user_action: Wait for storage to recover, then retry revision discovery without changing draft content.
+  retriable: true
+  http_status_code: 503
+  telemetry_tags: ["dataset", "preview", "storage"]
+
+- error_code: 4030
+  error_type: data_validation_error
+  error_group: dataset
+  severity: medium
+  default_message: Dataset metadata exceeds the revision inspection limit.
+  user_action: Select a dataset with smaller schema metadata, or contact support about the inspection limit. Keep the existing content.
+  http_status_code: 413
+  telemetry_tags: ["dataset", "revision", "metadata_limit"]
+
+- error_code: 4031
+  error_type: system_error
+  error_group: dataset
+  severity: medium
+  default_message: Dataset version allocation is unavailable.
+  user_action: Preserve the dataset and original request. Contact support with the dataset ID and error code before retrying publication, content edits, or copy. Do not delete reservations or overwrite content to clear this error.
+  retriable: false
+  http_status_code: 503
+  telemetry_tags: ["dataset", "version_allocation"]
+
 # =============================================================================
 # SECTION 5: SIGNALS ERRORS (5000-5999) [previously: Logstream Insights (LSI)]
 # =============================================================================
@@ -2032,6 +2419,28 @@
   http_status_code: 422
   retriable: false
   telemetry_tags: ["ssrf", "alert_settings", "generic_webhook"]
+
+# Simulation inference requests can name only an integration available to their owner.
+- error_code: 7015
+  error_type: not_found_error
+  error_group: integrations
+  severity: medium
+  default_message: The selected model integration is unavailable to the simulation request.
+  user_action: Select an integration and model available to the requested owner.
+  http_status_code: 422
+  retriable: false
+  telemetry_tags: ["integrations", "simulation"]
+
+# Simulation endpoints validate provider tool arguments before returning them to callers.
+- error_code: 7016
+  error_type: llm_api_error
+  error_group: integrations
+  severity: high
+  default_message: The model returned an invalid simulation reply.
+  user_action: Retry the request. Contact support if the model continues to return invalid replies.
+  http_status_code: 502
+  retriable: true
+  telemetry_tags: ["integrations", "simulation", "invalid_reply"]
 
 # =============================================================================
 # SECTION 7.5: PROVIDER MANAGEMENT API INTEGRATION ERRORS (7500-7999)
@@ -2293,6 +2702,18 @@
   http_status_code: 500
   retriable: true
   telemetry_tags: ["annotation_queue", "ratings", "write"]
+
+# A selected record or a published queue removal is not yet visible.
+# Earlier groups can already be applied. Retry the same explicit IDs.
+- error_code: 8012
+  error_type: timeout_error
+  error_group: annotations
+  severity: medium
+  default_message: Some selected records or annotation queue changes are not yet visible.
+  user_action: Retry in a few moments; if it persists, open a support case with the queue ID and the time window.
+  http_status_code: 503
+  retriable: true
+  telemetry_tags: ["annotation_queue", "membership", "visibility"]
 
 # =============================================================================
 # SECTION 9: AUTHENTICATION ERRORS (8500-8999)
@@ -2563,6 +2984,17 @@
   retriable: false
   http_status_code: 403
   telemetry_tags: ["auth", "immutable_role", "capability_based"]
+
+# Last local administrator membership is protected
+- error_code: 8525
+  error_type: permission_error
+  error_group: authentication
+  severity: medium
+  default_message: At least one local admin must remain in the organization.
+  user_action: Assign another local admin in the same organization before removing or demoting this admin.
+  retriable: false
+  http_status_code: 422
+  telemetry_tags: ["auth", "membership", "last_local_admin"]
 
 # =============================================================================
 # SECTION 10: COMPONENT VIEW ERRORS (9000-9499)
@@ -2960,6 +3392,17 @@
   http_status_code: 422
   telemetry_tags: ["logstream", "authorization"]
 
+# Log stream alert condition aggregates a root column that alerts do not support
+- error_code: 10506
+  error_type: data_validation_error
+  error_group: logstream
+  severity: medium
+  default_message: The alert condition uses a field that is not a supported root column.
+  user_action: Use status_code for a root column condition, or use metric/numeric/v2 for a metric such as duration_ns.
+  http_status_code: 400
+  retriable: false
+  telemetry_tags: ["logstream", "alerts"]
+
 
 # =============================================================================
 # SECTION 14: ORGANIZATION ERRORS (11000-11499)
@@ -3034,6 +3477,62 @@
   retriable: true
   http_status_code: 500
   telemetry_tags: ["organization", "provisioning", "concurrency", "retriable"]
+
+# Luna lifecycle errors are selected explicitly by the optional provisioner API.
+# No patterns or exception mapping may change classification of existing errors.
+- error_code: 11005
+  error_type: configuration_error
+  error_group: organization
+  severity: high
+  default_message: Luna tenant lifecycle integration is not configured correctly.
+  user_action: Ask an administrator to enable and configure the dedicated Luna provisioner credentials, database role, and connection.
+  http_status_code: 503
+  retriable: false
+  blocking: true
+  telemetry_tags: ["organization", "luna", "tenant_lifecycle", "configuration"]
+
+- error_code: 11006
+  error_type: system_error
+  error_group: organization
+  severity: high
+  default_message: Luna tenant lifecycle integration is unavailable.
+  user_action: Retry after checking Luna availability. For an action, reuse the same operation ID and unchanged request. If this persists, ask an administrator to verify the database connection and lifecycle contract.
+  http_status_code: 503
+  retriable: true
+  blocking: true
+  telemetry_tags: ["organization", "luna", "tenant_lifecycle", "availability"]
+
+- error_code: 11007
+  error_type: workflow_error
+  error_group: organization
+  severity: medium
+  default_message: Luna tenant lifecycle state conflicts with this request.
+  user_action: Read or reconcile the tenant status first. For a stale lifecycle generation, read the current lifecycle_generation of each organization in the request, then submit the action again with those values and a new operation ID. A reassignment needs both expected_source_generation and expected_target_generation. For a state or drain conflict, resolve the conflict before submitting a compatible action.
+  http_status_code: 409
+  retriable: false
+  blocking: true
+  telemetry_tags: ["organization", "luna", "tenant_lifecycle", "conflict"]
+
+- error_code: 11008
+  error_type: data_validation_error
+  error_group: organization
+  severity: medium
+  default_message: Luna rejected the tenant lifecycle request.
+  user_action: Correct the tenant lifecycle action parameters and submit the request again.
+  http_status_code: 422
+  retriable: false
+  telemetry_tags: ["organization", "luna", "tenant_lifecycle", "validation"]
+
+- error_code: 11009
+  error_type: permission_error
+  error_group: organization
+  severity: high
+  default_message: Luna tenant lifecycle request was not authorized.
+  user_action: Ask an administrator to verify the dedicated provisioner database role and its grants on the tenant lifecycle functions.
+  http_status_code: 403
+  retriable: false
+  blocking: true
+  telemetry_tags: ["organization", "luna", "tenant_lifecycle", "permission"]
 
 
 # =============================================================================
@@ -3315,3 +3814,364 @@
   http_status_code: 404
   retriable: false
   telemetry_tags: ["agent_observability", "not_found"]
+
+# =============================================================================
+# SECTION: SIMULATION ERRORS (13500-13999)
+# =============================================================================
+#
+# Description: Errors of agent simulation: actor templates, scenarios and
+#              brief generation.
+#
+# When to add here:
+#   - An actor template or scenario request cannot be served
+#   - A brief generation run stops for a reason the caller can act on
+
+# --- Brief generation (13500-13509) ---
+# A runners task reports these in the status of the run's dataset.
+
+# The brief generation request failed validation
+- error_code: 13500
+  error_type: data_validation_error
+  error_group: simulations
+  severity: medium
+  default_message: The brief generation request is invalid.
+  user_action: Fix the fields that the message names, then start the run again.
+  retriable: false
+  telemetry_tags: ["simulation", "validation"]
+
+# The scenario of a brief generation request failed validation
+- error_code: 13501
+  error_type: data_validation_error
+  error_group: simulations
+  severity: medium
+  default_message: The scenario is invalid.
+  user_action: Fix the scenario fields that the message names, then start the run again.
+  retriable: false
+  telemetry_tags: ["simulation", "validation", "scenario"]
+
+# The requested number of briefs is outside the allowed range
+- error_code: 13502
+  error_type: data_validation_error
+  error_group: simulations
+  severity: low
+  default_message: The number of briefs must be from 1 to 1000.
+  user_action: Request between 1 and 1000 briefs.
+  retriable: false
+  telemetry_tags: ["simulation", "validation"]
+
+# The user cannot read the chosen model integration
+- error_code: 13503
+  error_type: configuration_error
+  error_group: simulations
+  severity: medium
+  default_message: The chosen model integration is not available to the user who started the run.
+  user_action: Choose an integration that this user can read, or share the integration with them.
+  retriable: false
+  telemetry_tags: ["simulation", "integration"]
+
+# The dataset for the briefs is not in the project, or the user cannot change it
+- error_code: 13504
+  error_type: not_found_error
+  error_group: simulations
+  severity: medium
+  default_message: The dataset for the briefs is not in the project, or the user who started the run cannot change it.
+  user_action: Create the dataset in the project, or let the user edit it, then start the run again.
+  retriable: false
+  telemetry_tags: ["simulation", "dataset"]
+
+# Every candidate was skipped, so the run wrote no brief
+- error_code: 13505
+  error_type: llm_api_error
+  error_group: simulations
+  severity: medium
+  default_message: No brief was written, because the model's drafts were rejected for every candidate.
+  user_action: Read the run's warnings for the rejection reasons, adjust the scenario or the model, then start the run again.
+  retriable: true
+  telemetry_tags: ["simulation", "generation"]
+
+# The run did not finish within its deadline
+- error_code: 13506
+  error_type: system_error
+  error_group: simulations
+  severity: medium
+  default_message: The run did not finish within its deadline.
+  user_action: Request fewer briefs, or choose a faster model, then start the run again.
+  retriable: true
+  telemetry_tags: ["simulation", "timeout"]
+
+# The run could not save briefs to its dataset
+- error_code: 13507
+  error_type: system_error
+  error_group: simulations
+  severity: medium
+  default_message: The briefs could not be saved to the dataset.
+  user_action: Make sure nothing else writes to the dataset during the run, then start the run again. A new run appends after the briefs that this run saved.
+  retriable: true
+  telemetry_tags: ["simulation", "dataset"]
+
+# The run could not take its dataset out of draft
+- error_code: 13508
+  error_type: system_error
+  error_group: simulations
+  severity: medium
+  default_message: The dataset could not be taken out of draft.
+  user_action: The briefs are saved. Take the dataset out of draft within 24 hours, or the draft cleanup deletes it.
+  retriable: true
+  telemetry_tags: ["simulation", "dataset"]
+
+# --- Every simulation endpoint (13510-13549) ---
+
+# The simulations feature flag is off, so every simulation endpoint reads as not found
+- error_code: 13510
+  error_type: not_found_error
+  error_group: simulations
+  severity: low
+  default_message: Simulations are not enabled.
+  user_action: Ask your Galileo administrator to enable simulations.
+  http_status_code: 404
+  retriable: false
+  message_patterns:
+    - "simulations are not enabled"
+  telemetry_tags: ["simulations", "feature_flag"]
+
+# --- Actor templates (13550-13599) ---
+
+# The template is not a built-in template and not a custom template of the project
+- error_code: 13550
+  error_type: not_found_error
+  error_group: simulations
+  severity: medium
+  default_message: The actor template was not found in this project.
+  user_action: Check the actor template ID. A custom template is available only in the project that owns it.
+  http_status_code: 404
+  retriable: false
+  message_patterns:
+    - "actor template not found"
+  telemetry_tags: ["simulations", "actor_template", "not_found"]
+
+# Built-in templates cannot be updated or deleted
+- error_code: 13551
+  error_type: permission_error
+  error_group: simulations
+  severity: low
+  default_message: Built-in actor templates are read-only.
+  user_action: Duplicate the built-in template, then change the copy.
+  http_status_code: 403
+  retriable: false
+  message_patterns:
+    - "built-in actor templates are read-only"
+  telemetry_tags: ["simulations", "actor_template", "built_in"]
+
+# Another custom template in the project has the same normalized name
+- error_code: 13552
+  error_type: data_validation_error
+  error_group: simulations
+  severity: low
+  default_message: An actor template with this name already exists in this project.
+  user_action: Choose a different name. The comparison ignores letter case and leading or trailing spaces, and it treats each space as an underscore.
+  http_status_code: 409
+  retriable: false
+  message_patterns:
+    - "actor template named .* already exists"
+  telemetry_tags: ["simulations", "actor_template", "conflict"]
+
+# A scenario's actor mix or current brief refers to the template
+- error_code: 13553
+  error_type: data_validation_error
+  error_group: simulations
+  severity: low
+  default_message: The actor template is in use by scenarios in this project.
+  user_action: Remove the template from each scenario's actor mix, and regenerate or delete the briefs that follow it. Then delete the template again.
+  http_status_code: 409
+  retriable: false
+  message_patterns:
+    - "actor template is in use"
+  telemetry_tags: ["simulations", "actor_template", "conflict", "in_use"]
+
+# --- Scenarios (13600-13649) ---
+
+# The scenario does not exist in the project
+- error_code: 13600
+  error_type: not_found_error
+  error_group: simulations
+  severity: medium
+  default_message: The scenario was not found in this project.
+  user_action: Check the scenario ID. A scenario is available only in the project that owns it.
+  http_status_code: 404
+  retriable: false
+  message_patterns:
+    - "scenario not found"
+  telemetry_tags: ["simulations", "scenario", "not_found"]
+
+# Another scenario in the project has the same normalized name
+- error_code: 13601
+  error_type: data_validation_error
+  error_group: simulations
+  severity: low
+  default_message: A scenario with this name already exists in this project.
+  user_action: Choose a different name. The comparison ignores letter case and leading or trailing spaces, and it treats each space as an underscore.
+  http_status_code: 409
+  retriable: false
+  message_patterns:
+    - "scenario named .* already exists"
+  telemetry_tags: ["simulations", "scenario", "conflict"]
+
+# A simulation run refers to the scenario
+- error_code: 13602
+  error_type: data_validation_error
+  error_group: simulations
+  severity: low
+  default_message: The scenario is in use by simulation runs.
+  user_action: Keep the scenario. A scenario that simulation runs refer to cannot be deleted, because each run links to it.
+  http_status_code: 409
+  retriable: false
+  message_patterns:
+    - "scenario is in use"
+  telemetry_tags: ["simulations", "scenario", "conflict", "in_use"]
+
+# --- Scenario parts (13650-13699) ---
+# Goals, actor mix entries, facts, simulated tools and evaluation items.
+
+# The goal does not exist in the scenario
+- error_code: 13650
+  error_type: not_found_error
+  error_group: simulations
+  severity: medium
+  default_message: The goal was not found in this scenario.
+  user_action: Check the scenario ID and the goal ID. Each goal is available only in the scenario that owns it.
+  http_status_code: 404
+  retriable: false
+  message_patterns:
+    - "goal not found"
+  telemetry_tags: ["simulations", "scenario", "goal", "not_found"]
+
+# The actor mix entry does not exist in the scenario
+- error_code: 13651
+  error_type: not_found_error
+  error_group: simulations
+  severity: medium
+  default_message: The actor mix entry was not found in this scenario.
+  user_action: Check the scenario ID and the actor mix entry ID. Each actor mix entry is available only in the scenario that owns it.
+  http_status_code: 404
+  retriable: false
+  message_patterns:
+    - "actor mix entry not found"
+  telemetry_tags: ["simulations", "scenario", "actor_mix", "not_found"]
+
+# The fact does not exist in the scenario
+- error_code: 13652
+  error_type: not_found_error
+  error_group: simulations
+  severity: medium
+  default_message: The fact was not found in this scenario.
+  user_action: Check the scenario ID and the fact ID. Each fact is available only in the scenario that owns it.
+  http_status_code: 404
+  retriable: false
+  message_patterns:
+    - "fact not found"
+  telemetry_tags: ["simulations", "scenario", "fact", "not_found"]
+
+# The simulated tool does not exist in the scenario
+- error_code: 13653
+  error_type: not_found_error
+  error_group: simulations
+  severity: medium
+  default_message: The simulated tool was not found in this scenario.
+  user_action: Check the scenario ID and the simulated tool ID. Each simulated tool is available only in the scenario that owns it.
+  http_status_code: 404
+  retriable: false
+  message_patterns:
+    - "simulated tool not found"
+  telemetry_tags: ["simulations", "scenario", "tool", "not_found"]
+
+# The evaluation item does not exist in the scenario
+- error_code: 13654
+  error_type: not_found_error
+  error_group: simulations
+  severity: medium
+  default_message: The evaluation item was not found in this scenario.
+  user_action: Check the scenario ID and the evaluation item ID. Each evaluation item is available only in the scenario that owns it.
+  http_status_code: 404
+  retriable: false
+  message_patterns:
+    - "evaluation item not found"
+  telemetry_tags: ["simulations", "scenario", "evaluation_item", "not_found"]
+
+# The scenario has as many parts of this kind as it can hold
+- error_code: 13655
+  error_type: data_validation_error
+  error_group: simulations
+  severity: low
+  default_message: The scenario already has the maximum number of parts of this kind.
+  user_action: Delete a part of this kind from the scenario, then add the new one.
+  http_status_code: 409
+  retriable: false
+  message_patterns:
+    - "scenario already has the maximum of"
+  telemetry_tags: ["simulations", "scenario", "limit", "conflict"]
+
+# Another entry of the actor mix has the same actor template
+- error_code: 13656
+  error_type: data_validation_error
+  error_group: simulations
+  severity: low
+  default_message: The actor template is already in the scenario's actor mix.
+  user_action: Change the weight of the existing entry instead of adding the template again.
+  http_status_code: 409
+  retriable: false
+  message_patterns:
+    - "actor template .* is already in the actor mix"
+  telemetry_tags: ["simulations", "scenario", "actor_mix", "conflict"]
+
+# Another fact of the scenario has the same key
+- error_code: 13657
+  error_type: data_validation_error
+  error_group: simulations
+  severity: low
+  default_message: A fact with this key already exists in this scenario.
+  user_action: Choose a different key, or change the existing fact. The comparison is case-sensitive.
+  http_status_code: 409
+  retriable: false
+  message_patterns:
+    - "fact with key .* already exists"
+  telemetry_tags: ["simulations", "scenario", "fact", "conflict"]
+
+# Another simulated tool of the scenario has the same name
+- error_code: 13658
+  error_type: data_validation_error
+  error_group: simulations
+  severity: low
+  default_message: A simulated tool with this name already exists in this scenario.
+  user_action: Choose a different name, or change the existing tool. The comparison is case-sensitive.
+  http_status_code: 409
+  retriable: false
+  message_patterns:
+    - "simulated tool named .* already exists"
+  telemetry_tags: ["simulations", "scenario", "tool", "conflict"]
+
+# Another evaluation item of the scenario has the same evaluator
+- error_code: 13659
+  error_type: data_validation_error
+  error_group: simulations
+  severity: low
+  default_message: The evaluator is already in the scenario's evaluation items.
+  user_action: Change the existing evaluation item instead of adding the evaluator again.
+  http_status_code: 409
+  retriable: false
+  message_patterns:
+    - "evaluator .* is already in the evaluation items"
+  telemetry_tags: ["simulations", "scenario", "evaluation_item", "conflict"]
+
+# =============================================================================
+# SECTION: WIZARD ERRORS (14000-14499)
+# =============================================================================
+
+- error_code: 14000
+  error_type: data_validation_error
+  error_group: wizard
+  severity: medium
+  default_message: The input is too long to calculate this metric. Shorten the input and try again.
+  user_action: Shorten the conversation, tool definitions, or response used by the metric, then recompute it.
+  http_status_code: 400
+  retriable: false
+  telemetry_tags: ["wizard", "context"]
