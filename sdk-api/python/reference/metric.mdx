@@ -10,14 +10,12 @@ Provides convenient access to built-in Galileo metrics (formerly "scorers").
 
 **Examples**
 
-```python
 from galileo.metric import Metric
 
 # Access built-in metrics
 Metric.metrics.correctness
 Metric.metrics.completeness
 Metric.metrics.toxicity
-```
 
 ## Metric
 
@@ -48,7 +46,6 @@ Class Attributes
 
 **Examples**
 
-```python
 # 1. Use built-in Galileo scorers
 from galileo import Metric, GalileoMetric, LlmMetric, LocalMetric, LogStream
 
@@ -74,7 +71,6 @@ local_metric = LocalMetric(
     name="response_length",
     scorer_fn=my_scorer,
 )
-```
 
 ### delete
 
@@ -88,10 +84,8 @@ Only works for server-side metrics. Local metrics don't need deletion.
 
 **Examples**
 
-```python
 metric = Metric.get(name="factuality-checker")
 metric.delete()
-```
 
 ### delete_by_name
 
@@ -153,10 +147,8 @@ Updates all attributes with the latest values from the remote API.
 
 **Examples**
 
-```python
 metric.refresh()
 assert metric.is_synced()
-```
 
 ### to_legacy_metric
 
@@ -171,11 +163,9 @@ the legacy Metric class.
 
 **Examples**
 
-```python
 metric = Metric.get(name="my-metric")
 legacy = metric.to_legacy_metric()
 # Use with existing APIs
-```
 
 ### update
 
@@ -194,11 +184,9 @@ On success the instance is updated with the API response and returned in SYNCED 
 
 **Examples**
 
-```python
 metric = Metric.get(name="factuality-checker")
 metric.update(name="new-name", description="Updated description")
 assert metric.is_synced()
-```
 
 ## LlmMetric
 
@@ -217,7 +205,6 @@ judge using a prompt template.
 
 **Examples**
 
-```python
 # Create custom LLM metric with string model name
 metric = LlmMetric(
     name="response_quality",
@@ -247,7 +234,6 @@ metric = LlmMetric(
     model=gpt_model,  # Model object
     judges=3,
 ).create()
-```
 
 ### create
 
@@ -259,14 +245,12 @@ Persist this LLM metric to the API.
 
 **Examples**
 
-```python
 metric = LlmMetric(
     name="quality_check",
     prompt="Rate the quality...",
     model="gpt-4o-mini"
 ).create()
 assert metric.is_synced()
-```
 
 ## CodeMetric
 
@@ -277,7 +261,6 @@ to evaluate traces/spans.
 
 **Examples**
 
-```python
 # Get existing code metric
 metric = Metric.get(name="my-code-metric")
 assert isinstance(metric, CodeMetric)
@@ -289,6 +272,7 @@ metric = CodeMetric(
     description="Custom code-based scorer",
     tags=["custom", "code"],
     node_level=StepType.llm,
+    output_type=OutputTypeEnum.PERCENTAGE,
 ).create()
 
 # Load code from file
@@ -296,7 +280,6 @@ metric = CodeMetric(
     name="custom_code_scorer",
     node_level=StepType.llm,
 ).load_code("./scorers/my_scorer.py").create()
-```
 
 ### create
 
@@ -312,7 +295,6 @@ validated result.
 
 **Examples**
 
-```python
 # Create with inline code
 metric = CodeMetric(
     name="custom_code_scorer",
@@ -327,7 +309,6 @@ metric = CodeMetric(
     node_level=StepType.llm,
 ).load_code("./scorers/my_scorer.py").create()
 assert metric.is_synced()
-```
 
 ### load_code
 
@@ -350,7 +331,6 @@ completeness, toxicity, etc. Access these via `Metric.metrics`.
 
 **Examples**
 
-```python
 # Access built-in scorers
 from galileo import Metric, LogStream
 
@@ -364,7 +344,6 @@ log_stream.set_metrics([
 # Or get by name
 metric = Metric.get(name="correctness")
 assert isinstance(metric, GalileoMetric)
-```
 
 ## LocalMetric
 
@@ -375,7 +354,6 @@ without making API calls. Useful for simple, deterministic metrics.
 
 **Examples**
 
-```python
 # Create local function-based metric
 def response_length_scorer(trace_or_span):
     if hasattr(trace_or_span, "output") and trace_or_span.output:
@@ -389,9 +367,18 @@ local_metric = LocalMetric(
     aggregatable_types=[StepType.trace],
 )
 
+# Or return (score, metadata) for explainability
+EXPECTED = ["relevance", "accuracy", "completeness"]
+def keyword_coverage(trace_or_span):
+    text = getattr(trace_or_span, "output", "") or ""
+    matched = [k for k in EXPECTED if k in text]
+    return len(matched) / len(EXPECTED), {
+        "matched": matched,
+        "missing": [k for k in EXPECTED if k not in text],
+    }
+
 # Use with log stream
 log_stream.set_metrics([local_metric])
-```
 
 ### to_local_metric_config
 
@@ -403,10 +390,8 @@ Convert to LocalMetricConfig format.
 
 **Examples**
 
-```python
 def my_scorer(trace):
     return 0.5
 
 metric = LocalMetric(name="test", scorer_fn=my_scorer)
 config = metric.to_local_metric_config()
-```

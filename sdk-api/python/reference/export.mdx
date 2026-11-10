@@ -15,7 +15,8 @@ def export_records(project_id: str,
                    log_stream_id: str | None=None,
                    experiment_id: str | None=None,
                    column_ids: list[str] | None=None,
-                   redact: bool=True) -> Iterator[dict[str, Any]]
+                   redact: bool=True,
+                   include_code_metric_metadata: bool=False) -> Iterator[dict[str, Any]]
 ```
 
 Exports records from a Galileo project.
@@ -33,6 +34,9 @@ Defaults to the first logstream if `log_stream_id` and `experiment_id` are not p
 - `column_ids`: A list of column IDs to include in the export.
 - `sort`: A sort clause to order the exported records.
 - `redact`: Redact sensitive data from the response.
+- `include_code_metric_metadata`: If True, include per-row scorer metadata (the dict returned alongside the score by
+    code-based scorers via the (score, metadata) tuple-return contract) on each
+    MetricSuccess in the export. Off by default to keep payloads small.
 
 **Returns**
 
