@@ -281,6 +281,16 @@ export const ErrorCatalogTable = () => {
       "retriable": true
     },
     {
+      "error_code": 1403,
+      "error_type": "permission_error",
+      "error_group": "shared",
+      "severity": "low",
+      "default_message": "You don't have access to this operation.",
+      "user_action": "Check that the feature is enabled for your organization and that your credentials can perform this operation.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
       "error_code": 2000,
       "error_type": "data_validation_error",
       "error_group": "metrics",
@@ -528,7 +538,7 @@ export const ErrorCatalogTable = () => {
       "error_group": "metrics",
       "severity": "low",
       "default_message": "This scorer cannot be run through direct evaluator execution.",
-      "user_action": "Composite, multimodal, system-metric and decision scorers, and scorers hidden on this cluster, are not supported here. Choose a different scorer, or run it through the standard scoring pipeline.",
+      "user_action": "Composite, multimodal and system-metric scorers, and scorers hidden on this cluster, are not supported here. Choose a different scorer, or run it through the standard scoring pipeline.",
       "retriable": false
     },
     {
@@ -545,7 +555,7 @@ export const ErrorCatalogTable = () => {
       "error_type": "configuration_error",
       "error_group": "metrics",
       "severity": "low",
-      "default_message": "This scorer needs an authenticated user to look up LLM credentials.",
+      "default_message": "This scorer needs an authenticated user to look up its provider credentials.",
       "user_action": "Call this scorer with a user in the execution context.",
       "retriable": false
     },
@@ -558,6 +568,15 @@ export const ErrorCatalogTable = () => {
       "user_action": "Ask your Galileo administrator to enable decision evaluators.",
       "retriable": false,
       "http_status_code": 403
+    },
+    {
+      "error_code": 2030,
+      "error_type": "workflow_error",
+      "error_group": "metrics",
+      "severity": "high",
+      "default_message": "This metric version's stored code does not match the code that was uploaded for it, so it was not run.",
+      "user_action": "Save the metric's code again to create a new version. If the metric is synced from another cluster, or this persists, contact support.",
+      "retriable": false
     },
     {
       "error_code": 2500,
@@ -638,6 +657,26 @@ export const ErrorCatalogTable = () => {
       "user_action": "Retry the request.",
       "retriable": true,
       "http_status_code": 500
+    },
+    {
+      "error_code": 2508,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Tokenomics data was republished for this time window since the request was prepared.",
+      "user_action": "Reload the page to fetch the latest published data.",
+      "retriable": false,
+      "http_status_code": 422
+    },
+    {
+      "error_code": 2509,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics",
+      "severity": "medium",
+      "default_message": "Cannot delete a directory generation referenced by historical hierarchy rows.",
+      "user_action": "Keep this directory generation; it is still used by historical hierarchy data.",
+      "retriable": false,
+      "http_status_code": 409
     },
     {
       "error_code": 2510,
@@ -896,6 +935,16 @@ export const ErrorCatalogTable = () => {
       "severity": "low",
       "default_message": "Finance hierarchy access is not available for this user.",
       "user_action": "Ask a finance administrator to assign you to a department or hierarchy node.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
+      "error_code": 2536,
+      "error_type": "permission_error",
+      "error_group": "tokenomics",
+      "severity": "low",
+      "default_message": "Individual WC usage and hidden WC hierarchy nodes are not available.",
+      "user_action": "Request usage for a visible hierarchy node instead.",
       "retriable": false,
       "http_status_code": 403
     },
@@ -1557,6 +1606,46 @@ export const ErrorCatalogTable = () => {
       "http_status_code": 503
     },
     {
+      "error_code": 7650,
+      "error_type": "credentials_error",
+      "error_group": "tokenomics_directory",
+      "severity": "medium",
+      "default_message": "Workday credentials or worker access are invalid.",
+      "user_action": "Verify the client ID and secret, and confirm the credentials can read workers from the configured endpoint.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 7651,
+      "error_type": "data_validation_error",
+      "error_group": "tokenomics_directory",
+      "severity": "medium",
+      "default_message": "The Workday workers endpoint returned an unexpected response.",
+      "user_action": "Verify the workers URL and that it points to the expected worker-list endpoint.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 7652,
+      "error_type": "system_error",
+      "error_group": "tokenomics_directory",
+      "severity": "medium",
+      "default_message": "Workday connection validation could not be completed.",
+      "user_action": "Retry after confirming the Workday service and API outbound connection are available.",
+      "retriable": true,
+      "http_status_code": 503
+    },
+    {
+      "error_code": 7653,
+      "error_type": "configuration_error",
+      "error_group": "tokenomics_directory",
+      "severity": "medium",
+      "default_message": "Directory OAuth endpoint is not configured for this organization.",
+      "user_action": "Contact your deployment administrator to configure the directory OAuth endpoint for this organization.",
+      "retriable": false,
+      "http_status_code": 503
+    },
+    {
       "error_code": 8000,
       "error_type": "data_validation_error",
       "error_group": "annotations",
@@ -1655,6 +1744,26 @@ export const ErrorCatalogTable = () => {
       "user_action": "Retry the request; if it persists, contact support with the annotation ID and details.",
       "http_status_code": 500,
       "retriable": false
+    },
+    {
+      "error_code": 8010,
+      "error_type": "data_validation_error",
+      "error_group": "annotations",
+      "severity": "medium",
+      "default_message": "The annotation rating is not valid for this annotation template.",
+      "user_action": "Check the rating value against the template's allowed values and try again.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 8011,
+      "error_type": "system_error",
+      "error_group": "annotations",
+      "severity": "high",
+      "default_message": "Failed to save the rating change.",
+      "user_action": "Retry the request; if it persists, contact support with the project ID and details.",
+      "retriable": true,
+      "http_status_code": 500
     },
     {
       "error_code": 8500,
@@ -1867,6 +1976,36 @@ export const ErrorCatalogTable = () => {
       "http_status_code": 429
     },
     {
+      "error_code": 8521,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "medium",
+      "default_message": "No valid organization-role assignments found for this user.",
+      "user_action": "Try signing in again. If it keeps failing, ask your administrator to check your Galileo access.",
+      "retriable": false,
+      "http_status_code": 401
+    },
+    {
+      "error_code": 8522,
+      "error_type": "configuration_error",
+      "error_group": "authentication",
+      "severity": "high",
+      "default_message": "SSO login is not available due to a server configuration error.",
+      "user_action": "Contact your Galileo administrator; SSO role provisioning is misconfigured.",
+      "retriable": false,
+      "http_status_code": 500
+    },
+    {
+      "error_code": 8523,
+      "error_type": "permission_error",
+      "error_group": "authentication",
+      "severity": "low",
+      "default_message": "Self-service signup is disabled for SSO. Please sign in through your identity provider.",
+      "user_action": "Sign in through your identity provider instead of signing up.",
+      "retriable": false,
+      "http_status_code": 403
+    },
+    {
       "error_code": 8524,
       "error_type": "permission_error",
       "error_group": "authentication",
@@ -1971,10 +2110,110 @@ export const ErrorCatalogTable = () => {
       "error_type": "data_validation_error",
       "error_group": "component_view",
       "severity": "medium",
-      "default_message": "A restricted access level must have at least one view.",
-      "user_action": "Add a replacement view or change the access level before deleting this view or run.",
+      "default_message": "A view or run required by a restricted access level cannot be deleted.",
+      "user_action": "Add a replacement view or change the level's access before deleting the last assigned view or its run.",
       "retriable": false,
       "http_status_code": 409
+    },
+    {
+      "error_code": 9010,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "Access filters are only supported for logstream views.",
+      "user_action": "Remove the filter or select a logstream view.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 9011,
+      "error_type": "permission_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "Sharing permission is required to change an access view filter.",
+      "user_action": "Ask a project owner to change this filter.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 9012,
+      "error_type": "permission_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "Sharing permission is required to delete an access view.",
+      "user_action": "Ask a project owner to delete this view or change the access level.",
+      "http_status_code": 403,
+      "retriable": false
+    },
+    {
+      "error_code": 9020,
+      "error_type": "not_found_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The custom access level was not found in this project.",
+      "user_action": "Select an access level from this project.",
+      "http_status_code": 404,
+      "retriable": false
+    },
+    {
+      "error_code": 9021,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "low",
+      "default_message": "This custom access level name is unavailable.",
+      "user_action": "Enter a distinct name that is not a standard role name.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 9022,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "This custom access level still has members.",
+      "user_action": "Reassign its users and groups before deleting it.",
+      "http_status_code": 409,
+      "retriable": false
+    },
+    {
+      "error_code": 9023,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The selected view cannot grant access to this run.",
+      "user_action": "Select a same-project logstream view without empty filter groups or annotation-queue filters.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 9024,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The selected view has filters the access level or current view editor cannot represent.",
+      "user_action": "Save a supported access filter on the view before assigning it, or update the filter_tree directly.",
+      "http_status_code": 422,
+      "retriable": false
+    },
+    {
+      "error_code": 9026,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "medium",
+      "default_message": "The custom access level changed before the assignment was saved.",
+      "user_action": "Retry the assignment using a current access level.",
+      "http_status_code": 409,
+      "retriable": false
+    },
+    {
+      "error_code": 9027,
+      "error_type": "data_validation_error",
+      "error_group": "component_view",
+      "severity": "low",
+      "default_message": "This custom access level name is already in use.",
+      "user_action": "Enter a distinct name for this project.",
+      "http_status_code": 409,
+      "retriable": false
     },
     {
       "error_code": 9500,
@@ -2074,6 +2313,26 @@ export const ErrorCatalogTable = () => {
       "default_message": "Unknown column requested in log stream query.",
       "user_action": "Check the column names in your query and try again.",
       "http_status_code": 400,
+      "retriable": false
+    },
+    {
+      "error_code": 10504,
+      "error_type": "not_found_error",
+      "error_group": "logstream",
+      "severity": "low",
+      "default_message": "Log stream not found.",
+      "user_action": "Check the log stream ID or name and the project it belongs to, then try again.",
+      "retriable": false,
+      "http_status_code": 404
+    },
+    {
+      "error_code": 10505,
+      "error_type": "data_validation_error",
+      "error_group": "logstream",
+      "severity": "medium",
+      "default_message": "Log query is outside the authorized scope.",
+      "user_action": "Choose a permitted log view, record type, and time range.",
+      "http_status_code": 422,
       "retriable": false
     },
     {
