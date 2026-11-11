@@ -1,0 +1,70 @@
+---
+title: Evaluate Selected Spans
+description: Learn how to focus a metric on specific child spans within a trace instead of evaluating the full trace
+---
+
+When you create a metric with the **Full Trace (selected spans)** input type, Galileo evaluates only the child spans you select rather than the entire trace. This reduces cost and noise when only a subset of spans carries the signal you care about.
+
+## How it works
+
+A trace can contain many spans — LLM calls, tool calls, retriever lookups, and custom spans. By default, most input types send the full trace context to the evaluator. With selected spans, you define one or more span names. Galileo then:
+
+1. Traverses all child spans in the trace recursively.
+2. Collects spans whose names exactly match any of the names you provided (OR logic).
+3. Sends only the matching spans as the evaluator input.
+
+If a matching span itself has children, those children are included as a pruned subtree — only the matching descendants are kept. If no spans in a trace match, the metric returns `not_applicable` for that trace and no cost is incurred.
+
+## When to use selected spans
+
+| Scenario | Why selected spans helps |
+| --- | --- |
+| Large traces with many irrelevant spans | Reduces token cost significantly compared to full-trace evaluation |
+| Evaluating a specific tool or sub-task | Isolates the signal — for example, evaluate only `web_search` spans |
+| High-volume Log streams | Lower cost per trace enables full-coverage monitoring |
+
+Use the standard **Full Trace (I/O)** input type when you need the complete conversation context to make an accurate judgment.
+
+## Create a metric with selected spans
+
+<Steps>
+
+<Step title="Navigate to the Metrics page">
+From the Galileo main menu, select **Metrics**, then select **Create metric**.
+</Step>
+
+<Step title="Select the input type">
+Under **Apply to**, select **Full Trace (selected spans)**.
+
+A **Span filters** section appears below the input type selector.
+</Step>
+
+<Step title="Add span names">
+Enter the exact name of each span you want to include. For example, enter `web_search` to include only spans named `web_search`.
+
+Select **Add filter** to add more span names. A span is included if it matches **any** of the names you enter.
+</Step>
+
+<Step title="Configure the rest of the metric">
+Complete the metric configuration as usual — write your evaluation question or prompt, set the output type, and configure the model.
+</Step>
+
+<Step title="Test and save">
+Select **Test metric** to verify the metric runs correctly against sample traces, then select **Create Metric**.
+</Step>
+
+</Steps>
+
+## Cost impact
+
+The metric only processes matched spans, so token usage scales with the size of those spans rather than the full trace. For a trace with many spans where only a few are relevant, this can reduce cost significantly.
+
+<Note>
+  If no spans in a trace match your filters, the metric returns `not_applicable` for that trace. This does not count as a failed evaluation and does not incur cost.
+</Note>
+
+## Related resources
+
+- [Custom Decision Model Metrics](/concepts/metrics/custom-metrics/custom-decision-model-metrics)
+- [Custom LLM-as-a-Judge Metrics](/concepts/metrics/custom-metrics/custom-metrics-ui-llm)
+- [Test Metrics](/concepts/metrics/custom-metrics/test-metrics)
