@@ -24,7 +24,9 @@ When using automatic instrumentation libraries (like Traceloop/OpenLLMetry), the
 
 ## Minimum Requirements for Valid Spans
 
-For a span to be considered valid, it must include certain **required** attributes depending on the span type.
+The tables below list the attributes Galileo needs to recognize a span as an agent, LLM, tool, retriever, or workflow span, and to show its inputs, outputs, and metrics. Add these attributes to every span that represents model, agent, tool, or retrieval work.
+
+Spans without GenAI attributes, such as HTTP or framework spans, are still accepted. HTTP spans appear with their method, URL, and status code, and other spans appear as generic spans. These spans do not get the inputs, outputs, token usage, or metrics of a GenAI span type. See [How Galileo Assembles Traces](#how-galileo-assembles-traces).
 
 ### Agent Spans
 
@@ -82,6 +84,24 @@ Workflow spans represent higher-level orchestration units that coordinate multip
 
 <Note>
 Workflow spans are useful for grouping related operations together. When using the Galileo SDK's `start_galileo_span` helper, workflow spans can contain nested child spans for LLM calls, tool executions, and retriever operations.
+</Note>
+
+## How Galileo Assembles Traces
+
+Galileo builds each trace from its **root span**: the span with no `parent_span_id`. Keep these rules in mind when you instrument your application or send spans directly:
+
+- **Send the root span.** A trace appears in the console only after Galileo receives its root span. If the root span is never sent, the child spans are stored but no trace is created, so the trace does not appear in the Traces view.
+- **Order does not matter.** Child spans can arrive before or after the root span, in the same export or in separate exports.
+- **The root span does not need GenAI attributes.** In many applications the root span comes from the web framework or middleware, such as an HTTP server span or an authentication span, and the GenAI spans run inside it. Galileo accepts such a root, and the trace appears with the GenAI spans under it.
+- **Do not set a parent that you never export.** If your service continues a trace from an upstream caller (for example, through a `traceparent` header), the upstream span becomes the parent. If that span is not exported to Galileo, the trace has no root. Start a new root span for the Galileo exporter, or export the upstream span as well.
+
+<Note>
+Some self-hosted deployments route `/otel/v1/traces` to the API service instead of the ingest service. On those deployments, two more rules apply:
+
+- Each group of spans in an export must contain at least one span with GenAI attributes. A group with none is rejected, and the response includes `partialSuccess` with the message "No GenAI patterns detected".
+- Child spans wait up to 30 minutes after the trace's last span for the root span. If the root span does not arrive in that time, the waiting spans are discarded.
+
+Contact your Galileo team to move OTLP traffic to the ingest service.
 </Note>
 
 ## Error Handling
@@ -146,6 +166,8 @@ If some spans were rejected, the response includes partial success information:
 <Response200PartialSuccess />
 
 Even when the HTTP status is 200, check for `partialSuccess` in the response to determine if all spans were successfully processed.
+
+A `200` response with no `partialSuccess` means no spans were rejected. It does not mean a trace was created: the trace appears only after its root span arrives. See [How Galileo Assembles Traces](#how-galileo-assembles-traces).
 </Accordion>
 
 <Accordion title="401 Unauthorized">
