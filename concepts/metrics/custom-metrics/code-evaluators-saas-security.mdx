@@ -1,0 +1,94 @@
+---
+title: Code-Based Evaluator Security in Splunk Observability Cloud
+description: Where your code-based evaluator runs in Splunk Observability Cloud, how it is isolated from other organizations, and what checks happen before it runs.
+---
+
+A code-based evaluator is Python code that you write and save in Splunk Agent Observability.
+This page explains where that code runs in Splunk Observability Cloud.
+It also explains how the platform keeps your code apart from other customers and from the platform itself.
+
+For the packages that an evaluator can use, see [Package rules for code-based evaluators](/concepts/metrics/custom-metrics/code-evaluators-package-rules).
+
+## Where your code runs
+
+Your evaluator code runs in a separate code execution service.
+It does not run in the services that store and process your Agent Observability data.
+
+- The service is an AWS Lambda function. Each Splunk Observability Cloud realm has its own.
+- The service runs outside the Kubernetes clusters that run Splunk Observability Cloud.
+- The service is not attached to the realm's private network. It has no network route to internal Agent Observability services or databases.
+- The service has no access to Agent Observability data stores or object storage.
+
+## Isolation between organizations
+
+The service runs in AWS Lambda tenant isolation mode.
+
+- Each organization gets its own execution environments.
+- One execution environment never runs code from two organizations.
+- The packages that the service installs for your evaluators stay in your organization's execution environments. Only your organization's later runs reuse them.
+
+## How the platform calls the service
+
+Only the Agent Observability platform can call the code execution service.
+
+- The service accepts calls only through a private network endpoint in the realm. It refuses calls from any other source.
+- Each call carries a signed token. The token is valid for at most 5 minutes.
+- The token names your organization, the evaluator, the evaluator version, the fingerprint of the code, and the fingerprint of the package set.
+- The service checks the token on every call. It refuses the call if any of these values does not match the request.
+- The service also refuses the call if the organization in the token is not the organization that the execution environment belongs to.
+
+## The code that runs is the code you saved
+
+When you upload evaluator code, the platform records a SHA-256 fingerprint of the file.
+
+- Before each run, the platform checks the stored code against that fingerprint.
+- If the fingerprint is missing or different, the platform does not run the evaluator. The evaluator shows an error.
+- The code execution service calculates the fingerprint again before it runs the code. It refuses code that does not match.
+
+## Checks before your evaluator is saved
+
+The platform checks every evaluator before it saves it.
+If a check fails, the save is refused, and the error tells you what to fix.
+
+1. The platform checks the file. It must be a Python source file in UTF-8 text.
+1. The platform scans the code for patterns that are not permitted, such as `import os`, `vars()` or `dir()`.
+1. The platform checks the packages that the evaluator declares against the package rules.
+1. The platform test-runs the evaluator in the code execution service. The test never runs inside the Splunk Observability Cloud clusters.
+
+[Package rules for code-based evaluators](/concepts/metrics/custom-metrics/code-evaluators-package-rules) lists every rule and every error message.
+
+The platform checks the packages again when you turn an evaluator on, and before each run.
+Package rules can change after a save, so these checks use the current rules.
+
+## What your evaluator receives
+
+- The platform sends your evaluator only the records that it scores, and only from your organization.
+- The platform does not send your organization's stored LLM integration credentials to the evaluator.
+- The evaluator returns scores and errors. The platform stores them with your other evaluator results.
+
+## Limits on each run
+
+- Each run has limits on time, memory and output.
+- If the evaluator prints more than 4 MiB of output, the run fails.
+- After each run, the service stops every process that the evaluator started.
+
+## First runs can be slower
+
+The first run of an evaluator with a new package set installs the packages first.
+That run can take longer than later runs.
+
+- If the installation is not complete in time, the service tells the platform to try again.
+- The platform sends the request again automatically. You do not need to do anything.
+- Later runs reuse the installed packages.
+
+## What the service logs
+
+- The service logs identifiers, such as the organization, evaluator and version, and the result of each check.
+- The service does not log your evaluator code, the records it scores, or the output of the evaluator.
+
+## Network access
+
+- Your evaluator code runs in an execution environment that is isolated for your organization.
+- Evaluator code can make outbound network calls to the internet. The platform does not block these calls.
+- The platform sends evaluator code only the records that it scores, and only from your organization.
+- Review any evaluator code that sends data to an outside service before you save the evaluator.
