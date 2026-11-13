@@ -1,0 +1,144 @@
+---
+title: Package Rules for Code-Based Evaluators
+description: The packages a code-based evaluator can use in Splunk Observability Cloud, how the platform installs them, and why a save is refused.
+---
+
+In Splunk Observability Cloud, a code-based evaluator can use only approved Python packages.
+This page explains the rules, how the platform installs packages, and what each save error means.
+
+For how and where evaluator code runs, see [Code-based evaluator security in Splunk Observability Cloud](/concepts/metrics/custom-metrics/code-evaluators-saas-security).
+
+## The runtime
+
+- Evaluators run on Python 3.14 on Linux (`x86_64`).
+- The evaluator file can be at most 256 KB.
+- Every evaluator has these packages, even if it declares nothing: `pandas`, `numpy`, `scipy`, `requests`, `pydantic`, `tiktoken` and `rapidfuzz`.
+- The platform also installs its own SDK packages, `splunk-ao` and `galileo`, in every evaluator.
+
+## Declare the packages your evaluator needs
+
+Declare packages in a dependency block at the top of the evaluator file.
+The block uses the inline script metadata format (PEP 723).
+
+```python
+# /// script
+# dependencies = [
+#   "openai>=1.40,<2",
+#   "anthropic",
+# ]
+# ///
+```
+
+Follow these rules for each declaration:
+
+- Write the package name, and optionally a version range, such as `numpy<3` or `openai>=1.40,<2`.
+- Declare at most 50 packages.
+- Do not use a URL or a local path, such as `mypkg @ https://...`.
+- Do not use environment markers, such as `; python_version < "3.12"`. The runtime is fixed, so a marker is not needed.
+- Do not use quotes, backslashes or control characters inside a declaration.
+
+When you declare a version range, the platform picks a version in that range that passes every rule below.
+If no version in the range passes, the save is refused.
+
+## Packages you can declare
+
+You can declare only packages on the approved package list:
+
+| Package | Package | Package |
+| --- | --- | --- |
+| `anthropic` | `openai` | `rapidfuzz` |
+| `galileo` | `packaging` | `requests` |
+| `numpy` | `pandas` | `scipy` |
+| `pydantic` | `splunk-ao` | `tiktoken` |
+
+Some other packages are allowed only as dependencies of approved packages.
+For example, `httpx` is installed because `openai` needs it.
+You cannot declare these packages yourself. Declare the approved package that needs them.
+
+To use a package that is not on the list, ask your administrator to request approval for it.
+
+## Version rules
+
+When you save an evaluator, the platform works out the exact version of every package it needs.
+This includes the packages that your declared packages depend on.
+The platform refuses a version in these cases:
+
+| The version | Why |
+| --- | --- |
+| Has files that were uploaded to PyPI less than 2 days ago | A new malicious release has no public advisory yet. The wait gives time to find one. |
+| Has any file that its maintainers withdrew (yanked) on PyPI | A withdrawn release is not safe to depend on. |
+| Has no ready-built file (wheel) for Python 3.14 on Linux `x86_64` | Evaluators install wheels only. The platform never builds a package from source, so no build code runs. |
+| Has only wheels larger than 200 MB | Large packages do not fit in the execution environment. |
+| Is a pre-release, such as `2.0.0rc1` | Pre-releases are not supported. |
+| Is blocked | See [Blocked versions](#blocked-versions). |
+
+## How the platform installs packages
+
+1. When you save an evaluator, the platform records the exact files of every package and the SHA-256 fingerprint of each file.
+1. When the evaluator runs, the code execution service downloads only those files from the public Python Package Index (PyPI).
+1. The service refuses any file whose fingerprint does not match the record.
+1. The installation runs no build step, and it gets no cloud credentials.
+
+If you change the packages, save the evaluator again. The platform then records a new package set.
+
+## Blocked versions
+
+A version of an approved package can be blocked.
+A blocked version is refused at save, and evaluators that already use it stop.
+
+A version is blocked for one of these reasons:
+
+- A public security advisory affects it.
+- Its maintainers withdrew it from PyPI.
+- The Splunk security team decided to block it.
+
+Every day, an automated check compares every version of every approved package with public vulnerability data and with PyPI's withdrawn releases.
+The team reviews each new block before it takes effect.
+
+When a version is blocked:
+
+- You cannot turn on an evaluator that uses it.
+- An evaluator that uses it stops running. Each run shows an error that names the package and the reason.
+- To fix the evaluator, declare a version range that leaves out the blocked version, and save the evaluator again.
+
+## Code rules
+
+The platform scans the evaluator code before it saves it.
+The scan refuses code that uses any of these:
+
+| Category | Refused |
+| --- | --- |
+| Dynamic code | `exec()`, `eval()`, `__import__()` |
+| Operating system and processes | `import os`, `from os import ...`, `os.path` functions, `os.system()`, `import subprocess`, any use of `subprocess`, `import shutil`, `import sys` |
+| Network sockets | `import socket` |
+| Files | `open()` |
+| Introspection | `getattr()`, `vars()`, `dir()`, `globals()`, `locals()`, `__builtins__`, functions of `inspect` |
+| Serialization | `pickle` |
+| Environment variables | `os.environ`, `os.getenv()`, `getenv()`, any name `environ`, `dotenv`, `load_dotenv()` |
+
+The scan also refuses code that it cannot parse.
+
+## Why a save is refused
+
+Error messages use the word "metric" for an evaluator.
+
+| Error message (start) | What to do |
+| --- | --- |
+| `Code metric file exceeds the maximum allowed size of 1 MB.` | Make the file smaller than 256 KB. |
+| `Code metric file name must end in .py.` | Rename the file. |
+| `Code metric file must be UTF-8 text.`, `Code metric file must not contain NUL bytes.` or `Code metric file is ..., not Python source.` | Upload a plain Python source file. |
+| `This metric's dependency block could not be read` | Fix the `# /// script` block. |
+| `... installs from a URL, which is not supported.` | Declare the package by name and version. |
+| `... carries an environment marker, which is not supported.` | Remove the marker. |
+| `Metrics can declare only packages on the allowed package list` | Remove the package, or ask your administrator to request approval for it. |
+| `... is on the allowed package list only as a dependency of other packages` | Declare the approved package that needs it. |
+| `... is a dependency of what you declared, and it is not on the allowed package list.` | Remove the package that needs it, or ask your administrator to request approval. |
+| `... has files uploaded to PyPI less than 2 days ago, or with no upload time.` | Declare an older version, or wait and save again. |
+| `... has a file that is yanked on PyPI.` | Declare another version. |
+| `... has no wheel for Python 3.14 on manylinux_2_34_x86_64, and metrics install wheels only.` | Declare a version that has a wheel for this runtime. |
+| `Every wheel of ... for this runtime is larger than 200 MB.` | Declare another version, or remove the package. |
+| `... is a pre-release.` | Declare a released version. |
+| `... is affected by security advisory ...` or `... is blocked by the security team` | Declare versions outside the blocked range, and save again. |
+| A code scan finding, such as `Import of dangerous os module detected` | Remove the refused code. See [Code rules](#code-rules). |
+
+If the platform cannot reach PyPI during a save, the save fails. Try again later.
