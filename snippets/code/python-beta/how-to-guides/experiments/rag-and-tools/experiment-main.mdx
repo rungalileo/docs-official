@@ -1,0 +1,43 @@
+```python Python (Beta)
+import os
+
+from galileo import Metric
+from galileo.experiments import run_experiment
+
+from app import get_users_horoscope
+
+def main():
+    """
+    Run the horoscope experiment
+    """
+    # Define a dataset of astrological signs to use
+    # in the experiment
+    dataset = [
+        {"input": "Aquarius"},
+        {"input": "Taurus"},
+        {"input": "Gemini"},
+        {"input": "Leo"},
+    ]
+
+    # Function-based experiments still go through run_experiment;
+    # the Experiment class doesn't support function= yet.
+    results = run_experiment(
+        "horoscope-experiment",
+        dataset=dataset,
+        function=get_users_horoscope,
+        metrics=[
+            Metric.metrics.tool_error_rate,
+            Metric.metrics.tool_selection_quality,
+            Metric.metrics.chunk_attribution_utilization,
+            Metric.metrics.context_adherence,
+        ],
+        project=os.environ["GALILEO_PROJECT"],
+    )
+
+    # Print a link to the experiment results
+    print("Experiment Results:")
+    print(results["link"])
+
+if __name__ == "__main__":
+    main()
+```
