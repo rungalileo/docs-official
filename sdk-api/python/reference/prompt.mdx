@@ -36,7 +36,6 @@ encapsulating prompt management operations including version management.
 
 **Examples**
 
-```python
 # Create a new prompt locally, then persist
 prompt = Prompt(
     name="ml-expert-v1",
@@ -70,7 +69,6 @@ prompt.update(name="ml-expert-v2")
 
 # Delete a prompt
 prompt.delete()
-```
 
 ### create
 
@@ -85,10 +83,8 @@ If neither is set, falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT env vars.
 
 **Examples**
 
-```python
 prompt = Prompt(name="test", messages=[...]).create()
 assert prompt.is_synced()
-```
 
 ### create_version
 
@@ -116,10 +112,8 @@ Delete this prompt.
 
 **Examples**
 
-```python
 prompt = Prompt.get(name="ml-expert-v1")
 prompt.delete()
-```
 
 ### get
 
@@ -164,7 +158,6 @@ List all versions of this prompt template.
 
 **Examples**
 
-```python
 prompt = Prompt.get(name="ml-expert-v1")
 versions = prompt.list_versions()
 for v in versions:
@@ -177,7 +170,6 @@ This method returns ``PromptVersion`` objects instead of ``Prompt`` objects
     a separate API call. To work with a specific version, use
     ``select_version(version_number)`` which selects the version and updates
     the prompt's messages and version attributes.
-```
 
 ### refresh
 
@@ -192,10 +184,8 @@ and sets the state to SYNCED.
 
 **Examples**
 
-```python
 prompt.refresh()
 assert prompt.is_synced()
-```
 
 ### save
 
@@ -216,7 +206,6 @@ For updating an existing prompt's messages, use create_version(messages=[...]) i
 
 **Examples**
 
-```python
 # Create and save a new prompt
 prompt = Prompt(name="my-prompt", messages=[...])
 prompt.save()  # Creates the prompt
@@ -225,7 +214,6 @@ prompt.save()  # Creates the prompt
 prompt = Prompt.get(name="my-prompt")
 prompt.name = "renamed-prompt"  # Transitions to DIRTY
 prompt.save()  # Persists the rename via update()
-```
 
 ### select_version
 
@@ -252,7 +240,6 @@ Update this prompt's name.
 
 **Examples**
 
-```python
 prompt = Prompt.get(name="ml-expert-v1")
 prompt.update(name="ml-expert-v2")
 
@@ -270,4 +257,3 @@ The API only supports updating the prompt name. To update messages,
 
 Args:
     name (str): New name for the prompt.
-```

@@ -24,6 +24,7 @@ Attributes
     updated_at (datetime | None): When the integration was last updated.
     created_by (str | None): The user who created the integration.
     is_selected (bool): Whether this integration is selected by the current user.
+    is_disabled (bool): Whether this integration is disabled for the current user.
     permissions (list | None): Integration permissions for the current user.
 
 ### delete
@@ -72,7 +73,7 @@ Returns
 Raises
 ------
     APIError: If the API call fails.
-    ValidationError: If the provider has not been synced with the API.
+    ValidationError: If the provider has not been synced or is not an LLM provider.
 
 ### refresh
 
@@ -82,9 +83,13 @@ def refresh(self) -> None
 
 Refresh the provider state from the remote API.
 
+The metadata discovery response is matched by this integration's ID, including
+when several owned or shared integrations use the same provider.
+Discovery HTTP and transport errors propagate without replacing local metadata.
+
 Raises
 ------
-    APIError: If the API call fails or the integration is not found.
+    APIError: If the integration is not found or a legacy APIException is caught.
     ValidationError: If the provider has no ID.
 
 ## OpenAIProvider
