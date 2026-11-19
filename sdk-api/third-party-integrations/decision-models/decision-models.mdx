@@ -11,15 +11,18 @@ To set up a decision model integration, you must meet the following requirements
 
 - You have an existing API key for your decision model provider.
 - (TypeSafe users only) Your Galileo deployment has outbound HTTPs to `api.typesafe.ai`.
+- (OpenAI users only) Your Galileo deployment has outbound HTTPS to `api.openai.com`.
 
 ## Set up a decision model integration
 
 1. In the Galileo UI, select your user profile in the upper-right corner and then select **Integrations**.
 2. Open the card for your decision model provider. Follow the on-screen instructions to set up an integration.
 
+For OpenAI, use your existing OpenAI integration. It serves both LLM metrics and the GPT-6 Luna Decisions model.
+
 ## How the decision model integration works
 
-This integration is for decision model metrics only. Decision models don't appear in LLM model pickers. Integration sharing and permissions work the same way as for LLM integrations.
+A TypeSafe integration is for decision model metrics only. Decision models don't appear in LLM model pickers. Integration sharing and permissions work the same way as for LLM integrations.
 
 Galileo uses the API key of the user who created the run. If that user doesn't have a decision model integration, the decision model metric toggle is disabled.
 
@@ -28,6 +31,12 @@ Galileo uses the API key of the user who created the run. If that user doesn't h
 TypeSafe bills you directly for model usage. Galileo shows the estimated cost on each result. For billing details, see [Models](https://docs.typesafe.ai/models) in the TypeSafe documentation. When multiple metrics share a call, Galileo splits the estimated call cost across the metrics.
 
 TypeSafe sets rate limits per model. If the rate limit is reached, Galileo retries with backoff and shows the standard rate-limit error.
+
+## OpenAI billing and rate limits
+
+OpenAI bills you directly for model usage. Galileo estimates the cost of GPT-6 Luna Decisions at $0.10 per million input tokens. When a call's input is above 272,000 tokens, OpenAI charges the whole call at twice that rate. When multiple metrics share a call, Galileo splits the estimated call cost across the metrics. A call that OpenAI refuses still has a cost.
+
+Galileo limits each scoring job to 25 OpenAI Decisions calls in flight. If the rate limit is reached, Galileo retries with backoff and shows the standard rate-limit error. If your OpenAI quota is spent, Galileo does not retry the call.
 
 ## Next steps
 
