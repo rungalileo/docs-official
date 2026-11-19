@@ -22,7 +22,7 @@ For OpenAI, use your existing OpenAI integration. It serves both LLM metrics and
 
 ## How the decision model integration works
 
-This integration is for decision model metrics only. Decision models don't appear in LLM model pickers. Integration sharing and permissions work the same way as for LLM integrations.
+A TypeSafe integration is for decision model metrics only. Decision models don't appear in LLM model pickers. Integration sharing and permissions work the same way as for LLM integrations.
 
 Galileo uses the API key of the user who created the run. If that user doesn't have a decision model integration, the decision model metric toggle is disabled.
 
@@ -34,7 +34,7 @@ TypeSafe sets rate limits per model. If the rate limit is reached, Galileo retri
 
 ## OpenAI billing and rate limits
 
-OpenAI bills you directly for model usage. Galileo estimates the cost of GPT-6 Luna Decisions at $0.10 per million input tokens. When a call's input is above 272,000 tokens, OpenAI charges the whole call at twice that rate. If your organization sets a price override for the model, the override replaces both rates. When multiple metrics share a call, Galileo splits the estimated call cost across the metrics. A call that OpenAI refuses still has a cost.
+OpenAI bills you directly for model usage. Galileo estimates the cost of GPT-6 Luna Decisions at $0.10 per million input tokens. When a call's input is above 272,000 tokens, OpenAI charges the whole call at twice that rate. When multiple metrics share a call, Galileo splits the estimated call cost across the metrics. A call that OpenAI refuses still has a cost.
 
 Galileo limits each scoring job to 25 OpenAI Decisions calls in flight. If the rate limit is reached, Galileo retries with backoff and shows the standard rate-limit error. If your OpenAI quota is spent, Galileo does not retry the call.
 
