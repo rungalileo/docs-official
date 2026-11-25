@@ -9,11 +9,12 @@ This guide describes when and how to use decision model metrics.
 
 ## Supported decision models
 
-Galileo supports the following decision model:
+Galileo supports the following decision models:
 
 | Decision model | Provider | Setup |
 | --- | --- | --- |
 | Jev | TypeSafe | Set up a [decision model integration](/sdk-api/third-party-integrations/decision-models/decision-models).|
+| GPT-6 Luna Decisions | OpenAI | Set up an OpenAI [decision model integration](/sdk-api/third-party-integrations/decision-models/decision-models). |
 
 ## How decision model metrics work
 
@@ -115,7 +116,7 @@ Each result has one of four states: **Success**, **N/A**, **Error**, or **Pendin
 
 Decision models accept text only. A record containing images, audio, or documents shows **N/A**.
 
-The record and question must fit within a 32k-token context window. Galileo does not trim oversized input. If a shared call fails, every metric in that call shows the error.
+The record and question must fit within the model's context window: 32k tokens for Jev and 922k tokens for GPT-6 Luna Decisions. Galileo does not trim oversized input. If a shared call fails, every metric in that call shows the error.
 
 The following table describes common errors and how to troubleshoot them:
 
@@ -127,6 +128,7 @@ The following table describes common errors and how to troubleshoot them:
 | **N/A: Unsupported file types** | Use an [LLM-as-a-judge metric](/concepts/metrics/custom-metrics/custom-metrics-ui-llm) for multimodal records. |
 | **N/A: Ground truth required** | Add the expected output to the dataset. |
 | **N/A: Sampled out** or **Filtered out** | No action is needed. |
+| Invalid response: the model refused a question | Rephrase the question. OpenAI refuses some questions and fails every metric in that call. |
 | Model is no longer available | Move the metric to a replacement model version. |
 | Toggle disabled in **Configure Metrics** | Add a [decision model integration](/sdk-api/third-party-integrations/decision-models/decision-models) for the run creator. |
 
